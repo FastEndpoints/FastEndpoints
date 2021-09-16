@@ -6,4 +6,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ASPie\ASPie.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="[Features]\Customers\" />
+    <Folder Include="[Features]\Inventory\ManageStock\CreateItem\" />
+    <Folder Include="[Features]\Inventory\ManageStock\DeleteItem\" />
+    <Folder Include="[Features]\Inventory\GetList\ByKeyword\" />
+    <Folder Include="[Features]\Inventory\GetList\NewlyAdded\" />
+    <Folder Include="[Features]\Inventory\ManageStock\" />
+    <Folder Include="[Features]\Inventory\ManageStock\UpdateItem\" />
+    <Folder Include="[Features]\Sales\" />
+  </ItemGroup>
+
 </Project>

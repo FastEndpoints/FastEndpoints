@@ -5,44 +5,38 @@ namespace ASPie
 {
     public static class Extensions
     {
-        public static DelegateEndpointConventionBuilder UseASPie(this IEndpointRouteBuilder b) //todo: add ref to Microsoft.AspNetCore.Routing and change SDK to Microsoft.NET.Sdk
+        public static void UseASPie(this IEndpointRouteBuilder b) //todo: add ref to Microsoft.AspNetCore.Routing and change SDK to Microsoft.NET.Sdk
         {
-            DelegateEndpointConventionBuilder? builder = null;
-
-            foreach (var tHandler in DiscoveredHandlers())
+            foreach (var handlerType in DiscoveredHandlers())
             {
-                var methodInfo = tHandler.GetMethod(
+                var methodInfo = handlerType.GetMethod(
                     "HandleAsync",
                     BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.Public);
 
                 if (methodInfo == null)
-                    throw new ArgumentException($"Unable to find a `HandleAsync` method on: [{tHandler.AssemblyQualifiedName}]");
+                    throw new ArgumentException($"Unable to find a `HandleAsync` method on: [{handlerType.AssemblyQualifiedName}]");
 
-                var instance = Activator.CreateInstance(tHandler);
+                var instance = Activator.CreateInstance(handlerType);
 
                 if (instance == null)
-                    throw new InvalidOperationException($"Unable to create an instance of: [{tHandler.AssemblyQualifiedName}]");
+                    throw new InvalidOperationException($"Unable to create an instance of: [{handlerType.AssemblyQualifiedName}]");
 
-                var verbs = (tHandler.GetField("verbs")?.GetValue(instance) as IEnumerable<Http>)?.Cast<string>();
+                var verbs = (handlerType.BaseType?.GetField("verbs", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(instance) as IEnumerable<Http>)?
+                    .Select(v => v.ToString());
 
                 if (verbs?.Any() != true)
-                    throw new InvalidOperationException($"No HTTP Verbs declared on: [{tHandler.AssemblyQualifiedName}]");
+                    throw new InvalidOperationException($"No HTTP Verbs declared on: [{handlerType.AssemblyQualifiedName}]");
 
-                var routes = tHandler.GetField("routes")?.GetValue(instance) as IEnumerable<string>;
+                var routes = handlerType.BaseType?.GetField("routes", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(instance) as IEnumerable<string>;
 
                 if (routes?.Any() != true)
-                    throw new InvalidOperationException($"No Routes declared on: [{tHandler.AssemblyQualifiedName}]");
+                    throw new InvalidOperationException($"No Routes declared on: [{handlerType.AssemblyQualifiedName}]");
 
                 var del = methodInfo.CreateDelegate(instance);
 
                 foreach (var route in routes)
-                    builder = b.MapMethods(route, verbs, del);
+                    b.MapMethods(route, verbs, del);
             }
-
-            if (builder is null)
-                throw new InvalidOperationException("Automatic handler mapping was not successful!");
-
-            return builder;
         }
 
         private static IEnumerable<Type> DiscoveredHandlers()
@@ -65,7 +59,9 @@ namespace ASPie
                       !a.IsDynamic &&
                       !excludes.Any(n => a.FullName.StartsWith(n)))
                 .SelectMany(a => a.GetTypes())
-                .Where(t => t.GetInterfaces().Contains(typeof(IHandler)));
+                .Where(t =>
+                      !t.IsAbstract &&
+                       t.GetInterfaces().Contains(typeof(IHandler)));
 
             if (!handlers.Any())
                 throw new InvalidOperationException("Unable to find any handlers that implement `IHandler` interface!");
@@ -96,6 +92,5 @@ namespace ASPie
 
             return Delegate.CreateDelegate(getType(types.ToArray()), target, methodInfo.Name);
         }
-
     }
 }

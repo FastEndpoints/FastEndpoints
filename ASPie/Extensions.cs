@@ -1,17 +1,17 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace ASPie
 {
     public static class Extensions
     {
-        public static void UseASPie(this IEndpointRouteBuilder b) //todo: add ref to Microsoft.AspNetCore.Routing and change SDK to Microsoft.NET.Sdk
+        public static void UseASPie(this IEndpointRouteBuilder builder) //todo: add ref to Microsoft.AspNetCore.Routing and change SDK to Microsoft.NET.Sdk
         {
             foreach (var handlerType in DiscoveredHandlers())
             {
                 var methodInfo = handlerType.GetMethod(
-                    "HandleAsync",
-                    BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.Public);
+                    "ExecAsync");
 
                 if (methodInfo == null)
                     throw new ArgumentException($"Unable to find a `HandleAsync` method on: [{handlerType.AssemblyQualifiedName}]");
@@ -32,10 +32,10 @@ namespace ASPie
                 if (routes?.Any() != true)
                     throw new InvalidOperationException($"No Routes declared on: [{handlerType.AssemblyQualifiedName}]");
 
-                var del = methodInfo.CreateDelegate(instance);
+                var reqDeligate = Delegate.CreateDelegate(typeof(RequestDelegate), instance, methodInfo);
 
                 foreach (var route in routes)
-                    b.MapMethods(route, verbs, del);
+                    builder.MapMethods(route, verbs, reqDeligate);
             }
         }
 
@@ -69,28 +69,28 @@ namespace ASPie
             return handlers;
         }
 
-        private static Delegate CreateDelegate(this MethodInfo methodInfo, object target) //credit: https://stackoverflow.com/a/40579063/4368485
-        {
-            Func<Type[], Type> getType;
-            var isAction = methodInfo.ReturnType.Equals(typeof(void));
-            var types = methodInfo.GetParameters().Select(p => p.ParameterType);
+        //private static Delegate CreateDelegate(this MethodInfo methodInfo, object target) //credit: https://stackoverflow.com/a/40579063/4368485
+        //{
+        //    Func<Type[], Type> getType;
+        //    var isAction = methodInfo.ReturnType.Equals(typeof(void));
+        //    var types = methodInfo.GetParameters().Select(p => p.ParameterType);
 
-            if (isAction)
-            {
-                getType = Expression.GetActionType;
-            }
-            else
-            {
-                getType = Expression.GetFuncType;
-                types = types.Concat(new[] { methodInfo.ReturnType });
-            }
+        //    if (isAction)
+        //    {
+        //        getType = Expression.GetActionType;
+        //    }
+        //    else
+        //    {
+        //        getType = Expression.GetFuncType;
+        //        types = types.Concat(new[] { methodInfo.ReturnType });
+        //    }
 
-            if (methodInfo.IsStatic)
-            {
-                return Delegate.CreateDelegate(getType(types.ToArray()), methodInfo);
-            }
+        //    if (methodInfo.IsStatic)
+        //    {
+        //        return Delegate.CreateDelegate(getType(types.ToArray()), methodInfo);
+        //    }
 
-            return Delegate.CreateDelegate(getType(types.ToArray()), target, methodInfo.Name);
-        }
+        //    return Delegate.CreateDelegate(getType(types.ToArray()), target, methodInfo.Name);
+        //}
     }
 }

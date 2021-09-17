@@ -10,13 +10,9 @@ namespace Inventory.GetList.NewlyAdded
             Routes("/test/{id}");
         }
 
-        public override Task<Response> HandleAsync(Request r)
+        protected override Task HandleAsync(Request req, HttpContext ctx)
         {
-            var res = NewResponse();
-            res.Price = r.Price;
-            res.Name = r.Name;
-            res.Message = "All good...";
-            return Task.FromResult(res);
+            throw new NotImplementedException();
         }
     }
 }

@@ -2,9 +2,8 @@
 
 namespace ASPie
 {
-    public abstract class Handler<TRequest, TResponse, TValidator> : IHandler
+    public abstract class Endpoint<TRequest, TValidator> : IHandler
         where TRequest : IRequest, new()
-        where TResponse : IResponse, new()
         where TValidator : AbstractValidator<TRequest>, new()
     {
         private protected List<string> routes = new();

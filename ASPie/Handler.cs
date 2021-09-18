@@ -9,11 +9,11 @@ namespace ASPie
     {
         private protected List<string> routes = new();
         private protected List<Http> verbs = new();
-        private protected bool throwOnValidation = true;
+        private protected bool throwIfValidationFailed = true;
 
         protected void Routes(params string[] patterns) => routes.AddRange(patterns);
         protected void Verbs(params Http[] methods) => verbs.AddRange(methods);
-        protected void DontThrowIfValidationFails() => throwOnValidation = false;
+        protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
 
         protected abstract Task HandleAsync(TRequest req, RequestContext ctx);
 
@@ -23,9 +23,15 @@ namespace ASPie
 
             var reqCtx = new RequestContext(ctx);
 
-            await ValidateRequestAsync(req, reqCtx).ConfigureAwait(false);
-
-            await HandleAsync(req, reqCtx).ConfigureAwait(false);
+            try
+            {
+                ValidateRequest(req, reqCtx);
+                await HandleAsync(req, reqCtx).ConfigureAwait(false);
+            }
+            catch (ValidationFailureException)
+            {
+                await reqCtx.SendErrorAsync().ConfigureAwait(false);
+            }
         }
 
         private async Task<TRequest> BindIncomingData(HttpContext ctx)
@@ -43,19 +49,19 @@ namespace ASPie
             return req;
         }
 
-        private Task ValidateRequestAsync(TRequest req, RequestContext ctx)
+        private void ValidateRequest(TRequest req, RequestContext ctx)
         {
             TValidator val = new();
+
             var valResult = val.Validate(req);
+
             if (!valResult.IsValid)
                 ctx.ValidationFailures = valResult.Errors;
 
-            if (throwOnValidation && ctx.ValidationFailures.Count > 0)
+            if (throwIfValidationFailed && ctx.ValidationFailed)
             {
-                return ctx.SendErrorAsync();
+                throw new ValidationFailureException();
             }
-
-            return Task.CompletedTask;
         }
 
         private TRequest PopulateFromURL(HttpContext ctx)

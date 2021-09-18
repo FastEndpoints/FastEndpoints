@@ -6,12 +6,12 @@ namespace ASPie
 {
     public class RequestContext
     {
-        public static JsonSerializerOptions SerializerOptions { get; set; } = new()
-        {
-            PropertyNamingPolicy = null
-        };
+        public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
 
         public HttpContext HttpContext { get; set; }
+
+        public bool ValidationFailed { get => ValidationFailures.Count > 0; }
+
         internal List<ValidationFailure> ValidationFailures { get; set; } = new();
 
         public RequestContext(HttpContext httpContext)
@@ -32,24 +32,22 @@ namespace ASPie
                     errorMessage));
         }
 
-        public Task ThrowIfAnyErrorsAsync()
+        public void ThrowIfAnyErrors()
         {
-            if (ValidationFailures.Count > 0)
-                return SendErrorAsync();
-
-            return Task.CompletedTask;
+            if (ValidationFailed)
+                throw new ValidationFailureException();
         }
 
-        public Task ThrowErrorAsync(string message)
+        public void ThrowError(string message)
         {
             AddError(message);
-            return ThrowIfAnyErrorsAsync();
+            ThrowIfAnyErrors();
         }
 
-        public Task ThrowErrorAsync<TRequest>(Expression<Func<TRequest, object>> property, string errorMessage) where TRequest : IRequest
+        public void ThrowError<TRequest>(Expression<Func<TRequest, object>> property, string errorMessage) where TRequest : IRequest
         {
             AddError(property, errorMessage);
-            return ThrowIfAnyErrorsAsync();
+            ThrowIfAnyErrors();
         }
 
         public Task SendErrorAsync()

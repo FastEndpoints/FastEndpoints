@@ -8,11 +8,15 @@ namespace Inventory.GetList.NewlyAdded
         {
             Verbs(Http.GET);
             Routes("/test/{id}");
-            //DontThrowIfValidationFails();
+            DontThrowIfValidationFails();
         }
 
         protected override Task HandleAsync(Request req, RequestContext ctx)
         {
+            ctx.AddError<Request>(r => r.Name, "name error");
+
+            ctx.ThrowIfAnyErrors();
+
             var res = new Response
             {
                 Message = "success!",

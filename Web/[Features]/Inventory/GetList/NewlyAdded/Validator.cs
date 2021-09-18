@@ -11,7 +11,7 @@ namespace Inventory.GetList.NewlyAdded
 
             RuleFor(x => x.Price)
                 .GreaterThan(100).WithMessage("Price is too low!")
-                .NotEqual(100).WithMessage("200 is not allowed!");
+                .NotEqual(100).WithMessage("100 is not allowed!");
         }
     }
 }

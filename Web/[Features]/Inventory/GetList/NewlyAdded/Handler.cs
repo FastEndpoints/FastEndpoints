@@ -2,22 +2,18 @@
 
 namespace Inventory.GetList.NewlyAdded
 {
-    public class Handler : HandlerBase<Request, Response>
+    public class Handler : HandlerBase<Request, Response, Validator>
     {
         public Handler()
         {
             Verbs(Http.GET);
             Routes("/test/{id}");
+            ThrowIfValidationFails(true);
         }
 
         protected override Task HandleAsync(Request req, RequestContext ctx)
         {
-            return ctx.HttpContext.Response.WriteAsJsonAsync(new Response
-            {
-                Message = "all good!",
-                Name = req.Name,
-                Price = req.Price
-            });
+            return Task.CompletedTask;
         }
     }
 }

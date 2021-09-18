@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace ASPie
+﻿namespace ASPie
 {
     public abstract class RequestBase<TRequest> : IRequest
     {

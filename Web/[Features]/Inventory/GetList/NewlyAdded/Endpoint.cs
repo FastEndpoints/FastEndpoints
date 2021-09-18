@@ -13,8 +13,6 @@ namespace Inventory.GetList.NewlyAdded
 
         protected override Task HandleAsync(Request req, Context<Request> ctx)
         {
-            ctx.AddError(r => r.Name, "name error");
-
             ctx.ThrowIfAnyErrors();
 
             var res = new Response
@@ -23,7 +21,9 @@ namespace Inventory.GetList.NewlyAdded
                 Name = req.Name,
                 Price = req.Price
             };
-            return ctx.SendAsync(res);
+            //return ctx.SendAsync(res);
+
+            return ctx.SendOkAsync();
         }
     }
 }

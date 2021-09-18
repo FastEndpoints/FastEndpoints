@@ -73,10 +73,9 @@ namespace ASPie
 
         public Task SendOkAsync()
         {
-            if (HttpContext.Response.HasStarted)
-                return Task.CompletedTask;
+            if (!HttpContext.Response.HasStarted)
+                HttpContext.Response.StatusCode = 200;
 
-            HttpContext.Response.StatusCode = 200;
             return Task.CompletedTask;
         }
 

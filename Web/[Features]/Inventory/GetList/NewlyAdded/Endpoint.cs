@@ -17,13 +17,12 @@ namespace Inventory.GetList.NewlyAdded
 
             var res = new Response
             {
-                Message = "success!",
+                Message = ctx.BaseURL,
                 Name = req.Name,
                 Price = req.Price
             };
-            //return ctx.SendAsync(res);
 
-            return ctx.SendOkAsync();
+            return ctx.SendAsync(res);
         }
     }
 }

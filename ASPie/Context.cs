@@ -12,8 +12,8 @@ namespace ASPie
     public class Context<TRequest> : Context where TRequest : IRequest
     {
         public HttpContext HttpContext { get; set; }
-
         public bool ValidationFailed { get => ValidationFailures.Count > 0; }
+        public string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
 
         internal List<ValidationFailure> ValidationFailures { get; set; } = new();
 

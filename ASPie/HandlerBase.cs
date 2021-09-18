@@ -10,9 +10,9 @@
         protected void Routes(params string[] patterns) => routes.AddRange(patterns);
         protected void Verbs(params Http[] methods) => verbs.AddRange(methods);
 
-        protected abstract Task HandleAsync(TRequest req, HttpContext ctx);
+        protected abstract Task HandleAsync(TRequest req, RequestContext ctx);
 
-        public async Task ExecAsync(HttpContext ctx)
+        protected internal async Task ExecAsync(HttpContext ctx)
         {
             TRequest? req;
 
@@ -28,7 +28,7 @@
             if (req == null)
                 throw new InvalidOperationException("Unable to populate a Request DTO from either the JSON body or URL Params!");
 
-            await HandleAsync(req, ctx).ConfigureAwait(false);
+            await HandleAsync(req, new RequestContext(ctx)).ConfigureAwait(false);
         }
 
         private TRequest? PopulateRequestFromUrlParams(TRequest request)

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace ASPie
 {
@@ -11,7 +9,8 @@ namespace ASPie
             foreach (var handlerType in DiscoveredHandlers())
             {
                 var methodInfo = handlerType.GetMethod(
-                    "ExecAsync");
+                    "ExecAsync",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
 
                 if (methodInfo == null)
                     throw new ArgumentException($"Unable to find a `HandleAsync` method on: [{handlerType.AssemblyQualifiedName}]");
@@ -68,29 +67,5 @@ namespace ASPie
 
             return handlers;
         }
-
-        //private static Delegate CreateDelegate(this MethodInfo methodInfo, object target) //credit: https://stackoverflow.com/a/40579063/4368485
-        //{
-        //    Func<Type[], Type> getType;
-        //    var isAction = methodInfo.ReturnType.Equals(typeof(void));
-        //    var types = methodInfo.GetParameters().Select(p => p.ParameterType);
-
-        //    if (isAction)
-        //    {
-        //        getType = Expression.GetActionType;
-        //    }
-        //    else
-        //    {
-        //        getType = Expression.GetFuncType;
-        //        types = types.Concat(new[] { methodInfo.ReturnType });
-        //    }
-
-        //    if (methodInfo.IsStatic)
-        //    {
-        //        return Delegate.CreateDelegate(getType(types.ToArray()), methodInfo);
-        //    }
-
-        //    return Delegate.CreateDelegate(getType(types.ToArray()), target, methodInfo.Name);
-        //}
     }
 }

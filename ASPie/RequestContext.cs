@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Results;
+using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace ASPie
@@ -18,10 +19,82 @@ namespace ASPie
             HttpContext = httpContext;
         }
 
+        public void AddError(string message)
+            => ValidationFailures.Add(new ValidationFailure("GeneralErrors", message));
+
+        public void AddError<TRequest>(Expression<Func<TRequest, object>> property, string errorMessage) where TRequest : IRequest
+        {
+            var exp = (MemberExpression)property.Body;
+            if (exp is null) throw new ArgumentException("Please supply a valid member expression!");
+            ValidationFailures.Add(
+                new ValidationFailure(
+                    exp.Member.Name,
+                    errorMessage));
+        }
+
+        public Task ThrowIfAnyErrorsAsync()
+        {
+            if (ValidationFailures.Count > 0)
+                return SendErrorAsync();
+
+            return Task.CompletedTask;
+        }
+
+        public Task ThrowErrorAsync(string message)
+        {
+            AddError(message);
+            return ThrowIfAnyErrorsAsync();
+        }
+
+        public Task ThrowErrorAsync<TRequest>(Expression<Func<TRequest, object>> property, string errorMessage) where TRequest : IRequest
+        {
+            AddError(property, errorMessage);
+            return ThrowIfAnyErrorsAsync();
+        }
+
         public Task SendErrorAsync()
         {
+            if (HttpContext.Response.HasStarted)
+                return Task.CompletedTask;
+
             HttpContext.Response.StatusCode = 400;
             return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions);
+        }
+
+        public Task SendAsync(object response)
+        {
+            if (HttpContext.Response.HasStarted)
+                return Task.CompletedTask;
+
+            HttpContext.Response.StatusCode = 200;
+            return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions);
+        }
+
+        public Task SendOkAsync()
+        {
+            if (HttpContext.Response.HasStarted)
+                return Task.CompletedTask;
+
+            HttpContext.Response.StatusCode = 200;
+            return Task.CompletedTask;
+        }
+
+        public Task SendNoContentAsync()
+        {
+            if (HttpContext.Response.HasStarted)
+                return Task.CompletedTask;
+
+            HttpContext.Response.StatusCode = 204;
+            return Task.CompletedTask;
+        }
+
+        public Task SendNotFoundAsync()
+        {
+            if (HttpContext.Response.HasStarted)
+                return Task.CompletedTask;
+
+            HttpContext.Response.StatusCode = 404;
+            return Task.CompletedTask;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Inventory.GetList.NewlyAdded
 {
-    public class Request : RequestBase<Request>
+    public class Request : IRequest
     {
         public string? Name { get; set; }
         public int Price { get; set; }

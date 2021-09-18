@@ -4,17 +4,20 @@ using System.Text.Json;
 
 namespace ASPie
 {
-    public class RequestContext
+    public abstract class Context
     {
         public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
+    }
 
+    public class Context<TRequest> : Context where TRequest : IRequest
+    {
         public HttpContext HttpContext { get; set; }
 
         public bool ValidationFailed { get => ValidationFailures.Count > 0; }
 
         internal List<ValidationFailure> ValidationFailures { get; set; } = new();
 
-        public RequestContext(HttpContext httpContext)
+        public Context(HttpContext httpContext)
         {
             HttpContext = httpContext;
         }
@@ -22,7 +25,7 @@ namespace ASPie
         public void AddError(string message)
             => ValidationFailures.Add(new ValidationFailure("GeneralErrors", message));
 
-        public void AddError<TRequest>(Expression<Func<TRequest, object>> property, string errorMessage) where TRequest : IRequest
+        public void AddError(Expression<Func<TRequest, object>> property, string errorMessage)
         {
             var exp = (MemberExpression)property.Body;
             if (exp is null) throw new ArgumentException("Please supply a valid member expression!");
@@ -44,7 +47,7 @@ namespace ASPie
             ThrowIfAnyErrors();
         }
 
-        public void ThrowError<TRequest>(Expression<Func<TRequest, object>> property, string errorMessage) where TRequest : IRequest
+        public void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
         {
             AddError(property, errorMessage);
             ThrowIfAnyErrors();

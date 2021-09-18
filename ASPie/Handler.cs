@@ -15,13 +15,13 @@ namespace ASPie
         protected void Verbs(params Http[] methods) => verbs.AddRange(methods);
         protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
 
-        protected abstract Task HandleAsync(TRequest req, RequestContext ctx);
+        protected abstract Task HandleAsync(TRequest req, Context<TRequest> ctx);
 
         internal async Task ExecAsync(HttpContext ctx)
         {
             var req = await BindIncomingData(ctx).ConfigureAwait(false);
 
-            var reqCtx = new RequestContext(ctx);
+            var reqCtx = new Context<TRequest>(ctx);
 
             try
             {
@@ -39,7 +39,7 @@ namespace ASPie
             TRequest? req;
 
             if (ctx.Request.HasJsonContentType())
-                req = await ctx.Request.ReadFromJsonAsync<TRequest>(RequestContext.SerializerOptions).ConfigureAwait(false);
+                req = await ctx.Request.ReadFromJsonAsync<TRequest>(Context.SerializerOptions).ConfigureAwait(false);
             else
                 req = PopulateFromURL(ctx);
 
@@ -49,7 +49,7 @@ namespace ASPie
             return req;
         }
 
-        private void ValidateRequest(TRequest req, RequestContext ctx)
+        private void ValidateRequest(TRequest req, Context<TRequest> ctx)
         {
             TValidator val = new();
 

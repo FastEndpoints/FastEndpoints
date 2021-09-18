@@ -11,9 +11,9 @@ namespace Inventory.GetList.NewlyAdded
             DontThrowIfValidationFails();
         }
 
-        protected override Task HandleAsync(Request req, RequestContext ctx)
+        protected override Task HandleAsync(Request req, Context<Request> ctx)
         {
-            ctx.AddError<Request>(r => r.Name, "name error");
+            ctx.AddError(r => r.Name, "name error");
 
             ctx.ThrowIfAnyErrors();
 

@@ -4,16 +4,16 @@ namespace ASPie
 {
     public abstract class Endpoint : IEndpoint
     {
-        protected internal string[]? routes;
-        protected internal string[]? verbs;
-        protected internal bool throwIfValidationFailed = true;
-        protected internal bool allowAnnonymous;
-        protected internal string[]? policies;
-        protected internal string[]? roles;
-        protected internal string[]? permissions;
-        protected internal bool allowAnyPermission;
+        internal string[]? routes;
+        internal string[]? verbs;
+        internal bool throwIfValidationFailed = true;
+        internal bool allowAnnonymous;
+        internal string[]? policies;
+        internal string[]? roles;
+        internal string[]? permissions;
+        internal bool allowAnyPermission;
 
-        protected internal abstract Task ExecAsync(HttpContext ctx);
+        internal abstract Task ExecAsync(HttpContext ctx);
     }
 
     public abstract class Endpoint<TRequest, TValidator> : Endpoint
@@ -36,7 +36,7 @@ namespace ASPie
 
         protected abstract Task HandleAsync(TRequest req, Context<TRequest> ctx);
 
-        protected internal override async Task ExecAsync(HttpContext ctx)
+        internal override async Task ExecAsync(HttpContext ctx)
         {
             var req = await BindIncomingData(ctx).ConfigureAwait(false);
 

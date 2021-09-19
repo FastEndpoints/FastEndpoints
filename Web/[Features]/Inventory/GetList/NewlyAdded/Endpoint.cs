@@ -1,4 +1,5 @@
 ﻿using ASPie;
+using Web.Auth;
 
 namespace Inventory.GetList.NewlyAdded
 {
@@ -8,7 +9,12 @@ namespace Inventory.GetList.NewlyAdded
         {
             Verbs(Http.GET, Http.POST);
             Routes("/test/{id}");
-            AllowAnnonymous();
+            Permissions(allowAny: true,
+                Allow.Inventory_Create_Item,
+                Allow.Inventory_Retrieve_Item,
+                Allow.Inventory_Update_Item);
+
+            //AllowAnnonymous();
             //DontThrowIfValidationFails();
         }
 

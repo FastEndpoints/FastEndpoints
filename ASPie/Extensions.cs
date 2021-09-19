@@ -1,9 +1,31 @@
-﻿using System.Reflection;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
+using System.Text;
 
 namespace ASPie
 {
     public static class Extensions
     {
+        public static IServiceCollection AddJWTTokenAuthentication(this IServiceCollection services, string tokenSigningKey)
+        {
+            services.AddAuthentication(o =>
+            {
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(o =>
+            {
+                o.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey))
+                };
+            });
+
+            return services;
+        }
+
         public static WebApplication UseASPie(this WebApplication builder)
         {
             return UseASPieWithAuth(builder, null);

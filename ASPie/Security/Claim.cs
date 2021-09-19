@@ -1,6 +1,6 @@
 ﻿namespace ASPie
 {
-    public abstract class Claim
+    public static class Claim
     {
         public const string Permissions = "prm";
     }

@@ -13,5 +13,5 @@
         void FromEntity(TEntity entity);
     }
 
-    public interface IHandler { }
+    public interface IEndpoint { }
 }

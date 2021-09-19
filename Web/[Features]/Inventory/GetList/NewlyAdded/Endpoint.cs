@@ -8,13 +8,12 @@ namespace Inventory.GetList.NewlyAdded
         {
             Verbs(Http.GET, Http.POST);
             Routes("/test/{id}");
-            DontThrowIfValidationFails();
+            AllowAnnonymous();
+            //DontThrowIfValidationFails();
         }
 
         protected override Task HandleAsync(Request req, Context<Request> ctx)
         {
-            ctx.ThrowIfAnyErrors();
-
             var res = new Response
             {
                 Message = ctx.BaseURL,

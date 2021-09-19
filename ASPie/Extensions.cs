@@ -12,13 +12,14 @@ namespace ASPie
         public static WebApplication UseASPieWithAuth(this WebApplication app, IServiceCollection? services) //todo: add ref to Microsoft.AspNetCore.Builder and change SDK to Microsoft.NET.Sdk
         {
             var authEnabled = services != null;
+            if (authEnabled) app.UseAuthorization();
 
             foreach (var endpointType in DiscoveredHandlers())
             {
                 var endpointName = endpointType.AssemblyQualifiedName;
 
                 var methodInfo = endpointType.GetMethod(
-                    "ExecAsync",
+                    nameof(Endpoint.ExecAsync),
                     BindingFlags.Instance | BindingFlags.NonPublic);
 
                 if (methodInfo == null)
@@ -29,11 +30,11 @@ namespace ASPie
                 if (instance == null)
                     throw new InvalidOperationException($"Unable to create an instance of: [{endpointName}]");
 
-                var verbs = endpointType.GetFieldValues("verbs", instance);
+                var verbs = endpointType.GetFieldValues(nameof(Endpoint.verbs), instance);
                 if (verbs?.Any() != true)
                     throw new InvalidOperationException($"No HTTP Verbs declared on: [{endpointName}]");
 
-                var routes = endpointType.GetFieldValues("routes", instance);
+                var routes = endpointType.GetFieldValues(nameof(Endpoint.routes), instance);
                 if (routes?.Any() != true)
                     throw new InvalidOperationException($"No Routes declared on: [{endpointName}]");
 
@@ -47,7 +48,7 @@ namespace ASPie
                     {
                         var builder = app.MapMethods(route, verbs, deligate);
 
-                        var allowAnnonymous = (bool)endpointType.GetFieldValue("allowAnnonymous", instance);
+                        var allowAnnonymous = (bool)endpointType.GetFieldValue(nameof(Endpoint.allowAnnonymous), instance);
 
                         if (allowAnnonymous is true)
                         {
@@ -70,8 +71,8 @@ namespace ASPie
 
         private static void AddRoles(Type endpointType, object instance, DelegateEndpointConventionBuilder builder)
         {
-            var roles = endpointType.GetFieldValues("roles", instance);
-            if (roles?.Any() != true)
+            var roles = endpointType.GetFieldValues(nameof(Endpoint.roles), instance);
+            if (roles?.Any() is true)
             {
                 builder.RequireAuthorization(new AuthorizeData
                 {
@@ -82,7 +83,7 @@ namespace ASPie
 
         private static void AddPolicies(Type endpointType, object instance, string? permissionPolicy, DelegateEndpointConventionBuilder b)
         {
-            var policies = endpointType.GetFieldValues("policies", instance);
+            var policies = endpointType.GetFieldValues(nameof(Endpoint.policies), instance);
 
             var policiesToAdd = new List<string>();
             if (policies?.Any() == true) policiesToAdd.AddRange(policies);
@@ -96,13 +97,13 @@ namespace ASPie
 
             if (authEnabled)
             {
-                var permissions = endpointType.GetFieldValues("permissions", instance);
+                var permissions = endpointType.GetFieldValues(nameof(Endpoint.permissions), instance);
 
                 if (permissions?.Any() == true)
                 {
                     policyName = "PermPolicy:" + Guid.NewGuid().ToString().Replace("-", "");
 
-                    var allowAnyPermission = (bool?)endpointType.GetFieldValue("allowAnyPermission", instance);
+                    var allowAnyPermission = (bool?)endpointType.GetFieldValue(nameof(Endpoint.allowAnyPermission), instance);
 
                     if (allowAnyPermission is true)
                     {
@@ -159,13 +160,11 @@ namespace ASPie
                 .GetAssemblies()
                 .Where(a =>
                       !a.IsDynamic &&
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
                       !excludes.Any(n => a.FullName.StartsWith(n)))
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsAbstract &&
-                       t.GetInterfaces().Contains(typeof(IHandler)));
+                       t.GetInterfaces().Contains(typeof(IEndpoint)));
 
             if (!handlers.Any())
                 throw new InvalidOperationException("Unable to find any handlers that implement `IHandler` interface!");

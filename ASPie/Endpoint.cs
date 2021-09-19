@@ -2,20 +2,24 @@
 
 namespace ASPie
 {
-    public abstract class Endpoint<TRequest, TValidator> : IHandler
+    public abstract class Endpoint : IEndpoint
+    {
+        protected internal string[]? routes;
+        protected internal string[]? verbs;
+        protected internal bool throwIfValidationFailed = true;
+        protected internal bool allowAnnonymous;
+        protected internal string[]? policies;
+        protected internal string[]? roles;
+        protected internal string[]? permissions;
+        protected internal bool allowAnyPermission;
+
+        protected internal abstract Task ExecAsync(HttpContext ctx);
+    }
+
+    public abstract class Endpoint<TRequest, TValidator> : Endpoint
         where TRequest : IRequest, new()
         where TValidator : AbstractValidator<TRequest>, new()
     {
-        //NOTE: these fields are access via reflection in Extensions.
-        internal string[]? routes;
-        internal string[]? verbs;
-        internal bool throwIfValidationFailed = true;
-        internal bool allowAnnonymous;
-        internal string[]? policies;
-        internal string[]? roles;
-        internal string[]? permissions;
-        internal bool allowAnyPermission;
-
         protected void Routes(params string[] patterns) => routes = patterns;
         protected void Verbs(params Http[] methods) => verbs = methods.Select(m => m.ToString()).ToArray();
         protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
@@ -32,7 +36,7 @@ namespace ASPie
 
         protected abstract Task HandleAsync(TRequest req, Context<TRequest> ctx);
 
-        internal async Task ExecAsync(HttpContext ctx)
+        protected internal override async Task ExecAsync(HttpContext ctx)
         {
             var req = await BindIncomingData(ctx).ConfigureAwait(false);
 

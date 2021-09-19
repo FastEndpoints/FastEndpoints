@@ -3,5 +3,5 @@ using ASPie;
 var x = WebApplication.CreateBuilder();
 
 x.Build()
- .UseASPie(x.Services)
+ .UseASPieWithAuth(x.Services)
  .Run();

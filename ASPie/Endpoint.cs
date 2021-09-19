@@ -6,13 +6,34 @@ namespace ASPie
         where TRequest : IRequest, new()
         where TValidator : AbstractValidator<TRequest>, new()
     {
-        private protected List<string> routes = new();
-        private protected List<Http> verbs = new();
-        private protected bool throwIfValidationFailed = true;
+        private IEnumerable<string>? routes;
+        private IEnumerable<string>? verbs;
+        private bool throwIfValidationFailed = true;
+        private bool allowAnnonymous;
+        private readonly List<AuthorizeData> authData = new();
+        private string[]? permissions;
+        private bool allowAnyPermission;
 
-        protected void Routes(params string[] patterns) => routes.AddRange(patterns);
-        protected void Verbs(params Http[] methods) => verbs.AddRange(methods);
+        protected void Routes(params string[] patterns) => routes = patterns;
+        protected void Verbs(params Http[] methods) => verbs = methods.Select(m => m.ToString());
         protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
+
+        protected void AllowAnnonymous() => allowAnnonymous = true;
+
+        protected void Policies(params string[] policyNames) //todo: register at startup
+            => authData.AddRange(policyNames.Select(n => new AuthorizeData { Policy = n }));
+
+        protected void Roles(params string[] roles)  //todo: register at startup
+            => authData.Add(new AuthorizeData { Roles = string.Join(',', roles) });
+
+        protected void Permissions(params string[] permissions)
+            => Permissions(false, permissions);
+
+        protected void Permissions(bool allowAny, params string[] permissions)
+        {
+            allowAnyPermission = allowAny;
+            this.permissions = permissions;
+        }
 
         protected abstract Task HandleAsync(TRequest req, Context<TRequest> ctx);
 

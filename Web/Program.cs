@@ -1,6 +1,7 @@
 using ASPie;
 
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
-app.UseASPie();
-app.Run();
+var x = WebApplication.CreateBuilder();
+
+x.Build()
+ .UseASPie(x.Services)
+ .Run();

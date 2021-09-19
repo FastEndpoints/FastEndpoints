@@ -6,7 +6,7 @@ namespace Inventory.GetList.NewlyAdded
     {
         public Endpoint()
         {
-            Verbs(Http.GET);
+            Verbs(Http.GET, Http.POST);
             Routes("/test/{id}");
             DontThrowIfValidationFails();
         }

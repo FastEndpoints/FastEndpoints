@@ -38,61 +38,67 @@ namespace ASPie
                     throw new InvalidOperationException($"No Routes declared on: [{endpointType.AssemblyQualifiedName}]");
 
                 var enablePermissions = services != null;
-                IEnumerable<string>? permissions;
-                bool allowAnyPermission = false;
                 string? permPolicyName = endpointType.AssemblyQualifiedName;
-
-                if (enablePermissions)
-                {
-                    permissions = endpointType.GetFieldValues("permissions", instance);
-
-                    if (permissions?.Any() == true)
-                    {
-                        allowAnyPermission = (bool)endpointType.GetFieldValue("allowAnyPermission", instance);
-
-                        if (allowAnyPermission)
-                        {
-                            services?.AddAuthorizationCore(o => o.AddPolicy(permPolicyName, b =>
-                            {
-                                b.RequireAssertion(x =>
-                                {
-                                    var hasAny = x.User.Claims
-                                    .FirstOrDefault(c => c.Type == Claim.Permissions)?
-                                    .Value
-                                    .Split(',')
-                                    .Intersect(permissions)
-                                    .Any();
-                                    return hasAny ?? false;
-                                });
-                            }));
-                        }
-                        else
-                        {
-                            services?.AddAuthorizationCore(o => o.AddPolicy(permPolicyName, b =>
-                            {
-                                b.RequireAssertion(x =>
-                                {
-                                    var hasAll = !x.User.Claims
-                                    .FirstOrDefault(c => c.Type == Claim.Permissions)?
-                                    .Value
-                                    .Split(',')
-                                    .Except(permissions)
-                                    .Any();
-                                    return hasAll ?? false;
-                                });
-                            }));
-                        }
-                    }
-                }
+                RegisterPermissionPolicy(services, endpointType, instance, enablePermissions, permPolicyName);
 
                 var deligate = Delegate.CreateDelegate(typeof(RequestDelegate), instance, methodInfo);
 
                 foreach (var route in routes)
                 {
                     var b = app.MapMethods(route, verbs, deligate);
+                    //todo: here...
                 }
             }
             return app;
+        }
+
+        private static void RegisterPermissionPolicy(IServiceCollection? services, Type endpointType, object? instance, bool enablePermissions, string? permPolicyName)
+        {
+            IEnumerable<string>? permissions;
+            bool allowAnyPermission = false;
+
+            if (enablePermissions)
+            {
+                permissions = endpointType.GetFieldValues("permissions", instance);
+
+                if (permissions?.Any() == true)
+                {
+                    allowAnyPermission = (bool)endpointType.GetFieldValue("allowAnyPermission", instance);
+
+                    if (allowAnyPermission)
+                    {
+                        services?.AddAuthorizationCore(o => o.AddPolicy(permPolicyName, b =>
+                        {
+                            b.RequireAssertion(x =>
+                            {
+                                var hasAny = x.User.Claims
+                                .FirstOrDefault(c => c.Type == Claim.Permissions)?
+                                .Value
+                                .Split(',')
+                                .Intersect(permissions)
+                                .Any();
+                                return hasAny ?? false;
+                            });
+                        }));
+                    }
+                    else
+                    {
+                        services?.AddAuthorizationCore(o => o.AddPolicy(permPolicyName, b =>
+                        {
+                            b.RequireAssertion(x =>
+                            {
+                                var hasAll = !x.User.Claims
+                                .FirstOrDefault(c => c.Type == Claim.Permissions)?
+                                .Value
+                                .Split(',')
+                                .Except(permissions)
+                                .Any();
+                                return hasAll ?? false;
+                            });
+                        }));
+                    }
+                }
+            }
         }
 
         private static IEnumerable<Type> DiscoveredHandlers()

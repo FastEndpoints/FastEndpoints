@@ -1,4 +1,4 @@
-﻿namespace EZEndpoints
+﻿namespace EZEndpoints.Security
 {
     public static class Claim
     {

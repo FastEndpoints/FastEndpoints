@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace EZEndpoints
+namespace EZEndpoints.Security
 {
     public record AuthorizeData : IAuthorizeData
     {

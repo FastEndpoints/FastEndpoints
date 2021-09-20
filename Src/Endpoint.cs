@@ -4,6 +4,15 @@ namespace EZEndpoints
 {
     public abstract class Endpoint : IEndpoint
     {
+        internal static IServiceProvider serviceProvider;
+        private static IConfiguration? config;
+        private static IWebHostEnvironment? env;
+        private static ILogger? logger;
+
+        protected IConfiguration Config => config ??= serviceProvider.GetService<IConfiguration>();
+        protected IWebHostEnvironment Env => env ??= serviceProvider.GetService<IWebHostEnvironment>();
+        protected ILogger Logger => logger ??= serviceProvider.GetService<ILogger<Endpoint>>();
+
         internal string[]? routes;
         internal string[]? verbs;
         internal bool throwIfValidationFailed = true;
@@ -14,6 +23,9 @@ namespace EZEndpoints
         internal bool allowAnyPermission;
 
         internal abstract Task ExecAsync(HttpContext ctx);
+
+        protected TService? Resolve<TService>() => serviceProvider.GetService<TService>();
+        protected object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
     }
 
     public abstract class Endpoint<TRequest, TValidator> : Endpoint

@@ -1,4 +1,5 @@
 ﻿using EZEndpoints;
+using EZEndpoints.Security;
 using Web.Auth;
 
 namespace Inventory.GetList.NewlyAdded
@@ -20,6 +21,16 @@ namespace Inventory.GetList.NewlyAdded
 
         protected override Task HandleAsync(Request req, Context<Request> ctx)
         {
+            var key = Config["TokenKey"];
+            var env = Env.EnvironmentName;
+            Logger.LogWarning("this is a test warning");
+
+            var logger = Resolve<ILogger<Endpoint>>();
+            logger?.LogInformation("test from endpoint logger");
+
+
+            //JWTBearer.CreateToken()
+
             var res = new Response
             {
                 Message = ctx.BaseURL,

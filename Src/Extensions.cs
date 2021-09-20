@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using EZEndpoints.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
 using System.Reflection;
 using System.Text;
 
@@ -41,6 +43,8 @@ namespace EZEndpoints
 
         public static IEndpointRouteBuilder UseEZEndpoints(this IEndpointRouteBuilder builder)
         {
+            Endpoint.serviceProvider = builder.ServiceProvider;
+
             if (endpoints is null) throw new InvalidOperationException("Please use .UseEZEndpoints() first!");
 
             foreach (var (type, instance, name) in endpoints)

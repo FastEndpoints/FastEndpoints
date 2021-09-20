@@ -73,7 +73,8 @@ namespace EZEndpoints
 
                 foreach (var route in routes)
                 {
-                    var eb = builder.MapMethods(route, verbs, deligate);
+                    var eb = builder.MapMethods(route, verbs, deligate)
+                                    .RequireAuthorization(); //secure by default
 
                     var allowAnnonymous = (bool?)type.GetFieldValue(nameof(Endpoint.allowAnnonymous), instance);
                     if (allowAnnonymous is true) eb.AllowAnonymous();

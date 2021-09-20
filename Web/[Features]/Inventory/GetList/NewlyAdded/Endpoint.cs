@@ -14,7 +14,7 @@ namespace Inventory.GetList.NewlyAdded
                 Allow.Inventory_Retrieve_Item,
                 Allow.Inventory_Update_Item);
 
-            //AllowAnnonymous();
+            AllowAnnonymous();
             //DontThrowIfValidationFails();
         }
 

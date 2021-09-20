@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
-using System.Net;
 using System.Reflection;
 using System.Text;
 
@@ -33,7 +32,7 @@ namespace EZEndpoints
             return services;
         }
 
-        public static IServiceCollection AddEZEndpoints(this IServiceCollection services) //todo: add ref to Microsoft.AspNetCore.Builder and change SDK to Microsoft.NET.Sdk
+        public static IServiceCollection AddEZEndpoints(this IServiceCollection services) //add ref to Microsoft.AspNetCore.Builder and change SDK to Microsoft.NET.Sdk
         {
             endpoints = DiscoverEndpointTypes()
                 .Select(t => (t, Activator.CreateInstance(t), t.AssemblyQualifiedName)).ToArray();
@@ -90,6 +89,7 @@ namespace EZEndpoints
                     if (rolesToAdd != null) eb.RequireAuthorization(new AuthorizeData { Roles = rolesToAdd });
                 }
             }
+            endpoints = null;
             return builder;
         }
 
@@ -186,3 +186,8 @@ namespace EZEndpoints
         }
     }
 }
+
+//todo: write tests
+//todo: add xml documentation
+//todo: [From(Claim.ClaimType)] attribute - should forbid if current user doesn't have claim
+//todo: ctx.Send... files and bytes

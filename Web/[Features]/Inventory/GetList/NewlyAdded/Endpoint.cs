@@ -10,30 +10,29 @@ namespace Inventory.GetList.NewlyAdded
         {
             Verbs(Http.GET, Http.POST);
             Routes("/test/{id}");
-            Permissions(allowAny: true,
-                Allow.Inventory_Create_Item,
-                Allow.Inventory_Retrieve_Item,
-                Allow.Inventory_Update_Item);
-
-            AllowAnnonymous();
+            //Roles("Admin");
+            //Policies("AdminOnly");
+            //Permissions(
+            //    Allow.Inventory_Create_Item,
+            //    Allow.Inventory_Retrieve_Item,
+            //    Allow.Inventory_Update_Item);
+            //AllowAnnonymous();
             //DontThrowIfValidationFails();
         }
 
         protected override Task HandleAsync(Request req, Context<Request> ctx)
         {
             var key = Config["TokenKey"];
-            var env = Env.EnvironmentName;
-            Logger.LogWarning("this is a test warning");
-
-            var logger = Resolve<ILogger<Endpoint>>();
-            logger?.LogInformation("test from endpoint logger");
-
-
-            //JWTBearer.CreateToken()
+            var token = JWTBearer.CreateTokenWithClaims(
+                key,
+                DateTime.Now.AddDays(1),
+                new[] { Allow.Inventory_Retrieve_Item, Allow.Inventory_Create_Item, Allow.Inventory_Update_Item },
+                new[] { "Admin", "Manager" },
+                ("TestClaimType", "TestClaimValue"));
 
             var res = new Response
             {
-                Message = ctx.BaseURL,
+                Message = token,
                 Name = req.Name,
                 Price = req.Price
             };

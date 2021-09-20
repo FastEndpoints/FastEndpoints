@@ -7,12 +7,25 @@ namespace EZEndpoints.Security
 {
     public static class JWTBearer
     {
+        public static string CreateTokenWithClaims(
+            string signingKey,
+            DateTime? expireAt = null,
+            IEnumerable<string>? permissions = null,
+            IEnumerable<string>? roles = null,
+            params (string claimType, string claimValue)[] claims)
+                => CreateToken(
+                    signingKey,
+                    expireAt,
+                    permissions,
+                    roles,
+                    claims.Select(c => new System.Security.Claims.Claim(c.claimType, c.claimValue)));
+
         public static string CreateToken(
             string signingKey,
-            DateTime? expireAt,
-            IEnumerable<string>? permissions,
-            IEnumerable<string>? roles,
-            IEnumerable<System.Security.Claims.Claim>? claims)
+            DateTime? expireAt = null,
+            IEnumerable<string>? permissions = null,
+            IEnumerable<string>? roles = null,
+            IEnumerable<System.Security.Claims.Claim>? claims = null)
         {
             var claimList = new List<System.Security.Claims.Claim>();
 

@@ -1,11 +1,14 @@
-using ASPie;
+using EZEndpoints;
 
 var builder = WebApplication.CreateBuilder();
 
-var signingKey = builder.Configuration.GetValue<string>("TokenKey");
+builder.Services.AddEZEndpoints();
 
-builder.Services.AddJWTTokenAuthentication(signingKey);
-builder.Services.AddAuthorization();
-builder.Build()
-       .UseASPieWithAuth(builder.Services)
-       .Run();
+builder.Services.AddAuthenticationJWTBearer(builder.Configuration.GetValue<string>("TokenKey"));
+
+builder.Services.AddAuthorization(o => o.AddPolicy("test", b => b.RequireRole("admin")));
+
+var app = builder.Build();
+app.UseAuthorization();
+app.UseEZEndpoints();
+app.Run();

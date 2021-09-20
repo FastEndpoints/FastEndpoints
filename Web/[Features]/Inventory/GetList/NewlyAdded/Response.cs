@@ -1,4 +1,4 @@
-﻿using ASPie;
+﻿using EZEndpoints;
 
 namespace Inventory.GetList.NewlyAdded
 {

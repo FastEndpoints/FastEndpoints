@@ -1,4 +1,4 @@
-﻿namespace ASPie
+﻿namespace EZEndpoints
 {
     public static class Claim
     {

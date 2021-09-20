@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace ASPie
+namespace EZEndpoints
 {
     public record AuthorizeData : IAuthorizeData
     {

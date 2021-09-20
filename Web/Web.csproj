@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ASPie\ASPie.csproj" />
     <PackageReference Include="FluentValidation" Version="10.3.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.10" />
   </ItemGroup>
@@ -21,6 +20,10 @@
     <Folder Include="[Features]\Inventory\ManageStock\" />
     <Folder Include="[Features]\Inventory\ManageStock\UpdateItem\" />
     <Folder Include="[Features]\Sales\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\EZEndpoints.csproj" />
   </ItemGroup>
 
 </Project>

@@ -47,7 +47,7 @@ namespace EZEndpoints
         }
         protected void AcceptFiles() => acceptFiles = true;
 
-        protected abstract Task HandleAsync(TRequest req, Context<TRequest> ctx);
+        protected abstract Task ExecuteAsync(TRequest req, Context<TRequest> ctx);
 
         internal override async Task ExecAsync(HttpContext ctx)
         {
@@ -58,7 +58,7 @@ namespace EZEndpoints
             try
             {
                 ValidateRequest(req, reqCtx);
-                await HandleAsync(req, reqCtx).ConfigureAwait(false);
+                await ExecuteAsync(req, reqCtx).ConfigureAwait(false);
             }
             catch (ValidationFailureException)
             {

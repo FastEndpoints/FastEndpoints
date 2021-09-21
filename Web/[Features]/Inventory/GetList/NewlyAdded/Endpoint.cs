@@ -6,19 +6,19 @@ namespace Inventory.GetList.NewlyAdded
     {
         public Endpoint()
         {
-            Verbs(Http.GET, Http.POST);
             Routes("/test/{id}");
+            Verbs(Http.GET, Http.POST);
+            AllowAnnonymous();
             //Roles("Admin");
             //Policies("AdminOnly");
             //Permissions(
             //    Allow.Inventory_Create_Item,
             //    Allow.Inventory_Retrieve_Item,
             //    Allow.Inventory_Update_Item);
-            AllowAnnonymous();
             //DontThrowIfValidationFails();
         }
 
-        protected override Task HandleAsync(Request req, Context<Request> ctx)
+        protected override Task ExecuteAsync(Request req, Context<Request> ctx)
         {
             var res = new Response
             {

@@ -36,7 +36,6 @@ namespace EZEndpoints
         protected void Routes(params string[] patterns) => routes = patterns;
         protected void Verbs(params Http[] methods) => verbs = methods.Select(m => m.ToString()).ToArray();
         protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
-
         protected void AllowAnnonymous() => allowAnnonymous = true;
         protected void Policies(params string[] policyNames) => policies = policyNames;
         protected void Roles(params string[] rolesNames) => roles = rolesNames;
@@ -99,6 +98,7 @@ namespace EZEndpoints
 
         private TRequest PopulateFromURL(HttpContext ctx)
         {
+            ctx.Request.RouteValues;
             //todo: parameter binding
             throw new NotImplementedException();
         }

@@ -6,7 +6,6 @@ namespace EZEndpoints
     {
         internal static Dictionary<string, PropertyInfo> Props { get; } = new();
         internal static Dictionary<string, (string claimType, PropertyInfo propInfo)> FromClaimProps { get; } = new();
-        internal static Dictionary<string, PropertyInfo> FromRouteProps { get; } = new();
 
         static ReqTypeCache()
         {
@@ -23,9 +22,6 @@ namespace EZEndpoints
                     FromClaimProps.Add(
                         name, new(claimType ?? "null", p));
                 }
-
-                if (p.IsDefined(typeof(FromRouteAttribute), true))
-                    FromRouteProps.Add(name, p);
             }
         }
     }

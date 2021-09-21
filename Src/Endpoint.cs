@@ -75,7 +75,7 @@ namespace EZEndpoints
 
             if (req is null) req = new();
 
-            PopulateFromURL(req, ctx);
+            BindFromRouteValues(req, ctx);
 
             if (req is null)
                 throw new InvalidOperationException("Unable to populate a Request from either the JSON body or URL Params!");
@@ -98,11 +98,12 @@ namespace EZEndpoints
             }
         }
 
-        private void PopulateFromURL(TRequest req, HttpContext ctx)
+        private static void BindFromRouteValues(TRequest req, HttpContext ctx)
         {
             foreach (var rv in ctx.Request.RouteValues)
             {
-
+                ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var pInfo);
+                pInfo?.SetValue(req, rv.Value);
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using FluentValidation.Results;
 using System.Linq.Expressions;
 using System.Text.Json;
-
 namespace EZEndpoints
 {
     public abstract class Context
@@ -12,10 +11,10 @@ namespace EZEndpoints
     public class Context<TRequest> : Context where TRequest : IRequest
     {
         public HttpContext HttpContext { get; set; }
-        public bool ValidationFailed { get => ValidationFailures.Count > 0; }
         public string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
-
-        internal List<ValidationFailure> ValidationFailures { get; set; } = new();
+        public Http Verb { get => Enum.Parse<Http>(HttpContext.Request.Method); }
+        public bool ValidationFailed { get => ValidationFailures.Count > 0; }
+        public List<ValidationFailure> ValidationFailures { get; } = new();
 
         public Context(HttpContext httpContext)
         {
@@ -30,9 +29,7 @@ namespace EZEndpoints
             var exp = (MemberExpression)property.Body;
             if (exp is null) throw new ArgumentException("Please supply a valid member expression!");
             ValidationFailures.Add(
-                new ValidationFailure(
-                    exp.Member.Name,
-                    errorMessage));
+                new ValidationFailure(exp.Member.Name, errorMessage));
         }
 
         public void ThrowIfAnyErrors()

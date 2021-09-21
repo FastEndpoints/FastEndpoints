@@ -1,5 +1,4 @@
 ﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http.Features;
 using System.Linq.Expressions;
 using System.Text.Json;
 namespace EZEndpoints
@@ -69,6 +68,17 @@ namespace EZEndpoints
             return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions);
         }
 
+        public ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream")
+        {
+            if (HttpContext.Response.HasStarted)
+                return ValueTask.CompletedTask;
+
+            HttpContext.Response.StatusCode = 200;
+            HttpContext.Response.ContentType = contentType;
+            HttpContext.Response.ContentLength = bytes.Length;
+            return HttpContext.Response.Body.WriteAsync(bytes);
+        }
+
         public Task SendOkAsync()
         {
             if (!HttpContext.Response.HasStarted)
@@ -108,6 +118,11 @@ namespace EZEndpoints
         public async Task<IFormFileCollection> GetFilesAsync()
         {
             return (await GetFormAsync().ConfigureAwait(false)).Files;
+        }
+
+        public Stream GetResponseStream()
+        {
+            return HttpContext.Response.Body;
         }
     }
 }

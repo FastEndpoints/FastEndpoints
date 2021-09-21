@@ -17,7 +17,7 @@ using EZEndpoints;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddEZEndpoints();
-builder.Services.AddAuthenticationJWTBearer("Key"]);
+builder.Services.AddAuthenticationJWTBearer("Key");
 
 var app = builder.Build();
 app.UseAuthentication();

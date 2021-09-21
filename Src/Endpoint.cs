@@ -68,12 +68,14 @@ namespace EZEndpoints
 
         private async Task<TRequest> BindIncomingData(HttpContext ctx)
         {
-            TRequest? req;
+            TRequest? req = default;
 
             if (ctx.Request.HasJsonContentType())
                 req = await ctx.Request.ReadFromJsonAsync<TRequest>(Context.SerializerOptions).ConfigureAwait(false);
-            else
-                req = PopulateFromURL(ctx);
+
+            if (req is null) req = new();
+
+            PopulateFromURL(req, ctx);
 
             if (req is null)
                 throw new InvalidOperationException("Unable to populate a Request from either the JSON body or URL Params!");
@@ -96,11 +98,12 @@ namespace EZEndpoints
             }
         }
 
-        private TRequest PopulateFromURL(HttpContext ctx)
+        private void PopulateFromURL(TRequest req, HttpContext ctx)
         {
-            ctx.Request.RouteValues;
-            //todo: parameter binding
-            throw new NotImplementedException();
+            foreach (var rv in ctx.Request.RouteValues)
+            {
+
+            }
         }
     }
 }

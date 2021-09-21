@@ -1,6 +1,4 @@
 ﻿using EZEndpoints;
-using EZEndpoints.Security;
-using Web.Auth;
 
 namespace Inventory.GetList.NewlyAdded
 {

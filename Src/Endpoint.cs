@@ -66,7 +66,7 @@ namespace EZEndpoints
             }
         }
 
-        private async Task<TRequest> BindIncomingData(HttpContext ctx)
+        private static async Task<TRequest> BindIncomingData(HttpContext ctx)
         {
             TRequest? req = default;
 
@@ -103,7 +103,11 @@ namespace EZEndpoints
             foreach (var rv in ctx.Request.RouteValues)
             {
                 ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var pInfo);
-                pInfo?.SetValue(req, rv.Value);
+
+                if (pInfo?.PropertyType != typeof(string))
+                    pInfo?.SetValue(req, Convert.ChangeType(rv.Value, pInfo.PropertyType));
+                else
+                    pInfo?.SetValue(req, rv.Value);
             }
         }
     }

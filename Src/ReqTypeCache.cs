@@ -9,7 +9,7 @@ namespace EZEndpoints
 
         static ReqTypeCache()
         {
-            foreach (var p in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.FlattenHierarchy))
+            foreach (var p in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
                 var name = p.Name.ToLower();
 

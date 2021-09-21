@@ -21,6 +21,7 @@ namespace EZEndpoints
         internal string[]? roles;
         internal string[]? permissions;
         internal bool allowAnyPermission;
+        internal bool acceptFiles;
 
         internal abstract Task ExecAsync(HttpContext ctx);
 
@@ -45,6 +46,7 @@ namespace EZEndpoints
             allowAnyPermission = allowAny;
             this.permissions = permissions;
         }
+        protected void AcceptFiles() => acceptFiles = true;
 
         protected abstract Task HandleAsync(TRequest req, Context<TRequest> ctx);
 
@@ -87,7 +89,7 @@ namespace EZEndpoints
             var valResult = val.Validate(req);
 
             if (!valResult.IsValid)
-                ctx.ValidationFailures = valResult.Errors;
+                ctx.ValidationFailures.AddRange(valResult.Errors);
 
             if (throwIfValidationFailed && ctx.ValidationFailed)
             {

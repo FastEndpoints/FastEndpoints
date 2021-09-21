@@ -64,6 +64,9 @@ namespace EZEndpoints
 
                 var deligate = Delegate.CreateDelegate(typeof(RequestDelegate), instance, method);
 
+                var allowAnnonymous = (bool?)type.GetFieldValue(nameof(Endpoint.allowAnnonymous), instance);
+                var acceptFiles = (bool?)type.GetFieldValue(nameof(Endpoint.acceptFiles), instance);
+
                 string? permissionPolicyName = null;
                 var permissions = type.GetFieldValues(nameof(Endpoint.permissions), instance);
                 if (permissions?.Any() is true) permissionPolicyName = $"{Claim.Permissions}:{name}";
@@ -71,7 +74,7 @@ namespace EZEndpoints
                 var userPolicies = type.GetFieldValues(nameof(Endpoint.policies), instance);
                 var policiesToAdd = new List<string>();
                 if (userPolicies?.Any() is true) policiesToAdd.AddRange(userPolicies);
-                if (permissionPolicyName != null) policiesToAdd.Add(permissionPolicyName);
+                if (permissionPolicyName is not null) policiesToAdd.Add(permissionPolicyName);
 
                 var userRoles = type.GetFieldValues(nameof(Endpoint.roles), instance);
                 var rolesToAdd = userRoles?.Any() is true ? string.Join(',', userRoles) : null;
@@ -81,12 +84,10 @@ namespace EZEndpoints
                     var eb = builder.MapMethods(route, verbs, deligate)
                                     .RequireAuthorization(); //secure by default
 
-                    var allowAnnonymous = (bool?)type.GetFieldValue(nameof(Endpoint.allowAnnonymous), instance);
+                    if (acceptFiles is true) eb.Accepts<IFormFile>("multipart/form-data");
                     if (allowAnnonymous is true) eb.AllowAnonymous();
-
                     if (policiesToAdd.Count > 0) eb.RequireAuthorization(policiesToAdd.ToArray());
-
-                    if (rolesToAdd != null) eb.RequireAuthorization(new AuthorizeData { Roles = rolesToAdd });
+                    if (rolesToAdd is not null) eb.RequireAuthorization(new AuthorizeData { Roles = rolesToAdd });
                 }
             }
             endpoints = null;

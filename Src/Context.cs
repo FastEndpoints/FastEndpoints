@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Http.Features;
 using System.Linq.Expressions;
 using System.Text.Json;
 namespace EZEndpoints
@@ -92,6 +93,21 @@ namespace EZEndpoints
 
             HttpContext.Response.StatusCode = 404;
             return Task.CompletedTask;
+        }
+
+        public Task<IFormCollection> GetFormAsync()
+        {
+            var req = HttpContext.Request;
+
+            if (!req.HasFormContentType)
+                throw new InvalidOperationException("This request doesn't have any multipart form data!");
+
+            return req.ReadFormAsync();
+        }
+
+        public async Task<IFormFileCollection> GetFilesAsync()
+        {
+            return (await GetFormAsync().ConfigureAwait(false)).Files;
         }
     }
 }

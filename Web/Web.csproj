@@ -14,6 +14,7 @@
   <ItemGroup>
     <Folder Include="Entities\" />
     <Folder Include="[Features]\Customers\" />
+    <Folder Include="[Features]\Inventory\GetList\NewlyAdded\" />
     <Folder Include="[Features]\Inventory\ManageStock\CreateItem\" />
     <Folder Include="[Features]\Inventory\ManageStock\DeleteItem\" />
     <Folder Include="[Features]\Inventory\GetList\ByKeyword\" />

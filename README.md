@@ -2,16 +2,16 @@
 
 An easy to use Web API framework (which encourages CQRS and Vertical Slice Architecture) built on top of .Net 6 Endpoints. It is a great alternative to the new minimal APIs that require manual endpoint registration/mapping.
 
----
-## Current State: **NOT PRODUCTION READY!!!**
----
+
+Current State: **NOT PRODUCTION READY!!!**
+
 
 ## Try it out...
 there is still no nuget package published. so you'd have to clone this git repo and reference the `/Src/EZEndpoints.cs` as a project reference from a .net core 6 project. or you can play around with the sample project in `/Web/Web.csproj`.
 
 # Code Sample:
 
-### Startup (Program.cs)
+### Program.cs
 ```csharp
 using EZEndpoints;
 
@@ -46,7 +46,7 @@ public class Response : IResponse
 }
 ```
 
-### Endpoint Handler
+### Endpoint Definition
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest, MyValidator>
 {
@@ -89,9 +89,8 @@ public class MyEndpoint : Endpoint<MyRequest, MyValidator>
 }
 ```
 
-that's it. all of your `Endpoint` class definitions are automatically discovered on app startup and routes are automatically mapped.
+that's it. all of your `Endpoint` definitions are automatically discovered on app startup and routes are automatically mapped.
 
----
 # Stay tuned...
 
-if the above api looks interesting to you, watch this repo for any updates. you're also welcome to submit PRs or suggest features/ report bugs using github issues.
+if the above api looks interesting to you, watch this repo for updates. you are welcome to submit PRs or suggest features/ report bugs using github issues.

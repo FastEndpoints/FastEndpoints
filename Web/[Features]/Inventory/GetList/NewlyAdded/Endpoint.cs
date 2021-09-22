@@ -1,4 +1,6 @@
 ﻿using ApiExpress;
+using ApiExpress.Security;
+using Web.Auth;
 
 namespace Inventory.GetList.NewlyAdded
 {
@@ -20,16 +22,21 @@ namespace Inventory.GetList.NewlyAdded
 
         public ILogger<Endpoint>? MyLoggerService { get; set; }
 
-        protected override Task ExecuteAsync(Request req, CancellationToken cancellation)
+        protected override Task ExecuteAsync(Request req, CancellationToken ct)
         {
+            //var token = JWTBearer.CreateTokenWithClaims(
+            //    Config["TokenKey"],
+            //    null,
+            //    null,
+            //    null,
+            //    (Claim.UserName, "damith gunner"));
+
             var res = new Response
             {
-                Message = req.Id.ToString(),
+                Message = req.UserName,
                 Name = req.Name,
                 Price = req.Price
             };
-
-            MyLoggerService?.LogInformation("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
 
             return SendAsync(res);
         }

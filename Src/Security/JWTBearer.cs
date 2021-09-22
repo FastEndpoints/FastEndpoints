@@ -33,10 +33,10 @@ namespace ApiExpress.Security
                 claimList.AddRange(claims);
 
             if (permissions != null)
-                claimList.Add(new System.Security.Claims.Claim(Claim.Permissions, string.Join(',', permissions)));
+                claimList.Add(new System.Security.Claims.Claim(ClaimTypes.Permissions, string.Join(',', permissions)));
 
             if (roles != null)
-                claimList.AddRange(roles.Select(r => new System.Security.Claims.Claim(ClaimTypes.Role, r)));
+                claimList.AddRange(roles.Select(r => new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, r)));
 
             var descriptor = new SecurityTokenDescriptor
             {

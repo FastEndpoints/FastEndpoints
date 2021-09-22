@@ -67,7 +67,7 @@ namespace ApiExpress
 
                 string? permissionPolicyName = null;
                 var permissions = epType.GetFieldValues(nameof(Endpoint.permissions), epInstance);
-                if (permissions?.Any() is true) permissionPolicyName = $"{Claim.Permissions}:{epName}";
+                if (permissions?.Any() is true) permissionPolicyName = $"{ClaimTypes.Permissions}:{epName}";
 
                 var userPolicies = epType.GetFieldValues(nameof(Endpoint.policies), epInstance);
                 var policiesToAdd = new List<string>();
@@ -108,7 +108,7 @@ namespace ApiExpress
 
                 if (permissions?.Any() is true)
                 {
-                    var policyName = $"{Claim.Permissions}:{epName}";
+                    var policyName = $"{ClaimTypes.Permissions}:{epName}";
                     var allowAnyPermission = (bool?)epType.GetFieldValue(nameof(Endpoint.allowAnyPermission), epInstance);
 
                     if (allowAnyPermission is true)
@@ -118,7 +118,7 @@ namespace ApiExpress
                             b.RequireAssertion(x =>
                             {
                                 var hasAny = x.User.Claims
-                                .FirstOrDefault(c => c.Type == Claim.Permissions)?
+                                .FirstOrDefault(c => c.Type == ClaimTypes.Permissions)?
                                 .Value
                                 .Split(',')
                                 .Intersect(permissions)
@@ -134,7 +134,7 @@ namespace ApiExpress
                             b.RequireAssertion(x =>
                             {
                                 var hasAll = !x.User.Claims
-                                .FirstOrDefault(c => c.Type == Claim.Permissions)?
+                                .FirstOrDefault(c => c.Type == ClaimTypes.Permissions)?
                                 .Value
                                 .Split(',')
                                 .Except(permissions)

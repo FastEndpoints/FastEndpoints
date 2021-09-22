@@ -33,7 +33,7 @@ namespace ApiExpress
         internal bool allowAnyPermission;
         internal bool acceptFiles;
 
-        internal abstract Task ExecAsync(HttpContext ctx, CancellationToken cancellation);
+        internal abstract Task ExecAsync(HttpContext ctx, CancellationToken ct);
 
         protected TService? Resolve<TService>() => serviceProvider.GetService<TService>();
         protected object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
@@ -202,11 +202,11 @@ namespace ApiExpress
             foreach (var cacheEntry in ReqTypeCache<TRequest>.FromClaimProps)
             {
                 var claimType = cacheEntry.Key;
-                var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase));
+                var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
                 if (claimVal is null && cacheEntry.Value.forbidIfMissing)
                 {
-                    ValidationFailures.Add(new(claimType, "User doesn't have a claim with this name!"));
+                    ValidationFailures.Add(new(claimType, "User doesn't have this claim type!"));
                 }
                 cacheEntry.Value.propInfo.SetValue(req, claimVal);
             }

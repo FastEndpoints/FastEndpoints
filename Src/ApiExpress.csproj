@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <Version>1.0.0-alpha1</Version>
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
     <Copyright>Đĵ ΝιΓΞΗΛψΚ</Copyright>

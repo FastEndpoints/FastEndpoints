@@ -14,8 +14,8 @@
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public class FromRouteAttribute : Attribute { }
-
-    [AttributeUsage(AttributeTargets.Property)]
-    public class FromServicesAttribute : Attribute { }
+    public class FromAttribute : FromClaimAttribute
+    {
+        public FromAttribute(string claimType, bool forbidIfMissing = true) : base(claimType, forbidIfMissing) { }
+    }
 }

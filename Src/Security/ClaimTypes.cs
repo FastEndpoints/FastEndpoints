@@ -1,6 +1,6 @@
 ﻿namespace ApiExpress.Security
 {
-    public static class Claim
+    public static class ClaimTypes
     {
         public const string Permissions = "prm";
     }

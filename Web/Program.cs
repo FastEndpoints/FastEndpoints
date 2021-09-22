@@ -14,4 +14,4 @@ app.Run();
 
 //todo: write tests
 //todo: add xml documentation
-//todo: [From(Claim.ClaimType)] attribute - should forbid if current user doesn't have claim
+//todo: benchmark against minimal api, mvc controller

@@ -5,7 +5,25 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Version>1.0.0-alpha1</Version>
+    <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
+    <Copyright>Đĵ ΝιΓΞΗΛψΚ</Copyright>
+    <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
+    <PackageProjectUrl>https://github.com/dj-nitehawk/ApiExpress</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/dj-nitehawk/ApiExpress</RepositoryUrl>
+    <PackageReleaseNotes>
+    </PackageReleaseNotes>
+    <PackageLicenseFile>D:\SOURCE-CONTROL\ApiExpress\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="10.3.3" />

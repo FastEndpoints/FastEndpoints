@@ -18,7 +18,7 @@ namespace Inventory.GetList.NewlyAdded
             //DontThrowIfValidationFails();
         }
 
-        protected override Task ExecuteAsync(Request req, Context<Request> ctx)
+        protected override Task ExecuteAsync(Request req, CancellationToken cancellation)
         {
             var res = new Response
             {

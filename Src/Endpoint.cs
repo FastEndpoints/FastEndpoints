@@ -9,14 +9,19 @@ namespace ApiExpress
     {
         public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
 
-        internal static IServiceProvider serviceProvider;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        internal static IServiceProvider serviceProvider; //this is set by UseApiExpress()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
         private static IConfiguration? config;
         private static IWebHostEnvironment? env;
         private static ILogger? logger;
 
+#pragma warning disable CS8603 // Possible null reference return.
         protected IConfiguration Config => config ??= serviceProvider.GetService<IConfiguration>();
         protected IWebHostEnvironment Env => env ??= serviceProvider.GetService<IWebHostEnvironment>();
         protected ILogger Logger => logger ??= serviceProvider.GetService<ILogger<Endpoint>>();
+#pragma warning restore CS8603 // Possible null reference return.
 
         internal string[]? routes;
         internal string[]? verbs;
@@ -40,7 +45,10 @@ namespace ApiExpress
         where TRequest : IRequest, new()
         where TValidator : AbstractValidator<TRequest>, new()
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected HttpContext HttpContext { get; set; } //this is set when ExecAsync is called by EndpointExecutor
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
         protected string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
         protected Http Verb { get => Enum.Parse<Http>(HttpContext.Request.Method); }
         protected List<ValidationFailure> ValidationFailures { get; } = new();

@@ -9,7 +9,7 @@ builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRo
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
-app.ApiExpress();
+app.UseApiExpress();
 app.Run();
 
 //todo: write tests

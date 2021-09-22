@@ -43,7 +43,7 @@ namespace ApiExpress
             return services;
         }
 
-        public static IEndpointRouteBuilder ApiExpress(this IEndpointRouteBuilder builder)
+        public static IEndpointRouteBuilder UseApiExpress(this IEndpointRouteBuilder builder)
         {
             Endpoint.serviceProvider = builder.ServiceProvider;
 
@@ -165,7 +165,9 @@ namespace ApiExpress
                 .GetAssemblies()
                 .Where(a =>
                       !a.IsDynamic &&
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                       !excludes.Any(n => a.FullName.StartsWith(n)))
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsAbstract &&

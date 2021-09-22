@@ -8,6 +8,8 @@ namespace ApiExpress
         public string Message { get; set; } = "One or more errors occured!";
         public Dictionary<string, IEnumerable<string>> Errors { get; set; } = new();
 
+        public ErrorResponse() { }
+
         public ErrorResponse(IEnumerable<ValidationFailure> failures)
         {
             Errors = failures

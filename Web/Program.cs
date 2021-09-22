@@ -14,3 +14,5 @@ app.Run();
 //todo: write tests
 //todo: add xml documentation
 //todo: benchmark against minimal api, mvc controller
+
+public partial class Program { }

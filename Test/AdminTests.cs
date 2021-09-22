@@ -1,3 +1,4 @@
+using ApiExpress;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
@@ -12,7 +13,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginWithBadInput()
         {
-            var app = new WebApplicationFactory<Program>();
+            var app = new WebApplicationFactory<Program>(); //todo: move setup to class init
 
             var client = app.CreateClient();
 
@@ -25,9 +26,11 @@ namespace Test
                 });
 
             Assert.IsNotNull(res);
-            Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+            Assert.AreEqual(HttpStatusCode.BadRequest, res.StatusCode);
 
-            var r = res.Content.ReadFromJsonAsync<Admin.Login.Response>();
+            var r = await res.Content.ReadFromJsonAsync<ErrorResponse>();
+
+            Assert.AreEqual(2, r.Errors.Count);
         }
     }
 }

@@ -6,7 +6,7 @@
         public string ClaimType { get; set; }
         public bool ForbidIfMissing { get; set; }
 
-        public FromClaimAttribute(string claimType, bool forbidIfMissing)
+        public FromClaimAttribute(string claimType, bool forbidIfMissing = true)
         {
             ClaimType = claimType;
             ForbidIfMissing = forbidIfMissing;

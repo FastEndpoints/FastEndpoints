@@ -68,12 +68,13 @@ namespace ApiExpress
             var req = await BindIncomingDataAsync(ctx, cancellation).ConfigureAwait(false);
             try
             {
+                await BindFromUserClaimsAsync(req, ctx, cancellation).ConfigureAwait(false);
                 ValidateRequest(req);
                 await ExecuteAsync(req, cancellation).ConfigureAwait(false);
             }
             catch (ValidationFailureException)
             {
-                await SendErrorAsync().ConfigureAwait(false);
+                await SendErrorAsync(cancellation).ConfigureAwait(false);
             }
         }
 
@@ -183,9 +184,27 @@ namespace ApiExpress
 
             if (req is null) req = new();
 
-            BindFromRouteValues(req, ctx);
+            BindFromRouteValues(req, ctx.Request.RouteValues);
 
             return req;
+        }
+
+        private Task BindFromUserClaimsAsync(TRequest req, HttpContext ctx, CancellationToken cancellation)
+        {
+            foreach (var cacheEntry in ReqTypeCache<TRequest>.FromClaimProps)
+            {
+                var claimType = cacheEntry.Key;
+                var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase));
+
+                if (claimVal is null && cacheEntry.Value.forbidIfMissing)
+                {
+                    ValidationFailures.Add(new(claimType, "User doesn't have a claim with this name!"));
+                }
+                cacheEntry.Value.propInfo.SetValue(req, claimVal);
+            }
+            if (ValidationFailed) throw new ValidationFailureException();
+
+            return Task.CompletedTask;
         }
 
         private void ValidateRequest(TRequest req)
@@ -206,9 +225,9 @@ namespace ApiExpress
             }
         }
 
-        private static void BindFromRouteValues(TRequest req, HttpContext ctx)
+        private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues)
         {
-            foreach (var rv in ctx.Request.RouteValues)
+            foreach (var rv in routeValues)
             {
                 ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop);
 

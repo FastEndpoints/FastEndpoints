@@ -9,19 +9,22 @@ namespace ApiExpress
 
         static ReqTypeCache()
         {
-            foreach (var p in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+            foreach (var propInfo in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
-                var name = p.Name.ToLower();
+                var propName = propInfo.Name.ToLower();
 
-                Props.Add(name, p);
+                Props.Add(propName, propInfo);
 
-                if (p.IsDefined(typeof(FromClaimAttribute), false))
+                if (propInfo.IsDefined(typeof(FromClaimAttribute), false))
                 {
-                    var attrib = p.GetCustomAttribute<FromClaimAttribute>(false);
+                    if (propInfo.PropertyType != typeof(string))
+                        throw new InvalidOperationException("[FromClaim] attributes are only supported on string properties!");
+
+                    var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
                     var claimType = attrib?.ClaimType ?? "null";
                     var forbidIfMissing = attrib?.ForbidIfMissing ?? false;
 
-                    FromClaimProps.Add(name, new(claimType, forbidIfMissing, p));
+                    FromClaimProps.Add(propName, new(claimType, forbidIfMissing, propInfo));
                 }
             }
         }

@@ -12,18 +12,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Entities\" />
-    <Folder Include="[Features]\Customers\" />
-    <Folder Include="[Features]\Inventory\ManageStock\CreateItem\" />
-    <Folder Include="[Features]\Inventory\ManageStock\DeleteItem\" />
-    <Folder Include="[Features]\Inventory\GetList\ByKeyword\" />
-    <Folder Include="[Features]\Inventory\ManageStock\" />
-    <Folder Include="[Features]\Inventory\ManageStock\UpdateItem\" />
-    <Folder Include="[Features]\Sales\" />
+    <Folder Include="[Features]\Customers\Create\" />
+    <Folder Include="[Features]\Customers\List\Search\" />
+    <Folder Include="[Features]\Customers\List\Recent\" />
+    <Folder Include="[Features]\Customers\Login\" />
+    <Folder Include="[Features]\Customers\Update\" />
+    <Folder Include="[Features]\Inventory\List\Recent\" />
+    <Folder Include="[Features]\Inventory\Manage\Create\" />
+    <Folder Include="[Features]\Inventory\Manage\Delete\" />
+    <Folder Include="[Features]\Inventory\List\Search\" />
+    <Folder Include="[Features]\Inventory\Manage\" />
+    <Folder Include="[Features]\Inventory\Manage\Update\" />
+    <Folder Include="[Features]\Sales\Orders\Create\" />
+    <Folder Include="[Features]\Sales\Orders\Retrieve\" />
+    <Folder Include="[Features]\Shipping\Dispatch\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\src\ApiExpress.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Test" />
   </ItemGroup>
 
 </Project>

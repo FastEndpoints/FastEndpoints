@@ -1,7 +1,6 @@
 using ApiExpress;
 
 var builder = WebApplication.CreateBuilder();
-
 builder.Services.AddApiExpress();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole("Admin")));

@@ -74,7 +74,7 @@ namespace ApiExpress
         }
         protected void AcceptFiles() => acceptFiles = true;
 
-        protected abstract Task ExecuteAsync(TRequest req, CancellationToken cancellation);
+        protected abstract Task ExecuteAsync(TRequest req, CancellationToken ct);
 
         internal override async Task ExecAsync(HttpContext ctx, CancellationToken cancellation)
         {

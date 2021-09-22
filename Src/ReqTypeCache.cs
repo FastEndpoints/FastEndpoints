@@ -2,7 +2,7 @@
 
 namespace EZEndpoints
 {
-    internal static class ReqTypeCache<T>
+    internal static class ReqTypeCache<T> where T : IRequest
     {
         internal static Dictionary<string, PropertyInfo> Props { get; } = new();
         internal static Dictionary<string, (string claimType, PropertyInfo propInfo)> FromClaimProps { get; } = new();

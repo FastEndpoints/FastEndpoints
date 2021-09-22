@@ -79,6 +79,8 @@ namespace EZEndpoints
 
                 var factory = Expression.Lambda<Func<object>>(Expression.New(type)).Compile();
 
+                EndpointExecutor.PropsToBindServicesCache[type] = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
                 foreach (var route in routes.Distinct())
                 {
                     var eb = builder.MapMethods(route, verbs, EndpointExecutor.HandleAsync)

@@ -10,8 +10,8 @@
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public class FromRouteAttribute : Attribute
-    {
+    public class FromRouteAttribute : Attribute { }
 
-    }
+    [AttributeUsage(AttributeTargets.Property)]
+    public class FromServicesAttribute : Attribute { }
 }

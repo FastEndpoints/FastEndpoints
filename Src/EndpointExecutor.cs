@@ -5,6 +5,7 @@ namespace EZEndpoints
     public static class EndpointExecutor
     {
         internal static Dictionary<string, (Func<object> creator, MethodInfo method)> EndpointTypeCache { get; } = new();
+        internal static Dictionary<Type, PropertyInfo[]> PropsToBindServicesCache { get; } = new();
 
         public static Task HandleAsync(HttpContext ctx, CancellationToken cancellation)
         {
@@ -13,8 +14,24 @@ namespace EZEndpoints
 
             var (creator, method) = EndpointTypeCache[route];
 
-            return (Task?)method.Invoke(creator(), new object[] { ctx, cancellation })
+            var instance = creator();
+
+            ResolveServices(instance);
+
+            return (Task?)method.Invoke(instance, new object[] { ctx, cancellation })
                 ?? Task.CompletedTask;
+        }
+
+        private static void ResolveServices(object instance)
+        {
+            if (PropsToBindServicesCache.TryGetValue(instance.GetType(), out var props))
+            {
+                foreach (var prop in props)
+                {
+                    var service = Endpoint.serviceProvider.GetService(prop.PropertyType);
+                    prop.SetValue(instance, service);
+                }
+            }
         }
     }
 }

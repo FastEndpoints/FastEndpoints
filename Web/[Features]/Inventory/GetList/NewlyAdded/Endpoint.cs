@@ -18,6 +18,8 @@ namespace Inventory.GetList.NewlyAdded
             //DontThrowIfValidationFails();
         }
 
+        public ILogger<Endpoint>? MyLoggerService { get; set; }
+
         protected override Task ExecuteAsync(Request req, CancellationToken cancellation)
         {
             var res = new Response
@@ -27,7 +29,9 @@ namespace Inventory.GetList.NewlyAdded
                 Price = req.Price
             };
 
-            return ctx.SendAsync(res);
+            MyLoggerService?.LogInformation("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
+            return SendAsync(res);
         }
     }
 }

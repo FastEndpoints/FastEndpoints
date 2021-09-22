@@ -68,7 +68,7 @@ namespace ApiExpress
             var req = await BindIncomingDataAsync(ctx, cancellation).ConfigureAwait(false);
             try
             {
-                await BindFromUserClaimsAsync(req, ctx, cancellation).ConfigureAwait(false);
+                BindFromUserClaims(req, ctx);
                 ValidateRequest(req);
                 await ExecuteAsync(req, cancellation).ConfigureAwait(false);
             }
@@ -189,7 +189,7 @@ namespace ApiExpress
             return req;
         }
 
-        private Task BindFromUserClaimsAsync(TRequest req, HttpContext ctx, CancellationToken cancellation)
+        private void BindFromUserClaims(TRequest req, HttpContext ctx)
         {
             foreach (var cacheEntry in ReqTypeCache<TRequest>.FromClaimProps)
             {
@@ -203,8 +203,6 @@ namespace ApiExpress
                 cacheEntry.Value.propInfo.SetValue(req, claimVal);
             }
             if (ValidationFailed) throw new ValidationFailureException();
-
-            return Task.CompletedTask;
         }
 
         private void ValidateRequest(TRequest req)

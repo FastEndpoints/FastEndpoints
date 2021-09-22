@@ -1,5 +1,11 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Text.Json;
 
@@ -18,9 +24,9 @@ namespace ApiExpress
         private static ILogger? logger;
 
 #pragma warning disable CS8603 // Possible null reference return.
-        protected IConfiguration Config => config ??= serviceProvider.GetService<IConfiguration>();
-        protected IWebHostEnvironment Env => env ??= serviceProvider.GetService<IWebHostEnvironment>();
-        protected ILogger Logger => logger ??= serviceProvider.GetService<ILogger<Endpoint>>();
+        protected static IConfiguration Config => config ??= serviceProvider.GetService<IConfiguration>();
+        protected static IWebHostEnvironment Env => env ??= serviceProvider.GetService<IWebHostEnvironment>();
+        protected static ILogger Logger => logger ??= serviceProvider.GetService<ILogger<Endpoint>>();
 #pragma warning restore CS8603 // Possible null reference return.
 
         internal string[]? routes;
@@ -35,8 +41,8 @@ namespace ApiExpress
 
         internal abstract Task ExecAsync(HttpContext ctx, CancellationToken ct);
 
-        protected TService? Resolve<TService>() => serviceProvider.GetService<TService>();
-        protected object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
+        protected static TService? Resolve<TService>() => serviceProvider.GetService<TService>();
+        protected static object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
     }
 
     public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : IRequest, new() { }

@@ -1,6 +1,4 @@
 ﻿using ApiExpress;
-using ApiExpress.Security;
-using Web.Auth;
 
 namespace Inventory.GetList.NewlyAdded
 {

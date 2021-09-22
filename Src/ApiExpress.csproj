@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -15,14 +15,12 @@
     <RepositoryUrl>https://github.com/dj-nitehawk/ApiExpress</RepositoryUrl>
     <PackageReleaseNotes>
     </PackageReleaseNotes>
-    <PackageLicenseFile>D:\SOURCE-CONTROL\ApiExpress\LICENSE.md</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="..\LICENSE.md" Pack="true" PackagePath="\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>      
   </ItemGroup>
 
   <ItemGroup>

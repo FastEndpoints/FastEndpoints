@@ -124,5 +124,7 @@ namespace EZEndpoints
         {
             return HttpContext.Response.Body;
         }
+
+        //todo: move ctx methods to endpoint class. we have endpoint instances now!
     }
 }

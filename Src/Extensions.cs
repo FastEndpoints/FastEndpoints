@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -51,7 +52,6 @@ namespace EZEndpoints
             foreach (var (type, instance, name) in endpoints)
             {
                 var method = type.GetMethod(nameof(Endpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
-
                 if (method is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{name}]");
 
                 if (instance is null) throw new InvalidOperationException($"Unable to create an instance of: [{name}]");
@@ -61,8 +61,6 @@ namespace EZEndpoints
 
                 var routes = type.GetFieldValues(nameof(Endpoint.routes), instance);
                 if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{name}]");
-
-                var deligate = Delegate.CreateDelegate(typeof(RequestDelegate), instance, method);
 
                 var allowAnnonymous = (bool?)type.GetFieldValue(nameof(Endpoint.allowAnnonymous), instance);
                 var acceptFiles = (bool?)type.GetFieldValue(nameof(Endpoint.acceptFiles), instance);
@@ -79,15 +77,19 @@ namespace EZEndpoints
                 var userRoles = type.GetFieldValues(nameof(Endpoint.roles), instance);
                 var rolesToAdd = userRoles?.Any() is true ? string.Join(',', userRoles) : null;
 
-                foreach (var route in routes)
+                var factory = Expression.Lambda<Func<object>>(Expression.New(type)).Compile();
+
+                foreach (var route in routes.Distinct())
                 {
-                    var eb = builder.MapMethods(route, verbs, deligate)
+                    var eb = builder.MapMethods(route, verbs, EndpointExecutor.HandleAsync)
                                     .RequireAuthorization(); //secure by default
 
                     if (acceptFiles is true) eb.Accepts<IFormFile>("multipart/form-data");
                     if (allowAnnonymous is true) eb.AllowAnonymous();
                     if (policiesToAdd.Count > 0) eb.RequireAuthorization(policiesToAdd.ToArray());
                     if (rolesToAdd is not null) eb.RequireAuthorization(new AuthorizeData { Roles = rolesToAdd });
+
+                    EndpointExecutor.EndpointTypeCache[route] = (factory, method);
                 }
             }
             endpoints = null;

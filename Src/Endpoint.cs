@@ -23,7 +23,7 @@ namespace EZEndpoints
         internal bool allowAnyPermission;
         internal bool acceptFiles;
 
-        internal abstract Task ExecAsync(HttpContext ctx);
+        internal abstract Task ExecAsync(HttpContext ctx, CancellationToken cancellation);
 
         protected TService? Resolve<TService>() => serviceProvider.GetService<TService>();
         protected object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
@@ -53,7 +53,7 @@ namespace EZEndpoints
 
         protected abstract Task ExecuteAsync(TRequest req, Context<TRequest> ctx);
 
-        internal override async Task ExecAsync(HttpContext ctx)
+        internal override async Task ExecAsync(HttpContext ctx, CancellationToken cancellation)
         {
             var req = await BindIncomingData(ctx).ConfigureAwait(false);
 

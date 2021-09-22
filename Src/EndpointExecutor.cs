@@ -4,32 +4,33 @@ namespace EZEndpoints
 {
     public static class EndpointExecutor
     {
-        internal static Dictionary<string, (Func<object> creator, MethodInfo method)> EndpointTypeCache { get; } = new();
-        internal static Dictionary<Type, PropertyInfo[]> PropsToBindServicesCache { get; } = new();
+        internal static Dictionary<string, (Func<object> endpointFactory, MethodInfo execMethod)> CacheEndpointTypes { get; } = new();
+        internal static Dictionary<Type, PropertyInfo[]> CacheServiceBoundProps { get; } = new();
 
+        //note: this handler is called by .net for each http request
         public static Task HandleAsync(HttpContext ctx, CancellationToken cancellation)
         {
             var route = ((RouteEndpoint?)ctx.GetEndpoint())?.RoutePattern.RawText;
             if (route is null) throw new InvalidOperationException("Unable to instantiate endpoint!!!");
 
-            var (creator, method) = EndpointTypeCache[route];
+            var (endpointFactory, execMethod) = CacheEndpointTypes[route];
 
-            var instance = creator();
+            var endpointInstance = endpointFactory();
 
-            ResolveServices(instance);
+            ResolveServices(endpointInstance);
 
-            return (Task?)method.Invoke(instance, new object[] { ctx, cancellation })
+            return (Task?)execMethod.Invoke(endpointInstance, new object[] { ctx, cancellation })
                 ?? Task.CompletedTask;
         }
 
-        private static void ResolveServices(object instance)
+        private static void ResolveServices(object endpointInstance)
         {
-            if (PropsToBindServicesCache.TryGetValue(instance.GetType(), out var props))
+            if (CacheServiceBoundProps.TryGetValue(endpointInstance.GetType(), out var props))
             {
                 foreach (var prop in props)
                 {
-                    var service = Endpoint.serviceProvider.GetService(prop.PropertyType);
-                    prop.SetValue(instance, service);
+                    var serviceInstance = Endpoint.serviceProvider.GetService(prop.PropertyType);
+                    prop.SetValue(endpointInstance, serviceInstance);
                 }
             }
         }

@@ -34,9 +34,7 @@ namespace EZEndpoints
         protected object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
     }
 
-    public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>>
-        where TRequest : IRequest, new()
-    { }
+    public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : IRequest, new() { }
 
     public abstract class Endpoint<TRequest, TValidator> : Endpoint
         where TRequest : IRequest, new()
@@ -212,12 +210,12 @@ namespace EZEndpoints
         {
             foreach (var rv in ctx.Request.RouteValues)
             {
-                ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var pInfo);
+                ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop);
 
-                if (pInfo?.PropertyType != typeof(string))
-                    pInfo?.SetValue(req, Convert.ChangeType(rv.Value, pInfo.PropertyType));
+                if (prop?.PropertyType != typeof(string))
+                    prop?.SetValue(req, Convert.ChangeType(rv.Value, prop.PropertyType));
                 else
-                    pInfo?.SetValue(req, rv.Value);
+                    prop?.SetValue(req, rv.Value);
             }
         }
     }

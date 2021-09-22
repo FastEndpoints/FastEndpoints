@@ -10,7 +10,7 @@ namespace EZEndpoints
 {
     public static class Extensions
     {
-        private static (Type type, object? instance, string? name)[]? endpoints;
+        private static (Type endpointType, object? endpointInstance, string? endpointName)[]? endpoints;
 
         public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services, string tokenSigningKey)
         {
@@ -49,37 +49,37 @@ namespace EZEndpoints
 
             if (endpoints is null) throw new InvalidOperationException("Please use .UseEZEndpoints() first!");
 
-            foreach (var (type, instance, name) in endpoints)
+            foreach (var (epType, epInstance, epName) in endpoints)
             {
-                var method = type.GetMethod(nameof(Endpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
-                if (method is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{name}]");
+                var execMethod = epType.GetMethod(nameof(Endpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
+                if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
 
-                if (instance is null) throw new InvalidOperationException($"Unable to create an instance of: [{name}]");
+                if (epInstance is null) throw new InvalidOperationException($"Unable to create an instance of: [{epName}]");
 
-                var verbs = type.GetFieldValues(nameof(Endpoint.verbs), instance);
-                if (verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{name}]");
+                var verbs = epType.GetFieldValues(nameof(Endpoint.verbs), epInstance);
+                if (verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
 
-                var routes = type.GetFieldValues(nameof(Endpoint.routes), instance);
-                if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{name}]");
+                var routes = epType.GetFieldValues(nameof(Endpoint.routes), epInstance);
+                if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
-                var allowAnnonymous = (bool?)type.GetFieldValue(nameof(Endpoint.allowAnnonymous), instance);
-                var acceptFiles = (bool?)type.GetFieldValue(nameof(Endpoint.acceptFiles), instance);
+                var allowAnnonymous = (bool?)epType.GetFieldValue(nameof(Endpoint.allowAnnonymous), epInstance);
+                var acceptFiles = (bool?)epType.GetFieldValue(nameof(Endpoint.acceptFiles), epInstance);
 
                 string? permissionPolicyName = null;
-                var permissions = type.GetFieldValues(nameof(Endpoint.permissions), instance);
-                if (permissions?.Any() is true) permissionPolicyName = $"{Claim.Permissions}:{name}";
+                var permissions = epType.GetFieldValues(nameof(Endpoint.permissions), epInstance);
+                if (permissions?.Any() is true) permissionPolicyName = $"{Claim.Permissions}:{epName}";
 
-                var userPolicies = type.GetFieldValues(nameof(Endpoint.policies), instance);
+                var userPolicies = epType.GetFieldValues(nameof(Endpoint.policies), epInstance);
                 var policiesToAdd = new List<string>();
                 if (userPolicies?.Any() is true) policiesToAdd.AddRange(userPolicies);
                 if (permissionPolicyName is not null) policiesToAdd.Add(permissionPolicyName);
 
-                var userRoles = type.GetFieldValues(nameof(Endpoint.roles), instance);
+                var userRoles = epType.GetFieldValues(nameof(Endpoint.roles), epInstance);
                 var rolesToAdd = userRoles?.Any() is true ? string.Join(',', userRoles) : null;
 
-                var factory = Expression.Lambda<Func<object>>(Expression.New(type)).Compile();
+                var epFactory = Expression.Lambda<Func<object>>(Expression.New(epType)).Compile();
 
-                EndpointExecutor.PropsToBindServicesCache[type] = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                EndpointExecutor.CacheServiceBoundProps[epType] = epType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
                 foreach (var route in routes.Distinct())
                 {
@@ -91,7 +91,7 @@ namespace EZEndpoints
                     if (policiesToAdd.Count > 0) eb.RequireAuthorization(policiesToAdd.ToArray());
                     if (rolesToAdd is not null) eb.RequireAuthorization(new AuthorizeData { Roles = rolesToAdd });
 
-                    EndpointExecutor.EndpointTypeCache[route] = (factory, method);
+                    EndpointExecutor.CacheEndpointTypes[route] = (epFactory, execMethod);
                 }
             }
             endpoints = null;
@@ -102,14 +102,15 @@ namespace EZEndpoints
         {
             if (endpoints is null) return;
 
-            foreach (var (type, instance, name) in endpoints)
+            foreach (var (epType, epInstance, epName) in endpoints)
             {
-                var permissions = type.GetFieldValues(nameof(Endpoint.permissions), instance);
+                var permissions = epType.GetFieldValues(nameof(Endpoint.permissions), epInstance);
 
                 if (permissions?.Any() is true)
                 {
-                    var policyName = $"{Claim.Permissions}:{name}";
-                    var allowAnyPermission = (bool?)type.GetFieldValue(nameof(Endpoint.allowAnyPermission), instance);
+                    var policyName = $"{Claim.Permissions}:{epName}";
+                    var allowAnyPermission = (bool?)epType.GetFieldValue(nameof(Endpoint.allowAnyPermission), epInstance);
+
                     if (allowAnyPermission is true)
                     {
                         options.AddPolicy(policyName, b =>

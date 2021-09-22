@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31710.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EZEndpoints", "src\EZEndpoints.csproj", "{46C0B385-062F-48D5-866A-8235192CBAB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiExpress", "src\ApiExpress.csproj", "{46C0B385-062F-48D5-866A-8235192CBAB4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{8662EC7C-ECF1-4274-BAFD-38D6D1BD9DAB}"
 EndProject

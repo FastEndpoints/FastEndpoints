@@ -1,4 +1,4 @@
-﻿using EZEndpoints;
+﻿using ApiExpress;
 
 namespace Inventory.GetList.NewlyAdded
 {

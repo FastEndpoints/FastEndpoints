@@ -1,4 +1,4 @@
-﻿namespace EZEndpoints
+﻿namespace ApiExpress
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class FromClaimAttribute : Attribute

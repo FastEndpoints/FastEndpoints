@@ -1,4 +1,4 @@
-﻿namespace EZEndpoints.Security
+﻿namespace ApiExpress.Security
 {
     public static class Claim
     {

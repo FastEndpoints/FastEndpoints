@@ -3,7 +3,7 @@ using FluentValidation.Results;
 using System.Linq.Expressions;
 using System.Text.Json;
 
-namespace EZEndpoints
+namespace ApiExpress
 {
     public abstract class Endpoint : IEndpoint
     {

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace EZEndpoints
+namespace ApiExpress
 {
     internal static class ReqTypeCache<T> where T : IRequest
     {

@@ -1,6 +1,6 @@
 ﻿using FluentValidation.Results;
 
-namespace EZEndpoints
+namespace ApiExpress
 {
     public class ErrorResponse
     {

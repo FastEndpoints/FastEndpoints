@@ -1,4 +1,4 @@
-﻿using EZEndpoints.Security;
+﻿using ApiExpress.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace EZEndpoints
+namespace ApiExpress
 {
     public static class Extensions
     {
@@ -33,7 +33,7 @@ namespace EZEndpoints
             return services;
         }
 
-        public static IServiceCollection AddEZEndpoints(this IServiceCollection services) //add ref to Microsoft.AspNetCore.Builder and change SDK to Microsoft.NET.Sdk
+        public static IServiceCollection AddApiExpress(this IServiceCollection services) //add ref to Microsoft.AspNetCore.Builder and change SDK to Microsoft.NET.Sdk
         {
             endpoints = DiscoverEndpointTypes()
                 .Select(t => (t, Activator.CreateInstance(t), t.AssemblyQualifiedName)).ToArray();
@@ -43,7 +43,7 @@ namespace EZEndpoints
             return services;
         }
 
-        public static IEndpointRouteBuilder UseEZEndpoints(this IEndpointRouteBuilder builder)
+        public static IEndpointRouteBuilder ApiExpress(this IEndpointRouteBuilder builder)
         {
             Endpoint.serviceProvider = builder.ServiceProvider;
 

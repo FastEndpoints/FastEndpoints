@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace EZEndpoints
+namespace ApiExpress
 {
     public static class EndpointExecutor
     {

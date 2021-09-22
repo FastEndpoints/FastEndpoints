@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\EZEndpoints.csproj" />
+    <ProjectReference Include="..\src\ApiExpress.csproj" />
   </ItemGroup>
 
 </Project>

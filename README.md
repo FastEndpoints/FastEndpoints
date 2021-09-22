@@ -1,28 +1,26 @@
-# EZEndpoints
+# ApiExpress
 
-An easy to use Web API framework (which encourages CQRS and Vertical Slice Architecture) built on top of .Net 6 Endpoints. It is a great alternative to the new minimal APIs that require manual endpoint registration/mapping.
-
+An easy to use Web API framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. It is a great alternative to the new minimal APIs that require manual endpoint mapping.
 
 Current State: **NOT PRODUCTION READY!!!**
 
-
 ## Try it out...
-there is still no nuget package published. so you'd have to clone this git repo and reference the `/Src/EZEndpoints.cs` as a project reference from a .net core 6 project. or you can play around with the sample project in `/Web/Web.csproj`.
+there is still no nuget package published. so you'd have to clone this git repo and reference the `/Src/ApiExpress.cs` as a project reference from a .net core 6 project. or you can play around with the sample project in `/Web/Web.csproj`.
 
 # Code Sample:
 
 ### Program.cs
 ```csharp
-using EZEndpoints;
+using ApiExpress;
 
 var builder = WebApplication.CreateBuilder();
-builder.Services.AddEZEndpoints();
+builder.Services.AddApiExpress();
 builder.Services.AddAuthenticationJWTBearer("Key");
 
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseEZEndpoints();
+app.UseApiExpress();
 app.Run();
 ```
 
@@ -48,8 +46,10 @@ public class Response : IResponse
 
 ### Endpoint Definition
 ```csharp
-public class MyEndpoint : Endpoint<MyRequest, MyValidator>
+public class MyEndpoint : Endpoint<MyRequest>
 {
+    public ILogger<MyEndpoint>? Logger { get; set; } //automatically injected from services
+
     public MyEndpoint()
     {
         Routes("/api/test/{id}");
@@ -63,19 +63,16 @@ public class MyEndpoint : Endpoint<MyRequest, MyValidator>
             Allow.Inventory_Update_Item);
     }
 
-    protected override Task ExecuteAsync(MyRequest req, Context<MyRequest> ctx)
+    protected override Task ExecuteAsync(MyRequest req, CancellationToken cancellation)
     {
         if (req.Price < 100)
-            ctx.AddError(r => r.Price, "Price is too low!");
+            AddError(r => r.Price, "Price is too low!");
 
-        ctx.AddError("This is a general error!");
+        AddError("This is a general error!");
 
-        //this will send a 400 error response with a json object containing error details.
-        ctx.ThrowIfAnyErrors();
+        ThrowIfAnyErrors(); //this will send a 400 error response with a json object containing error details.
 
         Logger.LogInformation("this is your first endpoint!");
-
-        var dbService = Resolve<IDataService>();
 
         var res = new MyResponse
         {
@@ -84,12 +81,12 @@ public class MyEndpoint : Endpoint<MyRequest, MyValidator>
             Price = req.Price
         };
 
-        return ctx.SendAsync(res);
+        return SendAsync(res);
     }
 }
 ```
 
-that's it. all of your `Endpoint` definitions are automatically discovered on app startup and routes are automatically mapped.
+that's it. all of your `Endpoint` definitions are automatically discovered on app startup and routes automatically mapped.
 
 # Stay tuned...
 

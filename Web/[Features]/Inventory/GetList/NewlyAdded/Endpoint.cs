@@ -1,8 +1,8 @@
-﻿using EZEndpoints;
+﻿using ApiExpress;
 
 namespace Inventory.GetList.NewlyAdded
 {
-    public class Endpoint : Endpoint<Request>
+    public class Endpoint : Endpoint<Request, Validator>
     {
         public Endpoint()
         {

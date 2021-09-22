@@ -1,4 +1,4 @@
-﻿namespace EZEndpoints
+﻿namespace ApiExpress
 {
     public interface IRequest { }
 

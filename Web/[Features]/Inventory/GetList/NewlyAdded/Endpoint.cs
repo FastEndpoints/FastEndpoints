@@ -2,7 +2,7 @@
 
 namespace Inventory.GetList.NewlyAdded
 {
-    public class Endpoint : Endpoint<Request, Validator>
+    public class Endpoint : Endpoint<Request>
     {
         public Endpoint()
         {

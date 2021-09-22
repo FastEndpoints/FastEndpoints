@@ -29,6 +29,10 @@ namespace EZEndpoints
         protected object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
     }
 
+    public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>>
+        where TRequest : IRequest, new()
+    { }
+
     public abstract class Endpoint<TRequest, TValidator> : Endpoint
         where TRequest : IRequest, new()
         where TValidator : AbstractValidator<TRequest>, new()
@@ -85,6 +89,9 @@ namespace EZEndpoints
 
         private void ValidateRequest(TRequest req, Context<TRequest> ctx)
         {
+            if (typeof(TValidator) == typeof(EmptyValidator<TRequest>))
+                return;
+
             TValidator val = new();
 
             var valResult = val.Validate(req);

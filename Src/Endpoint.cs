@@ -65,7 +65,7 @@ namespace ApiExpress
         internal override async Task ExecAsync(HttpContext ctx, CancellationToken cancellation)
         {
             HttpContext = ctx;
-            var req = await BindIncomingData(ctx).ConfigureAwait(false);
+            var req = await BindIncomingDataAsync(ctx, cancellation).ConfigureAwait(false);
             try
             {
                 ValidateRequest(req);
@@ -106,25 +106,25 @@ namespace ApiExpress
             ThrowIfAnyErrors();
         }
 
-        public Task SendErrorAsync()
+        public Task SendErrorAsync(CancellationToken cancellation = default)
         {
             if (HttpContext.Response.HasStarted)
                 return Task.CompletedTask;
 
             HttpContext.Response.StatusCode = 400;
-            return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions);
+            return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
         }
 
-        public Task SendAsync(object response)
+        public Task SendAsync(object response, CancellationToken cancellation = default)
         {
             if (HttpContext.Response.HasStarted)
                 return Task.CompletedTask;
 
             HttpContext.Response.StatusCode = 200;
-            return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions);
+            return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions, cancellation);
         }
 
-        public ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream")
+        public ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
             if (HttpContext.Response.HasStarted)
                 return ValueTask.CompletedTask;
@@ -132,7 +132,7 @@ namespace ApiExpress
             HttpContext.Response.StatusCode = 200;
             HttpContext.Response.ContentType = contentType;
             HttpContext.Response.ContentLength = bytes.Length;
-            return HttpContext.Response.Body.WriteAsync(bytes);
+            return HttpContext.Response.Body.WriteAsync(bytes, cancellation);
         }
 
         public Task SendOkAsync()
@@ -159,27 +159,27 @@ namespace ApiExpress
             return Task.CompletedTask;
         }
 
-        public Task<IFormCollection> GetFormAsync()
+        public Task<IFormCollection> GetFormAsync(CancellationToken cancellation = default)
         {
             var req = HttpContext.Request;
 
             if (!req.HasFormContentType)
                 throw new InvalidOperationException("This request doesn't have any multipart form data!");
 
-            return req.ReadFormAsync();
+            return req.ReadFormAsync(cancellation);
         }
 
-        public async Task<IFormFileCollection> GetFilesAsync()
+        public async Task<IFormFileCollection> GetFilesAsync(CancellationToken cancellation = default)
         {
-            return (await GetFormAsync().ConfigureAwait(false)).Files;
+            return (await GetFormAsync(cancellation).ConfigureAwait(false)).Files;
         }
 
-        private static async Task<TRequest> BindIncomingData(HttpContext ctx)
+        private static async Task<TRequest> BindIncomingDataAsync(HttpContext ctx, CancellationToken cancellation)
         {
             TRequest? req = default;
 
             if (ctx.Request.HasJsonContentType())
-                req = await ctx.Request.ReadFromJsonAsync<TRequest>(SerializerOptions).ConfigureAwait(false);
+                req = await ctx.Request.ReadFromJsonAsync<TRequest>(SerializerOptions, cancellation).ConfigureAwait(false);
 
             if (req is null) req = new();
 

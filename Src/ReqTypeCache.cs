@@ -5,7 +5,7 @@ namespace ApiExpress
     internal static class ReqTypeCache<T> where T : IRequest
     {
         internal static Dictionary<string, PropertyInfo> Props { get; } = new();
-        internal static Dictionary<string, (string claimType, PropertyInfo propInfo)> FromClaimProps { get; } = new();
+        internal static Dictionary<string, (string claimType, bool forbidIfMissing, PropertyInfo propInfo)> FromClaimProps { get; } = new();
 
         static ReqTypeCache()
         {
@@ -17,10 +17,11 @@ namespace ApiExpress
 
                 if (p.IsDefined(typeof(FromClaimAttribute), false))
                 {
-                    var claimType = p.GetCustomAttribute<FromClaimAttribute>(false)?.ClaimType;
+                    var attrib = p.GetCustomAttribute<FromClaimAttribute>(false);
+                    var claimType = attrib?.ClaimType ?? "null";
+                    var forbidIfMissing = attrib?.ForbidIfMissing ?? false;
 
-                    FromClaimProps.Add(
-                        name, new(claimType ?? "null", p));
+                    FromClaimProps.Add(name, new(claimType, forbidIfMissing, p));
                 }
             }
         }

@@ -1,6 +1,7 @@
 using ApiExpress;
 using ApiExpress.TestClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -28,6 +29,20 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task AdminLoginInvalidCreds()
+        {
+            var (res, body) = await client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
+                "/admin/login",
+                new()
+                {
+                    UserName = "admin",
+                    Password = "xxxxx"
+                });
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, res?.StatusCode);
+        }
+
+        [TestMethod]
         public async Task AdminLoginSuccess()
         {
             var (res, body) = await client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
@@ -39,8 +54,8 @@ namespace Test
                 });
 
             Assert.AreEqual(HttpStatusCode.OK, res?.StatusCode);
-            Assert.IsNotNull(body);
-
+            Assert.IsTrue(body?.Permissions?.Count() == 4);
+            Assert.IsTrue(body?.JWTToken is not null);
         }
     }
 }

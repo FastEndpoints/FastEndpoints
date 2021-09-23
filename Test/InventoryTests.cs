@@ -1,7 +1,6 @@
 ﻿using ApiExpress;
 using ApiExpress.TestClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Web.Auth;
 using static Test.Setup;
 
 namespace Test

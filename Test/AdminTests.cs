@@ -1,8 +1,8 @@
 using ApiExpress;
 using ApiExpress.TestClient;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Test
@@ -10,13 +10,11 @@ namespace Test
     [TestClass]
     public class AdminTests
     {
+        private static readonly HttpClient client = Setup.Client;
+
         [TestMethod]
         public async Task AdminLoginWithBadInput()
         {
-            var factory = new WebApplicationFactory<Program>(); //todo: move setup to class init
-
-            var client = factory.CreateClient();
-
             var res = await client.PostAsync<Admin.Login.Request, ErrorResponse>(
                 "/admin/login",
                 new()
@@ -25,7 +23,6 @@ namespace Test
                     Password = "y"
                 });
 
-            Assert.IsNotNull(res);
             Assert.AreEqual(HttpStatusCode.BadRequest, res.Response?.StatusCode);
             Assert.AreEqual(2, res.Body?.Errors.Count);
         }

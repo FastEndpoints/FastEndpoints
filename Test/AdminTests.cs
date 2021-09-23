@@ -16,7 +16,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginWithBadInput()
         {
-            var (res, body) = await client.PostAsync<Admin.Login.Request, ErrorResponse>(
+            var (resp, result) = await client.PostAsync<Admin.Login.Request, ErrorResponse>(
                 "/admin/login",
                 new()
                 {
@@ -24,14 +24,14 @@ namespace Test
                     Password = "y"
                 });
 
-            Assert.AreEqual(HttpStatusCode.BadRequest, res?.StatusCode);
-            Assert.AreEqual(2, body?.Errors.Count);
+            Assert.AreEqual(HttpStatusCode.BadRequest, resp?.StatusCode);
+            Assert.AreEqual(2, result?.Errors.Count);
         }
 
         [TestMethod]
         public async Task AdminLoginInvalidCreds()
         {
-            var (res, body) = await client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
+            var (res, _) = await client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
                 "/admin/login",
                 new()
                 {
@@ -45,7 +45,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginSuccess()
         {
-            var (res, body) = await client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
+            var (resp, result) = await client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
                 "/admin/login",
                 new()
                 {
@@ -53,9 +53,9 @@ namespace Test
                     Password = "pass"
                 });
 
-            Assert.AreEqual(HttpStatusCode.OK, res?.StatusCode);
-            Assert.IsTrue(body?.Permissions?.Count() == 4);
-            Assert.IsTrue(body?.JWTToken is not null);
+            Assert.AreEqual(HttpStatusCode.OK, resp?.StatusCode);
+            Assert.IsTrue(result?.Permissions?.Count() == 4);
+            Assert.IsTrue(result?.JWTToken is not null);
         }
     }
 }

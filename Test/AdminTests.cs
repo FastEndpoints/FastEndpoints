@@ -15,7 +15,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginWithBadInput()
         {
-            var res = await client.PostAsync<Admin.Login.Request, ErrorResponse>(
+            var (Response, Body) = await client.PostAsync<Admin.Login.Request, ErrorResponse>(
                 "/admin/login",
                 new()
                 {
@@ -23,8 +23,8 @@ namespace Test
                     Password = "y"
                 });
 
-            Assert.AreEqual(HttpStatusCode.BadRequest, res.Response?.StatusCode);
-            Assert.AreEqual(2, res.Body?.Errors.Count);
+            Assert.AreEqual(HttpStatusCode.BadRequest, Response?.StatusCode);
+            Assert.AreEqual(2, Body?.Errors.Count);
         }
     }
 }

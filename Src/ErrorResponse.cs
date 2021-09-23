@@ -2,7 +2,7 @@
 
 namespace ApiExpress
 {
-    public class ErrorResponse
+    public class ErrorResponse : IResponse
     {
         public int StatusCode { get; set; } = 400;
         public string Message { get; set; } = "One or more errors occured!";

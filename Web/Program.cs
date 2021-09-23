@@ -1,4 +1,5 @@
 using ApiExpress;
+using ApiExpress.Security;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddApiExpress();

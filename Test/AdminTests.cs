@@ -1,8 +1,8 @@
 using ApiExpress;
+using ApiExpress.TestClient;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace Test
@@ -13,11 +13,11 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginWithBadInput()
         {
-            var app = new WebApplicationFactory<Program>(); //todo: move setup to class init
+            var factory = new WebApplicationFactory<Program>(); //todo: move setup to class init
 
-            var client = app.CreateClient();
+            var client = factory.CreateClient();
 
-            var res = await client.PostAsJsonAsync<Admin.Login.Request>(
+            var res = await client.PostAsync<Admin.Login.Request, ErrorResponse>(
                 "/admin/login",
                 new()
                 {
@@ -26,11 +26,8 @@ namespace Test
                 });
 
             Assert.IsNotNull(res);
-            Assert.AreEqual(HttpStatusCode.BadRequest, res.StatusCode);
-
-            var r = await res.Content.ReadFromJsonAsync<ErrorResponse>();
-
-            Assert.AreEqual(2, r.Errors.Count);
+            Assert.AreEqual(HttpStatusCode.BadRequest, res.Response?.StatusCode);
+            Assert.AreEqual(2, res.Body?.Errors.Count);
         }
     }
 }

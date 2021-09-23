@@ -127,9 +127,9 @@ namespace ApiExpress
             return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
         }
 
-        public Task SendAsync(object response, CancellationToken cancellation = default)
+        public Task SendAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
         {
-            HttpContext.Response.StatusCode = 200;
+            HttpContext.Response.StatusCode = statusCode;
             return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions, cancellation);
         }
 

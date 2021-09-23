@@ -1,13 +1,12 @@
 ﻿using ApiExpress.TestClient;
 using Microsoft.AspNetCore.Mvc.Testing;
-using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace Test
 {
     public static class Setup
     {
-        private static readonly WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>();
+        private static readonly WebApplicationFactory<Program> factory = new();
 
         public static HttpClient AdminClient { get; } = factory.CreateClient();
         public static HttpClient GuestClient { get; } = factory.CreateClient();

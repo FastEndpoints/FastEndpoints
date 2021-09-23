@@ -18,10 +18,8 @@
     <Folder Include="[Features]\Customers\Login\" />
     <Folder Include="[Features]\Customers\Update\" />
     <Folder Include="[Features]\Inventory\List\Recent\" />
-    <Folder Include="[Features]\Inventory\Manage\Create\" />
-    <Folder Include="[Features]\Inventory\Manage\Delete\" />
     <Folder Include="[Features]\Inventory\List\Search\" />
-    <Folder Include="[Features]\Inventory\Manage\" />
+    <Folder Include="[Features]\Inventory\Manage\Delete\" />
     <Folder Include="[Features]\Inventory\Manage\Update\" />
     <Folder Include="[Features]\Sales\Orders\Create\" />
     <Folder Include="[Features]\Sales\Orders\Retrieve\" />

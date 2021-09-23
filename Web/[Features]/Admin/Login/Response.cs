@@ -1,9 +1,11 @@
-﻿namespace Admin.Login
+﻿using ApiExpress;
+
+namespace Admin.Login
 {
-    public class Response
+    public class Response : IResponse
     {
         public string? JWTToken { get; set; }
         public DateTime ExpiryDate { get; set; }
-        public string[]? Permissions { get; set; }
+        public IEnumerable<string>? Permissions { get; set; }
     }
 }

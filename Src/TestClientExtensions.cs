@@ -9,8 +9,8 @@ namespace ApiExpress.TestClient
             where TRequest : IRequest
             where TResponse : IResponse
         {
-            var res = await client.PostAsJsonAsync(requestUri, request).ConfigureAwait(false);
-            var body = await res.Content.ReadFromJsonAsync<TResponse>().ConfigureAwait(false);
+            var res = await client.PostAsJsonAsync(requestUri, request, Endpoint.SerializerOptions).ConfigureAwait(false);
+            var body = await res.Content.ReadFromJsonAsync<TResponse>(Endpoint.SerializerOptions).ConfigureAwait(false);
             return (res, body);
         }
     }

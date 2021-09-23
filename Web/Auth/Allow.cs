@@ -1,6 +1,8 @@
-﻿namespace Web.Auth
+﻿using ApiExpress.Security;
+
+namespace Web.Auth
 {
-    public static class Allow
+    public class Allow : Permissions
     {
         public const string Inventory_Create_Item = "100";
         public const string Inventory_Retrieve_Item = "101";

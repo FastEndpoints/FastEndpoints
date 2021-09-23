@@ -123,27 +123,18 @@ namespace ApiExpress
 
         public Task SendErrorAsync(CancellationToken cancellation = default)
         {
-            if (HttpContext.Response.HasStarted)
-                return Task.CompletedTask;
-
             HttpContext.Response.StatusCode = 400;
             return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
         }
 
         public Task SendAsync(object response, CancellationToken cancellation = default)
         {
-            if (HttpContext.Response.HasStarted)
-                return Task.CompletedTask;
-
             HttpContext.Response.StatusCode = 200;
             return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions, cancellation);
         }
 
         public ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
-            if (HttpContext.Response.HasStarted)
-                return ValueTask.CompletedTask;
-
             HttpContext.Response.StatusCode = 200;
             HttpContext.Response.ContentType = contentType;
             HttpContext.Response.ContentLength = bytes.Length;
@@ -152,25 +143,19 @@ namespace ApiExpress
 
         public Task SendOkAsync()
         {
-            if (!HttpContext.Response.HasStarted)
-                HttpContext.Response.StatusCode = 200;
-
+            HttpContext.Response.StatusCode = 200;
             return Task.CompletedTask;
         }
 
         public Task SendNoContentAsync()
         {
-            if (!HttpContext.Response.HasStarted)
-                HttpContext.Response.StatusCode = 204;
-
+            HttpContext.Response.StatusCode = 204;
             return Task.CompletedTask;
         }
 
         public Task SendNotFoundAsync()
         {
-            if (!HttpContext.Response.HasStarted)
-                HttpContext.Response.StatusCode = 404;
-
+            HttpContext.Response.StatusCode = 404;
             return Task.CompletedTask;
         }
 
@@ -251,3 +236,8 @@ namespace ApiExpress
         }
     }
 }
+
+//using (var reader = new StreamReader(ctx.Request.Body, Encoding.UTF8, true, 1024, true))
+//{
+//    var bodyStr = await reader.ReadToEndAsync();
+//}

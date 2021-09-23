@@ -1,19 +1,20 @@
 ﻿using ApiExpress.TestClient;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Test
 {
     public static class Setup
     {
-        public static HttpClient Client { get; set; }
-        public static string? AdminAuthToken { get; set; }
+        private static readonly WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>();
+
+        public static HttpClient AdminClient { get; } = factory.CreateClient();
+        public static HttpClient GuestClient { get; } = factory.CreateClient();
 
         static Setup()
         {
-            Client = new WebApplicationFactory<Program>().CreateClient();
-
-            var (_, Body) = Client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
+            var (_, result) = GuestClient.PostAsync<Admin.Login.Request, Admin.Login.Response>(
                 "/admin/login",
                 new()
                 {
@@ -21,7 +22,7 @@ namespace Test
                     Password = "pass"
                 }).GetAwaiter().GetResult();
 
-            AdminAuthToken = Body?.JWTToken;
+            AdminClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result?.JWTToken);
         }
     }
 }

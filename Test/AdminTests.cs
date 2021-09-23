@@ -3,20 +3,18 @@ using ApiExpress.TestClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
+using static Test.Setup;
 
 namespace Test
 {
     [TestClass]
     public class AdminTests
     {
-        private static readonly HttpClient client = Setup.Client;
-
         [TestMethod]
         public async Task AdminLoginWithBadInput()
         {
-            var (resp, result) = await client.PostAsync<Admin.Login.Request, ErrorResponse>(
+            var (resp, result) = await GuestClient.PostAsync<Admin.Login.Request, ErrorResponse>(
                 "/admin/login",
                 new()
                 {
@@ -31,7 +29,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginInvalidCreds()
         {
-            var (res, _) = await client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
+            var (res, _) = await GuestClient.PostAsync<Admin.Login.Request, Admin.Login.Response>(
                 "/admin/login",
                 new()
                 {
@@ -45,7 +43,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginSuccess()
         {
-            var (resp, result) = await client.PostAsync<Admin.Login.Request, Admin.Login.Response>(
+            var (resp, result) = await GuestClient.PostAsync<Admin.Login.Request, Admin.Login.Response>(
                 "/admin/login",
                 new()
                 {

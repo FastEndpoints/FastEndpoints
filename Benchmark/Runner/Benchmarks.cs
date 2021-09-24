@@ -12,7 +12,7 @@ namespace Runner
         public static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
 
         [Benchmark(Baseline = true)]
-        public async Task ApiExpress()
+        public async Task ApiExpressEndpoint()
         {
             await ApiExpressClient.PostAsync<ApiExpressBench.Request, ApiExpressBench.Response>(
 
@@ -32,7 +32,7 @@ namespace Runner
         }
 
         [Benchmark]
-        public async Task AspNetCoreController()
+        public async Task AspNetMapControllers()
         {
             await ControllerClient.PostAsync<MapControllers.Request, MapControllers.Response>(
 

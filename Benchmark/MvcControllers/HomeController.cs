@@ -36,22 +36,16 @@ namespace MvcControllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            this.logger = logger;
-        }
-
         [AllowAnonymous]
         public IActionResult Index(
             [FromRoute] int id,
-            [FromBody] Request req)
+            [FromBody] Request req,
+            [FromServices] ILogger<HomeController> logger)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            //logger.LogInformation("request received!");
+            logger.LogInformation("request received!");
 
             return Ok(new Response()
             {

@@ -33,6 +33,8 @@ namespace ApiExpressBench
 
     public class Endpoint : Endpoint<Request, Validator>
     {
+        public ILogger<Endpoint>? MyProperty { get; set; }
+
         public Endpoint()
         {
             Verbs(Http.POST);
@@ -42,6 +44,8 @@ namespace ApiExpressBench
 
         protected override Task ExecuteAsync(Request req, CancellationToken ct)
         {
+            Logger.LogInformation("request received!");
+
             return SendAsync(new Response()
             {
                 Id = req.Id,

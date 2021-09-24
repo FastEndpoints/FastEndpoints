@@ -38,8 +38,13 @@ namespace MvcController.Controllers
     {
         [AllowAnonymous]
         [HttpPost("/benchmark/ok/{id}")]
-        public Task<Response> PostAsync([FromRoute] int id, [FromBody] Request req)
+        public Task<Response> PostAsync(
+            [FromRoute] int id,
+            [FromBody] Request req,
+            [FromServices] ILogger<Controllers> logger)
         {
+            logger.LogInformation("request received!");
+
             return Task.FromResult<Response>(new()
             {
                 Id = id,

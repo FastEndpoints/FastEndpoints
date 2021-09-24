@@ -91,3 +91,67 @@ that's it. all of your `Endpoint` definitions are automatically discovered on ap
 # Stay tuned...
 
 if the above api looks interesting to you, watch this repo for updates. you are welcome to submit PRs or suggest features/ report bugs using github issues.
+
+# Benchmark results
+
+ <!-- .\bomb.exe -c 100 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/benchmark/ok/123 -->
+
+## Bombardier load test
+
+### ApiExpress Endpoint
+```
+Statistics        Avg      Stdev        Max
+  Reqs/sec    110569.18    4482.43  124218.28
+  Latency        0.90ms    50.54us    16.00ms
+  HTTP codes:
+    1xx - 0, 2xx - 1105885, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    55.47MB/s
+```
+
+### AspNet MapControllers
+```
+Statistics        Avg      Stdev        Max
+  Reqs/sec     73447.69    2983.87   82207.93
+  Latency        1.36ms    81.53us    22.00ms
+  HTTP codes:
+    1xx - 0, 2xx - 734693, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    36.86MB/s
+```
+
+### AspNet MVC Controller
+```
+Statistics        Avg      Stdev        Max
+  Reqs/sec     72418.24    2895.27   79805.72
+  Latency        1.38ms   103.11us    29.00ms
+  HTTP codes:
+    1xx - 0, 2xx - 724404, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    36.19MB/s
+```
+
+**parameters used:** 
+`-c 100 -m POST -f "body.json" -H "Content-Type : application/json"  -d 10s http://localhost:5000/`
+<!-- ```
+{
+  "FirstName": "xxc",
+  "LastName": "yyy",
+  "Age": 23,
+  "PhoneNumbers": [
+    "1111111111",
+    "2222222222",
+    "3333333333",
+    "4444444444",
+    "5555555555"
+  ]
+}
+``` -->
+
+## BenchmarkDotNet head-to-head results
+
+|               Method |     Mean |   Error |  StdDev | Ratio | RatioSD |  Gen 0 | Allocated |
+|--------------------- |---------:|--------:|--------:|------:|--------:|-------:|----------:|
+|   ApiExpress Endpoint | 106.0 μs | 2.12 μs | 4.73 μs |  1.00 |    0.00 | 3.6621 |     30 KB |
+| AspNet MapControllers | 146.5 μs | 2.84 μs | 2.79 μs |  1.41 |    0.06 | 5.3711 |     44 KB |
+| AspNet MVC Controller | 148.2 μs | 2.92 μs | 3.36 μs |  1.42 |    0.06 | 5.3711 |     45 KB |

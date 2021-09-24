@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <Version>1.0.0-alpha1</Version>
+    <Version>1.0.0-beta1</Version>
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
     <Copyright>Đĵ ΝιΓΞΗΛψΚ</Copyright>
     <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
@@ -14,6 +14,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/dj-nitehawk/ApiExpress</RepositoryUrl>
     <PackageReleaseNotes>
+      WARNING: this is a beta release. do not use in production!
     </PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>

@@ -22,6 +22,5 @@ app.Run();
 // - AcceptFiles()
 // - SendBytesAsync()
 
-//todo: benchmark against minimal api and mvc controller
 //todo: add xml documentation
 //todo: write wiki/documentation on github

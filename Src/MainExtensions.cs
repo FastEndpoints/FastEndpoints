@@ -19,11 +19,7 @@ namespace ApiExpress
                 .Select(t => (t, Activator.CreateInstance(t), t.FullName))
                 .ToArray();
 
-            //NOTE: without this capture, the endpoints are null when accessed inside BuildPermissionPolicies
-            //      could be a .net 6 preview issue?
-            var epStaticRef = endpoints;
-
-            services.AddAuthorization(o => BuildPermissionPolicies(o, epStaticRef));
+            services.AddAuthorization(BuildPermissionPolicies);
 
             return services;
         }
@@ -79,13 +75,11 @@ namespace ApiExpress
                     EndpointExecutor.CacheEndpointTypes[route] = (epFactory, execMethod);
                 }
             }
-            endpoints = null;
+            //endpoints = null;
             return builder;
         }
 
-        private static void BuildPermissionPolicies(
-            AuthorizationOptions options,
-            (Type endpointType, object? endpointInstance, string? endpointName)[] endpoints)
+        private static void BuildPermissionPolicies(AuthorizationOptions options)
         {
             if (endpoints is null) return;
 

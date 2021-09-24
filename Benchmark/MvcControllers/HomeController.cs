@@ -1,5 +1,6 @@
 ﻿using ApiExpress;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MvcControllers
@@ -32,6 +33,7 @@ namespace MvcControllers
         public string? PhoneNumber { get; set; }
     }
 
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> logger;
@@ -41,6 +43,7 @@ namespace MvcControllers
             this.logger = logger;
         }
 
+        [AllowAnonymous]
         public IActionResult Index(
             [FromRoute] int id,
             [FromBody] Request req)
@@ -48,7 +51,7 @@ namespace MvcControllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            logger.LogInformation("request received!");
+            //logger.LogInformation("request received!");
 
             return Ok(new Response()
             {

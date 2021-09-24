@@ -20,7 +20,8 @@ namespace Test
                 });
 
             Assert.AreEqual(400, result?.StatusCode);
-            Assert.AreEqual("User doesn't have this claim type!", result?.Errors["null-claim"].First());
+            Assert.AreEqual(1, result?.Errors.Count);
+            Assert.IsTrue(result?.Errors.ContainsKey("null-claim"));
         }
 
         [TestMethod]
@@ -66,7 +67,45 @@ namespace Test
                 });
 
             Assert.AreEqual(HttpStatusCode.BadRequest, res?.StatusCode);
-            //Assert.IsTrue(result?.Errors.ContainsKey("Description"));
+            Assert.AreEqual(2, result?.Errors.Count);
+            Assert.IsTrue(result?.Errors.ContainsKey("Description"));
+            Assert.IsTrue(result?.Errors.ContainsKey("Price"));
+        }
+
+        [TestMethod]
+        public async Task CreateProductFailDuplicateItem()
+        {
+            var (res, result) = await AdminClient.PostAsync<Inventory.Manage.Create.Request, ErrorResponse>(
+                "/inventory/manage/create",
+                new()
+                {
+                    Name = "Apple Juice",
+                    Description = "description",
+                    ModifiedBy = "me",
+                    Price = 100
+                });
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, res?.StatusCode);
+            Assert.AreEqual(1, result?.Errors.Count);
+            Assert.IsTrue(result?.Errors.ContainsKey("GeneralErrors"));
+        }
+
+        [TestMethod]
+        public async Task CreateProductSuccess()
+        {
+            var (res, result) = await AdminClient.PostAsync<Inventory.Manage.Create.Request, Inventory.Manage.Create.Response>(
+                "/inventory/manage/create",
+                new()
+                {
+                    Name = "Grape Juice",
+                    Description = "description",
+                    ModifiedBy = "me",
+                    Price = 100
+                });
+
+            Assert.AreEqual(HttpStatusCode.OK, res?.StatusCode);
+            Assert.IsTrue(result?.ProductId > 1);
+            Assert.AreEqual("Grape Juice", result?.ProductName);
         }
     }
 }

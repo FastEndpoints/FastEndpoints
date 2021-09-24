@@ -45,7 +45,7 @@ namespace MvcControllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            logger.LogInformation("request received!");
+            //logger.LogInformation("request received!");
 
             return Ok(new Response()
             {

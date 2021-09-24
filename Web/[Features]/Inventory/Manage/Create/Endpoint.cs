@@ -1,4 +1,5 @@
 ﻿using ApiExpress;
+using Web.Auth;
 
 namespace Inventory.Manage.Create
 {
@@ -8,6 +9,9 @@ namespace Inventory.Manage.Create
         {
             Verbs(Http.POST);
             Routes("/inventory/manage/create");
+            Permissions(allowAny: true,
+                Allow.Inventory_Create_Item,
+                Allow.Inventory_Update_Item);
         }
 
         protected override Task ExecuteAsync(Request req, CancellationToken ct)

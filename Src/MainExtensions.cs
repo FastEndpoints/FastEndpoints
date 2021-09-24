@@ -13,18 +13,18 @@ namespace ApiExpress
     {
         private static (Type endpointType, object? endpointInstance, string? endpointName)[]? endpoints;
 
-        public static IServiceCollection AddApiExpress(this IServiceCollection services) //add ref to Microsoft.AspNetCore.Builder and change SDK to Microsoft.NET.Sdk
+        public static IServiceCollection AddApiExpress(this IServiceCollection services)
         {
             endpoints = DiscoverEndpointTypes()
-                .Select(t => (t, Activator.CreateInstance(t), t.AssemblyQualifiedName)).ToArray();
+                .Select(t => (t, Activator.CreateInstance(t), t.FullName))
+                .ToArray();
 
-#if DEBUG
-            AuthorizationOptions options = new();
-            BuildPermissionPolicies(options);
-            services.AddAuthorization(o => o = options);
-#else
-            services.AddAuthorization(BuildPermissionPolicies);
-#endif
+            //NOTE: without this capture, the endpoints are null when accessed inside BuildPermissionPolicies
+            //      could be a .net 6 preview issue?
+            var epStaticRef = endpoints;
+
+            services.AddAuthorization(o => BuildPermissionPolicies(o, epStaticRef));
+
             return services;
         }
 
@@ -83,7 +83,9 @@ namespace ApiExpress
             return builder;
         }
 
-        private static void BuildPermissionPolicies(AuthorizationOptions options)
+        private static void BuildPermissionPolicies(
+            AuthorizationOptions options,
+            (Type endpointType, object? endpointInstance, string? endpointName)[] endpoints)
         {
             if (endpoints is null) return;
 

@@ -79,6 +79,9 @@ public class MyEndpoint : Endpoint<MyRequest>
 
         Logger.LogInformation("this is your first endpoint!"); //dependency injected logger
 
+        var isProduction = Env.IsProduction(); //read environment
+        var smtpServer = Config["SMTP:HostName"]; //read configuration
+
         var res = new MyResponse //typed response to make integration tests convenient
         {
             Message = $"the route parameter value is: {req.Id}",

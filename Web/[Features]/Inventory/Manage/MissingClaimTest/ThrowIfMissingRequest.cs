@@ -3,7 +3,7 @@ using Web.Auth;
 
 namespace Inventory.Manage.MissingClaimTest
 {
-    public class Request : IRequest
+    public class ThrowIfMissingRequest : IRequest
     {
         [From(Claim.NullClaim)]
         public string? TestProp { get; set; }

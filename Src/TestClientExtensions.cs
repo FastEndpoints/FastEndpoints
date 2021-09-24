@@ -7,7 +7,7 @@ namespace ApiExpress.TestClient
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TRequest, TResponse>
             (this HttpClient client, string requestUri, TRequest request)
             where TRequest : IRequest
-            where TResponse : IResponse
+            where TResponse : class
         {
             var res = await client.PostAsJsonAsync(requestUri, request, Endpoint.SerializerOptions).ConfigureAwait(false);
             var body = await res.Content.ReadFromJsonAsync<TResponse>(Endpoint.SerializerOptions).ConfigureAwait(false);

@@ -192,14 +192,14 @@ namespace ApiExpress
         {
             foreach (var cacheEntry in ReqTypeCache<TRequest>.FromClaimProps)
             {
-                var claimType = cacheEntry.Key;
+                var claimType = cacheEntry.claimType;
                 var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
-                if (claimVal is null && cacheEntry.Value.forbidIfMissing)
-                {
+                if (claimVal is null && cacheEntry.forbidIfMissing)
                     ValidationFailures.Add(new(claimType, "User doesn't have this claim type!"));
-                }
-                cacheEntry.Value.propInfo.SetValue(req, claimVal);
+
+                if (claimVal is not null)
+                    cacheEntry.propInfo.SetValue(req, claimVal);
             }
             if (ValidationFailed) throw new ValidationFailureException();
         }

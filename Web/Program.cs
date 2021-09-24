@@ -13,5 +13,15 @@ app.UseApiExpress();
 app.Run();
 
 //todo: write tests
+// - sending more than one response in a handler
+// - GET request with route bound values
+// - auto resolved services with endpoint properties
+// - DontThrowIfValidationFails()
+// - Policies()
+// - Roles()
+// - AcceptFiles()
+// - SendBytesAsync()
+
+//todo: benchmark against minimal api and mvc controller
 //todo: add xml documentation
-//todo: benchmark against minimal api, mvc controller
+//todo: write wiki/documentation on github

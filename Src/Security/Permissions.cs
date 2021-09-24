@@ -29,6 +29,7 @@ namespace ApiExpress.Security
             }
         }
 
+#pragma warning disable CA1822 // Mark members as static
         public IEnumerable<string> NamesFor(IEnumerable<string> codes)
         {
             return fields
@@ -42,6 +43,7 @@ namespace ApiExpress.Security
                 .Where(f => names.Contains(f.PermissionName))
                 .Select(f => f.PermissionCode);
         }
+#pragma warning restore CA1822 // Mark members as static
 
         public IEnumerator<(string PermissionName, string PermissionCode)> GetEnumerator()
         {

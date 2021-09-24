@@ -1,10 +1,11 @@
-﻿using FluentValidation;
+﻿using ApiExpress;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MvcController.Controllers
+namespace MvcController
 {
-    public class Request
+    public class Request : IRequest
     {
         public int Id { get; set; }
         public string? FirstName { get; set; }
@@ -24,7 +25,7 @@ namespace MvcController.Controllers
         }
     }
 
-    public class Response
+    public class Response : IResponse
     {
         public int Id { get; set; }
         public string? Name { get; set; }
@@ -43,7 +44,7 @@ namespace MvcController.Controllers
             [FromBody] Request req,
             [FromServices] ILogger<Controllers> logger)
         {
-            logger.LogInformation("request received!");
+            //logger.LogInformation("request received!");
 
             return Task.FromResult<Response>(new()
             {

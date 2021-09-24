@@ -11,4 +11,8 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ApiExpress.csproj" />
+  </ItemGroup>
+
 </Project>

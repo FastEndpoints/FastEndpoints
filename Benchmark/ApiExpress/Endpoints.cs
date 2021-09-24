@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using ApiExpress;
+﻿using ApiExpress;
+using FluentValidation;
 
 namespace ApiExpressBench
 {
@@ -44,7 +44,7 @@ namespace ApiExpressBench
 
         protected override Task ExecuteAsync(Request req, CancellationToken ct)
         {
-            Logger.LogInformation("request received!");
+            //Logger.LogInformation("request received!");
 
             return SendAsync(new Response()
             {

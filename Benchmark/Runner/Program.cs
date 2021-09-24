@@ -1,4 +1,4 @@
-﻿
-Console.WriteLine("jkhjkhkjh");
-Console.ReadLine();
+﻿using BenchmarkDotNet.Running;
+using Runner;
 
+BenchmarkRunner.Run<Benchmarks>();

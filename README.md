@@ -139,7 +139,7 @@ Statistics        Avg      Stdev        Max
 ```
 
 **parameters used:** 
-`-c 100 -m POST -f "body.json" -H "Content-Type : application/json"  -d 10s http://localhost:5000/`
+`-c 100 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/Home/Index/123`
 <!-- ```
 {
   "FirstName": "xxc",

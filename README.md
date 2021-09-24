@@ -67,7 +67,7 @@ public class MyEndpoint : Endpoint<MyRequest>
             Allow.Inventory_Update_Item); //declarative permission based authentication
     }
 
-    protected override async Task ExecuteAsync(MyRequest req, CancellationToken cancellation)
+    protected override async Task ExecuteAsync(MyRequest req, CancellationToken ct)
     {
         //can do further validation here in addition to FluentValidations rules
         if (req.Price < 100)

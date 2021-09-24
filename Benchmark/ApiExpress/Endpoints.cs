@@ -1,10 +1,9 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using ApiExpress;
 
-namespace MvcController.Controllers
+namespace ApiExpressBench
 {
-    public class Request
+    public class Request : IRequest
     {
         public int Id { get; set; }
         public string? FirstName { get; set; }
@@ -24,7 +23,7 @@ namespace MvcController.Controllers
         }
     }
 
-    public class Response
+    public class Response : IResponse
     {
         public int Id { get; set; }
         public string? Name { get; set; }
@@ -32,17 +31,20 @@ namespace MvcController.Controllers
         public string? PhoneNumber { get; set; }
     }
 
-    [ApiController]
-    [Authorize]
-    public class Controllers : ControllerBase
+    public class Endpoint : Endpoint<Request, Validator>
     {
-        [AllowAnonymous]
-        [HttpPost("/benchmark/ok/{id}")]
-        public Task<Response> PostAsync([FromRoute] int id, [FromBody] Request req)
+        public Endpoint()
         {
-            return Task.FromResult<Response>(new()
+            Verbs(Http.POST);
+            Routes("/benchmark/ok/{id}");
+            AllowAnnonymous();
+        }
+
+        protected override Task ExecuteAsync(Request req, CancellationToken ct)
+        {
+            return SendAsync(new Response()
             {
-                Id = id,
+                Id = req.Id,
                 Name = req.FirstName + " " + req.LastName,
                 Age = req.Age,
                 PhoneNumber = req.PhoneNumbers?.FirstOrDefault()

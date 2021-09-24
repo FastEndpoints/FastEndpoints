@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runner", "Benchmark\Runner\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcController", "Benchmark\MvcController\MvcController.csproj", "{343754C8-BE64-415B-86BB-1372AF0DF309}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiExpressBench", "Benchmark\ApiExpress\ApiExpressBench.csproj", "{87F3C4B5-FA58-4143-9C09-4328F172B158}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,14 @@ Global
 		{343754C8-BE64-415B-86BB-1372AF0DF309}.Release|Any CPU.Build.0 = Release|Any CPU
 		{343754C8-BE64-415B-86BB-1372AF0DF309}.Release|x86.ActiveCfg = Release|Any CPU
 		{343754C8-BE64-415B-86BB-1372AF0DF309}.Release|x86.Build.0 = Release|Any CPU
+		{87F3C4B5-FA58-4143-9C09-4328F172B158}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87F3C4B5-FA58-4143-9C09-4328F172B158}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87F3C4B5-FA58-4143-9C09-4328F172B158}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{87F3C4B5-FA58-4143-9C09-4328F172B158}.Debug|x86.Build.0 = Debug|Any CPU
+		{87F3C4B5-FA58-4143-9C09-4328F172B158}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87F3C4B5-FA58-4143-9C09-4328F172B158}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87F3C4B5-FA58-4143-9C09-4328F172B158}.Release|x86.ActiveCfg = Release|Any CPU
+		{87F3C4B5-FA58-4143-9C09-4328F172B158}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,6 +80,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3014AF58-165B-4CD7-BB4C-BC54B0872BD2} = {7FFD7B4A-1FF7-4F7F-9D99-75035E33E96D}
 		{343754C8-BE64-415B-86BB-1372AF0DF309} = {7FFD7B4A-1FF7-4F7F-9D99-75035E33E96D}
+		{87F3C4B5-FA58-4143-9C09-4328F172B158} = {7FFD7B4A-1FF7-4F7F-9D99-75035E33E96D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FB7DD32F-1C3C-435B-AE07-A3D7AA631603}

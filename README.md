@@ -2,10 +2,11 @@
 
 An easy to use Web API framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. It is a great alternative to the new minimal APIs that require manual endpoint mapping.
 
-Current State: **NOT PRODUCTION READY!!!**
-
 ## Try it out...
-there is still no nuget package published. so you'd have to clone this git repo and reference the `/Src/ApiExpress.cs` as a project reference from a .net core 6 project. or you can play around with the sample project in `/Web/Web.csproj`.
+install it from nuget:
+`Install-Package ApiExpress -Version 1.0.0-beta1`
+
+**note:** the minimum required sdk version is `.net 6.0` (preview at the moment)
 
 # Code Sample:
 
@@ -15,7 +16,7 @@ using ApiExpress;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddApiExpress();
-builder.Services.AddAuthenticationJWTBearer("Key");
+builder.Services.AddAuthenticationJWTBearer("SecretKey");
 
 var app = builder.Build();
 app.UseAuthentication();
@@ -28,6 +29,9 @@ app.Run();
 ```csharp
 public class MyRequest : IRequest
 {
+    [From(Claim.UserName)]
+    public string UserName { get; set; }  //this value will be auto populated from the user claim
+
     public int Id { get; set; }
     public string? Name { get; set; }
     public int Price { get; set; }
@@ -52,29 +56,30 @@ public class MyEndpoint : Endpoint<MyRequest>
 
     public MyEndpoint()
     {
+        //no longer hindered by attribute limitations
         Routes("/api/test/{id}");
         Verbs(Http.POST, Http.PATCH);
-
         Roles("Admin", "Manager");
-        Policies("TopManagement", "Auditors");
+        Policies("ManagementTeamCanAccess", "AuditorsCanAccess");
         Permissions(
             Allow.Inventory_Create_Item,
             Allow.Inventory_Retrieve_Item,
-            Allow.Inventory_Update_Item);
+            Allow.Inventory_Update_Item); //declarative permission based authentication
     }
 
     protected override Task ExecuteAsync(MyRequest req, CancellationToken cancellation)
     {
+        //can do further validation here in addition to FluentValidations rules
         if (req.Price < 100)
             AddError(r => r.Price, "Price is too low!");
 
         AddError("This is a general error!");
 
-        ThrowIfAnyErrors(); //this will send a 400 error response with a json object containing error details.
+        ThrowIfAnyErrors(); //breaks the flow and sends a 400 error response containing error details.
 
-        Logger.LogInformation("this is your first endpoint!");
+        Logger.LogInformation("this is your first endpoint!"); //dependency injected logger
 
-        var res = new MyResponse
+        var res = new MyResponse //typed response to make integration tests convenient
         {
             Message = $"the route parameter value is: {req.Id}",
             Name = req.Name,
@@ -86,11 +91,10 @@ public class MyEndpoint : Endpoint<MyRequest>
 }
 ```
 
-that's it. all of your `Endpoint` definitions are automatically discovered on app startup and routes automatically mapped.
+that's mostly it. all of your `Endpoint` definitions are automatically discovered on app startup and routes automatically mapped.
 
-# Stay tuned...
-
-if the above api looks interesting to you, watch this repo for updates. you are welcome to submit PRs or suggest features/ report bugs using github issues.
+# Documentation
+proper documentation will be available within a few weeks once **v1.0** is released. in the meantime have a browse through the `Web`, `Test` and `Benchmark` projects to see more examples.
 
 # Benchmark results
 
@@ -98,7 +102,7 @@ if the above api looks interesting to you, watch this repo for updates. you are 
 
 ## Bombardier load test
 
-### ApiExpress Endpoint
+### ApiExpress Endpoint *(38,000 requests more per second than mvc controller)*
 ```
 Statistics        Avg      Stdev        Max
   Reqs/sec    110569.18    4482.43  124218.28

@@ -97,10 +97,8 @@ namespace ApiExpress
 
         public void AddError(Expression<Func<TRequest, object>> property, string errorMessage)
         {
-            var exp = (MemberExpression)property.Body;
-            if (exp is null) throw new ArgumentException("Please supply a valid member expression!");
             ValidationFailures.Add(
-                new ValidationFailure(exp.Member.Name, errorMessage));
+                new ValidationFailure(property.PropertyName(), errorMessage));
         }
 
         public void ThrowIfAnyErrors()

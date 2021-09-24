@@ -10,7 +10,7 @@ namespace Test
     public class InventoryTests
     {
         [TestMethod]
-        public async Task CreateNewProductClaimMissing()
+        public async Task CreateProductClaimMissing()
         {
             var (_, result) = await AdminClient.PostAsync<Inventory.Manage.MissingClaimTest.ThrowIfMissingRequest, ErrorResponse>(
                 "/inventory/manage/missing-claim-test",
@@ -24,7 +24,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CreateNewProductClaimMissingDontThrow()
+        public async Task CreateProductClaimMissingDontThrow()
         {
             var (res, result) = await AdminClient.PostAsync<Inventory.Manage.MissingClaimTest.DontThrowIfMissingRequest, string>(
                 "/inventory/manage/missing-claim-test/dont-throw",
@@ -38,7 +38,7 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task CreateNewProductFailValidation()
+        public async Task CreateProductFailValidation()
         {
             var (res, result) = await AdminClient.PostAsync<Inventory.Manage.Create.Request, ErrorResponse>(
                 "/inventory/manage/create",
@@ -48,7 +48,25 @@ namespace Test
                 });
 
             Assert.AreEqual(HttpStatusCode.BadRequest, res?.StatusCode);
+            Assert.AreEqual(2, result?.Errors.Count);
+            Assert.IsTrue(result?.Errors.ContainsKey("Name"));
+            Assert.IsTrue(result?.Errors.ContainsKey("ModifiedBy"));
+        }
 
+        [TestMethod]
+        public async Task CreateProductFailBusinessLogic()
+        {
+            var (res, result) = await AdminClient.PostAsync<Inventory.Manage.Create.Request, ErrorResponse>(
+                "/inventory/manage/create",
+                new()
+                {
+                    Name = "test item",
+                    ModifiedBy = "me",
+                    Price = 1100
+                });
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, res?.StatusCode);
+            //Assert.IsTrue(result?.Errors.ContainsKey("Description"));
         }
     }
 }

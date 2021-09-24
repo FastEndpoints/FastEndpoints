@@ -34,7 +34,7 @@ namespace Runner
         [Benchmark]
         public async Task AspNetCoreController()
         {
-            await ApiExpressClient.PostAsync<MapControllers.Request, MapControllers.Response>(
+            await ControllerClient.PostAsync<MapControllers.Request, MapControllers.Response>(
 
                 "/benchmark/ok/123", new()
                 {
@@ -54,7 +54,7 @@ namespace Runner
         [Benchmark]
         public async Task AspNetCoreMVC()
         {
-            await ApiExpressClient.PostAsync<MvcControllers.Request, MvcControllers.Response>(
+            await MvcClient.PostAsync<MvcControllers.Request, MvcControllers.Response>(
 
                 "/Home/Index/123", new()
                 {

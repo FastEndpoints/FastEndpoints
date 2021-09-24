@@ -42,8 +42,8 @@ namespace MvcControllers
             [FromBody] Request req,
             [FromServices] ILogger<HomeController> logger)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            //if (!ModelState.IsValid)
+            //    return BadRequest(ModelState);
 
             //logger.LogInformation("request received!");
 

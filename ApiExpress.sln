@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmark", "Benchmark", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runner", "Benchmark\Runner\Runner.csproj", "{3014AF58-165B-4CD7-BB4C-BC54B0872BD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcController", "Benchmark\MvcController\MvcController.csproj", "{343754C8-BE64-415B-86BB-1372AF0DF309}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapControllers", "Benchmark\MapControllers\MapControllers.csproj", "{343754C8-BE64-415B-86BB-1372AF0DF309}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiExpressBench", "Benchmark\ApiExpress\ApiExpressBench.csproj", "{87F3C4B5-FA58-4143-9C09-4328F172B158}"
 EndProject

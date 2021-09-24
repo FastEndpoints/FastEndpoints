@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApiExpress\ApiExpressBench.csproj" />
-    <ProjectReference Include="..\MvcController\MvcController.csproj" />
+    <ProjectReference Include="..\MvcController\MapControllers.csproj" />
   </ItemGroup>
 
 </Project>

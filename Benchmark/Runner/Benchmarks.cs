@@ -8,7 +8,7 @@ namespace Runner
     public class Benchmarks
     {
         public static HttpClient ApiExpressClient { get; } = new WebApplicationFactory<ApiExpressBench.Program>().CreateClient();
-        public static HttpClient ControllerClient { get; } = new WebApplicationFactory<MvcController.Program>().CreateClient();
+        public static HttpClient ControllerClient { get; } = new WebApplicationFactory<MapControllers.Program>().CreateClient();
 
         [Benchmark(Baseline = true)]
         public async Task ApiExpress_Post_Request()
@@ -33,7 +33,7 @@ namespace Runner
         [Benchmark]
         public async Task Controller_Post_Request()
         {
-            var res = await ApiExpressClient.PostAsync<MvcController.Request, MvcController.Response>(
+            var res = await ApiExpressClient.PostAsync<MapControllers.Request, MapControllers.Response>(
 
                 "/benchmark/ok/123", new()
                 {

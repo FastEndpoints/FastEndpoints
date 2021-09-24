@@ -3,7 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MvcController
+namespace MapControllers
 {
     public class Request : IRequest
     {

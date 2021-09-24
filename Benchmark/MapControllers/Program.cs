@@ -1,5 +1,5 @@
 using FluentValidation.AspNetCore;
-using MvcController;
+using MapControllers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
@@ -12,7 +12,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.Run();
 
-namespace MvcController
+namespace MapControllers
 {
     public partial class Program { }
 }

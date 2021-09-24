@@ -18,8 +18,13 @@ namespace ApiExpress
             endpoints = DiscoverEndpointTypes()
                 .Select(t => (t, Activator.CreateInstance(t), t.AssemblyQualifiedName)).ToArray();
 
+#if DEBUG
+            AuthorizationOptions options = new();
+            BuildPermissionPolicies(options);
+            services.AddAuthorization(o => o = options);
+#else
             services.AddAuthorization(BuildPermissionPolicies);
-
+#endif
             return services;
         }
 

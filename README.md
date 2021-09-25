@@ -1,8 +1,6 @@
 # FastEndpoints
 
-An easy to use Web API framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. 
-**FastEndpoints** is 2X faster; uses only half the memory; and outperforms a traditional MVC controller by about 39,0000 requests per second on a typical desktop computer. 
-It is a great alternative to the new minimal APIs that require manual endpoint mapping.
+An easy to use Web API framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. **FastEndpoints** is 2X faster; uses only half the memory; and outperforms a traditional MVC controller by about 39,0000 requests per second on a typical desktop computer. It is a great alternative to the new minimal APIs that require manual endpoint mapping.
 
 ## Try it out...
 install from nuget: `Install-Package FastEndpoints` **(currently beta)**

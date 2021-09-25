@@ -1,11 +1,11 @@
 # FastEndpoints
 
-An easy to use Web API framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. **FastEndpoints** is 2X faster; uses only half the memory; and outperforms a traditional MVC controller by about 39,000 requests per second on a typical desktop computer. It is a great alternative to the new minimal APIs that require manual endpoint mapping.
+An easy to use Web-Api framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. Performance is on par with `.net 6 minimal apis` and is 2X faster; uses only half the memory; and outperforms a traditional MVC controller by about **[73k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
 
 ## Try it out...
 install from nuget: `Install-Package FastEndpoints` **(currently beta)**
 
-**note:** the minimum required sdk version is `.net 6.0` (preview at the moment)
+**note:** the minimum required sdk version is `.net 6.0` (preview atm)
 
 # Code Sample:
 
@@ -100,45 +100,52 @@ proper documentation will be available within a few weeks once **v1.0** is relea
 
 # Benchmark results
 
- <!-- .\bomb.exe -c 100 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/benchmark/ok/123 -->
+ <!-- .\bomb.exe -c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/benchmark/ok/123 -->
 
 ## Bombardier load test
 
-### FastEndpoints *(39,500 requests more per second than mvc controller)*
+### FastEndpoints *(72,920 more requests per second than mvc controller)*
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    110569.18    4482.43  124218.28
-  Latency        0.90ms    50.54us    16.00ms
+  Reqs/sec    144989.43   13594.10  199851.96
+  Latency        3.41ms   378.95us    65.00ms
   HTTP codes:
-    1xx - 0, 2xx - 1105885, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 1462226, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    55.47MB/s
+  Throughput:    73.34MB/s
 ```
-
+### AspNet Minimal Api
+```
+Statistics        Avg      Stdev        Max
+  Reqs/sec    144416.77   14313.21  171576.65
+  Latency        3.43ms     1.37ms   347.00ms
+  HTTP codes:
+    1xx - 0, 2xx - 1456040, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    73.02MB/s
+```
 ### AspNet MapControllers
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec     71621.34    3551.21  100210.44
-  Latency        1.39ms   186.22us    42.00ms
+  Reqs/sec     74056.92   19197.47  372446.94
+  Latency        6.71ms     1.89ms   416.00ms
   HTTP codes:
-    1xx - 0, 2xx - 716949, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 745069, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    35.95MB/s
+  Throughput:    37.37MB/s
 ```
-
 ### AspNet MVC Controller
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec     70981.56    2983.29   78947.63
-  Latency        1.40ms   118.66us    27.00ms
+  Reqs/sec     72069.51   14094.86   96234.73
+  Latency        6.83ms   712.49us    89.01ms
   HTTP codes:
-    1xx - 0, 2xx - 710040, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 731659, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    35.48MB/s
+  Throughput:    36.56MB/s
 ```
 
-**parameters used:** 
-`-c 100 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/Home/Index/123`
+**parameters used:** `-c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/`
 <!-- ```
 {
   "FirstName": "xxc",
@@ -156,8 +163,9 @@ Statistics        Avg      Stdev        Max
 
 ## BenchmarkDotNet head-to-head results
 
-|                Method |      Mean |    Error |   StdDev | Ratio | RatioSD |  Gen 0 |  Gen 1 | Allocated |
-|---------------------- |----------:|---------:|---------:|------:|--------:|-------:|-------:|----------:|
-| FastEndpointsEndpoint |  75.30 μs | 1.252 μs | 1.171 μs |  1.00 |    0.00 | 2.4414 |      - |     21 KB |
-|  AspNetMapControllers | 144.44 μs | 2.778 μs | 3.307 μs |  1.92 |    0.04 | 5.3711 | 0.2441 |     44 KB |
-|   AspNetMVCController | 148.82 μs | 2.110 μs | 1.974 μs |  1.98 |    0.04 | 5.3711 |      - |     45 KB |
+|                Method |      Mean |    Error |   StdDev | Ratio | RatioSD |  Gen 0 | Allocated |
+|---------------------- |----------:|---------:|---------:|------:|--------:|-------:|----------:|
+| FastEndpointsEndpoint |  78.47 μs | 1.522 μs | 1.753 μs |  1.00 |    0.00 | 2.4414 |     21 KB |
+|    MinimalApiEndpoint |  77.05 μs | 1.519 μs | 2.496 μs |  0.97 |    0.04 | 2.4414 |     21 KB |
+|  AspNetMapControllers | 148.36 μs | 2.922 μs | 5.270 μs |  1.88 |    0.07 | 5.3711 |     44 KB |
+|         AspNetCoreMVC | 150.66 μs | 2.984 μs | 6.550 μs |  1.90 |    0.09 | 5.3711 |     45 KB |

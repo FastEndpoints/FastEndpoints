@@ -1,13 +1,13 @@
 ﻿using FastEndpoints;
 
-namespace Inventory.Manage.MissingClaimTest
+namespace TestCases.MissingClaimTest
 {
     public class DontThrowIfMissingEndpoint : Endpoint<DontThrowIfMissingRequest>
     {
         public DontThrowIfMissingEndpoint()
         {
             Verbs(Http.POST);
-            Routes("/inventory/manage/missing-claim-test/dont-throw");
+            Routes("/test-cases/missing-claim-test/dont-throw");
         }
 
         protected override Task ExecuteAsync(DontThrowIfMissingRequest req, CancellationToken ct)

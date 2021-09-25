@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using Web.Auth;
 
-namespace Inventory.Manage.MissingClaimTest
+namespace TestCases.MissingClaimTest
 {
     public class ThrowIfMissingRequest : IRequest
     {

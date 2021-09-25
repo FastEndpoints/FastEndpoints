@@ -1,4 +1,4 @@
-﻿using ApiExpress;
+﻿using FastEndpoints;
 
 namespace $fileinputname$
 {

@@ -1,4 +1,4 @@
-﻿using ApiExpress;
+﻿using FastEndpoints;
 
 namespace $fileinputname$
 {
@@ -12,7 +12,7 @@ namespace $fileinputname$
 
         protected override Task ExecuteAsync(Request req, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return SendAsync("This endpoint is not implemented!");
         }
     }
 }

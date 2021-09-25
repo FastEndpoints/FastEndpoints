@@ -14,8 +14,8 @@
     <ProjectGuid>{29083D9D-41F0-4FB7-A3AB-2750A8229874}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ApiExpressVSExtension</RootNamespace>
-    <AssemblyName>ApiExpressVSExtension</AssemblyName>
+    <RootNamespace>FastEndpointsVSExtension</RootNamespace>
+    <AssemblyName>FastEndpointsVSExtension</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>

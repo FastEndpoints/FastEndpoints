@@ -5,7 +5,7 @@ namespace FastEndpoints
 {
     internal static class ReflectionExtensions
     {
-        internal static MemberInfo MemberInfo<T>(this Expression<T> expression)
+        private static MemberInfo MemberInfo<T>(this Expression<T> expression)
         {
             return expression.Body switch
             {

@@ -157,8 +157,8 @@ Statistics        Avg      Stdev        Max
 
 ## BenchmarkDotNet head-to-head results
 
-|               Method  |     Mean |   Error |  StdDev | Ratio | RatioSD |  Gen 0 | Allocated |
-|---------------------- |---------:|--------:|--------:|------:|--------:|-------:|----------:|
-| FastEndpoints         | 106.0 μs | 2.12 μs | 4.73 μs |  1.00 |    0.00 | 3.6621 |     30 KB |
-| AspNet MapControllers | 146.5 μs | 2.84 μs | 2.79 μs |  1.41 |    0.06 | 5.3711 |     44 KB |
-| AspNet MVC Controller | 148.2 μs | 2.92 μs | 3.36 μs |  1.42 |    0.06 | 5.3711 |     45 KB |
+|                Method |      Mean |    Error |   StdDev | Ratio | RatioSD |  Gen 0 |  Gen 1 | Allocated |
+|---------------------- |----------:|---------:|---------:|------:|--------:|-------:|-------:|----------:|
+| FastEndpointsEndpoint |  75.30 μs | 1.252 μs | 1.171 μs |  1.00 |    0.00 | 2.4414 |      - |     21 KB |
+|  AspNetMapControllers | 144.44 μs | 2.778 μs | 3.307 μs |  1.92 |    0.04 | 5.3711 | 0.2441 |     44 KB |
+|   AspNetMVCController | 148.82 μs | 2.110 μs | 1.974 μs |  1.98 |    0.04 | 5.3711 |      - |     45 KB |

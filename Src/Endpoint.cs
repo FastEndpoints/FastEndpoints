@@ -188,7 +188,7 @@ namespace FastEndpoints
 
         private void BindFromUserClaims(TRequest req, HttpContext ctx)
         {
-            foreach (var cacheEntry in ReqTypeCache<TRequest>.FromClaimProps)
+            foreach (var cacheEntry in ReqTypeCache<TRequest, TValidator>.FromClaimProps)
             {
                 var claimType = cacheEntry.claimType;
                 var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
@@ -207,9 +207,7 @@ namespace FastEndpoints
             if (typeof(TValidator) == typeof(EmptyValidator<TRequest>))
                 return;
 
-            TValidator val = new();
-
-            var valResult = val.Validate(req);
+            var valResult = ReqTypeCache<TRequest, TValidator>.Validator.Validate(req);
 
             if (!valResult.IsValid)
                 ValidationFailures.AddRange(valResult.Errors);
@@ -224,7 +222,7 @@ namespace FastEndpoints
         {
             foreach (var rv in routeValues)
             {
-                ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop);
+                ReqTypeCache<TRequest, TValidator>.Props.TryGetValue(rv.Key.ToLower(), out var prop);
 
                 if (prop?.PropertyType != typeof(string))
                     prop?.SetValue(req, Convert.ChangeType(rv.Value, prop.PropertyType));

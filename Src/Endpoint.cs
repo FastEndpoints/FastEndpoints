@@ -188,8 +188,11 @@ namespace FastEndpoints
 
         private void BindFromUserClaims(TRequest req, HttpContext ctx)
         {
-            foreach (var cacheEntry in ReqTypeCache<TRequest, TValidator>.FromClaimProps)
+            for (int i = 0; i < ReqTypeCache<TRequest, TValidator>.FromClaimProps.Count; i++)
             {
+                (string claimType, bool forbidIfMissing, System.Reflection.PropertyInfo propInfo) cacheEntry
+                    = ReqTypeCache<TRequest, TValidator>.FromClaimProps[i];
+
                 var claimType = cacheEntry.claimType;
                 var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
@@ -212,10 +215,8 @@ namespace FastEndpoints
             if (!valResult.IsValid)
                 ValidationFailures.AddRange(valResult.Errors);
 
-            if (throwIfValidationFailed && ValidationFailed)
-            {
+            if (ValidationFailed && throwIfValidationFailed)
                 throw new ValidationFailureException();
-            }
         }
 
         private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues)

@@ -1,5 +1,5 @@
-﻿using FastEndpoints;
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
+using FastEndpoints;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Runner

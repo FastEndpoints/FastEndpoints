@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace FastEndpoints
 {
-    public abstract class Endpoint : IEndpoint
+    public abstract class BaseEndpoint : IEndpoint
     {
         public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
 
@@ -45,9 +45,11 @@ namespace FastEndpoints
         protected static object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
     }
 
+    public abstract class Endpoint : Endpoint<EmptyRequest, EmptyValidator<EmptyRequest>> { }
+
     public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : IRequest, new() { }
 
-    public abstract class Endpoint<TRequest, TValidator> : Endpoint
+    public abstract class Endpoint<TRequest, TValidator> : BaseEndpoint
         where TRequest : IRequest, new()
         where TValidator : AbstractValidator<TRequest>, new()
     {

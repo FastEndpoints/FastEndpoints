@@ -13,7 +13,6 @@ app.UseFastEndpoints();
 app.Run();
 
 //todo: write tests
-// - sending more than one response in a handler
 // - GET request with route bound values
 // - auto resolved services with endpoint properties
 // - DontThrowIfValidationFails()

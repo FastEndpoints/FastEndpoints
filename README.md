@@ -105,7 +105,7 @@ proper documentation will be available within a few weeks once **v1.0** is relea
 
 ## Bombardier load test
 
-### FastEndpoints *(38,000 requests more per second than mvc controller)*
+### FastEndpoints *(39,500 requests more per second than mvc controller)*
 ```
 Statistics        Avg      Stdev        Max
   Reqs/sec    110569.18    4482.43  124218.28
@@ -119,23 +119,23 @@ Statistics        Avg      Stdev        Max
 ### AspNet MapControllers
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec     73447.69    2983.87   82207.93
-  Latency        1.36ms    81.53us    22.00ms
+  Reqs/sec     71621.34    3551.21  100210.44
+  Latency        1.39ms   186.22us    42.00ms
   HTTP codes:
-    1xx - 0, 2xx - 734693, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 716949, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    36.86MB/s
+  Throughput:    35.95MB/s
 ```
 
 ### AspNet MVC Controller
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec     72418.24    2895.27   79805.72
-  Latency        1.38ms   103.11us    29.00ms
+  Reqs/sec     70981.56    2983.29   78947.63
+  Latency        1.40ms   118.66us    27.00ms
   HTTP codes:
-    1xx - 0, 2xx - 724404, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 710040, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    36.19MB/s
+  Throughput:    35.48MB/s
 ```
 
 **parameters used:** 

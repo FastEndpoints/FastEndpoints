@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpointsBench", "Bench
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcControllers", "Benchmark\MvcControllers\MvcControllers.csproj", "{7E007C8A-1518-4A6A-A47D-857CD6C0A150}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalApi", "Benchmark\MinimalApi\MinimalApi.csproj", "{37EF74E1-F6AD-4B0E-B573-32489D003E1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,14 @@ Global
 		{7E007C8A-1518-4A6A-A47D-857CD6C0A150}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7E007C8A-1518-4A6A-A47D-857CD6C0A150}.Release|x86.ActiveCfg = Release|Any CPU
 		{7E007C8A-1518-4A6A-A47D-857CD6C0A150}.Release|x86.Build.0 = Release|Any CPU
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Debug|x86.Build.0 = Debug|Any CPU
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|x86.ActiveCfg = Release|Any CPU
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +102,7 @@ Global
 		{343754C8-BE64-415B-86BB-1372AF0DF309} = {7FFD7B4A-1FF7-4F7F-9D99-75035E33E96D}
 		{87F3C4B5-FA58-4143-9C09-4328F172B158} = {7FFD7B4A-1FF7-4F7F-9D99-75035E33E96D}
 		{7E007C8A-1518-4A6A-A47D-857CD6C0A150} = {7FFD7B4A-1FF7-4F7F-9D99-75035E33E96D}
+		{37EF74E1-F6AD-4B0E-B573-32489D003E1B} = {7FFD7B4A-1FF7-4F7F-9D99-75035E33E96D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FB7DD32F-1C3C-435B-AE07-A3D7AA631603}

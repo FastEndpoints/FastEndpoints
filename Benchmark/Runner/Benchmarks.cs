@@ -8,6 +8,7 @@ namespace Runner
     public class Benchmarks
     {
         public static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
+        public static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
         public static HttpClient ControllerClient { get; } = new WebApplicationFactory<MapControllers.Program>().CreateClient();
         public static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
 
@@ -15,6 +16,26 @@ namespace Runner
         public async Task FastEndpointsEndpoint()
         {
             await FastEndpointClient.PostAsync<FastEndpointsBench.Request, FastEndpointsBench.Response>(
+
+                "/benchmark/ok/123", new()
+                {
+                    FirstName = "xxc",
+                    LastName = "yyy",
+                    Age = 23,
+                    PhoneNumbers = new[] {
+                        "1111111111",
+                        "2222222222",
+                        "3333333333",
+                        "4444444444",
+                        "5555555555"
+                    }
+                });
+        }
+
+        [Benchmark]
+        public async Task MinimalApiEndpoint()
+        {
+            await MinimalClient.PostAsync<MinimalApi.Request, MinimalApi.Response>(
 
                 "/benchmark/ok/123", new()
                 {

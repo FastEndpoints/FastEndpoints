@@ -20,6 +20,7 @@ namespace Admin.Login
                 var expiryDate = DateTime.UtcNow.AddDays(1);
 
                 var userPermissions = new[] {
+                    Allow.Customers_Retrieve_Recent,
                     Allow.Inventory_Create_Item,
                     Allow.Inventory_Retrieve_Item,
                     Allow.Inventory_Update_Item,

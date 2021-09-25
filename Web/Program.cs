@@ -1,10 +1,11 @@
 using FastEndpoints;
 using FastEndpoints.Security;
+using Web.Auth;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
-builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole("Admin")));
+builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 
 var app = builder.Build();
 app.UseAuthentication();
@@ -13,11 +14,8 @@ app.UseFastEndpoints();
 app.Run();
 
 //todo: write tests
-// - GET request with route bound values
 // - auto resolved services with endpoint properties
 // - DontThrowIfValidationFails()
-// - Policies()
-// - Roles()
 // - AcceptFiles()
 // - SendBytesAsync()
 

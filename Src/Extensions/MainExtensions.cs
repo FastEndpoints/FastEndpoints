@@ -24,6 +24,56 @@ namespace FastEndpoints
             return services;
         }
 
+        private static void BuildPermissionPolicies(AuthorizationOptions options)
+        {
+            if (endpoints is null) return;
+
+            foreach (var (epType, epInstance, epName) in endpoints)
+            {
+                var permissions = epType.GetFieldValues(nameof(EndpointBase.permissions), epInstance);
+
+                if (permissions?.Any() is true)
+                {
+                    var policyName = $"{ClaimTypes.Permissions}:{epName}";
+                    var allowAnyPermission = (bool?)epType.GetFieldValue(nameof(EndpointBase.allowAnyPermission), epInstance);
+
+                    if (allowAnyPermission is true)
+                    {
+                        options.AddPolicy(policyName, b =>
+                        {
+                            b.RequireAssertion(x =>
+                            {
+                                var hasAny = x.User.Claims
+                                .FirstOrDefault(c => c.Type == ClaimTypes.Permissions)?.Value
+                                .Split(',')
+                                .Intersect(permissions)
+                                .Any();
+                                return hasAny is true;
+                            });
+                        });
+                    }
+                    else
+                    {
+                        options.AddPolicy(policyName, b =>
+                        {
+                            b.RequireAssertion(x =>
+                            {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                                var hasAll = !permissions
+                                .Except(x.User.Claims
+                                .FirstOrDefault(c => c.Type == ClaimTypes.Permissions).Value
+                                .Split(','))
+                                .Any();
+                                return hasAll is true;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                            });
+                        });
+                    }
+                }
+            }
+        }
+
+
         public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
         {
             EndpointBase.serviceProvider = builder.ServiceProvider;
@@ -77,55 +127,6 @@ namespace FastEndpoints
             }
             //endpoints = null;
             return builder;
-        }
-
-        private static void BuildPermissionPolicies(AuthorizationOptions options)
-        {
-            if (endpoints is null) return;
-
-            foreach (var (epType, epInstance, epName) in endpoints)
-            {
-                var permissions = epType.GetFieldValues(nameof(EndpointBase.permissions), epInstance);
-
-                if (permissions?.Any() is true)
-                {
-                    var policyName = $"{ClaimTypes.Permissions}:{epName}";
-                    var allowAnyPermission = (bool?)epType.GetFieldValue(nameof(EndpointBase.allowAnyPermission), epInstance);
-
-                    if (allowAnyPermission is true)
-                    {
-                        options.AddPolicy(policyName, b =>
-                        {
-                            b.RequireAssertion(x =>
-                            {
-                                var hasAny = x.User.Claims
-                                .FirstOrDefault(c => c.Type == ClaimTypes.Permissions)?
-                                .Value
-                                .Split(',')
-                                .Intersect(permissions)
-                                .Any();
-                                return hasAny is true;
-                            });
-                        });
-                    }
-                    else
-                    {
-                        options.AddPolicy(policyName, b =>
-                        {
-                            b.RequireAssertion(x =>
-                            {
-                                var hasAll = !x.User.Claims
-                                .FirstOrDefault(c => c.Type == ClaimTypes.Permissions)?
-                                .Value
-                                .Split(',')
-                                .Except(permissions)
-                                .Any();
-                                return hasAll is true;
-                            });
-                        });
-                    }
-                }
-            }
         }
 
         private static IEnumerable<Type> DiscoverEndpointTypes()

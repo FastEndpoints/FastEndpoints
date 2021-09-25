@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace ApiExpress
+namespace FastEndpoints
 {
     internal static class ReflectionExtensions
     {

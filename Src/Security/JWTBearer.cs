@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ApiExpress.Security
+namespace FastEndpoints.Security
 {
     public static class JWTBearer
     {

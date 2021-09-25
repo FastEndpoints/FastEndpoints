@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Reflection;
 
-namespace ApiExpress.Security
+namespace FastEndpoints.Security
 {
     public class Permissions : IEnumerable<(string PermissionName, string PermissionCode)>
     {

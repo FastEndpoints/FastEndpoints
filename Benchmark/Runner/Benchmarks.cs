@@ -1,4 +1,4 @@
-﻿using ApiExpress.TestClient;
+﻿using FastEndpoints;
 using BenchmarkDotNet.Attributes;
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -7,14 +7,14 @@ namespace Runner
     [MemoryDiagnoser]
     public class Benchmarks
     {
-        public static HttpClient ApiExpressClient { get; } = new WebApplicationFactory<ApiExpressBench.Program>().CreateClient();
+        public static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<ApiExpressBench.Program>().CreateClient();
         public static HttpClient ControllerClient { get; } = new WebApplicationFactory<MapControllers.Program>().CreateClient();
         public static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
 
         [Benchmark(Baseline = true)]
         public async Task ApiExpressEndpoint()
         {
-            await ApiExpressClient.PostAsync<ApiExpressBench.Request, ApiExpressBench.Response>(
+            await FastEndpointClient.PostAsync<ApiExpressBench.Request, ApiExpressBench.Response>(
 
                 "/benchmark/ok/123", new()
                 {

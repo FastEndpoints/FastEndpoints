@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace ApiExpress.Security
+namespace FastEndpoints.Security
 {
     public record AuthorizeData : IAuthorizeData
     {

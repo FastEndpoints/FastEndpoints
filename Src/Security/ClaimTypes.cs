@@ -1,4 +1,4 @@
-﻿namespace ApiExpress.Security
+﻿namespace FastEndpoints.Security
 {
     public static class ClaimTypes
     {

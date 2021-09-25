@@ -1,4 +1,4 @@
-﻿using ApiExpress;
+﻿using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddApiExpress();

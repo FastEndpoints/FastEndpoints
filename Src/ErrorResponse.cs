@@ -1,6 +1,6 @@
 ﻿using FluentValidation.Results;
 
-namespace ApiExpress
+namespace FastEndpoints
 {
     public class ErrorResponse : IResponse
     {

@@ -1,4 +1,4 @@
-﻿using ApiExpress;
+﻿using FastEndpoints;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

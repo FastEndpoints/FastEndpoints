@@ -1,4 +1,4 @@
-﻿using ApiExpress.Security;
+﻿using FastEndpoints.Security;
 
 namespace Web.Auth
 {

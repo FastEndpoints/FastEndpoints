@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Routing;
 using System.Reflection;
 
-namespace ApiExpress
+namespace FastEndpoints
 {
     public static class EndpointExecutor
     {

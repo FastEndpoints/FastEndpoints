@@ -1,8 +1,8 @@
 ﻿using System.Net.Http.Json;
 
-namespace ApiExpress.TestClient
+namespace FastEndpoints
 {
-    public static class TestClientExtensions
+    public static class HttpClientExtensions
     {
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TRequest, TResponse>
             (this HttpClient client, string requestUri, TRequest request)

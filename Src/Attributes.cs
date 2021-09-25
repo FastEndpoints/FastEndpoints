@@ -1,4 +1,4 @@
-﻿namespace ApiExpress
+﻿namespace FastEndpoints
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class FromClaimAttribute : Attribute

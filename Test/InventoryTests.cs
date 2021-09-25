@@ -1,5 +1,4 @@
-﻿using ApiExpress;
-using ApiExpress.TestClient;
+﻿using FastEndpoints;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using static Test.Setup;

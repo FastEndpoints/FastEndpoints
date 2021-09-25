@@ -1,5 +1,5 @@
-using ApiExpress;
-using ApiExpress.Security;
+using FastEndpoints;
+using FastEndpoints.Security;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddApiExpress();

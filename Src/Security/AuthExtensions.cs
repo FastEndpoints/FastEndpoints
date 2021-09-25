@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace ApiExpress.Security
+namespace FastEndpoints.Security
 {
     public static class AuthExtensions
     {

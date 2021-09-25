@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ApiExpress.csproj" />
+    <ProjectReference Include="..\..\src\FastEndpoints.csproj" />
   </ItemGroup>
 
 </Project>

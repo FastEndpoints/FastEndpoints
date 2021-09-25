@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Text.Json;
 
-namespace ApiExpress
+namespace FastEndpoints
 {
     public abstract class Endpoint : IEndpoint
     {

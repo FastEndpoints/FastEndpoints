@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ApiExpress.csproj" />
+    <ProjectReference Include="..\..\src\FastEndpoints.csproj" />
     <PackageReference Include="FluentValidation" Version="10.3.3" />
   </ItemGroup>
 

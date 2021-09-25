@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace ApiExpress
+namespace FastEndpoints
 {
     internal static class ReqTypeCache<T> where T : IRequest
     {

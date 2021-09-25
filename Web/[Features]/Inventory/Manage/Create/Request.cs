@@ -1,4 +1,4 @@
-﻿using ApiExpress;
+﻿using FastEndpoints;
 using Web.Auth;
 
 namespace Inventory.Manage.Create

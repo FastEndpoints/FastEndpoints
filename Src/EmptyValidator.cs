@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace ApiExpress
+namespace FastEndpoints
 {
     public class EmptyValidator<TRequest> : AbstractValidator<TRequest> where TRequest : IRequest { }
 }

@@ -1,4 +1,4 @@
-﻿namespace ApiExpress
+﻿namespace FastEndpoints
 {
     public class ValidationFailureException : Exception
     {

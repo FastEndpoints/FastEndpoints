@@ -1,4 +1,4 @@
-﻿using ApiExpress;
+﻿using FastEndpoints;
 using FluentValidation;
 
 namespace ApiExpressBench

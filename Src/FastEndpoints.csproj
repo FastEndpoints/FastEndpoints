@@ -10,9 +10,9 @@
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
     <Copyright>Đĵ ΝιΓΞΗΛψΚ</Copyright>
     <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
-    <PackageProjectUrl>https://github.com/dj-nitehawk/ApiExpress</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/dj-nitehawk/ApiExpress</RepositoryUrl>
+    <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints</RepositoryUrl>
     <PackageReleaseNotes>
       WARNING: this is a beta release. do not use in production!
     </PackageReleaseNotes>

@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using FluentValidation;
 
-namespace ApiExpressBench
+namespace FastEndpointsBench
 {
     public class Request : IRequest
     {

@@ -13,7 +13,7 @@ namespace FastEndpoints
     {
         private static (Type endpointType, object? endpointInstance, string? endpointName)[]? endpoints;
 
-        public static IServiceCollection AddApiExpress(this IServiceCollection services)
+        public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
         {
             endpoints = DiscoverEndpointTypes()
                 .Select(t => (t, Activator.CreateInstance(t), t.FullName))
@@ -24,7 +24,7 @@ namespace FastEndpoints
             return services;
         }
 
-        public static IEndpointRouteBuilder UseApiExpress(this IEndpointRouteBuilder builder)
+        public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
         {
             Endpoint.serviceProvider = builder.ServiceProvider;
 

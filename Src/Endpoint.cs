@@ -16,7 +16,7 @@ namespace FastEndpoints
         public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        internal static IServiceProvider serviceProvider; //this is set by UseApiExpress()
+        internal static IServiceProvider serviceProvider; //this is set by UseFastEndpoints()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         private static IConfiguration? config;

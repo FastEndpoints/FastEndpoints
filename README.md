@@ -1,10 +1,10 @@
-# ApiExpress
+# FastEndpoints
 
 An easy to use Web API framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. It is a great alternative to the new minimal APIs that require manual endpoint mapping.
 
 ## Try it out...
 install it from nuget:
-`Install-Package ApiExpress -Version 1.0.0-beta1`
+`Install-Package FastEndpoints -Version 1.0.0-beta1`
 
 **note:** the minimum required sdk version is `.net 6.0` (preview at the moment)
 
@@ -12,16 +12,16 @@ install it from nuget:
 
 ### Program.cs
 ```csharp
-using ApiExpress;
+using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder();
-builder.Services.AddApiExpress();
+builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJWTBearer("SecretKey");
 
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseApiExpress();
+app.UseFastEndpoints();
 app.Run();
 ```
 
@@ -105,7 +105,7 @@ proper documentation will be available within a few weeks once **v1.0** is relea
 
 ## Bombardier load test
 
-### ApiExpress Endpoint *(38,000 requests more per second than mvc controller)*
+### FastEndpoints *(38,000 requests more per second than mvc controller)*
 ```
 Statistics        Avg      Stdev        Max
   Reqs/sec    110569.18    4482.43  124218.28
@@ -157,8 +157,8 @@ Statistics        Avg      Stdev        Max
 
 ## BenchmarkDotNet head-to-head results
 
-|               Method |     Mean |   Error |  StdDev | Ratio | RatioSD |  Gen 0 | Allocated |
-|--------------------- |---------:|--------:|--------:|------:|--------:|-------:|----------:|
-|   ApiExpress Endpoint | 106.0 μs | 2.12 μs | 4.73 μs |  1.00 |    0.00 | 3.6621 |     30 KB |
+|               Method  |     Mean |   Error |  StdDev | Ratio | RatioSD |  Gen 0 | Allocated |
+|---------------------- |---------:|--------:|--------:|------:|--------:|-------:|----------:|
+| FastEndpoints         | 106.0 μs | 2.12 μs | 4.73 μs |  1.00 |    0.00 | 3.6621 |     30 KB |
 | AspNet MapControllers | 146.5 μs | 2.84 μs | 2.79 μs |  1.41 |    0.06 | 5.3711 |     44 KB |
 | AspNet MVC Controller | 148.2 μs | 2.92 μs | 3.36 μs |  1.42 |    0.06 | 5.3711 |     45 KB |

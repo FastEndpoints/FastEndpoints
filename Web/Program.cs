@@ -2,14 +2,14 @@ using FastEndpoints;
 using FastEndpoints.Security;
 
 var builder = WebApplication.CreateBuilder();
-builder.Services.AddApiExpress();
+builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole("Admin")));
 
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseApiExpress();
+app.UseFastEndpoints();
 app.Run();
 
 //todo: write tests

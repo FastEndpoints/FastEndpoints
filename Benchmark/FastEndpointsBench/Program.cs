@@ -1,14 +1,14 @@
 ﻿using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder();
-builder.Services.AddApiExpress();
+builder.Services.AddFastEndpoints();
 
 var app = builder.Build();
 app.UseAuthorization();
-app.UseApiExpress();
+app.UseFastEndpoints();
 app.Run();
 
-namespace ApiExpressBench
+namespace FastEndpointsBench
 {
     public partial class Program { }
 }

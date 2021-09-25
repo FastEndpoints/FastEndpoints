@@ -7,14 +7,14 @@ namespace Runner
     [MemoryDiagnoser]
     public class Benchmarks
     {
-        public static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<ApiExpressBench.Program>().CreateClient();
+        public static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
         public static HttpClient ControllerClient { get; } = new WebApplicationFactory<MapControllers.Program>().CreateClient();
         public static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
 
         [Benchmark(Baseline = true)]
-        public async Task ApiExpressEndpoint()
+        public async Task FastEndpointsEndpoint()
         {
-            await FastEndpointClient.PostAsync<ApiExpressBench.Request, ApiExpressBench.Response>(
+            await FastEndpointClient.PostAsync<FastEndpointsBench.Request, FastEndpointsBench.Response>(
 
                 "/benchmark/ok/123", new()
                 {

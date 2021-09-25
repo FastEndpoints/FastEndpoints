@@ -9,8 +9,8 @@ namespace FastEndpoints
             where TRequest : IRequest
             where TResponse : class
         {
-            var res = await client.PostAsJsonAsync(requestUri, request, Endpoint.SerializerOptions).ConfigureAwait(false);
-            var body = await res.Content.ReadFromJsonAsync<TResponse>(Endpoint.SerializerOptions).ConfigureAwait(false);
+            var res = await client.PostAsJsonAsync(requestUri, request, EndpointBase.SerializerOptions).ConfigureAwait(false);
+            var body = await res.Content.ReadFromJsonAsync<TResponse>(EndpointBase.SerializerOptions).ConfigureAwait(false);
             return (res, body);
         }
 
@@ -19,14 +19,14 @@ namespace FastEndpoints
             where TRequest : IRequest
             where TResponse : class
         {
-            var res = await client.PutAsJsonAsync(requestUri, request, Endpoint.SerializerOptions).ConfigureAwait(false);
-            var body = await res.Content.ReadFromJsonAsync<TResponse>(Endpoint.SerializerOptions).ConfigureAwait(false);
+            var res = await client.PutAsJsonAsync(requestUri, request, EndpointBase.SerializerOptions).ConfigureAwait(false);
+            var body = await res.Content.ReadFromJsonAsync<TResponse>(EndpointBase.SerializerOptions).ConfigureAwait(false);
             return (res, body);
         }
 
         public static Task<TResponse?> GetAsync<TResponse>(this HttpClient client, string requestUri) where TResponse : IResponse
         {
-            return client.GetFromJsonAsync<TResponse>(requestUri, Endpoint.SerializerOptions);
+            return client.GetFromJsonAsync<TResponse>(requestUri, EndpointBase.SerializerOptions);
         }
     }
 }

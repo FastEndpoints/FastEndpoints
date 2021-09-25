@@ -26,36 +26,36 @@ namespace FastEndpoints
 
         public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
         {
-            Endpoint.serviceProvider = builder.ServiceProvider;
+            EndpointBase.serviceProvider = builder.ServiceProvider;
 
             if (endpoints is null) throw new InvalidOperationException("Please use .UseEZEndpoints() first!");
 
             foreach (var (epType, epInstance, epName) in endpoints)
             {
-                var execMethod = epType.GetMethod(nameof(Endpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
+                var execMethod = epType.GetMethod(nameof(EndpointBase.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
                 if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
 
                 if (epInstance is null) throw new InvalidOperationException($"Unable to create an instance of: [{epName}]");
 
-                var verbs = epType.GetFieldValues(nameof(Endpoint.verbs), epInstance);
+                var verbs = epType.GetFieldValues(nameof(EndpointBase.verbs), epInstance);
                 if (verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
 
-                var routes = epType.GetFieldValues(nameof(Endpoint.routes), epInstance);
+                var routes = epType.GetFieldValues(nameof(EndpointBase.routes), epInstance);
                 if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
-                var allowAnnonymous = (bool?)epType.GetFieldValue(nameof(Endpoint.allowAnnonymous), epInstance);
-                var acceptFiles = (bool?)epType.GetFieldValue(nameof(Endpoint.acceptFiles), epInstance);
+                var allowAnnonymous = (bool?)epType.GetFieldValue(nameof(EndpointBase.allowAnnonymous), epInstance);
+                var acceptFiles = (bool?)epType.GetFieldValue(nameof(EndpointBase.acceptFiles), epInstance);
 
                 string? permissionPolicyName = null;
-                var permissions = epType.GetFieldValues(nameof(Endpoint.permissions), epInstance);
+                var permissions = epType.GetFieldValues(nameof(EndpointBase.permissions), epInstance);
                 if (permissions?.Any() is true) permissionPolicyName = $"{ClaimTypes.Permissions}:{epName}";
 
-                var userPolicies = epType.GetFieldValues(nameof(Endpoint.policies), epInstance);
+                var userPolicies = epType.GetFieldValues(nameof(EndpointBase.policies), epInstance);
                 var policiesToAdd = new List<string>();
                 if (userPolicies?.Any() is true) policiesToAdd.AddRange(userPolicies);
                 if (permissionPolicyName is not null) policiesToAdd.Add(permissionPolicyName);
 
-                var userRoles = epType.GetFieldValues(nameof(Endpoint.roles), epInstance);
+                var userRoles = epType.GetFieldValues(nameof(EndpointBase.roles), epInstance);
                 var rolesToAdd = userRoles?.Any() is true ? string.Join(',', userRoles) : null;
 
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(epType)).Compile();
@@ -85,12 +85,12 @@ namespace FastEndpoints
 
             foreach (var (epType, epInstance, epName) in endpoints)
             {
-                var permissions = epType.GetFieldValues(nameof(Endpoint.permissions), epInstance);
+                var permissions = epType.GetFieldValues(nameof(EndpointBase.permissions), epInstance);
 
                 if (permissions?.Any() is true)
                 {
                     var policyName = $"{ClaimTypes.Permissions}:{epName}";
-                    var allowAnyPermission = (bool?)epType.GetFieldValue(nameof(Endpoint.allowAnyPermission), epInstance);
+                    var allowAnyPermission = (bool?)epType.GetFieldValue(nameof(EndpointBase.allowAnyPermission), epInstance);
 
                     if (allowAnyPermission is true)
                     {

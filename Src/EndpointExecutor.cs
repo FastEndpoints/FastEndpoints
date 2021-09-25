@@ -32,7 +32,7 @@ namespace FastEndpoints
                 for (int i = 0; i < props.Length; i++)
                 {
                     PropertyInfo? prop = props[i];
-                    var serviceInstance = Endpoint.serviceProvider.GetService(prop.PropertyType);
+                    var serviceInstance = EndpointBase.serviceProvider.GetService(prop.PropertyType);
                     prop.SetValue(endpointInstance, serviceInstance);
                 }
             }

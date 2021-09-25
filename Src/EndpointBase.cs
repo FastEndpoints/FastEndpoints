@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace FastEndpoints
 {
-    public abstract class BaseEndpoint : IEndpoint
+    public abstract class EndpointBase : IEndpoint
     {
         public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
 
@@ -26,7 +26,7 @@ namespace FastEndpoints
 #pragma warning disable CS8603 // Possible null reference return.
         protected static IConfiguration Config => config ??= serviceProvider.GetService<IConfiguration>();
         protected static IWebHostEnvironment Env => env ??= serviceProvider.GetService<IWebHostEnvironment>();
-        protected static ILogger Logger => logger ??= serviceProvider.GetService<ILogger<Endpoint>>();
+        protected static ILogger Logger => logger ??= serviceProvider.GetService<ILogger<EndpointBase>>();
 #pragma warning restore CS8603 // Possible null reference return.
 
         internal string[]? routes;
@@ -45,11 +45,11 @@ namespace FastEndpoints
         protected static object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
     }
 
-    public abstract class Endpoint : Endpoint<EmptyRequest, EmptyValidator<EmptyRequest>> { }
+    public abstract class BasicEndpoint : Endpoint<EmptyRequest, EmptyValidator<EmptyRequest>> { }
 
     public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : IRequest, new() { }
 
-    public abstract class Endpoint<TRequest, TValidator> : BaseEndpoint
+    public abstract class Endpoint<TRequest, TValidator> : EndpointBase
         where TRequest : IRequest, new()
         where TValidator : AbstractValidator<TRequest>, new()
     {
@@ -58,7 +58,7 @@ namespace FastEndpoints
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         protected string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
-        protected Http Verb { get => Enum.Parse<Http>(HttpContext.Request.Method); }
+        protected Http HttpMethod { get => Enum.Parse<Http>(HttpContext.Request.Method); }
         protected List<ValidationFailure> ValidationFailures { get; } = new();
         protected bool ValidationFailed { get => ValidationFailures.Count > 0; }
 

@@ -13,6 +13,11 @@ app.UseAuthorization();
 app.UseFastEndpoints();
 app.Run();
 
+//todo: main list
+// - make endpoint methods more static
+// - remove redundant interfaces
+// - bundle fluentvalidations
+
 //todo: write tests
 // - auto resolved services with endpoint properties
 // - DontThrowIfValidationFails()

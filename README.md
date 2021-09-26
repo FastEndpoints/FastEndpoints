@@ -32,8 +32,21 @@ public class MyRequest : IRequest
     public string UserName { get; set; }  //this value will be auto populated from the user claim
 
     public int Id { get; set; }
-    public string? Name { get; set; }
+    public string Name { get; set; }
     public int Price { get; set; }
+}
+```
+
+### Request Validator
+```csharp
+public class Validator : AbstractValidator<Request>
+{
+    public Validator()
+    {
+        RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!");
+        RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required!");
+        RuleFor(x => x.Price).GreaterThan(0).WithMessage("Price is required!");
+    }
 }
 ```
 
@@ -41,7 +54,7 @@ public class MyRequest : IRequest
 ```csharp
 public class Response : IResponse
 {
-    public string? Name { get; internal set; }
+    public string Name { get; internal set; }
     public int Price { get; set; }
     public string? Message { get; set; }
 }
@@ -63,10 +76,10 @@ public class MyEndpoint : Endpoint<MyRequest>
         Permissions(
             Allow.Inventory_Create_Item,
             Allow.Inventory_Retrieve_Item,
-            Allow.Inventory_Update_Item); //declarative permission based authentication
+            Allow.Inventory_Update_Item); //declarative permission based authorization
     }
 
-    protected override async Task ExecuteAsync(MyRequest req, CancellationToken ct)
+    protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
     {
         //can do further validation here in addition to FluentValidations rules
         if (req.Price < 100)

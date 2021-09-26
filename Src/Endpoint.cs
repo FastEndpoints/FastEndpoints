@@ -221,42 +221,42 @@ namespace FastEndpoints
 
         private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues)
         {
-            foreach (var routeVal in routeValues)
+            foreach (var rv in routeValues)
             {
-                if (ReqTypeCache<TRequest, TValidator>.Props.TryGetValue(routeVal.Key.ToLower(), out var prop))
+                if (ReqTypeCache<TRequest, TValidator>.Props.TryGetValue(rv.Key.ToLower(), out var prop))
                 {
                     bool success = false;
 
                     switch (prop.typeCode)
                     {
                         case TypeCode.Boolean:
-                            success = bool.TryParse(routeVal.ToString(), out var resBool);
+                            success = bool.TryParse((string?)rv.Value, out var resBool);
                             prop.propInfo.SetValue(req, resBool);
                             break;
 
                         case TypeCode.Int32:
-                            success = int.TryParse(routeVal.ToString(), out var resInt);
+                            success = int.TryParse((string?)rv.Value, out var resInt);
                             prop.propInfo.SetValue(req, resInt);
                             break;
 
                         case TypeCode.Int64:
-                            success = long.TryParse(routeVal.ToString(), out var resLong);
+                            success = long.TryParse((string?)rv.Value, out var resLong);
                             prop.propInfo.SetValue(req, resLong);
                             break;
 
                         case TypeCode.Double:
-                            success = double.TryParse(routeVal.ToString(), out var resDbl);
+                            success = double.TryParse((string?)rv.Value, out var resDbl);
                             prop.propInfo.SetValue(req, resDbl);
                             break;
 
                         case TypeCode.Decimal:
-                            success = decimal.TryParse(routeVal.ToString(), out var resDec);
+                            success = decimal.TryParse((string?)rv.Value, out var resDec);
                             prop.propInfo.SetValue(req, resDec);
                             break;
 
                         case TypeCode.String:
                             success = true;
-                            prop.propInfo.SetValue(req, routeVal.ToString());
+                            prop.propInfo.SetValue(req, rv.Value);
                             break;
                     }
 
@@ -264,7 +264,7 @@ namespace FastEndpoints
                     {
                         throw new NotSupportedException(
                         "Binding route value failed! " +
-                        $"{typeof(TRequest).FullName}.{prop.propInfo.Name}[{prop.typeCode}] Tried: \"{routeVal.Value}\"");
+                        $"{typeof(TRequest).FullName}.{prop.propInfo.Name}[{prop.typeCode}] Tried: \"{rv.Value}\"");
                     }
                 }
             }

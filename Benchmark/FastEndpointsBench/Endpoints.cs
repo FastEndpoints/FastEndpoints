@@ -5,7 +5,7 @@ namespace FastEndpointsBench
 {
     public class Request
     {
-        public string? Id { get; set; }
+        public int Id { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public int Age { get; set; }
@@ -25,7 +25,7 @@ namespace FastEndpointsBench
 
     public class Response
     {
-        public string? Id { get; set; }
+        public int Id { get; set; }
         public string? Name { get; set; }
         public int Age { get; set; }
         public string? PhoneNumber { get; set; }

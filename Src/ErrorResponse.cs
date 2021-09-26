@@ -1,6 +1,4 @@
-﻿using FluentValidation.Results;
-
-namespace FastEndpoints
+﻿namespace FastEndpoints
 {
     public class ErrorResponse
     {

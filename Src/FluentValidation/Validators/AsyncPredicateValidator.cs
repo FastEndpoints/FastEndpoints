@@ -16,9 +16,9 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FluentValidation.Validators
+namespace FastEndpoints.Validators
 {
-    using FluentValidation.Internal;
+    using FastEndpoints.Internal;
     using System;
     using System.Threading;
     using System.Threading.Tasks;

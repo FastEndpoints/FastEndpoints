@@ -18,10 +18,9 @@
 
 #endregion
 
-namespace FluentValidation.TestHelper
+namespace FastEndpoints.TestHelper
 {
     using Internal;
-    using Results;
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;

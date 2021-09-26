@@ -19,7 +19,7 @@
 #endregion
 
 
-namespace FluentValidation.Validators
+namespace FastEndpoints.Validators
 {
     using Internal;
     using System;

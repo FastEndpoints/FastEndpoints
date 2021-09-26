@@ -1,4 +1,4 @@
-﻿namespace FluentValidation.Resources
+﻿namespace FastEndpoints.Resources
 {
     internal class ThaiLanguage
     {

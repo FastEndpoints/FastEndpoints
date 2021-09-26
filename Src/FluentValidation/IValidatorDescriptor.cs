@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FluentValidation
+namespace FastEndpoints
 {
     using Internal;
     using System.Collections.Generic;

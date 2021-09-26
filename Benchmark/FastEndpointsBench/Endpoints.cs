@@ -1,5 +1,4 @@
 ﻿using FastEndpoints;
-using FluentValidation;
 
 namespace FastEndpointsBench
 {

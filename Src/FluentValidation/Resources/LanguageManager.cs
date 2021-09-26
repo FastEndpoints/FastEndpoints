@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace FluentValidation.Resources
+namespace FastEndpoints.Resources
 {
     using System;
     using System.Collections.Concurrent;

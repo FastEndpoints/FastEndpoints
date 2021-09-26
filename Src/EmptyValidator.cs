@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-namespace FastEndpoints
+﻿namespace FastEndpoints
 {
     public class EmptyValidator<TRequest> : AbstractValidator<TRequest> { }
 }

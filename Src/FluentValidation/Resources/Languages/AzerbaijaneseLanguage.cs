@@ -20,7 +20,7 @@
 
 #pragma warning disable 618
 
-namespace FluentValidation.Resources
+namespace FastEndpoints.Resources
 {
     internal class AzerbaijaneseLanguage
     {

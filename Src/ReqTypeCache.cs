@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace FastEndpoints
 {

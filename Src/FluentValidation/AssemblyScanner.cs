@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace FluentValidation
+namespace FastEndpoints
 {
     using System;
     using System.Collections;

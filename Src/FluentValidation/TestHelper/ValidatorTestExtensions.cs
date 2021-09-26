@@ -17,10 +17,9 @@
 #endregion
 
 #pragma warning disable 1591
-namespace FluentValidation.TestHelper
+namespace FastEndpoints.TestHelper
 {
     using Internal;
-    using Results;
     using System;
     using System.Collections;
     using System.Collections.Generic;

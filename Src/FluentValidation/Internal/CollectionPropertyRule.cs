@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace FluentValidation.Internal
+namespace FastEndpoints.Internal
 {
     using System;
     using System.Collections.Generic;

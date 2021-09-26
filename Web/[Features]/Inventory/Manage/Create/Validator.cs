@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+﻿using FastEndpoints;
 
 namespace Inventory.Manage.Create
 {

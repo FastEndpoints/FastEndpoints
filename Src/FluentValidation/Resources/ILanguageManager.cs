@@ -15,7 +15,7 @@
 //
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
-namespace FluentValidation.Resources
+namespace FastEndpoints.Resources
 {
     using System.Globalization;
 

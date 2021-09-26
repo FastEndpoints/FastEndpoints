@@ -1,5 +1,5 @@
 ﻿#pragma warning disable 1591
-namespace FluentValidation.Internal
+namespace FastEndpoints.Internal
 {
     using System;
     using System.Linq;

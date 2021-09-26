@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace FluentValidation.Validators
+namespace FastEndpoints.Validators
 {
     using System;
     using System.Reflection;

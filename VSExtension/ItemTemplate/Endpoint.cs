@@ -10,7 +10,7 @@ namespace $fileinputname$
             Routes("/route/path/here");
         }
 
-        protected override Task ExecuteAsync(Request req, CancellationToken ct)
+        protected override Task HandleAsync(Request r, CancellationToken t)
         {
             return SendAsync("This endpoint is not implemented!");
         }

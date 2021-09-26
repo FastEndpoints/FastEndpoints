@@ -2,7 +2,7 @@
 
 namespace $fileinputname$
 {
-    public class Response : IResponse
+    public class Response
     {
 
     }

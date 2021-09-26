@@ -2,7 +2,7 @@
 
 namespace $fileinputname$
 {
-    public class Request : IRequest
+    public class Request
     {
 
     }

@@ -1,5 +1,4 @@
 ﻿using FastEndpoints;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using static Test.Setup;

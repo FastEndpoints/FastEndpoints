@@ -11,9 +11,10 @@ namespace Test
         [TestMethod]
         public async Task ClaimMissing()
         {
-            var (_, result) = await AdminClient.PostAsync<TestCases.MissingClaimTest.ThrowIfMissingRequest, ErrorResponse>(
-                "/test-cases/missing-claim-test",
-                new()
+            var (_, result) = await AdminClient.PostAsync<
+                TestCases.MissingClaimTest.ThrowIfMissingEndpoint,
+                TestCases.MissingClaimTest.ThrowIfMissingRequest,
+                ErrorResponse>(new()
                 {
                     TestProp = "xyz"
                 });
@@ -26,9 +27,10 @@ namespace Test
         [TestMethod]
         public async Task ClaimMissingButDontThrow()
         {
-            var (res, result) = await AdminClient.PostAsync<TestCases.MissingClaimTest.DontThrowIfMissingRequest, string>(
-                "/test-cases/missing-claim-test/dont-throw",
-                new()
+            var (res, result) = await AdminClient.PostAsync<
+                TestCases.MissingClaimTest.DontThrowIfMissingEndpoint,
+                TestCases.MissingClaimTest.DontThrowIfMissingRequest,
+                string>(new()
                 {
                     TestProp = "xyz"
                 });

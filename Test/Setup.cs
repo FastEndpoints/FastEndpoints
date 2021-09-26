@@ -6,20 +6,23 @@ namespace Test
 {
     public static class Setup
     {
-        private static readonly WebApplicationFactory<Program> factory = new();
+        private static readonly WebApplicationFactory<Program> appFactory = new();
 
-        public static HttpClient AdminClient { get; } = factory.CreateClient();
-        public static HttpClient GuestClient { get; } = factory.CreateClient();
+        public static HttpClient AdminClient { get; } = appFactory.CreateClient();
+        public static HttpClient GuestClient { get; } = appFactory.CreateClient();
 
         static Setup()
         {
-            var (_, result) = GuestClient.PostAsync<Admin.Login.Request, Admin.Login.Response>(
-                "/admin/login",
-                new()
+            var (_, result) = GuestClient.PostAsync<
+                Admin.Login.Endpoint,
+                Admin.Login.Request,
+                Admin.Login.Response>(new()
                 {
                     UserName = "admin",
                     Password = "pass"
-                }).GetAwaiter().GetResult();
+                })
+                .GetAwaiter()
+                .GetResult();
 
             AdminClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result?.JWTToken);
         }

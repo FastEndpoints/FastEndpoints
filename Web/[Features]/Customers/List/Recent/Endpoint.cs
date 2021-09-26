@@ -10,8 +10,12 @@ namespace Customers.List.Recent
             Verbs(Http.GET);
             Routes("/customers/list/recent");
             Policies("AdminOnly");
-            Roles(Role.Admin, Role.Staff);
-            Permissions(Allow.Customers_Retrieve_Recent, Allow.Inventory_Create_Item);
+            Roles(
+                Role.Admin,
+                Role.Staff);
+            Permissions(
+                Allow.Customers_Retrieve,
+                Allow.Customers_Create);
         }
 
         protected override Task HandleAsync(EmptyRequest er, CancellationToken ct)

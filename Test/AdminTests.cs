@@ -11,9 +11,10 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginWithBadInput()
         {
-            var (resp, result) = await GuestClient.PostAsync<Admin.Login.Request, ErrorResponse>(
-                "/admin/login",
-                new()
+            var (resp, result) = await GuestClient.PostAsync<
+                Admin.Login.Endpoint,
+                Admin.Login.Request,
+                ErrorResponse>(new()
                 {
                     UserName = "x",
                     Password = "y"
@@ -26,9 +27,10 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginInvalidCreds()
         {
-            var (res, _) = await GuestClient.PostAsync<Admin.Login.Request, Admin.Login.Response>(
-                "/admin/login",
-                new()
+            var (res, _) = await GuestClient.PostAsync<
+                Admin.Login.Endpoint,
+                Admin.Login.Request,
+                Admin.Login.Response>(new()
                 {
                     UserName = "admin",
                     Password = "xxxxx"
@@ -40,16 +42,17 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginSuccess()
         {
-            var (resp, result) = await GuestClient.PostAsync<Admin.Login.Request, Admin.Login.Response>(
-                "/admin/login",
-                new()
+            var (resp, result) = await GuestClient.PostAsync<
+                Admin.Login.Endpoint,
+                Admin.Login.Request,
+                Admin.Login.Response>(new()
                 {
                     UserName = "admin",
                     Password = "pass"
                 });
 
             Assert.AreEqual(HttpStatusCode.OK, resp?.StatusCode);
-            Assert.IsTrue(result?.Permissions?.Count() == 5);
+            Assert.AreEqual(7, result?.Permissions?.Count());
             Assert.IsTrue(result?.JWTToken is not null);
         }
     }

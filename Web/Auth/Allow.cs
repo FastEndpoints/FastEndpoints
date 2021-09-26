@@ -9,6 +9,9 @@ namespace Web.Auth
         public const string Inventory_Update_Item = "102";
         public const string Inventory_Delete_Item = "103";
 
-        public const string Customers_Retrieve_Recent = "200";
+        public const string Customers_Retrieve = "200";
+        public const string Customers_Create = "201";
+        public const string Customers_Update = "202";
+        public const string Customers_Delete = "201";
     }
 }

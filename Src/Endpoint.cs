@@ -41,6 +41,14 @@ namespace FastEndpoints
 
         internal abstract Task ExecAsync(HttpContext ctx, CancellationToken ct);
 
+        internal string GetTestURL()
+        {
+            if (routes is null)
+                throw new ArgumentNullException(nameof(routes));
+
+            return routes[0].Replace("{", "").Replace("}", "");
+        }
+
         protected static TService? Resolve<TService>() => serviceProvider.GetService<TService>();
         protected static object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
     }

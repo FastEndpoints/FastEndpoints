@@ -11,9 +11,10 @@ namespace Test
         [TestMethod]
         public async Task CreateProductFailValidation()
         {
-            var (res, result) = await AdminClient.PostAsync<Inventory.Manage.Create.Request, ErrorResponse>(
-                "/inventory/manage/create",
-                new()
+            var (res, result) = await AdminClient.PostAsync<
+                Inventory.Manage.Create.Endpoint,
+                Inventory.Manage.Create.Request,
+                ErrorResponse>(new()
                 {
                     Price = 1100
                 });
@@ -27,9 +28,10 @@ namespace Test
         [TestMethod]
         public async Task CreateProductFailBusinessLogic()
         {
-            var (res, result) = await AdminClient.PostAsync<Inventory.Manage.Create.Request, ErrorResponse>(
-                "/inventory/manage/create",
-                new()
+            var (res, result) = await AdminClient.PostAsync<
+                Inventory.Manage.Create.Endpoint,
+                Inventory.Manage.Create.Request,
+                ErrorResponse>(new()
                 {
                     Name = "test item",
                     ModifiedBy = "me",
@@ -45,9 +47,10 @@ namespace Test
         [TestMethod]
         public async Task CreateProductFailDuplicateItem()
         {
-            var (res, result) = await AdminClient.PostAsync<Inventory.Manage.Create.Request, ErrorResponse>(
-                "/inventory/manage/create",
-                new()
+            var (res, result) = await AdminClient.PostAsync<
+                Inventory.Manage.Create.Endpoint,
+                Inventory.Manage.Create.Request,
+                ErrorResponse>(new()
                 {
                     Name = "Apple Juice",
                     Description = "description",
@@ -63,9 +66,10 @@ namespace Test
         [TestMethod]
         public async Task CreateProductSuccess()
         {
-            var (res, result) = await AdminClient.PostAsync<Inventory.Manage.Create.Request, Inventory.Manage.Create.Response>(
-                "/inventory/manage/create",
-                new()
+            var (res, result) = await AdminClient.PostAsync<
+                Inventory.Manage.Create.Endpoint,
+                Inventory.Manage.Create.Request,
+                Inventory.Manage.Create.Response>(new()
                 {
                     Name = "Grape Juice",
                     Description = "description",

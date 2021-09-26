@@ -1,9 +1,11 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using Web.Auth;
+using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 
@@ -12,9 +14,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();
 app.Run();
-
-//todo: main list
-// - make endpoint methods more static
 
 //todo: write tests
 // - auto resolved services with endpoint properties

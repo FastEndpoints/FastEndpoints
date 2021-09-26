@@ -14,7 +14,7 @@ namespace Inventory.Manage.Create
                 Allow.Inventory_Update_Item);
         }
 
-        protected override Task ExecuteAsync(Request req, CancellationToken ct)
+        protected override Task HandleAsync(Request req, CancellationToken ct)
         {
             if (string.IsNullOrEmpty(req.Description))
                 AddError(x => x.Description, "Please enter a product descriptions!");

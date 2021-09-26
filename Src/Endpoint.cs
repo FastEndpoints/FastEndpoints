@@ -76,7 +76,7 @@ namespace FastEndpoints
         }
         protected void AcceptFiles() => acceptFiles = true;
 
-        protected abstract Task ExecuteAsync(TRequest req, CancellationToken ct);
+        protected abstract Task HandleAsync(TRequest req, CancellationToken ct);
 
         internal override async Task ExecAsync(HttpContext ctx, CancellationToken cancellation)
         {
@@ -86,7 +86,7 @@ namespace FastEndpoints
             {
                 BindFromUserClaims(req, ctx);
                 ValidateRequest(req);
-                await ExecuteAsync(req, cancellation).ConfigureAwait(false);
+                await HandleAsync(req, cancellation).ConfigureAwait(false);
             }
             catch (ValidationFailureException)
             {

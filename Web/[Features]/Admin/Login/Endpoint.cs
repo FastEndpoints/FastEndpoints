@@ -13,7 +13,7 @@ namespace Admin.Login
             AllowAnnonymous();
         }
 
-        protected override Task ExecuteAsync(Request r, CancellationToken ct)
+        protected override Task HandleAsync(Request r, CancellationToken ct)
         {
             if (r.UserName == "admin" && r.Password == "pass")
             {

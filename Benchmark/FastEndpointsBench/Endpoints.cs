@@ -42,7 +42,7 @@ namespace FastEndpointsBench
             AllowAnnonymous();
         }
 
-        protected override Task ExecuteAsync(Request req, CancellationToken ct)
+        protected override Task HandleAsync(Request req, CancellationToken ct)
         {
             //Logger.LogInformation("request received!");
 

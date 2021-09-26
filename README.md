@@ -26,7 +26,7 @@ app.Run();
 
 ### Request DTO
 ```csharp
-public class MyRequest : IRequest
+public class MyRequest
 {
     [From(Claim.UserName)]
     public string UserName { get; set; }  //this value will be auto populated from the user claim
@@ -39,7 +39,7 @@ public class MyRequest : IRequest
 
 ### Request Validator
 ```csharp
-public class Validator : AbstractValidator<MyRequest>
+public class MyValidator : AbstractValidator<MyRequest>
 {
     public Validator()
     {
@@ -52,7 +52,7 @@ public class Validator : AbstractValidator<MyRequest>
 
 ### Response DTO
 ```csharp
-public class Response : IResponse
+public class MyResponse
 {
     public string Name { get; internal set; }
     public int Price { get; set; }

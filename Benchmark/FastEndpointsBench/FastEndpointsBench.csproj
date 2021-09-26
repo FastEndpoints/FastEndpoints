@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FastEndpoints.csproj" />
-    <PackageReference Include="FluentValidation" Version="10.3.3" />
   </ItemGroup>
 
 </Project>

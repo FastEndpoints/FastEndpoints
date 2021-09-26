@@ -16,19 +16,6 @@ namespace FastEndpoints
     {
         public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
 
-#pragma warning disable CS8618
-        internal static IServiceProvider serviceProvider; //this is set by UseFastEndpoints()
-        private static IConfiguration? config;
-        private static IWebHostEnvironment? env;
-        private static ILogger? logger;
-#pragma warning restore CS8618
-
-#pragma warning disable CS8603
-        protected static IConfiguration Config => config ??= serviceProvider.GetService<IConfiguration>();
-        protected static IWebHostEnvironment Env => env ??= serviceProvider.GetService<IWebHostEnvironment>();
-        protected static ILogger Logger => logger ??= serviceProvider.GetService<ILogger<EndpointBase>>();
-#pragma warning restore CS8603
-
         internal string[]? routes;
         internal string[]? verbs;
         internal bool throwIfValidationFailed = true;
@@ -48,9 +35,6 @@ namespace FastEndpoints
 
             return routes[0].Replace("{", "").Replace("}", "");
         }
-
-        protected static TService? Resolve<TService>() => serviceProvider.GetService<TService>();
-        protected static object? Resolve(Type typeOfService) => serviceProvider.GetService(typeOfService);
     }
 
     public abstract class BasicEndpoint : Endpoint<EmptyRequest, EmptyValidator<EmptyRequest>> { }
@@ -63,11 +47,15 @@ namespace FastEndpoints
     {
 #pragma warning disable CS8618
         protected HttpContext HttpContext { get; private set; }
+#pragma warning restore CS8618
+
+        protected IConfiguration? Config => HttpContext.RequestServices.GetService<IConfiguration>();
+        protected IWebHostEnvironment? Env => HttpContext.RequestServices.GetService<IWebHostEnvironment>();
+        protected ILogger? Logger => HttpContext.RequestServices.GetService<ILogger<Endpoint<TRequest>>>();
         protected string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
         protected Http HttpMethod { get => Enum.Parse<Http>(HttpContext.Request.Method); }
         protected List<ValidationFailure> ValidationFailures { get; } = new();
         protected bool ValidationFailed { get => ValidationFailures.Count > 0; }
-#pragma warning restore CS8618
 
         protected void Routes(params string[] patterns) => routes = patterns;
         protected void Verbs(params Http[] methods) => verbs = methods.Select(m => m.ToString()).ToArray();
@@ -165,6 +153,9 @@ namespace FastEndpoints
             HttpContext.Response.StatusCode = 404;
             return Task.CompletedTask;
         }
+
+        protected TService? Resolve<TService>() => HttpContext.RequestServices.GetService<TService>();
+        protected object? Resolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
 
         protected Task<IFormCollection> GetFormAsync(CancellationToken cancellation = default)
         {

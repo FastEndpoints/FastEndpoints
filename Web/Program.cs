@@ -5,18 +5,21 @@ using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
-builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();
+
+var test = app.Services;
+var service = app.Services.GetService<IEmailService>();
+
 app.Run();
 
 //todo: write tests
-// - auto resolved services with endpoint properties
 // - DontThrowIfValidationFails()
 // - AcceptFiles()
 // - SendBytesAsync()

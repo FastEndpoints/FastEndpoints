@@ -11,7 +11,6 @@ namespace Customers.Create
         {
             Verbs(Http.POST);
             Routes("/customers/create");
-            AllowAnnonymous();
         }
 
         protected override Task HandleAsync(Request r, CancellationToken t)

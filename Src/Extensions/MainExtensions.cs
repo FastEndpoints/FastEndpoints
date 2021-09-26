@@ -75,8 +75,6 @@ namespace FastEndpoints
 
         public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
         {
-            EndpointBase.serviceProvider = builder.ServiceProvider;
-
             if (endpoints is null) throw new InvalidOperationException("Please use .UseEZEndpoints() first!");
 
             foreach (var (epType, epInstance, epName) in endpoints)
@@ -124,7 +122,6 @@ namespace FastEndpoints
                     EndpointExecutor.CacheEndpointTypes[route] = (epFactory, execMethod);
                 }
             }
-            //endpoints = null;
             return builder;
         }
 

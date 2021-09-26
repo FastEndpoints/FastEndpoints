@@ -19,20 +19,20 @@ namespace FastEndpoints
 
             var endpointInstance = endpointFactory();
 
-            ResolveServices(endpointInstance);
+            ResolveServices(endpointInstance, ctx);
 
             return (Task?)execMethod.Invoke(endpointInstance, new object[] { ctx, cancellation })
                 ?? Task.CompletedTask;
         }
 
-        private static void ResolveServices(object endpointInstance)
+        private static void ResolveServices(object endpointInstance, HttpContext ctx)
         {
             if (CacheServiceBoundProps.TryGetValue(endpointInstance.GetType(), out var props))
             {
                 for (int i = 0; i < props.Length; i++)
                 {
                     PropertyInfo? prop = props[i];
-                    var serviceInstance = EndpointBase.serviceProvider.GetService(prop.PropertyType);
+                    var serviceInstance = ctx.RequestServices.GetService(prop.PropertyType);
                     prop.SetValue(endpointInstance, serviceInstance);
                 }
             }

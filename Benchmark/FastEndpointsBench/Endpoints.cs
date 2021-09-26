@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace FastEndpointsBench
 {
-    public class Request : IRequest
+    public class Request
     {
         public int Id { get; set; }
         public string? FirstName { get; set; }
@@ -23,7 +23,7 @@ namespace FastEndpointsBench
         }
     }
 
-    public class Response : IResponse
+    public class Response
     {
         public int Id { get; set; }
         public string? Name { get; set; }

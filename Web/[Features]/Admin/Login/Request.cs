@@ -1,8 +1,6 @@
-﻿using FastEndpoints;
-
-namespace Admin.Login
+﻿namespace Admin.Login
 {
-    public class Request : IRequest
+    public class Request
     {
         public string? UserName { get; set; }
         public string? Password { get; set; }

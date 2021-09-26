@@ -81,7 +81,7 @@ public class MyEndpoint : Endpoint<MyRequest>
 
     protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
     {
-        //can do further validation here in addition to FluentValidations rules
+        //can do further validation here in addition to FluentValidation rules
         if (req.Price < 100)
             AddError(r => r.Price, "Price is too low!");
 

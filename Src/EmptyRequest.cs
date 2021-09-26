@@ -1,4 +1,4 @@
 ﻿namespace FastEndpoints
 {
-    public class EmptyRequest : IRequest { }
+    public class EmptyRequest { }
 }

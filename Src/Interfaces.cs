@@ -1,14 +1,11 @@
 ﻿namespace FastEndpoints
 {
-    public interface IRequest { }
-
-    public interface IRequest<TEntity> : IRequest
+    public interface IRequest<TEntity>
     {
         TEntity ToEntity();
     }
-    public interface IResponse { }
 
-    public interface IResponse<TEntity> : IResponse
+    public interface IResponse<TEntity>
     {
         void FromEntity(TEntity entity);
     }

@@ -4,7 +4,6 @@ using System.Reflection;
 namespace FastEndpoints
 {
     internal static class ReqTypeCache<TRequest, TValidator>
-        where TRequest : IRequest
         where TValidator : AbstractValidator<TRequest>, new()
     {
         internal static TValidator Validator = new();

@@ -1,8 +1,6 @@
-﻿using FastEndpoints;
-
-namespace Inventory.Manage.Create
+﻿namespace Inventory.Manage.Create
 {
-    public class Response : IResponse
+    public class Response
     {
         public int ProductId { get; set; }
         public string? ProductName { get; set; }

@@ -47,10 +47,10 @@ namespace FastEndpoints
 
     public abstract class BasicEndpoint : Endpoint<EmptyRequest, EmptyValidator<EmptyRequest>> { }
 
-    public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : IRequest, new() { }
+    public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : new() { }
 
     public abstract class Endpoint<TRequest, TValidator> : EndpointBase
-        where TRequest : IRequest, new()
+        where TRequest : new()
         where TValidator : AbstractValidator<TRequest>, new()
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

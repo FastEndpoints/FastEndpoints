@@ -2,5 +2,5 @@
 
 namespace FastEndpoints
 {
-    public class EmptyValidator<TRequest> : AbstractValidator<TRequest> where TRequest : IRequest { }
+    public class EmptyValidator<TRequest> : AbstractValidator<TRequest> { }
 }

@@ -6,7 +6,6 @@ namespace FastEndpoints
     {
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TRequest, TResponse>
             (this HttpClient client, string requestUri, TRequest request)
-            where TRequest : IRequest
             where TResponse : class
         {
             var res = await client.PostAsJsonAsync(requestUri, request, EndpointBase.SerializerOptions).ConfigureAwait(false);
@@ -16,7 +15,6 @@ namespace FastEndpoints
 
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PutAsync<TRequest, TResponse>
             (this HttpClient client, string requestUri, TRequest request)
-            where TRequest : IRequest
             where TResponse : class
         {
             var res = await client.PutAsJsonAsync(requestUri, request, EndpointBase.SerializerOptions).ConfigureAwait(false);
@@ -24,7 +22,7 @@ namespace FastEndpoints
             return (res, body);
         }
 
-        public static Task<TResponse?> GetAsync<TResponse>(this HttpClient client, string requestUri) where TResponse : IResponse
+        public static Task<TResponse?> GetAsync<TResponse>(this HttpClient client, string requestUri)
         {
             return client.GetFromJsonAsync<TResponse>(requestUri, EndpointBase.SerializerOptions);
         }

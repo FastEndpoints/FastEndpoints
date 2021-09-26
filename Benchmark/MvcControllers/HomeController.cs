@@ -1,11 +1,10 @@
-﻿using FastEndpoints;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MvcControllers
 {
-    public class Request : IRequest
+    public class Request
     {
         public int Id { get; set; }
         public string? FirstName { get; set; }
@@ -25,7 +24,7 @@ namespace MvcControllers
         }
     }
 
-    public class Response : IResponse
+    public class Response
     {
         public int Id { get; set; }
         public string? Name { get; set; }

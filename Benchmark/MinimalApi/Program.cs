@@ -1,4 +1,3 @@
-using FastEndpoints;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +41,7 @@ namespace MinimalApi
 {
     public partial class Program { }
 
-    public class Request : IRequest
+    public class Request
     {
         public int Id { get; set; }
         public string? FirstName { get; set; }
@@ -62,7 +61,7 @@ namespace MinimalApi
         }
     }
 
-    public class Response : IResponse
+    public class Response
     {
         public int Id { get; set; }
         public string? Name { get; set; }

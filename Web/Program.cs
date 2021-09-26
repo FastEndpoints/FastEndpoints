@@ -15,7 +15,6 @@ app.Run();
 
 //todo: main list
 // - make endpoint methods more static
-// - remove redundant interfaces
 // - bundle fluentvalidations
 
 //todo: write tests

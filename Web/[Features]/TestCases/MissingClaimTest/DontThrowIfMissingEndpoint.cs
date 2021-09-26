@@ -10,7 +10,7 @@ namespace TestCases.MissingClaimTest
             Routes("/test-cases/missing-claim-test/dont-throw");
         }
 
-        protected override Task ExecuteAsync(DontThrowIfMissingRequest req, CancellationToken ct)
+        protected override Task HandleAsync(DontThrowIfMissingRequest req, CancellationToken ct)
         {
             return SendAsync($"you sent {req.TestProp}");
         }

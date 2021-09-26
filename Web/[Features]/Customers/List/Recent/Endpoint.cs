@@ -14,7 +14,7 @@ namespace Customers.List.Recent
             Permissions(Allow.Customers_Retrieve_Recent, Allow.Inventory_Create_Item);
         }
 
-        protected override Task ExecuteAsync(EmptyRequest er, CancellationToken ct)
+        protected override Task HandleAsync(EmptyRequest er, CancellationToken ct)
         {
             return SendAsync(new Response
             {

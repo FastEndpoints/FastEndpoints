@@ -15,7 +15,6 @@ app.Run();
 
 //todo: main list
 // - make endpoint methods more static
-// - bundle fluentvalidations
 
 //todo: write tests
 // - auto resolved services with endpoint properties

@@ -15,19 +15,19 @@ namespace FastEndpoints
     {
         public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618
         internal static IServiceProvider serviceProvider; //this is set by UseFastEndpoints()
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning restore CS8618
 
         private static IConfiguration? config;
         private static IWebHostEnvironment? env;
         private static ILogger? logger;
 
-#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8603
         protected static IConfiguration Config => config ??= serviceProvider.GetService<IConfiguration>();
         protected static IWebHostEnvironment Env => env ??= serviceProvider.GetService<IWebHostEnvironment>();
         protected static ILogger Logger => logger ??= serviceProvider.GetService<ILogger<EndpointBase>>();
-#pragma warning restore CS8603 // Possible null reference return.
+#pragma warning restore CS8603
 
         internal string[]? routes;
         internal string[]? verbs;
@@ -53,10 +53,9 @@ namespace FastEndpoints
         where TRequest : new()
         where TValidator : Validator<TRequest>, new()
     {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        protected HttpContext HttpContext { get; set; } //this is set when ExecAsync is called by EndpointExecutor
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-
+#pragma warning disable CS8618
+        protected HttpContext HttpContext { get; private set; }
+#pragma warning restore CS8618
         protected string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
         protected Http HttpMethod { get => Enum.Parse<Http>(HttpContext.Request.Method); }
         protected List<ValidationFailure> ValidationFailures { get; } = new();

@@ -1,4 +1,4 @@
-﻿namespace FastEndpoints
+﻿namespace FastEndpoints.Validation
 {
     public class ValidationFailureException : Exception
     {

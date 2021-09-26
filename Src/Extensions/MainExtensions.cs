@@ -73,7 +73,6 @@ namespace FastEndpoints
             }
         }
 
-
         public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
         {
             EndpointBase.serviceProvider = builder.ServiceProvider;
@@ -110,7 +109,7 @@ namespace FastEndpoints
 
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(epType)).Compile();
 
-                EndpointExecutor.CacheServiceBoundProps[epType] = epType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                EndpointExecutor.CacheServiceBoundProps[epType] = epType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
                 foreach (var route in routes.Distinct())
                 {

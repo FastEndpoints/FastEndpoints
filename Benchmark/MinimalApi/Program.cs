@@ -5,13 +5,13 @@ using MinimalApi;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
+    .Configure<JsonOptions>(o => o.JsonSerializerOptions.PropertyNamingPolicy = null)
     .AddAuthorization()
     .AddFluentValidation()
     .AddSingleton<IValidator<Request>, Validator>();
 
 var app = builder.Build();
 app.UseAuthorization();
-
 app.MapPost("/benchmark/ok/{id}",
     (
         [FromRoute] int id,

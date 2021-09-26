@@ -4,6 +4,7 @@ using MvcControllers;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddMvc()
+    .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null)
     .AddFluentValidation(fv =>
         fv.RegisterValidatorsFromAssemblyContaining<Validator>());
 

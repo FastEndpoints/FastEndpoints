@@ -39,7 +39,7 @@ public class MyRequest
 
 ### Request Validator
 ```csharp
-public class MyValidator : AbstractValidator<MyRequest>
+public class MyValidator : FluentValidator<MyRequest>
 {
     public Validator()
     {

@@ -2,7 +2,7 @@
 
 namespace Admin.Login
 {
-    public class Validator : AbstractValidator<Request>
+    public class Validator : FluentValidator<Request>
     {
         public Validator()
         {

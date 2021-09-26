@@ -3,7 +3,7 @@
 namespace FastEndpoints
 {
     internal static class ReqTypeCache<TRequest, TValidator>
-        where TValidator : AbstractValidator<TRequest>, new()
+        where TValidator : FluentValidator<TRequest>, new()
     {
         internal static TValidator Validator = new();
         internal static Dictionary<string, PropertyInfo> Props { get; } = new();

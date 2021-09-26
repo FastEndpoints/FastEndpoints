@@ -49,7 +49,7 @@ namespace FastEndpoints
 
     public abstract class Endpoint<TRequest, TValidator> : EndpointBase
         where TRequest : new()
-        where TValidator : AbstractValidator<TRequest>, new()
+        where TValidator : FluentValidator<TRequest>, new()
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected HttpContext HttpContext { get; set; } //this is set when ExecAsync is called by EndpointExecutor

@@ -37,7 +37,7 @@ namespace FastEndpoints
     /// </code>
     /// </example>
     /// <typeparam name="T"></typeparam>
-    public class InlineValidator<T> : AbstractValidator<T>
+    public class InlineValidator<T> : FluentValidator<T>
     {
         /// <summary>
         /// Allows configuration of the validator.

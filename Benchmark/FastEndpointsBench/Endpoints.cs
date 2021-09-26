@@ -11,7 +11,7 @@ namespace FastEndpointsBench
         public IEnumerable<string>? PhoneNumbers { get; set; }
     }
 
-    public class Validator : AbstractValidator<Request>
+    public class Validator : FluentValidator<Request>
     {
         public Validator()
         {

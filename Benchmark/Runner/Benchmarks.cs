@@ -15,10 +15,8 @@ namespace Runner
         [Benchmark(Baseline = true)]
         public async Task FastEndpointsEndpoint()
         {
-            await FastEndpointClient.PostAsync<
-                FastEndpointsBench.Endpoint,
-                FastEndpointsBench.Request,
-                FastEndpointsBench.Response>(new()
+            await FastEndpointClient.PostAsync<FastEndpointsBench.Request, FastEndpointsBench.Response>(
+                "/benchmark/ok/123", new()
                 {
                     FirstName = "xxc",
                     LastName = "yyy",

@@ -54,7 +54,7 @@ namespace Admin.Login
                 AddError("Authentication Failed!");
             }
 
-            return SendErrorAsync();
+            return SendErrorsAsync();
         }
     }
 }

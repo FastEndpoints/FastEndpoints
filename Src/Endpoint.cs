@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.Json;
 
 namespace FastEndpoints
@@ -17,11 +18,10 @@ namespace FastEndpoints
 
 #pragma warning disable CS8618
         internal static IServiceProvider serviceProvider; //this is set by UseFastEndpoints()
-#pragma warning restore CS8618
-
         private static IConfiguration? config;
         private static IWebHostEnvironment? env;
         private static ILogger? logger;
+#pragma warning restore CS8618
 
 #pragma warning disable CS8603
         protected static IConfiguration Config => config ??= serviceProvider.GetService<IConfiguration>();
@@ -55,11 +55,11 @@ namespace FastEndpoints
     {
 #pragma warning disable CS8618
         protected HttpContext HttpContext { get; private set; }
-#pragma warning restore CS8618
         protected string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
         protected Http HttpMethod { get => Enum.Parse<Http>(HttpContext.Request.Method); }
         protected List<ValidationFailure> ValidationFailures { get; } = new();
         protected bool ValidationFailed { get => ValidationFailures.Count > 0; }
+#pragma warning restore CS8618
 
         protected void Routes(params string[] patterns) => routes = patterns;
         protected void Verbs(params Http[] methods) => verbs = methods.Select(m => m.ToString()).ToArray();
@@ -83,56 +83,56 @@ namespace FastEndpoints
             var req = await BindIncomingDataAsync(ctx, cancellation).ConfigureAwait(false);
             try
             {
-                BindFromUserClaims(req, ctx);
+                BindFromUserClaims(req, ctx, ValidationFailures);
                 ValidateRequest(req);
                 await HandleAsync(req, cancellation).ConfigureAwait(false);
             }
             catch (ValidationFailureException)
             {
-                await SendErrorAsync(cancellation).ConfigureAwait(false);
+                await SendErrorsAsync(cancellation).ConfigureAwait(false);
             }
         }
 
-        public void AddError(string message)
+        protected void AddError(string message)
             => ValidationFailures.Add(new ValidationFailure("GeneralErrors", message));
 
-        public void AddError(Expression<Func<TRequest, object>> property, string errorMessage)
+        protected void AddError(Expression<Func<TRequest, object>> property, string errorMessage)
         {
             ValidationFailures.Add(
                 new ValidationFailure(property.PropertyName(), errorMessage));
         }
 
-        public void ThrowIfAnyErrors()
+        protected void ThrowIfAnyErrors()
         {
             if (ValidationFailed)
                 throw new ValidationFailureException();
         }
 
-        public void ThrowError(string message)
+        protected void ThrowError(string message)
         {
             AddError(message);
             ThrowIfAnyErrors();
         }
 
-        public void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
+        protected void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
         {
             AddError(property, errorMessage);
             ThrowIfAnyErrors();
         }
 
-        public Task SendErrorAsync(CancellationToken cancellation = default)
+        protected Task SendErrorsAsync(CancellationToken cancellation = default)
         {
             HttpContext.Response.StatusCode = 400;
             return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
         }
 
-        public Task SendAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
+        protected Task SendAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
         {
             HttpContext.Response.StatusCode = statusCode;
             return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions, cancellation);
         }
 
-        public ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+        protected ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
             HttpContext.Response.StatusCode = 200;
             HttpContext.Response.ContentType = contentType;
@@ -140,25 +140,25 @@ namespace FastEndpoints
             return HttpContext.Response.Body.WriteAsync(bytes, cancellation);
         }
 
-        public Task SendOkAsync()
+        protected Task SendOkAsync()
         {
             HttpContext.Response.StatusCode = 200;
             return Task.CompletedTask;
         }
 
-        public Task SendNoContentAsync()
+        protected Task SendNoContentAsync()
         {
             HttpContext.Response.StatusCode = 204;
             return Task.CompletedTask;
         }
 
-        public Task SendNotFoundAsync()
+        protected Task SendNotFoundAsync()
         {
             HttpContext.Response.StatusCode = 404;
             return Task.CompletedTask;
         }
 
-        public Task<IFormCollection> GetFormAsync(CancellationToken cancellation = default)
+        protected Task<IFormCollection> GetFormAsync(CancellationToken cancellation = default)
         {
             var req = HttpContext.Request;
 
@@ -168,7 +168,7 @@ namespace FastEndpoints
             return req.ReadFormAsync(cancellation);
         }
 
-        public async Task<IFormFileCollection> GetFilesAsync(CancellationToken cancellation = default)
+        protected async Task<IFormFileCollection> GetFilesAsync(CancellationToken cancellation = default)
         {
             return (await GetFormAsync(cancellation).ConfigureAwait(false)).Files;
         }
@@ -187,23 +187,23 @@ namespace FastEndpoints
             return req;
         }
 
-        private void BindFromUserClaims(TRequest req, HttpContext ctx)
+        private static void BindFromUserClaims(TRequest req, HttpContext ctx, List<ValidationFailure> failures)
         {
             for (int i = 0; i < ReqTypeCache<TRequest, TValidator>.FromClaimProps.Count; i++)
             {
-                (string claimType, bool forbidIfMissing, System.Reflection.PropertyInfo propInfo) cacheEntry
+                (string claimType, bool forbidIfMissing, PropertyInfo propInfo) cacheEntry
                     = ReqTypeCache<TRequest, TValidator>.FromClaimProps[i];
 
                 var claimType = cacheEntry.claimType;
                 var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
                 if (claimVal is null && cacheEntry.forbidIfMissing)
-                    ValidationFailures.Add(new(claimType, "User doesn't have this claim type!"));
+                    failures.Add(new(claimType, "User doesn't have this claim type!"));
 
                 if (claimVal is not null)
                     cacheEntry.propInfo.SetValue(req, claimVal);
             }
-            if (ValidationFailed) throw new ValidationFailureException();
+            if (failures.Count > 0) throw new ValidationFailureException();
         }
 
         private void ValidateRequest(TRequest req)

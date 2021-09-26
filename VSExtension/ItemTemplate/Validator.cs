@@ -1,8 +1,8 @@
-﻿using FluentValidation;
+﻿using FastEndpoints.Validation;
 
 namespace $fileinputname$
 {
-    public class Validator : AbstractValidator<Request>
+    public class Validator : Validator<Request>
     {
         public Validator()
         {

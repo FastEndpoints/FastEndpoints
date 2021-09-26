@@ -31,7 +31,7 @@ namespace FastEndpoints.Validation.Validators
         public PredicateValidator(Predicate predicate)
         {
             predicate.Guard("A predicate must be specified.", nameof(predicate));
-            this._predicate = predicate;
+            _predicate = predicate;
         }
 
         public override bool IsValid(ValidationContext<T> context, TProperty value)

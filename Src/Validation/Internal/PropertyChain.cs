@@ -55,7 +55,7 @@ namespace FastEndpoints.Validation.Internal
         /// <param name="memberNames"></param>
         public PropertyChain(IEnumerable<string> memberNames)
         {
-            this._memberNames.AddRange(memberNames);
+            _memberNames.AddRange(memberNames);
         }
 
         /// <summary>

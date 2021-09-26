@@ -357,14 +357,15 @@ namespace FastEndpoints.Validation.Internal
                 ? MessageBuilder(new MessageBuilderContext<T, TValue>(context, value, component))
                 : component.GetErrorMessage(context, value);
 
-            var failure = new ValidationFailure(context.PropertyName, error, value);
+            var failure = new ValidationFailure(context.PropertyName, error, value)
+            {
+                FormattedMessagePlaceholderValues = new Dictionary<string, object>(context.MessageFormatter.PlaceholderValues),
+                ErrorCode = component.ErrorCode ?? ValidatorOptions.Global.ErrorCodeResolver(component.Validator),
 
-            failure.FormattedMessagePlaceholderValues = new Dictionary<string, object>(context.MessageFormatter.PlaceholderValues);
-            failure.ErrorCode = component.ErrorCode ?? ValidatorOptions.Global.ErrorCodeResolver(component.Validator);
-
-            failure.Severity = component.SeverityProvider != null
+                Severity = component.SeverityProvider != null
                 ? component.SeverityProvider(context, value)
-                : ValidatorOptions.Global.Severity;
+                : ValidatorOptions.Global.Severity
+            };
 
             if (component.CustomStateProvider != null)
             {

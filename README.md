@@ -39,9 +39,9 @@ public class MyRequest
 
 ### Request Validator
 ```csharp
-public class MyValidator : FluentValidator<MyRequest>
+public class MyValidator : Validator<MyRequest>
 {
-    public Validator()
+    public MyValidator()
     {
         RuleFor(x => x.Id).NotEmpty().WithMessage("Id is required!");
         RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required!");

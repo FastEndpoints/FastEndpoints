@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Benchmark\FastEndpointsBench\FastEndpointsBench.csproj" />
     <ProjectReference Include="..\Web\Web.csproj" />
   </ItemGroup>
 

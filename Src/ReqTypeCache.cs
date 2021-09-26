@@ -7,7 +7,7 @@ namespace FastEndpoints
         where TValidator : Validator<TRequest>, new()
     {
         internal static TValidator Validator = new();
-        internal static Dictionary<string, PropertyInfo> Props { get; } = new();
+        internal static Dictionary<string, (PropertyInfo propInfo, TypeCode typeCode)> Props { get; } = new();
         internal static List<(string claimType, bool forbidIfMissing, PropertyInfo propInfo)> FromClaimProps { get; } = new();
 
         static ReqTypeCache()
@@ -16,7 +16,7 @@ namespace FastEndpoints
             {
                 var propName = propInfo.Name.ToLower();
 
-                Props.Add(propName, propInfo);
+                Props.Add(propName, (propInfo, Type.GetTypeCode(propInfo.PropertyType)));
 
                 if (propInfo.IsDefined(typeof(FromClaimAttribute), false))
                 {

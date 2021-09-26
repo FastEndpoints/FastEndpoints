@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using static Test.Setup;
@@ -38,5 +39,6 @@ namespace Test
             Assert.AreEqual(HttpStatusCode.OK, res?.StatusCode);
             Assert.AreEqual("you sent xyz", result);
         }
+
     }
 }

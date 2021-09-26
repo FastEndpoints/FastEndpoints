@@ -13,13 +13,10 @@ WebApplication app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();
-
-var test = app.Services;
-var service = app.Services.GetService<IEmailService>();
-
 app.Run();
 
 //todo: write tests
+// - type code switch when route binding
 // - DontThrowIfValidationFails()
 // - AcceptFiles()
 // - SendBytesAsync()

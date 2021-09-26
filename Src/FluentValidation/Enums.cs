@@ -16,58 +16,62 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FluentValidation {
-	using System;
+namespace FluentValidation
+{
+    using System;
 
-	/// <summary>
-	/// Specifies how rules should cascade when one fails.
-	/// </summary>
-	public enum CascadeMode {
-		/// <summary>
-		/// When a rule fails, execution continues to the next rule.
-		/// </summary>
-		Continue,
-		/// <summary>
-		/// When a rule fails, validation is stopped and all other rules in the chain will not be executed.
-		/// </summary>
-		[Obsolete("Use CascadeMode.Stop instead. The behaviour of StopOnFirstFailure was ambiguous when used at validator-level. For more details, see https://docs.fluentvalidation.net/en/latest/conditions.html#stop-vs-stoponfirstfailure")]
-		StopOnFirstFailure,
+    /// <summary>
+    /// Specifies how rules should cascade when one fails.
+    /// </summary>
+    public enum CascadeMode
+    {
+        /// <summary>
+        /// When a rule fails, execution continues to the next rule.
+        /// </summary>
+        Continue,
+        /// <summary>
+        /// When a rule fails, validation is stopped and all other rules in the chain will not be executed.
+        /// </summary>
+        [Obsolete("Use CascadeMode.Stop instead. The behaviour of StopOnFirstFailure was ambiguous when used at validator-level. For more details, see https://docs.fluentvalidation.net/en/latest/conditions.html#stop-vs-stoponfirstfailure")]
+        StopOnFirstFailure,
 
-		/// <summary>
-		/// When a rule fails, validation is immediately halted.
-		/// </summary>
-		Stop,
-	}
+        /// <summary>
+        /// When a rule fails, validation is immediately halted.
+        /// </summary>
+        Stop,
+    }
 
-	/// <summary>
-	/// Specifies where a When/Unless condition should be applied
-	/// </summary>
-	public enum ApplyConditionTo {
-		/// <summary>
-		/// Applies the condition to all validators declared so far in the chain.
-		/// </summary>
-		AllValidators,
-		/// <summary>
-		/// Applies the condition to the current validator only.
-		/// </summary>
-		CurrentValidator
-	}
+    /// <summary>
+    /// Specifies where a When/Unless condition should be applied
+    /// </summary>
+    public enum ApplyConditionTo
+    {
+        /// <summary>
+        /// Applies the condition to all validators declared so far in the chain.
+        /// </summary>
+        AllValidators,
+        /// <summary>
+        /// Applies the condition to the current validator only.
+        /// </summary>
+        CurrentValidator
+    }
 
-     /// <summary>
-     /// Specifies the severity of a rule.
-     /// </summary>
-	public enum Severity {
-		/// <summary>
-		/// Error
-		/// </summary>
-		Error,
-		/// <summary>
-		/// Warning
-		/// </summary>
-		Warning,
-		/// <summary>
-		/// Info
-		/// </summary>
-		Info
-	}
+    /// <summary>
+    /// Specifies the severity of a rule.
+    /// </summary>
+    public enum Severity
+    {
+        /// <summary>
+        /// Error
+        /// </summary>
+        Error,
+        /// <summary>
+        /// Warning
+        /// </summary>
+        Warning,
+        /// <summary>
+        /// Info
+        /// </summary>
+        Info
+    }
 }

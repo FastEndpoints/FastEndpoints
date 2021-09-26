@@ -16,20 +16,25 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FluentValidation.Validators {
-	public class NullValidator<T,TProperty> : PropertyValidator<T,TProperty>, INullValidator {
+namespace FluentValidation.Validators
+{
+    public class NullValidator<T, TProperty> : PropertyValidator<T, TProperty>, INullValidator
+    {
 
-		public override string Name => "NullValidator";
+        public override string Name => "NullValidator";
 
-		public override bool IsValid(ValidationContext<T> context, TProperty value) {
-			return value == null;
-		}
+        public override bool IsValid(ValidationContext<T> context, TProperty value)
+        {
+            return value == null;
+        }
 
-		protected override string GetDefaultMessageTemplate(string errorCode) {
-			return Localized(errorCode, Name);
-		}
-	}
+        protected override string GetDefaultMessageTemplate(string errorCode)
+        {
+            return Localized(errorCode, Name);
+        }
+    }
 
-	public interface INullValidator : IPropertyValidator {
-	}
+    public interface INullValidator : IPropertyValidator
+    {
+    }
 }

@@ -16,34 +16,39 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FluentValidation.Validators {
-	using Internal;
-	using Resources;
+namespace FluentValidation.Validators
+{
+    using Internal;
 
-	public class PredicateValidator<T,TProperty> : PropertyValidator<T,TProperty>, IPredicateValidator {
-		public delegate bool Predicate(T instanceToValidate, TProperty propertyValue, ValidationContext<T> propertyValidatorContext);
+    public class PredicateValidator<T, TProperty> : PropertyValidator<T, TProperty>, IPredicateValidator
+    {
+        public delegate bool Predicate(T instanceToValidate, TProperty propertyValue, ValidationContext<T> propertyValidatorContext);
 
-		private readonly Predicate _predicate;
+        private readonly Predicate _predicate;
 
-		public override string Name => "PredicateValidator";
+        public override string Name => "PredicateValidator";
 
-		public PredicateValidator(Predicate predicate) {
-			predicate.Guard("A predicate must be specified.", nameof(predicate));
-			this._predicate = predicate;
-		}
+        public PredicateValidator(Predicate predicate)
+        {
+            predicate.Guard("A predicate must be specified.", nameof(predicate));
+            _predicate = predicate;
+        }
 
-		public override bool IsValid(ValidationContext<T> context, TProperty value) {
-			if (!_predicate(context.InstanceToValidate, value, context)) {
-				return false;
-			}
+        public override bool IsValid(ValidationContext<T> context, TProperty value)
+        {
+            if (!_predicate(context.InstanceToValidate, value, context))
+            {
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		protected override string GetDefaultMessageTemplate(string errorCode) {
-			return Localized(errorCode, Name);
-		}
-	}
+        protected override string GetDefaultMessageTemplate(string errorCode)
+        {
+            return Localized(errorCode, Name);
+        }
+    }
 
-	public interface IPredicateValidator : IPropertyValidator { }
+    public interface IPredicateValidator : IPropertyValidator { }
 }

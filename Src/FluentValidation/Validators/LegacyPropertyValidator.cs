@@ -19,85 +19,95 @@
 #endregion
 
 
-namespace FluentValidation.Validators {
-	using System;
-	using System.Threading;
-	using System.Threading.Tasks;
-	using Internal;
+namespace FluentValidation.Validators
+{
+    using Internal;
+    using System;
+    using System.Threading;
+    using System.Threading.Tasks;
 
 #pragma warning disable 618
 
-	internal interface ILegacyValidatorAdaptor {
-		IPropertyValidator UnderlyingValidator { get; }
-	}
+    internal interface ILegacyValidatorAdaptor
+    {
+        IPropertyValidator UnderlyingValidator { get; }
+    }
 
-	internal class LegacyValidatorAdaptor<T, TProperty> : IPropertyValidator<T, TProperty>, IAsyncPropertyValidator<T, TProperty>, ILegacyValidatorAdaptor {
+    internal class LegacyValidatorAdaptor<T, TProperty> : IPropertyValidator<T, TProperty>, IAsyncPropertyValidator<T, TProperty>, ILegacyValidatorAdaptor
+    {
 
-		private PropertyValidator _inner;
+        private readonly PropertyValidator _inner;
 
-		public LegacyValidatorAdaptor(PropertyValidator inner) {
-			_inner = inner;
-		}
+        public LegacyValidatorAdaptor(PropertyValidator inner)
+        {
+            _inner = inner;
+        }
 
-		public bool IsValid(ValidationContext<T> context, TProperty value) {
-			var pvc = new PropertyValidatorContext(context, context.PropertyName, value, () => context.DisplayName);
-			return _inner.IsValidInternal(pvc);
-		}
+        public bool IsValid(ValidationContext<T> context, TProperty value)
+        {
+            var pvc = new PropertyValidatorContext(context, context.PropertyName, value, () => context.DisplayName);
+            return _inner.IsValidInternal(pvc);
+        }
 
-		public Task<bool> IsValidAsync(ValidationContext<T> context, TProperty value, CancellationToken cancellation) {
-			var pvc = new PropertyValidatorContext(context, context.PropertyName, value, () => context.DisplayName);
-			return _inner.IsValidInternalAsync(pvc, cancellation);
-		}
+        public Task<bool> IsValidAsync(ValidationContext<T> context, TProperty value, CancellationToken cancellation)
+        {
+            var pvc = new PropertyValidatorContext(context, context.PropertyName, value, () => context.DisplayName);
+            return _inner.IsValidInternalAsync(pvc, cancellation);
+        }
 
-		public string Name => ((IPropertyValidator) _inner).Name;
+        public string Name => ((IPropertyValidator)_inner).Name;
 
-		public string GetDefaultMessageTemplate(string errorCode)
-			=> ((IPropertyValidator) _inner).GetDefaultMessageTemplate(errorCode);
+        public string GetDefaultMessageTemplate(string errorCode)
+            => ((IPropertyValidator)_inner).GetDefaultMessageTemplate(errorCode);
 
-		public IPropertyValidator UnderlyingValidator => _inner;
-	}
+        public IPropertyValidator UnderlyingValidator => _inner;
+    }
 
-	[Obsolete("The PropertyValidator class is deprecated and will be removed in FluentValidation 11. Please migrate to the generic PropertyValidator<T,TProperty> class.")]
-	public abstract class PropertyValidator : IPropertyValidator {
+    [Obsolete("The PropertyValidator class is deprecated and will be removed in FluentValidation 11. Please migrate to the generic PropertyValidator<T,TProperty> class.")]
+    public abstract class PropertyValidator : IPropertyValidator
+    {
 
-		internal bool IsValidInternal(PropertyValidatorContext context)
-			=> IsValid(context);
+        internal bool IsValidInternal(PropertyValidatorContext context)
+            => IsValid(context);
 
-		internal Task<bool> IsValidInternalAsync(PropertyValidatorContext context, CancellationToken cancellation)
-			=> IsValidAsync(context, cancellation);
+        internal Task<bool> IsValidInternalAsync(PropertyValidatorContext context, CancellationToken cancellation)
+            => IsValidAsync(context, cancellation);
 
-		protected abstract bool IsValid(PropertyValidatorContext context);
+        protected abstract bool IsValid(PropertyValidatorContext context);
 
-		protected virtual Task<bool> IsValidAsync(PropertyValidatorContext context, CancellationToken cancellation) {
-			return Task.FromResult(IsValid(context));
-		}
+        protected virtual Task<bool> IsValidAsync(PropertyValidatorContext context, CancellationToken cancellation)
+        {
+            return Task.FromResult(IsValid(context));
+        }
 
-		string IPropertyValidator.Name => GetType().Name;
+        string IPropertyValidator.Name => GetType().Name;
 
-		string IPropertyValidator.GetDefaultMessageTemplate(string errorCode)
-			=> GetDefaultMessageTemplate();
+        string IPropertyValidator.GetDefaultMessageTemplate(string errorCode)
+            => GetDefaultMessageTemplate();
 
-		protected virtual string GetDefaultMessageTemplate()
-			=> "No default error message has been specified";
+        protected virtual string GetDefaultMessageTemplate()
+            => "No default error message has been specified";
 
-	}
+    }
 
-	[Obsolete("The PropertyValidatorContext class is deprecated and will be removed in FluentValidation 11. Please switch to using PropertyValidator<T,TProperty> for custom property validators.")]
-	public class PropertyValidatorContext {
-		private readonly Func<string> _displayNameFunc;
-		private MessageFormatter _messageFormatter;
-		public IValidationContext ParentContext { get; }
-		public string PropertyName { get; }
-		public string DisplayName => _displayNameFunc();
-		public object InstanceToValidate => ParentContext.InstanceToValidate;
-		public MessageFormatter MessageFormatter => _messageFormatter ??= ValidatorOptions.Global.MessageFormatterFactory();
-		public object PropertyValue { get; }
+    [Obsolete("The PropertyValidatorContext class is deprecated and will be removed in FluentValidation 11. Please switch to using PropertyValidator<T,TProperty> for custom property validators.")]
+    public class PropertyValidatorContext
+    {
+        private readonly Func<string> _displayNameFunc;
+        private MessageFormatter _messageFormatter;
+        public IValidationContext ParentContext { get; }
+        public string PropertyName { get; }
+        public string DisplayName => _displayNameFunc();
+        public object InstanceToValidate => ParentContext.InstanceToValidate;
+        public MessageFormatter MessageFormatter => _messageFormatter ??= ValidatorOptions.Global.MessageFormatterFactory();
+        public object PropertyValue { get; }
 
-		internal PropertyValidatorContext(IValidationContext parentContext, string propertyName, object propertyValue, Func<string> displayNameFunc) {
-			_displayNameFunc = displayNameFunc;
-			ParentContext = parentContext;
-			PropertyName = propertyName;
-			PropertyValue = propertyValue;
-		}
-	}
+        internal PropertyValidatorContext(IValidationContext parentContext, string propertyName, object propertyValue, Func<string> displayNameFunc)
+        {
+            _displayNameFunc = displayNameFunc;
+            ParentContext = parentContext;
+            PropertyName = propertyName;
+            PropertyValue = propertyValue;
+        }
+    }
 }

@@ -18,48 +18,57 @@
 
 #endregion
 
-namespace FluentValidation.Internal {
-	using System.Threading;
-	using System.Threading.Tasks;
-	using Validators;
+namespace FluentValidation.Internal
+{
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Validators;
 
-	internal class RuleComponentForNullableStruct<T, TProperty> : RuleComponent<T, TProperty?> where TProperty : struct {
-		private IPropertyValidator<T, TProperty> _propertyValidator;
-		private IAsyncPropertyValidator<T, TProperty> _asyncPropertyValidator;
+    internal class RuleComponentForNullableStruct<T, TProperty> : RuleComponent<T, TProperty?> where TProperty : struct
+    {
+        private readonly IPropertyValidator<T, TProperty> _propertyValidator;
+        private readonly IAsyncPropertyValidator<T, TProperty> _asyncPropertyValidator;
 
-		internal RuleComponentForNullableStruct(IPropertyValidator<T, TProperty> propertyValidator)
-			: base(null) {
-			_propertyValidator = propertyValidator;
-		}
+        internal RuleComponentForNullableStruct(IPropertyValidator<T, TProperty> propertyValidator)
+            : base(null)
+        {
+            _propertyValidator = propertyValidator;
+        }
 
-		internal RuleComponentForNullableStruct(IAsyncPropertyValidator<T, TProperty> asyncPropertyValidator, IPropertyValidator<T, TProperty> propertyValidator)
-			: base(null, null) {
-			_asyncPropertyValidator = asyncPropertyValidator;
-		}
+        internal RuleComponentForNullableStruct(IAsyncPropertyValidator<T, TProperty> asyncPropertyValidator, IPropertyValidator<T, TProperty> propertyValidator)
+            : base(null, null)
+        {
+            _asyncPropertyValidator = asyncPropertyValidator;
+        }
 
-		public override IPropertyValidator Validator {
-			get {
-				if (_propertyValidator is ILegacyValidatorAdaptor l) {
-					return l.UnderlyingValidator;
-				}
-				return (IPropertyValidator) _propertyValidator ?? _asyncPropertyValidator;
-			}
-		}
+        public override IPropertyValidator Validator
+        {
+            get
+            {
+                if (_propertyValidator is ILegacyValidatorAdaptor l)
+                {
+                    return l.UnderlyingValidator;
+                }
+                return (IPropertyValidator)_propertyValidator ?? _asyncPropertyValidator;
+            }
+        }
 
-		private protected override bool SupportsAsynchronousValidation
-			=> _asyncPropertyValidator != null;
+        private protected override bool SupportsAsynchronousValidation
+            => _asyncPropertyValidator != null;
 
-		private protected override bool SupportsSynchronousValidation
-			=> _propertyValidator != null;
+        private protected override bool SupportsSynchronousValidation
+            => _propertyValidator != null;
 
-		internal override bool Validate(ValidationContext<T> context, TProperty? value) {
-			if (!value.HasValue) return true;
-			return _propertyValidator.IsValid(context, value.Value);
-		}
+        internal override bool Validate(ValidationContext<T> context, TProperty? value)
+        {
+            if (!value.HasValue) return true;
+            return _propertyValidator.IsValid(context, value.Value);
+        }
 
-		internal override async Task<bool> ValidateAsync(ValidationContext<T> context, TProperty? value, CancellationToken cancellation) {
-			if (!value.HasValue) return true;
-			return await _asyncPropertyValidator.IsValidAsync(context, value.Value, cancellation);
-		}
-	}
+        internal override async Task<bool> ValidateAsync(ValidationContext<T> context, TProperty? value, CancellationToken cancellation)
+        {
+            if (!value.HasValue) return true;
+            return await _asyncPropertyValidator.IsValidAsync(context, value.Value, cancellation);
+        }
+    }
 }

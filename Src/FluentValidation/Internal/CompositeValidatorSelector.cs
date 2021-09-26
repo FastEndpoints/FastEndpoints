@@ -16,19 +16,23 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FluentValidation.Internal {
-	using System.Collections.Generic;
-	using System.Linq;
+namespace FluentValidation.Internal
+{
+    using System.Collections.Generic;
+    using System.Linq;
 
-	internal class CompositeValidatorSelector : IValidatorSelector {
-		private IEnumerable<IValidatorSelector> _selectors;
+    internal class CompositeValidatorSelector : IValidatorSelector
+    {
+        private readonly IEnumerable<IValidatorSelector> _selectors;
 
-		public CompositeValidatorSelector(IEnumerable<IValidatorSelector> selectors) {
-			_selectors = selectors;
-		}
+        public CompositeValidatorSelector(IEnumerable<IValidatorSelector> selectors)
+        {
+            _selectors = selectors;
+        }
 
-		public bool CanExecute(IValidationRule rule, string propertyPath, IValidationContext context) {
-			return _selectors.Any(s => s.CanExecute(rule, propertyPath, context));
-		}
-	}
+        public bool CanExecute(IValidationRule rule, string propertyPath, IValidationContext context)
+        {
+            return _selectors.Any(s => s.CanExecute(rule, propertyPath, context));
+        }
+    }
 }

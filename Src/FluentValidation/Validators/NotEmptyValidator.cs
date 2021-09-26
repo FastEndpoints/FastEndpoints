@@ -18,40 +18,46 @@
 
 #endregion
 
-namespace FluentValidation.Validators {
-	using System;
-	using System.Collections;
-	using System.Linq;
-	using Resources;
+namespace FluentValidation.Validators
+{
+    using System;
+    using System.Collections;
+    using System.Linq;
 
-	public class NotEmptyValidator<T,TProperty> : PropertyValidator<T, TProperty>, INotEmptyValidator {
+    public class NotEmptyValidator<T, TProperty> : PropertyValidator<T, TProperty>, INotEmptyValidator
+    {
 
-		public override string Name => "NotEmptyValidator";
+        public override string Name => "NotEmptyValidator";
 
-		public override bool IsValid(ValidationContext<T> context, TProperty value) {
-			switch (value) {
-				case null:
-				case string s when string.IsNullOrWhiteSpace(s):
-				case ICollection {Count: 0}:
-				case Array {Length: 0}c:
-				case IEnumerable e when !e.Cast<object>().Any():
-					return false;
-			}
+        public override bool IsValid(ValidationContext<T> context, TProperty value)
+        {
+            switch (value)
+            {
+                case null:
+                case string s when string.IsNullOrWhiteSpace(s):
+                case ICollection { Count: 0 }:
+                case Array { Length: 0 } c:
+                case IEnumerable e when !e.Cast<object>().Any():
+                    return false;
+            }
 
-			//TODO: Rewrite to avoid boxing
-			if (Equals(value, default(TProperty))) {
-				// Note: Code analysis indicates "Expression is always false" but this is incorrect.
-				return false;
-			}
+            //TODO: Rewrite to avoid boxing
+            if (Equals(value, default(TProperty)))
+            {
+                // Note: Code analysis indicates "Expression is always false" but this is incorrect.
+                return false;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		protected override string GetDefaultMessageTemplate(string errorCode) {
-			return Localized(errorCode, Name);
-		}
-	}
+        protected override string GetDefaultMessageTemplate(string errorCode)
+        {
+            return Localized(errorCode, Name);
+        }
+    }
 
-	public interface INotEmptyValidator : IPropertyValidator {
-	}
+    public interface INotEmptyValidator : IPropertyValidator
+    {
+    }
 }

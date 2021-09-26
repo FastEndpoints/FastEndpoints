@@ -16,21 +16,23 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FluentValidation {
-	using System;
+namespace FluentValidation
+{
+    using System;
 
-	/// <summary>
-	/// Gets validators for a particular type.
-	/// </summary>
-	public interface IValidatorFactory {
-		/// <summary>
-		/// Gets the validator for the specified type.
-		/// </summary>
-		IValidator<T> GetValidator<T>();
+    /// <summary>
+    /// Gets validators for a particular type.
+    /// </summary>
+    public interface IValidatorFactory
+    {
+        /// <summary>
+        /// Gets the validator for the specified type.
+        /// </summary>
+        IValidator<T> GetValidator<T>();
 
-		/// <summary>
-		/// Gets the validator for the specified type.
-		/// </summary>
-		IValidator GetValidator(Type type);
-	}
+        /// <summary>
+        /// Gets the validator for the specified type.
+        /// </summary>
+        IValidator GetValidator(Type type);
+    }
 }

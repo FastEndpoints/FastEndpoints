@@ -18,36 +18,43 @@
 
 #endregion
 
-namespace FluentValidation.TestHelper {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq.Expressions;
-	using Internal;
-	using Results;
+namespace FluentValidation.TestHelper
+{
+    using Internal;
+    using Results;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
 
-	public class TestValidationResult<T> : ValidationResult {
+    public class TestValidationResult<T> : ValidationResult
+    {
 
-		public TestValidationResult(ValidationResult validationResult) : base(validationResult.Errors){
-			RuleSetsExecuted = validationResult.RuleSetsExecuted;
-		}
+        public TestValidationResult(ValidationResult validationResult) : base(validationResult.Errors)
+        {
+            RuleSetsExecuted = validationResult.RuleSetsExecuted;
+        }
 
-		public IEnumerable<ValidationFailure> ShouldHaveValidationErrorFor<TProperty>(Expression<Func<T, TProperty>> memberAccessor) {
-			string propertyName = ValidatorOptions.Global.PropertyNameResolver(typeof(T), memberAccessor.GetMember(), memberAccessor);
-			return ValidationTestExtension.ShouldHaveValidationError(Errors, propertyName, true);
-		}
+        public IEnumerable<ValidationFailure> ShouldHaveValidationErrorFor<TProperty>(Expression<Func<T, TProperty>> memberAccessor)
+        {
+            string propertyName = ValidatorOptions.Global.PropertyNameResolver(typeof(T), memberAccessor.GetMember(), memberAccessor);
+            return ValidationTestExtension.ShouldHaveValidationError(Errors, propertyName, true);
+        }
 
-		public void ShouldNotHaveValidationErrorFor<TProperty>(Expression<Func<T, TProperty>> memberAccessor) {
-			string propertyName = ValidatorOptions.Global.PropertyNameResolver(typeof(T), memberAccessor.GetMember(), memberAccessor);
-			ValidationTestExtension.ShouldNotHaveValidationError(Errors, propertyName, true);
-		}
+        public void ShouldNotHaveValidationErrorFor<TProperty>(Expression<Func<T, TProperty>> memberAccessor)
+        {
+            string propertyName = ValidatorOptions.Global.PropertyNameResolver(typeof(T), memberAccessor.GetMember(), memberAccessor);
+            ValidationTestExtension.ShouldNotHaveValidationError(Errors, propertyName, true);
+        }
 
-		public IEnumerable<ValidationFailure> ShouldHaveValidationErrorFor(string propertyName) {
-			return ValidationTestExtension.ShouldHaveValidationError(Errors, propertyName, false);
-		}
+        public IEnumerable<ValidationFailure> ShouldHaveValidationErrorFor(string propertyName)
+        {
+            return ValidationTestExtension.ShouldHaveValidationError(Errors, propertyName, false);
+        }
 
-		public void ShouldNotHaveValidationErrorFor(string propertyName) {
-			ValidationTestExtension.ShouldNotHaveValidationError(Errors, propertyName, false);
-		}
-	}
+        public void ShouldNotHaveValidationErrorFor(string propertyName)
+        {
+            ValidationTestExtension.ShouldNotHaveValidationError(Errors, propertyName, false);
+        }
+    }
 
 }

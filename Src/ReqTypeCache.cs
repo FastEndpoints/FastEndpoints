@@ -1,9 +1,10 @@
-﻿using System.Reflection;
+﻿using FastEndpoints.Validation;
+using System.Reflection;
 
 namespace FastEndpoints
 {
     internal static class ReqTypeCache<TRequest, TValidator>
-        where TValidator : FluentValidator<TRequest>, new()
+        where TValidator : Validator<TRequest>, new()
     {
         internal static TValidator Validator = new();
         internal static Dictionary<string, PropertyInfo> Props { get; } = new();

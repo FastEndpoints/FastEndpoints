@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints
+﻿using FastEndpoints.Validation;
+
+namespace FastEndpoints
 {
-    public class EmptyValidator<TRequest> : FluentValidator<TRequest> { }
+    public class EmptyValidator<TRequest> : Validator<TRequest> { }
 }

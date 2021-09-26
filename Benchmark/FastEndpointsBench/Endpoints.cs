@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using FastEndpoints.Validation;
 
 namespace FastEndpointsBench
 {
@@ -11,7 +12,7 @@ namespace FastEndpointsBench
         public IEnumerable<string>? PhoneNumbers { get; set; }
     }
 
-    public class Validator : FluentValidator<Request>
+    public class Validator : Validator<Request>
     {
         public Validator()
         {

@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints
+﻿using FastEndpoints.Validation.Results;
+
+namespace FastEndpoints
 {
     public class ErrorResponse
     {

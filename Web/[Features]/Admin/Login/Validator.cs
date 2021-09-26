@@ -1,8 +1,8 @@
-﻿using FastEndpoints;
+﻿using FastEndpoints.Validation;
 
 namespace Admin.Login
 {
-    public class Validator : FluentValidator<Request>
+    public class Validator : Validator<Request>
     {
         public Validator()
         {

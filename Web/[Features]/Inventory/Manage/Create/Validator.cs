@@ -1,8 +1,8 @@
-﻿using FastEndpoints;
+﻿using FastEndpoints.Validation;
 
 namespace Inventory.Manage.Create
 {
-    public class Validator : FluentValidator<Request>
+    public class Validator : Validator<Request>
     {
         public Validator()
         {

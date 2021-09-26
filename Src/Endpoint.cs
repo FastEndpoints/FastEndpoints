@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using FastEndpoints.Validation;
+using FastEndpoints.Validation.Results;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -49,7 +51,7 @@ namespace FastEndpoints
 
     public abstract class Endpoint<TRequest, TValidator> : EndpointBase
         where TRequest : new()
-        where TValidator : FluentValidator<TRequest>, new()
+        where TValidator : Validator<TRequest>, new()
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected HttpContext HttpContext { get; set; } //this is set when ExecAsync is called by EndpointExecutor

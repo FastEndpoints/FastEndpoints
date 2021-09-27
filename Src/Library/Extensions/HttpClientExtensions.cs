@@ -5,6 +5,14 @@ namespace FastEndpoints
 {
     public static class HttpClientExtensions
     {
+        /// <summary>
+        /// make a POST request using a request dto and get back a response dto.
+        /// </summary>
+        /// <typeparam name="TRequest">type of the requet dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to post to</param>
+        /// <param name="request">the request dto</param>
+        /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TRequest, TResponse>
             (this HttpClient client, string requestUri, TRequest request)
             where TResponse : class
@@ -26,12 +34,27 @@ namespace FastEndpoints
             return (res, body);
         }
 
+        /// <summary>
+        /// make a POST request to an endpoint using auto route discovery using a request dto and get back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="request">the request dto</param>
         public static Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TEndpoint, TRequest, TResponse>
             (this HttpClient client, TRequest request)
             where TEndpoint : EndpointBase, new()
             where TResponse : class
                 => PostAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
+        /// <summary>
+        /// make a PUT request using a request dto and get back a response dto.
+        /// </summary>
+        /// <typeparam name="TRequest">type of the requet dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to post to</param>
+        /// <param name="request">the request dto</param>
+        /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PutAsync<TRequest, TResponse>
         (this HttpClient client, string requestUri, TRequest request)
         where TResponse : class
@@ -53,17 +76,34 @@ namespace FastEndpoints
             return (res, body);
         }
 
+        /// <summary>
+        /// make a PUT request to an endpoint using auto route discovery using a request dto and get back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="request">the request dto</param>
         public static Task<(HttpResponseMessage? response, TResponse? result)> PutAsync<TEndpoint, TRequest, TResponse>
             (this HttpClient client, TRequest request)
             where TEndpoint : EndpointBase, new()
             where TResponse : class
                 => PutAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
+        /// <summary>
+        /// make a GET request to an endpoint using a route url and get back a response dto.
+        /// </summary>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to connect to</param>
         public static Task<TResponse?> GetAsync<TResponse>(this HttpClient client, string requestUri)
         {
             return client.GetFromJsonAsync<TResponse>(requestUri, EndpointBase.SerializerOptions);
         }
 
+        /// <summary>
+        /// make a GET request to an endpoint using auto route discovery and get back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public static Task<TResponse?> GetAsync<TEndpoint, TResponse>(this HttpClient client)
             where TEndpoint : EndpointBase, new()
                 => GetAsync<TResponse>(client, new TEndpoint().GetTestURL());

@@ -66,7 +66,7 @@ public class MyResponse
 
 ### Endpoint.cs
 ```csharp
-public class MyEndpoint : Endpoint<MyRequest>
+public class MyEndpoint : Endpoint<MyRequest,MyValidator>
 {
     public ILogger<MyEndpoint>? Logger { get; set; } //dependency injected
 

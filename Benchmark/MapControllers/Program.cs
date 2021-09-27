@@ -1,11 +1,10 @@
-using FluentValidation.AspNetCore;
+using FluentValidation;
 using MapControllers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
-    .AddControllers()
-    .AddFluentValidation(fv =>
-        fv.RegisterValidatorsFromAssemblyContaining<Controllers>());
+    .AddSingleton<IValidator<Request>, Validator>()
+    .AddControllers();
 
 var app = builder.Build();
 app.UseAuthorization();

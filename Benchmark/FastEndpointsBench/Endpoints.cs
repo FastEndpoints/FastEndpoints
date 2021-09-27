@@ -46,6 +46,8 @@ namespace FastEndpointsBench
         {
             //Logger.LogInformation("request received!");
 
+            //validator is automatically being run by FastEndpoints
+
             return SendAsync(new Response()
             {
                 Id = req.Id,

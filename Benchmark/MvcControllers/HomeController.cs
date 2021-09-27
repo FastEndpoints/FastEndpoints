@@ -39,12 +39,12 @@ namespace MvcControllers
         public IActionResult Index(
             [FromRoute] int id,
             [FromBody] Request req,
-            [FromServices] ILogger<HomeController> logger)
+            [FromServices] ILogger<HomeController> logger,
+            [FromServices] IValidator<Request> validator)
         {
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
-
             //logger.LogInformation("request received!");
+
+            var res = validator.Validate(req);
 
             return Ok(new Response()
             {

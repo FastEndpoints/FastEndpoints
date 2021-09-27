@@ -41,9 +41,12 @@ namespace MapControllers
         public Task<Response> PostAsync(
             [FromRoute] int id,
             [FromBody] Request req,
+            [FromServices] IValidator<Request> validator,
             [FromServices] ILogger<Controllers> logger)
         {
             //logger.LogInformation("request received!");
+
+            var res = validator.Validate(req);
 
             return Task.FromResult<Response>(new()
             {

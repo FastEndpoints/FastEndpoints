@@ -16,9 +16,9 @@ app.MapPost("/benchmark/ok/{id}",
         [FromServices] ILogger<Program> logger,
         [FromServices] IValidator<Request> validator) =>
     {
-        var res = validator.Validate(req);
-
         //logger.LogInformation("request received!");
+
+        var res = validator.Validate(req);
 
         return Results.Ok(new Response()
         {

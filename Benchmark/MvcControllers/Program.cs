@@ -1,11 +1,10 @@
-using FluentValidation.AspNetCore;
+using FluentValidation;
 using MvcControllers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
-    .AddMvc()
-    .AddFluentValidation(fv =>
-        fv.RegisterValidatorsFromAssemblyContaining<Validator>());
+    .AddSingleton<IValidator<Request>, Validator>()
+    .AddMvc();
 
 var app = builder.Build();
 app.UseRouting();

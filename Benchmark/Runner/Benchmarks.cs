@@ -7,10 +7,10 @@ namespace Runner
     [MemoryDiagnoser]
     public class Benchmarks
     {
-        public static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
-        public static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
-        public static HttpClient ControllerClient { get; } = new WebApplicationFactory<MapControllers.Program>().CreateClient();
-        public static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
+        private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
+        private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
+        private static HttpClient ControllerClient { get; } = new WebApplicationFactory<MapControllers.Program>().CreateClient();
+        private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
 
         [Benchmark(Baseline = true)]
         public async Task FastEndpointsEndpoint()

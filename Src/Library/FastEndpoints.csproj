@@ -9,14 +9,23 @@
 
   <PropertyGroup>
     <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+    <PackageId>FastEndpoints</PackageId>
+    <Version>1.0.0-rc5</Version>
+    <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
+    <Company />
+    <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
+    <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>WARNING: this is a release candidate. it is stable and feature complete but do not use in production yet!</PackageReleaseNotes>
+    <PackageLicenseFile>..\..\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="pack.ps1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="FastEndpoints.nuspec" Link=".nuspec" />
+    <None Include="..\..\README.md" Link="Content\Readme.md">
+      <Pack>True</Pack>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

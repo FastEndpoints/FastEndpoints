@@ -60,6 +60,7 @@ namespace FastEndpoints
         protected void Routes(params string[] patterns) => routes = patterns;
         protected void Verbs(params Http[] methods) => verbs = methods.Select(m => m.ToString()).ToArray();
         protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
+        protected void AcceptFiles() => acceptFiles = true;
         protected void AllowAnnonymous() => allowAnnonymous = true;
         protected void Policies(params string[] policyNames) => policies = policyNames;
         protected void Roles(params string[] rolesNames) => roles = rolesNames;
@@ -69,7 +70,6 @@ namespace FastEndpoints
             allowAnyPermission = allowAny;
             this.permissions = permissions;
         }
-        protected void AcceptFiles() => acceptFiles = true;
 
         protected abstract Task HandleAsync(TRequest req, CancellationToken ct);
 
@@ -229,6 +229,11 @@ namespace FastEndpoints
 
                     switch (prop.typeCode)
                     {
+                        case TypeCode.String:
+                            success = true;
+                            prop.propInfo.SetValue(req, rv.Value);
+                            break;
+
                         case TypeCode.Boolean:
                             success = bool.TryParse((string?)rv.Value, out var resBool);
                             prop.propInfo.SetValue(req, resBool);
@@ -252,11 +257,6 @@ namespace FastEndpoints
                         case TypeCode.Decimal:
                             success = decimal.TryParse((string?)rv.Value, out var resDec);
                             prop.propInfo.SetValue(req, resDec);
-                            break;
-
-                        case TypeCode.String:
-                            success = true;
-                            prop.propInfo.SetValue(req, rv.Value);
                             break;
                     }
 

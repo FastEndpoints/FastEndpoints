@@ -1,6 +1,4 @@
-﻿using FastEndpoints;
-
-namespace $fileinputname$
+﻿namespace $fileinputname$
 {
     public class Request
     {

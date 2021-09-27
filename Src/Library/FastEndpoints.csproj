@@ -19,13 +19,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE.md" Pack="true" PackagePath="\" Link="Content\LICENSE.md" />
-    <None Include="..\README.md" Pack="true" PackagePath="\" Link="Content\README.md" />      
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Link="Content\LICENSE.md" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\README.md" />      
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Security\FastEndpoints.Security.csproj" />
     <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   
 </Project>

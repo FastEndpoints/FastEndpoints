@@ -117,7 +117,7 @@ proper documentation will be available within a few weeks once **v1.0** is relea
 
 ## Bombardier load test
 
-### FastEndpoints *(72,920 more requests per second than mvc controller)*
+### FastEndpoints *(39,377 more requests per second than mvc controller)*
 ```
 Statistics       Avg        Stdev     Max
   Reqs/sec    140494.96   13112.46  174985.42

@@ -1,11 +1,15 @@
 # FastEndpoints
 
-An easy to use Web-Api framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. Performance is on par with `.net 6 minimal apis` and is ~1.5X faster; uses less memory; and outperforms a traditional MVC controller by about **[39k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
+A better way to create web api endpoints for ASP.Net 6 that encourages CQRS and Vertical Slice Architecture. 
+
+MVC controllers are on it's way out and `FastEndpoints` offers a more elegant solution than the `minimal apis` introduced in .net 6.
+
+Performance is on par with the `minimal apis` and is faster; uses less memory; and outperforms a traditional MVC controller by about **[39k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
 
 ## Try it out...
 install from nuget: `Install-Package FastEndpoints` **(currently release candidate)**
 
-**note:** the minimum required sdk version is `.net 6.0` (preview atm)
+**note:** the minimum required sdk version is `.net 6.0`
 
 # Code Sample:
 
@@ -24,7 +28,7 @@ app.UseFastEndpoints();
 app.Run();
 ```
 
-### Request DTO
+### Request.cs
 ```csharp
 public class MyRequest
 {
@@ -37,7 +41,7 @@ public class MyRequest
 }
 ```
 
-### Request Validator
+### Validator.cs
 ```csharp
 public class MyValidator : Validator<MyRequest>
 {
@@ -50,7 +54,7 @@ public class MyValidator : Validator<MyRequest>
 }
 ```
 
-### Response DTO
+### Response.cs
 ```csharp
 public class MyResponse
 {
@@ -60,15 +64,14 @@ public class MyResponse
 }
 ```
 
-### Endpoint Definition
+### Endpoint.cs
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest>
 {
-    public ILogger<MyEndpoint>? Logger { get; set; } //automatically injected from services
+    public ILogger<MyEndpoint>? Logger { get; set; } //dependency injected
 
     public MyEndpoint()
     {
-        //no longer hindered by attribute limitations
         Routes("/api/test/{id}");
         Verbs(Http.POST, Http.PATCH);
         Roles("Admin", "Manager");
@@ -76,7 +79,7 @@ public class MyEndpoint : Endpoint<MyRequest>
         Permissions(
             Allow.Inventory_Create_Item,
             Allow.Inventory_Retrieve_Item,
-            Allow.Inventory_Update_Item); //declarative permission based authorization
+            Allow.Inventory_Update_Item);
     }
 
     protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
@@ -89,12 +92,10 @@ public class MyEndpoint : Endpoint<MyRequest>
 
         ThrowIfAnyErrors(); //breaks the flow and sends a 400 error response containing error details.
 
-        Logger.LogInformation("this is your first endpoint!"); //dependency injected logger
-
         var isProduction = Env.IsProduction(); //read environment
         var smtpServer = Config["SMTP:HostName"]; //read configuration
 
-        var res = new MyResponse //typed response to make integration tests convenient
+        var res = new MyResponse //typed response makes integration testing easy
         {
             Message = $"the route parameter value is: {req.Id}",
             Name = req.Name,
@@ -106,7 +107,7 @@ public class MyEndpoint : Endpoint<MyRequest>
 }
 ```
 
-that's mostly it. all of your `Endpoint` definitions are automatically discovered on app startup and routes automatically mapped.
+all of your `Endpoint` definitions are automatically discovered on app startup. no manual mapping is required like with `minimal apis`.
 
 # Documentation
 proper documentation will be available within a few weeks once **v1.0** is released. in the meantime have a browse through the `Web`, `Test` and `Benchmark` projects to see more examples.
@@ -178,7 +179,7 @@ Statistics       Avg       Stdev      Max
 
 |                Method |      Mean |    Error |   StdDev | Ratio | RatioSD |  Gen 0 | Allocated |
 |---------------------- |----------:|---------:|---------:|------:|--------:|-------:|----------:|
+| FastEndpointsEndpoint |  74.64 μs | 0.493 μs | 0.461 μs |  1.00 |    0.00 | 2.4414 |     21 KB |
 |    MinimalApiEndpoint |  72.54 μs | 0.156 μs | 0.121 μs |  0.97 |    0.01 | 2.4414 |     21 KB |
-| **FastEndpointsEndpoint** |  74.64 μs | 0.493 μs | 0.461 μs |  1.00 |    0.00 | 2.4414 |     21 KB |
 |  AspNetMapControllers | 110.96 μs | 2.209 μs | 5.377 μs |  1.46 |    0.05 | 3.1738 |     28 KB |
 |         AspNetCoreMVC | 115.44 μs | 2.282 μs | 3.686 μs |  1.53 |    0.06 | 3.4180 |     28 KB |

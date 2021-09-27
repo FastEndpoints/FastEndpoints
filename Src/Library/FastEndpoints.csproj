@@ -18,6 +18,10 @@
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Link="Content\LICENSE.md" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\README.md" />      

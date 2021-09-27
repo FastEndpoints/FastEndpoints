@@ -46,7 +46,7 @@ namespace FastEndpoints
     public abstract class BasicEndpoint : Endpoint<EmptyRequest, EmptyValidator<EmptyRequest>> { }
 
     /// <summary>
-    /// use this base class for defining endpoints that doesn't need a validator. i.e. when there's no validation to be done. 
+    /// use this base class for defining endpoints that doesn't need a validator. i.e. when there's no validation to be done.
     /// </summary>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : new() { }

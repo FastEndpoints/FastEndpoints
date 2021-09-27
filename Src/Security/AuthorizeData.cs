@@ -2,7 +2,7 @@
 
 namespace FastEndpoints.Security
 {
-    internal record AuthorizeData : IAuthorizeData
+    public record AuthorizeData : IAuthorizeData
     {
         public string? Policy { get; set; }
         public string? Roles { get; set; }

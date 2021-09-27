@@ -225,12 +225,24 @@ namespace FastEndpoints
             return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
         }
 
-        protected Task SendAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
+        /// <summary>
+        /// send the supplied response dto or any other object serialized as json to the client
+        /// </summary>
+        /// <param name="value">the object to serialize to json</param>
+        /// <param name="statusCode">optional custom http status code</param>
+        /// <param name="cancellation">optional cancellation token</param>
+        protected Task SendAsync(object value, int statusCode = 200, CancellationToken cancellation = default)
         {
             HttpContext.Response.StatusCode = statusCode;
-            return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions, cancellation);
+            return HttpContext.Response.WriteAsJsonAsync(value, SerializerOptions, cancellation);
         }
 
+        /// <summary>
+        /// send a byte array to the client
+        /// </summary>
+        /// <param name="bytes">the bytes to send</param>
+        /// <param name="contentType">optional content type to set on the http response</param>
+        /// <param name="cancellation">optional cancellation token</param>
         protected ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
             HttpContext.Response.StatusCode = 200;
@@ -239,25 +251,42 @@ namespace FastEndpoints
             return HttpContext.Response.Body.WriteAsync(bytes, cancellation);
         }
 
+        /// <summary>
+        /// send an http 200 ok response without any body
+        /// </summary>
         protected Task SendOkAsync()
         {
             HttpContext.Response.StatusCode = 200;
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// send a 204 no content response
+        /// </summary>
         protected Task SendNoContentAsync()
         {
             HttpContext.Response.StatusCode = 204;
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// send a 404 not found response
+        /// </summary>
         protected Task SendNotFoundAsync()
         {
             HttpContext.Response.StatusCode = 404;
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+        /// </summary>
+        /// <typeparam name="TService">the type of the service to resolve</typeparam>
         protected TService? Resolve<TService>() => HttpContext.RequestServices.GetService<TService>();
+        /// <summary>
+        /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+        /// </summary>
+        /// <param name="typeOfService">the type of the service to resolve</param>
         protected object? Resolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
 
         protected Task<IFormCollection> GetFormAsync(CancellationToken cancellation = default)

@@ -2,10 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 
 namespace FastEndpoints
 {
@@ -76,6 +80,8 @@ namespace FastEndpoints
         public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
         {
             if (endpoints is null) throw new InvalidOperationException("Please use .UseEZEndpoints() first!");
+
+            EndpointBase.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
 
             foreach (var (epType, epInstance, epName) in endpoints)
             {

@@ -2,6 +2,7 @@
 using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,7 @@ namespace FastEndpoints
 {
     public abstract class EndpointBase : IEndpoint
     {
-        public static JsonSerializerOptions SerializerOptions { get; set; } = new() { PropertyNamingPolicy = null };
+        internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
 
         internal string[]? routes;
         internal string[]? verbs;

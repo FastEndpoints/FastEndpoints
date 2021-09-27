@@ -1,13 +1,12 @@
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using MinimalApi;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
-    .Configure<JsonOptions>(o => o.JsonSerializerOptions.PropertyNamingPolicy = null)
+    .Configure<JsonSerializerOptions>(o => o.PropertyNamingPolicy = null)
     .AddAuthorization()
-    .AddFluentValidation()
     .AddSingleton<IValidator<Request>, Validator>();
 
 var app = builder.Build();
@@ -23,14 +22,15 @@ app.MapPost("/benchmark/ok/{id}",
 
         //logger.LogInformation("request received!");
 
-        return Task.FromResult(Results.Ok(
-            new Response()
-            {
-                Id = id,
-                Name = req.FirstName + " " + req.LastName,
-                Age = req.Age,
-                PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
-            }));
+        var serializeOpts = app.Configuration.Get<JsonSerializerOptions>();
+
+        return Results.Json(new Response()
+        {
+            Id = id,
+            Name = req.FirstName + " " + req.LastName,
+            Age = req.Age,
+            PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
+        }, serializeOpts);
     })
     .RequireAuthorization()
     .AllowAnonymous();

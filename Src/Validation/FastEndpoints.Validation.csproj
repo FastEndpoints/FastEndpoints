@@ -6,6 +6,7 @@
     <ImplicitUsings>true</ImplicitUsings>
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>    
   </PropertyGroup>
 

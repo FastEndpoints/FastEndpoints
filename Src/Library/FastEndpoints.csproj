@@ -10,18 +10,12 @@
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
     <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
     <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>D:\SOURCE-CONTROL\FastEndpoints\LICENSE.md</PackageLicenseFile>
     <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>WARNING: this is a release candidate. it is stable and feature complete but do not use in production yet!</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="..\..\README.md" Link="Content\Readme.md">
-      <Pack>True</Pack>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Security\FastEndpoints.Security.csproj" />
@@ -30,6 +24,13 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Link="Content\Readme">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
  
 </Project>

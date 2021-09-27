@@ -7,6 +7,10 @@ namespace FastEndpoints.Security
 {
     public static class AuthExtensions
     {
+        /// <summary>
+        /// configure and enable jwt bearer authentication
+        /// </summary>
+        /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
         public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services, string tokenSigningKey)
         {
             services.AddAuthentication(o =>

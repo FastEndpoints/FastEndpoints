@@ -7,6 +7,14 @@ namespace FastEndpoints.Security
 {
     public static class JWTBearer
     {
+        /// <summary>
+        /// generate a jwt token with the supplied parameters
+        /// </summary>
+        /// <param name="signingKey">the secret key to use for signing the tokens</param>
+        /// <param name="expireAt">the expiry date</param>
+        /// <param name="permissions">one or more permissions to assign to the user principal</param>
+        /// <param name="roles">one or more roles to assign the user principal</param>
+        /// <param name="claims">one or more claims to assign to the user principal</param>
         public static string CreateTokenWithClaims(
             string signingKey,
             DateTime? expireAt = null,
@@ -20,6 +28,14 @@ namespace FastEndpoints.Security
                     roles,
                     claims.Select(c => new Claim(c.claimType, c.claimValue)));
 
+        /// <summary>
+        /// generate a jwt token with the supplied parameters
+        /// </summary>
+        /// <param name="signingKey">the secret key to use for signing the tokens</param>
+        /// <param name="expireAt">the expiry date</param>
+        /// <param name="permissions">one or more permissions to assign to the user principal</param>
+        /// <param name="roles">one or more roles to assign the user principal</param>
+        /// <param name="claims">one or more claims to assign to the user principal</param>
         public static string CreateToken(
             string signingKey,
             DateTime? expireAt = null,

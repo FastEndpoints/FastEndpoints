@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints.Security
 {
-    public static class ClaimTypes
+    internal static class ClaimTypes
     {
         public const string Permissions = "prm";
     }

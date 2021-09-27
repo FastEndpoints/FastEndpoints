@@ -5,17 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.0.0-rc3</Version>
-    <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
-    <Copyright>Đĵ ΝιΓΞΗΛψΚ</Copyright>
-    <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
-    <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints</RepositoryUrl>
-    <PackageReleaseNotes>
-      WARNING: this is a release candidate. it is stable and feature complete but do not use in production yet!
-    </PackageReleaseNotes>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -23,17 +12,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="\" Link="Content\LICENSE.md" />
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\README.md" />      
+    <None Remove="pack.ps1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="FastEndpoints.nuspec" Link=".nuspec" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Security\FastEndpoints.Security.csproj" />
     <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  
+ 
 </Project>

@@ -21,5 +21,4 @@ app.Run();
 // - AcceptFiles()
 // - SendBytesAsync()
 
-//todo: add xml documentation
-//todo: write wiki/documentation on github
+//todo: write wiki/documentation using docx discord theme

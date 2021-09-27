@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>FastEndpoints</id>
+    <version>1.0.0-rc4</version>
+    <authors>Đĵ ΝιΓΞΗΛψΚ</authors>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/dj-nitehawk/FastEndpoints</projectUrl>
+    <description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</description>
+    <releaseNotes>WARNING: this is a release candidate. it is stable and feature complete but do not use in production yet!</releaseNotes>
+    <copyright>Đĵ ΝιΓΞΗΛψΚ</copyright>
+    <readme>README.md</readme>
+    <repository url="https://github.com/dj-nitehawk/FastEndpoints" />
+   </metadata>
+   <files>
+    <file src="..\..\README.MD" target="\" />
+  </files>
+</package>

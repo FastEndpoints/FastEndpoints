@@ -12,6 +12,9 @@ using System.Text.Json;
 
 namespace FastEndpoints
 {
+    /// <summary>
+    /// base class for all endpoint classes
+    /// </summary>
     public abstract class EndpointBase : IEndpoint
     {
         internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
@@ -37,34 +40,104 @@ namespace FastEndpoints
         }
     }
 
+    /// <summary>
+    /// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
+    /// </summary>
     public abstract class BasicEndpoint : Endpoint<EmptyRequest, EmptyValidator<EmptyRequest>> { }
 
+    /// <summary>
+    /// use this base class for defining endpoints that doesn't need a validator. i.e. when there's no validation to be done. 
+    /// </summary>
+    /// <typeparam name="TRequest">the type of the request dto</typeparam>
     public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : new() { }
 
+    /// <summary>
+    /// use this base class for defining endpoints that uses a request dto and needs validation.
+    /// </summary>
+    /// <typeparam name="TRequest">the type of the request dto</typeparam>
+    /// <typeparam name="TValidator">the type of the response dto</typeparam>
     public abstract class Endpoint<TRequest, TValidator> : EndpointBase
         where TRequest : new()
         where TValidator : Validator<TRequest>, new()
     {
 #pragma warning disable CS8618
+        /// <summary>
+        /// the http context of the current request
+        /// </summary>
         protected HttpContext HttpContext { get; private set; }
 #pragma warning restore CS8618
 
+        /// <summary>
+        /// gives access to the configuration
+        /// </summary>
         protected IConfiguration Config => HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        /// <summary>
+        /// gives access to the hosting environment
+        /// </summary>
         protected IWebHostEnvironment Env => HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
+        /// <summary>
+        /// the logger for the current endpoint type
+        /// </summary>
         protected ILogger Logger => HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest>>>();
+        /// <summary>
+        /// the base url of the current request
+        /// </summary>
         protected string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
+        /// <summary>
+        /// the http method of the current request
+        /// </summary>
         protected Http HttpMethod { get => Enum.Parse<Http>(HttpContext.Request.Method); }
+        /// <summary>
+        /// the list of validation failures for the current request dto
+        /// </summary>
         protected List<ValidationFailure> ValidationFailures { get; } = new();
+        /// <summary>
+        /// indicates if there are any validation failures for the current request
+        /// </summary>
         protected bool ValidationFailed { get => ValidationFailures.Count > 0; }
 
+        /// <summary>
+        /// specify one or more route patterns this endpoint should be listening for
+        /// </summary>
+        /// <param name="patterns"></param>
         protected void Routes(params string[] patterns) => routes = patterns;
+        /// <summary>
+        /// specify one or more http method verbs this endpoint should be accepting requests for
+        /// </summary>
+        /// <param name="methods"></param>
         protected void Verbs(params Http[] methods) => verbs = methods.Select(m => m.ToString()).ToArray();
+        /// <summary>
+        /// disable auto validation failure responses (400 bad request with error details) for this endpoint
+        /// </summary>
         protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
+        /// <summary>
+        /// allow clients to upload files to this endpoint
+        /// </summary>
         protected void AcceptFiles() => acceptFiles = true;
+        /// <summary>
+        /// allow unauthenticated requests to this endpoint
+        /// </summary>
         protected void AllowAnnonymous() => allowAnnonymous = true;
+        /// <summary>
+        /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
+        /// </summary>
+        /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
         protected void Policies(params string[] policyNames) => policies = policyNames;
+        /// <summary>
+        /// specify that the current claim principal/ user should posses at least one of the roles (claim type) mentioned here. access will be forbidden if the user doesn't have any of the specified roles.
+        /// </summary>
+        /// <param name="rolesNames">one or more roles that has access</param>
         protected void Roles(params string[] rolesNames) => roles = rolesNames;
+        /// <summary>
+        /// specify the permissions a user principal should posses in order to access this endpoint. they must posses ALL of the permissions mentioned here. if not, a 403 forbidden response will be sent.
+        /// </summary>
+        /// <param name="permissions">the permissions needed to access this endpoint</param>
         protected void Permissions(params string[] permissions) => Permissions(false, permissions);
+        /// <summary>
+        /// specify the permissions a user principal should posses in order to access this endpoint.
+        /// </summary>
+        /// <param name="allowAny">if set to true, having any 1 of the specified permissions will enable access</param>
+        /// <param name="permissions"></param>
         protected void Permissions(bool allowAny, params string[] permissions)
         {
             allowAnyPermission = allowAny;

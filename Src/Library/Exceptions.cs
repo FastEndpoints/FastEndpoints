@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints.Validation
 {
-    public class ValidationFailureException : Exception
+    internal class ValidationFailureException : Exception
     {
         public ValidationFailureException() { }
 

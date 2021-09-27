@@ -16,8 +16,10 @@ namespace Inventory.Manage.Create
 
         protected override Task HandleAsync(Request req, CancellationToken ct)
         {
+#pragma warning disable CS8603
             if (string.IsNullOrEmpty(req.Description))
                 AddError(x => x.Description, "Please enter a product descriptions!");
+#pragma warning restore CS8603
 
             if (req.Price > 1000)
                 AddError(x => x.Price, "Price is too high!");

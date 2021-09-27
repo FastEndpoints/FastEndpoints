@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpointsBench", "Bench
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcControllers", "Benchmark\MvcControllers\MvcControllers.csproj", "{7E007C8A-1518-4A6A-A47D-857CD6C0A150}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalApi", "Benchmark\MinimalApi\MinimalApi.csproj", "{37EF74E1-F6AD-4B0E-B573-32489D003E1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApi", "Benchmark\MinimalApi\MinimalApi.csproj", "{37EF74E1-F6AD-4B0E-B573-32489D003E1B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Validation", "Validation\FastEndpoints.Validation.csproj", "{D2E167E3-4B68-4866-A87B-18E8E472E389}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +95,14 @@ Global
 		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|x86.ActiveCfg = Release|Any CPU
 		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|x86.Build.0 = Release|Any CPU
+		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Debug|x86.Build.0 = Debug|Any CPU
+		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|x86.ActiveCfg = Release|Any CPU
+		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿#pragma warning disable CA1822
+using BenchmarkDotNet.Attributes;
 using FastEndpoints;
 using Microsoft.AspNetCore.Mvc.Testing;
 

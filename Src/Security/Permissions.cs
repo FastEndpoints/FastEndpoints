@@ -16,17 +16,16 @@ namespace FastEndpoints.Security
             {
                 isInitialized = true;
 
-#pragma warning disable CS8619
-#pragma warning disable CS8600
+#pragma warning disable CS8619, CS8600
                 fields = GetType()
                     .GetFields(BindingFlags.Public | BindingFlags.Static)
                     .Select(f => (f.Name, (string)f.GetValue(this)))
                     .ToArray();
-#pragma warning restore CS8600
-#pragma warning restore CS8619
+#pragma warning restore CS8600, CS8619
             }
         }
 
+#pragma warning disable CA1822
         public IEnumerable<string> NamesFor(IEnumerable<string> codes)
         {
             return fields
@@ -40,6 +39,7 @@ namespace FastEndpoints.Security
                 .Where(f => names.Contains(f.PermissionName))
                 .Select(f => f.PermissionCode);
         }
+#pragma warning restore CA1822
 
         public IEnumerator<(string PermissionName, string PermissionCode)> GetEnumerator()
         {

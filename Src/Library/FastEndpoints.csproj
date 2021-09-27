@@ -1,25 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Version>1.0.0-rc5</Version>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
-    <PackageId>FastEndpoints</PackageId>
-    <Version>1.0.0-rc5</Version>
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
-    <Company />
     <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
     <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>D:\SOURCE-CONTROL\FastEndpoints\LICENSE.md</PackageLicenseFile>
     <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>WARNING: this is a release candidate. it is stable and feature complete but do not use in production yet!</PackageReleaseNotes>
-    <PackageLicenseFile>..\..\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +26,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Security\FastEndpoints.Security.csproj" />
     <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
  
 </Project>

@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\FastEndpoints.csproj" />
+    <ProjectReference Include="..\Src\Library\FastEndpoints.csproj" />
   </ItemGroup>
 
   <ItemGroup>

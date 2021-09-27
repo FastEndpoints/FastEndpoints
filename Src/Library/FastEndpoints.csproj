@@ -4,9 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <OutputType>Library</OutputType>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <Version>1.0.0-rc1</Version>
+    <Version>1.0.0-rc2</Version>
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
     <Copyright>Đĵ ΝιΓΞΗΛψΚ</Copyright>
     <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
@@ -25,10 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.10" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Security\FastEndpoints.Security.csproj" />
     <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
   </ItemGroup>
   

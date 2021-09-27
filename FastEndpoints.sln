@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31710.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints", "src\FastEndpoints.csproj", "{46C0B385-062F-48D5-866A-8235192CBAB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints", "Src\Library\FastEndpoints.csproj", "{46C0B385-062F-48D5-866A-8235192CBAB4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{8662EC7C-ECF1-4274-BAFD-38D6D1BD9DAB}"
 EndProject
@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcControllers", "Benchmark
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApi", "Benchmark\MinimalApi\MinimalApi.csproj", "{37EF74E1-F6AD-4B0E-B573-32489D003E1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Validation", "Validation\FastEndpoints.Validation.csproj", "{D2E167E3-4B68-4866-A87B-18E8E472E389}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Validation", "Src\Validation\FastEndpoints.Validation.csproj", "{D2E167E3-4B68-4866-A87B-18E8E472E389}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.Security", "Src\Security\FastEndpoints.Security.csproj", "{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,6 +105,14 @@ Global
 		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|x86.ActiveCfg = Release|Any CPU
 		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|x86.Build.0 = Release|Any CPU
+		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Debug|x86.Build.0 = Debug|Any CPU
+		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Release|x86.ActiveCfg = Release|Any CPU
+		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

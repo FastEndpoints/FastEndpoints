@@ -289,6 +289,11 @@ namespace FastEndpoints
         /// <param name="typeOfService">the type of the service to resolve</param>
         protected object? Resolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
 
+        /// <summary>
+        /// get the Form from the current request.
+        /// </summary>
+        /// <param name="cancellation">optional cancellation token</param>
+        /// <exception cref="InvalidOperationException">thrown when the request body doesn't have form content</exception>
         protected Task<IFormCollection> GetFormAsync(CancellationToken cancellation = default)
         {
             var req = HttpContext.Request;
@@ -299,6 +304,10 @@ namespace FastEndpoints
             return req.ReadFormAsync(cancellation);
         }
 
+        /// <summary>
+        /// get the file collection from the form of the current request
+        /// </summary>
+        /// <param name="cancellation">optional cancellation token</param>
         protected async Task<IFormFileCollection> GetFilesAsync(CancellationToken cancellation = default)
         {
             return (await GetFormAsync(cancellation).ConfigureAwait(false)).Files;

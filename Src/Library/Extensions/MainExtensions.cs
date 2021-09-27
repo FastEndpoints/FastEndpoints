@@ -15,6 +15,10 @@ namespace FastEndpoints
     {
         private static (Type endpointType, object? endpointInstance, string? endpointName)[]? endpoints;
 
+        /// <summary>
+        /// adds the FastEndpoints services to the ASP.Net middleware pipeline
+        /// </summary>
+        /// <param name="services"></param>
         public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
         {
             endpoints = DiscoverEndpointTypes()
@@ -75,6 +79,11 @@ namespace FastEndpoints
             }
         }
 
+        /// <summary>
+        /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
         {
             if (endpoints is null) throw new InvalidOperationException($"Please use .{nameof(AddFastEndpoints)}() first!");

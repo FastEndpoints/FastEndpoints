@@ -60,14 +60,14 @@ namespace FastEndpoints
                         {
                             b.RequireAssertion(x =>
                             {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8602
                                 var hasAll = !permissions
                                 .Except(x.User.Claims
                                 .FirstOrDefault(c => c.Type == ClaimTypes.Permissions).Value
                                 .Split(','))
                                 .Any();
                                 return hasAll is true;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+#pragma warning restore CS8602
                             });
                         });
                     }
@@ -143,17 +143,17 @@ namespace FastEndpoints
                     "NuGet."
                 };
 
+#pragma warning disable CS8602
             var types = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .Where(a =>
                       !a.IsDynamic &&
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
                       !excludes.Any(n => a.FullName.StartsWith(n)))
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsAbstract &&
                        t.GetInterfaces().Contains(typeof(IEndpoint)));
+#pragma warning restore CS8602
 
             if (!types.Any())
                 throw new InvalidOperationException("Unable to find any endpoint declarations!");

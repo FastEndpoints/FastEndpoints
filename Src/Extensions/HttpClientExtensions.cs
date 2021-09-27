@@ -19,7 +19,8 @@ namespace FastEndpoints
             }
             catch (JsonException)
             {
-                throw new InvalidOperationException($"Unable to deserialize the response body as [{typeof(TResponse).FullName}]");
+                throw new InvalidOperationException(
+                    $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {res.StatusCode}");
             }
 
             return (res, body);
@@ -45,7 +46,8 @@ namespace FastEndpoints
             }
             catch (JsonException)
             {
-                throw new InvalidOperationException($"Unable to deserialize the response body as [{typeof(TResponse).FullName}]");
+                throw new InvalidOperationException(
+                    $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {res.StatusCode}");
             }
 
             return (res, body);

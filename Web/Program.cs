@@ -18,8 +18,6 @@ app.UseFastEndpoints();
 app.Run();
 
 //todo: write tests
-// - type code switch when route binding
-// - DontThrowIfValidationFails()
 // - AcceptFiles()
 // - SendBytesAsync()
 

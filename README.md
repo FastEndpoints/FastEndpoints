@@ -3,7 +3,7 @@
 An easy to use Web-Api framework (which encourages CQRS and Vertical Slice Architecture) built as an extension to the Asp.Net pipeline. Performance is on par with `.net 6 minimal apis` and is ~1.5X faster; uses less memory; and outperforms a traditional MVC controller by about **[39k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
 
 ## Try it out...
-install from nuget: `Install-Package FastEndpoints` **(currently beta)**
+install from nuget: `Install-Package FastEndpoints` **(currently release candidate)**
 
 **note:** the minimum required sdk version is `.net 6.0` (preview atm)
 

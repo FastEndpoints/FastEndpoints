@@ -14,7 +14,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints</RepositoryUrl>
     <PackageReleaseNotes>
-      WARNING: this is a beta release. do not use in production!
+      WARNING: this is a release candidate. it is stable and feature complete but do not use in production yet!
     </PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>

@@ -4,7 +4,6 @@ using MapControllers;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddControllers()
-    .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null)
     .AddFluentValidation(fv =>
         fv.RegisterValidatorsFromAssemblyContaining<Controllers>());
 

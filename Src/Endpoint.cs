@@ -2,7 +2,6 @@
 using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,9 +49,9 @@ namespace FastEndpoints
         protected HttpContext HttpContext { get; private set; }
 #pragma warning restore CS8618
 
-        protected IConfiguration? Config => HttpContext.RequestServices.GetService<IConfiguration>();
-        protected IWebHostEnvironment? Env => HttpContext.RequestServices.GetService<IWebHostEnvironment>();
-        protected ILogger? Logger => HttpContext.RequestServices.GetService<ILogger<Endpoint<TRequest>>>();
+        protected IConfiguration Config => HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        protected IWebHostEnvironment Env => HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
+        protected ILogger Logger => HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest>>>();
         protected string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
         protected Http HttpMethod { get => Enum.Parse<Http>(HttpContext.Request.Method); }
         protected List<ValidationFailure> ValidationFailures { get; } = new();

@@ -1,7 +1,6 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using Microsoft.AspNetCore.Http.Json;
-using System.Text.Json;
 using Web.Auth;
 using Web.Services;
 

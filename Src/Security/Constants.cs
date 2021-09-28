@@ -2,7 +2,6 @@
 {
     public static class Constants
     {
-        public const string PermissionPolicyPrefix = "prm";
-        public const string ClaimPolicyPrefix = "clm";
+        public const string PermissionsClaimType = "prm";
     }
 }

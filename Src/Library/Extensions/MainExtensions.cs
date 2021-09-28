@@ -64,7 +64,7 @@ namespace FastEndpoints
                             b.RequireAssertion(x =>
                             {
                                 var hasAny = x.User.Claims
-                                .FirstOrDefault(c => c.Type == Constants.PermissionPolicyPrefix)?.Value
+                                .FirstOrDefault(c => c.Type == Constants.PermissionsClaimType)?.Value
                                 .Split(',')
                                 .Intersect(permissions)
                                 .Any();
@@ -79,7 +79,7 @@ namespace FastEndpoints
                                 var hasAll = !permissions
                                 .Except(
                                     x.User.Claims
-                                     .FirstOrDefault(c => c.Type == Constants.PermissionPolicyPrefix).Value
+                                     .FirstOrDefault(c => c.Type == Constants.PermissionsClaimType).Value
                                      .Split(','))
                                 .Any();
                                 return hasAll is true;

@@ -25,7 +25,7 @@ namespace FastEndpoints
 
                     var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
                     var claimType = attrib?.ClaimType ?? "null";
-                    var forbidIfMissing = attrib?.ForbidIfMissing ?? false;
+                    var forbidIfMissing = attrib?.IsRequired ?? false;
 
                     FromClaimProps.Add((claimType, forbidIfMissing, propInfo));
                 }

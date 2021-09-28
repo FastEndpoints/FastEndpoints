@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -49,7 +50,7 @@ namespace FastEndpoints.Security
                 claimList.AddRange(claims);
 
             if (permissions != null)
-                claimList.Add(new Claim(ClaimTypes.Permissions, string.Join(',', permissions)));
+                claimList.Add(new Claim(Constants.PermissionPolicyPrefix, string.Join(',', permissions)));
 
             if (roles != null)
                 claimList.AddRange(roles.Select(r => new Claim(System.Security.Claims.ClaimTypes.Role, r)));

@@ -27,6 +27,8 @@ namespace FastEndpoints
         internal string[]? roles;
         internal string[]? permissions;
         internal bool allowAnyPermission;
+        internal string[]? claims;
+        internal bool allowAnyClaim;
         internal bool acceptFiles;
 
         internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
@@ -36,7 +38,7 @@ namespace FastEndpoints
             if (routes is null)
                 throw new ArgumentNullException(nameof(routes));
 
-            return routes[0].Replace("{", "").Replace("}", "");
+            return routes[0];//.Replace("{", "").Replace("}", "");
         }
     }
 
@@ -46,7 +48,7 @@ namespace FastEndpoints
     public abstract class BasicEndpoint : Endpoint<EmptyRequest> { }
 
     /// <summary>
-    /// use this base class for defining endpoints that uses a request dto and needs validation.
+    /// use this base class for defining endpoints that uses a request dto.
     /// </summary>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     public abstract class Endpoint<TRequest> : EndpointBase where TRequest : new()
@@ -128,11 +130,26 @@ namespace FastEndpoints
         /// specify the permissions a user principal should posses in order to access this endpoint.
         /// </summary>
         /// <param name="allowAny">if set to true, having any 1 of the specified permissions will enable access</param>
-        /// <param name="permissions"></param>
+        /// <param name="permissions">the permissions</param>
         protected void Permissions(bool allowAny, params string[] permissions)
         {
             allowAnyPermission = allowAny;
             this.permissions = permissions;
+        }
+        /// <summary>
+        /// specify the claim types a user principal should posses in order to access this endpoint. they must posses ALL of the claim types mentioned here. if not, a 403 forbidden response will be sent.
+        /// </summary>
+        /// <param name="claims">the claims needed to access this endpoint</param>
+        protected void Claims(params string[] claims) => Permissions(false, claims);
+        /// <summary>
+        /// specify the claim types a user principal should posses in order to access this endpoint.
+        /// </summary>
+        /// <param name="allowAny">if set to true, having any 1 of the specified permissions will enable access</param>
+        /// <param name="claims">the claims</param>
+        protected void Claims(bool allowAny, params string[] claims)
+        {
+            allowAnyClaim = allowAny;
+            this.claims = claims;
         }
 
         /// <summary>

@@ -10,7 +10,10 @@ namespace Customers.Create
         public Endpoint()
         {
             Verbs(Http.POST);
-            Routes("/customers/create");
+            Routes(
+                "/customers/new/{RefererID}",
+                "/customers/create");
+            AllowAnnonymous();
         }
 
         protected override Task HandleAsync(Request r, CancellationToken t)

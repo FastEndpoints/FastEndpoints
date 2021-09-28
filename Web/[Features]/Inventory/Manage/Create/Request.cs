@@ -5,7 +5,7 @@ namespace Inventory.Manage.Create
 {
     public class Request : ProductModel
     {
-        [From(Claim.UserID)]
+        [From(Claim.AdminID)]
         public string? UserID { get; set; }
     }
 }

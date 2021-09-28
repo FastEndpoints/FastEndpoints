@@ -30,7 +30,7 @@ namespace Admin.Login
                 var userClaims = new[] {
                     (Claim.UserName, r.UserName),
                     (Claim.UserType, Role.Admin),
-                    (Claim.UserID, "USR0001") };
+                    (Claim.AdminID, "USR0001") };
 
                 var userRoles = new[] {
                     Role.Admin,

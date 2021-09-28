@@ -14,17 +14,17 @@
         /// <summary>
         /// set to true if a validation error should be thrown when the current user principal doesn't have the specified claim
         /// </summary>
-        public bool ForbidIfMissing { get; set; }
+        public bool IsRequired { get; set; }
 
         /// <summary>
         /// properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal
         /// </summary>
         /// <param name="claimType">the claim type to auto bind</param>
-        /// <param name="forbidIfMissing">set to true if a validation error should be thrown when the current user principal doesn't have the specified claim</param>
-        public FromClaimAttribute(string claimType, bool forbidIfMissing = true)
+        /// <param name="isRequired">set to true if a validation error should be thrown when the current user principal doesn't have the specified claim</param>
+        public FromClaimAttribute(string claimType, bool isRequired = true)
         {
             ClaimType = claimType;
-            ForbidIfMissing = forbidIfMissing;
+            IsRequired = isRequired;
         }
     }
 
@@ -38,7 +38,7 @@
         /// properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal
         /// </summary>
         /// <param name="claimType">the claim type to auto bind</param>
-        /// <param name="forbidIfMissing">set to true if a validation error should be thrown when the current user principal doesn't have the specified claim</param>
-        public FromAttribute(string claimType, bool forbidIfMissing = true) : base(claimType, forbidIfMissing) { }
+        /// <param name="isRequired">set to true if a validation error should be thrown when the current user principal doesn't have the specified claim</param>
+        public FromAttribute(string claimType, bool isRequired = true) : base(claimType, isRequired) { }
     }
 }

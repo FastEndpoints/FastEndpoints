@@ -9,12 +9,15 @@ namespace Customers.Update
         {
             Verbs(Http.PUT);
             Routes("/customers/update");
+            Claims(allowAny: true,
+                Claim.AdminID,
+                Claim.CustomerID);
             Permissions(Allow.Customers_Update);
         }
 
         protected override Task HandleAsync(Request req, CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return SendAsync(req.CustomerID);
         }
     }
 }

@@ -18,6 +18,7 @@ namespace Test
             .CreateClient();
 
         public static HttpClient GuestClient { get; } = factory.CreateClient();
+        public static HttpClient CustomerClient { get; } = factory.CreateClient();
 
         static Setup()
         {
@@ -32,7 +33,13 @@ namespace Test
                 .GetAwaiter()
                 .GetResult();
 
+            var customerToken = GuestClient.GetAsync<
+                Customers.Login.Endpoint,
+                string>()
+                .GetAwaiter().GetResult();
+
             AdminClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result?.JWTToken);
+            CustomerClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", customerToken);
         }
     }
 }

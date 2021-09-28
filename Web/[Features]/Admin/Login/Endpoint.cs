@@ -36,7 +36,7 @@ namespace Admin.Login
                     Role.Admin,
                     Role.Staff };
 
-                var token = JWTBearer.CreateTokenWithClaims(
+                var token = JWTBearer.CreateToken(
                     Config["TokenKey"],
                     expiryDate,
                     userPermissions,

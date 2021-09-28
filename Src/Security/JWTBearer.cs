@@ -15,7 +15,7 @@ namespace FastEndpoints.Security
         /// <param name="permissions">one or more permissions to assign to the user principal</param>
         /// <param name="roles">one or more roles to assign the user principal</param>
         /// <param name="claims">one or more claims to assign to the user principal</param>
-        public static string CreateTokenWithClaims(
+        public static string CreateToken(
             string signingKey,
             DateTime? expireAt = null,
             IEnumerable<string>? permissions = null,

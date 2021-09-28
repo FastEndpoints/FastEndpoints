@@ -35,5 +35,22 @@ namespace Test
             Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);
             Assert.AreEqual("Email was not sent during testing! admin", res);
         }
+
+        [TestMethod]
+        public async Task CustomerUpdateByCustomer()
+        {
+            var (rsp, res) = await CustomerClient.PutAsync<
+                Customers.Update.Endpoint,
+                Customers.Update.Request,
+                string>(new()
+                {
+                    CustomerID = "this will be auto bound from claim",
+                    Address = "address",
+                    Age = 123,
+                    Name = "test customer"
+                });
+
+            Assert.AreEqual("CST001", res);
+        }
     }
 }

@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>1.0.0-rc5</Version>
+    <Version>1.0.0-rc6</Version>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
-    <Description>A developer friendly web api framework for Asp.Net which encourages CQRS and Vertical Slice Architecture.</Description>
+    <Description>A better way to create web api endpoints for ASP.Net 6 that encourages CQRS and Vertical Slice Architecture.</Description>
     <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

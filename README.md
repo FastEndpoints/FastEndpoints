@@ -7,7 +7,7 @@ MVC controllers are on it's way out and `FastEndpoints` offers a more elegant so
 Performance is on par with the `minimal apis` and is faster; uses less memory; and outperforms a traditional MVC controller by about **[39k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
 
 ## Try it out...
-install from nuget: `Install-Package FastEndpoints` **(currently release candidate)**
+install from nuget: `Install-Package FastEndpoints`
 
 **note:** the minimum required sdk version is `.net 6.0`
 
@@ -80,6 +80,7 @@ public class MyEndpoint : Endpoint<MyRequest>
             Allow.Inventory_Create_Item,
             Allow.Inventory_Retrieve_Item,
             Allow.Inventory_Update_Item);
+        Claims(Claim.CustomerID);
     }
 
     protected override async Task HandleAsync(MyRequest req, CancellationToken ct)

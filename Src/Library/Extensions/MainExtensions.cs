@@ -1,4 +1,5 @@
 ﻿using FastEndpoints.Security;
+using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +14,7 @@ namespace FastEndpoints
 {
     public static class MainExtensions
     {
-        private static (Type endpointType, object? endpointInstance, string? endpointName)[]? endpoints;
+        private static (Type endpointType, object endpointInstance, Type? validatorType)[]? discoveredEndpoints;
 
         /// <summary>
         /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -21,26 +22,22 @@ namespace FastEndpoints
         /// <param name="services"></param>
         public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
         {
-            endpoints = DiscoverEndpointTypes()
-                .Select(t => (t, Activator.CreateInstance(t), t.FullName))
-                .ToArray();
-
+            DiscoverEndpointsAndValidators();
             services.AddAuthorization(BuildPermissionPolicies);
-
             return services;
         }
 
         private static void BuildPermissionPolicies(AuthorizationOptions options)
         {
-            if (endpoints is null) return;
+            if (discoveredEndpoints is null) return;
 
-            foreach (var (epType, epInstance, epName) in endpoints)
+            foreach (var (epType, epInstance, _) in discoveredEndpoints)
             {
                 var permissions = epType.GetFieldValues(nameof(EndpointBase.permissions), epInstance);
 
                 if (permissions?.Any() is true)
                 {
-                    var policyName = $"{ClaimTypes.Permissions}:{epName}";
+                    var policyName = $"{ClaimTypes.Permissions}:{epType.FullName}";
                     var allowAnyPermission = (bool?)epType.GetFieldValue(nameof(EndpointBase.allowAnyPermission), epInstance);
 
                     if (allowAnyPermission is true)
@@ -86,12 +83,14 @@ namespace FastEndpoints
         /// <exception cref="ArgumentException"></exception>
         public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
         {
-            if (endpoints is null) throw new InvalidOperationException($"Please use .{nameof(AddFastEndpoints)}() first!");
+            if (discoveredEndpoints is null) throw new InvalidOperationException($"Please use .{nameof(AddFastEndpoints)}() first!");
 
             EndpointBase.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
 
-            foreach (var (epType, epInstance, epName) in endpoints)
+            foreach (var (epType, epInstance, epValidatorType) in discoveredEndpoints)
             {
+                var epName = epType.FullName;
+
                 var execMethod = epType.GetMethod(nameof(EndpointBase.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
                 if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
 
@@ -120,7 +119,7 @@ namespace FastEndpoints
 
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(epType)).Compile();
 
-                EndpointExecutor.CacheServiceBoundProps[epType] = epType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                EndpointExecutor.CachedServiceBoundProps[epType] = epType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
                 foreach (var route in routes.Distinct())
                 {
@@ -132,19 +131,21 @@ namespace FastEndpoints
                     if (policiesToAdd.Count > 0) eb.RequireAuthorization(policiesToAdd.ToArray());
                     if (rolesToAdd is not null) eb.RequireAuthorization(new AuthorizeData { Roles = rolesToAdd });
 
-                    EndpointExecutor.CacheEndpointTypes[route] = (epFactory, execMethod);
+                    var validatorInstance = (IValidator?)(epValidatorType is null ? null : Activator.CreateInstance(epValidatorType));
+
+                    EndpointExecutor.CachedEndpointTypes[route] = (epFactory, execMethod, validatorInstance);
                 }
             }
             return builder;
         }
 
-        private static IEnumerable<Type> DiscoverEndpointTypes()
+        private static void DiscoverEndpointsAndValidators()
         {
             var excludes = new[]
                 {
                     "Microsoft.",
                     "System.",
-                    "MongoDB.",
+                    "FastEndpoints.",
                     "testhost",
                     "netstandard",
                     "Newtonsoft.",
@@ -153,7 +154,7 @@ namespace FastEndpoints
                 };
 
 #pragma warning disable CS8602
-            var types = AppDomain.CurrentDomain
+            var endpointsAndValidators = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .Where(a =>
                       !a.IsDynamic &&
@@ -161,13 +162,52 @@ namespace FastEndpoints
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsAbstract &&
-                       t.GetInterfaces().Contains(typeof(IEndpoint)));
+                      (t.GetInterfaces().Contains(typeof(IEndpoint)) ||
+                       t.GetInterfaces().Contains(typeof(IValidator))));
 #pragma warning restore CS8602
 
-            if (!types.Any())
+            if (!endpointsAndValidators.Any())
                 throw new InvalidOperationException("Unable to find any endpoint declarations!");
 
-            return types;
+            //key: TRequest or BasicEndpoint
+            var epDict = new Dictionary<Type, EndpointAndValidatorTypes>();
+
+            foreach (var endpointOrValidatorType in endpointsAndValidators)
+            {
+                Type tRequest = typeof(BasicEndpoint);
+                bool hasTRequest = false;
+
+#pragma warning disable CS8600
+                if (endpointOrValidatorType.BaseType?.IsGenericType is true)
+                {
+                    tRequest = endpointOrValidatorType.BaseType?.GetGenericArguments()[0];
+                    hasTRequest = true;
+                }
+#pragma warning restore CS8600
+
+#pragma warning disable CS8604
+                if (!epDict.TryGetValue(tRequest, out var val))
+                {
+                    val = new();
+                    epDict.Add(tRequest, val);
+                }
+#pragma warning restore CS8604
+
+                if (endpointOrValidatorType.IsAssignableTo(typeof(IEndpoint)))
+                    val.EndpointType = endpointOrValidatorType;
+                else
+                    val.ValidatorType = hasTRequest ? endpointOrValidatorType : null;
+            }
+
+#pragma warning disable CS8619
+            discoveredEndpoints = epDict
+                .Select(x => x.Value)
+                .Select(x => (
+                    x.EndpointType,
+                    Activator.CreateInstance(x.EndpointType),
+                    x.ValidatorType))
+                .ToArray();
+#pragma warning restore CS8619
         }
 
         private static IEnumerable<string>? GetFieldValues(this Type type, string fieldName, object? instance)
@@ -183,5 +223,13 @@ namespace FastEndpoints
                 .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?
                 .GetValue(instance);
         }
+
+#pragma warning disable CS8618
+        private class EndpointAndValidatorTypes
+        {
+            public Type EndpointType { get; set; }
+            public Type? ValidatorType { get; set; }
+        }
+#pragma warning restore CS8618
     }
 }

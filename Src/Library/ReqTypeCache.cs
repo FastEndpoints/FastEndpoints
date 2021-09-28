@@ -1,13 +1,12 @@
-﻿using FastEndpoints.Validation;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace FastEndpoints
 {
-    internal static class ReqTypeCache<TRequest, TValidator>
-        where TValidator : Validator<TRequest>, new()
+    internal static class ReqTypeCache<TRequest>
     {
-        internal static TValidator Validator = new();
+        //note: key is lowercased property name
         internal static Dictionary<string, (PropertyInfo propInfo, TypeCode typeCode)> Props { get; } = new();
+
         internal static List<(string claimType, bool forbidIfMissing, PropertyInfo propInfo)> FromClaimProps { get; } = new();
 
         static ReqTypeCache()

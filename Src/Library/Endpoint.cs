@@ -29,7 +29,7 @@ namespace FastEndpoints
         internal bool allowAnyPermission;
         internal bool acceptFiles;
 
-        internal abstract Task ExecAsync(HttpContext ctx, CancellationToken ct);
+        internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
 
         internal string GetTestURL()
         {
@@ -43,22 +43,13 @@ namespace FastEndpoints
     /// <summary>
     /// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
     /// </summary>
-    public abstract class BasicEndpoint : Endpoint<EmptyRequest, EmptyValidator<EmptyRequest>> { }
-
-    /// <summary>
-    /// use this base class for defining endpoints that doesn't need a validator. i.e. when there's no validation to be done.
-    /// </summary>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    public abstract class Endpoint<TRequest> : Endpoint<TRequest, EmptyValidator<TRequest>> where TRequest : new() { }
+    public abstract class BasicEndpoint : Endpoint<EmptyRequest> { }
 
     /// <summary>
     /// use this base class for defining endpoints that uses a request dto and needs validation.
     /// </summary>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <typeparam name="TValidator">the type of the response dto</typeparam>
-    public abstract class Endpoint<TRequest, TValidator> : EndpointBase
-        where TRequest : new()
-        where TValidator : Validator<TRequest>, new()
+    public abstract class Endpoint<TRequest> : EndpointBase where TRequest : new()
     {
 #pragma warning disable CS8618
         /// <summary>
@@ -151,14 +142,14 @@ namespace FastEndpoints
         /// <param name="ct">a cancellation token</param>
         protected abstract Task HandleAsync(TRequest req, CancellationToken ct);
 
-        internal override async Task ExecAsync(HttpContext ctx, CancellationToken cancellation)
+        internal override async Task ExecAsync(HttpContext ctx, IValidator? validator, CancellationToken cancellation)
         {
             HttpContext = ctx;
             var req = await BindIncomingDataAsync(ctx, cancellation).ConfigureAwait(false);
             try
             {
                 BindFromUserClaims(req, ctx, ValidationFailures);
-                ValidateRequest(req);
+                await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, cancellation).ConfigureAwait(false);
                 await HandleAsync(req, cancellation).ConfigureAwait(false);
             }
             catch (ValidationFailureException)
@@ -329,10 +320,10 @@ namespace FastEndpoints
 
         private static void BindFromUserClaims(TRequest req, HttpContext ctx, List<ValidationFailure> failures)
         {
-            for (int i = 0; i < ReqTypeCache<TRequest, TValidator>.FromClaimProps.Count; i++)
+            for (int i = 0; i < ReqTypeCache<TRequest>.FromClaimProps.Count; i++)
             {
                 (string claimType, bool forbidIfMissing, PropertyInfo propInfo) cacheEntry
-                    = ReqTypeCache<TRequest, TValidator>.FromClaimProps[i];
+                    = ReqTypeCache<TRequest>.FromClaimProps[i];
 
                 var claimType = cacheEntry.claimType;
                 var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
@@ -346,12 +337,11 @@ namespace FastEndpoints
             if (failures.Count > 0) throw new ValidationFailureException();
         }
 
-        private void ValidateRequest(TRequest req)
+        private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, CancellationToken cancellation)
         {
-            if (typeof(TValidator) == typeof(EmptyValidator<TRequest>))
-                return;
+            if (validator is null) return;
 
-            var valResult = ReqTypeCache<TRequest, TValidator>.Validator.Validate(req);
+            var valResult = await validator.ValidateAsync(req, cancellation).ConfigureAwait(false);
 
             if (!valResult.IsValid)
                 ValidationFailures.AddRange(valResult.Errors);
@@ -364,7 +354,7 @@ namespace FastEndpoints
         {
             foreach (var rv in routeValues)
             {
-                if (ReqTypeCache<TRequest, TValidator>.Props.TryGetValue(rv.Key.ToLower(), out var prop))
+                if (ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop))
                 {
                     bool success = false;
 

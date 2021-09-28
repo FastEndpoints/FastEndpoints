@@ -31,7 +31,7 @@ namespace FastEndpointsBench
         public string? PhoneNumber { get; set; }
     }
 
-    public class Endpoint : Endpoint<Request, Validator>
+    public class Endpoint : Endpoint<Request>
     {
         public ILogger<Endpoint>? MyProperty { get; set; }
 

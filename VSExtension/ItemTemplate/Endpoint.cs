@@ -2,7 +2,7 @@
 
 namespace $fileinputname$
 {
-    public class Endpoint : Endpoint<Request, Validator>
+    public class Endpoint : Endpoint<Request>
     {
         public Endpoint()
         {

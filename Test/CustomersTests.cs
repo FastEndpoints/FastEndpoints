@@ -39,7 +39,7 @@ namespace Test
         [TestMethod]
         public async Task CustomerUpdateByCustomer()
         {
-            var (rsp, res) = await CustomerClient.PutAsync<
+            var (_, res) = await CustomerClient.PutAsync<
                 Customers.Update.Endpoint,
                 Customers.Update.Request,
                 string>(new()
@@ -51,6 +51,23 @@ namespace Test
                 });
 
             Assert.AreEqual("CST001", res);
+        }
+
+        [TestMethod]
+        public async Task CustomerUpdateAdmin()
+        {
+            var (_, res) = await AdminClient.PutAsync<
+                Customers.Update.Endpoint,
+                Customers.Update.Request,
+                string>(new()
+                {
+                    CustomerID = "customer id set by admin user",
+                    Address = "address",
+                    Age = 123,
+                    Name = "test customer"
+                });
+
+            Assert.AreEqual("customer id set by admin user", res);
         }
     }
 }

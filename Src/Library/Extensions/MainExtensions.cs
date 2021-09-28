@@ -33,11 +33,11 @@ namespace FastEndpoints
         public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
         {
             DiscoverEndpointsAndValidators();
-            services.AddAuthorization(BuildPermissionPolicies);
+            services.AddAuthorization(BuildSecurityPoliciesForEndpoints);
             return services;
         }
 
-        private static void BuildPermissionPolicies(AuthorizationOptions opts)
+        private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
         {
             if (discoveredEndpoints is null) return;
 

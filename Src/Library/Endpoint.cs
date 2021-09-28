@@ -38,7 +38,7 @@ namespace FastEndpoints
             if (routes is null)
                 throw new ArgumentNullException(nameof(routes));
 
-            return routes[0];//.Replace("{", "").Replace("}", "");
+            return routes[0];
         }
     }
 

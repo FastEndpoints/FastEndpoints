@@ -30,7 +30,6 @@ namespace FastEndpoints
         internal bool allowAnyPermission;
         internal string[]? claims;
         internal bool allowAnyClaim;
-        internal bool acceptFiles;
         internal Action<DelegateEndpointConventionBuilder>? configAction;
 
         internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
@@ -118,10 +117,6 @@ namespace FastEndpoints
         /// disable auto validation failure responses (400 bad request with error details) for this endpoint
         /// </summary>
         protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
-        /// <summary>
-        /// allow clients to upload files to this endpoint
-        /// </summary>
-        protected void AcceptFiles() => acceptFiles = true;
         /// <summary>
         /// allow unauthenticated requests to this endpoint
         /// </summary>
@@ -415,7 +410,7 @@ namespace FastEndpoints
 
         private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues)
         {
-            foreach (var rv in routeValues)
+            foreach (var rv in routeValues.Where(rv => !((string)rv.Value).StartsWith("{")))
             {
                 if (ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop))
                 {

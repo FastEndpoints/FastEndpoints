@@ -18,7 +18,12 @@ namespace TestCases.RouteBindingTest
             Verbs(Http.POST);
             Routes("/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}");
             AllowAnnonymous();
-            DontThrowIfValidationFails(); //FromBody value will cause validation failure but will not auto throw
+            DontThrowIfValidationFails();
+
+            Options(b => b
+                .Accepts<Request>("application/json")
+                .Produces<Response>()
+                .WithName("RouteBindingTestEndpoint"));
         }
 
         protected override Task HandleAsync(Request r, CancellationToken t)

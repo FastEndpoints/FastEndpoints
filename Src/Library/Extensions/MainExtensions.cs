@@ -2,7 +2,6 @@
 using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -150,7 +149,6 @@ namespace FastEndpoints
                 if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
                 var allowAnnonymous = (bool?)ep.EndpointType.GetFieldValue(nameof(EndpointBase.allowAnnonymous), ep.EndpointInstance);
-                var acceptFiles = (bool?)ep.EndpointType.GetFieldValue(nameof(EndpointBase.acceptFiles), ep.EndpointInstance);
 
                 var userPolicies = ep.EndpointType.GetFieldValues(nameof(EndpointBase.policies), ep.EndpointInstance);
                 var policiesToAdd = new List<string>();
@@ -168,7 +166,6 @@ namespace FastEndpoints
                     var eb = builder.MapMethods(route, verbs, EndpointExecutor.HandleAsync)
                                     .RequireAuthorization(); //secure by default
 
-                    if (acceptFiles is true) eb.Accepts<IFormFile>("multipart/form-data");
                     if (policiesToAdd.Count > 0) eb.RequireAuthorization(policiesToAdd.ToArray());
                     if (allowAnnonymous is true) eb.AllowAnonymous();
                     if (configAction is not null) configAction(eb);

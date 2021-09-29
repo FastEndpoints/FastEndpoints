@@ -15,7 +15,6 @@ namespace FastEndpoints
         /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TRequest, TResponse>
             (this HttpClient client, string requestUri, TRequest request)
-            where TResponse : class
         {
             var res = await client.PostAsJsonAsync(requestUri, request, EndpointBase.SerializerOptions).ConfigureAwait(false);
 
@@ -42,9 +41,7 @@ namespace FastEndpoints
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         /// <param name="request">the request dto</param>
         public static Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TEndpoint, TRequest, TResponse>
-            (this HttpClient client, TRequest request)
-            where TEndpoint : EndpointBase, new()
-            where TResponse : class
+            (this HttpClient client, TRequest request) where TEndpoint : EndpointBase, new()
                 => PostAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
         /// <summary>
@@ -56,8 +53,7 @@ namespace FastEndpoints
         /// <param name="request">the request dto</param>
         /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PutAsync<TRequest, TResponse>
-        (this HttpClient client, string requestUri, TRequest request)
-        where TResponse : class
+            (this HttpClient client, string requestUri, TRequest request)
         {
             var res = await client.PutAsJsonAsync(requestUri, request, EndpointBase.SerializerOptions).ConfigureAwait(false);
 
@@ -84,9 +80,7 @@ namespace FastEndpoints
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         /// <param name="request">the request dto</param>
         public static Task<(HttpResponseMessage? response, TResponse? result)> PutAsync<TEndpoint, TRequest, TResponse>
-            (this HttpClient client, TRequest request)
-            where TEndpoint : EndpointBase, new()
-            where TResponse : class
+            (this HttpClient client, TRequest request) where TEndpoint : EndpointBase, new()
                 => PutAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
         /// <summary>

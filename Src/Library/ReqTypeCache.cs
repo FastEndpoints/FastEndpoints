@@ -21,7 +21,7 @@ namespace FastEndpoints
                 {
                     if (propInfo.PropertyType != typeof(string))
                         throw new InvalidOperationException("[FromClaim] attributes are only supported on string properties!");
-                    //todo: add claim binding support for other types. same as route binding.
+                    //could add claim binding support for other types. same as route binding.
 
                     var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
                     var claimType = attrib?.ClaimType ?? "null";

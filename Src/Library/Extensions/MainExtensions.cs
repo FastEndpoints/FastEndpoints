@@ -157,6 +157,8 @@ namespace FastEndpoints
                 if (userPolicies?.Any() is true) policiesToAdd.AddRange(userPolicies);
                 if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
 
+                var configAction = (Action<DelegateEndpointConventionBuilder>?)ep.EndpointType.GetFieldValue(nameof(EndpointBase.configAction), ep.EndpointInstance);
+
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
 
                 EndpointExecutor.CachedServiceBoundProps[ep.EndpointType] = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
@@ -169,6 +171,7 @@ namespace FastEndpoints
                     if (acceptFiles is true) eb.Accepts<IFormFile>("multipart/form-data");
                     if (policiesToAdd.Count > 0) eb.RequireAuthorization(policiesToAdd.ToArray());
                     if (allowAnnonymous is true) eb.AllowAnonymous();
+                    if (configAction is not null) configAction(eb);
 
                     var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
 

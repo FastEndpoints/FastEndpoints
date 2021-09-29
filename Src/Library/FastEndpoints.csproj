@@ -5,7 +5,7 @@
     <Version>1.1.0</Version>
     
     <PackageReleaseNotes>- improve http client extensions
-    - 
+    - expose endpoint builder via .Options() method
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

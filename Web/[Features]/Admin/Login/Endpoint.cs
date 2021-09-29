@@ -11,6 +11,7 @@ namespace Admin.Login
             Verbs(Http.POST);
             Routes("/admin/login");
             AllowAnnonymous();
+            Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         }
 
         protected override Task HandleAsync(Request r, CancellationToken ct)

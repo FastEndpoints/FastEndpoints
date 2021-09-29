@@ -1,5 +1,6 @@
 ﻿using FastEndpoints.Validation;
 using FastEndpoints.Validation.Results;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -30,6 +31,7 @@ namespace FastEndpoints
         internal string[]? claims;
         internal bool allowAnyClaim;
         internal bool acceptFiles;
+        internal Action<DelegateEndpointConventionBuilder>? configAction;
 
         internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
 
@@ -174,6 +176,11 @@ namespace FastEndpoints
         /// </summary>
         /// <param name="postProcessors">the post processors to be executed</param>
         protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => this.postProcessors = postProcessors;
+        /// <summary>
+        /// set endpoint configurations options using an endpoint builder action
+        /// </summary>
+        /// <param name="builder">the builder for this endpoint</param>
+        protected void Options(Action<DelegateEndpointConventionBuilder> builder) => configAction = builder;
 
         /// <summary>
         /// the handler method for the endpoint. this method is called for each request received.

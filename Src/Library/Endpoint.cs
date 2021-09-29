@@ -48,18 +48,31 @@ namespace FastEndpoints
     public abstract class BasicEndpoint : Endpoint<EmptyRequest> { }
 
     /// <summary>
-    /// use this base class for defining endpoints that uses a request dto.
+    /// use this base class for defining endpoints that only use a request dto and don't use a response dto.
+    /// </summary>
+    /// <typeparam name="TRequest"></typeparam>
+    public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : new() { };
+
+    /// <summary>
+    /// use this base class for defining endpoints that use both request and response dtos.
     /// </summary>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    public abstract class Endpoint<TRequest> : EndpointBase where TRequest : new()
+    /// <typeparam name="TResponse">the type of the response dto</typeparam>
+    public abstract class Endpoint<TRequest, TResponse> : EndpointBase where TRequest : new() where TResponse : new()
     {
+        private IPreProcessor<TRequest>[] preProcessors = Array.Empty<IPreProcessor<TRequest>>();
+        private IPostProcessor<TRequest, TResponse>[] postProcessors = Array.Empty<IPostProcessor<TRequest, TResponse>>();
+
 #pragma warning disable CS8618
         /// <summary>
         /// the http context of the current request
         /// </summary>
         protected HttpContext HttpContext { get; private set; }
 #pragma warning restore CS8618
-
+        /// <summary>
+        /// the response that is sent to the client.
+        /// </summary>
+        protected TResponse? Response { get; private set; } = new();
         /// <summary>
         /// gives access to the configuration
         /// </summary>
@@ -71,7 +84,7 @@ namespace FastEndpoints
         /// <summary>
         /// the logger for the current endpoint type
         /// </summary>
-        protected ILogger Logger => HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest>>>();
+        protected ILogger Logger => HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest, TResponse>>>();
         /// <summary>
         /// the base url of the current request
         /// </summary>
@@ -151,6 +164,16 @@ namespace FastEndpoints
             allowAnyClaim = allowAny;
             this.claims = claims;
         }
+        /// <summary>
+        /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
+        /// </summary>
+        /// <param name="preProcessors">the pre processors to be executed</param>
+        protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => this.preProcessors = preProcessors;
+        /// <summary>
+        /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are defined here.
+        /// </summary>
+        /// <param name="postProcessors">the post processors to be executed</param>
+        protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => this.postProcessors = postProcessors;
 
         /// <summary>
         /// the handler method for the endpoint. this method is called for each request received.
@@ -167,7 +190,14 @@ namespace FastEndpoints
             {
                 BindFromUserClaims(req, ctx, ValidationFailures);
                 await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, cancellation).ConfigureAwait(false);
+
+                foreach (var pp in preProcessors)
+                    await pp.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+
                 await HandleAsync(req, cancellation).ConfigureAwait(false);
+
+                foreach (var pp in postProcessors)
+                    await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
             }
             catch (ValidationFailureException)
             {
@@ -199,7 +229,10 @@ namespace FastEndpoints
         protected void ThrowIfAnyErrors()
         {
             if (ValidationFailed)
+            {
+                Response = default;
                 throw new ValidationFailureException();
+            }
         }
 
         /// <summary>
@@ -229,20 +262,22 @@ namespace FastEndpoints
         /// <param name="cancellation"></param>
         protected Task SendErrorsAsync(CancellationToken cancellation = default)
         {
+            Response = default;
             HttpContext.Response.StatusCode = 400;
             return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
         }
 
         /// <summary>
-        /// send the supplied response dto or any other object serialized as json to the client
+        /// send the supplied response dto serialized as json to the client
         /// </summary>
-        /// <param name="value">the object to serialize to json</param>
+        /// <param name="response">the object to serialize to json</param>
         /// <param name="statusCode">optional custom http status code</param>
         /// <param name="cancellation">optional cancellation token</param>
-        protected Task SendAsync(object value, int statusCode = 200, CancellationToken cancellation = default)
+        protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
         {
+            Response = response;
             HttpContext.Response.StatusCode = statusCode;
-            return HttpContext.Response.WriteAsJsonAsync(value, SerializerOptions, cancellation);
+            return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions, cancellation);
         }
 
         /// <summary>
@@ -253,6 +288,7 @@ namespace FastEndpoints
         /// <param name="cancellation">optional cancellation token</param>
         protected ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
+            Response = default;
             HttpContext.Response.StatusCode = 200;
             HttpContext.Response.ContentType = contentType;
             HttpContext.Response.ContentLength = bytes.Length;
@@ -264,6 +300,7 @@ namespace FastEndpoints
         /// </summary>
         protected Task SendOkAsync()
         {
+            Response = default;
             HttpContext.Response.StatusCode = 200;
             return Task.CompletedTask;
         }
@@ -273,6 +310,7 @@ namespace FastEndpoints
         /// </summary>
         protected Task SendNoContentAsync()
         {
+            Response = default;
             HttpContext.Response.StatusCode = 204;
             return Task.CompletedTask;
         }
@@ -282,6 +320,7 @@ namespace FastEndpoints
         /// </summary>
         protected Task SendNotFoundAsync()
         {
+            Response = default;
             HttpContext.Response.StatusCode = 404;
             return Task.CompletedTask;
         }

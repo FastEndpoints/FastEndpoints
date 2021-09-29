@@ -20,7 +20,6 @@
     <Folder Include="[Features]\Inventory\List\Search\" />
     <Folder Include="[Features]\Inventory\Manage\Delete\" />
     <Folder Include="[Features]\Inventory\Manage\Update\" />
-    <Folder Include="[Features]\Sales\Orders\Create\" />
     <Folder Include="[Features]\Sales\Orders\Retrieve\" />
     <Folder Include="[Features]\Shipping\Dispatch\" />
   </ItemGroup>

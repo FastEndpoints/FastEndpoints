@@ -69,5 +69,22 @@ namespace Test
 
             Assert.AreEqual("customer id set by admin user", res);
         }
+
+        [TestMethod]
+        public async Task CreateOrderByCustomer()
+        {
+            var (rsp, res) = await CustomerClient.PostAsync<
+                Sales.Orders.Create.Endpoint,
+                Sales.Orders.Create.Request,
+                Sales.Orders.Create.Response>(new()
+                {
+                    CustomerID = 12345,
+                    ProductID = 100,
+                    Quantity = 23
+                });
+
+            Assert.IsTrue(rsp?.IsSuccessStatusCode);
+            Assert.AreEqual(res?.OrderID, 54321);
+        }
     }
 }

@@ -2,10 +2,14 @@
 
   <PropertyGroup>
     
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     
     <PackageReleaseNotes>
-    - initial release
+    - added support for handler pre/post processors (pipeline behaviors)
+    - added Response property to Endpoint class
+    - added more generic overloads for the Endpoint class
+    - increased test coverage
+    - misc. code changes
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

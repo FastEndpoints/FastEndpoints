@@ -191,8 +191,8 @@ namespace FastEndpoints
                 BindFromUserClaims(req, ctx, ValidationFailures);
                 await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, cancellation).ConfigureAwait(false);
 
-                foreach (var pp in preProcessors)
-                    await pp.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+                foreach (var p in preProcessors)
+                    await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
 
                 await HandleAsync(req, cancellation).ConfigureAwait(false);
 

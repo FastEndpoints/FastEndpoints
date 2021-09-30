@@ -2,7 +2,7 @@
 
 namespace $fileinputname$
 {
-    public class Endpoint : Endpoint<Request>
+    public class Endpoint : Endpoint<Request, Response>
     {
         public Endpoint()
         {
@@ -12,7 +12,7 @@ namespace $fileinputname$
 
         protected override Task HandleAsync(Request r, CancellationToken t)
         {
-            return SendAsync("This endpoint is not implemented yet!");
+            return SendAsync(Response);
         }
     }
 }

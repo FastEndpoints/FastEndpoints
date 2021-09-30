@@ -58,14 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Request.cs" />
-    <None Include="Response.cs" />
-    <None Include="Endpoint.cs" />
-    <None Include="Validator.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Data.cs" />
+    <None Include="Endpoint.cs" />
+    <None Include="Models.cs" />
     <None Include="zicon.ico" />
   </ItemGroup>
   <ItemGroup>

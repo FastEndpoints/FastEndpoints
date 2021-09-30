@@ -12,7 +12,7 @@ namespace $fileinputname$
 
         protected override Task HandleAsync(Request r, CancellationToken t)
         {
-            return SendAsync("This endpoint is not implemented!");
+            return SendAsync("This endpoint is not implemented yet!");
         }
     }
 }

@@ -12,9 +12,7 @@
   <TemplateContent>
     <References />
     <ProjectItem ReplaceParameters="true" TargetFileName="Data.cs">Data.cs</ProjectItem>
-    <ProjectItem ReplaceParameters="true" TargetFileName="Request.cs">Request.cs</ProjectItem>
-    <ProjectItem ReplaceParameters="true" TargetFileName="Response.cs">Response.cs</ProjectItem>
     <ProjectItem ReplaceParameters="true" TargetFileName="Endpoint.cs">Endpoint.cs</ProjectItem>
-    <ProjectItem ReplaceParameters="true" TargetFileName="Validator.cs">Validator.cs</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="Models.cs">Models.cs</ProjectItem>
   </TemplateContent>
 </VSTemplate>

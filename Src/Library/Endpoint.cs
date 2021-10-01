@@ -73,7 +73,7 @@ namespace FastEndpoints
         /// <summary>
         /// the response that is sent to the client.
         /// </summary>
-        protected TResponse Response { get; set; } = new();
+        protected TResponse? Response { get; set; } = new();
         /// <summary>
         /// gives access to the configuration
         /// </summary>
@@ -410,7 +410,7 @@ namespace FastEndpoints
 
         private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues)
         {
-            foreach (var rv in routeValues.Where(rv => !((string)rv.Value).StartsWith("{")))
+            foreach (var rv in routeValues.Where(rv => ((string?)rv.Value)?.StartsWith("{") == false))
             {
                 if (ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop))
                 {

@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using Web.PipelineBehaviors.PostProcessors;
 using Web.PipelineBehaviors.PreProcessors;
+using Web.SystemEvents;
 
 namespace Sales.Orders.Create
 {
@@ -16,9 +17,18 @@ namespace Sales.Orders.Create
                 new MyResponseLogger<Request, Response>());
         }
 
-        protected override Task HandleAsync(Request r, CancellationToken t)
+        protected override async Task HandleAsync(Request r, CancellationToken t)
         {
-            return SendAsync(new Response
+            var saleNotification = new NewOrderCreated
+            {
+                CustomerName = "new customer",
+                OrderID = Random.Shared.Next(0, 10000),
+                OrderTotal = 12345.67m
+            };
+
+            await Event<NewOrderCreated>.PublishAsync(saleNotification, Mode.WaitForAll);
+
+            await SendAsync(new Response
             {
                 Message = "order created!",
                 OrderID = 54321

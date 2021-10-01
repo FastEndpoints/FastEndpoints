@@ -4,7 +4,8 @@
     
     <Version>1.2.0</Version>
     
-    <PackageReleaseNotes>- add swagger support
+    <PackageReleaseNotes>
+      - add swagger support
       - expose endpoint builder via .Options() method
       - improve http client extensions
     </PackageReleaseNotes>

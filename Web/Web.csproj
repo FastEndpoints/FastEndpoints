@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <NoWarn>1701;1702;CA2016</NoWarn>
+    <NoWarn>1701;1702;CA2016;RCS1090;CA2254</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +22,6 @@
     <Folder Include="[Features]\Inventory\Manage\Delete\" />
     <Folder Include="[Features]\Inventory\Manage\Update\" />
     <Folder Include="[Features]\Sales\Orders\Retrieve\" />
-    <Folder Include="[Features]\Shipping\Dispatch\" />
   </ItemGroup>
 
   <ItemGroup>

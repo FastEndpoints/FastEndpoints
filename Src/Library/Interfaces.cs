@@ -47,5 +47,10 @@ namespace FastEndpoints
         Task PostProcessAsync(TRequest req, TResponse? res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
     }
 
+    public interface IEventHandler
+    {
+        public void Subscribe();
+    }
+
     internal interface IEndpoint { }
 }

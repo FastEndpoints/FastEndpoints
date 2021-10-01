@@ -19,7 +19,7 @@ Performance is on par with the `Minimal APIs` and is faster; uses less memory; a
 - Dependencies are automatically property injected
 - Model binding support from route/json body/claims
 - Model validation using FluentValidation rules
-- Ability to do further validations inside endpoint handler
+- Convenient business logic validation and error responses
 - Easy access to environment and configuration settings
 - Supports pipeline behaviors like MediatR
 - Supports in-process pub/sub event notifications
@@ -27,6 +27,7 @@ Performance is on par with the `Minimal APIs` and is faster; uses less memory; a
 - Convenient integration testing (route-less and strongly-typed)
 - Plays well with the asp.net middleware pipeline
 - Supports swagger/serilog/etc.
+- Visual studio extension (vsix) for easy vertical slice feature scaffolding
 - Plus anything else the `minimal apis can do`
 
 ## Try it out...

@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     
     <PackageReleaseNotes>
-      - add swagger support
-      - expose endpoint builder via .Options() method
-      - improve http client extensions
+      - support for in-process pub/sub event notifications
+      - auto registration of event handlers
+      - dependancy resolving for event handlers
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>
@@ -16,7 +16,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
-    <Description>A better way to create web api endpoints for ASP.Net 6 that encourages CQRS and Vertical Slice Architecture.</Description>
+    <Description>An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.</Description>
     <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

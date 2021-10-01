@@ -7,10 +7,10 @@ namespace Shipping.EventHandlers
     {
         public override async Task HandleAsync(NewOrderCreated eventModel, CancellationToken ct)
         {
-            //await Task.Delay(1000);
-            Console.WriteLine(Environment.NewLine);
-            Console.WriteLine($"new order created event received:[{eventModel.OrderID}] and order processing has begun!");
-            Console.WriteLine(Environment.NewLine);
+            var logger = Resolve<ILogger<StartOrderProcessing>>();
+
+            logger?.LogWarning($"new order created event received:[{eventModel.OrderID}] and order processing has begun!");
+
             await Task.CompletedTask;
         }
     }

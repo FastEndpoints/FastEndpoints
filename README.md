@@ -1,10 +1,32 @@
 # FastEndpoints
 
-A better way to create web api endpoints for ASP.Net 6 that encourages CQRS and Vertical Slice Architecture. 
+An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.
 
-MVC controllers are on it's way out and `FastEndpoints` offers a more elegant solution than the `minimal apis` introduced in .net 6.
+`FastEndpoints` offers a more elegant solution than the `Minimal APIs` and `MVC Controllers`.
 
-Performance is on par with the `minimal apis` and is faster; uses less memory; and outperforms a traditional MVC controller by about **[39k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
+Performance is on par with the `minimal apis` and is faster; uses less memory; and outperforms a traditional mvc controller by about **[39k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
+
+## Features
+
+- Define your endpoints in multiple class files (even in deeply nested folders)
+- Auto discovery and registration of endpoints
+- Secure by default and supports most authentication/authorization providers
+- Built-in support for JWT Bearer auth scheme
+- Supports policy/permission/role/claim based security
+- Declarative security policy building (inside each endpoint)
+- Supports any IOC container (compatible with asp.net)
+- Dependencies are automatically property injected
+- Model binding support from route/json body/claims
+- Model validation using FluentValidation rules
+- Ability to do further validations inside endpoint handler
+- Easy access to environment and configuration settings
+- Supports pipeline behaviors like MediatR
+- Supports in-process pub/sub event notifications
+- Auto discovery of event notification handlers
+- Convenient integration testing (route-less and strongly-typed)
+- Plays well with the asp.net middleware pipeline
+- Supports swagger/serilog/etc.
+- + Anything else the `minimal apis can do`
 
 ## Try it out...
 install from nuget: `Install-Package FastEndpoints`

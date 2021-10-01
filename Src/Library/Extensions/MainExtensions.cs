@@ -132,6 +132,7 @@ namespace FastEndpoints
             if (discoveredEndpoints is null) throw new InvalidOperationException($"Please use .{nameof(AddFastEndpoints)}() first!");
 
             EndpointBase.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+            BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
             foreach (var ep in discoveredEndpoints)
             {

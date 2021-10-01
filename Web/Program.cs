@@ -1,8 +1,6 @@
-using Customers.EventHandlers;
 using FastEndpoints;
 using FastEndpoints.Security;
 using Microsoft.AspNetCore.Http.Json;
-using Shipping.EventHandlers;
 using Web.Auth;
 using Web.Services;
 
@@ -29,10 +27,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors();
 app.UseFastEndpoints();
-
-new SendOrderConfirmation().Subscribe();
-new StartOrderProcessing().Subscribe();
-
 app.Run();
 
 //todo: write tests

@@ -193,7 +193,7 @@ namespace FastEndpoints
                 };
 
 #pragma warning disable CS8602
-            var endpointsAndValidators = AppDomain.CurrentDomain
+            var discoveredTypes = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .Where(a =>
                       !a.IsDynamic &&
@@ -202,28 +202,34 @@ namespace FastEndpoints
                 .Where(t =>
                       !t.IsAbstract &&
                       (t.GetInterfaces().Contains(typeof(IEndpoint)) ||
-                       t.GetInterfaces().Contains(typeof(IValidator))));
+                       t.GetInterfaces().Contains(typeof(IValidator)) ||
+                       t.GetInterfaces().Contains(typeof(IEventHandler))));
 #pragma warning restore CS8602
 
-            if (!endpointsAndValidators.Any())
+            if (!discoveredTypes.Any())
                 throw new InvalidOperationException("Unable to find any endpoint declarations!");
 
             //key: TRequest or BasicEndpoint
             var epDict = new Dictionary<Type, EndpointAndValidatorTypes>();
 
-            foreach (var endpointOrValidatorType in endpointsAndValidators)
+            foreach (var type in discoveredTypes)
             {
+                if (type.IsAssignableTo(typeof(IEventHandler)))
+                {
+                    ((IEventHandler?)Activator.CreateInstance(type))?.Subscribe();
+                    continue;
+                }
+
                 Type tRequest = typeof(BasicEndpoint);
                 bool hasTRequest = false;
 
 #pragma warning disable CS8600
-                if (endpointOrValidatorType.BaseType?.IsGenericType is true)
+                if (type.BaseType?.IsGenericType is true)
                 {
-                    tRequest = endpointOrValidatorType.BaseType?.GetGenericArguments()[0];
+                    tRequest = type.BaseType?.GetGenericArguments()[0];
                     hasTRequest = true;
                 }
 #pragma warning restore CS8600
-
 #pragma warning disable CS8604
                 if (!epDict.TryGetValue(tRequest, out var val))
                 {
@@ -231,13 +237,11 @@ namespace FastEndpoints
                     epDict.Add(tRequest, val);
                 }
 #pragma warning restore CS8604
-
-                if (endpointOrValidatorType.IsAssignableTo(typeof(IEndpoint)))
-                    val.EndpointType = endpointOrValidatorType;
+                if (type.IsAssignableTo(typeof(IEndpoint)))
+                    val.EndpointType = type;
                 else
-                    val.ValidatorType = hasTRequest ? endpointOrValidatorType : null;
+                    val.ValidatorType = hasTRequest ? type : null;
             }
-
 #pragma warning disable CS8601
             discoveredEndpoints = epDict
                 .Select(x => x.Value)

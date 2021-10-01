@@ -4,7 +4,7 @@ An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQR
 
 `FastEndpoints` offers a more elegant solution than the `Minimal APIs` and `MVC Controllers`.
 
-Performance is on par with the `minimal apis` and is faster; uses less memory; and outperforms a traditional mvc controller by about **[39k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
+Performance is on par with the `Minimal APIs` and is faster; uses less memory; and outperforms a traditional `MVC Controller` by about **[39k requests per second](#bombardier-load-test)** on a Ryzen 3700X desktop.
 
 ## Features
 
@@ -26,7 +26,7 @@ Performance is on par with the `minimal apis` and is faster; uses less memory; a
 - Convenient integration testing (route-less and strongly-typed)
 - Plays well with the asp.net middleware pipeline
 - Supports swagger/serilog/etc.
-- + Anything else the `minimal apis can do`
+- Plus anything else the `minimal apis can do`
 
 ## Try it out...
 install from nuget: `Install-Package FastEndpoints`

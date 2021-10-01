@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using Web.Auth;
-
 #pragma warning disable CS8618
+
 namespace Customers.Create
 {
     public class Request

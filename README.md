@@ -28,7 +28,7 @@ Performance is on par with the `Minimal APIs` and is faster; uses less memory; a
 - Plays well with the asp.net middleware pipeline
 - Supports swagger/serilog/etc.
 - Visual studio extension (vsix) for easy vertical slice feature scaffolding
-- Plus anything else the `minimal apis can do`
+- Plus anything else the `minimal apis` can do...
 
 ## Try it out...
 install from nuget: `Install-Package FastEndpoints`
@@ -135,7 +135,7 @@ public class MyEndpoint : Endpoint<MyRequest>
 all of your `Endpoint` definitions are automatically discovered on app startup. no manual mapping is required like with `minimal apis`.
 
 # Documentation
-proper documentation will be available within a few weeks once **v1.0** is released. in the meantime have a browse through the `Web`, `Test` and `Benchmark` projects to see more examples.
+documentation will be available within a few weeks once **v1.0** is released. in the meantime have a browse through the `Web`, `Test` and `Benchmark` projects to see more examples.
 
 # Benchmark results
 

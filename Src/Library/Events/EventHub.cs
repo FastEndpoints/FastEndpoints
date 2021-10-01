@@ -6,10 +6,7 @@
     /// <typeparam name="TEvent">the type of notification event to publish or subscribe to</typeparam>
     public static class Event<TEvent> where TEvent : class
     {
-        /// <summary>
-        /// subscribe to this event to receive a model/dto when a publisher sends a notification
-        /// </summary>
-        public static event AsyncEventHandler<TEvent>? OnReceived;
+        internal static event AsyncEventHandler<TEvent>? OnReceived;
 
         /// <summary>
         /// publish the given model/dto to all the subscribers of the event notification

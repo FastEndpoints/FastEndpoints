@@ -1,6 +1,7 @@
 ﻿using FastEndpoints;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
+using TestCases.EventHandlingTest;
 using static Test.Setup;
 
 namespace Test
@@ -65,6 +66,26 @@ namespace Test
             Assert.AreEqual(2232.12, res?.Double);
             Assert.AreEqual("from body value", res?.FromBody);
             Assert.AreEqual(123.45m, res?.Decimal);
+        }
+
+        [TestMethod]
+        public async Task TestEventHandling()
+        {
+            var event1 = new NewItemAddedToStock { ID = 1, Name = "one", Quantity = 10 };
+            var event2 = new NewItemAddedToStock { ID = 2, Name = "two", Quantity = 20 };
+            var event3 = new NewItemAddedToStock { ID = 3, Name = "three", Quantity = 30 };
+
+            await Event<NewItemAddedToStock>.PublishAsync(event3, Mode.WaitForAll);
+            await Event<NewItemAddedToStock>.PublishAsync(event2, Mode.WaitForAny);
+            await Event<NewItemAddedToStock>.PublishAsync(event1, Mode.WaitForNone);
+
+            Assert.AreEqual(0, event1.ID);
+            Assert.AreEqual(0, event2.ID);
+            Assert.AreEqual(0, event3.ID);
+
+            Assert.AreEqual("pass", event1.Name);
+            Assert.AreEqual("pass", event2.Name);
+            Assert.AreEqual("pass", event3.Name);
         }
     }
 }

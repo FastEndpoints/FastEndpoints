@@ -10,6 +10,7 @@ Performance is on par with the `Minimal APIs` and is faster; uses less memory; a
 
 - Define your endpoints in multiple class files (even in deeply nested folders)
 - Auto discovery and registration of endpoints
+- Attribute-free endpoint definitions (no attribute argument type restrictions)
 - Secure by default and supports most authentication/authorization providers
 - Built-in support for JWT Bearer auth scheme
 - Supports policy/permission/role/claim based security

@@ -52,7 +52,6 @@ namespace CarterModules
                     PhoneNumber = Data.PhoneNumbers?.FirstOrDefault()
                 });
             });
-
         }
     }
 }

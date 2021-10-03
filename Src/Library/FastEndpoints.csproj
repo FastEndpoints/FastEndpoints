@@ -1,12 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     
-    <Version>1.4.0-beta1</Version>
+    <Version>1.4.0</Version>
     
     <PackageReleaseNotes>
       - added PublishAsync() method to the endpoint class
       - update to latest jwt bearer lib
+      - removed unneeded dependencies in main lib
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>
@@ -25,8 +26,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--<ProjectReference Include="..\Security\FastEndpoints.Security.csproj" />-->
     <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

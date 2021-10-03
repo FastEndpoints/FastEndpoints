@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NoWarn>1701;1702;CA2016;RCS1090</NoWarn>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Carter" Version="5.2.0" />
     <PackageReference Include="FluentValidation" Version="10.3.3" />

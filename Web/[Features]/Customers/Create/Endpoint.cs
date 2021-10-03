@@ -1,8 +1,15 @@
 ﻿using FastEndpoints;
+using Web.Auth;
 using Web.Services;
 
 namespace Customers.Create
 {
+    public class Request
+    {
+        [From(Claim.UserName)] public string? CreatedBy { get; set; }
+        public string? CustomerName { get; set; }
+    }
+
     public class Endpoint : Endpoint<Request>
     {
         public IEmailService? Emailer { get; set; }

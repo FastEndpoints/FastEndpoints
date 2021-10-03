@@ -52,5 +52,5 @@ namespace FastEndpoints
         internal void Subscribe();
     }
 
-    internal interface IEndpoint { }
+    public interface IEndpoint { }
 }

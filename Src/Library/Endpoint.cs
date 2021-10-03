@@ -49,6 +49,12 @@ namespace FastEndpoints
     public abstract class BasicEndpoint : Endpoint<EmptyRequest> { }
 
     /// <summary>
+    /// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
+    /// </summary>
+    /// <typeparam name="TResponse"></typeparam>
+    public abstract class BasicEndpoint<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : new() { }
+
+    /// <summary>
     /// use this base class for defining endpoints that only use a request dto and don't use a response dto.
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>

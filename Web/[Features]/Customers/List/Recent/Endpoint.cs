@@ -3,6 +3,11 @@ using Web.Auth;
 
 namespace Customers.List.Recent
 {
+    public class Response
+    {
+        public IEnumerable<KeyValuePair<string, int>>? Customers { get; set; }
+    }
+
     public class Endpoint : BasicEndpoint
     {
         public Endpoint()

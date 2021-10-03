@@ -202,7 +202,7 @@ Statistics        Avg      Stdev        Max
 
 |                Method |      Mean |    Error |   StdDev | Ratio | RatioSD |  Gen 0 |  Gen 1 | Allocated |
 |---------------------- |----------:|---------:|---------:|------:|--------:|-------:|-------:|----------:|
-|    MinimalApiEndpoint |  74.85 μs | 0.685 μs | 0.453 μs |  0.90 |    0.03 | 2.5000 | 0.1000 |     21 KB |
-| **FastEndpointsEndpoint** |  83.42 μs | 3.861 μs | 2.554 μs |  1.00 |    0.00 | 2.6000 | 0.1000 |     22 KB |
-|   AspNetMVCController | 118.07 μs | 3.920 μs | 2.593 μs |  1.42 |    0.04 | 3.4000 | 0.2000 |     28 KB |
-|          CarterModule | 612.17 μs | 2.981 μs | 1.971 μs |  7.34 |    0.22 | 5.9000 | 2.9000 |     48 KB |
+| FastEndpointsEndpoint |  83.03 μs | 5.007 μs | 3.312 μs |  1.00 |    0.00 | 2.6000 | 0.1000 |     22 KB |
+|    MinimalApiEndpoint |  83.51 μs | 3.781 μs | 2.501 μs |  1.01 |    0.03 | 2.5000 |      - |     21 KB |
+|         AspNetCoreMVC | 114.20 μs | 3.806 μs | 2.518 μs |  1.38 |    0.06 | 3.4000 | 0.2000 |     28 KB |
+|          CarterModule | 607.48 μs | 1.455 μs | 0.962 μs |  7.33 |    0.29 | 5.9000 | 2.9000 |     48 KB |

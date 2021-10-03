@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Benchmark\FastEndpointsBench\FastEndpointsBench.csproj" />
+    <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj" />
     <ProjectReference Include="..\Web\Web.csproj" />
   </ItemGroup>
 

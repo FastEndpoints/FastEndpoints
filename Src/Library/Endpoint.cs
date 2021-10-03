@@ -1,12 +1,5 @@
 ﻿using FastEndpoints.Validation;
 using FastEndpoints.Validation.Results;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;

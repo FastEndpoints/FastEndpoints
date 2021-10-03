@@ -5,13 +5,16 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Runner
 {
-    [MemoryDiagnoser]
+    [
+        SimpleJob(launchCount: 1, warmupCount: 10, targetCount: 10, invocationCount: 10000),
+        MemoryDiagnoser
+    ]
     public class Benchmarks
     {
         private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
         private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
-        private static HttpClient ControllerClient { get; } = new WebApplicationFactory<MapControllers.Program>().CreateClient();
         private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
+        private static HttpClient CarterClient { get; } = new WebApplicationFactory<CarterModules.Program>().CreateClient();
 
         [Benchmark(Baseline = true)]
         public async Task FastEndpointsEndpoint()
@@ -53,23 +56,23 @@ namespace Runner
         }
 
         [Benchmark]
-        public async Task AspNetMapControllers()
+        public async Task CarterModule()
         {
-            await ControllerClient.PostAsync<MapControllers.Request, MapControllers.Response>(
+            await CarterClient.PostAsync<CarterModules.Request, CarterModules.Response>(
 
-                "/benchmark/ok/123", new()
-                {
-                    FirstName = "xxc",
-                    LastName = "yyy",
-                    Age = 23,
-                    PhoneNumbers = new[] {
+                 "/benchmark/ok/123", new()
+                 {
+                     FirstName = "xxc",
+                     LastName = "yyy",
+                     Age = 23,
+                     PhoneNumbers = new[] {
                         "1111111111",
                         "2222222222",
                         "3333333333",
                         "4444444444",
                         "5555555555"
-                    }
-                });
+                     }
+                 });
         }
 
         [Benchmark]

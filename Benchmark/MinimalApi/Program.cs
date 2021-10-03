@@ -13,10 +13,10 @@ app.MapPost("/benchmark/ok/{id}",
     (
         [FromRoute] int id,
         [FromBody] Request req,
-        [FromServices] ILogger<Program> _,
+        [FromServices] ILogger<Program> logger,
         [FromServices] IValidator<Request> validator) =>
     {
-        //logger.LogInformation("request received!");
+        // logger.LogInformation("request received!");
 
         validator.Validate(req);
 

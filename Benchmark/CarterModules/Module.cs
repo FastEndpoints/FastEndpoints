@@ -1,8 +1,10 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Carter;
+using Carter.ModelBinding;
+using Carter.Request;
+using Carter.Response;
+using FluentValidation;
 
-namespace MvcControllers
+namespace CarterModules
 {
     public class Request
     {
@@ -32,27 +34,25 @@ namespace MvcControllers
         public string? PhoneNumber { get; set; }
     }
 
-    [Authorize]
-    public class HomeController : Controller
+    public class Module : CarterModule
     {
-        [AllowAnonymous]
-        public IActionResult Index(
-            [FromRoute] int id,
-            [FromBody] Request req,
-            [FromServices] ILogger<HomeController> logger,
-            [FromServices] IValidator<Request> validator)
+        public Module(ILogger<Module> logger)
         {
-            //logger.LogInformation("request received!");
-
-            validator.Validate(req);
-
-            return Ok(new Response()
+            Post("/benchmark/ok/{id}", async (req, res) =>
             {
-                Id = id,
-                Name = req.FirstName + " " + req.LastName,
-                Age = req.Age,
-                PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
+                //logger.LogInformation("request received!");
+
+                var (ValidationResult, Data) = await req.BindAndValidate<Request>();
+
+                await res.AsJson(new Response()
+                {
+                    Id = req.RouteValues.As<int>("id"),
+                    Name = Data.FirstName + " " + Data.LastName,
+                    Age = Data.Age,
+                    PhoneNumber = Data.PhoneNumbers?.FirstOrDefault()
+                });
             });
+
         }
     }
 }

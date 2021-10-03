@@ -39,8 +39,6 @@ install from nuget: `Install-Package FastEndpoints`
 
 ### Program.cs
 ```csharp
-using FastEndpoints;
-
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJWTBearer("SecretKey");

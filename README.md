@@ -163,16 +163,6 @@ Statistics        Avg      Stdev        Max
     others - 0
   Throughput:    69.19MB/s
 ```
-### Carter Module
-```
-Statistics        Avg      Stdev        Max
-  Reqs/sec      7592.05    3153.39   18037.17
-  Latency       65.45ms    17.77ms   560.62ms
-  HTTP codes:
-    1xx - 0, 2xx - 76638, 3xx - 0, 4xx - 0, 5xx - 0
-    others - 0
-  Throughput:     3.82MB/s
-```
 ### AspNet MVC Controller
 ```
 Statistics        Avg      Stdev        Max
@@ -182,6 +172,16 @@ Statistics        Avg      Stdev        Max
     1xx - 0, 2xx - 1019171, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
   Throughput:    50.91MB/s
+```
+### Carter Module
+```
+Statistics        Avg      Stdev        Max
+  Reqs/sec      7592.05    3153.39   18037.17
+  Latency       65.45ms    17.77ms   560.62ms
+  HTTP codes:
+    1xx - 0, 2xx - 76638, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:     3.82MB/s
 ```
 
 **parameters used:** `-c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s`

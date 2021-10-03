@@ -2,12 +2,11 @@
 
   <PropertyGroup>
     
-    <Version>1.3.0</Version>
+    <Version>1.4.0-beta1</Version>
     
     <PackageReleaseNotes>
-      - support for in-process pub/sub event notifications
-      - auto registration of event handlers
-      - dependancy resolving for event handlers
+      - added PublishAsync() method to the endpoint class
+      - update to latest jwt bearer lib
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>
@@ -38,6 +37,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Test" />
   </ItemGroup>
  
 </Project>

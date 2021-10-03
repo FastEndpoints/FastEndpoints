@@ -270,7 +270,7 @@ namespace FastEndpoints
         }
 
         /// <summary>
-        /// send the supplied response dto serialized as json to the client
+        /// send the supplied response dto serialized as json to the client.
         /// </summary>
         /// <param name="response">the object to serialize to json</param>
         /// <param name="statusCode">optional custom http status code</param>
@@ -326,6 +326,19 @@ namespace FastEndpoints
             HttpContext.Response.StatusCode = 404;
             return Task.CompletedTask;
         }
+
+        /// <summary>
+        /// publish the given model/dto to all the subscribers of the event notification
+        /// </summary>
+        /// <param name="eventModel">the notification event model/dto to publish</param>
+        /// <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+        ///<param name="cancellation">an optional cancellation token</param>
+        /// <returns>a Task that matches the wait mode specified.
+        /// Mode.WaitForNone returns an already completed Task (fire and forget).
+        /// Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
+        /// Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</returns>
+        protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : class
+            => Event<TEvent>.PublishAsync(eventModel, waitMode, cancellation);
 
         /// <summary>
         /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.

@@ -26,7 +26,7 @@ namespace Sales.Orders.Create
                 OrderTotal = 12345.67m
             };
 
-            await Event<NewOrderCreated>.PublishAsync(saleNotification, Mode.WaitForNone);
+            await PublishAsync(saleNotification, Mode.WaitForNone);
 
             await SendAsync(new Response
             {

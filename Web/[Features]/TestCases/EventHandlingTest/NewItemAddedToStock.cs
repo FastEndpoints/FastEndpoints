@@ -1,5 +1,4 @@
 ﻿using FastEndpoints;
-using System.Collections.Concurrent;
 #pragma warning disable CA2211
 
 namespace TestCases.EventHandlingTest

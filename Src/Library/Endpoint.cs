@@ -16,7 +16,7 @@ namespace FastEndpoints
     /// <summary>
     /// base class for all endpoint classes
     /// </summary>
-    public abstract class EndpointBase : IEndpoint
+    public abstract class BaseEndpoint : IEndpoint
     {
         internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
 
@@ -46,13 +46,13 @@ namespace FastEndpoints
     /// <summary>
     /// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
     /// </summary>
-    public abstract class BasicEndpoint : Endpoint<EmptyRequest> { }
+    public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest> { }
 
     /// <summary>
     /// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
     /// </summary>
     /// <typeparam name="TResponse"></typeparam>
-    public abstract class BasicEndpoint<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : new() { }
+    public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : new() { }
 
     /// <summary>
     /// use this base class for defining endpoints that only use a request dto and don't use a response dto.
@@ -65,7 +65,7 @@ namespace FastEndpoints
     /// </summary>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public abstract class Endpoint<TRequest, TResponse> : EndpointBase where TRequest : new() where TResponse : new()
+    public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : new() where TResponse : new()
     {
         private IPreProcessor<TRequest>[] preProcessors = Array.Empty<IPreProcessor<TRequest>>();
         private IPostProcessor<TRequest, TResponse>[] postProcessors = Array.Empty<IPostProcessor<TRequest, TResponse>>();

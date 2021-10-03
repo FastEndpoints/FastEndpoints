@@ -16,13 +16,13 @@ namespace FastEndpoints
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TRequest, TResponse>
             (this HttpClient client, string requestUri, TRequest request)
         {
-            var res = await client.PostAsJsonAsync(requestUri, request, EndpointBase.SerializerOptions).ConfigureAwait(false);
+            var res = await client.PostAsJsonAsync(requestUri, request, BaseEndpoint.SerializerOptions).ConfigureAwait(false);
 
             TResponse? body;
 
             try
             {
-                body = await res.Content.ReadFromJsonAsync<TResponse>(EndpointBase.SerializerOptions).ConfigureAwait(false);
+                body = await res.Content.ReadFromJsonAsync<TResponse>(BaseEndpoint.SerializerOptions).ConfigureAwait(false);
             }
             catch (JsonException)
             {
@@ -41,7 +41,7 @@ namespace FastEndpoints
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         /// <param name="request">the request dto</param>
         public static Task<(HttpResponseMessage? response, TResponse? result)> PostAsync<TEndpoint, TRequest, TResponse>
-            (this HttpClient client, TRequest request) where TEndpoint : EndpointBase, new()
+            (this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
                 => PostAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
         /// <summary>
@@ -55,13 +55,13 @@ namespace FastEndpoints
         public static async Task<(HttpResponseMessage? response, TResponse? result)> PutAsync<TRequest, TResponse>
             (this HttpClient client, string requestUri, TRequest request)
         {
-            var res = await client.PutAsJsonAsync(requestUri, request, EndpointBase.SerializerOptions).ConfigureAwait(false);
+            var res = await client.PutAsJsonAsync(requestUri, request, BaseEndpoint.SerializerOptions).ConfigureAwait(false);
 
             TResponse? body;
 
             try
             {
-                body = await res.Content.ReadFromJsonAsync<TResponse>(EndpointBase.SerializerOptions).ConfigureAwait(false);
+                body = await res.Content.ReadFromJsonAsync<TResponse>(BaseEndpoint.SerializerOptions).ConfigureAwait(false);
             }
             catch (JsonException)
             {
@@ -80,7 +80,7 @@ namespace FastEndpoints
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         /// <param name="request">the request dto</param>
         public static Task<(HttpResponseMessage? response, TResponse? result)> PutAsync<TEndpoint, TRequest, TResponse>
-            (this HttpClient client, TRequest request) where TEndpoint : EndpointBase, new()
+            (this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
                 => PutAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace FastEndpoints
         /// <param name="requestUri">the route url to connect to</param>
         public static Task<TResponse?> GetAsync<TResponse>(this HttpClient client, string requestUri)
         {
-            return client.GetFromJsonAsync<TResponse>(requestUri, EndpointBase.SerializerOptions);
+            return client.GetFromJsonAsync<TResponse>(requestUri, BaseEndpoint.SerializerOptions);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace FastEndpoints
         /// <typeparam name="TEndpoint">the type of the request dto</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public static Task<TResponse?> GetAsync<TEndpoint, TResponse>(this HttpClient client)
-            where TEndpoint : EndpointBase, new()
+            where TEndpoint : BaseEndpoint, new()
                 => GetAsync<TResponse>(client, new TEndpoint().GetTestURL());
     }
 }

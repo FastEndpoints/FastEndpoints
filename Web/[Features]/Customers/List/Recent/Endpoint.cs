@@ -3,12 +3,7 @@ using Web.Auth;
 
 namespace Customers.List.Recent
 {
-    public class Response
-    {
-        public IEnumerable<KeyValuePair<string, int>>? Customers { get; set; }
-    }
-
-    public class Endpoint : BasicEndpoint
+    public class Endpoint : EndpointWithoutRequest
     {
         public Endpoint()
         {
@@ -21,6 +16,7 @@ namespace Customers.List.Recent
             Permissions(
                 Allow.Customers_Retrieve,
                 Allow.Customers_Create);
+            AllowAnnonymous();
         }
 
         protected override Task HandleAsync(EmptyRequest er, CancellationToken ct)
@@ -34,5 +30,10 @@ namespace Customers.List.Recent
                 }
             });
         }
+    }
+
+    public class Response
+    {
+        public IEnumerable<KeyValuePair<string, int>>? Customers { get; set; }
     }
 }

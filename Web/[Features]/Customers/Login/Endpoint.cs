@@ -4,7 +4,7 @@ using Web.Auth;
 
 namespace Customers.Login
 {
-    public class Endpoint : Endpoint<Request>
+    public class Endpoint : EndpointWithoutRequest
     {
         public Endpoint()
         {
@@ -13,7 +13,7 @@ namespace Customers.Login
             AllowAnnonymous();
         }
 
-        protected override Task HandleAsync(Request r, CancellationToken t)
+        protected override Task HandleAsync(EmptyRequest r, CancellationToken t)
         {
             var token = JWTBearer.CreateToken(
                 signingKey: Config["TokenKey"],

@@ -41,13 +41,13 @@ namespace FastEndpoints
 
             foreach (var ep in discoveredEndpoints)
             {
-                var roles = ep.EndpointType.GetFieldValues(nameof(EndpointBase.roles), ep.EndpointInstance);
+                var roles = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.roles), ep.EndpointInstance);
 
-                var permissions = ep.EndpointType.GetFieldValues(nameof(EndpointBase.permissions), ep.EndpointInstance);
-                var allowAnyPermission = (bool?)ep.EndpointType.GetFieldValue(nameof(EndpointBase.allowAnyPermission), ep.EndpointInstance);
+                var permissions = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.permissions), ep.EndpointInstance);
+                var allowAnyPermission = (bool?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.allowAnyPermission), ep.EndpointInstance);
 
-                var claims = ep.EndpointType.GetFieldValues(nameof(EndpointBase.claims), ep.EndpointInstance);
-                var allowAnyClaim = (bool?)ep.EndpointType.GetFieldValue(nameof(EndpointBase.allowAnyClaim), ep.EndpointInstance);
+                var claims = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.claims), ep.EndpointInstance);
+                var allowAnyClaim = (bool?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.allowAnyClaim), ep.EndpointInstance);
 
                 if (roles is null && permissions is null && claims is null) continue;
 
@@ -130,32 +130,32 @@ namespace FastEndpoints
         {
             if (discoveredEndpoints is null) throw new InvalidOperationException($"Please use .{nameof(AddFastEndpoints)}() first!");
 
-            EndpointBase.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+            BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
             BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
             foreach (var ep in discoveredEndpoints)
             {
                 var epName = ep.EndpointType.FullName;
 
-                var execMethod = ep.EndpointType.GetMethod(nameof(EndpointBase.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
+                var execMethod = ep.EndpointType.GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
                 if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
 
                 if (ep.EndpointInstance is null) throw new InvalidOperationException($"Unable to create an instance of: [{epName}]");
 
-                var verbs = ep.EndpointType.GetFieldValues(nameof(EndpointBase.verbs), ep.EndpointInstance);
+                var verbs = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.verbs), ep.EndpointInstance);
                 if (verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
 
-                var routes = ep.EndpointType.GetFieldValues(nameof(EndpointBase.routes), ep.EndpointInstance);
+                var routes = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.routes), ep.EndpointInstance);
                 if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
-                var allowAnnonymous = (bool?)ep.EndpointType.GetFieldValue(nameof(EndpointBase.allowAnnonymous), ep.EndpointInstance);
+                var allowAnnonymous = (bool?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.allowAnnonymous), ep.EndpointInstance);
 
-                var userPolicies = ep.EndpointType.GetFieldValues(nameof(EndpointBase.policies), ep.EndpointInstance);
+                var userPolicies = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.policies), ep.EndpointInstance);
                 var policiesToAdd = new List<string>();
                 if (userPolicies?.Any() is true) policiesToAdd.AddRange(userPolicies);
                 if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
 
-                var configAction = (Action<DelegateEndpointConventionBuilder>?)ep.EndpointType.GetFieldValue(nameof(EndpointBase.configAction), ep.EndpointInstance);
+                var configAction = (Action<DelegateEndpointConventionBuilder>?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.configAction), ep.EndpointInstance);
 
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
 
@@ -201,58 +201,70 @@ namespace FastEndpoints
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsAbstract &&
-                      (t.GetInterfaces().Contains(typeof(IEndpoint)) ||
-                       t.GetInterfaces().Contains(typeof(IValidator)) ||
-                       t.GetInterfaces().Contains(typeof(IEventHandler))));
+                      !t.IsInterface &&
+                      t.GetInterfaces().Intersect(new[] {
+                          typeof(IEndpoint),
+                          typeof(IValidator),
+                          typeof(IEventHandler)
+                      }).Any());
 #pragma warning restore CS8602
 
             if (!discoveredTypes.Any())
                 throw new InvalidOperationException("Unable to find any endpoint declarations!");
 
-            //key: TRequest or BasicEndpoint
-            var epDict = new Dictionary<Type, EndpointAndValidatorTypes>();
+            //Endpoint<TRequest>
+            //Validator<TRequest>
+
+            var epList = new List<(Type tEndpoint, Type tRequest)>();
+
+            //key: TRequest //val: TValidator
+            var valDict = new Dictionary<Type, Type>();
 
             foreach (var type in discoveredTypes)
             {
-                if (type.IsAssignableTo(typeof(IEventHandler)))
+                var interfacesOfType = type.GetInterfaces();
+
+                if (interfacesOfType.Contains(typeof(IEventHandler)))
                 {
                     ((IEventHandler?)Activator.CreateInstance(type))?.Subscribe();
                     continue;
                 }
 
-                Type tRequest = typeof(BasicEndpoint);
-                bool hasTRequest = false;
+#pragma warning disable CS8602
+                if (interfacesOfType.Contains(typeof(IEndpoint)))
+                {
+                    var tRequest = typeof(EmptyRequest);
 
-#pragma warning disable CS8600
-                if (type.BaseType?.IsGenericType is true)
-                {
-                    tRequest = type.BaseType?.GetGenericArguments()[0];
-                    hasTRequest = true;
+                    if (type.BaseType?.IsGenericType is true)
+                        tRequest = type.BaseType?.GetGenericArguments()?[0] ?? tRequest;
+
+                    epList.Add((type, tRequest));
                 }
-#pragma warning restore CS8600
-#pragma warning disable CS8604
-                if (!epDict.TryGetValue(tRequest, out var val))
-                {
-                    val = new();
-                    epDict.Add(tRequest, val);
-                }
-#pragma warning restore CS8604
-                if (type.IsAssignableTo(typeof(IEndpoint)))
-                    val.EndpointType = type;
                 else
-                    val.ValidatorType = hasTRequest ? type : null;
+                {
+                    Type tRequest = type.BaseType.GetGenericArguments()[0];
+                    valDict.Add(tRequest, type);
+                }
+#pragma warning restore CS8602
             }
+
 #pragma warning disable CS8601
-            discoveredEndpoints = epDict
-                .Select(x => x.Value)
+            discoveredEndpoints = epList
                 .Select(x => new DiscoveredEndpoint()
                 {
-                    EndpointType = x.EndpointType,
-                    EndpointInstance = Activator.CreateInstance(x.EndpointType),
-                    ValidatorType = x.ValidatorType
+                    EndpointType = x.tEndpoint,
+                    EndpointInstance = Activator.CreateInstance(x.tEndpoint),
+                    ValidatorType = GetValidatorType(x.tRequest)
                 })
                 .ToArray();
 #pragma warning restore CS8601
+
+            Type? GetValidatorType(Type tRequest)
+            {
+                Type? valType = null;
+                valDict?.TryGetValue(tRequest, out valType);
+                return valType;
+            }
         }
 
         private static IEnumerable<string>? GetFieldValues(this Type type, string fieldName, object? instance)
@@ -268,13 +280,5 @@ namespace FastEndpoints
                 .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?
                 .GetValue(instance);
         }
-
-#pragma warning disable CS8618
-        private class EndpointAndValidatorTypes
-        {
-            public Type EndpointType { get; set; }
-            public Type? ValidatorType { get; set; }
-        }
-#pragma warning restore CS8618
     }
 }

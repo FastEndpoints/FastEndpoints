@@ -3,14 +3,6 @@ using FastEndpoints.Validation;
 
 namespace TestCases.RouteBindingTest
 {
-    public class Validator : Validator<Request>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.FromBody).Must(x => x != "xxx");
-        }
-    }
-
     public class Endpoint : Endpoint<Request>
     {
         public Endpoint()

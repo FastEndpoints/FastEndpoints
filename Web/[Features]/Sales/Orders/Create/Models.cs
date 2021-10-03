@@ -6,4 +6,10 @@
         public int ProductID { get; set; }
         public int Quantity { get; set; }
     }
+
+    public class Response
+    {
+        public int OrderID { get; set; }
+        public string? Message { get; set; }
+    }
 }

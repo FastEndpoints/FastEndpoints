@@ -5,8 +5,8 @@
     <Version>1.5.0-beta1</Version>
     
     <PackageReleaseNotes>
-      - added BasicEndpoint class for defining endpoints without request dto.
-      - 
+      - added EndpointWithoutRequest class for defining endpoints without request dto.
+      - refactored endpoint discovery at startup
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

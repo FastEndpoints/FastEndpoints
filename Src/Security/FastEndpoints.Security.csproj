@@ -7,7 +7,13 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+    <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
+    <Description>Security library for FastEndpoints.</Description>
+    <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
   </PropertyGroup>
   
   <ItemGroup>

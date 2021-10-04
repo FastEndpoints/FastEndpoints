@@ -7,6 +7,7 @@
     <PackageReleaseNotes>
       - added EndpointWithoutRequest class for defining endpoints without request dto.
       - refactored endpoint discovery at startup
+      - improved swagger support
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

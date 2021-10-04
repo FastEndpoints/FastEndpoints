@@ -12,10 +12,10 @@ namespace TestCases.RouteBindingTest
             AllowAnnonymous();
             DontThrowIfValidationFails();
 
-            Options(b => b
-                .Accepts<Request>("application/json")
-                .Produces<Response>()
-                .WithName("RouteBindingTestEndpoint"));
+            //Options(b => b
+            //    .Accepts<Request>("application/json")
+            //    .Produces<Response>()
+            //    .WithName("RouteBindingTestEndpoint"));
         }
 
         protected override Task HandleAsync(Request r, CancellationToken t)

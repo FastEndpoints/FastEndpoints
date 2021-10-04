@@ -155,7 +155,8 @@ namespace FastEndpoints
                 if (userPolicies?.Any() is true) policiesToAdd.AddRange(userPolicies);
                 if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
 
-                var configAction = (Action<DelegateEndpointConventionBuilder>?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.configAction), ep.EndpointInstance);
+                var intConfigAction = (Action<DelegateEndpointConventionBuilder>?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.internalConfigAction), ep.EndpointInstance);
+                var usrConfigAction = (Action<DelegateEndpointConventionBuilder>?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.userConfigAction), ep.EndpointInstance);
 
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
 
@@ -168,7 +169,8 @@ namespace FastEndpoints
 
                     if (policiesToAdd.Count > 0) eb.RequireAuthorization(policiesToAdd.ToArray());
                     if (allowAnnonymous is true) eb.AllowAnonymous();
-                    if (configAction is not null) configAction(eb);
+                    if (intConfigAction is not null) intConfigAction(eb);
+                    if (usrConfigAction is not null) usrConfigAction(eb);
 
                     var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
 

@@ -30,7 +30,8 @@ namespace FastEndpoints
         internal bool allowAnyPermission;
         internal string[]? claims;
         internal bool allowAnyClaim;
-        internal Action<DelegateEndpointConventionBuilder>? configAction;
+        internal Action<DelegateEndpointConventionBuilder>? internalConfigAction;
+        internal Action<DelegateEndpointConventionBuilder>? userConfigAction;
 
         internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
 
@@ -113,7 +114,16 @@ namespace FastEndpoints
         /// specify one or more route patterns this endpoint should be listening for
         /// </summary>
         /// <param name="patterns"></param>
-        protected void Routes(params string[] patterns) => routes = patterns;
+        protected void Routes(params string[] patterns)
+        {
+            routes = patterns;
+            internalConfigAction = b =>
+            {
+                if (typeof(TRequest) != typeof(EmptyRequest)) b.Accepts<TRequest>("application/json");
+                b.Produces<TResponse>();
+            };
+        }
+
         /// <summary>
         /// specify one or more http method verbs this endpoint should be accepting requests for
         /// </summary>
@@ -181,7 +191,7 @@ namespace FastEndpoints
         /// set endpoint configurations options using an endpoint builder action
         /// </summary>
         /// <param name="builder">the builder for this endpoint</param>
-        protected void Options(Action<DelegateEndpointConventionBuilder> builder) => configAction = builder;
+        protected void Options(Action<DelegateEndpointConventionBuilder> builder) => userConfigAction = builder;
 
         /// <summary>
         /// the handler method for the endpoint. this method is called for each request received.

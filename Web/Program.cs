@@ -13,14 +13,19 @@ builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingP
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new() { Title = builder.Environment.ApplicationName, Version = "v1" }));
+builder.Services.AddSwaggerGen(o =>
+{
+    o.SwaggerDoc("v1", new() { Title = builder.Environment.ApplicationName, Version = "v1" });
+    o.CustomSchemaIds(type => type.FullName);
+});
+builder.Services.AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null); //hack for swagger property casing
 
 WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{builder.Environment.ApplicationName} v1"));
+    app.UseSwaggerUI(o => o.SwaggerEndpoint("/swagger/v1/swagger.json", $"{builder.Environment.ApplicationName} v1"));
 }
 
 app.UseAuthentication();

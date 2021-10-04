@@ -23,6 +23,7 @@ namespace FastEndpoints
 #pragma warning restore CS8618
 
         private static DiscoveredEndpoint[]? discoveredEndpoints;
+        private static bool okToClearDiscoveredEndpoints;
 
         /// <summary>
         /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -30,7 +31,7 @@ namespace FastEndpoints
         /// <param name="services"></param>
         public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
         {
-            DiscoverEndpointsAndValidators();
+            Discover_Endpoints_Validators_EventHandlers();
             services.AddAuthorization(BuildSecurityPoliciesForEndpoints);
             return services;
         }
@@ -119,6 +120,7 @@ namespace FastEndpoints
                     }
                 });
             }
+            okToClearDiscoveredEndpoints = true;
         }
 
         /// <summary>
@@ -177,10 +179,17 @@ namespace FastEndpoints
                     EndpointExecutor.CachedEndpointTypes[route] = (epFactory, execMethod, validatorInstance);
                 }
             }
+
+            Task.Run(async () =>
+            {
+                while (!okToClearDiscoveredEndpoints) await Task.Delay(1000).ConfigureAwait(false);
+                discoveredEndpoints = null;
+            });
+
             return builder;
         }
 
-        private static void DiscoverEndpointsAndValidators()
+        private static void Discover_Endpoints_Validators_EventHandlers()
         {
             var excludes = new[]
                 {

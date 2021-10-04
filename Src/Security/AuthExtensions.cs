@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace FastEndpoints.Security
@@ -31,5 +32,22 @@ namespace FastEndpoints.Security
 
             return services;
         }
+
+        /// <summary>
+        /// returns true of the current user principal has a given permission code.
+        /// </summary>
+        /// <param name="permissionCode">the permission code to check for</param>
+        public static bool HasPermission(this ClaimsPrincipal principal, string permissionCode)
+            => principal.Claims
+            .FirstOrDefault(x => x.Type == Constants.PermissionsClaimType)?
+            .Value.Split(',')
+            .Contains(permissionCode) ?? false;
+
+        /// <summary>
+        /// get the claim value for a given claim type of the current user principal. if the user doesn't have the requested claim type, a null will be returned.
+        /// </summary>
+        /// <param name="claimType">the claim type to look for</param>
+        public static string? ClaimValue(this ClaimsPrincipal principal, string claimType)
+            => principal.FindFirstValue(claimType);
     }
 }

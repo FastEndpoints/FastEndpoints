@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace FastEndpoints
@@ -78,6 +79,10 @@ namespace FastEndpoints
         protected HttpContext HttpContext { get; private set; }
 #pragma warning restore CS8618
         /// <summary>
+        /// the current user principal 
+        /// </summary>
+        protected ClaimsPrincipal User => HttpContext.User;
+        /// <summary>
         /// the response that is sent to the client.
         /// </summary>
         protected TResponse Response { get; set; } = new();
@@ -93,14 +98,15 @@ namespace FastEndpoints
         /// the logger for the current endpoint type
         /// </summary>
         protected ILogger Logger => HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest, TResponse>>>();
+
         /// <summary>
         /// the base url of the current request
         /// </summary>
-        protected string BaseURL { get => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/"; }
+        protected string BaseURL => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/";
         /// <summary>
         /// the http method of the current request
         /// </summary>
-        protected Http HttpMethod { get => Enum.Parse<Http>(HttpContext.Request.Method); }
+        protected Http HttpMethod => Enum.Parse<Http>(HttpContext.Request.Method);
         /// <summary>
         /// the list of validation failures for the current request dto
         /// </summary>
@@ -108,7 +114,7 @@ namespace FastEndpoints
         /// <summary>
         /// indicates if there are any validation failures for the current request
         /// </summary>
-        protected bool ValidationFailed { get => ValidationFailures.Count > 0; }
+        protected bool ValidationFailed => ValidationFailures.Count > 0;
 
         /// <summary>
         /// specify one or more route patterns this endpoint should be listening for

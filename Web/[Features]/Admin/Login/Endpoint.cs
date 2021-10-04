@@ -26,7 +26,8 @@ namespace Admin.Login
                     Allow.Inventory_Update_Item,
                     Allow.Inventory_Delete_Item,
                     Allow.Customers_Retrieve,
-                    Allow.Customers_Create};
+                    Allow.Customers_Create,
+                    Allow.Customers_Update};
 
                 var userClaims = new[] {
                     (Claim.UserName, r.UserName),

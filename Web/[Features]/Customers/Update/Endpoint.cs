@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using FastEndpoints.Security;
 using Web.Auth;
 
 namespace Customers.Update
@@ -29,6 +30,9 @@ namespace Customers.Update
 
         protected override Task HandleAsync(Request req, CancellationToken ct)
         {
+            if (!User.HasPermission(Allow.Customers_Update))
+                ThrowError("no permission!");
+
             return SendAsync(req.CustomerID);
         }
     }

@@ -9,6 +9,7 @@
       - refactored endpoint discovery at startup
       - improved swagger support
       - add more extensions to user principal
+      - increase test coverage
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

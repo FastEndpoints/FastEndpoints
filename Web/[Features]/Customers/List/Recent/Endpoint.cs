@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using FastEndpoints.Security;
 using Web.Auth;
 
 namespace Customers.List.Recent

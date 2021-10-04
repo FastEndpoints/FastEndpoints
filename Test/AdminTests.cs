@@ -52,7 +52,7 @@ namespace Test
                 });
 
             Assert.AreEqual(HttpStatusCode.OK, resp?.StatusCode);
-            Assert.AreEqual(7, result?.Permissions?.Count());
+            Assert.AreEqual(8, result?.Permissions?.Count());
             Assert.IsTrue(result?.JWTToken is not null);
         }
     }

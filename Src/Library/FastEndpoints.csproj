@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     
-    <Version>1.5.0-beta1</Version>
+    <Version>1.5.0</Version>
     
     <PackageReleaseNotes>
       - added EndpointWithoutRequest class for defining endpoints without request dto.

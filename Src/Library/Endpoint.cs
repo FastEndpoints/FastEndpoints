@@ -246,11 +246,7 @@ namespace FastEndpoints
         /// </summary>
         protected void ThrowIfAnyErrors()
         {
-            if (ValidationFailed)
-            {
-                Response = default;
-                throw new ValidationFailureException();
-            }
+            if (ValidationFailed) throw new ValidationFailureException();
         }
 
         /// <summary>
@@ -280,7 +276,6 @@ namespace FastEndpoints
         /// <param name="cancellation"></param>
         protected Task SendErrorsAsync(CancellationToken cancellation = default)
         {
-            Response = default;
             HttpContext.Response.StatusCode = 400;
             return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
         }
@@ -306,7 +301,6 @@ namespace FastEndpoints
         /// <param name="cancellation">optional cancellation token</param>
         protected ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
-            Response = default;
             HttpContext.Response.StatusCode = 200;
             HttpContext.Response.ContentType = contentType;
             HttpContext.Response.ContentLength = bytes.Length;
@@ -318,7 +312,6 @@ namespace FastEndpoints
         /// </summary>
         protected Task SendOkAsync()
         {
-            Response = default;
             HttpContext.Response.StatusCode = 200;
             return Task.CompletedTask;
         }
@@ -328,7 +321,6 @@ namespace FastEndpoints
         /// </summary>
         protected Task SendNoContentAsync()
         {
-            Response = default;
             HttpContext.Response.StatusCode = 204;
             return Task.CompletedTask;
         }
@@ -338,7 +330,6 @@ namespace FastEndpoints
         /// </summary>
         protected Task SendNotFoundAsync()
         {
-            Response = default;
             HttpContext.Response.StatusCode = 404;
             return Task.CompletedTask;
         }

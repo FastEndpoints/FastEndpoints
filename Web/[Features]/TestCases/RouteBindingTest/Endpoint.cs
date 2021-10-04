@@ -1,5 +1,4 @@
 ﻿using FastEndpoints;
-using FastEndpoints.Validation;
 
 namespace TestCases.RouteBindingTest
 {

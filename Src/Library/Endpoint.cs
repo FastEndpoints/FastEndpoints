@@ -80,7 +80,7 @@ namespace FastEndpoints
         /// <summary>
         /// the response that is sent to the client.
         /// </summary>
-        protected TResponse? Response { get; set; } = new();
+        protected TResponse Response { get; set; } = new();
         /// <summary>
         /// gives access to the configuration
         /// </summary>

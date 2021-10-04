@@ -4,7 +4,7 @@ using Web.Auth;
 
 namespace Admin.Login
 {
-    public class Endpoint : Endpoint<Request>
+    public class Endpoint : Endpoint<Request, Response>
     {
         public Endpoint()
         {

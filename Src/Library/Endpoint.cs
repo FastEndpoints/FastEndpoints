@@ -350,7 +350,7 @@ namespace FastEndpoints
         /// <param name="bytes">the bytes to send</param>
         /// <param name="contentType">optional content type to set on the http response</param>
         /// <param name="cancellation">optional cancellation token</param>
-        protected async Task SendBytesAsync(byte[] bytes, string? fileName, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+        protected async Task SendBytesAsync(byte[] bytes, string? fileName = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
             using var memoryStream = new MemoryStream(bytes);
             await SendStreamAsync(memoryStream, fileName, bytes.Length, contentType, cancellation).ConfigureAwait(false);
@@ -372,10 +372,10 @@ namespace FastEndpoints
         /// </summary>
         /// <param name="stream">the stream to read the data from</param>
         /// <param name="fileName">and optional file name to set in the content-disposition header</param>
-        /// <param name="fileLengthBytes">optional total size of the file</param>
+        /// <param name="fileLengthBytes">optional total size of the file/stream</param>
         /// <param name="contentType">optional content type to set on the http response</param>
         /// <param name="cancellation">optional cancellation token</param>
-        protected Task SendStreamAsync(Stream stream, string? fileName, long? fileLengthBytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+        protected Task SendStreamAsync(Stream stream, string? fileName = null, long? fileLengthBytes = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
             HttpContext.Response.StatusCode = 200;
             HttpContext.Response.ContentType = contentType;

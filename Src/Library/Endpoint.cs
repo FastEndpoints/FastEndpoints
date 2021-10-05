@@ -364,7 +364,7 @@ namespace FastEndpoints
         /// <param name="cancellation">optional cancellation token</param>
         protected Task SendFileAsync(FileInfo fileInfo, string contentType = "application/octet-stream", CancellationToken cancellation = default)
         {
-            return SendStreamAsync(fileInfo.OpenRead(), fileInfo.FullName, fileInfo.Length, contentType, cancellation);
+            return SendStreamAsync(fileInfo.OpenRead(), fileInfo.Name, fileInfo.Length, contentType, cancellation);
         }
 
         /// <summary>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     
-    <Version>1.6.0-beta2</Version>
+    <Version>1.6.0-beta3</Version>
     
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>true</ImplicitUsings>

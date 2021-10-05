@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     
-    <Version>1.6.0-beta2</Version>
+    <Version>1.6.0-beta3</Version>
     
     <PackageReleaseNotes>
       - add SendForbiddenAsync() method
       - add SendUnauthorizedAsync() method
       - add SendFileAsync() method
       - add SendStreamAsync() method
+      - add more overloads for httpclient extensions
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

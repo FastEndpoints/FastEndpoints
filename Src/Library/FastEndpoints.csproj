@@ -2,14 +2,11 @@
 
   <PropertyGroup>
     
-    <Version>1.5.0</Version>
+    <Version>1.6.0-beta1</Version>
     
     <PackageReleaseNotes>
-      - added EndpointWithoutRequest class for defining endpoints without request dto.
-      - refactored endpoint discovery at startup
-      - improved swagger support
-      - add more extensions to user principal
-      - increase test coverage
+      - add SendForbiddenAsync() method
+      - add SendUnauthorizedAsync() method
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

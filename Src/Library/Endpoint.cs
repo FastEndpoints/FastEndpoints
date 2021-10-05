@@ -341,6 +341,24 @@ namespace FastEndpoints
         }
 
         /// <summary>
+        /// send a 401 unauthorized response
+        /// </summary>
+        protected Task SendUnauthorizedAsync()
+        {
+            HttpContext.Response.StatusCode = 401;
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// send a 403 unauthorized response
+        /// </summary>
+        protected Task SendForbiddenAsync()
+        {
+            HttpContext.Response.StatusCode = 403;
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         /// publish the given model/dto to all the subscribers of the event notification
         /// </summary>
         /// <param name="eventModel">the notification event model/dto to publish</param>

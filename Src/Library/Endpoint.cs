@@ -277,16 +277,6 @@ namespace FastEndpoints
         }
 
         /// <summary>
-        /// send a 400 bad request with error details of the current validation failures
-        /// </summary>
-        /// <param name="cancellation"></param>
-        protected Task SendErrorsAsync(CancellationToken cancellation = default)
-        {
-            HttpContext.Response.StatusCode = 400;
-            return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
-        }
-
-        /// <summary>
         /// send the supplied response dto serialized as json to the client.
         /// </summary>
         /// <param name="response">the object to serialize to json</param>
@@ -300,26 +290,22 @@ namespace FastEndpoints
         }
 
         /// <summary>
-        /// send a byte array to the client
-        /// </summary>
-        /// <param name="bytes">the bytes to send</param>
-        /// <param name="contentType">optional content type to set on the http response</param>
-        /// <param name="cancellation">optional cancellation token</param>
-        protected ValueTask SendBytesAsync(byte[] bytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
-        {
-            HttpContext.Response.StatusCode = 200;
-            HttpContext.Response.ContentType = contentType;
-            HttpContext.Response.ContentLength = bytes.Length;
-            return HttpContext.Response.Body.WriteAsync(bytes, cancellation);
-        }
-
-        /// <summary>
         /// send an http 200 ok response without any body
         /// </summary>
         protected Task SendOkAsync()
         {
             HttpContext.Response.StatusCode = 200;
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// send a 400 bad request with error details of the current validation failures
+        /// </summary>
+        /// <param name="cancellation"></param>
+        protected Task SendErrorsAsync(CancellationToken cancellation = default)
+        {
+            HttpContext.Response.StatusCode = 400;
+            return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
         }
 
         /// <summary>
@@ -356,6 +342,49 @@ namespace FastEndpoints
         {
             HttpContext.Response.StatusCode = 403;
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// send a byte array to the client
+        /// </summary>
+        /// <param name="bytes">the bytes to send</param>
+        /// <param name="contentType">optional content type to set on the http response</param>
+        /// <param name="cancellation">optional cancellation token</param>
+        protected async Task SendBytesAsync(byte[] bytes, string? fileName, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+        {
+            using var memoryStream = new MemoryStream(bytes);
+            await SendStreamAsync(memoryStream, fileName, bytes.Length, contentType, cancellation).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// send a file to the client
+        /// </summary>
+        /// <param name="fileInfo"></param>
+        /// <param name="contentType">optional content type to set on the http response</param>
+        /// <param name="cancellation">optional cancellation token</param>
+        protected Task SendFileAsync(FileInfo fileInfo, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+        {
+            return SendStreamAsync(fileInfo.OpenRead(), fileInfo.FullName, fileInfo.Length, contentType, cancellation);
+        }
+
+        /// <summary>
+        /// send the contents of a stream to the client
+        /// </summary>
+        /// <param name="stream">the stream to read the data from</param>
+        /// <param name="fileName">and optional file name to set in the content-disposition header</param>
+        /// <param name="fileLengthBytes">optional total size of the file</param>
+        /// <param name="contentType">optional content type to set on the http response</param>
+        /// <param name="cancellation">optional cancellation token</param>
+        protected Task SendStreamAsync(Stream stream, string? fileName, long? fileLengthBytes, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+        {
+            HttpContext.Response.StatusCode = 200;
+            HttpContext.Response.ContentType = contentType;
+            HttpContext.Response.ContentLength = fileLengthBytes;
+
+            if (fileName is not null)
+                HttpContext.Response.Headers.Add("Content-Disposition", $"attachment; filename={fileName}");
+
+            return HttpContext.WriteToResponseAsync(stream, cancellation == default ? HttpContext.RequestAborted : cancellation);
         }
 
         /// <summary>

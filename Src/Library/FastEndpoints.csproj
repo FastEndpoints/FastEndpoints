@@ -2,11 +2,13 @@
 
   <PropertyGroup>
     
-    <Version>1.6.0-beta1</Version>
+    <Version>1.6.0-beta2</Version>
     
     <PackageReleaseNotes>
       - add SendForbiddenAsync() method
       - add SendUnauthorizedAsync() method
+      - add SendFileAsync() method
+      - add SendStreamAsync() method
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

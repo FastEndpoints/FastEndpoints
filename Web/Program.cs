@@ -56,6 +56,4 @@ app.UseCors();
 app.UseFastEndpoints();
 app.Run();
 
-//todo: write tests
-// - AcceptFiles()
-// - SendBytesAsync()
+//todo: write tests for file/byte responses

@@ -31,6 +31,7 @@ namespace FastEndpoints
         internal bool allowAnyPermission;
         internal string[]? claims;
         internal bool allowAnyClaim;
+        internal bool allowFileUploads;
         internal Action<DelegateEndpointConventionBuilder>? internalConfigAction;
         internal Action<DelegateEndpointConventionBuilder>? userConfigAction;
 
@@ -79,7 +80,7 @@ namespace FastEndpoints
         protected HttpContext HttpContext { get; private set; }
 #pragma warning restore CS8618
         /// <summary>
-        /// the current user principal 
+        /// the current user principal
         /// </summary>
         protected ClaimsPrincipal User => HttpContext.User;
         /// <summary>
@@ -143,6 +144,10 @@ namespace FastEndpoints
         /// allow unauthenticated requests to this endpoint
         /// </summary>
         protected void AllowAnnonymous() => allowAnnonymous = true;
+        /// <summary>
+        /// enable file uploads with multipart/form-data content type
+        /// </summary>
+        protected void AllowFileUploads() => allowFileUploads = true;
         /// <summary>
         /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
         /// </summary>

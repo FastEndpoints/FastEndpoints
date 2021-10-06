@@ -115,7 +115,6 @@ namespace FastEndpoints
             return response;
         }
 
-
         /// <summary>
         /// make a GET request to an endpoint using a route url and get back a response dto.
         /// </summary>

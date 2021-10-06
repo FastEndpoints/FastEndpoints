@@ -2,6 +2,5 @@
 {
     public static class Data
     {
-
     }
 }

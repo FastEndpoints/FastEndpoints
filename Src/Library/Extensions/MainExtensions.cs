@@ -1,12 +1,12 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -44,13 +44,13 @@ namespace FastEndpoints
 
             foreach (var ep in discoveredEndpoints)
             {
-                var roles = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.roles), ep.EndpointInstance);
+                var fieldInfo = ep.EndpointType.BaseType?.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
-                var permissions = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.permissions), ep.EndpointInstance);
-                var allowAnyPermission = (bool?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.allowAnyPermission), ep.EndpointInstance);
-
-                var claims = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.claims), ep.EndpointInstance);
-                var allowAnyClaim = (bool?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.allowAnyClaim), ep.EndpointInstance);
+                var roles = fieldInfo?.GetValues(nameof(BaseEndpoint.roles), ep.EndpointInstance);
+                var permissions = fieldInfo?.GetValues(nameof(BaseEndpoint.permissions), ep.EndpointInstance);
+                var allowAnyPermission = fieldInfo?.GetValue<bool>(nameof(BaseEndpoint.allowAnyPermission), ep.EndpointInstance);
+                var claims = fieldInfo?.GetValues(nameof(BaseEndpoint.claims), ep.EndpointInstance);
+                var allowAnyClaim = fieldInfo?.GetValue<bool>(nameof(BaseEndpoint.allowAnyClaim), ep.EndpointInstance);
 
                 if (roles is null && permissions is null && claims is null) continue;
 
@@ -138,6 +138,7 @@ namespace FastEndpoints
             BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
             var routeToHandlerCounts = new Dictionary<string, int>();
+            var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
             foreach (var ep in discoveredEndpoints)
             {
@@ -146,41 +147,46 @@ namespace FastEndpoints
                 var execMethod = ep.EndpointType.GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
                 if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
 
-                if (ep.EndpointInstance is null) throw new InvalidOperationException($"Unable to create an instance of: [{epName}]");
+                var fieldInfo = ep.EndpointType.BaseType?.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
 
-                var verbs = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.verbs), ep.EndpointInstance);
+                var verbs = fieldInfo?.GetValues(nameof(BaseEndpoint.verbs), ep.EndpointInstance);
                 if (verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
 
-                var routes = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.routes), ep.EndpointInstance);
+                var routes = fieldInfo?.GetValues(nameof(BaseEndpoint.routes), ep.EndpointInstance);
                 if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
-                foreach (var route in routes)
+                foreach (var route in routes) //for logging a warning if duplicate handlers are registered
                 {
                     routeToHandlerCounts.TryGetValue(route, out var count);
                     routeToHandlerCounts[route] = count + 1;
                 }
 
-                var allowAnnonymous = (bool?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.allowAnnonymous), ep.EndpointInstance);
-
-                var userPolicies = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.policies), ep.EndpointInstance);
+                var userPolicies = fieldInfo?.GetValues(nameof(BaseEndpoint.policies), ep.EndpointInstance);
                 var policiesToAdd = new List<string>();
                 if (userPolicies?.Any() is true) policiesToAdd.AddRange(userPolicies);
                 if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
 
-                var intConfigAction = (Action<DelegateEndpointConventionBuilder>?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.internalConfigAction), ep.EndpointInstance);
-                var usrConfigAction = (Action<DelegateEndpointConventionBuilder>?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.userConfigAction), ep.EndpointInstance);
+                var intConfigAction = fieldInfo?.GetValue<Action<DelegateEndpointConventionBuilder>?>(nameof(BaseEndpoint.internalConfigAction), ep.EndpointInstance);
+                var usrConfigAction = fieldInfo?.GetValue<Action<DelegateEndpointConventionBuilder>?>(nameof(BaseEndpoint.userConfigAction), ep.EndpointInstance);
+                var allowAnnonymous = fieldInfo?.GetValue<bool>(nameof(BaseEndpoint.allowAnnonymous), ep.EndpointInstance);
+                var allowFileUpload = fieldInfo?.GetValue<bool>(nameof(BaseEndpoint.allowFileUploads), ep.EndpointInstance);
 
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
 
-                EndpointExecutor.CachedServiceBoundProps[ep.EndpointType] = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                EndpointExecutor.CachedServiceBoundProps[ep.EndpointType]
+                    = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-                foreach (var route in routes.Distinct())
+                foreach (var route in routes)
                 {
-                    var eb = builder.MapMethods(route, verbs, EndpointExecutor.HandleAsync)
-                                    .RequireAuthorization(); //secure by default
+                    var eb = builder.MapMethods(route, verbs, EndpointExecutor.HandleAsync);
 
-                    if (policiesToAdd.Count > 0) eb.RequireAuthorization(policiesToAdd.ToArray());
+                    if (policiesToAdd.Count > 0)
+                        eb.RequireAuthorization(policiesToAdd.ToArray());
+                    else
+                        eb.RequireAuthorization(); //secure by default
+
                     if (allowAnnonymous is true) eb.AllowAnonymous();
+                    if (allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
                     if (intConfigAction is not null) intConfigAction(eb);
                     if (usrConfigAction is not null) usrConfigAction(eb);
 
@@ -190,7 +196,6 @@ namespace FastEndpoints
                 }
             }
 
-            var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
             foreach (var kvp in routeToHandlerCounts)
                 if (kvp.Value > 1) logger.LogWarning($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
 
@@ -292,19 +297,25 @@ namespace FastEndpoints
             }
         }
 
-        private static IEnumerable<string>? GetFieldValues(this Type type, string fieldName, object? instance)
-        {
-            return type.BaseType?
-                .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?
-                .GetValue(instance) as IEnumerable<string>;
-        }
+        private static IEnumerable<string>? GetValues(this FieldInfo[] fields, string fieldName, object endpointInstance)
+            => (IEnumerable<string>?)fields.Single(f => f.Name == fieldName).GetValue(endpointInstance);
 
-        private static object? GetFieldValue(this Type type, string fieldName, object? instance)
-        {
-            return type.BaseType?
-                .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?
-                .GetValue(instance);
-        }
+        private static TOut? GetValue<TOut>(this FieldInfo[] fields, string fieldName, object endpointInstance)
+            => (TOut?)fields.Single(f => f.Name == fieldName).GetValue(endpointInstance);
+
+        //private static IEnumerable<string>? GetFieldValues(this Type type, string fieldName, object? instance)
+        //{
+        //    return type.BaseType?
+        //        .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?
+        //        .GetValue(instance) as IEnumerable<string>;
+        //}
+
+        //private static object? GetFieldValue(this Type type, string fieldName, object? instance)
+        //{
+        //    return type.BaseType?
+        //        .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?
+        //        .GetValue(instance);
+        //}
     }
 
     internal class DuplicateHandlerRegistration { }

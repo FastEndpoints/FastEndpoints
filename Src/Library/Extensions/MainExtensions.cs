@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -135,6 +137,8 @@ namespace FastEndpoints
             BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
             BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
+            var routeToHandlerCounts = new Dictionary<string, int>();
+
             foreach (var ep in discoveredEndpoints)
             {
                 var epName = ep.EndpointType.FullName;
@@ -149,6 +153,12 @@ namespace FastEndpoints
 
                 var routes = ep.EndpointType.GetFieldValues(nameof(BaseEndpoint.routes), ep.EndpointInstance);
                 if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
+
+                foreach (var route in routes)
+                {
+                    routeToHandlerCounts.TryGetValue(route, out var count);
+                    routeToHandlerCounts[route] = count + 1;
+                }
 
                 var allowAnnonymous = (bool?)ep.EndpointType.GetFieldValue(nameof(BaseEndpoint.allowAnnonymous), ep.EndpointInstance);
 
@@ -179,6 +189,10 @@ namespace FastEndpoints
                     EndpointExecutor.CachedEndpointTypes[route] = (epFactory, execMethod, validatorInstance);
                 }
             }
+
+            var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
+            foreach (var kvp in routeToHandlerCounts)
+                if (kvp.Value > 1) logger.LogWarning($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
 
             Task.Run(async () =>
             {
@@ -292,4 +306,6 @@ namespace FastEndpoints
                 .GetValue(instance);
         }
     }
+
+    internal class DuplicateHandlerRegistration { }
 }

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     
-    <Version>1.6.0-beta3</Version>
+    <Version>1.6.0-beta4</Version>
     
     <PackageReleaseNotes>
       - add SendForbiddenAsync() method
@@ -10,6 +10,7 @@
       - add SendFileAsync() method
       - add SendStreamAsync() method
       - add more overloads for httpclient extensions
+      - show log warning if duplicate routes are registered
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>
@@ -17,7 +18,7 @@
     <Nullable>enable</Nullable>
     <OutputType>Library</OutputType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+    <NoWarn>1701;1702;CS1591;CS1573,CA2254</NoWarn>
     <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
     <Description>An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.</Description>
     <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>

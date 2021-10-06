@@ -17,7 +17,7 @@ Performance is on par with the `Minimal APIs` and is faster; uses less memory; a
 - Declarative security policy building (inside each endpoint)
 - Supports any IOC container (compatible with asp.net)
 - Dependencies are automatically property injected
-- Model binding support from route/json body/claims
+- Model binding support from route/json body/claims/forms
 - Model validation using FluentValidation rules
 - Convenient business logic validation and error responses
 - Easy access to environment and configuration settings

@@ -99,7 +99,6 @@ namespace FastEndpoints
         /// the logger for the current endpoint type
         /// </summary>
         protected ILogger Logger => HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest, TResponse>>>();
-
         /// <summary>
         /// the base url of the current request
         /// </summary>
@@ -116,6 +115,14 @@ namespace FastEndpoints
         /// indicates if there are any validation failures for the current request
         /// </summary>
         protected bool ValidationFailed => ValidationFailures.Count > 0;
+        /// <summary>
+        /// the form sent with the request. only populated if content-type is 'application/x-www-form-urlencoded' or 'multipart/form-data'
+        /// </summary>
+        protected IFormCollection Form => HttpContext.Request.Form;
+        /// <summary>
+        /// the files sent with the request. only populated is content-type is 'multipart/form-data'
+        /// </summary>
+        protected IFormFileCollection Files => Form.Files;
 
         /// <summary>
         /// specify one or more route patterns this endpoint should be listening for
@@ -130,7 +137,6 @@ namespace FastEndpoints
                 b.Produces<TResponse>();
             };
         }
-
         /// <summary>
         /// specify one or more http method verbs this endpoint should be accepting requests for
         /// </summary>
@@ -416,30 +422,6 @@ namespace FastEndpoints
         /// <param name="typeOfService">the type of the service to resolve</param>
         protected object? Resolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
 
-        /// <summary>
-        /// get the Form from the current request.
-        /// </summary>
-        /// <param name="cancellation">optional cancellation token</param>
-        /// <exception cref="InvalidOperationException">thrown when the request body doesn't have form content</exception>
-        protected Task<IFormCollection> GetFormAsync(CancellationToken cancellation = default)
-        {
-            var req = HttpContext.Request;
-
-            if (!req.HasFormContentType)
-                throw new InvalidOperationException("This request doesn't have any multipart form data!");
-
-            return req.ReadFormAsync(cancellation);
-        }
-
-        /// <summary>
-        /// get the file collection from the form of the current request
-        /// </summary>
-        /// <param name="cancellation">optional cancellation token</param>
-        protected async Task<IFormFileCollection> GetFilesAsync(CancellationToken cancellation = default)
-        {
-            return (await GetFormAsync(cancellation).ConfigureAwait(false)).Files;
-        }
-
         private static async Task<TRequest> BindIncomingDataAsync(HttpContext ctx, CancellationToken cancellation)
         {
             TRequest? req = default;
@@ -449,9 +431,21 @@ namespace FastEndpoints
 
             if (req is null) req = new();
 
+            BindFromFormValues(req, ctx);
+
             BindFromRouteValues(req, ctx.Request.RouteValues);
 
             return req;
+        }
+
+        private static void BindFromFormValues(TRequest req, HttpContext ctx)
+        {
+            if (!ctx.Request.HasFormContentType) return;
+
+            foreach (var fv in ctx.Request.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray())
+            {
+                Bind(req, fv);
+            }
         }
 
         private static void BindFromUserClaims(TRequest req, HttpContext ctx, List<ValidationFailure> failures)
@@ -489,50 +483,53 @@ namespace FastEndpoints
         private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues)
         {
             foreach (var rv in routeValues.Where(rv => ((string?)rv.Value)?.StartsWith("{") == false))
+                Bind(req, rv);
+        }
+
+        private static void Bind(TRequest req, KeyValuePair<string, object?> rv)
+        {
+            if (ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop))
             {
-                if (ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop))
+                bool success = false;
+
+                switch (prop.typeCode)
                 {
-                    bool success = false;
+                    case TypeCode.String:
+                        success = true;
+                        prop.propInfo.SetValue(req, rv.Value);
+                        break;
 
-                    switch (prop.typeCode)
-                    {
-                        case TypeCode.String:
-                            success = true;
-                            prop.propInfo.SetValue(req, rv.Value);
-                            break;
+                    case TypeCode.Boolean:
+                        success = bool.TryParse((string?)rv.Value, out var resBool);
+                        prop.propInfo.SetValue(req, resBool);
+                        break;
 
-                        case TypeCode.Boolean:
-                            success = bool.TryParse((string?)rv.Value, out var resBool);
-                            prop.propInfo.SetValue(req, resBool);
-                            break;
+                    case TypeCode.Int32:
+                        success = int.TryParse((string?)rv.Value, out var resInt);
+                        prop.propInfo.SetValue(req, resInt);
+                        break;
 
-                        case TypeCode.Int32:
-                            success = int.TryParse((string?)rv.Value, out var resInt);
-                            prop.propInfo.SetValue(req, resInt);
-                            break;
+                    case TypeCode.Int64:
+                        success = long.TryParse((string?)rv.Value, out var resLong);
+                        prop.propInfo.SetValue(req, resLong);
+                        break;
 
-                        case TypeCode.Int64:
-                            success = long.TryParse((string?)rv.Value, out var resLong);
-                            prop.propInfo.SetValue(req, resLong);
-                            break;
+                    case TypeCode.Double:
+                        success = double.TryParse((string?)rv.Value, out var resDbl);
+                        prop.propInfo.SetValue(req, resDbl);
+                        break;
 
-                        case TypeCode.Double:
-                            success = double.TryParse((string?)rv.Value, out var resDbl);
-                            prop.propInfo.SetValue(req, resDbl);
-                            break;
+                    case TypeCode.Decimal:
+                        success = decimal.TryParse((string?)rv.Value, out var resDec);
+                        prop.propInfo.SetValue(req, resDec);
+                        break;
+                }
 
-                        case TypeCode.Decimal:
-                            success = decimal.TryParse((string?)rv.Value, out var resDec);
-                            prop.propInfo.SetValue(req, resDec);
-                            break;
-                    }
-
-                    if (!success)
-                    {
-                        throw new NotSupportedException(
-                        "Binding route value failed! " +
-                        $"{typeof(TRequest).FullName}.{prop.propInfo.Name}[{prop.typeCode}] Tried: \"{rv.Value}\"");
-                    }
+                if (!success)
+                {
+                    throw new NotSupportedException(
+                    "Binding route value failed! " +
+                    $"{typeof(TRequest).FullName}.{prop.propInfo.Name}[{prop.typeCode}] Tried: \"{rv.Value}\"");
                 }
             }
         }

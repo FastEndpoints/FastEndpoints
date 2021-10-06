@@ -180,15 +180,17 @@ namespace FastEndpoints
                 {
                     var eb = builder.MapMethods(route, verbs, EndpointExecutor.HandleAsync);
 
+                    if (intConfigAction is not null) intConfigAction(eb);//always do this first
+
                     if (policiesToAdd.Count > 0)
                         eb.RequireAuthorization(policiesToAdd.ToArray());
                     else
                         eb.RequireAuthorization(); //secure by default
 
-                    if (allowAnnonymous is true) eb.AllowAnonymous();
                     if (allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
-                    if (intConfigAction is not null) intConfigAction(eb);
-                    if (usrConfigAction is not null) usrConfigAction(eb);
+                    if (allowAnnonymous is true) eb.AllowAnonymous();
+
+                    if (usrConfigAction is not null) usrConfigAction(eb);//always do this last - allow user to override everything done above
 
                     var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
 
@@ -302,20 +304,6 @@ namespace FastEndpoints
 
         private static TOut? GetValue<TOut>(this FieldInfo[] fields, string fieldName, object endpointInstance)
             => (TOut?)fields.Single(f => f.Name == fieldName).GetValue(endpointInstance);
-
-        //private static IEnumerable<string>? GetFieldValues(this Type type, string fieldName, object? instance)
-        //{
-        //    return type.BaseType?
-        //        .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?
-        //        .GetValue(instance) as IEnumerable<string>;
-        //}
-
-        //private static object? GetFieldValue(this Type type, string fieldName, object? instance)
-        //{
-        //    return type.BaseType?
-        //        .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)?
-        //        .GetValue(instance);
-        //}
     }
 
     internal class DuplicateHandlerRegistration { }

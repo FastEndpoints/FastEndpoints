@@ -2,13 +2,15 @@
 
   <PropertyGroup>
     
-    <Version>1.6.0-beta4</Version>
+    <Version>1.6.0-beta5</Version>
     
     <PackageReleaseNotes>
       - add SendForbiddenAsync() method
       - add SendUnauthorizedAsync() method
       - add SendFileAsync() method
       - add SendStreamAsync() method
+      - add AllowFileUploads() method
+      - add model binding support from forms
       - add more overloads for httpclient extensions
       - show log warning if duplicate routes are registered
     </PackageReleaseNotes>

@@ -13,6 +13,7 @@
       - add model binding support from forms
       - add more overloads for httpclient extensions
       - show log warning if duplicate routes are registered
+      - optimize startup
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

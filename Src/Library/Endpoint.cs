@@ -182,7 +182,7 @@ namespace FastEndpoints
         /// specify the claim types a user principal should posses in order to access this endpoint. they must posses ALL of the claim types mentioned here. if not, a 403 forbidden response will be sent.
         /// </summary>
         /// <param name="claims">the claims needed to access this endpoint</param>
-        protected void Claims(params string[] claims) => Permissions(false, claims);
+        protected void Claims(params string[] claims) => Claims(false, claims);
         /// <summary>
         /// specify the claim types a user principal should posses in order to access this endpoint.
         /// </summary>

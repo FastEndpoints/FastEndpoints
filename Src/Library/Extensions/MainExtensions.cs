@@ -21,11 +21,28 @@ namespace FastEndpoints
             public object EndpointInstance { get; set; }
             public Type? ValidatorType { get; set; }
             public string? SecurityPolicyName { get; set; }
+            public Vars Settings { get; set; }
+
+            internal class Vars
+            {
+                internal string[]? routes;
+                internal string[]? verbs;
+                internal bool throwIfValidationFailed = true;
+                internal bool allowAnnonymous;
+                internal string[]? policies;
+                internal string[]? roles;
+                internal string[]? permissions;
+                internal bool allowAnyPermission;
+                internal string[]? claims;
+                internal bool allowAnyClaim;
+                internal bool allowFileUpload;
+                internal Action<DelegateEndpointConventionBuilder>? internalConfigAction;
+                internal Action<DelegateEndpointConventionBuilder>? userConfigAction;
+            }
         }
 #pragma warning restore CS8618
 
         private static DiscoveredEndpoint[]? discoveredEndpoints;
-        private static bool okToClearDiscoveredEndpoints;
 
         /// <summary>
         /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -40,34 +57,28 @@ namespace FastEndpoints
 
         private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
         {
-            if (discoveredEndpoints is null) return;
+            if (discoveredEndpoints is null) throw new InvalidOperationException("Unable to discover any endpoint declarations!");
 
             foreach (var ep in discoveredEndpoints)
             {
-                var fieldInfo = ep.EndpointType.BaseType?.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+                var eps = ep.Settings;
 
-                var roles = fieldInfo?.GetValues(nameof(BaseEndpoint.roles), ep.EndpointInstance);
-                var permissions = fieldInfo?.GetValues(nameof(BaseEndpoint.permissions), ep.EndpointInstance);
-                var allowAnyPermission = fieldInfo?.GetValue<bool>(nameof(BaseEndpoint.allowAnyPermission), ep.EndpointInstance);
-                var claims = fieldInfo?.GetValues(nameof(BaseEndpoint.claims), ep.EndpointInstance);
-                var allowAnyClaim = fieldInfo?.GetValue<bool>(nameof(BaseEndpoint.allowAnyClaim), ep.EndpointInstance);
-
-                if (roles is null && permissions is null && claims is null) continue;
+                if (eps.roles is null && eps.permissions is null && eps.claims is null) continue;
 
                 ep.SecurityPolicyName = $"epPolicy:{ep.EndpointType.FullName}";
 
                 opts.AddPolicy(ep.SecurityPolicyName, b =>
                 {
-                    if (permissions?.Any() is true)
+                    if (eps.permissions?.Any() is true)
                     {
-                        if (allowAnyPermission is true)
+                        if (eps.allowAnyPermission is true)
                         {
                             b.RequireAssertion(x =>
                             {
                                 var hasAny = x.User.Claims
                                 .FirstOrDefault(c => c.Type == Constants.PermissionsClaimType)?.Value
                                 .Split(',')
-                                .Intersect(permissions)
+                                .Intersect(eps.permissions)
                                 .Any();
                                 return hasAny is true;
                             });
@@ -77,7 +88,7 @@ namespace FastEndpoints
 #pragma warning disable CS8602
                             b.RequireAssertion(x =>
                             {
-                                var hasAll = !permissions
+                                var hasAll = !eps.permissions
                                 .Except(
                                     x.User.Claims
                                      .FirstOrDefault(c => c.Type == Constants.PermissionsClaimType).Value
@@ -89,15 +100,15 @@ namespace FastEndpoints
                         }
                     }
 
-                    if (claims?.Any() is true)
+                    if (eps.claims?.Any() is true)
                     {
-                        if (allowAnyClaim is true)
+                        if (eps.allowAnyClaim is true)
                         {
                             b.RequireAssertion(x =>
                             {
                                 var hasAny = x.User.Claims
                                 .Select(c => c.Type)
-                                .Intersect(claims)
+                                .Intersect(eps.claims)
                                 .Any();
                                 return hasAny is true;
                             });
@@ -106,7 +117,7 @@ namespace FastEndpoints
                         {
                             b.RequireAssertion(x =>
                             {
-                                var hasAll = !claims
+                                var hasAll = !eps.claims
                                 .Except(
                                     x.User.Claims
                                      .Select(c => c.Type))
@@ -116,13 +127,12 @@ namespace FastEndpoints
                         }
                     }
 
-                    if (roles?.Any() is true)
+                    if (eps.roles?.Any() is true)
                     {
-                        b.RequireRole(roles);
+                        b.RequireRole(eps.roles);
                     }
                 });
             }
-            okToClearDiscoveredEndpoints = true;
         }
 
         /// <summary>
@@ -143,54 +153,43 @@ namespace FastEndpoints
             foreach (var ep in discoveredEndpoints)
             {
                 var epName = ep.EndpointType.FullName;
+                var eps = ep.Settings;
 
                 var execMethod = ep.EndpointType.GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
                 if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
+                if (eps.verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
+                if (eps.routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
-                var fieldInfo = ep.EndpointType.BaseType?.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
-
-                var verbs = fieldInfo?.GetValues(nameof(BaseEndpoint.verbs), ep.EndpointInstance);
-                if (verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
-
-                var routes = fieldInfo?.GetValues(nameof(BaseEndpoint.routes), ep.EndpointInstance);
-                if (routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
-
-                foreach (var route in routes) //for logging a warning if duplicate handlers are registered
+                foreach (var route in eps.routes) //for logging a warning if duplicate handlers are registered
                 {
                     routeToHandlerCounts.TryGetValue(route, out var count);
                     routeToHandlerCounts[route] = count + 1;
                 }
 
-                var userPolicies = fieldInfo?.GetValues(nameof(BaseEndpoint.policies), ep.EndpointInstance);
                 var policiesToAdd = new List<string>();
-                if (userPolicies?.Any() is true) policiesToAdd.AddRange(userPolicies);
+                if (eps.policies?.Any() is true) policiesToAdd.AddRange(eps.policies);
                 if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
-
-                var intConfigAction = fieldInfo?.GetValue<Action<DelegateEndpointConventionBuilder>?>(nameof(BaseEndpoint.internalConfigAction), ep.EndpointInstance);
-                var usrConfigAction = fieldInfo?.GetValue<Action<DelegateEndpointConventionBuilder>?>(nameof(BaseEndpoint.userConfigAction), ep.EndpointInstance);
-                var allowAnnonymous = fieldInfo?.GetValue<bool>(nameof(BaseEndpoint.allowAnnonymous), ep.EndpointInstance);
-                var allowFileUpload = fieldInfo?.GetValue<bool>(nameof(BaseEndpoint.allowFileUploads), ep.EndpointInstance);
 
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
 
                 EndpointExecutor.CachedServiceBoundProps[ep.EndpointType]
                     = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-                foreach (var route in routes)
+                foreach (var route in eps.routes)
                 {
-                    var eb = builder.MapMethods(route, verbs, EndpointExecutor.HandleAsync);
+                    var eb = builder.MapMethods(route, eps.verbs, EndpointExecutor.HandleAsync);
 
-                    if (intConfigAction is not null) intConfigAction(eb);//always do this first
+                    if (eps.internalConfigAction is not null) eps.internalConfigAction(eb);//always do this first
 
                     if (policiesToAdd.Count > 0)
                         eb.RequireAuthorization(policiesToAdd.ToArray());
                     else
                         eb.RequireAuthorization(); //secure by default
 
-                    if (allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
-                    if (allowAnnonymous is true) eb.AllowAnonymous();
+                    if (eps.allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
+                    if (eps.allowAnnonymous is true) eb.AllowAnonymous();
 
-                    if (usrConfigAction is not null) usrConfigAction(eb);//always do this last - allow user to override everything done above
+                    if (eps.userConfigAction is not null) eps.userConfigAction(eb);//always do this last - allow user to override everything done above
 
                     var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
 
@@ -203,7 +202,7 @@ namespace FastEndpoints
 
             Task.Run(async () =>
             {
-                while (!okToClearDiscoveredEndpoints) await Task.Delay(1000).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromMinutes(1)).ConfigureAwait(false);
                 discoveredEndpoints = null;
             });
 
@@ -261,7 +260,6 @@ namespace FastEndpoints
                     ((IEventHandler?)Activator.CreateInstance(type))?.Subscribe();
                     continue;
                 }
-
 #pragma warning disable CS8602
                 if (interfacesOfType.Contains(typeof(IEndpoint)))
                 {
@@ -279,14 +277,18 @@ namespace FastEndpoints
                 }
 #pragma warning restore CS8602
             }
-
 #pragma warning disable CS8601
             discoveredEndpoints = epList
-                .Select(x => new DiscoveredEndpoint()
+                .Select(x =>
                 {
-                    EndpointType = x.tEndpoint,
-                    EndpointInstance = Activator.CreateInstance(x.tEndpoint),
-                    ValidatorType = GetValidatorType(x.tRequest)
+                    var instance = Activator.CreateInstance(x.tEndpoint);
+                    return new DiscoveredEndpoint()
+                    {
+                        EndpointType = x.tEndpoint,
+                        EndpointInstance = instance,
+                        ValidatorType = GetValidatorType(x.tRequest),
+                        Settings = ReadVariables(x.tEndpoint, instance)
+                    };
                 })
                 .ToArray();
 #pragma warning restore CS8601
@@ -297,12 +299,33 @@ namespace FastEndpoints
                 valDict?.TryGetValue(tRequest, out valType);
                 return valType;
             }
+
+            DiscoveredEndpoint.Vars ReadVariables(Type epBaseType, object? epInstance)
+            {
+                var fields = epBaseType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+                return new()
+                {
+                    routes = fields.GetValues(nameof(BaseEndpoint.routes), epInstance),
+                    verbs = fields.GetValues(nameof(BaseEndpoint.verbs), epInstance),
+                    throwIfValidationFailed = fields.GetValue<bool>(nameof(BaseEndpoint.throwIfValidationFailed), epInstance),
+                    allowAnnonymous = fields.GetValue<bool>(nameof(BaseEndpoint.allowAnnonymous), epInstance),
+                    policies = fields.GetValues(nameof(BaseEndpoint.policies), epInstance),
+                    roles = fields.GetValues(nameof(BaseEndpoint.roles), epInstance),
+                    permissions = fields.GetValues(nameof(BaseEndpoint.permissions), epInstance),
+                    allowAnyPermission = fields.GetValue<bool>(nameof(BaseEndpoint.allowAnyPermission), epInstance),
+                    claims = fields.GetValues(nameof(BaseEndpoint.claims), epInstance),
+                    allowAnyClaim = fields.GetValue<bool>(nameof(BaseEndpoint.allowAnyClaim), epInstance),
+                    allowFileUpload = fields.GetValue<bool>(nameof(BaseEndpoint.allowFileUploads), epInstance),
+                    internalConfigAction = fields.GetValue<Action<DelegateEndpointConventionBuilder>>(nameof(BaseEndpoint.internalConfigAction), epInstance),
+                    userConfigAction = fields.GetValue<Action<DelegateEndpointConventionBuilder>>(nameof(BaseEndpoint.userConfigAction), epInstance)
+                };
+            }
         }
 
-        private static IEnumerable<string>? GetValues(this FieldInfo[] fields, string fieldName, object endpointInstance)
-            => (IEnumerable<string>?)fields.Single(f => f.Name == fieldName).GetValue(endpointInstance);
+        private static string[]? GetValues(this FieldInfo[] fields, string fieldName, object? endpointInstance)
+            => (string[]?)fields.Single(f => f.Name == fieldName).GetValue(endpointInstance);
 
-        private static TOut? GetValue<TOut>(this FieldInfo[] fields, string fieldName, object endpointInstance)
+        private static TOut? GetValue<TOut>(this FieldInfo[] fields, string fieldName, object? endpointInstance)
             => (TOut?)fields.Single(f => f.Name == fieldName).GetValue(endpointInstance);
     }
 

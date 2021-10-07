@@ -442,24 +442,21 @@ namespace FastEndpoints
         {
             if (!ctx.Request.HasFormContentType) return;
 
-            foreach (var fv in ctx.Request.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray())
-            {
-                Bind(req, fv);
-            }
+            var formFields = ctx.Request.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
+
+            for (int i = 0; i < formFields.Length; i++)
+                Bind(req, formFields[i]);
         }
 
         private static void BindFromUserClaims(TRequest req, HttpContext ctx, List<ValidationFailure> failures)
         {
             for (int i = 0; i < ReqTypeCache<TRequest>.FromClaimProps.Count; i++)
             {
-                (string claimType, bool forbidIfMissing, PropertyInfo propInfo) cacheEntry
-                    = ReqTypeCache<TRequest>.FromClaimProps[i];
-
-                var claimType = cacheEntry.claimType;
-                var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
+                var cacheEntry = ReqTypeCache<TRequest>.FromClaimProps[i];
+                var claimVal = ctx.User.FindFirst(c => c.Type.Equals(cacheEntry.claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
                 if (claimVal is null && cacheEntry.forbidIfMissing)
-                    failures.Add(new(claimType, "User doesn't have this claim type!"));
+                    failures.Add(new(cacheEntry.claimType, "User doesn't have this claim type!"));
 
                 if (claimVal is not null)
                     cacheEntry.propInfo.SetValue(req, claimVal);
@@ -482,8 +479,10 @@ namespace FastEndpoints
 
         private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues)
         {
-            foreach (var rv in routeValues.Where(rv => ((string?)rv.Value)?.StartsWith("{") == false))
-                Bind(req, rv);
+            var routeKVPs = routeValues.Where(rv => ((string?)rv.Value)?.StartsWith("{") == false).ToArray();
+
+            for (int i = 0; i < routeKVPs.Length; i++)
+                Bind(req, routeKVPs[i]);
         }
 
         private static void Bind(TRequest req, KeyValuePair<string, object?> rv)
@@ -535,8 +534,3 @@ namespace FastEndpoints
         }
     }
 }
-
-//using (var reader = new StreamReader(ctx.Request.Body, Encoding.UTF8, true, 1024, true))
-//{
-//    var bodyStr = await reader.ReadToEndAsync();
-//}

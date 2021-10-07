@@ -17,7 +17,7 @@ namespace Uploads.Image.Save
             if (Files.Count > 0)
             {
                 var file = Files[0];
-                return SendStreamAsync(file.OpenReadStream(), null, file.Length, "image/jpeg", ct);
+                return SendStreamAsync(file.OpenReadStream(), "test.png", file.Length, "image/png", ct);
             }
 
             return SendNoContentAsync();

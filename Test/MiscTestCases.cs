@@ -1,6 +1,8 @@
 ﻿using FastEndpoints;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using TestCases.EventHandlingTest;
 using static Test.Setup;
 
@@ -86,6 +88,31 @@ namespace Test
             Assert.AreEqual("pass", event1.Name);
             Assert.AreEqual("pass", event2.Name);
             Assert.AreEqual("pass", event3.Name);
+        }
+
+        [TestMethod]
+        public async Task FileHandling()
+        {
+            using var imageContent = new ByteArrayContent(
+                await new StreamContent(
+                    File.OpenRead("test.png"))
+                .ReadAsByteArrayAsync());
+            imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+
+            using var form = new MultipartFormDataContent
+            {
+                { imageContent, "File", "test.png" },
+                { new StringContent("500"),"Width" },
+                { new StringContent("500"),"Height" }
+            };
+
+            var res = await AdminClient.PostAsync("uploads/image/save", form);
+
+            using var md5Instance = MD5.Create();
+            using var stream = await res.Content.ReadAsStreamAsync();
+            var resMD5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
+
+            Assert.AreEqual("8A1F6A8E27D2E440280050DA549CBE3E", resMD5);
         }
     }
 }

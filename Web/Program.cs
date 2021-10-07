@@ -12,7 +12,6 @@ builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRo
 builder.Services.AddCors();
 builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddScoped<IEmailService, EmailService>();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o =>
 {
@@ -55,5 +54,3 @@ app.UseAuthorization();
 app.UseCors();
 app.UseFastEndpoints();
 app.Run();
-
-//todo: write tests for file/byte responses

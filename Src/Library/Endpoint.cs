@@ -437,6 +437,19 @@ namespace FastEndpoints
             return req;
         }
 
+        private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, CancellationToken cancellation)
+        {
+            if (validator is null) return;
+
+            var valResult = await validator.ValidateAsync(req, cancellation).ConfigureAwait(false);
+
+            if (!valResult.IsValid)
+                ValidationFailures.AddRange(valResult.Errors);
+
+            if (ValidationFailed && throwIfValidationFailed)
+                throw new ValidationFailureException();
+        }
+
         private static void BindFromFormValues(TRequest req, HttpContext ctx)
         {
             if (!ctx.Request.HasFormContentType) return;
@@ -461,19 +474,6 @@ namespace FastEndpoints
                     cacheEntry.propInfo.SetValue(req, claimVal);
             }
             if (failures.Count > 0) throw new ValidationFailureException();
-        }
-
-        private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, CancellationToken cancellation)
-        {
-            if (validator is null) return;
-
-            var valResult = await validator.ValidateAsync(req, cancellation).ConfigureAwait(false);
-
-            if (!valResult.IsValid)
-                ValidationFailures.AddRange(valResult.Errors);
-
-            if (ValidationFailed && throwIfValidationFailed)
-                throw new ValidationFailureException();
         }
 
         private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues)

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace Runner
 {
     [
-        SimpleJob(launchCount: 1, warmupCount: 10, targetCount: 10, invocationCount: 10000),
+        SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 10, invocationCount: 10000),
         MemoryDiagnoser
     ]
     public class Benchmarks

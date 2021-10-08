@@ -5,8 +5,7 @@
     <Version>1.7.0-beta1</Version>
     
     <PackageReleaseNotes>
-      - add support for unit testing handler logic
-      - improve test coverage
+      - add dependancy resolving support for validators
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

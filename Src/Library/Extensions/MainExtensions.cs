@@ -192,6 +192,7 @@ namespace FastEndpoints
                     if (eps.userConfigAction is not null) eps.userConfigAction(eb);//always do this last - allow user to override everything done above
 
                     var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
+                    if (validatorInstance is not null) ((IHasServiceProvider)validatorInstance).Provider = builder.ServiceProvider;
 
                     EndpointExecutor.CachedEndpointTypes[route] = (epFactory, execMethod, validatorInstance);
                 }

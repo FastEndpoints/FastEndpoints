@@ -223,50 +223,21 @@ namespace FastEndpoints
             try
             {
                 BindFromUserClaims(req, ctx, ValidationFailures);
+
                 await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, throwIfValidationFailed, cancellation).ConfigureAwait(false);
-                await HandleRequestAsync(ctx, req, cancellation).ConfigureAwait(false);
+
+                foreach (var p in preProcessors)
+                    await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+
+                await HandleAsync(req, cancellation).ConfigureAwait(false);
+
+                foreach (var pp in postProcessors)
+                    await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
             }
             catch (ValidationFailureException)
             {
                 await SendErrorsAsync(cancellation).ConfigureAwait(false);
             }
-        }
-
-        private async Task HandleRequestAsync(HttpContext ctx, TRequest req, CancellationToken cancellation)
-        {
-            foreach (var p in preProcessors)
-                await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
-
-            await HandleAsync(req, cancellation).ConfigureAwait(false);
-
-            foreach (var pp in postProcessors)
-                await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// use this method for unit testing endpoint handling logic without request validation.
-        /// </summary>
-        /// <param name="req">the request dto needed by the handler</param>
-        /// <param name="ct">an optional cancellation token</param>
-        public async Task<TResponse> TestAsync(TRequest req, CancellationToken ct = default)
-        {
-            HttpContext = new DefaultHttpContext();
-            await HandleRequestAsync(HttpContext, req, ct).ConfigureAwait(false);
-            return Response;
-        }
-
-        /// <summary>
-        /// use this method for unit testing endpoint handling logic with request validation.
-        /// </summary>
-        /// <typeparam name="TValidator">the type of the validator</typeparam>
-        /// <param name="req">the request dto needed by the handler</param>
-        /// <param name="ct">an optional cancellation token</param>
-        public async Task<TResponse> TestAsync<TValidator>(TRequest req, CancellationToken ct = default) where TValidator : IValidator<TRequest>, new()
-        {
-            HttpContext = new DefaultHttpContext();
-            await ValidateRequestAsync(req, new TValidator(), false, ct).ConfigureAwait(false);
-            await HandleRequestAsync(HttpContext, req, ct).ConfigureAwait(false);
-            return Response;
         }
 
         /// <summary>
@@ -461,7 +432,7 @@ namespace FastEndpoints
         /// try to resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
         /// </summary>
         /// <param name="typeOfService">the type of the service to resolve</param>
-        protected object? ResolveRequired(Type typeOfService) => HttpContext.RequestServices.GetRequiredService(typeOfService);
+        protected object ResolveRequired(Type typeOfService) => HttpContext.RequestServices.GetRequiredService(typeOfService);
 
         private static async Task<TRequest> BindIncomingDataAsync(HttpContext ctx, CancellationToken cancellation)
         {
@@ -479,7 +450,7 @@ namespace FastEndpoints
             return req;
         }
 
-        private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, bool throwIfFails, CancellationToken cancellation)
+        private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, bool throwIfFailed, CancellationToken cancellation)
         {
             if (validator is null) return;
 
@@ -488,7 +459,7 @@ namespace FastEndpoints
             if (!valResult.IsValid)
                 ValidationFailures.AddRange(valResult.Errors);
 
-            if (ValidationFailed && throwIfFails)
+            if (ValidationFailed && throwIfFailed)
                 throw new ValidationFailureException();
         }
 

@@ -32,7 +32,7 @@ namespace FastEndpoints.Validation
     /// Base class for object validators.
     /// </summary>
     /// <typeparam name="T">The type of the object being validated</typeparam>
-    public abstract class Validator<T> : IValidator<T>, IEnumerable<IValidationRule>
+    public abstract class AbstractValidator<T> : IValidator<T>, IEnumerable<IValidationRule>
     {
         internal TrackingCollection<IValidationRuleInternal<T>> Rules { get; } = new();
         private Func<CascadeMode> _cascadeMode = () => ValidatorOptions.Global.CascadeMode;

@@ -2,18 +2,10 @@
 
   <PropertyGroup>
     
-    <Version>1.6.0</Version>
+    <Version>1.7.0-beta1</Version>
     
     <PackageReleaseNotes>
-      - add SendForbiddenAsync() method
-      - add SendUnauthorizedAsync() method
-      - add SendFileAsync() method
-      - add SendStreamAsync() method
-      - add AllowFileUploads() method
-      - add model binding support from form fields
-      - add more overloads for httpclient extensions
-      - show log warning if duplicate routes are registered
-      - optimize startup
+      - add support for unit testing handler logic
       - improve test coverage
     </PackageReleaseNotes>
     

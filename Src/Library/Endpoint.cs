@@ -101,7 +101,7 @@ namespace FastEndpoints
         /// <summary>
         /// the base url of the current request
         /// </summary>
-        protected string BaseURL => HttpContext.Request.Scheme + "://" + HttpContext.Request.Host + "/";
+        protected string BaseURL => HttpContext.Request?.Scheme + "://" + HttpContext.Request?.Host + "/";
         /// <summary>
         /// the http method of the current request
         /// </summary>
@@ -109,11 +109,11 @@ namespace FastEndpoints
         /// <summary>
         /// the list of validation failures for the current request dto
         /// </summary>
-        protected List<ValidationFailure> ValidationFailures { get; } = new();
+        public List<ValidationFailure> ValidationFailures { get; } = new();
         /// <summary>
         /// indicates if there are any validation failures for the current request
         /// </summary>
-        protected bool ValidationFailed => ValidationFailures.Count > 0;
+        public bool ValidationFailed => ValidationFailures.Count > 0;
         /// <summary>
         /// the form sent with the request. only populated if content-type is 'application/x-www-form-urlencoded' or 'multipart/form-data'
         /// </summary>
@@ -223,20 +223,50 @@ namespace FastEndpoints
             try
             {
                 BindFromUserClaims(req, ctx, ValidationFailures);
-                await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, cancellation).ConfigureAwait(false);
-
-                foreach (var p in preProcessors)
-                    await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
-
-                await HandleAsync(req, cancellation).ConfigureAwait(false);
-
-                foreach (var pp in postProcessors)
-                    await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+                await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, throwIfValidationFailed, cancellation).ConfigureAwait(false);
+                await HandleRequestAsync(ctx, req, cancellation).ConfigureAwait(false);
             }
             catch (ValidationFailureException)
             {
                 await SendErrorsAsync(cancellation).ConfigureAwait(false);
             }
+        }
+
+        private async Task HandleRequestAsync(HttpContext ctx, TRequest req, CancellationToken cancellation)
+        {
+            foreach (var p in preProcessors)
+                await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+
+            await HandleAsync(req, cancellation).ConfigureAwait(false);
+
+            foreach (var pp in postProcessors)
+                await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// use this method for unit testing endpoint handling logic without request validation.
+        /// </summary>
+        /// <param name="req">the request dto needed by the handler</param>
+        /// <param name="ct">an optional cancellation token</param>
+        public async Task<TResponse> TestAsync(TRequest req, CancellationToken ct = default)
+        {
+            HttpContext = new DefaultHttpContext();
+            await HandleRequestAsync(HttpContext, req, ct).ConfigureAwait(false);
+            return Response;
+        }
+
+        /// <summary>
+        /// use this method for unit testing endpoint handling logic with request validation.
+        /// </summary>
+        /// <typeparam name="TValidator">the type of the validator</typeparam>
+        /// <param name="req">the request dto needed by the handler</param>
+        /// <param name="ct">an optional cancellation token</param>
+        public async Task<TResponse> TestAsync<TValidator>(TRequest req, CancellationToken ct = default) where TValidator : IValidator<TRequest>, new()
+        {
+            HttpContext = new DefaultHttpContext();
+            await ValidateRequestAsync(req, new TValidator(), false, ct).ConfigureAwait(false);
+            await HandleRequestAsync(HttpContext, req, ct).ConfigureAwait(false);
+            return Response;
         }
 
         /// <summary>
@@ -421,6 +451,18 @@ namespace FastEndpoints
         /// <param name="typeOfService">the type of the service to resolve</param>
         protected object? Resolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
 
+        /// <summary>
+        /// try to resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+        /// </summary>
+        /// <typeparam name="TService">the type of the service to resolve</typeparam>
+        protected TService ResolveRequired<TService>() where TService : notnull => HttpContext.RequestServices.GetRequiredService<TService>();
+
+        /// <summary>
+        /// try to resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+        /// </summary>
+        /// <param name="typeOfService">the type of the service to resolve</param>
+        protected object? ResolveRequired(Type typeOfService) => HttpContext.RequestServices.GetRequiredService(typeOfService);
+
         private static async Task<TRequest> BindIncomingDataAsync(HttpContext ctx, CancellationToken cancellation)
         {
             TRequest? req = default;
@@ -437,7 +479,7 @@ namespace FastEndpoints
             return req;
         }
 
-        private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, CancellationToken cancellation)
+        private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, bool throwIfFails, CancellationToken cancellation)
         {
             if (validator is null) return;
 
@@ -446,7 +488,7 @@ namespace FastEndpoints
             if (!valResult.IsValid)
                 ValidationFailures.AddRange(valResult.Errors);
 
-            if (ValidationFailed && throwIfValidationFailed)
+            if (ValidationFailed && throwIfFails)
                 throw new ValidationFailureException();
         }
 
@@ -464,14 +506,14 @@ namespace FastEndpoints
         {
             for (int i = 0; i < ReqTypeCache<TRequest>.FromClaimProps.Count; i++)
             {
-                var cacheEntry = ReqTypeCache<TRequest>.FromClaimProps[i];
-                var claimVal = ctx.User.FindFirst(c => c.Type.Equals(cacheEntry.claimType, StringComparison.OrdinalIgnoreCase))?.Value;
+                var (claimType, forbidIfMissing, propInfo) = ReqTypeCache<TRequest>.FromClaimProps[i];
+                var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
-                if (claimVal is null && cacheEntry.forbidIfMissing)
-                    failures.Add(new(cacheEntry.claimType, "User doesn't have this claim type!"));
+                if (claimVal is null && forbidIfMissing)
+                    failures.Add(new(claimType, "User doesn't have this claim type!"));
 
                 if (claimVal is not null)
-                    cacheEntry.propInfo.SetValue(req, claimVal);
+                    propInfo.SetValue(req, claimVal);
             }
             if (failures.Count > 0) throw new ValidationFailureException();
         }

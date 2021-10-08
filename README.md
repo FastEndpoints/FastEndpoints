@@ -25,6 +25,7 @@ Performance is on par with the `Minimal APIs` and is faster; uses less memory; a
 - Supports in-process pub/sub event notifications
 - Auto discovery of event notification handlers
 - Convenient integration testing (route-less and strongly-typed)
+- Supports unit testing endpoint logic without http layer
 - Plays well with the asp.net middleware pipeline
 - Supports swagger/serilog/etc.
 - Visual studio extension (vsix) for easy vertical slice feature scaffolding

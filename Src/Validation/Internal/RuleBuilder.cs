@@ -40,12 +40,12 @@ namespace FastEndpoints.Validation.Internal
         /// <summary>
         /// Parent validator
         /// </summary>
-        public Validator<T> ParentValidator { get; }
+        public AbstractValidator<T> ParentValidator { get; }
 
         /// <summary>
         /// Creates a new instance of the <see cref="RuleBuilder{T,TProperty}">RuleBuilder</see> class.
         /// </summary>
-        public RuleBuilder(IValidationRuleInternal<T, TProperty> rule, Validator<T> parent)
+        public RuleBuilder(IValidationRuleInternal<T, TProperty> rule, AbstractValidator<T> parent)
         {
             Rule = rule;
             ParentValidator = parent;

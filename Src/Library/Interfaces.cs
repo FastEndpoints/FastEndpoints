@@ -56,6 +56,6 @@ namespace FastEndpoints
 
     internal interface IHasServiceProvider
     {
-        public IServiceProvider Provider { get; set; }
+        public IServiceProvider ServiceProvider { get; set; }
     }
 }

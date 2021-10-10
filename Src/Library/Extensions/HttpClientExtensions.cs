@@ -14,8 +14,7 @@ namespace FastEndpoints
         /// <param name="requestUri">the route url to post to</param>
         /// <param name="request">the request dto</param>
         /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-        public static async Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TRequest, TResponse>
-            (this HttpClient client, string requestUri, TRequest request)
+        public static async Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
         {
             var res = await client.PostAsJsonAsync(requestUri, request, BaseEndpoint.SerializerOptions).ConfigureAwait(false);
 
@@ -45,9 +44,8 @@ namespace FastEndpoints
         /// <typeparam name="TRequest">the type of the request dto</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         /// <param name="request">the request dto</param>
-        public static Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TEndpoint, TRequest, TResponse>
-            (this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
-                => POSTAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
+        public static Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
+            => POSTAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
         /// <summary>
         /// make a POST request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -55,8 +53,7 @@ namespace FastEndpoints
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TRequest">the type of the request dto</typeparam>
         /// <param name="request">the request dto</param>
-        public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>
-            (this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
+        public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
         {
             var (response, _) = await POSTAsync<TRequest, EmptyResponse>(client, new TEndpoint().GetTestURL(), request).ConfigureAwait(false);
             return response;
@@ -67,9 +64,8 @@ namespace FastEndpoints
         /// </summary>
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
-        public static Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TEndpoint, TResponse>
-            (this HttpClient client) where TEndpoint : BaseEndpoint, new()
-                => POSTAsync<EmptyRequest, TResponse>(client, new TEndpoint().GetTestURL(), new EmptyRequest());
+        public static Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint, new()
+            => POSTAsync<EmptyRequest, TResponse>(client, new TEndpoint().GetTestURL(), new EmptyRequest());
 
         /// <summary>
         /// make a PUT request using a request dto and get back a response dto.
@@ -79,8 +75,7 @@ namespace FastEndpoints
         /// <param name="requestUri">the route url to post to</param>
         /// <param name="request">the request dto</param>
         /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-        public static async Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TRequest, TResponse>
-            (this HttpClient client, string requestUri, TRequest request)
+        public static async Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
         {
             var res = await client.PutAsJsonAsync(requestUri, request, BaseEndpoint.SerializerOptions).ConfigureAwait(false);
 
@@ -110,9 +105,8 @@ namespace FastEndpoints
         /// <typeparam name="TRequest">the type of the request dto</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         /// <param name="request">the request dto</param>
-        public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TRequest, TResponse>
-            (this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
-                => PUTAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
+        public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
+            => PUTAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
         /// <summary>
         /// make a PUT request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -120,8 +114,7 @@ namespace FastEndpoints
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TRequest">the type of the request dto</typeparam>
         /// <param name="request">the request dto</param>
-        public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>
-            (this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
+        public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
         {
             var (response, _) = await PUTAsync<TRequest, EmptyResponse>(client, new TEndpoint().GetTestURL(), request).ConfigureAwait(false);
             return response;
@@ -132,9 +125,8 @@ namespace FastEndpoints
         /// </summary>
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
-        public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TResponse>
-            (this HttpClient client) where TEndpoint : BaseEndpoint, new()
-                => PUTAsync<EmptyRequest, TResponse>(client, new TEndpoint().GetTestURL(), new EmptyRequest());
+        public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint, new()
+            => PUTAsync<EmptyRequest, TResponse>(client, new TEndpoint().GetTestURL(), new EmptyRequest());
 
         /// <summary>
         /// make a GET request using a request dto and get back a response dto.
@@ -144,8 +136,7 @@ namespace FastEndpoints
         /// <param name="requestUri">the route url to post to</param>
         /// <param name="request">the request dto</param>
         /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-        public static async Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TRequest, TResponse>
-            (this HttpClient client, string requestUri, TRequest request)
+        public static async Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
         {
             var res = await client.SendAsync(
                 new HttpRequestMessage
@@ -181,9 +172,8 @@ namespace FastEndpoints
         /// <typeparam name="TRequest">the type of the request dto</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         /// <param name="request">the request dto</param>
-        public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TRequest, TResponse>
-            (this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
-                => GETAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
+        public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
+            => GETAsync<TRequest, TResponse>(client, new TEndpoint().GetTestURL(), request);
 
         /// <summary>
         /// make a GET request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -191,8 +181,7 @@ namespace FastEndpoints
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TRequest">the type of the request dto</typeparam>
         /// <param name="request">the request dto</param>
-        public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>
-            (this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
+        public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint, new()
         {
             var (response, _) = await GETAsync<TRequest, EmptyResponse>(client, new TEndpoint().GetTestURL(), request).ConfigureAwait(false);
             return response;
@@ -203,8 +192,7 @@ namespace FastEndpoints
         /// </summary>
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
-        public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TResponse>
-            (this HttpClient client) where TEndpoint : BaseEndpoint, new()
-                => GETAsync<EmptyRequest, TResponse>(client, new TEndpoint().GetTestURL(), new EmptyRequest());
+        public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint, new()
+            => GETAsync<EmptyRequest, TResponse>(client, new TEndpoint().GetTestURL(), new EmptyRequest());
     }
 }

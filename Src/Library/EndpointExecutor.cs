@@ -10,7 +10,7 @@ namespace FastEndpoints
         //key: route url for the endpoint
         internal static Dictionary<string, (Func<object> endpointFactory, MethodInfo execAsyncMethod, IValidator? validator)> CachedEndpointTypes { get; } = new();
 
-        //key: type of endpoint
+        //key: TEndpoint
         internal static Dictionary<Type, PropertyInfo[]> CachedServiceBoundProps { get; } = new();
 
         //note: this handler is called by .net for each http request

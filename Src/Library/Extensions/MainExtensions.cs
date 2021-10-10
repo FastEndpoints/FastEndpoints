@@ -127,10 +127,7 @@ namespace FastEndpoints
                         }
                     }
 
-                    if (eps.roles?.Any() is true)
-                    {
-                        b.RequireRole(eps.roles);
-                    }
+                    if (eps.roles?.Any() is true) b.RequireRole(eps.roles);
                 });
             }
         }
@@ -153,21 +150,21 @@ namespace FastEndpoints
             foreach (var ep in discoveredEndpoints)
             {
                 var epName = ep.EndpointType.FullName;
-                var eps = ep.Settings;
+                var epSettings = ep.Settings;
 
                 var execMethod = ep.EndpointType.GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
                 if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
-                if (eps.verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
-                if (eps.routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
+                if (epSettings.verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
+                if (epSettings.routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
-                foreach (var route in eps.routes) //for logging a warning if duplicate handlers are registered
+                foreach (var route in epSettings.routes) //for logging a warning if duplicate handlers are registered
                 {
                     routeToHandlerCounts.TryGetValue(route, out var count);
                     routeToHandlerCounts[route] = count + 1;
                 }
 
                 var policiesToAdd = new List<string>();
-                if (eps.policies?.Any() is true) policiesToAdd.AddRange(eps.policies);
+                if (epSettings.policies?.Any() is true) policiesToAdd.AddRange(epSettings.policies);
                 if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
 
                 var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
@@ -175,24 +172,24 @@ namespace FastEndpoints
                 EndpointExecutor.CachedServiceBoundProps[ep.EndpointType]
                     = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-                foreach (var route in eps.routes)
+                foreach (var route in epSettings.routes)
                 {
-                    var eb = builder.MapMethods(route, eps.verbs, EndpointExecutor.HandleAsync);
+                    var eb = builder.MapMethods(route, epSettings.verbs, EndpointExecutor.HandleAsync);
 
-                    if (eps.internalConfigAction is not null) eps.internalConfigAction(eb);//always do this first
+                    if (epSettings.internalConfigAction is not null) epSettings.internalConfigAction(eb);//always do this first
 
                     if (policiesToAdd.Count > 0)
                         eb.RequireAuthorization(policiesToAdd.ToArray());
                     else
                         eb.RequireAuthorization(); //secure by default
 
-                    if (eps.allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
-                    if (eps.allowAnnonymous is true) eb.AllowAnonymous();
+                    if (epSettings.allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
+                    if (epSettings.allowAnnonymous is true) eb.AllowAnonymous();
 
-                    if (eps.userConfigAction is not null) eps.userConfigAction(eb);//always do this last - allow user to override everything done above
+                    if (epSettings.userConfigAction is not null) epSettings.userConfigAction(eb);//always do this last - allow user to override everything done above
 
                     var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
-                    if (validatorInstance is not null) ((IHasServiceProvider)validatorInstance).Provider = builder.ServiceProvider;
+                    if (validatorInstance is not null) ((IHasServiceProvider)validatorInstance).ServiceProvider = builder.ServiceProvider;
 
                     EndpointExecutor.CachedEndpointTypes[route] = (epFactory, execMethod, validatorInstance);
                 }

@@ -6,7 +6,8 @@
     
     <PackageReleaseNotes>
       - add dependancy resolving support for validators
-      - improve http client extensions      
+      - improve http client extensions
+      - improve dependancy resolving methods
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

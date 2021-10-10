@@ -415,24 +415,27 @@ namespace FastEndpoints
         /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
         /// </summary>
         /// <typeparam name="TService">the type of the service to resolve</typeparam>
-        protected TService? Resolve<TService>() => HttpContext.RequestServices.GetService<TService>();
+        protected TService? TryResolve<TService>() => HttpContext.RequestServices.GetService<TService>();
+
         /// <summary>
         /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
         /// </summary>
         /// <param name="typeOfService">the type of the service to resolve</param>
-        protected object? Resolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
+        protected object? TryResolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
 
         /// <summary>
-        /// try to resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+        /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
         /// </summary>
         /// <typeparam name="TService">the type of the service to resolve</typeparam>
-        protected TService ResolveRequired<TService>() where TService : notnull => HttpContext.RequestServices.GetRequiredService<TService>();
+        /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        protected TService Resolve<TService>() where TService : notnull => HttpContext.RequestServices.GetRequiredService<TService>();
 
         /// <summary>
-        /// try to resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+        /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
         /// </summary>
         /// <param name="typeOfService">the type of the service to resolve</param>
-        protected object ResolveRequired(Type typeOfService) => HttpContext.RequestServices.GetRequiredService(typeOfService);
+        /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        protected object Resolve(Type typeOfService) => HttpContext.RequestServices.GetRequiredService(typeOfService);
 
         private static async Task<TRequest> BindIncomingDataAsync(HttpContext ctx, CancellationToken cancellation)
         {

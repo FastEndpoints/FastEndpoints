@@ -21,15 +21,14 @@
         public abstract Task HandleAsync(TEvent eventModel, CancellationToken ct);
 
         void IEventHandler.Subscribe()
-        {
-            Event<TEvent>.OnReceived += (e, c) => HandleAsync(e, c);
-        }
+            => Event<TEvent>.OnReceived += (e, c) => HandleAsync(e, c);
 
         /// <summary>
         /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
         /// </summary>
         /// <typeparam name="TService">the type of the service to resolve</typeparam>
         protected TService? Resolve<TService>() => (TService?)Resolve(typeof(TService));
+
         /// <summary>
         /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
         /// </summary>

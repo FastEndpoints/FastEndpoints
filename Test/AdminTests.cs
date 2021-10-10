@@ -11,7 +11,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginWithBadInput()
         {
-            var (resp, result) = await GuestClient.PostAsync<
+            var (resp, result) = await GuestClient.POSTAsync<
                 Admin.Login.Endpoint,
                 Admin.Login.Request,
                 ErrorResponse>(new()
@@ -27,7 +27,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginInvalidCreds()
         {
-            var (res, _) = await GuestClient.PostAsync<
+            var (res, _) = await GuestClient.POSTAsync<
                 Admin.Login.Endpoint,
                 Admin.Login.Request,
                 Admin.Login.Response>(new()
@@ -42,7 +42,7 @@ namespace Test
         [TestMethod]
         public async Task AdminLoginSuccess()
         {
-            var (resp, result) = await GuestClient.PostAsync<
+            var (resp, result) = await GuestClient.POSTAsync<
                 Admin.Login.Endpoint,
                 Admin.Login.Request,
                 Admin.Login.Response>(new()

@@ -19,7 +19,7 @@ namespace Runner
         [Benchmark(Baseline = true)]
         public async Task FastEndpointsEndpoint()
         {
-            await FastEndpointClient.PostAsync<FastEndpointsBench.Request, FastEndpointsBench.Response>(
+            await FastEndpointClient.POSTAsync<FastEndpointsBench.Request, FastEndpointsBench.Response>(
                 "/benchmark/ok/123", new()
                 {
                     FirstName = "xxc",
@@ -38,7 +38,7 @@ namespace Runner
         [Benchmark]
         public async Task MinimalApiEndpoint()
         {
-            await MinimalClient.PostAsync<MinimalApi.Request, MinimalApi.Response>(
+            await MinimalClient.POSTAsync<MinimalApi.Request, MinimalApi.Response>(
 
                 "/benchmark/ok/123", new()
                 {
@@ -58,7 +58,7 @@ namespace Runner
         [Benchmark]
         public async Task CarterModule()
         {
-            await CarterClient.PostAsync<CarterModules.Request, CarterModules.Response>(
+            await CarterClient.POSTAsync<CarterModules.Request, CarterModules.Response>(
 
                  "/benchmark/ok/123", new()
                  {
@@ -78,7 +78,7 @@ namespace Runner
         [Benchmark]
         public async Task AspNetCoreMVC()
         {
-            await MvcClient.PostAsync<MvcControllers.Request, MvcControllers.Response>(
+            await MvcClient.POSTAsync<MvcControllers.Request, MvcControllers.Response>(
 
                 "/Home/Index/123", new()
                 {

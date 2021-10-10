@@ -22,7 +22,7 @@ namespace Test
 
         static Setup()
         {
-            var (_, result) = GuestClient.PostAsync<
+            var (_, result) = GuestClient.POSTAsync<
                 Admin.Login.Endpoint,
                 Admin.Login.Request,
                 Admin.Login.Response>(new()
@@ -33,7 +33,7 @@ namespace Test
                 .GetAwaiter()
                 .GetResult();
 
-            var customerToken = GuestClient.GetAsync<
+            var (_, customerToken) = GuestClient.GETAsync<
                 Customers.Login.Endpoint,
                 string>()
                 .GetAwaiter().GetResult();

@@ -11,7 +11,7 @@ namespace Test
         [TestMethod]
         public async Task ListRecentCustomers()
         {
-            var res = await AdminClient.GetAsync<
+            var (_, res) = await AdminClient.GETAsync<
                 Customers.List.Recent.Endpoint,
                 Customers.List.Recent.Response>();
 
@@ -23,7 +23,7 @@ namespace Test
         [TestMethod]
         public async Task CreateNewCustomer()
         {
-            var (rsp, res) = await AdminClient.PostAsync<
+            var (rsp, res) = await AdminClient.POSTAsync<
                 Customers.Create.Endpoint,
                 Customers.Create.Request,
                 string>(new()
@@ -39,7 +39,7 @@ namespace Test
         [TestMethod]
         public async Task CustomerUpdateByCustomer()
         {
-            var (_, res) = await CustomerClient.PutAsync<
+            var (_, res) = await CustomerClient.PUTAsync<
                 Customers.Update.Endpoint,
                 Customers.Update.Request,
                 string>(new()
@@ -56,7 +56,7 @@ namespace Test
         [TestMethod]
         public async Task CustomerUpdateAdmin()
         {
-            var (_, res) = await AdminClient.PutAsync<
+            var (_, res) = await AdminClient.PUTAsync<
                 Customers.Update.Endpoint,
                 Customers.Update.Request,
                 string>(new()
@@ -73,7 +73,7 @@ namespace Test
         [TestMethod]
         public async Task CreateOrderByCustomer()
         {
-            var (rsp, res) = await CustomerClient.PostAsync<
+            var (rsp, res) = await CustomerClient.POSTAsync<
                 Sales.Orders.Create.Endpoint,
                 Sales.Orders.Create.Request,
                 Sales.Orders.Create.Response>(new()

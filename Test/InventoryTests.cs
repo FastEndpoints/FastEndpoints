@@ -11,7 +11,7 @@ namespace Test
         [TestMethod]
         public async Task CreateProductFailValidation()
         {
-            var (res, result) = await AdminClient.PostAsync<
+            var (res, result) = await AdminClient.POSTAsync<
                 Inventory.Manage.Create.Endpoint,
                 Inventory.Manage.Create.Request,
                 ErrorResponse>(new()
@@ -28,7 +28,7 @@ namespace Test
         [TestMethod]
         public async Task CreateProductFailBusinessLogic()
         {
-            var (res, result) = await AdminClient.PostAsync<
+            var (res, result) = await AdminClient.POSTAsync<
                 Inventory.Manage.Create.Endpoint,
                 Inventory.Manage.Create.Request,
                 ErrorResponse>(new()
@@ -47,7 +47,7 @@ namespace Test
         [TestMethod]
         public async Task CreateProductFailDuplicateItem()
         {
-            var (res, result) = await AdminClient.PostAsync<
+            var (res, result) = await AdminClient.POSTAsync<
                 Inventory.Manage.Create.Endpoint,
                 Inventory.Manage.Create.Request,
                 ErrorResponse>(new()
@@ -66,7 +66,7 @@ namespace Test
         [TestMethod]
         public async Task CreateProductSuccess()
         {
-            var (res, result) = await AdminClient.PostAsync<
+            var (res, result) = await AdminClient.POSTAsync<
                 Inventory.Manage.Create.Endpoint,
                 Inventory.Manage.Create.Request,
                 Inventory.Manage.Create.Response>(new()

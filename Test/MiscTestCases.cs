@@ -14,7 +14,7 @@ namespace Test
         [TestMethod]
         public async Task ClaimMissing()
         {
-            var (_, result) = await AdminClient.PostAsync<
+            var (_, result) = await AdminClient.POSTAsync<
                 TestCases.MissingClaimTest.ThrowIfMissingEndpoint,
                 TestCases.MissingClaimTest.ThrowIfMissingRequest,
                 ErrorResponse>(new()
@@ -30,7 +30,7 @@ namespace Test
         [TestMethod]
         public async Task ClaimMissingButDontThrow()
         {
-            var (res, result) = await AdminClient.PostAsync<
+            var (res, result) = await AdminClient.POSTAsync<
                 TestCases.MissingClaimTest.DontThrowIfMissingEndpoint,
                 TestCases.MissingClaimTest.DontThrowIfMissingRequest,
                 string>(new()
@@ -45,7 +45,7 @@ namespace Test
         [TestMethod]
         public async Task RouteValueBinding()
         {
-            var (rsp, res) = await GuestClient.PostAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
+            var (rsp, res) = await GuestClient.POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
 
                 "/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45",
 

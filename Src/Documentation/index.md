@@ -38,7 +38,7 @@ Performance is on par with the Minimal APIs and is faster; uses less memory; and
 
 <div class="actions-container">
   <div><a href="wiki/Get-Started.md">Get Started</a></div>
-  <div><a href="wiki/Benchmarks.md">See Benchmarks</a></div>
+  <div><a href="wiki/Benchmarks.md">Benchmarks</a></div>
 </div>
 
 ---

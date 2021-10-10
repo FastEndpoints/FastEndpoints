@@ -133,7 +133,7 @@ public class MyEndpoint : Endpoint<MyRequest>
 all of your `Endpoint` definitions are automatically discovered on app startup. no manual mapping is required like with `minimal apis`.
 
 # Documentation
-documentation will be available within a few weeks once **v1.0** is released. in the meantime have a browse through the `Web`, `Test` and `Benchmark` projects to see more examples.
+[documentation site](https://fast-endpoints.com) is still a work in progress. in the meantime have a browse through the `Web`, `Test` and `Benchmark` projects to see more examples.
 
 # Benchmark results
 

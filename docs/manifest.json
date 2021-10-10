@@ -383,6 +383,17 @@
     },
     {
       "type": "Resource",
+      "source_relative_path": "images/github-social.png",
+      "output": {
+        "resource": {
+          "relative_path": "images/github-social.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
       "source_relative_path": "images/header.svg",
       "output": {
         "resource": {

@@ -489,7 +489,19 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Get-Started.html",
-          "hash": "qRgDSITItNAcUhoNjd+MaOmBy84pUWCcWdIzbKkqsMs="
+          "hash": "67XK6o68KlmLzJD+Bbz9+5sySv3zGdz4btl8oavEezA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "wiki/Security.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Security.html",
+          "hash": "fCAzWVn/YJDxj/PmWo6s+mFor1jG8v7zZgcks5Ts5Ws="
         }
       },
       "is_incremental": false,
@@ -501,7 +513,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "PB5CdJI63/FCRbyiB6p9e6ub4OzxRQ8Y+sBPmvI0k1A="
+          "hash": "jjMPtYjc2+eJNFmEz+/uU0kiaB3DWtmeEDM5Ck0/BrM="
         }
       },
       "is_incremental": false,
@@ -520,8 +532,8 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 3,
-          "skipped_file_count": 2
+          "total_file_count": 4,
+          "skipped_file_count": 4
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

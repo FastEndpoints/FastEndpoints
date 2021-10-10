@@ -43,7 +43,7 @@ create a file called `MyResponse.cs` and add the following:
 public class MyResponse
 {
     public string FullName { get; set; }
-    public bool IsValidAge { get; set; }
+    public bool IsOver18 { get; set; }
 }
 ```
 
@@ -55,7 +55,7 @@ public class MyEndpoint : Endpoint<MyRequest>
     public MyEndpoint()
     {
         Verbs(Http.POST);
-        Routes("/api/person/create");
+        Routes("/api/user/create");
         AllowAnnonymous();
     }
 
@@ -64,14 +64,14 @@ public class MyEndpoint : Endpoint<MyRequest>
         var response = new MyResponse()
         {
             FullName = req.FirstName + " " + req.LastName,
-            IsValidAge = req.Age > 18
+            IsOver18 = req.Age > 18
         };
 
         await SendAsync(response);
     }
 }
 ```
-now run your web app and send a `POST` request to the `/api/person/create` endpoint using a REST client such as postman with the following request body:
+now run your web app and send a `POST` request to the `/api/user/create` endpoint using a REST client such as postman with the following request body:
 ```
 {
     "FirstName": "marlon",
@@ -83,11 +83,11 @@ you should then get a response back such as this:
 ```
 {
     "FullName": "marlon brando",
-    "IsValidAge": true
+    "IsOver18": true
 }
 ```
 
-that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as `Verbs()`, `Routes()`, `AllowAnnonymous()`, etc. then you override the `HandleAsync()` method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. finally when you're done processing, you call the `SendAsync()` method with a new response dto to be sent to the requesting client.
+that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as `Verbs()`, `Routes()`, `AllowAnnonymous()`, etc. then you override the `HandleAsync()` method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the `SendAsync()` method with a new response dto to be sent to the requesting client.
 
 # endpoint types
 there are 4 different endpoint types you can inherit from.
@@ -96,3 +96,11 @@ there are 4 different endpoint types you can inherit from.
 2. **Endpoint<TRequest,TResponse>** - use this type if you have both request and response dtos.
 3. **EndpointWithoutRequest** - use this type if there's no request nor response dto.
 4. **EndpointWithoutRequest\<TResponse\>** - use this type if there's no request dto but there's a response dto.
+
+it is also possible to define endpoints with `EmptyRequest` and `EmptyResponse` if needed like so:
+
+```csharp
+public class MyEndpoint : Endpoint<EmptyRequest,EmptyResponse> { }
+```
+
+you can mix-n-match as needed depending on your requirement.

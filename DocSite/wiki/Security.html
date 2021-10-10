@@ -15,9 +15,9 @@
     -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>getting started | FastEndpoints </title>
+    <title>securing endpoints | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="getting started | FastEndpoints ">
+    <meta name="title" content="securing endpoints | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
     <link rel="shortcut icon" href="../images/favicon.ico">
@@ -93,98 +93,113 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="getting-started">getting started</h1>
+<h1 id="securing-endpoints">securing endpoints</h1>
 
-<p>follow the steps below to create your first endpoint that will handle an http <code>post</code> request and send a response back to the client.</p>
-<h2 id="create-a-new-project">create a new project</h2>
-<p>create an empty web project with the dotnet cli using the following command or using visual studio.</p>
-<pre><code>dotnet new web -n MyWebApp
-</code></pre>
-<h2 id="install-nuget-package">install nuget package</h2>
-<p>install the latest library version using the following nuget command:</p>
-<pre><code>dotnet add package FastEndpoints
-</code></pre>
-<p>or with nuget package manager:</p>
-<pre><code>Install-Package FastEndpoints
-</code></pre>
-<h2 id="prepare-startup">prepare startup</h2>
-<p>replace the contents of <code>Program.cs</code> file with the following:</p>
+<p>endpoints are secure by default and you'd have to call <code>AllowAnnonymous()</code> in the constructor if you'd like to allow unauthenticated users to access a particular endpoint.</p>
+<h2 id="jwt-bearer-authentication">jwt bearer authentication</h2>
+<p>support for easy jwt bearer authentication is provided. you simply need to install the <code>FastEndpoints.Security</code> package and register it in the middleware pipeline like so:</p>
+<h3 id="programcs">Program.cs</h3>
 <pre><code class="lang-csharp">using FastEndpoints;
+using FastEndpoints.Security;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
+builder.Services.AddAuthenticationJWTBearer(&quot;TokenSigningKey&quot;);
 
 var app = builder.Build();
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseFastEndpoints();
 app.Run();
 </code></pre>
-<h2 id="add-a-request-dto">add a request dto</h2>
-<p>create a file called <code>MyRequest.cs</code> and add the following:</p>
-<pre><code class="lang-csharp">public class MyReqeust
+<h3 id="generating-jwt-tokens">generating jwt tokens</h3>
+<p>you can generate a jwt token for sending to the client with an endpoint that signs in users like so:</p>
+<pre><code class="lang-csharp">public class UserLoginEndpoint : Endpoint&lt;LoginRequest&gt;
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public int Age { get; set; }
-}
-</code></pre>
-<h2 id="add-a-response-dto">add a response dto</h2>
-<p>create a file called <code>MyResponse.cs</code> and add the following:</p>
-<pre><code class="lang-csharp">public class MyResponse
-{
-    public string FullName { get; set; }
-    public bool IsOver18 { get; set; }
-}
-</code></pre>
-<h2 id="add-an-endpoint-definition">add an endpoint definition</h2>
-<p>create a file called <code>MyEndpoint.cs</code> and add the following:</p>
-<pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest&gt;
-{
-    public MyEndpoint()
+    public UserLoginEndpoint()
     {
         Verbs(Http.POST);
-        Routes(&quot;/api/user/create&quot;);
+        Routes(&quot;/api/login&quot;);
         AllowAnnonymous();
     }
 
-    protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
+    protected override async Task HandleAsync(LoginRequest req, CancellationToken ct)
     {
-        var response = new MyResponse()
+        if (req.Username == &quot;admin&quot; &amp;&amp; req.Password == &quot;pass&quot;)
         {
-            FullName = req.FirstName + &quot; &quot; + req.LastName,
-            IsOver18 = req.Age &gt; 18
-        };
+            var jwtToken = JWTBearer.CreateToken(
+                signingKey: &quot;TokenSigningKey&quot;,
+                expireAt: DateTime.UtcNow.AddDays(1),
+                claims: new[] { (&quot;Username&quot;, req.Username), (&quot;UserID&quot;, &quot;001&quot;) },
+                roles: new[] { &quot;Admin&quot;, &quot;Management&quot; },
+                permissions: new[] { &quot;ManageInventory&quot;, &quot;ManageUsers&quot; });
 
-        await SendAsync(response);
+            await SendAsync(new
+            {
+                Username = req.Username,
+                Token = jwtToken
+            });
+        }
+        else
+        {
+            ThrowError(&quot;The supplied credentials are invalid!&quot;);
+        }
     }
 }
 </code></pre>
-<p>now run your web app and send a <code>POST</code> request to the <code>/api/user/create</code> endpoint using a REST client such as postman with the following request body:</p>
-<pre><code>{
-    &quot;FirstName&quot;: &quot;marlon&quot;,
-    &quot;LastName&quot;: &quot;brando&quot;,
-    &quot;Age&quot;: 40
+<h2 id="endpoint-authorization">endpoint authorization</h2>
+<p>once an authentication provider is registered such as jwt bearer as shown above, you can restrict access to users based on the following:</p>
+<ul>
+<li>policies</li>
+<li>claims</li>
+<li>roles</li>
+<li>permissions</li>
+</ul>
+<h3 id="pre-built-security-policies">pre-built security policies</h3>
+<p>security policies can be pre-built and registered during app startup and endpoints can choose to allow access to users based on the registered policy names like so:</p>
+<p><strong>startup</strong></p>
+<pre><code class="lang-csharp">builder.Services.AddAuthorization(o =&gt;
+    o.AddPolicy(&quot;ManagersOnlyPolicy&quot;, b =&gt;
+        b.RequireRole(&quot;Manager&quot;)
+         .RequireClaim(&quot;ManagerID&quot;)));
+</code></pre>
+<p><strong>endpoint</strong></p>
+<pre><code class="lang-csharp">public class UpdateUserEndpoint : Endpoint&lt;UpdateUserRequest&gt;
+{
+    public ManageUsers()
+    {
+        Verbs(Http.PUT);
+        Routes(&quot;/api/users/update&quot;);
+        Policies(&quot;ManagersOnlyPolicy&quot;);
+    }       
 }
 </code></pre>
-<p>you should then get a response back such as this:</p>
-<pre><code>{
-    &quot;FullName&quot;: &quot;marlon brando&quot;,
-    &quot;IsOver18&quot;: true
+<h3 id="declarative-security-policies">declarative security policies</h3>
+<p>instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint constructors themselves like so:</p>
+<pre><code class="lang-csharp">public class RestrictedEndpoint : Endpoint&lt;RestrictedRequest&gt;
+{
+    public RestrictedEndpoint()
+    {
+        Verbs(Http.POST);
+        Routes(&quot;/api/restricted&quot;);
+        Claims(&quot;AdminID&quot;, &quot;UserType&quot;);
+        Roles(&quot;Admin&quot;, &quot;Manager&quot;);
+        Permissions(&quot;UpdateUsersPermission&quot;, &quot;DeleteUsersPermission&quot;);
+    }
 }
 </code></pre>
-<p>that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as <code>Verbs()</code>, <code>Routes()</code>, <code>AllowAnnonymous()</code>, etc. then you override the <code>HandleAsync()</code> method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the <code>SendAsync()</code> method with a new response dto to be sent to the requesting client.</p>
-<h1 id="endpoint-types">endpoint types</h1>
-<p>there are 4 different endpoint types you can inherit from.</p>
-<ol>
-<li><strong>Endpoint&lt;TRequest&gt;</strong> - use this type if there's only a request dto.</li>
-<li><strong>Endpoint&lt;TRequest,TResponse&gt;</strong> - use this type if you have both request and response dtos.</li>
-<li><strong>EndpointWithoutRequest</strong> - use this type if there's no request nor response dto.</li>
-<li><strong>EndpointWithoutRequest&lt;TResponse&gt;</strong> - use this type if there's no request dto but there's a response dto.</li>
-</ol>
-<p>it is also possible to define endpoints with <code>EmptyRequest</code> and <code>EmptyResponse</code> if needed like so:</p>
-<pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;EmptyRequest,EmptyResponse&gt; { }
+<p><strong>Claims() method</strong></p>
+<p>with this method you are specifying that if a user has all the specified claims, access should be allowed. you can specify to allow access if they have any one of the given claims by using the overload:</p>
+<pre><code class="lang-csharp">Claims(allowAny: true, &quot;SomeClaimType&quot;, &quot;AnotherClaimType&quot;);
 </code></pre>
-<p>you can mix-n-match as needed depending on your requirement.</p>
+<p><strong>Permissions() method</strong></p>
+<p>just like above, you can specify that all permissions mentioned must be present to allow access or using the following overload, you can allow access even if any one of the permissions is present:</p>
+<pre><code class="lang-csharp">Permissions(allowAny: true, &quot;SomePermission&quot;, &quot;AnotherPermission&quot;);
+</code></pre>
+<p><strong>Roles() method</strong></p>
+<p>roles behaves differently than the above as in access will always be allowed if a user has any of the specified roles assigned to them.</p>
+<h2 id="other-authentication-providers">other authentication providers</h2>
+<p>all authorization providers compatible with the <code>asp.net</code> middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the <code>[Authorize]</code> attribute as you would typically do.</p>
 </article>
           </div>
           

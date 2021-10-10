@@ -427,6 +427,17 @@
     },
     {
       "type": "Resource",
+      "source_relative_path": "images/social.ai",
+      "output": {
+        "resource": {
+          "relative_path": "images/social.ai"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
       "source_relative_path": "images/social.png",
       "output": {
         "resource": {
@@ -437,30 +448,36 @@
       "version": ""
     },
     {
-      "log_codes": [
-        "InvalidFileLink"
-      ],
       "type": "Conceptual",
       "source_relative_path": "index.md",
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "pmuy11xg4Fa5t2S2GvUbACE4MIBXH2mTe6JAzTbQYTY="
+          "hash": "abT0EY/RCnEamAV32B+AOJHO3eHRKdhfhgvTwBsrQlw="
         }
       },
       "is_incremental": false,
       "version": ""
     },
     {
-      "log_codes": [
-        "InvalidFileLink"
-      ],
       "type": "Toc",
       "source_relative_path": "toc.md",
       "output": {
         ".html": {
           "relative_path": "toc.html",
-          "hash": "uw2qDmbqteqYE6+/hFoFStl/+zv42+9EVXUDqkccxWc="
+          "hash": "Nj+wQuddueJZhdQX+AIgT0SRkbeETgI1MOLr/MwMptI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "wiki/Benchmarks.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Benchmarks.html",
+          "hash": "uhkyU8BFK2YPuOBN4ORe//yk8PG+WxotyB/jERWKtR4="
         }
       },
       "is_incremental": false,
@@ -472,7 +489,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Get-Started.html",
-          "hash": "NZG+yKrBCiJrc36pWkxNK6pa/MeNwdhkPwHm1LwmNyU="
+          "hash": "qRgDSITItNAcUhoNjd+MaOmBy84pUWCcWdIzbKkqsMs="
         }
       },
       "is_incremental": false,
@@ -503,8 +520,8 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 2,
-          "skipped_file_count": 1
+          "total_file_count": 3,
+          "skipped_file_count": 2
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

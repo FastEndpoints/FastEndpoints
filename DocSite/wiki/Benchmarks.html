@@ -15,9 +15,9 @@
     -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>getting started | FastEndpoints </title>
+    <title>Bombardier Load Test | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="getting started | FastEndpoints ">
+    <meta name="title" content="Bombardier Load Test | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
     <link rel="shortcut icon" href="../images/favicon.ico">
@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="../styles/docfx.css">
     <link rel="stylesheet" href="../styles/main.css">
     <meta property="docfx:navrel" content="../toc.html">
-    <meta property="docfx:tocrel" content="toc.html">
+    <meta property="docfx:tocrel" content="../toc.html">
     
     <meta property="docfx:rel" content="../">
     <meta property="docfx:newtab" content="true">
@@ -83,104 +83,125 @@
         </div>
       </div>
       <div role="main" class="container body-content hide-when-search">
-        
-        <div class="sidenav hide-when-search">
-          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
-          <div class="sidetoggle collapse" id="sidetoggle">
-            <div id="sidetoc"></div>
-          </div>
-        </div>
-        <div class="article row grid-right">
+        <div class="article row grid">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="getting-started">getting started</h1>
+<h2 id="bombardier-load-test">Bombardier Load Test</h2>
 
-<p>follow the steps below to create your first endpoint that will handle an http <code>post</code> request and send a response back to the client.</p>
-<h2 id="create-a-new-project">create a new project</h2>
-<p>create an empty web project with the dotnet cli using the following command or using visual studio.</p>
-<pre><code>dotnet new web -n MyWebApp
+<h3 id="fastendpoints-33772-more-requests-per-second-than-mvc-controller">FastEndpoints <em>(33,772 more requests per second than mvc controller)</em></h3>
+<pre><code>Statistics        Avg      Stdev        Max
+  Reqs/sec    134251.40   16085.58  190809.19
+  Latency        3.68ms     1.35ms   371.64ms
+  HTTP codes:
+    1xx - 0, 2xx - 1357086, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    68.05MB/s
 </code></pre>
-<h2 id="install-nuget-package">install nuget package</h2>
-<p>install the latest library version using the following nuget command:</p>
-<pre><code>dotnet add package FastEndpoints
+<h3 id="aspnet-minimal-api">AspNet Minimal Api</h3>
+<pre><code>Statistics        Avg      Stdev        Max
+  Reqs/sec    136898.40   13732.59  185851.32
+  Latency        3.62ms   470.46us    94.99ms
+  HTTP codes:
+    1xx - 0, 2xx - 1379343, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    69.19MB/s
 </code></pre>
-<p>or with nuget package manager:</p>
-<pre><code>Install-Package FastEndpoints
+<h3 id="aspnet-mvc-controller">AspNet MVC Controller</h3>
+<pre><code>Statistics        Avg      Stdev        Max
+  Reqs/sec    100479.98   13649.02  123388.00
+  Latency        4.90ms     1.67ms   375.00ms
+  HTTP codes:
+    1xx - 0, 2xx - 1019171, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    50.91MB/s
 </code></pre>
-<h2 id="prepare-startup">prepare startup</h2>
-<p>replace the contents of <code>Program.cs</code> file with the following:</p>
-<pre><code class="lang-csharp">using FastEndpoints;
-
-var builder = WebApplication.CreateBuilder();
-builder.Services.AddFastEndpoints();
-
-var app = builder.Build();
-app.UseAuthorization();
-app.UseFastEndpoints();
-app.Run();
+<h3 id="carter-module">Carter Module</h3>
+<pre><code>Statistics        Avg      Stdev        Max
+  Reqs/sec      7592.05    3153.39   18037.17
+  Latency       65.45ms    17.77ms   560.62ms
+  HTTP codes:
+    1xx - 0, 2xx - 76638, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:     3.82MB/s
 </code></pre>
-<h2 id="add-a-request-dto">add a request dto</h2>
-<p>create a file called <code>MyRequest.cs</code> and add the following:</p>
-<pre><code class="lang-csharp">public class MyReqeust
+<p><strong>parameters used:</strong> <code>-c 500 -m POST -f &quot;body.json&quot; -H &quot;Content-Type:application/json&quot;  -d 10s</code></p>
+ <!-- .\bomb.exe -c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/benchmark/ok/123 -->
+<!-- ```
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public int Age { get; set; }
+  "FirstName": "xxc",
+  "LastName": "yyy",
+  "Age": 23,
+  "PhoneNumbers": [
+    "1111111111",
+    "2222222222",
+    "3333333333",
+    "4444444444",
+    "5555555555"
+  ]
 }
-</code></pre>
-<h2 id="add-a-response-dto">add a response dto</h2>
-<p>create a file called <code>MyResponse.cs</code> and add the following:</p>
-<pre><code class="lang-csharp">public class MyResponse
-{
-    public string FullName { get; set; }
-    public bool IsValidAge { get; set; }
-}
-</code></pre>
-<h2 id="add-an-endpoint-definition">add an endpoint definition</h2>
-<p>create a file called <code>MyEndpoint.cs</code> and add the following:</p>
-<pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest&gt;
-{
-    public MyEndpoint()
-    {
-        Verbs(Http.POST);
-        Routes(&quot;/api/person/create&quot;);
-        AllowAnnonymous();
-    }
-
-    protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
-    {
-        var response = new MyResponse()
-        {
-            FullName = req.FirstName + &quot; &quot; + req.LastName,
-            IsValidAge = req.Age &gt; 18
-        };
-
-        await SendAsync(response);
-    }
-}
-</code></pre>
-<p>now run your web app and send a <code>POST</code> request to the <code>/api/person/create</code> endpoint using a REST client such as postman with the following request body:</p>
-<pre><code>{
-    &quot;FirstName&quot;: &quot;marlon&quot;,
-    &quot;LastName&quot;: &quot;brando&quot;,
-    &quot;Age&quot;: 40
-}
-</code></pre>
-<p>you should then get a response back such as this:</p>
-<pre><code>{
-    &quot;FullName&quot;: &quot;marlon brando&quot;,
-    &quot;IsValidAge&quot;: true
-}
-</code></pre>
-<p>that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as <code>Verbs()</code>, <code>Routes()</code>, <code>AllowAnnonymous()</code>, etc. then you override the <code>HandleAsync()</code> method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. finally when you're done processing, you call the <code>SendAsync()</code> method with a new response dto to be sent to the requesting client.</p>
-<h1 id="endpoint-types">endpoint types</h1>
-<p>there are 4 different endpoint types you can inherit from.</p>
-<ol>
-<li><strong>Endpoint&lt;TRequest&gt;</strong> - use this type if there's only a request dto.</li>
-<li><strong>Endpoint&lt;TRequest,TResponse&gt;</strong> - use this type if you have both request and response dtos.</li>
-<li><strong>EndpointWithoutRequest</strong> - use this type if there's no request nor response dto.</li>
-<li><strong>EndpointWithoutRequest&lt;TResponse&gt;</strong> - use this type if there's no request dto but there's a response dto.</li>
-</ol>
+``` -->
+<h2 id="head-to-head-benchmark">Head-To-Head Benchmark</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">Error</th>
+<th style="text-align: right;">StdDev</th>
+<th style="text-align: right;">Ratio</th>
+<th style="text-align: right;">RatioSD</th>
+<th style="text-align: right;">Gen 0</th>
+<th style="text-align: right;">Gen 1</th>
+<th style="text-align: right;">Allocated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FastEndpointsEndpoint</td>
+<td style="text-align: right;">83.03 μs</td>
+<td style="text-align: right;">5.007 μs</td>
+<td style="text-align: right;">3.312 μs</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">2.6000</td>
+<td style="text-align: right;">0.1000</td>
+<td style="text-align: right;">22 KB</td>
+</tr>
+<tr>
+<td>MinimalApiEndpoint</td>
+<td style="text-align: right;">83.51 μs</td>
+<td style="text-align: right;">3.781 μs</td>
+<td style="text-align: right;">2.501 μs</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">2.5000</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">21 KB</td>
+</tr>
+<tr>
+<td>AspNetCoreMVC</td>
+<td style="text-align: right;">114.20 μs</td>
+<td style="text-align: right;">3.806 μs</td>
+<td style="text-align: right;">2.518 μs</td>
+<td style="text-align: right;">1.38</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">3.4000</td>
+<td style="text-align: right;">0.2000</td>
+<td style="text-align: right;">28 KB</td>
+</tr>
+<tr>
+<td>CarterModule</td>
+<td style="text-align: right;">607.48 μs</td>
+<td style="text-align: right;">1.455 μs</td>
+<td style="text-align: right;">0.962 μs</td>
+<td style="text-align: right;">7.33</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">5.9000</td>
+<td style="text-align: right;">2.9000</td>
+<td style="text-align: right;">48 KB</td>
+</tr>
+</tbody>
+</table>
 </article>
           </div>
           

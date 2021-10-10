@@ -1,0 +1,202 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.IPreProcessor`1
+  commentId: T:FastEndpoints.IPreProcessor`1
+  id: IPreProcessor`1
+  parent: FastEndpoints
+  children:
+  - FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  langs:
+  - csharp
+  - vb
+  name: IPreProcessor<TRequest>
+  nameWithType: IPreProcessor<TRequest>
+  fullName: FastEndpoints.IPreProcessor<TRequest>
+  type: Interface
+  source:
+    id: IPreProcessor
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    startLine: 34
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\ninterface for defining pre-processors to be executed before the main endpoint handler is called\n"
+  example: []
+  syntax:
+    content: public interface IPreProcessor<TRequest>
+    typeParameters:
+    - id: TRequest
+      description: the type of the request dto
+    content.vb: Public Interface IPreProcessor(Of TRequest)
+  nameWithType.vb: IPreProcessor(Of TRequest)
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest)
+  name.vb: IPreProcessor(Of TRequest)
+- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  id: PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  parent: FastEndpoints.IPreProcessor`1
+  langs:
+  - csharp
+  - vb
+  name: PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
+  nameWithType: IPreProcessor<TRequest>.PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
+  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<ValidationFailure>, CancellationToken)
+  type: Method
+  source:
+    id: PreProcessAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    startLine: 36
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: Task PreProcessAsync(TRequest req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    parameters:
+    - id: req
+      type: '{TRequest}'
+    - id: ctx
+      type: Microsoft.AspNetCore.Http.HttpContext
+    - id: failures
+      type: List{ValidationFailure}
+    - id: ct
+      type: CancellationToken
+    return:
+      type: Task
+    content.vb: Function PreProcessAsync(req As TRequest, ctx As HttpContext, failures As List(Of ValidationFailure), ct As CancellationToken) As Task
+  overload: FastEndpoints.IPreProcessor`1.PreProcessAsync*
+  nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of ValidationFailure), CancellationToken)
+  name.vb: PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints
+- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync*
+  commentId: Overload:FastEndpoints.IPreProcessor`1.PreProcessAsync
+  name: PreProcessAsync
+  nameWithType: IPreProcessor<TRequest>.PreProcessAsync
+  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync
+  nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync
+- uid: '{TRequest}'
+  commentId: '!:TRequest'
+  definition: TRequest
+  name: TRequest
+  nameWithType: TRequest
+  fullName: TRequest
+- uid: Microsoft.AspNetCore.Http.HttpContext
+  commentId: T:Microsoft.AspNetCore.Http.HttpContext
+  parent: Microsoft.AspNetCore.Http
+  isExternal: true
+  name: HttpContext
+  nameWithType: HttpContext
+  fullName: Microsoft.AspNetCore.Http.HttpContext
+- uid: List{ValidationFailure}
+  commentId: '!:List{ValidationFailure}'
+  definition: List`1
+  name: List<ValidationFailure>
+  nameWithType: List<ValidationFailure>
+  fullName: List<ValidationFailure>
+  nameWithType.vb: List(Of ValidationFailure)
+  fullName.vb: List(Of ValidationFailure)
+  name.vb: List(Of ValidationFailure)
+  spec.csharp:
+  - uid: List`1
+    name: List
+    nameWithType: List
+    fullName: List
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: ValidationFailure
+    name: ValidationFailure
+    nameWithType: ValidationFailure
+    fullName: ValidationFailure
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: List`1
+    name: List
+    nameWithType: List
+    fullName: List
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: ValidationFailure
+    name: ValidationFailure
+    nameWithType: ValidationFailure
+    fullName: ValidationFailure
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: CancellationToken
+  isExternal: true
+  name: CancellationToken
+  nameWithType: CancellationToken
+  fullName: CancellationToken
+- uid: Task
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: Task
+- uid: TRequest
+  name: TRequest
+  nameWithType: TRequest
+  fullName: TRequest
+- uid: Microsoft.AspNetCore.Http
+  commentId: N:Microsoft.AspNetCore.Http
+  isExternal: true
+  name: Microsoft.AspNetCore.Http
+  nameWithType: Microsoft.AspNetCore.Http
+  fullName: Microsoft.AspNetCore.Http
+- uid: List`1
+  isExternal: true
+  name: List<>
+  nameWithType: List<>
+  fullName: List<>
+  nameWithType.vb: List(Of )
+  fullName.vb: List(Of )
+  name.vb: List(Of )
+  spec.csharp:
+  - uid: List`1
+    name: List
+    nameWithType: List
+    fullName: List
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: List`1
+    name: List
+    nameWithType: List
+    fullName: List
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: )
+    nameWithType: )
+    fullName: )

@@ -1,0 +1,36 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.IEndpoint
+  commentId: T:FastEndpoints.IEndpoint
+  id: IEndpoint
+  parent: FastEndpoints
+  children: []
+  langs:
+  - csharp
+  - vb
+  name: IEndpoint
+  nameWithType: IEndpoint
+  fullName: FastEndpoints.IEndpoint
+  type: Interface
+  source:
+    id: IEndpoint
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    startLine: 54
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public interface IEndpoint
+    content.vb: Public Interface IEndpoint
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints

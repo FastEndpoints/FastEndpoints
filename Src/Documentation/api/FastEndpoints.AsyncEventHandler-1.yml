@@ -1,0 +1,69 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.AsyncEventHandler`1
+  commentId: T:FastEndpoints.AsyncEventHandler`1
+  id: AsyncEventHandler`1
+  parent: FastEndpoints
+  children: []
+  langs:
+  - csharp
+  - vb
+  name: AsyncEventHandler<TEventArgs>
+  nameWithType: AsyncEventHandler<TEventArgs>
+  fullName: FastEndpoints.AsyncEventHandler<TEventArgs>
+  type: Delegate
+  source:
+    id: AsyncEventHandler
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\EventHandlerExtensions.cs
+    startLine: 2
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public delegate Task AsyncEventHandler<TEventArgs>(TEventArgs args, CancellationToken cancellation);
+    parameters:
+    - id: args
+      type: '{TEventArgs}'
+    - id: cancellation
+      type: CancellationToken
+    typeParameters:
+    - id: TEventArgs
+    return:
+      type: Task
+    content.vb: Public Delegate Function AsyncEventHandler(Of TEventArgs)(args As TEventArgs, cancellation As CancellationToken) As Task
+  nameWithType.vb: AsyncEventHandler(Of TEventArgs)
+  modifiers.csharp:
+  - public
+  - delegate
+  modifiers.vb:
+  - Public
+  - Delegate
+  fullName.vb: FastEndpoints.AsyncEventHandler(Of TEventArgs)
+  name.vb: AsyncEventHandler(Of TEventArgs)
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints
+- uid: '{TEventArgs}'
+  commentId: '!:TEventArgs'
+  definition: TEventArgs
+  name: TEventArgs
+  nameWithType: TEventArgs
+  fullName: TEventArgs
+- uid: CancellationToken
+  isExternal: true
+  name: CancellationToken
+  nameWithType: CancellationToken
+  fullName: CancellationToken
+- uid: Task
+  isExternal: true
+  name: Task
+  nameWithType: Task
+  fullName: Task
+- uid: TEventArgs
+  commentId: '!:TEventArgs'
+  name: TEventArgs
+  nameWithType: TEventArgs
+  fullName: TEventArgs

@@ -1,0 +1,90 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.IRequest`1
+  commentId: T:FastEndpoints.IRequest`1
+  id: IRequest`1
+  parent: FastEndpoints
+  children:
+  - FastEndpoints.IRequest`1.ToEntity
+  langs:
+  - csharp
+  - vb
+  name: IRequest<TEntity>
+  nameWithType: IRequest<TEntity>
+  fullName: FastEndpoints.IRequest<TEntity>
+  type: Interface
+  source:
+    id: IRequest
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    startLine: 9
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nuse this interface to add functionality to easily map a request dto to a given entity\n"
+  example: []
+  syntax:
+    content: public interface IRequest<TEntity>
+    typeParameters:
+    - id: TEntity
+      description: the type of the entity to map to
+    content.vb: Public Interface IRequest(Of TEntity)
+  nameWithType.vb: IRequest(Of TEntity)
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+  fullName.vb: FastEndpoints.IRequest(Of TEntity)
+  name.vb: IRequest(Of TEntity)
+- uid: FastEndpoints.IRequest`1.ToEntity
+  commentId: M:FastEndpoints.IRequest`1.ToEntity
+  id: ToEntity
+  parent: FastEndpoints.IRequest`1
+  langs:
+  - csharp
+  - vb
+  name: ToEntity()
+  nameWithType: IRequest<TEntity>.ToEntity()
+  fullName: FastEndpoints.IRequest<TEntity>.ToEntity()
+  type: Method
+  source:
+    id: ToEntity
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    startLine: 14
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nthe method that maps a request dto to an entity\n"
+  example: []
+  syntax:
+    content: TEntity ToEntity()
+    return:
+      type: '{TEntity}'
+    content.vb: Function ToEntity As TEntity
+  overload: FastEndpoints.IRequest`1.ToEntity*
+  nameWithType.vb: IRequest(Of TEntity).ToEntity()
+  fullName.vb: FastEndpoints.IRequest(Of TEntity).ToEntity()
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints
+- uid: FastEndpoints.IRequest`1.ToEntity*
+  commentId: Overload:FastEndpoints.IRequest`1.ToEntity
+  name: ToEntity
+  nameWithType: IRequest<TEntity>.ToEntity
+  fullName: FastEndpoints.IRequest<TEntity>.ToEntity
+  nameWithType.vb: IRequest(Of TEntity).ToEntity
+  fullName.vb: FastEndpoints.IRequest(Of TEntity).ToEntity
+- uid: '{TEntity}'
+  commentId: '!:TEntity'
+  definition: TEntity
+  name: TEntity
+  nameWithType: TEntity
+  fullName: TEntity
+- uid: TEntity
+  name: TEntity
+  nameWithType: TEntity
+  fullName: TEntity

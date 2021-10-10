@@ -1,0 +1,1220 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.HttpClientExtensions
+  commentId: T:FastEndpoints.HttpClientExtensions
+  id: HttpClientExtensions
+  parent: FastEndpoints
+  children:
+  - FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient)
+  - FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,``1)
+  - FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,System.String,``0)
+  - FastEndpoints.HttpClientExtensions.GETAsync``3(HttpClient,``1)
+  - FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient)
+  - FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,``1)
+  - FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,System.String,``0)
+  - FastEndpoints.HttpClientExtensions.POSTAsync``3(HttpClient,``1)
+  - FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient)
+  - FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,``1)
+  - FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,System.String,``0)
+  - FastEndpoints.HttpClientExtensions.PUTAsync``3(HttpClient,``1)
+  langs:
+  - csharp
+  - vb
+  name: HttpClientExtensions
+  nameWithType: HttpClientExtensions
+  fullName: FastEndpoints.HttpClientExtensions
+  type: Class
+  source:
+    id: HttpClientExtensions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 6
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public static class HttpClientExtensions
+    content.vb: Public Module HttpClientExtensions
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - static
+  - class
+  modifiers.vb:
+  - Public
+  - Module
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,System.String,``0)
+  commentId: M:FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,System.String,``0)
+  id: POSTAsync``2(HttpClient,System.String,``0)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: POSTAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  nameWithType: HttpClientExtensions.POSTAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync<TRequest, TResponse>(HttpClient, System.String, TRequest)
+  type: Method
+  source:
+    id: POSTAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 16
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a POST request using a request dto and get back a response dto.\n"
+  example: []
+  syntax:
+    content: public static async Task<(HttpResponseMessage? response, TResponse result)> POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: requestUri
+      type: System.String
+      description: the route url to post to
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TRequest
+      description: type of the requet dto
+    - id: TResponse
+      description: type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function POSTAsync(Of TRequest, TResponse)(client As HttpClient, requestUri As String, request As TRequest) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.POSTAsync*
+  nameWithType.vb: HttpClientExtensions.POSTAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  - async
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.POSTAsync(Of TRequest, TResponse)(HttpClient, System.String, TRequest)
+  name.vb: POSTAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync``3(HttpClient,``1)
+  commentId: M:FastEndpoints.HttpClientExtensions.POSTAsync``3(HttpClient,``1)
+  id: POSTAsync``3(HttpClient,``1)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: POSTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.POSTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  type: Method
+  source:
+    id: POSTAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 46
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a POST request to an endpoint using auto route discovery using a request dto and get back a response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static Task<(HttpResponseMessage? response, TResponse result)> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TRequest
+      description: the type of the request dto
+    - id: TResponse
+      description: the type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function POSTAsync(Of TEndpoint As {BaseEndpoint, New}, TRequest, TResponse)(client As HttpClient, request As TRequest) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.POSTAsync*
+  nameWithType.vb: HttpClientExtensions.POSTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.POSTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  name.vb: POSTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,``1)
+  commentId: M:FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,``1)
+  id: POSTAsync``2(HttpClient,``1)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: POSTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.POSTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  type: Method
+  source:
+    id: POSTAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 55
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a POST request to an endpoint using auto route discovery using a request dto that does not send back a response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TRequest
+      description: the type of the request dto
+    return:
+      type: Task{System.Nullable{HttpResponseMessage}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function POSTAsync(Of TEndpoint As {BaseEndpoint, New}, TRequest)(client As HttpClient, request As TRequest) As Task(Of HttpResponseMessage?)
+  overload: FastEndpoints.HttpClientExtensions.POSTAsync*
+  nameWithType.vb: HttpClientExtensions.POSTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  - async
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.POSTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  name.vb: POSTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient)
+  commentId: M:FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient)
+  id: POSTAsync``2(HttpClient)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: POSTAsync<TEndpoint, TResponse>(HttpClient)
+  nameWithType: HttpClientExtensions.POSTAsync<TEndpoint, TResponse>(HttpClient)
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync<TEndpoint, TResponse>(HttpClient)
+  type: Method
+  source:
+    id: POSTAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 66
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a POST request to an endpoint using auto route discovery without a request dto and get back a typed response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static Task<(HttpResponseMessage? response, TResponse result)> POSTAsync<TEndpoint, TResponse>(this HttpClient client)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TResponse
+      description: the type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function POSTAsync(Of TEndpoint As {BaseEndpoint, New}, TResponse)(client As HttpClient) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.POSTAsync*
+  nameWithType.vb: HttpClientExtensions.POSTAsync(Of TEndpoint, TResponse)(HttpClient)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.POSTAsync(Of TEndpoint, TResponse)(HttpClient)
+  name.vb: POSTAsync(Of TEndpoint, TResponse)(HttpClient)
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,System.String,``0)
+  commentId: M:FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,System.String,``0)
+  id: PUTAsync``2(HttpClient,System.String,``0)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: PUTAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  nameWithType: HttpClientExtensions.PUTAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync<TRequest, TResponse>(HttpClient, System.String, TRequest)
+  type: Method
+  source:
+    id: PUTAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 77
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a PUT request using a request dto and get back a response dto.\n"
+  example: []
+  syntax:
+    content: public static async Task<(HttpResponseMessage? response, TResponse result)> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: requestUri
+      type: System.String
+      description: the route url to post to
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TRequest
+      description: type of the requet dto
+    - id: TResponse
+      description: type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function PUTAsync(Of TRequest, TResponse)(client As HttpClient, requestUri As String, request As TRequest) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.PUTAsync*
+  nameWithType.vb: HttpClientExtensions.PUTAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  - async
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TRequest, TResponse)(HttpClient, System.String, TRequest)
+  name.vb: PUTAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync``3(HttpClient,``1)
+  commentId: M:FastEndpoints.HttpClientExtensions.PUTAsync``3(HttpClient,``1)
+  id: PUTAsync``3(HttpClient,``1)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  type: Method
+  source:
+    id: PUTAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 107
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a PUT request to an endpoint using auto route discovery using a request dto and get back a response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static Task<(HttpResponseMessage? response, TResponse result)> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TRequest
+      description: the type of the request dto
+    - id: TResponse
+      description: the type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function PUTAsync(Of TEndpoint As {BaseEndpoint, New}, TRequest, TResponse)(client As HttpClient, request As TRequest) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.PUTAsync*
+  nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  name.vb: PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,``1)
+  commentId: M:FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,``1)
+  id: PUTAsync``2(HttpClient,``1)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: PUTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  type: Method
+  source:
+    id: PUTAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 116
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a PUT request to an endpoint using auto route discovery using a request dto that does not send back a response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TRequest
+      description: the type of the request dto
+    return:
+      type: Task{System.Nullable{HttpResponseMessage}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function PUTAsync(Of TEndpoint As {BaseEndpoint, New}, TRequest)(client As HttpClient, request As TRequest) As Task(Of HttpResponseMessage?)
+  overload: FastEndpoints.HttpClientExtensions.PUTAsync*
+  nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  - async
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  name.vb: PUTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient)
+  commentId: M:FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient)
+  id: PUTAsync``2(HttpClient)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: PUTAsync<TEndpoint, TResponse>(HttpClient)
+  nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TResponse>(HttpClient)
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync<TEndpoint, TResponse>(HttpClient)
+  type: Method
+  source:
+    id: PUTAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 127
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a PUT request to an endpoint using auto route discovery without a request dto and get back a typed response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static Task<(HttpResponseMessage? response, TResponse result)> PUTAsync<TEndpoint, TResponse>(this HttpClient client)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TResponse
+      description: the type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function PUTAsync(Of TEndpoint As {BaseEndpoint, New}, TResponse)(client As HttpClient) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.PUTAsync*
+  nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TResponse)(HttpClient)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TResponse)(HttpClient)
+  name.vb: PUTAsync(Of TEndpoint, TResponse)(HttpClient)
+- uid: FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,System.String,``0)
+  commentId: M:FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,System.String,``0)
+  id: GETAsync``2(HttpClient,System.String,``0)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: GETAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  nameWithType: HttpClientExtensions.GETAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync<TRequest, TResponse>(HttpClient, System.String, TRequest)
+  type: Method
+  source:
+    id: GETAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 138
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a GET request using a request dto and get back a response dto.\n"
+  example: []
+  syntax:
+    content: public static async Task<(HttpResponseMessage? response, TResponse result)> GETAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: requestUri
+      type: System.String
+      description: the route url to post to
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TRequest
+      description: type of the requet dto
+    - id: TResponse
+      description: type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function GETAsync(Of TRequest, TResponse)(client As HttpClient, requestUri As String, request As TRequest) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.GETAsync*
+  nameWithType.vb: HttpClientExtensions.GETAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  - async
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.GETAsync(Of TRequest, TResponse)(HttpClient, System.String, TRequest)
+  name.vb: GETAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.GETAsync``3(HttpClient,``1)
+  commentId: M:FastEndpoints.HttpClientExtensions.GETAsync``3(HttpClient,``1)
+  id: GETAsync``3(HttpClient,``1)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: GETAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.GETAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  type: Method
+  source:
+    id: GETAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 174
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a GET request to an endpoint using auto route discovery using a request dto and get back a response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static Task<(HttpResponseMessage? response, TResponse result)> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TRequest
+      description: the type of the request dto
+    - id: TResponse
+      description: the type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function GETAsync(Of TEndpoint As {BaseEndpoint, New}, TRequest, TResponse)(client As HttpClient, request As TRequest) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.GETAsync*
+  nameWithType.vb: HttpClientExtensions.GETAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.GETAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  name.vb: GETAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,``1)
+  commentId: M:FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,``1)
+  id: GETAsync``2(HttpClient,``1)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: GETAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.GETAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  type: Method
+  source:
+    id: GETAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 183
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a GET request to an endpoint using auto route discovery using a request dto that does not send back a response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    - id: request
+      type: '{TRequest}'
+      description: the request dto
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TRequest
+      description: the type of the request dto
+    return:
+      type: Task{System.Nullable{HttpResponseMessage}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function GETAsync(Of TEndpoint As {BaseEndpoint, New}, TRequest)(client As HttpClient, request As TRequest) As Task(Of HttpResponseMessage?)
+  overload: FastEndpoints.HttpClientExtensions.GETAsync*
+  nameWithType.vb: HttpClientExtensions.GETAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  modifiers.csharp:
+  - public
+  - static
+  - async
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.GETAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  name.vb: GETAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient)
+  commentId: M:FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient)
+  id: GETAsync``2(HttpClient)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpClientExtensions
+  langs:
+  - csharp
+  - vb
+  name: GETAsync<TEndpoint, TResponse>(HttpClient)
+  nameWithType: HttpClientExtensions.GETAsync<TEndpoint, TResponse>(HttpClient)
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync<TEndpoint, TResponse>(HttpClient)
+  type: Method
+  source:
+    id: GETAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\HttpClientExtensions.cs
+    startLine: 194
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nmake a GET request to an endpoint using auto route discovery without a request dto and get back a typed response dto.\n"
+  example: []
+  syntax:
+    content: >-
+      public static Task<(HttpResponseMessage? response, TResponse result)> GETAsync<TEndpoint, TResponse>(this HttpClient client)
+          where TEndpoint : BaseEndpoint, new()
+    parameters:
+    - id: client
+      type: HttpClient
+    typeParameters:
+    - id: TEndpoint
+      description: the type of the endpoint
+    - id: TResponse
+      description: the type of the response dto
+    return:
+      type: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function GETAsync(Of TEndpoint As {BaseEndpoint, New}, TResponse)(client As HttpClient) As Task(Of(response As HttpResponseMessage?, result As TResponse)(Of HttpResponseMessage? , TResponse))
+  overload: FastEndpoints.HttpClientExtensions.GETAsync*
+  nameWithType.vb: HttpClientExtensions.GETAsync(Of TEndpoint, TResponse)(HttpClient)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.HttpClientExtensions.GETAsync(Of TEndpoint, TResponse)(HttpClient)
+  name.vb: GETAsync(Of TEndpoint, TResponse)(HttpClient)
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync*
+  commentId: Overload:FastEndpoints.HttpClientExtensions.POSTAsync
+  name: POSTAsync
+  nameWithType: HttpClientExtensions.POSTAsync
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync
+- uid: HttpClient
+  isExternal: true
+  name: HttpClient
+  nameWithType: HttpClient
+  fullName: HttpClient
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: '{TRequest}'
+  commentId: '!:TRequest'
+  definition: TRequest
+  name: TRequest
+  nameWithType: TRequest
+  fullName: TRequest
+- uid: Task{System.ValueTuple{System.Nullable{HttpResponseMessage},{TResponse}}}
+  commentId: '!:Task{System.ValueTuple{System.Nullable{HttpResponseMessage},``1}}'
+  definition: Task`1
+  name: Task<(T1, T2)<Nullable<HttpResponseMessage>, TResponse>>
+  nameWithType: Task<(T1, T2)<Nullable<HttpResponseMessage>, TResponse>>
+  fullName: Task<System.ValueTuple<System.Nullable<HttpResponseMessage>, TResponse>>
+  nameWithType.vb: Task(Of (T1, T2)(Of Nullable(Of HttpResponseMessage), TResponse))
+  fullName.vb: Task(Of System.ValueTuple(Of System.Nullable(Of HttpResponseMessage), TResponse))
+  name.vb: Task(Of (T1, T2)(Of Nullable(Of HttpResponseMessage), TResponse))
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.ValueTuple`2
+    name: (T1, T2)
+    nameWithType: (T1, T2)
+    fullName: System.ValueTuple
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: HttpResponseMessage
+    name: HttpResponseMessage
+    nameWithType: HttpResponseMessage
+    fullName: HttpResponseMessage
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.ValueTuple`2
+    name: (T1, T2)
+    nameWithType: (T1, T2)
+    fullName: System.ValueTuple
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: HttpResponseMessage
+    name: HttpResponseMessage
+    nameWithType: HttpResponseMessage
+    fullName: HttpResponseMessage
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: TRequest
+  name: TRequest
+  nameWithType: TRequest
+  fullName: TRequest
+- uid: Task`1
+  isExternal: true
+  name: Task<>
+  nameWithType: Task<>
+  fullName: Task<>
+  nameWithType.vb: Task(Of )
+  fullName.vb: Task(Of )
+  name.vb: Task(Of )
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Task{System.Nullable{HttpResponseMessage}}
+  commentId: '!:Task{System.Nullable{HttpResponseMessage}}'
+  definition: Task`1
+  name: Task<Nullable<HttpResponseMessage>>
+  nameWithType: Task<Nullable<HttpResponseMessage>>
+  fullName: Task<System.Nullable<HttpResponseMessage>>
+  nameWithType.vb: Task(Of Nullable(Of HttpResponseMessage))
+  fullName.vb: Task(Of System.Nullable(Of HttpResponseMessage))
+  name.vb: Task(Of Nullable(Of HttpResponseMessage))
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: HttpResponseMessage
+    name: HttpResponseMessage
+    nameWithType: HttpResponseMessage
+    fullName: HttpResponseMessage
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: HttpResponseMessage
+    name: HttpResponseMessage
+    nameWithType: HttpResponseMessage
+    fullName: HttpResponseMessage
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync*
+  commentId: Overload:FastEndpoints.HttpClientExtensions.PUTAsync
+  name: PUTAsync
+  nameWithType: HttpClientExtensions.PUTAsync
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync
+- uid: FastEndpoints.HttpClientExtensions.GETAsync*
+  commentId: Overload:FastEndpoints.HttpClientExtensions.GETAsync
+  name: GETAsync
+  nameWithType: HttpClientExtensions.GETAsync
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync

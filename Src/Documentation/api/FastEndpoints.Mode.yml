@@ -1,0 +1,137 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.Mode
+  commentId: T:FastEndpoints.Mode
+  id: Mode
+  parent: FastEndpoints
+  children:
+  - FastEndpoints.Mode.WaitForAll
+  - FastEndpoints.Mode.WaitForAny
+  - FastEndpoints.Mode.WaitForNone
+  langs:
+  - csharp
+  - vb
+  name: Mode
+  nameWithType: Mode
+  fullName: FastEndpoints.Mode
+  type: Enum
+  source:
+    id: Mode
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    startLine: 16
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nenum for specifying the waiting mode for event notifications\n"
+  example: []
+  syntax:
+    content: public enum Mode
+    content.vb: Public Enum Mode
+  modifiers.csharp:
+  - public
+  - enum
+  modifiers.vb:
+  - Public
+  - Enum
+- uid: FastEndpoints.Mode.WaitForNone
+  commentId: F:FastEndpoints.Mode.WaitForNone
+  id: WaitForNone
+  parent: FastEndpoints.Mode
+  langs:
+  - csharp
+  - vb
+  name: WaitForNone
+  nameWithType: Mode.WaitForNone
+  fullName: FastEndpoints.Mode.WaitForNone
+  type: Field
+  source:
+    id: WaitForNone
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    startLine: 21
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nreturns an already completed Task (fire and forget)\n"
+  example: []
+  syntax:
+    content: WaitForNone = 0
+    return:
+      type: FastEndpoints.Mode
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: FastEndpoints.Mode.WaitForAny
+  commentId: F:FastEndpoints.Mode.WaitForAny
+  id: WaitForAny
+  parent: FastEndpoints.Mode
+  langs:
+  - csharp
+  - vb
+  name: WaitForAny
+  nameWithType: Mode.WaitForAny
+  fullName: FastEndpoints.Mode.WaitForAny
+  type: Field
+  source:
+    id: WaitForAny
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    startLine: 25
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nreturns a Task that will complete when any of the subscribers complete their work\n"
+  example: []
+  syntax:
+    content: WaitForAny = 1
+    return:
+      type: FastEndpoints.Mode
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: FastEndpoints.Mode.WaitForAll
+  commentId: F:FastEndpoints.Mode.WaitForAll
+  id: WaitForAll
+  parent: FastEndpoints.Mode
+  langs:
+  - csharp
+  - vb
+  name: WaitForAll
+  nameWithType: Mode.WaitForAll
+  fullName: FastEndpoints.Mode.WaitForAll
+  type: Field
+  source:
+    id: WaitForAll
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    startLine: 29
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nreturn a Task that will complete only when all of the subscribers complete their work\n"
+  example: []
+  syntax:
+    content: WaitForAll = 2
+    return:
+      type: FastEndpoints.Mode
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints
+- uid: FastEndpoints.Mode
+  commentId: T:FastEndpoints.Mode
+  parent: FastEndpoints
+  name: Mode
+  nameWithType: Mode
+  fullName: FastEndpoints.Mode

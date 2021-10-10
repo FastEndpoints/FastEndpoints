@@ -1,0 +1,64 @@
+blockquote{
+  font-size: 0.9em;
+  background-color: #fffbe8;
+}
+
+.alert {
+  padding: 7px;
+}
+
+.alert h5{
+  margin-bottom: 0;
+}
+
+.alert a{
+  color: black;
+}
+
+.alert-info{
+  color: #32789a;
+  background-color: #ebf8ff;
+  border-color: #d0f7ff;
+}
+
+.navbar-brand {
+  padding: 1px;
+}
+
+article[data-uid="MongoDB.Entities"] h4{
+  border-bottom: 1px solid #d6d6d6;
+}
+
+.actions-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.actions-container div{
+  background-color: #555555;
+  padding: 0.1em;
+  margin: 0.5em;
+  flex: 0 0 225px;
+  text-align: center;
+  border-radius: 5px;
+  font-size: 2em;
+  font-weight: 600;
+}
+
+.actions-container a{
+  color: #fffffff2;
+}
+
+.actions-container div:hover{
+  background-color: #000000;
+}
+
+pre{
+  max-height: 600px;
+}
+
+pre code{
+  white-space: pre;
+  padding: 0;
+}

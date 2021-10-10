@@ -1,0 +1,1735 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-39155502-5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+  
+      gtag('config', 'UA-39155502-5');
+    </script>
+    -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Endpoint&lt;TRequest, TResponse&gt;
+   | FastEndpoints </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Endpoint&lt;TRequest, TResponse&gt;
+   | FastEndpoints ">
+    <meta name="generator" content="docfx 2.58.4.0">
+    <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
+    <link rel="shortcut icon" href="../images/favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    <meta property="docfx:newtab" content="true">
+    <meta property="og:title" content="FastEndpoints">
+    <meta property="og:site_name" content="FastEndpoints">
+    <meta property="og:url" content="https://fast-endpoints.com">
+    <meta property="og:description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://fast-endpoints.com/images/social-square.png">  
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../images/icon.png" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first="First" data-prev="Previous" data-next="Next" data-last="Last"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.Endpoint`2">
+  
+  
+  <h1 id="FastEndpoints_Endpoint_2" data-uid="FastEndpoints.Endpoint`2" class="text-break">Class Endpoint&lt;TRequest, TResponse&gt;
+  </h1>
+  <div class="markdown level0 summary"><p>use this base class for defining endpoints that use both request and response dtos.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="FastEndpoints.BaseEndpoint.html">BaseEndpoint</a></div>
+    <div class="level2"><span class="xref">Endpoint&lt;TRequest, TResponse&gt;</span></div>
+      <div class="level3"><a class="xref" href="FastEndpoints.Endpoint-1.html">Endpoint&lt;TRequest&gt;</a></div>
+      <div class="level3"><a class="xref" href="FastEndpoints.EndpointWithoutRequest-1.html">EndpointWithoutRequest&lt;TResponse&gt;</a></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="FastEndpoints.IEndpoint.html">IEndpoint</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
+  <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint where TRequest : new()
+    where TResponse : new()</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TRequest</span></td>
+        <td><p>the type of the request dto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TResponse</span></td>
+        <td><p>the type of the response dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_BaseURL_" data-uid="FastEndpoints.Endpoint`2.BaseURL*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_BaseURL" data-uid="FastEndpoints.Endpoint`2.BaseURL">BaseURL</h4>
+  <div class="markdown level1 summary"><p>the base url of the current request</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected string BaseURL { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Config_" data-uid="FastEndpoints.Endpoint`2.Config*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Config" data-uid="FastEndpoints.Endpoint`2.Config">Config</h4>
+  <div class="markdown level1 summary"><p>gives access to the configuration</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected IConfiguration Config { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.Extensions.Configuration.IConfiguration</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Env_" data-uid="FastEndpoints.Endpoint`2.Env*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Env" data-uid="FastEndpoints.Endpoint`2.Env">Env</h4>
+  <div class="markdown level1 summary"><p>gives access to the hosting environment</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected IWebHostEnvironment Env { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Hosting.IWebHostEnvironment</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Files_" data-uid="FastEndpoints.Endpoint`2.Files*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Files" data-uid="FastEndpoints.Endpoint`2.Files">Files</h4>
+  <div class="markdown level1 summary"><p>the files sent with the request. only populated is content-type is 'multipart/form-data'</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected IFormFileCollection Files { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Http.IFormFileCollection</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Form_" data-uid="FastEndpoints.Endpoint`2.Form*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Form" data-uid="FastEndpoints.Endpoint`2.Form">Form</h4>
+  <div class="markdown level1 summary"><p>the form sent with the request. only populated if content-type is 'application/x-www-form-urlencoded' or 'multipart/form-data'</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected IFormCollection Form { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Http.IFormCollection</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_HttpContext_" data-uid="FastEndpoints.Endpoint`2.HttpContext*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_HttpContext" data-uid="FastEndpoints.Endpoint`2.HttpContext">HttpContext</h4>
+  <div class="markdown level1 summary"><p>the http context of the current request</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected HttpContext HttpContext { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Http.HttpContext</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_HttpMethod_" data-uid="FastEndpoints.Endpoint`2.HttpMethod*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_HttpMethod" data-uid="FastEndpoints.Endpoint`2.HttpMethod">HttpMethod</h4>
+  <div class="markdown level1 summary"><p>the http method of the current request</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Http HttpMethod { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.Http.html">Http</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Logger_" data-uid="FastEndpoints.Endpoint`2.Logger*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Logger" data-uid="FastEndpoints.Endpoint`2.Logger">Logger</h4>
+  <div class="markdown level1 summary"><p>the logger for the current endpoint type</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected ILogger Logger { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.Extensions.Logging.ILogger</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Response_" data-uid="FastEndpoints.Endpoint`2.Response*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Response" data-uid="FastEndpoints.Endpoint`2.Response">Response</h4>
+  <div class="markdown level1 summary"><p>the response that is sent to the client.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected TResponse Response { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TResponse</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_User_" data-uid="FastEndpoints.Endpoint`2.User*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_User" data-uid="FastEndpoints.Endpoint`2.User">User</h4>
+  <div class="markdown level1 summary"><p>the current user principal</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected ClaimsPrincipal User { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Security.Claims.ClaimsPrincipal</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_ValidationFailed_" data-uid="FastEndpoints.Endpoint`2.ValidationFailed*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_ValidationFailed" data-uid="FastEndpoints.Endpoint`2.ValidationFailed">ValidationFailed</h4>
+  <div class="markdown level1 summary"><p>indicates if there are any validation failures for the current request</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ValidationFailed { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_ValidationFailures_" data-uid="FastEndpoints.Endpoint`2.ValidationFailures*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_ValidationFailures" data-uid="FastEndpoints.Endpoint`2.ValidationFailures">ValidationFailures</h4>
+  <div class="markdown level1 summary"><p>the list of validation failures for the current request dto</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public List&lt;ValidationFailure&gt; ValidationFailures { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">List</span>&lt;<span class="xref">ValidationFailure</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_AddError_" data-uid="FastEndpoints.Endpoint`2.AddError*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_AddError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_" data-uid="FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)">AddError(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String)</h4>
+  <div class="markdown level1 summary"><p>adds an error message for the specified property of the request dto</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void AddError(Expression&lt;Func&lt;TRequest, object&gt;&gt; property, string errorMessage)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Linq.Expressions.Expression</span>&lt;<span class="xref">Func</span>&lt;TRequest, <span class="xref">System.Object</span>&gt;&gt;</td>
+        <td><span class="parametername">property</span></td>
+        <td><p>the property to add teh error message for</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">errorMessage</span></td>
+        <td><p>the error message</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_AddError_" data-uid="FastEndpoints.Endpoint`2.AddError*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_AddError_System_String_" data-uid="FastEndpoints.Endpoint`2.AddError(System.String)">AddError(String)</h4>
+  <div class="markdown level1 summary"><p>adds a &quot;GeneralError&quot; to the current list of validation failures</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void AddError(string message)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">message</span></td>
+        <td><p>the error message</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_AllowAnnonymous_" data-uid="FastEndpoints.Endpoint`2.AllowAnnonymous*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_AllowAnnonymous" data-uid="FastEndpoints.Endpoint`2.AllowAnnonymous">AllowAnnonymous()</h4>
+  <div class="markdown level1 summary"><p>allow unauthenticated requests to this endpoint</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void AllowAnnonymous()</code></pre>
+  </div>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_AllowFileUploads_" data-uid="FastEndpoints.Endpoint`2.AllowFileUploads*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_AllowFileUploads" data-uid="FastEndpoints.Endpoint`2.AllowFileUploads">AllowFileUploads()</h4>
+  <div class="markdown level1 summary"><p>enable file uploads with multipart/form-data content type</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void AllowFileUploads()</code></pre>
+  </div>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Claims_" data-uid="FastEndpoints.Endpoint`2.Claims*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Claims_System_Boolean_System_String___" data-uid="FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])">Claims(Boolean, String[])</h4>
+  <div class="markdown level1 summary"><p>specify the claim types a user principal should posses in order to access this endpoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Claims(bool allowAny, params string[] claims)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">allowAny</span></td>
+        <td><p>if set to true, having any 1 of the specified permissions will enable access</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">claims</span></td>
+        <td><p>the claims</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Claims_" data-uid="FastEndpoints.Endpoint`2.Claims*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Claims_System_String___" data-uid="FastEndpoints.Endpoint`2.Claims(System.String[])">Claims(String[])</h4>
+  <div class="markdown level1 summary"><p>specify the claim types a user principal should posses in order to access this endpoint. they must posses ALL of the claim types mentioned here. if not, a 403 forbidden response will be sent.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Claims(params string[] claims)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">claims</span></td>
+        <td><p>the claims needed to access this endpoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_DontThrowIfValidationFails_" data-uid="FastEndpoints.Endpoint`2.DontThrowIfValidationFails*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_DontThrowIfValidationFails" data-uid="FastEndpoints.Endpoint`2.DontThrowIfValidationFails">DontThrowIfValidationFails()</h4>
+  <div class="markdown level1 summary"><p>disable auto validation failure responses (400 bad request with error details) for this endpoint</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void DontThrowIfValidationFails()</code></pre>
+  </div>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_HandleAsync_" data-uid="FastEndpoints.Endpoint`2.HandleAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_HandleAsync__0_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)">HandleAsync(TRequest, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>the handler method for the endpoint. this method is called for each request received.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected abstract Task HandleAsync(TRequest req, CancellationToken ct)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">ct</span></td>
+        <td><p>a cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Options_" data-uid="FastEndpoints.Endpoint`2.Options*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_DelegateEndpointConventionBuilder__" data-uid="FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder})">Options(Action&lt;DelegateEndpointConventionBuilder&gt;)</h4>
+  <div class="markdown level1 summary"><p>set endpoint configurations options using an endpoint builder action</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Options(Action&lt;DelegateEndpointConventionBuilder&gt; builder)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Action</span>&lt;<span class="xref">Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder</span>&gt;</td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>the builder for this endpoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Permissions_" data-uid="FastEndpoints.Endpoint`2.Permissions*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Permissions_System_Boolean_System_String___" data-uid="FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])">Permissions(Boolean, String[])</h4>
+  <div class="markdown level1 summary"><p>specify the permissions a user principal should posses in order to access this endpoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Permissions(bool allowAny, params string[] permissions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">allowAny</span></td>
+        <td><p>if set to true, having any 1 of the specified permissions will enable access</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">permissions</span></td>
+        <td><p>the permissions</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Permissions_" data-uid="FastEndpoints.Endpoint`2.Permissions*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Permissions_System_String___" data-uid="FastEndpoints.Endpoint`2.Permissions(System.String[])">Permissions(String[])</h4>
+  <div class="markdown level1 summary"><p>specify the permissions a user principal should posses in order to access this endpoint. they must posses ALL of the permissions mentioned here. if not, a 403 forbidden response will be sent.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Permissions(params string[] permissions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">permissions</span></td>
+        <td><p>the permissions needed to access this endpoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Policies_" data-uid="FastEndpoints.Endpoint`2.Policies*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Policies_System_String___" data-uid="FastEndpoints.Endpoint`2.Policies(System.String[])">Policies(String[])</h4>
+  <div class="markdown level1 summary"><p>specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Policies(params string[] policyNames)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">policyNames</span></td>
+        <td><p>one or more policy names (must have been added to the pipeline on startup)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_PostProcessors_" data-uid="FastEndpoints.Endpoint`2.PostProcessors*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_PostProcessors_FastEndpoints_IPostProcessor__0__1____" data-uid="FastEndpoints.Endpoint`2.PostProcessors(FastEndpoints.IPostProcessor{`0,`1}[])">PostProcessors(IPostProcessor&lt;TRequest, TResponse&gt;[])</h4>
+  <div class="markdown level1 summary"><p>configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are defined here.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void PostProcessors(params IPostProcessor&lt;TRequest, TResponse&gt;[] postProcessors)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.IPostProcessor-2.html">IPostProcessor</a>&lt;TRequest, TResponse&gt;[]</td>
+        <td><span class="parametername">postProcessors</span></td>
+        <td><p>the post processors to be executed</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_PreProcessors_" data-uid="FastEndpoints.Endpoint`2.PreProcessors*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_PreProcessors_FastEndpoints_IPreProcessor__0____" data-uid="FastEndpoints.Endpoint`2.PreProcessors(FastEndpoints.IPreProcessor{`0}[])">PreProcessors(IPreProcessor&lt;TRequest&gt;[])</h4>
+  <div class="markdown level1 summary"><p>configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void PreProcessors(params IPreProcessor&lt;TRequest&gt;[] preProcessors)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.IPreProcessor-1.html">IPreProcessor</a>&lt;TRequest&gt;[]</td>
+        <td><span class="parametername">preProcessors</span></td>
+        <td><p>the pre processors to be executed</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_PublishAsync_" data-uid="FastEndpoints.Endpoint`2.PublishAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_PublishAsync__1___0_FastEndpoints_Mode_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)">PublishAsync&lt;TEvent&gt;(TEvent, Mode, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>publish the given model/dto to all the subscribers of the event notification</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+    where TEvent : class</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TEvent</span></td>
+        <td><span class="parametername">eventModel</span></td>
+        <td><p>the notification event model/dto to publish</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.Mode.html">Mode</a></td>
+        <td><span class="parametername">waitMode</span></td>
+        <td><p>specify whether to wait for none, any or all of the subscribers to complete their work</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>an optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td><p>a Task that matches the wait mode specified.
+Mode.WaitForNone returns an already completed Task (fire and forget).
+Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
+Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TEvent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Resolve_" data-uid="FastEndpoints.Endpoint`2.Resolve*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Resolve_Type_" data-uid="FastEndpoints.Endpoint`2.Resolve(Type)">Resolve(Type)</h4>
+  <div class="markdown level1 summary"><p>resolve an instance for the given type from the dependency injection container. will throw if unresolvable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected object Resolve(Type typeOfService)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Type</span></td>
+        <td><span class="parametername">typeOfService</span></td>
+        <td><p>the type of the service to resolve</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Resolve_" data-uid="FastEndpoints.Endpoint`2.Resolve*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Resolve__1" data-uid="FastEndpoints.Endpoint`2.Resolve``1">Resolve&lt;TService&gt;()</h4>
+  <div class="markdown level1 summary"><p>resolve an instance for the given type from the dependency injection container. will throw if unresolvable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected TService Resolve&lt;TService&gt;()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TService</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TService</span></td>
+        <td><p>the type of the service to resolve</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Roles_" data-uid="FastEndpoints.Endpoint`2.Roles*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Roles_System_String___" data-uid="FastEndpoints.Endpoint`2.Roles(System.String[])">Roles(String[])</h4>
+  <div class="markdown level1 summary"><p>specify that the current claim principal/ user should posses at least one of the roles (claim type) mentioned here. access will be forbidden if the user doesn't have any of the specified roles.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Roles(params string[] rolesNames)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">rolesNames</span></td>
+        <td><p>one or more roles that has access</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Routes_" data-uid="FastEndpoints.Endpoint`2.Routes*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Routes_System_String___" data-uid="FastEndpoints.Endpoint`2.Routes(System.String[])">Routes(String[])</h4>
+  <div class="markdown level1 summary"><p>specify one or more route patterns this endpoint should be listening for</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Routes(params string[] patterns)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">patterns</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendAsync_" data-uid="FastEndpoints.Endpoint`2.SendAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendAsync__1_System_Int32_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)">SendAsync(TResponse, Int32, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send the supplied response dto serialized as json to the client.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TResponse</span></td>
+        <td><span class="parametername">response</span></td>
+        <td><p>the object to serialize to json</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">statusCode</span></td>
+        <td><p>optional custom http status code</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendBytesAsync_" data-uid="FastEndpoints.Endpoint`2.SendBytesAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)">SendBytesAsync(Byte[], String, String, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send a byte array to the client</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected async Task SendBytesAsync(byte[] bytes, string fileName = null, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td><p>the bytes to send</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">fileName</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">contentType</span></td>
+        <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendErrorsAsync_" data-uid="FastEndpoints.Endpoint`2.SendErrorsAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendErrorsAsync_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)">SendErrorsAsync(CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send a 400 bad request with error details of the current validation failures</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendErrorsAsync(CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendFileAsync_" data-uid="FastEndpoints.Endpoint`2.SendFileAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)">SendFileAsync(FileInfo, String, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send a file to the client</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendFileAsync(FileInfo fileInfo, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">FileInfo</span></td>
+        <td><span class="parametername">fileInfo</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">contentType</span></td>
+        <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendForbiddenAsync_" data-uid="FastEndpoints.Endpoint`2.SendForbiddenAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendForbiddenAsync" data-uid="FastEndpoints.Endpoint`2.SendForbiddenAsync">SendForbiddenAsync()</h4>
+  <div class="markdown level1 summary"><p>send a 403 unauthorized response</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendForbiddenAsync()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendNoContentAsync_" data-uid="FastEndpoints.Endpoint`2.SendNoContentAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendNoContentAsync" data-uid="FastEndpoints.Endpoint`2.SendNoContentAsync">SendNoContentAsync()</h4>
+  <div class="markdown level1 summary"><p>send a 204 no content response</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendNoContentAsync()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendNotFoundAsync_" data-uid="FastEndpoints.Endpoint`2.SendNotFoundAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendNotFoundAsync" data-uid="FastEndpoints.Endpoint`2.SendNotFoundAsync">SendNotFoundAsync()</h4>
+  <div class="markdown level1 summary"><p>send a 404 not found response</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendNotFoundAsync()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendOkAsync_" data-uid="FastEndpoints.Endpoint`2.SendOkAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendOkAsync" data-uid="FastEndpoints.Endpoint`2.SendOkAsync">SendOkAsync()</h4>
+  <div class="markdown level1 summary"><p>send an http 200 ok response without any body</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendOkAsync()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendStreamAsync_" data-uid="FastEndpoints.Endpoint`2.SendStreamAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)">SendStreamAsync(Stream, String, Nullable&lt;Int64&gt;, String, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send the contents of a stream to the client</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendStreamAsync(Stream stream, string fileName = null, long? fileLengthBytes = null, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Stream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td><p>the stream to read the data from</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">fileName</span></td>
+        <td><p>and optional file name to set in the content-disposition header</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int64</span>&gt;</td>
+        <td><span class="parametername">fileLengthBytes</span></td>
+        <td><p>optional total size of the file/stream</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">contentType</span></td>
+        <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendUnauthorizedAsync_" data-uid="FastEndpoints.Endpoint`2.SendUnauthorizedAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendUnauthorizedAsync" data-uid="FastEndpoints.Endpoint`2.SendUnauthorizedAsync">SendUnauthorizedAsync()</h4>
+  <div class="markdown level1 summary"><p>send a 401 unauthorized response</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendUnauthorizedAsync()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_ThrowError_" data-uid="FastEndpoints.Endpoint`2.ThrowError*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_ThrowError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_" data-uid="FastEndpoints.Endpoint`2.ThrowError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)">ThrowError(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String)</h4>
+  <div class="markdown level1 summary"><p>adds an error message for the specified property of the request dto and sends back a 400 bad request with error details immediately interrupting handler execution flow. no execution will continue past this call.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void ThrowError(Expression&lt;Func&lt;TRequest, object&gt;&gt; property, string errorMessage)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Linq.Expressions.Expression</span>&lt;<span class="xref">Func</span>&lt;TRequest, <span class="xref">System.Object</span>&gt;&gt;</td>
+        <td><span class="parametername">property</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">errorMessage</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_ThrowError_" data-uid="FastEndpoints.Endpoint`2.ThrowError*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_ThrowError_System_String_" data-uid="FastEndpoints.Endpoint`2.ThrowError(System.String)">ThrowError(String)</h4>
+  <div class="markdown level1 summary"><p>add a &quot;GeneralError&quot; to the validation failure list and send back a 400 bad request with error details immediately interrupting handler execution flow. if there are any vallidation failures, no execution will continue past this call.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void ThrowError(string message)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">message</span></td>
+        <td><p>the error message</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_ThrowIfAnyErrors_" data-uid="FastEndpoints.Endpoint`2.ThrowIfAnyErrors*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_ThrowIfAnyErrors" data-uid="FastEndpoints.Endpoint`2.ThrowIfAnyErrors">ThrowIfAnyErrors()</h4>
+  <div class="markdown level1 summary"><p>interrupt the flow of handler execution and send a 400 bad request with error details if there are any validation failures in the current request. if there are no validation failures, execution will continue past this call.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void ThrowIfAnyErrors()</code></pre>
+  </div>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_TryResolve_" data-uid="FastEndpoints.Endpoint`2.TryResolve*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_TryResolve_Type_" data-uid="FastEndpoints.Endpoint`2.TryResolve(Type)">TryResolve(Type)</h4>
+  <div class="markdown level1 summary"><p>try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected object TryResolve(Type typeOfService)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Type</span></td>
+        <td><span class="parametername">typeOfService</span></td>
+        <td><p>the type of the service to resolve</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_TryResolve_" data-uid="FastEndpoints.Endpoint`2.TryResolve*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_TryResolve__1" data-uid="FastEndpoints.Endpoint`2.TryResolve``1">TryResolve&lt;TService&gt;()</h4>
+  <div class="markdown level1 summary"><p>try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected TService TryResolve&lt;TService&gt;()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TService</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TService</span></td>
+        <td><p>the type of the service to resolve</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Verbs_" data-uid="FastEndpoints.Endpoint`2.Verbs*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Verbs_FastEndpoints_Http___" data-uid="FastEndpoints.Endpoint`2.Verbs(FastEndpoints.Http[])">Verbs(Http[])</h4>
+  <div class="markdown level1 summary"><p>specify one or more http method verbs this endpoint should be accepting requests for</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Verbs(params Http[] methods)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.Http.html">Http</a>[]</td>
+        <td><span class="parametername">methods</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="FastEndpoints.IEndpoint.html">IEndpoint</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            Developed by <a href='https://github.com/dj-nitehawk'>Đĵ ΝιΓΞΗΛψΚ</a> and <a href='https://github.com/dj-nitehawk/FastEndpoints/graphs/contributors'>contributors</a> / Licensed under <a href='https://github.com/dj-nitehawk/FastEndpoints/blob/master/LICENSE'>MIT</a> / Website generated by <a href='https://dotnet.github.io/docfx/'>DocFX</a>
+            
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

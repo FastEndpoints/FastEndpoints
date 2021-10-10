@@ -1,0 +1,548 @@
+{
+  "homepages": [],
+  "source_base_path": "D:/SOURCE-CONTROL/FastEndpoints/Src/Documentation",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Resource",
+      "output": {
+        "resource": {
+          "relative_path": "index.json"
+        }
+      },
+      "is_incremental": false
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "CNAME",
+      "output": {
+        "resource": {
+          "relative_path": "CNAME"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.AsyncEventHandler-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.AsyncEventHandler-1.html",
+          "hash": "otlyp3rBvNlXATpPmHeWUJloFCFMpVt0Kg21MM6G61w="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.BaseEndpoint.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.BaseEndpoint.html",
+          "hash": "1sOoZvG+h43CuQAPeGkboetDVzyEGl0jVx/vOY+fJk8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.BaseEventHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.BaseEventHandler.html",
+          "hash": "e8aUpgCVL9hQqMiGbTFPoWthcRqTCaYv+4UqTrgs2yg="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.Constants.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.Constants.html",
+          "hash": "wz3cEj3Ych6sjE3w86LP2iZv3KhycuPDUUf2YjppCTw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.EmptyRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.EmptyRequest.html",
+          "hash": "8Bz9jnSW0AidyMqDh+tOlvBEXWmzOxLvtLPA9U09mKk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.EmptyResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.EmptyResponse.html",
+          "hash": "Swcf8UwUtN+OMJikyGul+8l1Al8Vy5dYqQKfFLOsSP0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.Endpoint-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.Endpoint-1.html",
+          "hash": "Nldp5K0IUnCcnmbbC3Pvd8ICaCV86eyHE4RKGxAF/X0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.Endpoint-2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.Endpoint-2.html",
+          "hash": "aEA09FaowrlM2gCQJrWbKKRb2iUSeEmfYfGVk+kR0eQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.EndpointExecutor.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.EndpointExecutor.html",
+          "hash": "DAm5RxlSPh4ZUp6vHdSsq+jxkO9sBpx606Vzp5pwpi0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.html",
+          "hash": "CrL3q5wM0Vpbg3iQZfTJDaLjyyqgBQNQpfV+X+3gfpY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.EndpointWithoutRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.EndpointWithoutRequest.html",
+          "hash": "LVyccFVuNh1s83dlbmA4IW06QpxcxZBNzRGjFYBv4vU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.ErrorResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.ErrorResponse.html",
+          "hash": "zjL2jbI9O1bj0Wr66fw8K7/mfBOtp73GHvVrcfQGmHI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.FastEventHandler-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.FastEventHandler-1.html",
+          "hash": "eAincF3kNA/FWPDFPfbgZe1ke5JpATlmps0pmoVWH9k="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.FromAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.FromAttribute.html",
+          "hash": "X6iZM+4VLpXF4qAayZ00qpqTLg3w2oyNl+AJVwEP4dQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.FromClaimAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.FromClaimAttribute.html",
+          "hash": "GcTpqNeVIMejx5XmWNQraqZywHznobucBAqYhw4/M2E="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.Http.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.Http.html",
+          "hash": "0g1QsuYSFDf5PTmFqwIJzIJX6xahOJmxVOasDZVdrbA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.HttpClientExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
+          "hash": "FeDsoZljQDN809teOIR11FjM7cAm2zoFNbxEMSbzYbU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.IEndpoint.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.IEndpoint.html",
+          "hash": "dFmiOSI8bft0n6k7D1KsghIdEKdeC6XZCDPFZWmRUcA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.IPostProcessor-2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.IPostProcessor-2.html",
+          "hash": "iblLJEUy1wq/Vj7jmJ84eFLzEArLT7YuIRAvRlVZFFI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.IPreProcessor-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.IPreProcessor-1.html",
+          "hash": "M1WRNwgSsU/3cDISSzvQIpdGkk2wNgueAM3sjFhrvAw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.IRequest-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.IRequest-1.html",
+          "hash": "tfqlgWoqsy2PLZtyBMYxPrixtJM6PSjeQEz1jwKl4AI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.IResponse-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.IResponse-1.html",
+          "hash": "FsL4nKt12j8fLuIkgsi2TvGSpVcWGcO/asvzokBYE2o="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.MainExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.MainExtensions.html",
+          "hash": "Fw63Kla2Y0Ysl5GIcL0/UJMOR9IUT4SkBSbBP0ASlK8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.Mode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.Mode.html",
+          "hash": "PwhlYF/kbLf9TI9iPCmxmQNnLmOZY6whtyMmGa9k0xI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.Validation.Validator-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.Validation.Validator-1.html",
+          "hash": "/OAU+FMNfNhTa17+FGOmyJRuPouRSylQ+FwfKUpOwBY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.Validation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.Validation.html",
+          "hash": "LctGzz12gOLDkNn+7UAsACMBW68KFVqIkcB1XAo2Zn8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.html",
+          "hash": "MFsIBJZYq+XxtXczR/mC+Sb15N743WD6awIk3ZLCQ8s="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html",
+          "hash": "IEF5G+6hpmANJdPF0WNKyZL5RJSXMakpsWQCPlR/gGc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "images/donate.png",
+      "output": {
+        "resource": {
+          "relative_path": "images/donate.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "images/favicon.ico",
+      "output": {
+        "resource": {
+          "relative_path": "images/favicon.ico"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "images/header.svg",
+      "output": {
+        "resource": {
+          "relative_path": "images/header.svg"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "images/icon.png",
+      "output": {
+        "resource": {
+          "relative_path": "images/icon.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "images/logo.ai",
+      "output": {
+        "resource": {
+          "relative_path": "images/logo.ai"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "images/social-square.png",
+      "output": {
+        "resource": {
+          "relative_path": "images/social-square.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "images/social.png",
+      "output": {
+        "resource": {
+          "relative_path": "images/social.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "log_codes": [
+        "InvalidFileLink"
+      ],
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html",
+          "hash": "FztuCmKkfnFYAwh2QOgyFrAQs86OB6UV5S21rtCod4I="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "log_codes": [
+        "InvalidFileLink"
+      ],
+      "type": "Toc",
+      "source_relative_path": "toc.md",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html",
+          "hash": "uw2qDmbqteqYE6+/hFoFStl/+zv42+9EVXUDqkccxWc="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "wiki/Get-Started.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Get-Started.html",
+          "hash": "NZG+yKrBCiJrc36pWkxNK6pa/MeNwdhkPwHm1LwmNyU="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "wiki/toc.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/toc.html",
+          "hash": "PB5CdJI63/FCRbyiB6p9e6ub4OzxRQ8Y+sBPmvI0k1A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    }
+  ],
+  "incremental_info": [
+    {
+      "status": {
+        "can_incremental": true,
+        "incrementalPhase": "build",
+        "total_file_count": 0,
+        "skipped_file_count": 0
+      },
+      "processors": {
+        "ConceptualDocumentProcessor": {
+          "can_incremental": true,
+          "incrementalPhase": "build",
+          "total_file_count": 2,
+          "skipped_file_count": 2
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": true,
+          "incrementalPhase": "build",
+          "total_file_count": 27,
+          "skipped_file_count": 27
+        },
+        "ResourceDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor ResourceDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        },
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        }
+      }
+    },
+    {
+      "status": {
+        "can_incremental": false,
+        "details": "Cannot support incremental post processing, the reason is: should not trace intermediate info.",
+        "incrementalPhase": "postProcessing",
+        "total_file_count": 0,
+        "skipped_file_count": 0
+      },
+      "processors": {}
+    }
+  ],
+  "version_info": {},
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}

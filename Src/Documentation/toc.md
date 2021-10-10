@@ -1,0 +1,5 @@
+# [Documentation](wiki/)
+# [Benchmarks](wiki/Benchmarks.md)
+# [Api Reference](api/)
+# [GitHub](https://github.com/dj-nitehawk/FastEndpoints)
+# [Donate](https://www.paypal.com/donate?hosted_button_id=AU3SCQX9FXYCS)

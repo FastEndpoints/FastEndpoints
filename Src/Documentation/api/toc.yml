@@ -1,0 +1,67 @@
+### YamlMime:TableOfContent
+- uid: FastEndpoints
+  name: FastEndpoints
+  items:
+  - uid: FastEndpoints.AsyncEventHandler`1
+    name: AsyncEventHandler<TEventArgs>
+    name.vb: AsyncEventHandler(Of TEventArgs)
+  - uid: FastEndpoints.BaseEndpoint
+    name: BaseEndpoint
+  - uid: FastEndpoints.BaseEventHandler
+    name: BaseEventHandler
+  - uid: FastEndpoints.Constants
+    name: Constants
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+  - uid: FastEndpoints.EmptyResponse
+    name: EmptyResponse
+  - uid: FastEndpoints.Endpoint`2
+    name: Endpoint<TRequest, TResponse>
+    name.vb: Endpoint(Of TRequest, TResponse)
+  - uid: FastEndpoints.Endpoint`1
+    name: Endpoint<TRequest>
+    name.vb: Endpoint(Of TRequest)
+  - uid: FastEndpoints.EndpointExecutor
+    name: EndpointExecutor
+  - uid: FastEndpoints.EndpointWithoutRequest
+    name: EndpointWithoutRequest
+  - uid: FastEndpoints.EndpointWithoutRequest`1
+    name: EndpointWithoutRequest<TResponse>
+    name.vb: EndpointWithoutRequest(Of TResponse)
+  - uid: FastEndpoints.ErrorResponse
+    name: ErrorResponse
+  - uid: FastEndpoints.FastEventHandler`1
+    name: FastEventHandler<TEvent>
+    name.vb: FastEventHandler(Of TEvent)
+  - uid: FastEndpoints.FromAttribute
+    name: FromAttribute
+  - uid: FastEndpoints.FromClaimAttribute
+    name: FromClaimAttribute
+  - uid: FastEndpoints.Http
+    name: Http
+  - uid: FastEndpoints.HttpClientExtensions
+    name: HttpClientExtensions
+  - uid: FastEndpoints.IEndpoint
+    name: IEndpoint
+  - uid: FastEndpoints.IPostProcessor`2
+    name: IPostProcessor<TRequest, TResponse>
+    name.vb: IPostProcessor(Of TRequest, TResponse)
+  - uid: FastEndpoints.IPreProcessor`1
+    name: IPreProcessor<TRequest>
+    name.vb: IPreProcessor(Of TRequest)
+  - uid: FastEndpoints.IRequest`1
+    name: IRequest<TEntity>
+    name.vb: IRequest(Of TEntity)
+  - uid: FastEndpoints.IResponse`1
+    name: IResponse<TEntity>
+    name.vb: IResponse(Of TEntity)
+  - uid: FastEndpoints.MainExtensions
+    name: MainExtensions
+  - uid: FastEndpoints.Mode
+    name: Mode
+- uid: FastEndpoints.Validation
+  name: FastEndpoints.Validation
+  items:
+  - uid: FastEndpoints.Validation.Validator`1
+    name: Validator<TRequest>
+    name.vb: Validator(Of TRequest)

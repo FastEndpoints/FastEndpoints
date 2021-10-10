@@ -1,0 +1,456 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.MainExtensions
+  commentId: T:FastEndpoints.MainExtensions
+  id: MainExtensions
+  parent: FastEndpoints
+  children:
+  - FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  - FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  langs:
+  - csharp
+  - vb
+  name: MainExtensions
+  nameWithType: MainExtensions
+  fullName: FastEndpoints.MainExtensions
+  type: Class
+  source:
+    id: MainExtensions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\MainExtensions.cs
+    startLine: 14
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public static class MainExtensions
+    content.vb: Public Module MainExtensions
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - static
+  - class
+  modifiers.vb:
+  - Public
+  - Module
+- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  id: AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  isExtensionMethod: true
+  parent: FastEndpoints.MainExtensions
+  langs:
+  - csharp
+  - vb
+  name: AddFastEndpoints(IServiceCollection)
+  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection)
+  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  type: Method
+  source:
+    id: AddFastEndpoints
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\MainExtensions.cs
+    startLine: 50
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nadds the FastEndpoints services to the ASP.Net middleware pipeline\n"
+  example: []
+  syntax:
+    content: public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
+    parameters:
+    - id: services
+      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
+      description: ''
+    return:
+      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function AddFastEndpoints(services As IServiceCollection) As IServiceCollection
+  overload: FastEndpoints.MainExtensions.AddFastEndpoints*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  id: UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  isExtensionMethod: true
+  parent: FastEndpoints.MainExtensions
+  langs:
+  - csharp
+  - vb
+  name: UseFastEndpoints(IEndpointRouteBuilder)
+  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder)
+  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  type: Method
+  source:
+    id: UseFastEndpoints
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\MainExtensions.cs
+    startLine: 139
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nfinalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests\n"
+  example: []
+  syntax:
+    content: public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
+    parameters:
+    - id: builder
+      type: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
+    return:
+      type: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function UseFastEndpoints(builder As IEndpointRouteBuilder) As IEndpointRouteBuilder
+  overload: FastEndpoints.MainExtensions.UseFastEndpoints*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: FastEndpoints.MainExtensions.AddFastEndpoints*
+  commentId: Overload:FastEndpoints.MainExtensions.AddFastEndpoints
+  name: AddFastEndpoints
+  nameWithType: MainExtensions.AddFastEndpoints
+  fullName: FastEndpoints.MainExtensions.AddFastEndpoints
+- uid: Microsoft.Extensions.DependencyInjection.IServiceCollection
+  commentId: T:Microsoft.Extensions.DependencyInjection.IServiceCollection
+  parent: Microsoft.Extensions.DependencyInjection
+  isExternal: true
+  name: IServiceCollection
+  nameWithType: IServiceCollection
+  fullName: Microsoft.Extensions.DependencyInjection.IServiceCollection
+- uid: Microsoft.Extensions.DependencyInjection
+  commentId: N:Microsoft.Extensions.DependencyInjection
+  isExternal: true
+  name: Microsoft.Extensions.DependencyInjection
+  nameWithType: Microsoft.Extensions.DependencyInjection
+  fullName: Microsoft.Extensions.DependencyInjection
+- uid: FastEndpoints.MainExtensions.UseFastEndpoints*
+  commentId: Overload:FastEndpoints.MainExtensions.UseFastEndpoints
+  name: UseFastEndpoints
+  nameWithType: MainExtensions.UseFastEndpoints
+  fullName: FastEndpoints.MainExtensions.UseFastEndpoints
+- uid: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
+  commentId: T:Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
+  parent: Microsoft.AspNetCore.Routing
+  isExternal: true
+  name: IEndpointRouteBuilder
+  nameWithType: IEndpointRouteBuilder
+  fullName: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
+- uid: Microsoft.AspNetCore.Routing
+  commentId: N:Microsoft.AspNetCore.Routing
+  isExternal: true
+  name: Microsoft.AspNetCore.Routing
+  nameWithType: Microsoft.AspNetCore.Routing
+  fullName: Microsoft.AspNetCore.Routing

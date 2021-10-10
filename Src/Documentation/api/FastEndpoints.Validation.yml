@@ -1,0 +1,53 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.Validation
+  commentId: N:FastEndpoints.Validation
+  id: FastEndpoints.Validation
+  children:
+  - FastEndpoints.Validation.Validator`1
+  langs:
+  - csharp
+  - vb
+  name: FastEndpoints.Validation
+  nameWithType: FastEndpoints.Validation
+  fullName: FastEndpoints.Validation
+  type: Namespace
+  assemblies:
+  - FastEndpoints
+references:
+- uid: FastEndpoints.Validation.Validator`1
+  commentId: T:FastEndpoints.Validation.Validator`1
+  name: Validator<TRequest>
+  nameWithType: Validator<TRequest>
+  fullName: FastEndpoints.Validation.Validator<TRequest>
+  nameWithType.vb: Validator(Of TRequest)
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest)
+  name.vb: Validator(Of TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Validation.Validator`1
+    name: Validator
+    nameWithType: Validator
+    fullName: FastEndpoints.Validation.Validator
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: FastEndpoints.Validation.Validator`1
+    name: Validator
+    nameWithType: Validator
+    fullName: FastEndpoints.Validation.Validator
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )

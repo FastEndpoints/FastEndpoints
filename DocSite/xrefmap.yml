@@ -1,0 +1,1469 @@
+### YamlMime:XRefMap
+sorted: true
+references:
+- uid: FastEndpoints
+  name: FastEndpoints
+  href: api/FastEndpoints.html
+  commentId: N:FastEndpoints
+  fullName: FastEndpoints
+  nameWithType: FastEndpoints
+- uid: FastEndpoints.AsyncEventHandler`1
+  name: AsyncEventHandler<TEventArgs>
+  href: api/FastEndpoints.AsyncEventHandler-1.html
+  commentId: T:FastEndpoints.AsyncEventHandler`1
+  name.vb: AsyncEventHandler(Of TEventArgs)
+  fullName: FastEndpoints.AsyncEventHandler<TEventArgs>
+  fullName.vb: FastEndpoints.AsyncEventHandler(Of TEventArgs)
+  nameWithType: AsyncEventHandler<TEventArgs>
+  nameWithType.vb: AsyncEventHandler(Of TEventArgs)
+- uid: FastEndpoints.BaseEndpoint
+  name: BaseEndpoint
+  href: api/FastEndpoints.BaseEndpoint.html
+  commentId: T:FastEndpoints.BaseEndpoint
+  fullName: FastEndpoints.BaseEndpoint
+  nameWithType: BaseEndpoint
+- uid: FastEndpoints.BaseEventHandler
+  name: BaseEventHandler
+  href: api/FastEndpoints.BaseEventHandler.html
+  commentId: T:FastEndpoints.BaseEventHandler
+  fullName: FastEndpoints.BaseEventHandler
+  nameWithType: BaseEventHandler
+- uid: FastEndpoints.Constants
+  name: Constants
+  href: api/FastEndpoints.Constants.html
+  commentId: T:FastEndpoints.Constants
+  fullName: FastEndpoints.Constants
+  nameWithType: Constants
+- uid: FastEndpoints.Constants.PermissionsClaimType
+  name: PermissionsClaimType
+  href: api/FastEndpoints.Constants.html#FastEndpoints_Constants_PermissionsClaimType
+  commentId: F:FastEndpoints.Constants.PermissionsClaimType
+  fullName: FastEndpoints.Constants.PermissionsClaimType
+  nameWithType: Constants.PermissionsClaimType
+- uid: FastEndpoints.EmptyRequest
+  name: EmptyRequest
+  href: api/FastEndpoints.EmptyRequest.html
+  commentId: T:FastEndpoints.EmptyRequest
+  fullName: FastEndpoints.EmptyRequest
+  nameWithType: EmptyRequest
+- uid: FastEndpoints.EmptyResponse
+  name: EmptyResponse
+  href: api/FastEndpoints.EmptyResponse.html
+  commentId: T:FastEndpoints.EmptyResponse
+  fullName: FastEndpoints.EmptyResponse
+  nameWithType: EmptyResponse
+- uid: FastEndpoints.Endpoint`1
+  name: Endpoint<TRequest>
+  href: api/FastEndpoints.Endpoint-1.html
+  commentId: T:FastEndpoints.Endpoint`1
+  name.vb: Endpoint(Of TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest>
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest)
+  nameWithType: Endpoint<TRequest>
+  nameWithType.vb: Endpoint(Of TRequest)
+- uid: FastEndpoints.Endpoint`2
+  name: Endpoint<TRequest, TResponse>
+  href: api/FastEndpoints.Endpoint-2.html
+  commentId: T:FastEndpoints.Endpoint`2
+  name.vb: Endpoint(Of TRequest, TResponse)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse)
+  nameWithType: Endpoint<TRequest, TResponse>
+  nameWithType.vb: Endpoint(Of TRequest, TResponse)
+- uid: FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
+  name: AddError(Expression<Func<TRequest, Object>>, String)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_
+  commentId: M:FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
+  name.vb: AddError(Expression(Of Func(Of TRequest, Object)), String)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AddError(System.Linq.Expressions.Expression<Func<TRequest, System.Object>>, System.String)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError(System.Linq.Expressions.Expression(Of Func(Of TRequest, System.Object)), System.String)
+  nameWithType: Endpoint<TRequest, TResponse>.AddError(Expression<Func<TRequest, Object>>, String)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError(Expression(Of Func(Of TRequest, Object)), String)
+- uid: FastEndpoints.Endpoint`2.AddError(System.String)
+  name: AddError(String)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_String_
+  commentId: M:FastEndpoints.Endpoint`2.AddError(System.String)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AddError(System.String)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError(System.String)
+  nameWithType: Endpoint<TRequest, TResponse>.AddError(String)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError(String)
+- uid: FastEndpoints.Endpoint`2.AddError*
+  name: AddError
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_
+  commentId: Overload:FastEndpoints.Endpoint`2.AddError
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AddError
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError
+  nameWithType: Endpoint<TRequest, TResponse>.AddError
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError
+- uid: FastEndpoints.Endpoint`2.AllowAnnonymous
+  name: AllowAnnonymous()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnnonymous
+  commentId: M:FastEndpoints.Endpoint`2.AllowAnnonymous
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnnonymous()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnnonymous()
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnnonymous()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnnonymous()
+- uid: FastEndpoints.Endpoint`2.AllowAnnonymous*
+  name: AllowAnnonymous
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnnonymous_
+  commentId: Overload:FastEndpoints.Endpoint`2.AllowAnnonymous
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnnonymous
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnnonymous
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnnonymous
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnnonymous
+- uid: FastEndpoints.Endpoint`2.AllowFileUploads
+  name: AllowFileUploads()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads
+  commentId: M:FastEndpoints.Endpoint`2.AllowFileUploads
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowFileUploads()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFileUploads()
+  nameWithType: Endpoint<TRequest, TResponse>.AllowFileUploads()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFileUploads()
+- uid: FastEndpoints.Endpoint`2.AllowFileUploads*
+  name: AllowFileUploads
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads_
+  commentId: Overload:FastEndpoints.Endpoint`2.AllowFileUploads
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowFileUploads
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFileUploads
+  nameWithType: Endpoint<TRequest, TResponse>.AllowFileUploads
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFileUploads
+- uid: FastEndpoints.Endpoint`2.BaseURL
+  name: BaseURL
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_BaseURL
+  commentId: P:FastEndpoints.Endpoint`2.BaseURL
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.BaseURL
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).BaseURL
+  nameWithType: Endpoint<TRequest, TResponse>.BaseURL
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).BaseURL
+- uid: FastEndpoints.Endpoint`2.BaseURL*
+  name: BaseURL
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_BaseURL_
+  commentId: Overload:FastEndpoints.Endpoint`2.BaseURL
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.BaseURL
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).BaseURL
+  nameWithType: Endpoint<TRequest, TResponse>.BaseURL
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).BaseURL
+- uid: FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])
+  name: Claims(Boolean, String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Claims_System_Boolean_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])
+  name.vb: Claims(Boolean, String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Claims(System.Boolean, System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims(System.Boolean, System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Claims(Boolean, String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims(Boolean, String())
+- uid: FastEndpoints.Endpoint`2.Claims(System.String[])
+  name: Claims(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Claims_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Claims(System.String[])
+  name.vb: Claims(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Claims(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Claims(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims(String())
+- uid: FastEndpoints.Endpoint`2.Claims*
+  name: Claims
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Claims_
+  commentId: Overload:FastEndpoints.Endpoint`2.Claims
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Claims
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims
+  nameWithType: Endpoint<TRequest, TResponse>.Claims
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims
+- uid: FastEndpoints.Endpoint`2.Config
+  name: Config
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Config
+  commentId: P:FastEndpoints.Endpoint`2.Config
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Config
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Config
+  nameWithType: Endpoint<TRequest, TResponse>.Config
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Config
+- uid: FastEndpoints.Endpoint`2.Config*
+  name: Config
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Config_
+  commentId: Overload:FastEndpoints.Endpoint`2.Config
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Config
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Config
+  nameWithType: Endpoint<TRequest, TResponse>.Config
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Config
+- uid: FastEndpoints.Endpoint`2.DontThrowIfValidationFails
+  name: DontThrowIfValidationFails()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontThrowIfValidationFails
+  commentId: M:FastEndpoints.Endpoint`2.DontThrowIfValidationFails
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.DontThrowIfValidationFails()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).DontThrowIfValidationFails()
+  nameWithType: Endpoint<TRequest, TResponse>.DontThrowIfValidationFails()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).DontThrowIfValidationFails()
+- uid: FastEndpoints.Endpoint`2.DontThrowIfValidationFails*
+  name: DontThrowIfValidationFails
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontThrowIfValidationFails_
+  commentId: Overload:FastEndpoints.Endpoint`2.DontThrowIfValidationFails
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.DontThrowIfValidationFails
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).DontThrowIfValidationFails
+  nameWithType: Endpoint<TRequest, TResponse>.DontThrowIfValidationFails
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).DontThrowIfValidationFails
+- uid: FastEndpoints.Endpoint`2.Env
+  name: Env
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Env
+  commentId: P:FastEndpoints.Endpoint`2.Env
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Env
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Env
+  nameWithType: Endpoint<TRequest, TResponse>.Env
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Env
+- uid: FastEndpoints.Endpoint`2.Env*
+  name: Env
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Env_
+  commentId: Overload:FastEndpoints.Endpoint`2.Env
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Env
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Env
+  nameWithType: Endpoint<TRequest, TResponse>.Env
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Env
+- uid: FastEndpoints.Endpoint`2.Files
+  name: Files
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Files
+  commentId: P:FastEndpoints.Endpoint`2.Files
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Files
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Files
+  nameWithType: Endpoint<TRequest, TResponse>.Files
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Files
+- uid: FastEndpoints.Endpoint`2.Files*
+  name: Files
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Files_
+  commentId: Overload:FastEndpoints.Endpoint`2.Files
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Files
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Files
+  nameWithType: Endpoint<TRequest, TResponse>.Files
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Files
+- uid: FastEndpoints.Endpoint`2.Form
+  name: Form
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Form
+  commentId: P:FastEndpoints.Endpoint`2.Form
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Form
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Form
+  nameWithType: Endpoint<TRequest, TResponse>.Form
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Form
+- uid: FastEndpoints.Endpoint`2.Form*
+  name: Form
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Form_
+  commentId: Overload:FastEndpoints.Endpoint`2.Form
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Form
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Form
+  nameWithType: Endpoint<TRequest, TResponse>.Form
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Form
+- uid: FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)
+  name: HandleAsync(TRequest, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HandleAsync__0_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HandleAsync(TRequest, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HandleAsync(TRequest, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.HandleAsync(TRequest, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).HandleAsync(TRequest, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.HandleAsync*
+  name: HandleAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HandleAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.HandleAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HandleAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HandleAsync
+  nameWithType: Endpoint<TRequest, TResponse>.HandleAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).HandleAsync
+- uid: FastEndpoints.Endpoint`2.HttpContext
+  name: HttpContext
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpContext
+  commentId: P:FastEndpoints.Endpoint`2.HttpContext
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HttpContext
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HttpContext
+  nameWithType: Endpoint<TRequest, TResponse>.HttpContext
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).HttpContext
+- uid: FastEndpoints.Endpoint`2.HttpContext*
+  name: HttpContext
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpContext_
+  commentId: Overload:FastEndpoints.Endpoint`2.HttpContext
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HttpContext
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HttpContext
+  nameWithType: Endpoint<TRequest, TResponse>.HttpContext
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).HttpContext
+- uid: FastEndpoints.Endpoint`2.HttpMethod
+  name: HttpMethod
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpMethod
+  commentId: P:FastEndpoints.Endpoint`2.HttpMethod
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HttpMethod
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HttpMethod
+  nameWithType: Endpoint<TRequest, TResponse>.HttpMethod
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).HttpMethod
+- uid: FastEndpoints.Endpoint`2.HttpMethod*
+  name: HttpMethod
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpMethod_
+  commentId: Overload:FastEndpoints.Endpoint`2.HttpMethod
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HttpMethod
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HttpMethod
+  nameWithType: Endpoint<TRequest, TResponse>.HttpMethod
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).HttpMethod
+- uid: FastEndpoints.Endpoint`2.Logger
+  name: Logger
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Logger
+  commentId: P:FastEndpoints.Endpoint`2.Logger
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Logger
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Logger
+  nameWithType: Endpoint<TRequest, TResponse>.Logger
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Logger
+- uid: FastEndpoints.Endpoint`2.Logger*
+  name: Logger
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Logger_
+  commentId: Overload:FastEndpoints.Endpoint`2.Logger
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Logger
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Logger
+  nameWithType: Endpoint<TRequest, TResponse>.Logger
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Logger
+- uid: FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder})
+  name: Options(Action<DelegateEndpointConventionBuilder>)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_DelegateEndpointConventionBuilder__
+  commentId: M:FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder})
+  name.vb: Options(Action(Of DelegateEndpointConventionBuilder))
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Options(Action<Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder>)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Options(Action(Of Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder))
+  nameWithType: Endpoint<TRequest, TResponse>.Options(Action<DelegateEndpointConventionBuilder>)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Options(Action(Of DelegateEndpointConventionBuilder))
+- uid: FastEndpoints.Endpoint`2.Options*
+  name: Options
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_
+  commentId: Overload:FastEndpoints.Endpoint`2.Options
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Options
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Options
+  nameWithType: Endpoint<TRequest, TResponse>.Options
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Options
+- uid: FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
+  name: Permissions(Boolean, String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Permissions_System_Boolean_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
+  name.vb: Permissions(Boolean, String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Permissions(System.Boolean, System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions(System.Boolean, System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Permissions(Boolean, String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions(Boolean, String())
+- uid: FastEndpoints.Endpoint`2.Permissions(System.String[])
+  name: Permissions(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Permissions_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Permissions(System.String[])
+  name.vb: Permissions(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Permissions(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Permissions(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions(String())
+- uid: FastEndpoints.Endpoint`2.Permissions*
+  name: Permissions
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Permissions_
+  commentId: Overload:FastEndpoints.Endpoint`2.Permissions
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Permissions
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions
+  nameWithType: Endpoint<TRequest, TResponse>.Permissions
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions
+- uid: FastEndpoints.Endpoint`2.Policies(System.String[])
+  name: Policies(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Policies_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Policies(System.String[])
+  name.vb: Policies(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Policies(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Policies(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Policies(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Policies(String())
+- uid: FastEndpoints.Endpoint`2.Policies*
+  name: Policies
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Policies_
+  commentId: Overload:FastEndpoints.Endpoint`2.Policies
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Policies
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Policies
+  nameWithType: Endpoint<TRequest, TResponse>.Policies
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Policies
+- uid: FastEndpoints.Endpoint`2.PostProcessors(FastEndpoints.IPostProcessor{`0,`1}[])
+  name: PostProcessors(IPostProcessor<TRequest, TResponse>[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PostProcessors_FastEndpoints_IPostProcessor__0__1____
+  commentId: M:FastEndpoints.Endpoint`2.PostProcessors(FastEndpoints.IPostProcessor{`0,`1}[])
+  name.vb: PostProcessors(IPostProcessor(Of TRequest, TResponse)())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PostProcessors(FastEndpoints.IPostProcessor<TRequest, TResponse>[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PostProcessors(FastEndpoints.IPostProcessor(Of TRequest, TResponse)())
+  nameWithType: Endpoint<TRequest, TResponse>.PostProcessors(IPostProcessor<TRequest, TResponse>[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PostProcessors(IPostProcessor(Of TRequest, TResponse)())
+- uid: FastEndpoints.Endpoint`2.PostProcessors*
+  name: PostProcessors
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PostProcessors_
+  commentId: Overload:FastEndpoints.Endpoint`2.PostProcessors
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PostProcessors
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PostProcessors
+  nameWithType: Endpoint<TRequest, TResponse>.PostProcessors
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PostProcessors
+- uid: FastEndpoints.Endpoint`2.PreProcessors(FastEndpoints.IPreProcessor{`0}[])
+  name: PreProcessors(IPreProcessor<TRequest>[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PreProcessors_FastEndpoints_IPreProcessor__0____
+  commentId: M:FastEndpoints.Endpoint`2.PreProcessors(FastEndpoints.IPreProcessor{`0}[])
+  name.vb: PreProcessors(IPreProcessor(Of TRequest)())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PreProcessors(FastEndpoints.IPreProcessor<TRequest>[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PreProcessors(FastEndpoints.IPreProcessor(Of TRequest)())
+  nameWithType: Endpoint<TRequest, TResponse>.PreProcessors(IPreProcessor<TRequest>[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PreProcessors(IPreProcessor(Of TRequest)())
+- uid: FastEndpoints.Endpoint`2.PreProcessors*
+  name: PreProcessors
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PreProcessors_
+  commentId: Overload:FastEndpoints.Endpoint`2.PreProcessors
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PreProcessors
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PreProcessors
+  nameWithType: Endpoint<TRequest, TResponse>.PreProcessors
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PreProcessors
+- uid: FastEndpoints.Endpoint`2.PublishAsync*
+  name: PublishAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PublishAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.PublishAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PublishAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PublishAsync
+  nameWithType: Endpoint<TRequest, TResponse>.PublishAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PublishAsync
+- uid: FastEndpoints.Endpoint`2.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)
+  name: PublishAsync<TEvent>(TEvent, Mode, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PublishAsync__1___0_FastEndpoints_Mode_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)
+  name.vb: PublishAsync(Of TEvent)(TEvent, Mode, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PublishAsync<TEvent>(TEvent, FastEndpoints.Mode, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PublishAsync(Of TEvent)(TEvent, FastEndpoints.Mode, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.PublishAsync<TEvent>(TEvent, Mode, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PublishAsync(Of TEvent)(TEvent, Mode, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.Resolve(Type)
+  name: Resolve(Type)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Resolve_Type_
+  commentId: M:FastEndpoints.Endpoint`2.Resolve(Type)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Resolve(Type)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Resolve(Type)
+  nameWithType: Endpoint<TRequest, TResponse>.Resolve(Type)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Resolve(Type)
+- uid: FastEndpoints.Endpoint`2.Resolve*
+  name: Resolve
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Resolve_
+  commentId: Overload:FastEndpoints.Endpoint`2.Resolve
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Resolve
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Resolve
+  nameWithType: Endpoint<TRequest, TResponse>.Resolve
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Resolve
+- uid: FastEndpoints.Endpoint`2.Resolve``1
+  name: Resolve<TService>()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Resolve__1
+  commentId: M:FastEndpoints.Endpoint`2.Resolve``1
+  name.vb: Resolve(Of TService)()
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Resolve<TService>()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Resolve(Of TService)()
+  nameWithType: Endpoint<TRequest, TResponse>.Resolve<TService>()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Resolve(Of TService)()
+- uid: FastEndpoints.Endpoint`2.Response
+  name: Response
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Response
+  commentId: P:FastEndpoints.Endpoint`2.Response
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Response
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Response
+  nameWithType: Endpoint<TRequest, TResponse>.Response
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Response
+- uid: FastEndpoints.Endpoint`2.Response*
+  name: Response
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Response_
+  commentId: Overload:FastEndpoints.Endpoint`2.Response
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Response
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Response
+  nameWithType: Endpoint<TRequest, TResponse>.Response
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Response
+- uid: FastEndpoints.Endpoint`2.Roles(System.String[])
+  name: Roles(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Roles_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Roles(System.String[])
+  name.vb: Roles(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Roles(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Roles(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Roles(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Roles(String())
+- uid: FastEndpoints.Endpoint`2.Roles*
+  name: Roles
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Roles_
+  commentId: Overload:FastEndpoints.Endpoint`2.Roles
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Roles
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Roles
+  nameWithType: Endpoint<TRequest, TResponse>.Roles
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Roles
+- uid: FastEndpoints.Endpoint`2.Routes(System.String[])
+  name: Routes(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Routes_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Routes(System.String[])
+  name.vb: Routes(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Routes(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Routes(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Routes(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Routes(String())
+- uid: FastEndpoints.Endpoint`2.Routes*
+  name: Routes
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Routes_
+  commentId: Overload:FastEndpoints.Endpoint`2.Routes
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Routes
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Routes
+  nameWithType: Endpoint<TRequest, TResponse>.Routes
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Routes
+- uid: FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)
+  name: SendAsync(TResponse, Int32, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendAsync__1_System_Int32_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendAsync(TResponse, System.Int32, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendAsync(TResponse, System.Int32, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendAsync(TResponse, Int32, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendAsync(TResponse, Int32, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendAsync*
+  name: SendAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendAsync
+- uid: FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
+  name: SendBytesAsync(Byte[], String, String, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
+  name.vb: SendBytesAsync(Byte(), String, String, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendBytesAsync(System.Byte[], System.String, System.String, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendBytesAsync(System.Byte(), System.String, System.String, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendBytesAsync(Byte[], String, String, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendBytesAsync(Byte(), String, String, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendBytesAsync*
+  name: SendBytesAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendBytesAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendBytesAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendBytesAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendBytesAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendBytesAsync
+- uid: FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)
+  name: SendErrorsAsync(CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendErrorsAsync_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendErrorsAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendErrorsAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendErrorsAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendErrorsAsync(CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendErrorsAsync*
+  name: SendErrorsAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendErrorsAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendErrorsAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendErrorsAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendErrorsAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendErrorsAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendErrorsAsync
+- uid: FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)
+  name: SendFileAsync(FileInfo, String, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendFileAsync(FileInfo, System.String, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendFileAsync(FileInfo, System.String, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendFileAsync(FileInfo, String, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendFileAsync(FileInfo, String, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendFileAsync*
+  name: SendFileAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendFileAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendFileAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendFileAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendFileAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendFileAsync
+- uid: FastEndpoints.Endpoint`2.SendForbiddenAsync
+  name: SendForbiddenAsync()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync
+  commentId: M:FastEndpoints.Endpoint`2.SendForbiddenAsync
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync()
+  nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync()
+- uid: FastEndpoints.Endpoint`2.SendForbiddenAsync*
+  name: SendForbiddenAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendForbiddenAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync
+- uid: FastEndpoints.Endpoint`2.SendNoContentAsync
+  name: SendNoContentAsync()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync
+  commentId: M:FastEndpoints.Endpoint`2.SendNoContentAsync
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync()
+  nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync()
+- uid: FastEndpoints.Endpoint`2.SendNoContentAsync*
+  name: SendNoContentAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendNoContentAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync
+- uid: FastEndpoints.Endpoint`2.SendNotFoundAsync
+  name: SendNotFoundAsync()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNotFoundAsync
+  commentId: M:FastEndpoints.Endpoint`2.SendNotFoundAsync
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync()
+  nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync()
+- uid: FastEndpoints.Endpoint`2.SendNotFoundAsync*
+  name: SendNotFoundAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNotFoundAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendNotFoundAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync
+- uid: FastEndpoints.Endpoint`2.SendOkAsync
+  name: SendOkAsync()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync
+  commentId: M:FastEndpoints.Endpoint`2.SendOkAsync
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync()
+  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync()
+- uid: FastEndpoints.Endpoint`2.SendOkAsync*
+  name: SendOkAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendOkAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync
+- uid: FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
+  name: SendStreamAsync(Stream, String, Nullable<Int64>, String, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
+  name.vb: SendStreamAsync(Stream, String, Nullable(Of Int64), String, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStreamAsync(Stream, System.String, System.Nullable<System.Int64>, System.String, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStreamAsync(Stream, System.String, System.Nullable(Of System.Int64), System.String, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendStreamAsync(Stream, String, Nullable<Int64>, String, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStreamAsync(Stream, String, Nullable(Of Int64), String, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendStreamAsync*
+  name: SendStreamAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendStreamAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStreamAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStreamAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendStreamAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStreamAsync
+- uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
+  name: SendUnauthorizedAsync()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync
+  commentId: M:FastEndpoints.Endpoint`2.SendUnauthorizedAsync
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync()
+  nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync()
+- uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync*
+  name: SendUnauthorizedAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendUnauthorizedAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
+- uid: FastEndpoints.Endpoint`2.ThrowError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
+  name: ThrowError(Expression<Func<TRequest, Object>>, String)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_
+  commentId: M:FastEndpoints.Endpoint`2.ThrowError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
+  name.vb: ThrowError(Expression(Of Func(Of TRequest, Object)), String)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ThrowError(System.Linq.Expressions.Expression<Func<TRequest, System.Object>>, System.String)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ThrowError(System.Linq.Expressions.Expression(Of Func(Of TRequest, System.Object)), System.String)
+  nameWithType: Endpoint<TRequest, TResponse>.ThrowError(Expression<Func<TRequest, Object>>, String)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ThrowError(Expression(Of Func(Of TRequest, Object)), String)
+- uid: FastEndpoints.Endpoint`2.ThrowError(System.String)
+  name: ThrowError(String)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_System_String_
+  commentId: M:FastEndpoints.Endpoint`2.ThrowError(System.String)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ThrowError(System.String)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ThrowError(System.String)
+  nameWithType: Endpoint<TRequest, TResponse>.ThrowError(String)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ThrowError(String)
+- uid: FastEndpoints.Endpoint`2.ThrowError*
+  name: ThrowError
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_
+  commentId: Overload:FastEndpoints.Endpoint`2.ThrowError
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ThrowError
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ThrowError
+  nameWithType: Endpoint<TRequest, TResponse>.ThrowError
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ThrowError
+- uid: FastEndpoints.Endpoint`2.ThrowIfAnyErrors
+  name: ThrowIfAnyErrors()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowIfAnyErrors
+  commentId: M:FastEndpoints.Endpoint`2.ThrowIfAnyErrors
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ThrowIfAnyErrors()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ThrowIfAnyErrors()
+  nameWithType: Endpoint<TRequest, TResponse>.ThrowIfAnyErrors()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ThrowIfAnyErrors()
+- uid: FastEndpoints.Endpoint`2.ThrowIfAnyErrors*
+  name: ThrowIfAnyErrors
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowIfAnyErrors_
+  commentId: Overload:FastEndpoints.Endpoint`2.ThrowIfAnyErrors
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ThrowIfAnyErrors
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ThrowIfAnyErrors
+  nameWithType: Endpoint<TRequest, TResponse>.ThrowIfAnyErrors
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ThrowIfAnyErrors
+- uid: FastEndpoints.Endpoint`2.TryResolve(Type)
+  name: TryResolve(Type)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_TryResolve_Type_
+  commentId: M:FastEndpoints.Endpoint`2.TryResolve(Type)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.TryResolve(Type)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).TryResolve(Type)
+  nameWithType: Endpoint<TRequest, TResponse>.TryResolve(Type)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).TryResolve(Type)
+- uid: FastEndpoints.Endpoint`2.TryResolve*
+  name: TryResolve
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_TryResolve_
+  commentId: Overload:FastEndpoints.Endpoint`2.TryResolve
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.TryResolve
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).TryResolve
+  nameWithType: Endpoint<TRequest, TResponse>.TryResolve
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).TryResolve
+- uid: FastEndpoints.Endpoint`2.TryResolve``1
+  name: TryResolve<TService>()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_TryResolve__1
+  commentId: M:FastEndpoints.Endpoint`2.TryResolve``1
+  name.vb: TryResolve(Of TService)()
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.TryResolve<TService>()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).TryResolve(Of TService)()
+  nameWithType: Endpoint<TRequest, TResponse>.TryResolve<TService>()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).TryResolve(Of TService)()
+- uid: FastEndpoints.Endpoint`2.User
+  name: User
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_User
+  commentId: P:FastEndpoints.Endpoint`2.User
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.User
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).User
+  nameWithType: Endpoint<TRequest, TResponse>.User
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).User
+- uid: FastEndpoints.Endpoint`2.User*
+  name: User
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_User_
+  commentId: Overload:FastEndpoints.Endpoint`2.User
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.User
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).User
+  nameWithType: Endpoint<TRequest, TResponse>.User
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).User
+- uid: FastEndpoints.Endpoint`2.ValidationFailed
+  name: ValidationFailed
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailed
+  commentId: P:FastEndpoints.Endpoint`2.ValidationFailed
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailed
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailed
+  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailed
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailed
+- uid: FastEndpoints.Endpoint`2.ValidationFailed*
+  name: ValidationFailed
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailed_
+  commentId: Overload:FastEndpoints.Endpoint`2.ValidationFailed
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailed
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailed
+  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailed
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailed
+- uid: FastEndpoints.Endpoint`2.ValidationFailures
+  name: ValidationFailures
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailures
+  commentId: P:FastEndpoints.Endpoint`2.ValidationFailures
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailures
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailures
+  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailures
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailures
+- uid: FastEndpoints.Endpoint`2.ValidationFailures*
+  name: ValidationFailures
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailures_
+  commentId: Overload:FastEndpoints.Endpoint`2.ValidationFailures
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailures
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailures
+  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailures
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailures
+- uid: FastEndpoints.Endpoint`2.Verbs(FastEndpoints.Http[])
+  name: Verbs(Http[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Verbs_FastEndpoints_Http___
+  commentId: M:FastEndpoints.Endpoint`2.Verbs(FastEndpoints.Http[])
+  name.vb: Verbs(Http())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Verbs(FastEndpoints.Http[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Verbs(FastEndpoints.Http())
+  nameWithType: Endpoint<TRequest, TResponse>.Verbs(Http[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Verbs(Http())
+- uid: FastEndpoints.Endpoint`2.Verbs*
+  name: Verbs
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Verbs_
+  commentId: Overload:FastEndpoints.Endpoint`2.Verbs
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Verbs
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Verbs
+  nameWithType: Endpoint<TRequest, TResponse>.Verbs
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Verbs
+- uid: FastEndpoints.EndpointExecutor
+  name: EndpointExecutor
+  href: api/FastEndpoints.EndpointExecutor.html
+  commentId: T:FastEndpoints.EndpointExecutor
+  fullName: FastEndpoints.EndpointExecutor
+  nameWithType: EndpointExecutor
+- uid: FastEndpoints.EndpointExecutor.HandleAsync(Microsoft.AspNetCore.Http.HttpContext,CancellationToken)
+  name: HandleAsync(HttpContext, CancellationToken)
+  href: api/FastEndpoints.EndpointExecutor.html#FastEndpoints_EndpointExecutor_HandleAsync_Microsoft_AspNetCore_Http_HttpContext_CancellationToken_
+  commentId: M:FastEndpoints.EndpointExecutor.HandleAsync(Microsoft.AspNetCore.Http.HttpContext,CancellationToken)
+  fullName: FastEndpoints.EndpointExecutor.HandleAsync(Microsoft.AspNetCore.Http.HttpContext, CancellationToken)
+  nameWithType: EndpointExecutor.HandleAsync(HttpContext, CancellationToken)
+- uid: FastEndpoints.EndpointExecutor.HandleAsync*
+  name: HandleAsync
+  href: api/FastEndpoints.EndpointExecutor.html#FastEndpoints_EndpointExecutor_HandleAsync_
+  commentId: Overload:FastEndpoints.EndpointExecutor.HandleAsync
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointExecutor.HandleAsync
+  nameWithType: EndpointExecutor.HandleAsync
+- uid: FastEndpoints.EndpointWithoutRequest
+  name: EndpointWithoutRequest
+  href: api/FastEndpoints.EndpointWithoutRequest.html
+  commentId: T:FastEndpoints.EndpointWithoutRequest
+  fullName: FastEndpoints.EndpointWithoutRequest
+  nameWithType: EndpointWithoutRequest
+- uid: FastEndpoints.EndpointWithoutRequest`1
+  name: EndpointWithoutRequest<TResponse>
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html
+  commentId: T:FastEndpoints.EndpointWithoutRequest`1
+  name.vb: EndpointWithoutRequest(Of TResponse)
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse)
+  nameWithType: EndpointWithoutRequest<TResponse>
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse)
+- uid: FastEndpoints.ErrorResponse
+  name: ErrorResponse
+  href: api/FastEndpoints.ErrorResponse.html
+  commentId: T:FastEndpoints.ErrorResponse
+  fullName: FastEndpoints.ErrorResponse
+  nameWithType: ErrorResponse
+- uid: FastEndpoints.ErrorResponse.#ctor
+  name: ErrorResponse()
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor
+  commentId: M:FastEndpoints.ErrorResponse.#ctor
+  fullName: FastEndpoints.ErrorResponse.ErrorResponse()
+  nameWithType: ErrorResponse.ErrorResponse()
+- uid: FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
+  name: ErrorResponse(IEnumerable<ValidationFailure>)
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_IEnumerable_ValidationFailure__
+  commentId: M:FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
+  name.vb: ErrorResponse(IEnumerable(Of ValidationFailure))
+  fullName: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
+  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
+  nameWithType: ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
+  nameWithType.vb: ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
+- uid: FastEndpoints.ErrorResponse.#ctor*
+  name: ErrorResponse
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_
+  commentId: Overload:FastEndpoints.ErrorResponse.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.ErrorResponse.ErrorResponse
+  nameWithType: ErrorResponse.ErrorResponse
+- uid: FastEndpoints.ErrorResponse.Errors
+  name: Errors
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse_Errors
+  commentId: P:FastEndpoints.ErrorResponse.Errors
+  fullName: FastEndpoints.ErrorResponse.Errors
+  nameWithType: ErrorResponse.Errors
+- uid: FastEndpoints.ErrorResponse.Errors*
+  name: Errors
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse_Errors_
+  commentId: Overload:FastEndpoints.ErrorResponse.Errors
+  isSpec: "True"
+  fullName: FastEndpoints.ErrorResponse.Errors
+  nameWithType: ErrorResponse.Errors
+- uid: FastEndpoints.ErrorResponse.Message
+  name: Message
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse_Message
+  commentId: P:FastEndpoints.ErrorResponse.Message
+  fullName: FastEndpoints.ErrorResponse.Message
+  nameWithType: ErrorResponse.Message
+- uid: FastEndpoints.ErrorResponse.Message*
+  name: Message
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse_Message_
+  commentId: Overload:FastEndpoints.ErrorResponse.Message
+  isSpec: "True"
+  fullName: FastEndpoints.ErrorResponse.Message
+  nameWithType: ErrorResponse.Message
+- uid: FastEndpoints.ErrorResponse.StatusCode
+  name: StatusCode
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse_StatusCode
+  commentId: P:FastEndpoints.ErrorResponse.StatusCode
+  fullName: FastEndpoints.ErrorResponse.StatusCode
+  nameWithType: ErrorResponse.StatusCode
+- uid: FastEndpoints.ErrorResponse.StatusCode*
+  name: StatusCode
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse_StatusCode_
+  commentId: Overload:FastEndpoints.ErrorResponse.StatusCode
+  isSpec: "True"
+  fullName: FastEndpoints.ErrorResponse.StatusCode
+  nameWithType: ErrorResponse.StatusCode
+- uid: FastEndpoints.FastEventHandler`1
+  name: FastEventHandler<TEvent>
+  href: api/FastEndpoints.FastEventHandler-1.html
+  commentId: T:FastEndpoints.FastEventHandler`1
+  name.vb: FastEventHandler(Of TEvent)
+  fullName: FastEndpoints.FastEventHandler<TEvent>
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent)
+  nameWithType: FastEventHandler<TEvent>
+  nameWithType.vb: FastEventHandler(Of TEvent)
+- uid: FastEndpoints.FastEventHandler`1.HandleAsync(`0,CancellationToken)
+  name: HandleAsync(TEvent, CancellationToken)
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_HandleAsync__0_CancellationToken_
+  commentId: M:FastEndpoints.FastEventHandler`1.HandleAsync(`0,CancellationToken)
+  fullName: FastEndpoints.FastEventHandler<TEvent>.HandleAsync(TEvent, CancellationToken)
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).HandleAsync(TEvent, CancellationToken)
+  nameWithType: FastEventHandler<TEvent>.HandleAsync(TEvent, CancellationToken)
+  nameWithType.vb: FastEventHandler(Of TEvent).HandleAsync(TEvent, CancellationToken)
+- uid: FastEndpoints.FastEventHandler`1.HandleAsync*
+  name: HandleAsync
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_HandleAsync_
+  commentId: Overload:FastEndpoints.FastEventHandler`1.HandleAsync
+  isSpec: "True"
+  fullName: FastEndpoints.FastEventHandler<TEvent>.HandleAsync
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).HandleAsync
+  nameWithType: FastEventHandler<TEvent>.HandleAsync
+  nameWithType.vb: FastEventHandler(Of TEvent).HandleAsync
+- uid: FastEndpoints.FastEventHandler`1.Resolve(Type)
+  name: Resolve(Type)
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_Resolve_Type_
+  commentId: M:FastEndpoints.FastEventHandler`1.Resolve(Type)
+  fullName: FastEndpoints.FastEventHandler<TEvent>.Resolve(Type)
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve(Type)
+  nameWithType: FastEventHandler<TEvent>.Resolve(Type)
+  nameWithType.vb: FastEventHandler(Of TEvent).Resolve(Type)
+- uid: FastEndpoints.FastEventHandler`1.Resolve*
+  name: Resolve
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_Resolve_
+  commentId: Overload:FastEndpoints.FastEventHandler`1.Resolve
+  isSpec: "True"
+  fullName: FastEndpoints.FastEventHandler<TEvent>.Resolve
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve
+  nameWithType: FastEventHandler<TEvent>.Resolve
+  nameWithType.vb: FastEventHandler(Of TEvent).Resolve
+- uid: FastEndpoints.FastEventHandler`1.Resolve``1
+  name: Resolve<TService>()
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_Resolve__1
+  commentId: M:FastEndpoints.FastEventHandler`1.Resolve``1
+  name.vb: Resolve(Of TService)()
+  fullName: FastEndpoints.FastEventHandler<TEvent>.Resolve<TService>()
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve(Of TService)()
+  nameWithType: FastEventHandler<TEvent>.Resolve<TService>()
+  nameWithType.vb: FastEventHandler(Of TEvent).Resolve(Of TService)()
+- uid: FastEndpoints.FromAttribute
+  name: FromAttribute
+  href: api/FastEndpoints.FromAttribute.html
+  commentId: T:FastEndpoints.FromAttribute
+  fullName: FastEndpoints.FromAttribute
+  nameWithType: FromAttribute
+- uid: FastEndpoints.FromAttribute.#ctor(System.String,System.Boolean)
+  name: FromAttribute(String, Boolean)
+  href: api/FastEndpoints.FromAttribute.html#FastEndpoints_FromAttribute__ctor_System_String_System_Boolean_
+  commentId: M:FastEndpoints.FromAttribute.#ctor(System.String,System.Boolean)
+  fullName: FastEndpoints.FromAttribute.FromAttribute(System.String, System.Boolean)
+  nameWithType: FromAttribute.FromAttribute(String, Boolean)
+- uid: FastEndpoints.FromAttribute.#ctor*
+  name: FromAttribute
+  href: api/FastEndpoints.FromAttribute.html#FastEndpoints_FromAttribute__ctor_
+  commentId: Overload:FastEndpoints.FromAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.FromAttribute.FromAttribute
+  nameWithType: FromAttribute.FromAttribute
+- uid: FastEndpoints.FromClaimAttribute
+  name: FromClaimAttribute
+  href: api/FastEndpoints.FromClaimAttribute.html
+  commentId: T:FastEndpoints.FromClaimAttribute
+  fullName: FastEndpoints.FromClaimAttribute
+  nameWithType: FromClaimAttribute
+- uid: FastEndpoints.FromClaimAttribute.#ctor(System.String,System.Boolean)
+  name: FromClaimAttribute(String, Boolean)
+  href: api/FastEndpoints.FromClaimAttribute.html#FastEndpoints_FromClaimAttribute__ctor_System_String_System_Boolean_
+  commentId: M:FastEndpoints.FromClaimAttribute.#ctor(System.String,System.Boolean)
+  fullName: FastEndpoints.FromClaimAttribute.FromClaimAttribute(System.String, System.Boolean)
+  nameWithType: FromClaimAttribute.FromClaimAttribute(String, Boolean)
+- uid: FastEndpoints.FromClaimAttribute.#ctor*
+  name: FromClaimAttribute
+  href: api/FastEndpoints.FromClaimAttribute.html#FastEndpoints_FromClaimAttribute__ctor_
+  commentId: Overload:FastEndpoints.FromClaimAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.FromClaimAttribute.FromClaimAttribute
+  nameWithType: FromClaimAttribute.FromClaimAttribute
+- uid: FastEndpoints.FromClaimAttribute.ClaimType
+  name: ClaimType
+  href: api/FastEndpoints.FromClaimAttribute.html#FastEndpoints_FromClaimAttribute_ClaimType
+  commentId: P:FastEndpoints.FromClaimAttribute.ClaimType
+  fullName: FastEndpoints.FromClaimAttribute.ClaimType
+  nameWithType: FromClaimAttribute.ClaimType
+- uid: FastEndpoints.FromClaimAttribute.ClaimType*
+  name: ClaimType
+  href: api/FastEndpoints.FromClaimAttribute.html#FastEndpoints_FromClaimAttribute_ClaimType_
+  commentId: Overload:FastEndpoints.FromClaimAttribute.ClaimType
+  isSpec: "True"
+  fullName: FastEndpoints.FromClaimAttribute.ClaimType
+  nameWithType: FromClaimAttribute.ClaimType
+- uid: FastEndpoints.FromClaimAttribute.IsRequired
+  name: IsRequired
+  href: api/FastEndpoints.FromClaimAttribute.html#FastEndpoints_FromClaimAttribute_IsRequired
+  commentId: P:FastEndpoints.FromClaimAttribute.IsRequired
+  fullName: FastEndpoints.FromClaimAttribute.IsRequired
+  nameWithType: FromClaimAttribute.IsRequired
+- uid: FastEndpoints.FromClaimAttribute.IsRequired*
+  name: IsRequired
+  href: api/FastEndpoints.FromClaimAttribute.html#FastEndpoints_FromClaimAttribute_IsRequired_
+  commentId: Overload:FastEndpoints.FromClaimAttribute.IsRequired
+  isSpec: "True"
+  fullName: FastEndpoints.FromClaimAttribute.IsRequired
+  nameWithType: FromClaimAttribute.IsRequired
+- uid: FastEndpoints.Http
+  name: Http
+  href: api/FastEndpoints.Http.html
+  commentId: T:FastEndpoints.Http
+  fullName: FastEndpoints.Http
+  nameWithType: Http
+- uid: FastEndpoints.Http.DELETE
+  name: DELETE
+  href: api/FastEndpoints.Http.html#FastEndpoints_Http_DELETE
+  commentId: F:FastEndpoints.Http.DELETE
+  fullName: FastEndpoints.Http.DELETE
+  nameWithType: Http.DELETE
+- uid: FastEndpoints.Http.GET
+  name: GET
+  href: api/FastEndpoints.Http.html#FastEndpoints_Http_GET
+  commentId: F:FastEndpoints.Http.GET
+  fullName: FastEndpoints.Http.GET
+  nameWithType: Http.GET
+- uid: FastEndpoints.Http.POST
+  name: POST
+  href: api/FastEndpoints.Http.html#FastEndpoints_Http_POST
+  commentId: F:FastEndpoints.Http.POST
+  fullName: FastEndpoints.Http.POST
+  nameWithType: Http.POST
+- uid: FastEndpoints.Http.PUT
+  name: PUT
+  href: api/FastEndpoints.Http.html#FastEndpoints_Http_PUT
+  commentId: F:FastEndpoints.Http.PUT
+  fullName: FastEndpoints.Http.PUT
+  nameWithType: Http.PUT
+- uid: FastEndpoints.HttpClientExtensions
+  name: HttpClientExtensions
+  href: api/FastEndpoints.HttpClientExtensions.html
+  commentId: T:FastEndpoints.HttpClientExtensions
+  fullName: FastEndpoints.HttpClientExtensions
+  nameWithType: HttpClientExtensions
+- uid: FastEndpoints.HttpClientExtensions.GETAsync*
+  name: GETAsync
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_GETAsync_
+  commentId: Overload:FastEndpoints.HttpClientExtensions.GETAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync
+  nameWithType: HttpClientExtensions.GETAsync
+- uid: FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient)
+  name: GETAsync<TEndpoint, TResponse>(HttpClient)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_GETAsync__2_HttpClient_
+  commentId: M:FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient)
+  name.vb: GETAsync(Of TEndpoint, TResponse)(HttpClient)
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync<TEndpoint, TResponse>(HttpClient)
+  fullName.vb: FastEndpoints.HttpClientExtensions.GETAsync(Of TEndpoint, TResponse)(HttpClient)
+  nameWithType: HttpClientExtensions.GETAsync<TEndpoint, TResponse>(HttpClient)
+  nameWithType.vb: HttpClientExtensions.GETAsync(Of TEndpoint, TResponse)(HttpClient)
+- uid: FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,``1)
+  name: GETAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_GETAsync__2_HttpClient___1_
+  commentId: M:FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,``1)
+  name.vb: GETAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.GETAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.GETAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  nameWithType.vb: HttpClientExtensions.GETAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,System.String,``0)
+  name: GETAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_GETAsync__2_HttpClient_System_String___0_
+  commentId: M:FastEndpoints.HttpClientExtensions.GETAsync``2(HttpClient,System.String,``0)
+  name.vb: GETAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync<TRequest, TResponse>(HttpClient, System.String, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.GETAsync(Of TRequest, TResponse)(HttpClient, System.String, TRequest)
+  nameWithType: HttpClientExtensions.GETAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  nameWithType.vb: HttpClientExtensions.GETAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.GETAsync``3(HttpClient,``1)
+  name: GETAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_GETAsync__3_HttpClient___1_
+  commentId: M:FastEndpoints.HttpClientExtensions.GETAsync``3(HttpClient,``1)
+  name.vb: GETAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.GETAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.GETAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.GETAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  nameWithType.vb: HttpClientExtensions.GETAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync*
+  name: POSTAsync
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_POSTAsync_
+  commentId: Overload:FastEndpoints.HttpClientExtensions.POSTAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync
+  nameWithType: HttpClientExtensions.POSTAsync
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient)
+  name: POSTAsync<TEndpoint, TResponse>(HttpClient)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_POSTAsync__2_HttpClient_
+  commentId: M:FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient)
+  name.vb: POSTAsync(Of TEndpoint, TResponse)(HttpClient)
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync<TEndpoint, TResponse>(HttpClient)
+  fullName.vb: FastEndpoints.HttpClientExtensions.POSTAsync(Of TEndpoint, TResponse)(HttpClient)
+  nameWithType: HttpClientExtensions.POSTAsync<TEndpoint, TResponse>(HttpClient)
+  nameWithType.vb: HttpClientExtensions.POSTAsync(Of TEndpoint, TResponse)(HttpClient)
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,``1)
+  name: POSTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_POSTAsync__2_HttpClient___1_
+  commentId: M:FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,``1)
+  name.vb: POSTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.POSTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.POSTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  nameWithType.vb: HttpClientExtensions.POSTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,System.String,``0)
+  name: POSTAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_POSTAsync__2_HttpClient_System_String___0_
+  commentId: M:FastEndpoints.HttpClientExtensions.POSTAsync``2(HttpClient,System.String,``0)
+  name.vb: POSTAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync<TRequest, TResponse>(HttpClient, System.String, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.POSTAsync(Of TRequest, TResponse)(HttpClient, System.String, TRequest)
+  nameWithType: HttpClientExtensions.POSTAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  nameWithType.vb: HttpClientExtensions.POSTAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.POSTAsync``3(HttpClient,``1)
+  name: POSTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_POSTAsync__3_HttpClient___1_
+  commentId: M:FastEndpoints.HttpClientExtensions.POSTAsync``3(HttpClient,``1)
+  name.vb: POSTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.POSTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.POSTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.POSTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  nameWithType.vb: HttpClientExtensions.POSTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync*
+  name: PUTAsync
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_PUTAsync_
+  commentId: Overload:FastEndpoints.HttpClientExtensions.PUTAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync
+  nameWithType: HttpClientExtensions.PUTAsync
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient)
+  name: PUTAsync<TEndpoint, TResponse>(HttpClient)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_PUTAsync__2_HttpClient_
+  commentId: M:FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient)
+  name.vb: PUTAsync(Of TEndpoint, TResponse)(HttpClient)
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync<TEndpoint, TResponse>(HttpClient)
+  fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TResponse)(HttpClient)
+  nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TResponse>(HttpClient)
+  nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TResponse)(HttpClient)
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,``1)
+  name: PUTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_PUTAsync__2_HttpClient___1_
+  commentId: M:FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,``1)
+  name.vb: PUTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TRequest>(HttpClient, TRequest)
+  nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,System.String,``0)
+  name: PUTAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_PUTAsync__2_HttpClient_System_String___0_
+  commentId: M:FastEndpoints.HttpClientExtensions.PUTAsync``2(HttpClient,System.String,``0)
+  name.vb: PUTAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync<TRequest, TResponse>(HttpClient, System.String, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TRequest, TResponse)(HttpClient, System.String, TRequest)
+  nameWithType: HttpClientExtensions.PUTAsync<TRequest, TResponse>(HttpClient, String, TRequest)
+  nameWithType.vb: HttpClientExtensions.PUTAsync(Of TRequest, TResponse)(HttpClient, String, TRequest)
+- uid: FastEndpoints.HttpClientExtensions.PUTAsync``3(HttpClient,``1)
+  name: PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  href: api/FastEndpoints.HttpClientExtensions.html#FastEndpoints_HttpClientExtensions_PUTAsync__3_HttpClient___1_
+  commentId: M:FastEndpoints.HttpClientExtensions.PUTAsync``3(HttpClient,``1)
+  name.vb: PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  fullName: FastEndpoints.HttpClientExtensions.PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+  nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
+  nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+- uid: FastEndpoints.IEndpoint
+  name: IEndpoint
+  href: api/FastEndpoints.IEndpoint.html
+  commentId: T:FastEndpoints.IEndpoint
+  fullName: FastEndpoints.IEndpoint
+  nameWithType: IEndpoint
+- uid: FastEndpoints.IPostProcessor`2
+  name: IPostProcessor<TRequest, TResponse>
+  href: api/FastEndpoints.IPostProcessor-2.html
+  commentId: T:FastEndpoints.IPostProcessor`2
+  name.vb: IPostProcessor(Of TRequest, TResponse)
+  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>
+  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse)
+  nameWithType: IPostProcessor<TRequest, TResponse>
+  nameWithType.vb: IPostProcessor(Of TRequest, TResponse)
+- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
+  name: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
+  href: api/FastEndpoints.IPostProcessor-2.html#FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
+  name.vb: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
+  nameWithType: IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
+  nameWithType.vb: IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
+- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync*
+  name: PostProcessAsync
+  href: api/FastEndpoints.IPostProcessor-2.html#FastEndpoints_IPostProcessor_2_PostProcessAsync_
+  commentId: Overload:FastEndpoints.IPostProcessor`2.PostProcessAsync
+  isSpec: "True"
+  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync
+  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync
+  nameWithType: IPostProcessor<TRequest, TResponse>.PostProcessAsync
+  nameWithType.vb: IPostProcessor(Of TRequest, TResponse).PostProcessAsync
+- uid: FastEndpoints.IPreProcessor`1
+  name: IPreProcessor<TRequest>
+  href: api/FastEndpoints.IPreProcessor-1.html
+  commentId: T:FastEndpoints.IPreProcessor`1
+  name.vb: IPreProcessor(Of TRequest)
+  fullName: FastEndpoints.IPreProcessor<TRequest>
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest)
+  nameWithType: IPreProcessor<TRequest>
+  nameWithType.vb: IPreProcessor(Of TRequest)
+- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  name: PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
+  href: api/FastEndpoints.IPreProcessor-1.html#FastEndpoints_IPreProcessor_1_PreProcessAsync__0_Microsoft_AspNetCore_Http_HttpContext_List_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  name.vb: PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of ValidationFailure), CancellationToken)
+  nameWithType: IPreProcessor<TRequest>.PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
+  nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
+- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync*
+  name: PreProcessAsync
+  href: api/FastEndpoints.IPreProcessor-1.html#FastEndpoints_IPreProcessor_1_PreProcessAsync_
+  commentId: Overload:FastEndpoints.IPreProcessor`1.PreProcessAsync
+  isSpec: "True"
+  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync
+  nameWithType: IPreProcessor<TRequest>.PreProcessAsync
+  nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync
+- uid: FastEndpoints.IRequest`1
+  name: IRequest<TEntity>
+  href: api/FastEndpoints.IRequest-1.html
+  commentId: T:FastEndpoints.IRequest`1
+  name.vb: IRequest(Of TEntity)
+  fullName: FastEndpoints.IRequest<TEntity>
+  fullName.vb: FastEndpoints.IRequest(Of TEntity)
+  nameWithType: IRequest<TEntity>
+  nameWithType.vb: IRequest(Of TEntity)
+- uid: FastEndpoints.IRequest`1.ToEntity
+  name: ToEntity()
+  href: api/FastEndpoints.IRequest-1.html#FastEndpoints_IRequest_1_ToEntity
+  commentId: M:FastEndpoints.IRequest`1.ToEntity
+  fullName: FastEndpoints.IRequest<TEntity>.ToEntity()
+  fullName.vb: FastEndpoints.IRequest(Of TEntity).ToEntity()
+  nameWithType: IRequest<TEntity>.ToEntity()
+  nameWithType.vb: IRequest(Of TEntity).ToEntity()
+- uid: FastEndpoints.IRequest`1.ToEntity*
+  name: ToEntity
+  href: api/FastEndpoints.IRequest-1.html#FastEndpoints_IRequest_1_ToEntity_
+  commentId: Overload:FastEndpoints.IRequest`1.ToEntity
+  isSpec: "True"
+  fullName: FastEndpoints.IRequest<TEntity>.ToEntity
+  fullName.vb: FastEndpoints.IRequest(Of TEntity).ToEntity
+  nameWithType: IRequest<TEntity>.ToEntity
+  nameWithType.vb: IRequest(Of TEntity).ToEntity
+- uid: FastEndpoints.IResponse`1
+  name: IResponse<TEntity>
+  href: api/FastEndpoints.IResponse-1.html
+  commentId: T:FastEndpoints.IResponse`1
+  name.vb: IResponse(Of TEntity)
+  fullName: FastEndpoints.IResponse<TEntity>
+  fullName.vb: FastEndpoints.IResponse(Of TEntity)
+  nameWithType: IResponse<TEntity>
+  nameWithType.vb: IResponse(Of TEntity)
+- uid: FastEndpoints.IResponse`1.FromEntity(`0)
+  name: FromEntity(TEntity)
+  href: api/FastEndpoints.IResponse-1.html#FastEndpoints_IResponse_1_FromEntity__0_
+  commentId: M:FastEndpoints.IResponse`1.FromEntity(`0)
+  fullName: FastEndpoints.IResponse<TEntity>.FromEntity(TEntity)
+  fullName.vb: FastEndpoints.IResponse(Of TEntity).FromEntity(TEntity)
+  nameWithType: IResponse<TEntity>.FromEntity(TEntity)
+  nameWithType.vb: IResponse(Of TEntity).FromEntity(TEntity)
+- uid: FastEndpoints.IResponse`1.FromEntity*
+  name: FromEntity
+  href: api/FastEndpoints.IResponse-1.html#FastEndpoints_IResponse_1_FromEntity_
+  commentId: Overload:FastEndpoints.IResponse`1.FromEntity
+  isSpec: "True"
+  fullName: FastEndpoints.IResponse<TEntity>.FromEntity
+  fullName.vb: FastEndpoints.IResponse(Of TEntity).FromEntity
+  nameWithType: IResponse<TEntity>.FromEntity
+  nameWithType.vb: IResponse(Of TEntity).FromEntity
+- uid: FastEndpoints.MainExtensions
+  name: MainExtensions
+  href: api/FastEndpoints.MainExtensions.html
+  commentId: T:FastEndpoints.MainExtensions
+  fullName: FastEndpoints.MainExtensions
+  nameWithType: MainExtensions
+- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  name: AddFastEndpoints(IServiceCollection)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_
+  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection)
+- uid: FastEndpoints.MainExtensions.AddFastEndpoints*
+  name: AddFastEndpoints
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_
+  commentId: Overload:FastEndpoints.MainExtensions.AddFastEndpoints
+  isSpec: "True"
+  fullName: FastEndpoints.MainExtensions.AddFastEndpoints
+  nameWithType: MainExtensions.AddFastEndpoints
+- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  name: UseFastEndpoints(IEndpointRouteBuilder)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_Microsoft_AspNetCore_Routing_IEndpointRouteBuilder_
+  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder)
+- uid: FastEndpoints.MainExtensions.UseFastEndpoints*
+  name: UseFastEndpoints
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_
+  commentId: Overload:FastEndpoints.MainExtensions.UseFastEndpoints
+  isSpec: "True"
+  fullName: FastEndpoints.MainExtensions.UseFastEndpoints
+  nameWithType: MainExtensions.UseFastEndpoints
+- uid: FastEndpoints.Mode
+  name: Mode
+  href: api/FastEndpoints.Mode.html
+  commentId: T:FastEndpoints.Mode
+  fullName: FastEndpoints.Mode
+  nameWithType: Mode
+- uid: FastEndpoints.Mode.WaitForAll
+  name: WaitForAll
+  href: api/FastEndpoints.Mode.html#FastEndpoints_Mode_WaitForAll
+  commentId: F:FastEndpoints.Mode.WaitForAll
+  fullName: FastEndpoints.Mode.WaitForAll
+  nameWithType: Mode.WaitForAll
+- uid: FastEndpoints.Mode.WaitForAny
+  name: WaitForAny
+  href: api/FastEndpoints.Mode.html#FastEndpoints_Mode_WaitForAny
+  commentId: F:FastEndpoints.Mode.WaitForAny
+  fullName: FastEndpoints.Mode.WaitForAny
+  nameWithType: Mode.WaitForAny
+- uid: FastEndpoints.Mode.WaitForNone
+  name: WaitForNone
+  href: api/FastEndpoints.Mode.html#FastEndpoints_Mode_WaitForNone
+  commentId: F:FastEndpoints.Mode.WaitForNone
+  fullName: FastEndpoints.Mode.WaitForNone
+  nameWithType: Mode.WaitForNone
+- uid: FastEndpoints.Validation
+  name: FastEndpoints.Validation
+  href: api/FastEndpoints.Validation.html
+  commentId: N:FastEndpoints.Validation
+  fullName: FastEndpoints.Validation
+  nameWithType: FastEndpoints.Validation
+- uid: FastEndpoints.Validation.Validator`1
+  name: Validator<TRequest>
+  href: api/FastEndpoints.Validation.Validator-1.html
+  commentId: T:FastEndpoints.Validation.Validator`1
+  name.vb: Validator(Of TRequest)
+  fullName: FastEndpoints.Validation.Validator<TRequest>
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest)
+  nameWithType: Validator<TRequest>
+  nameWithType.vb: Validator(Of TRequest)
+- uid: FastEndpoints.Validation.Validator`1.Resolve(Type)
+  name: Resolve(Type)
+  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_Resolve_Type_
+  commentId: M:FastEndpoints.Validation.Validator`1.Resolve(Type)
+  fullName: FastEndpoints.Validation.Validator<TRequest>.Resolve(Type)
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve(Type)
+  nameWithType: Validator<TRequest>.Resolve(Type)
+  nameWithType.vb: Validator(Of TRequest).Resolve(Type)
+- uid: FastEndpoints.Validation.Validator`1.Resolve*
+  name: Resolve
+  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_Resolve_
+  commentId: Overload:FastEndpoints.Validation.Validator`1.Resolve
+  isSpec: "True"
+  fullName: FastEndpoints.Validation.Validator<TRequest>.Resolve
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve
+  nameWithType: Validator<TRequest>.Resolve
+  nameWithType.vb: Validator(Of TRequest).Resolve
+- uid: FastEndpoints.Validation.Validator`1.Resolve``1
+  name: Resolve<TService>()
+  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_Resolve__1
+  commentId: M:FastEndpoints.Validation.Validator`1.Resolve``1
+  name.vb: Resolve(Of TService)()
+  fullName: FastEndpoints.Validation.Validator<TRequest>.Resolve<TService>()
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve(Of TService)()
+  nameWithType: Validator<TRequest>.Resolve<TService>()
+  nameWithType.vb: Validator(Of TRequest).Resolve(Of TService)()
+- uid: FastEndpoints.Validation.Validator`1.ServiceProvider
+  name: ServiceProvider
+  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_ServiceProvider
+  commentId: P:FastEndpoints.Validation.Validator`1.ServiceProvider
+  fullName: FastEndpoints.Validation.Validator<TRequest>.ServiceProvider
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).ServiceProvider
+  nameWithType: Validator<TRequest>.ServiceProvider
+  nameWithType.vb: Validator(Of TRequest).ServiceProvider
+- uid: FastEndpoints.Validation.Validator`1.ServiceProvider*
+  name: ServiceProvider
+  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_ServiceProvider_
+  commentId: Overload:FastEndpoints.Validation.Validator`1.ServiceProvider
+  isSpec: "True"
+  fullName: FastEndpoints.Validation.Validator<TRequest>.ServiceProvider
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).ServiceProvider
+  nameWithType: Validator<TRequest>.ServiceProvider
+  nameWithType.vb: Validator(Of TRequest).ServiceProvider
+- uid: FastEndpoints.Validation.Validator`1.TryResolve(Type)
+  name: TryResolve(Type)
+  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_TryResolve_Type_
+  commentId: M:FastEndpoints.Validation.Validator`1.TryResolve(Type)
+  fullName: FastEndpoints.Validation.Validator<TRequest>.TryResolve(Type)
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve(Type)
+  nameWithType: Validator<TRequest>.TryResolve(Type)
+  nameWithType.vb: Validator(Of TRequest).TryResolve(Type)
+- uid: FastEndpoints.Validation.Validator`1.TryResolve*
+  name: TryResolve
+  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_TryResolve_
+  commentId: Overload:FastEndpoints.Validation.Validator`1.TryResolve
+  isSpec: "True"
+  fullName: FastEndpoints.Validation.Validator<TRequest>.TryResolve
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve
+  nameWithType: Validator<TRequest>.TryResolve
+  nameWithType.vb: Validator(Of TRequest).TryResolve
+- uid: FastEndpoints.Validation.Validator`1.TryResolve``1
+  name: TryResolve<TService>()
+  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_TryResolve__1
+  commentId: M:FastEndpoints.Validation.Validator`1.TryResolve``1
+  name.vb: TryResolve(Of TService)()
+  fullName: FastEndpoints.Validation.Validator<TRequest>.TryResolve<TService>()
+  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve(Of TService)()
+  nameWithType: Validator<TRequest>.TryResolve<TService>()
+  nameWithType.vb: Validator(Of TRequest).TryResolve(Of TService)()

@@ -179,6 +179,11 @@ namespace FastEndpoints
             this.permissions = permissions;
         }
         /// <summary>
+        /// specify to allow access if the user has any of the given permissions
+        /// </summary>
+        /// <param name="permissions">the permissions</param>
+        protected void AnyPermission(params string[] permissions) => Permissions(true, permissions);
+        /// <summary>
         /// specify the claim types a user principal should posses in order to access this endpoint. they must posses ALL of the claim types mentioned here. if not, a 403 forbidden response will be sent.
         /// </summary>
         /// <param name="claims">the claims needed to access this endpoint</param>
@@ -193,6 +198,11 @@ namespace FastEndpoints
             allowAnyClaim = allowAny;
             this.claims = claims;
         }
+        /// <summary>
+        /// specify to allow access if the user has any of the given claims
+        /// </summary>
+        /// <param name="claims">the claims</param>
+        protected void AnyClaim(params string[] claims) => Claims(true, claims);
         /// <summary>
         /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
         /// </summary>

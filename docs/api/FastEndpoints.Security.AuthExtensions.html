@@ -15,10 +15,10 @@
     -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Interface IPostProcessor&lt;TRequest, TResponse&gt;
+    <title>Class AuthExtensions
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Interface IPostProcessor&lt;TRequest, TResponse&gt;
+    <meta name="title" content="Class AuthExtensions
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
@@ -94,52 +94,60 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.IPostProcessor`2">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.Security.AuthExtensions">
   
   
-  <h1 id="FastEndpoints_IPostProcessor_2" data-uid="FastEndpoints.IPostProcessor`2" class="text-break">Interface IPostProcessor&lt;TRequest, TResponse&gt;
+  <h1 id="FastEndpoints_Security_AuthExtensions" data-uid="FastEndpoints.Security.AuthExtensions" class="text-break">Class AuthExtensions
   </h1>
-  <div class="markdown level0 summary"><p>interface for defining post-processors to be executed after the main endpoint handler is done</p>
-</div>
+  <div class="markdown level0 summary"></div>
   <div class="markdown level0 conceptual"></div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
-  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_IPostProcessor_2_syntax">Syntax</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public interface IPostProcessor&lt;TRequest, TResponse&gt;</code></pre>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">AuthExtensions</span></div>
   </div>
-  <h5 class="typeParameters">Type Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="parametername">TRequest</span></td>
-        <td><p>the type of the request dto</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="parametername">TResponse</span></td>
-        <td><p>the type of the response dto</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.Security.html">FastEndpoints.Security</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.Security.dll</h6>
+  <h5 id="FastEndpoints_Security_AuthExtensions_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class AuthExtensions</code></pre>
+  </div>
   <h3 id="methods">Methods
   </h3>
   
   
-  <a id="FastEndpoints_IPostProcessor_2_PostProcessAsync_" data-uid="FastEndpoints.IPostProcessor`2.PostProcessAsync*"></a>
-  <h4 id="FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_FastEndpoints_Validation_Results_ValidationFailure__CancellationToken_" data-uid="FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)">PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection&lt;ValidationFailure&gt;, CancellationToken)</h4>
-  <div class="markdown level1 summary"></div>
+  <a id="FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_" data-uid="FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer*"></a>
+  <h4 id="FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_String_" data-uid="FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)">AddAuthenticationJWTBearer(IServiceCollection, String)</h4>
+  <div class="markdown level1 summary"><p>configure and enable jwt bearer authentication</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection&lt;ValidationFailure&gt; failures, CancellationToken ct)</code></pre>
+    <pre><code class="lang-csharp hljs">public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services, string tokenSigningKey)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -152,29 +160,15 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">TRequest</span></td>
-        <td><span class="parametername">req</span></td>
+        <td><span class="xref">Microsoft.Extensions.DependencyInjection.IServiceCollection</span></td>
+        <td><span class="parametername">services</span></td>
         <td></td>
       </tr>
       <tr>
-        <td><span class="xref">TResponse</span></td>
-        <td><span class="parametername">res</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">Microsoft.AspNetCore.Http.HttpContext</span></td>
-        <td><span class="parametername">ctx</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">IReadOnlyCollection</span>&lt;<span class="xref">FastEndpoints.Validation.Results.ValidationFailure</span>&gt;</td>
-        <td><span class="parametername">failures</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">CancellationToken</span></td>
-        <td><span class="parametername">ct</span></td>
-        <td></td>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">tokenSigningKey</span></td>
+        <td><p>the secret key to use for verifying the jwt tokens</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -188,7 +182,105 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Task</span></td>
+        <td><span class="xref">Microsoft.Extensions.DependencyInjection.IServiceCollection</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Security_AuthExtensions_ClaimValue_" data-uid="FastEndpoints.Security.AuthExtensions.ClaimValue*"></a>
+  <h4 id="FastEndpoints_Security_AuthExtensions_ClaimValue_System_Security_Claims_ClaimsPrincipal_System_String_" data-uid="FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)">ClaimValue(ClaimsPrincipal, String)</h4>
+  <div class="markdown level1 summary"><p>get the claim value for a given claim type of the current user principal. if the user doesn't have the requested claim type, a null will be returned.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static string ClaimValue(this ClaimsPrincipal principal, string claimType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Security.Claims.ClaimsPrincipal</span></td>
+        <td><span class="parametername">principal</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">claimType</span></td>
+        <td><p>the claim type to look for</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Security_AuthExtensions_HasPermission_" data-uid="FastEndpoints.Security.AuthExtensions.HasPermission*"></a>
+  <h4 id="FastEndpoints_Security_AuthExtensions_HasPermission_System_Security_Claims_ClaimsPrincipal_System_String_" data-uid="FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)">HasPermission(ClaimsPrincipal, String)</h4>
+  <div class="markdown level1 summary"><p>returns true of the current user principal has a given permission code.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static bool HasPermission(this ClaimsPrincipal principal, string permissionCode)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Security.Claims.ClaimsPrincipal</span></td>
+        <td><span class="parametername">principal</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">permissionCode</span></td>
+        <td><p>the permission code to check for</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
         <td></td>
       </tr>
     </tbody>

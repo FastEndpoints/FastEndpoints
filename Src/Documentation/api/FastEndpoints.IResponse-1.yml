@@ -15,7 +15,7 @@ items:
   type: Interface
   source:
     id: IResponse
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
     startLine: 21
   assemblies:
   - FastEndpoints
@@ -50,7 +50,7 @@ items:
   type: Method
   source:
     id: FromEntity
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
     startLine: 27
   assemblies:
   - FastEndpoints

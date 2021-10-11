@@ -1,43 +1,32 @@
 ### YamlMime:ManagedReference
 items:
-- uid: FastEndpoints.FastEventHandler`1
-  commentId: T:FastEndpoints.FastEventHandler`1
-  id: FastEventHandler`1
-  parent: FastEndpoints
+- uid: FastEndpoints.Security.AuthExtensions
+  commentId: T:FastEndpoints.Security.AuthExtensions
+  id: AuthExtensions
+  parent: FastEndpoints.Security
   children:
-  - FastEndpoints.FastEventHandler`1.HandleAsync(`0,CancellationToken)
-  - FastEndpoints.FastEventHandler`1.Resolve(Type)
-  - FastEndpoints.FastEventHandler`1.Resolve``1
+  - FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
+  - FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
+  - FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)
   langs:
   - csharp
   - vb
-  name: FastEventHandler<TEvent>
-  nameWithType: FastEventHandler<TEvent>
-  fullName: FastEndpoints.FastEventHandler<TEvent>
+  name: AuthExtensions
+  nameWithType: AuthExtensions
+  fullName: FastEndpoints.Security.AuthExtensions
   type: Class
   source:
-    id: FastEventHandler
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 13
+    id: AuthExtensions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
+    startLine: 8
   assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  summary: "\nuse this base class to handle events published by the notification system\n"
-  example: []
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
   syntax:
-    content: 'public abstract class FastEventHandler<TEvent> : BaseEventHandler, IEventHandler where TEvent : class, new()'
-    typeParameters:
-    - id: TEvent
-      description: the type of the event to handle
-    content.vb: >-
-      Public MustInherit Class FastEventHandler(Of TEvent As {Class, New})
-
-          Inherits BaseEventHandler
-
-          Implements IEventHandler
+    content: public static class AuthExtensions
+    content.vb: Public Module AuthExtensions
   inheritance:
   - System.Object
-  - FastEndpoints.BaseEventHandler
   inheritedMembers:
   - System.Object.Equals(System.Object)
   - System.Object.Equals(System.Object,System.Object)
@@ -46,136 +35,145 @@ items:
   - System.Object.MemberwiseClone
   - System.Object.ReferenceEquals(System.Object,System.Object)
   - System.Object.ToString
-  nameWithType.vb: FastEventHandler(Of TEvent)
   modifiers.csharp:
   - public
-  - abstract
+  - static
   - class
   modifiers.vb:
   - Public
-  - MustInherit
-  - Class
-  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent)
-  name.vb: FastEventHandler(Of TEvent)
-- uid: FastEndpoints.FastEventHandler`1.HandleAsync(`0,CancellationToken)
-  commentId: M:FastEndpoints.FastEventHandler`1.HandleAsync(`0,CancellationToken)
-  id: HandleAsync(`0,CancellationToken)
-  parent: FastEndpoints.FastEventHandler`1
+  - Module
+- uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
+  commentId: M:FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
+  id: AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
+  isExtensionMethod: true
+  parent: FastEndpoints.Security.AuthExtensions
   langs:
   - csharp
   - vb
-  name: HandleAsync(TEvent, CancellationToken)
-  nameWithType: FastEventHandler<TEvent>.HandleAsync(TEvent, CancellationToken)
-  fullName: FastEndpoints.FastEventHandler<TEvent>.HandleAsync(TEvent, CancellationToken)
+  name: AddAuthenticationJWTBearer(IServiceCollection, String)
+  nameWithType: AuthExtensions.AddAuthenticationJWTBearer(IServiceCollection, String)
+  fullName: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.String)
   type: Method
   source:
-    id: HandleAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 20
+    id: AddAuthenticationJWTBearer
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
+    startLine: 14
   assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  summary: "\nthis method will be called when an event of the specified type is published.\n"
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\nconfigure and enable jwt bearer authentication\n"
   example: []
   syntax:
-    content: public abstract Task HandleAsync(TEvent eventModel, CancellationToken ct)
+    content: public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services, string tokenSigningKey)
     parameters:
-    - id: eventModel
-      type: '{TEvent}'
-      description: the event model/dto received
-    - id: ct
-      type: CancellationToken
-      description: an optional cancellation token
+    - id: services
+      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
+    - id: tokenSigningKey
+      type: System.String
+      description: the secret key to use for verifying the jwt tokens
     return:
-      type: Task
-    content.vb: Public MustOverride Function HandleAsync(eventModel As TEvent, ct As CancellationToken) As Task
-  overload: FastEndpoints.FastEventHandler`1.HandleAsync*
-  nameWithType.vb: FastEventHandler(Of TEvent).HandleAsync(TEvent, CancellationToken)
+      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function AddAuthenticationJWTBearer(services As IServiceCollection, tokenSigningKey As String) As IServiceCollection
+  overload: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer*
   modifiers.csharp:
   - public
-  - abstract
+  - static
   modifiers.vb:
   - Public
-  - MustOverride
-  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).HandleAsync(TEvent, CancellationToken)
-- uid: FastEndpoints.FastEventHandler`1.Resolve``1
-  commentId: M:FastEndpoints.FastEventHandler`1.Resolve``1
-  id: Resolve``1
-  parent: FastEndpoints.FastEventHandler`1
+  - Shared
+- uid: FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)
+  commentId: M:FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)
+  id: HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)
+  isExtensionMethod: true
+  parent: FastEndpoints.Security.AuthExtensions
   langs:
   - csharp
   - vb
-  name: Resolve<TService>()
-  nameWithType: FastEventHandler<TEvent>.Resolve<TService>()
-  fullName: FastEndpoints.FastEventHandler<TEvent>.Resolve<TService>()
+  name: HasPermission(ClaimsPrincipal, String)
+  nameWithType: AuthExtensions.HasPermission(ClaimsPrincipal, String)
+  fullName: FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal, System.String)
   type: Method
   source:
-    id: Resolve
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 29
+    id: HasPermission
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
+    startLine: 39
   assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\nreturns true of the current user principal has a given permission code.\n"
   example: []
   syntax:
-    content: protected TService Resolve<TService>()
-    typeParameters:
-    - id: TService
-      description: the type of the service to resolve
-    return:
-      type: '{TService}'
-    content.vb: Protected Function Resolve(Of TService) As TService
-  overload: FastEndpoints.FastEventHandler`1.Resolve*
-  nameWithType.vb: FastEventHandler(Of TEvent).Resolve(Of TService)()
-  modifiers.csharp:
-  - protected
-  modifiers.vb:
-  - Protected
-  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve(Of TService)()
-  name.vb: Resolve(Of TService)()
-- uid: FastEndpoints.FastEventHandler`1.Resolve(Type)
-  commentId: M:FastEndpoints.FastEventHandler`1.Resolve(Type)
-  id: Resolve(Type)
-  parent: FastEndpoints.FastEventHandler`1
-  langs:
-  - csharp
-  - vb
-  name: Resolve(Type)
-  nameWithType: FastEventHandler<TEvent>.Resolve(Type)
-  fullName: FastEndpoints.FastEventHandler<TEvent>.Resolve(Type)
-  type: Method
-  source:
-    id: Resolve
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 35
-  assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
-  example: []
-  syntax:
-    content: protected object Resolve(Type typeOfService)
+    content: public static bool HasPermission(this ClaimsPrincipal principal, string permissionCode)
     parameters:
-    - id: typeOfService
-      type: Type
-      description: the type of the service to resolve
+    - id: principal
+      type: System.Security.Claims.ClaimsPrincipal
+    - id: permissionCode
+      type: System.String
+      description: the permission code to check for
     return:
-      type: System.Object
-    content.vb: Protected Function Resolve(typeOfService As Type) As Object
-  overload: FastEndpoints.FastEventHandler`1.Resolve*
-  nameWithType.vb: FastEventHandler(Of TEvent).Resolve(Type)
+      type: System.Boolean
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function HasPermission(principal As ClaimsPrincipal, permissionCode As String) As Boolean
+  overload: FastEndpoints.Security.AuthExtensions.HasPermission*
   modifiers.csharp:
-  - protected
+  - public
+  - static
   modifiers.vb:
-  - Protected
-  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve(Type)
+  - Public
+  - Shared
+- uid: FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
+  commentId: M:FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
+  id: ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
+  isExtensionMethod: true
+  parent: FastEndpoints.Security.AuthExtensions
+  langs:
+  - csharp
+  - vb
+  name: ClaimValue(ClaimsPrincipal, String)
+  nameWithType: AuthExtensions.ClaimValue(ClaimsPrincipal, String)
+  fullName: FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal, System.String)
+  type: Method
+  source:
+    id: ClaimValue
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
+    startLine: 49
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\nget the claim value for a given claim type of the current user principal. if the user doesn&apos;t have the requested claim type, a null will be returned.\n"
+  example: []
+  syntax:
+    content: public static string ClaimValue(this ClaimsPrincipal principal, string claimType)
+    parameters:
+    - id: principal
+      type: System.Security.Claims.ClaimsPrincipal
+    - id: claimType
+      type: System.String
+      description: the claim type to look for
+    return:
+      type: System.String
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function ClaimValue(principal As ClaimsPrincipal, claimType As String) As String
+  overload: FastEndpoints.Security.AuthExtensions.ClaimValue*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
 references:
-- uid: FastEndpoints
-  commentId: N:FastEndpoints
-  name: FastEndpoints
-  nameWithType: FastEndpoints
-  fullName: FastEndpoints
+- uid: FastEndpoints.Security
+  commentId: N:FastEndpoints.Security
+  name: FastEndpoints.Security
+  nameWithType: FastEndpoints.Security
+  fullName: FastEndpoints.Security
 - uid: System.Object
   commentId: T:System.Object
   parent: System
@@ -183,12 +181,6 @@ references:
   name: Object
   nameWithType: Object
   fullName: System.Object
-- uid: FastEndpoints.BaseEventHandler
-  commentId: T:FastEndpoints.BaseEventHandler
-  parent: FastEndpoints
-  name: BaseEventHandler
-  nameWithType: BaseEventHandler
-  fullName: FastEndpoints.BaseEventHandler
 - uid: System.Object.Equals(System.Object)
   commentId: M:System.Object.Equals(System.Object)
   parent: System.Object
@@ -474,52 +466,58 @@ references:
   name: System
   nameWithType: System
   fullName: System
-- uid: FastEndpoints.FastEventHandler`1.HandleAsync*
-  commentId: Overload:FastEndpoints.FastEventHandler`1.HandleAsync
-  name: HandleAsync
-  nameWithType: FastEventHandler<TEvent>.HandleAsync
-  fullName: FastEndpoints.FastEventHandler<TEvent>.HandleAsync
-  nameWithType.vb: FastEventHandler(Of TEvent).HandleAsync
-  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).HandleAsync
-- uid: '{TEvent}'
-  commentId: '!:TEvent'
-  definition: TEvent
-  name: TEvent
-  nameWithType: TEvent
-  fullName: TEvent
-- uid: CancellationToken
+- uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer*
+  commentId: Overload:FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer
+  name: AddAuthenticationJWTBearer
+  nameWithType: AuthExtensions.AddAuthenticationJWTBearer
+  fullName: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer
+- uid: Microsoft.Extensions.DependencyInjection.IServiceCollection
+  commentId: T:Microsoft.Extensions.DependencyInjection.IServiceCollection
+  parent: Microsoft.Extensions.DependencyInjection
   isExternal: true
-  name: CancellationToken
-  nameWithType: CancellationToken
-  fullName: CancellationToken
-- uid: Task
+  name: IServiceCollection
+  nameWithType: IServiceCollection
+  fullName: Microsoft.Extensions.DependencyInjection.IServiceCollection
+- uid: System.String
+  commentId: T:System.String
+  parent: System
   isExternal: true
-  name: Task
-  nameWithType: Task
-  fullName: Task
-- uid: TEvent
-  name: TEvent
-  nameWithType: TEvent
-  fullName: TEvent
-- uid: FastEndpoints.FastEventHandler`1.Resolve*
-  commentId: Overload:FastEndpoints.FastEventHandler`1.Resolve
-  name: Resolve
-  nameWithType: FastEventHandler<TEvent>.Resolve
-  fullName: FastEndpoints.FastEventHandler<TEvent>.Resolve
-  nameWithType.vb: FastEventHandler(Of TEvent).Resolve
-  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve
-- uid: '{TService}'
-  commentId: '!:TService'
-  definition: TService
-  name: TService
-  nameWithType: TService
-  fullName: TService
-- uid: TService
-  name: TService
-  nameWithType: TService
-  fullName: TService
-- uid: Type
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: Microsoft.Extensions.DependencyInjection
+  commentId: N:Microsoft.Extensions.DependencyInjection
   isExternal: true
-  name: Type
-  nameWithType: Type
-  fullName: Type
+  name: Microsoft.Extensions.DependencyInjection
+  nameWithType: Microsoft.Extensions.DependencyInjection
+  fullName: Microsoft.Extensions.DependencyInjection
+- uid: FastEndpoints.Security.AuthExtensions.HasPermission*
+  commentId: Overload:FastEndpoints.Security.AuthExtensions.HasPermission
+  name: HasPermission
+  nameWithType: AuthExtensions.HasPermission
+  fullName: FastEndpoints.Security.AuthExtensions.HasPermission
+- uid: System.Security.Claims.ClaimsPrincipal
+  commentId: T:System.Security.Claims.ClaimsPrincipal
+  parent: System.Security.Claims
+  isExternal: true
+  name: ClaimsPrincipal
+  nameWithType: ClaimsPrincipal
+  fullName: System.Security.Claims.ClaimsPrincipal
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: System.Security.Claims
+  commentId: N:System.Security.Claims
+  isExternal: true
+  name: System.Security.Claims
+  nameWithType: System.Security.Claims
+  fullName: System.Security.Claims
+- uid: FastEndpoints.Security.AuthExtensions.ClaimValue*
+  commentId: Overload:FastEndpoints.Security.AuthExtensions.ClaimValue
+  name: ClaimValue
+  nameWithType: AuthExtensions.ClaimValue
+  fullName: FastEndpoints.Security.AuthExtensions.ClaimValue

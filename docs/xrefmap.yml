@@ -915,13 +915,13 @@ references:
   commentId: M:FastEndpoints.ErrorResponse.#ctor
   fullName: FastEndpoints.ErrorResponse.ErrorResponse()
   nameWithType: ErrorResponse.ErrorResponse()
-- uid: FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
+- uid: FastEndpoints.ErrorResponse.#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})
   name: ErrorResponse(IEnumerable<ValidationFailure>)
-  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_IEnumerable_ValidationFailure__
-  commentId: M:FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_IEnumerable_FastEndpoints_Validation_Results_ValidationFailure__
+  commentId: M:FastEndpoints.ErrorResponse.#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})
   name.vb: ErrorResponse(IEnumerable(Of ValidationFailure))
-  fullName: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
-  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
+  fullName: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable<FastEndpoints.Validation.Results.ValidationFailure>)
+  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable(Of FastEndpoints.Validation.Results.ValidationFailure))
   nameWithType: ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
   nameWithType.vb: ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
 - uid: FastEndpoints.ErrorResponse.#ctor*
@@ -1266,13 +1266,13 @@ references:
   fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse)
   nameWithType: IPostProcessor<TRequest, TResponse>
   nameWithType.vb: IPostProcessor(Of TRequest, TResponse)
-- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
+- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
   name: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
-  href: api/FastEndpoints.IPostProcessor-2.html#FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_ValidationFailure__CancellationToken_
-  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
+  href: api/FastEndpoints.IPostProcessor-2.html#FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_FastEndpoints_Validation_Results_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
   name.vb: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
-  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
-  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<FastEndpoints.Validation.Results.ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of FastEndpoints.Validation.Results.ValidationFailure), CancellationToken)
   nameWithType: IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
   nameWithType.vb: IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
 - uid: FastEndpoints.IPostProcessor`2.PostProcessAsync*
@@ -1293,13 +1293,13 @@ references:
   fullName.vb: FastEndpoints.IPreProcessor(Of TRequest)
   nameWithType: IPreProcessor<TRequest>
   nameWithType.vb: IPreProcessor(Of TRequest)
-- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
   name: PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
-  href: api/FastEndpoints.IPreProcessor-1.html#FastEndpoints_IPreProcessor_1_PreProcessAsync__0_Microsoft_AspNetCore_Http_HttpContext_List_ValidationFailure__CancellationToken_
-  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  href: api/FastEndpoints.IPreProcessor-1.html#FastEndpoints_IPreProcessor_1_PreProcessAsync__0_Microsoft_AspNetCore_Http_HttpContext_List_FastEndpoints_Validation_Results_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
   name.vb: PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
-  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<ValidationFailure>, CancellationToken)
-  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<FastEndpoints.Validation.Results.ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of FastEndpoints.Validation.Results.ValidationFailure), CancellationToken)
   nameWithType: IPreProcessor<TRequest>.PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
   nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
 - uid: FastEndpoints.IPreProcessor`1.PreProcessAsync*
@@ -1419,6 +1419,181 @@ references:
   commentId: F:FastEndpoints.Mode.WaitForNone
   fullName: FastEndpoints.Mode.WaitForNone
   nameWithType: Mode.WaitForNone
+- uid: FastEndpoints.Security
+  name: FastEndpoints.Security
+  href: api/FastEndpoints.Security.html
+  commentId: N:FastEndpoints.Security
+  fullName: FastEndpoints.Security
+  nameWithType: FastEndpoints.Security
+- uid: FastEndpoints.Security.AuthExtensions
+  name: AuthExtensions
+  href: api/FastEndpoints.Security.AuthExtensions.html
+  commentId: T:FastEndpoints.Security.AuthExtensions
+  fullName: FastEndpoints.Security.AuthExtensions
+  nameWithType: AuthExtensions
+- uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
+  name: AddAuthenticationJWTBearer(IServiceCollection, String)
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_String_
+  commentId: M:FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
+  fullName: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.String)
+  nameWithType: AuthExtensions.AddAuthenticationJWTBearer(IServiceCollection, String)
+- uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer*
+  name: AddAuthenticationJWTBearer
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_
+  commentId: Overload:FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer
+  isSpec: "True"
+  fullName: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer
+  nameWithType: AuthExtensions.AddAuthenticationJWTBearer
+- uid: FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
+  name: ClaimValue(ClaimsPrincipal, String)
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_ClaimValue_System_Security_Claims_ClaimsPrincipal_System_String_
+  commentId: M:FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
+  fullName: FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal, System.String)
+  nameWithType: AuthExtensions.ClaimValue(ClaimsPrincipal, String)
+- uid: FastEndpoints.Security.AuthExtensions.ClaimValue*
+  name: ClaimValue
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_ClaimValue_
+  commentId: Overload:FastEndpoints.Security.AuthExtensions.ClaimValue
+  isSpec: "True"
+  fullName: FastEndpoints.Security.AuthExtensions.ClaimValue
+  nameWithType: AuthExtensions.ClaimValue
+- uid: FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)
+  name: HasPermission(ClaimsPrincipal, String)
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_HasPermission_System_Security_Claims_ClaimsPrincipal_System_String_
+  commentId: M:FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)
+  fullName: FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal, System.String)
+  nameWithType: AuthExtensions.HasPermission(ClaimsPrincipal, String)
+- uid: FastEndpoints.Security.AuthExtensions.HasPermission*
+  name: HasPermission
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_HasPermission_
+  commentId: Overload:FastEndpoints.Security.AuthExtensions.HasPermission
+  isSpec: "True"
+  fullName: FastEndpoints.Security.AuthExtensions.HasPermission
+  nameWithType: AuthExtensions.HasPermission
+- uid: FastEndpoints.Security.Constants
+  name: Constants
+  href: api/FastEndpoints.Security.Constants.html
+  commentId: T:FastEndpoints.Security.Constants
+  fullName: FastEndpoints.Security.Constants
+  nameWithType: Constants
+- uid: FastEndpoints.Security.Constants.PermissionsClaimType
+  name: PermissionsClaimType
+  href: api/FastEndpoints.Security.Constants.html#FastEndpoints_Security_Constants_PermissionsClaimType
+  commentId: F:FastEndpoints.Security.Constants.PermissionsClaimType
+  fullName: FastEndpoints.Security.Constants.PermissionsClaimType
+  nameWithType: Constants.PermissionsClaimType
+- uid: FastEndpoints.Security.JWTBearer
+  name: JWTBearer
+  href: api/FastEndpoints.Security.JWTBearer.html
+  commentId: T:FastEndpoints.Security.JWTBearer
+  fullName: FastEndpoints.Security.JWTBearer
+  nameWithType: JWTBearer
+- uid: FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}})
+  name: CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<Claim>>)
+  href: api/FastEndpoints.Security.JWTBearer.html#FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_Security_Claims_Claim___
+  commentId: M:FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}})
+  name.vb: CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of Claim)))
+  fullName: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable<DateTime>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.Security.Claims.Claim>>)
+  fullName.vb: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable(Of DateTime), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.Security.Claims.Claim)))
+  nameWithType: JWTBearer.CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<Claim>>)
+  nameWithType.vb: JWTBearer.CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of Claim)))
+- uid: FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.ValueTuple{System.String,System.String}[])
+  name: CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, (String claimType, String claimValue)[])
+  href: api/FastEndpoints.Security.JWTBearer.html#FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_ValueTuple_System_String_System_String____
+  commentId: M:FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.ValueTuple{System.String,System.String}[])
+  name.vb: CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), (claimType As String, claimValue As String)(Of String, String)())
+  fullName: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable<DateTime>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.ValueTuple<System.String, System.String>[])
+  fullName.vb: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable(Of DateTime), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.ValueTuple(Of System.String, System.String)())
+  nameWithType: JWTBearer.CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, (String claimType, String claimValue)[])
+  nameWithType.vb: JWTBearer.CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), (claimType As String, claimValue As String)(Of String, String)())
+- uid: FastEndpoints.Security.JWTBearer.CreateToken*
+  name: CreateToken
+  href: api/FastEndpoints.Security.JWTBearer.html#FastEndpoints_Security_JWTBearer_CreateToken_
+  commentId: Overload:FastEndpoints.Security.JWTBearer.CreateToken
+  isSpec: "True"
+  fullName: FastEndpoints.Security.JWTBearer.CreateToken
+  nameWithType: JWTBearer.CreateToken
+- uid: FastEndpoints.Security.Permissions
+  name: Permissions
+  href: api/FastEndpoints.Security.Permissions.html
+  commentId: T:FastEndpoints.Security.Permissions
+  fullName: FastEndpoints.Security.Permissions
+  nameWithType: Permissions
+- uid: FastEndpoints.Security.Permissions.#ctor
+  name: Permissions()
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions__ctor
+  commentId: M:FastEndpoints.Security.Permissions.#ctor
+  fullName: FastEndpoints.Security.Permissions.Permissions()
+  nameWithType: Permissions.Permissions()
+- uid: FastEndpoints.Security.Permissions.#ctor*
+  name: Permissions
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions__ctor_
+  commentId: Overload:FastEndpoints.Security.Permissions.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.Security.Permissions.Permissions
+  nameWithType: Permissions.Permissions
+- uid: FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable{System.String})
+  name: CodesFor(IEnumerable<String>)
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_CodesFor_System_Collections_IEnumerable_System_String__
+  commentId: M:FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable{System.String})
+  name.vb: CodesFor(IEnumerable(Of String))
+  fullName: FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable<System.String>)
+  fullName.vb: FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable(Of System.String))
+  nameWithType: Permissions.CodesFor(IEnumerable<String>)
+  nameWithType.vb: Permissions.CodesFor(IEnumerable(Of String))
+- uid: FastEndpoints.Security.Permissions.CodesFor*
+  name: CodesFor
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_CodesFor_
+  commentId: Overload:FastEndpoints.Security.Permissions.CodesFor
+  isSpec: "True"
+  fullName: FastEndpoints.Security.Permissions.CodesFor
+  nameWithType: Permissions.CodesFor
+- uid: FastEndpoints.Security.Permissions.GetEnumerator
+  name: GetEnumerator()
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_GetEnumerator
+  commentId: M:FastEndpoints.Security.Permissions.GetEnumerator
+  fullName: FastEndpoints.Security.Permissions.GetEnumerator()
+  nameWithType: Permissions.GetEnumerator()
+- uid: FastEndpoints.Security.Permissions.GetEnumerator*
+  name: GetEnumerator
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_GetEnumerator_
+  commentId: Overload:FastEndpoints.Security.Permissions.GetEnumerator
+  isSpec: "True"
+  fullName: FastEndpoints.Security.Permissions.GetEnumerator
+  nameWithType: Permissions.GetEnumerator
+- uid: FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})
+  name: NamesFor(IEnumerable<String>)
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_NamesFor_System_Collections_IEnumerable_System_String__
+  commentId: M:FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})
+  name.vb: NamesFor(IEnumerable(Of String))
+  fullName: FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable<System.String>)
+  fullName.vb: FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable(Of System.String))
+  nameWithType: Permissions.NamesFor(IEnumerable<String>)
+  nameWithType.vb: Permissions.NamesFor(IEnumerable(Of String))
+- uid: FastEndpoints.Security.Permissions.NamesFor*
+  name: NamesFor
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_NamesFor_
+  commentId: Overload:FastEndpoints.Security.Permissions.NamesFor
+  isSpec: "True"
+  fullName: FastEndpoints.Security.Permissions.NamesFor
+  nameWithType: Permissions.NamesFor
+- uid: FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
+  name: IEnumerable.GetEnumerator()
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_System_Collections_IEnumerable_GetEnumerator
+  commentId: M:FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
+  name.vb: System.Collections.IEnumerable.GetEnumerator()
+  fullName: FastEndpoints.Security.Permissions.System.Collections.IEnumerable.GetEnumerator()
+  nameWithType: Permissions.IEnumerable.GetEnumerator()
+  nameWithType.vb: Permissions.System.Collections.IEnumerable.GetEnumerator()
+- uid: FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator*
+  name: IEnumerable.GetEnumerator
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_System_Collections_IEnumerable_GetEnumerator_
+  commentId: Overload:FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
+  isSpec: "True"
+  name.vb: System.Collections.IEnumerable.GetEnumerator
+  fullName: FastEndpoints.Security.Permissions.System.Collections.IEnumerable.GetEnumerator
+  nameWithType: Permissions.IEnumerable.GetEnumerator
+  nameWithType.vb: Permissions.System.Collections.IEnumerable.GetEnumerator
 - uid: FastEndpoints.Validation
   name: FastEndpoints.Validation
   href: api/FastEndpoints.Validation.html

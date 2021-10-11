@@ -15,10 +15,10 @@
     -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class ErrorResponse
+    <title>Class Permissions
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class ErrorResponse
+    <meta name="title" content="Class Permissions
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
@@ -94,17 +94,28 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.ErrorResponse">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.Security.Permissions">
   
   
-  <h1 id="FastEndpoints_ErrorResponse" data-uid="FastEndpoints.ErrorResponse" class="text-break">Class ErrorResponse
+  <h1 id="FastEndpoints_Security_Permissions" data-uid="FastEndpoints.Security.Permissions" class="text-break">Class Permissions
   </h1>
-  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 summary"><p>inherit from this class and define your applications permissions as <code>public const string</code></p>
+<p>
+<pre><code>public const string Inventory_Create_Item = &quot;100&quot;;
+public const string Inventory_Retrieve_Item = &quot;101&quot;;
+public const string Inventory_Update_Item = &quot;102&quot;;
+public const string Inventory_Delete_Item = &quot;103&quot;;</code></pre>
+</p>
+</div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">ErrorResponse</span></div>
+    <div class="level1"><span class="xref">Permissions</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.Collections.IEnumerable</span>&lt;<span class="xref">System.ValueTuple</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;&gt;</div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -130,33 +141,36 @@
       <span class="xref">System.Object.ToString()</span>
     </div>
   </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
-  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_ErrorResponse_syntax">Syntax</h5>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.Security.html">FastEndpoints.Security</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.Security.dll</h6>
+  <h5 id="FastEndpoints_Security_Permissions_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class ErrorResponse</code></pre>
+    <pre><code class="lang-csharp hljs">public class Permissions : IEnumerable&lt;(string PermissionName, string PermissionCode)&gt;</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
   
   
-  <a id="FastEndpoints_ErrorResponse__ctor_" data-uid="FastEndpoints.ErrorResponse.#ctor*"></a>
-  <h4 id="FastEndpoints_ErrorResponse__ctor" data-uid="FastEndpoints.ErrorResponse.#ctor">ErrorResponse()</h4>
+  <a id="FastEndpoints_Security_Permissions__ctor_" data-uid="FastEndpoints.Security.Permissions.#ctor*"></a>
+  <h4 id="FastEndpoints_Security_Permissions__ctor" data-uid="FastEndpoints.Security.Permissions.#ctor">Permissions()</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ErrorResponse()</code></pre>
+    <pre><code class="lang-csharp hljs">public Permissions()</code></pre>
   </div>
+  <h3 id="methods">Methods
+  </h3>
   
   
-  <a id="FastEndpoints_ErrorResponse__ctor_" data-uid="FastEndpoints.ErrorResponse.#ctor*"></a>
-  <h4 id="FastEndpoints_ErrorResponse__ctor_IEnumerable_FastEndpoints_Validation_Results_ValidationFailure__" data-uid="FastEndpoints.ErrorResponse.#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})">ErrorResponse(IEnumerable&lt;ValidationFailure&gt;)</h4>
-  <div class="markdown level1 summary"></div>
+  <a id="FastEndpoints_Security_Permissions_CodesFor_" data-uid="FastEndpoints.Security.Permissions.CodesFor*"></a>
+  <h4 id="FastEndpoints_Security_Permissions_CodesFor_System_Collections_IEnumerable_System_String__" data-uid="FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable{System.String})">CodesFor(IEnumerable&lt;String&gt;)</h4>
+  <div class="markdown level1 summary"><p>get a list of permission codes for a given list of permission names</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ErrorResponse(IEnumerable&lt;ValidationFailure&gt; failures)</code></pre>
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;string&gt; CodesFor(IEnumerable&lt;string&gt; names)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -169,25 +183,110 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">IEnumerable</span>&lt;<span class="xref">FastEndpoints.Validation.Results.ValidationFailure</span>&gt;</td>
-        <td><span class="parametername">failures</span></td>
+        <td><span class="xref">System.Collections.IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;</td>
+        <td><span class="parametername">names</span></td>
+        <td><p>the permission names to get the codes for</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
-  <h3 id="properties">Properties
+  
+  
+  <a id="FastEndpoints_Security_Permissions_GetEnumerator_" data-uid="FastEndpoints.Security.Permissions.GetEnumerator*"></a>
+  <h4 id="FastEndpoints_Security_Permissions_GetEnumerator" data-uid="FastEndpoints.Security.Permissions.GetEnumerator">GetEnumerator()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerator&lt;(string PermissionName, string PermissionCode)&gt; GetEnumerator()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerator</span>&lt;<span class="xref">System.ValueTuple</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Security_Permissions_NamesFor_" data-uid="FastEndpoints.Security.Permissions.NamesFor*"></a>
+  <h4 id="FastEndpoints_Security_Permissions_NamesFor_System_Collections_IEnumerable_System_String__" data-uid="FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})">NamesFor(IEnumerable&lt;String&gt;)</h4>
+  <div class="markdown level1 summary"><p>gets a list of permission names for the given list of permission codes</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;string&gt; NamesFor(IEnumerable&lt;string&gt; codes)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;</td>
+        <td><span class="parametername">codes</span></td>
+        <td><p>the permission codes to get the permission names for</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="eii">Explicit Interface Implementations
   </h3>
   
   
-  <a id="FastEndpoints_ErrorResponse_Errors_" data-uid="FastEndpoints.ErrorResponse.Errors*"></a>
-  <h4 id="FastEndpoints_ErrorResponse_Errors" data-uid="FastEndpoints.ErrorResponse.Errors">Errors</h4>
+  <a id="FastEndpoints_Security_Permissions_System_Collections_IEnumerable_GetEnumerator_" data-uid="FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator*"></a>
+  <h4 id="FastEndpoints_Security_Permissions_System_Collections_IEnumerable_GetEnumerator" data-uid="FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator">IEnumerable.GetEnumerator()</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Dictionary&lt;string, IEnumerable&lt;string&gt;&gt; Errors { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">IEnumerator IEnumerable.GetEnumerator()</code></pre>
   </div>
-  <h5 class="propertyValue">Property Value</h5>
+  <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -197,61 +296,15 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Dictionary</span>&lt;<span class="xref">System.String</span>, <span class="xref">IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;&gt;</td>
+        <td><span class="xref">System.Collections.IEnumerator</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
-  
-  
-  <a id="FastEndpoints_ErrorResponse_Message_" data-uid="FastEndpoints.ErrorResponse.Message*"></a>
-  <h4 id="FastEndpoints_ErrorResponse_Message" data-uid="FastEndpoints.ErrorResponse.Message">Message</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Message { get; set; }</code></pre>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.Collections.IEnumerable&lt;&gt;</span>
   </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.String</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="FastEndpoints_ErrorResponse_StatusCode_" data-uid="FastEndpoints.ErrorResponse.StatusCode*"></a>
-  <h4 id="FastEndpoints_ErrorResponse_StatusCode" data-uid="FastEndpoints.ErrorResponse.StatusCode">StatusCode</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int StatusCode { get; set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Int32</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
 </article>
           </div>
           

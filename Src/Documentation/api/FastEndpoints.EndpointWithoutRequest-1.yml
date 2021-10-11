@@ -14,7 +14,7 @@ items:
   type: Class
   source:
     id: EndpointWithoutRequest
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
     startLine: 56
   assemblies:
   - FastEndpoints

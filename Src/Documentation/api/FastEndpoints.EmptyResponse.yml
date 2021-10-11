@@ -14,7 +14,7 @@ items:
   type: Class
   source:
     id: EmptyResponse
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\DTOs\EmptyResponse.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\EmptyResponse.cs
     startLine: 5
   assemblies:
   - FastEndpoints

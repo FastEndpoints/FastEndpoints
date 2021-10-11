@@ -1,38 +1,30 @@
 ### YamlMime:ManagedReference
 items:
-- uid: FastEndpoints.BaseEndpoint
-  commentId: T:FastEndpoints.BaseEndpoint
-  id: BaseEndpoint
-  parent: FastEndpoints
-  children: []
+- uid: FastEndpoints.Security.Constants
+  commentId: T:FastEndpoints.Security.Constants
+  id: Constants
+  parent: FastEndpoints.Security
+  children:
+  - FastEndpoints.Security.Constants.PermissionsClaimType
   langs:
   - csharp
   - vb
-  name: BaseEndpoint
-  nameWithType: BaseEndpoint
-  fullName: FastEndpoints.BaseEndpoint
+  name: Constants
+  nameWithType: Constants
+  fullName: FastEndpoints.Security.Constants
   type: Class
   source:
-    id: BaseEndpoint
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 18
+    id: Constants
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Constants.cs
+    startLine: 2
   assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  summary: "\nbase class for all endpoint classes\n"
-  example: []
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
   syntax:
-    content: 'public abstract class BaseEndpoint : IEndpoint'
-    content.vb: >-
-      Public MustInherit Class BaseEndpoint
-
-          Implements IEndpoint
+    content: public static class Constants
+    content.vb: Public Module Constants
   inheritance:
   - System.Object
-  derivedClasses:
-  - FastEndpoints.Endpoint`2
-  implements:
-  - FastEndpoints.IEndpoint
   inheritedMembers:
   - System.Object.Equals(System.Object)
   - System.Object.Equals(System.Object,System.Object)
@@ -43,18 +35,46 @@ items:
   - System.Object.ToString
   modifiers.csharp:
   - public
-  - abstract
+  - static
   - class
   modifiers.vb:
   - Public
-  - MustInherit
-  - Class
+  - Module
+- uid: FastEndpoints.Security.Constants.PermissionsClaimType
+  commentId: F:FastEndpoints.Security.Constants.PermissionsClaimType
+  id: PermissionsClaimType
+  parent: FastEndpoints.Security.Constants
+  langs:
+  - csharp
+  - vb
+  name: PermissionsClaimType
+  nameWithType: Constants.PermissionsClaimType
+  fullName: FastEndpoints.Security.Constants.PermissionsClaimType
+  type: Field
+  source:
+    id: PermissionsClaimType
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Constants.cs
+    startLine: 4
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  syntax:
+    content: public const string PermissionsClaimType = "prm"
+    return:
+      type: System.String
+    content.vb: Public Const PermissionsClaimType As String = "prm"
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
 references:
-- uid: FastEndpoints
-  commentId: N:FastEndpoints
-  name: FastEndpoints
-  nameWithType: FastEndpoints
-  fullName: FastEndpoints
+- uid: FastEndpoints.Security
+  commentId: N:FastEndpoints.Security
+  name: FastEndpoints.Security
+  nameWithType: FastEndpoints.Security
+  fullName: FastEndpoints.Security
 - uid: System.Object
   commentId: T:System.Object
   parent: System
@@ -62,12 +82,6 @@ references:
   name: Object
   nameWithType: Object
   fullName: System.Object
-- uid: FastEndpoints.IEndpoint
-  commentId: T:FastEndpoints.IEndpoint
-  parent: FastEndpoints
-  name: IEndpoint
-  nameWithType: IEndpoint
-  fullName: FastEndpoints.IEndpoint
 - uid: System.Object.Equals(System.Object)
   commentId: M:System.Object.Equals(System.Object)
   parent: System.Object
@@ -353,3 +367,10 @@ references:
   name: System
   nameWithType: System
   fullName: System
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String

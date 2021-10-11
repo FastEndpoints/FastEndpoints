@@ -18,7 +18,7 @@ items:
   type: Enum
   source:
     id: Http
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
     startLine: 5
   assemblies:
   - FastEndpoints
@@ -47,7 +47,7 @@ items:
   type: Field
   source:
     id: GET
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
     startLine: 7
   assemblies:
   - FastEndpoints
@@ -75,7 +75,7 @@ items:
   type: Field
   source:
     id: POST
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
     startLine: 8
   assemblies:
   - FastEndpoints
@@ -103,7 +103,7 @@ items:
   type: Field
   source:
     id: PUT
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
     startLine: 9
   assemblies:
   - FastEndpoints
@@ -131,7 +131,7 @@ items:
   type: Field
   source:
     id: DELETE
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Enums.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
     startLine: 10
   assemblies:
   - FastEndpoints

@@ -15,7 +15,7 @@ items:
   type: Class
   source:
     id: EndpointExecutor
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\EndpointExecutor.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EndpointExecutor.cs
     startLine: 7
   assemblies:
   - FastEndpoints
@@ -53,7 +53,7 @@ items:
   type: Method
   source:
     id: HandleAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\EndpointExecutor.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EndpointExecutor.cs
     startLine: 16
   assemblies:
   - FastEndpoints

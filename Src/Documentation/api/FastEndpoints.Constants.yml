@@ -15,7 +15,7 @@ items:
   type: Class
   source:
     id: Constants
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Constants.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Constants.cs
     startLine: 2
   assemblies:
   - FastEndpoints
@@ -53,7 +53,7 @@ items:
   type: Field
   source:
     id: PermissionsClaimType
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Constants.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Constants.cs
     startLine: 4
   assemblies:
   - FastEndpoints

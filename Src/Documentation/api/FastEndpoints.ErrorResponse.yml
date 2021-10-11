@@ -6,7 +6,7 @@ items:
   parent: FastEndpoints
   children:
   - FastEndpoints.ErrorResponse.#ctor
-  - FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
+  - FastEndpoints.ErrorResponse.#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})
   - FastEndpoints.ErrorResponse.Errors
   - FastEndpoints.ErrorResponse.Message
   - FastEndpoints.ErrorResponse.StatusCode
@@ -19,7 +19,7 @@ items:
   type: Class
   source:
     id: ErrorResponse
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\DTOs\ErrorResponse.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
     startLine: 4
   assemblies:
   - FastEndpoints
@@ -56,7 +56,7 @@ items:
   type: Property
   source:
     id: StatusCode
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\DTOs\ErrorResponse.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
     startLine: 6
   assemblies:
   - FastEndpoints
@@ -87,7 +87,7 @@ items:
   type: Property
   source:
     id: Message
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\DTOs\ErrorResponse.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
     startLine: 7
   assemblies:
   - FastEndpoints
@@ -118,7 +118,7 @@ items:
   type: Property
   source:
     id: Errors
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\DTOs\ErrorResponse.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
     startLine: 8
   assemblies:
   - FastEndpoints
@@ -149,7 +149,7 @@ items:
   type: Constructor
   source:
     id: .ctor
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\DTOs\ErrorResponse.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
     startLine: 10
   assemblies:
   - FastEndpoints
@@ -162,20 +162,20 @@ items:
   - public
   modifiers.vb:
   - Public
-- uid: FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
-  commentId: M:FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
-  id: '#ctor(IEnumerable{ValidationFailure})'
+- uid: FastEndpoints.ErrorResponse.#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})
+  commentId: M:FastEndpoints.ErrorResponse.#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})
+  id: '#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})'
   parent: FastEndpoints.ErrorResponse
   langs:
   - csharp
   - vb
   name: ErrorResponse(IEnumerable<ValidationFailure>)
   nameWithType: ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
-  fullName: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
+  fullName: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable<FastEndpoints.Validation.Results.ValidationFailure>)
   type: Constructor
   source:
     id: .ctor
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\DTOs\ErrorResponse.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
     startLine: 12
   assemblies:
   - FastEndpoints
@@ -184,7 +184,7 @@ items:
     content: public ErrorResponse(IEnumerable<ValidationFailure> failures)
     parameters:
     - id: failures
-      type: IEnumerable{ValidationFailure}
+      type: IEnumerable{FastEndpoints.Validation.Results.ValidationFailure}
     content.vb: Public Sub New(failures As IEnumerable(Of ValidationFailure))
   overload: FastEndpoints.ErrorResponse.#ctor*
   nameWithType.vb: ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
@@ -192,7 +192,7 @@ items:
   - public
   modifiers.vb:
   - Public
-  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
+  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable(Of FastEndpoints.Validation.Results.ValidationFailure))
   name.vb: ErrorResponse(IEnumerable(Of ValidationFailure))
 references:
 - uid: FastEndpoints
@@ -658,14 +658,14 @@ references:
   name: ErrorResponse
   nameWithType: ErrorResponse.ErrorResponse
   fullName: FastEndpoints.ErrorResponse.ErrorResponse
-- uid: IEnumerable{ValidationFailure}
-  commentId: '!:IEnumerable{ValidationFailure}'
+- uid: IEnumerable{FastEndpoints.Validation.Results.ValidationFailure}
+  commentId: '!:IEnumerable{FastEndpoints.Validation.Results.ValidationFailure}'
   definition: IEnumerable`1
   name: IEnumerable<ValidationFailure>
   nameWithType: IEnumerable<ValidationFailure>
-  fullName: IEnumerable<ValidationFailure>
+  fullName: IEnumerable<FastEndpoints.Validation.Results.ValidationFailure>
   nameWithType.vb: IEnumerable(Of ValidationFailure)
-  fullName.vb: IEnumerable(Of ValidationFailure)
+  fullName.vb: IEnumerable(Of FastEndpoints.Validation.Results.ValidationFailure)
   name.vb: IEnumerable(Of ValidationFailure)
   spec.csharp:
   - uid: IEnumerable`1
@@ -676,11 +676,10 @@ references:
   - name: <
     nameWithType: <
     fullName: <
-  - uid: ValidationFailure
+  - uid: FastEndpoints.Validation.Results.ValidationFailure
     name: ValidationFailure
     nameWithType: ValidationFailure
-    fullName: ValidationFailure
-    isExternal: true
+    fullName: FastEndpoints.Validation.Results.ValidationFailure
   - name: '>'
     nameWithType: '>'
     fullName: '>'
@@ -693,11 +692,10 @@ references:
   - name: '(Of '
     nameWithType: '(Of '
     fullName: '(Of '
-  - uid: ValidationFailure
+  - uid: FastEndpoints.Validation.Results.ValidationFailure
     name: ValidationFailure
     nameWithType: ValidationFailure
-    fullName: ValidationFailure
-    isExternal: true
+    fullName: FastEndpoints.Validation.Results.ValidationFailure
   - name: )
     nameWithType: )
     fullName: )

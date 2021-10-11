@@ -5,7 +5,7 @@ items:
   id: IPostProcessor`2
   parent: FastEndpoints
   children:
-  - FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
+  - FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
   langs:
   - csharp
   - vb
@@ -15,7 +15,7 @@ items:
   type: Interface
   source:
     id: IPostProcessor
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
     startLine: 44
   assemblies:
   - FastEndpoints
@@ -39,20 +39,20 @@ items:
   - Interface
   fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse)
   name.vb: IPostProcessor(Of TRequest, TResponse)
-- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
-  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
-  id: PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
+- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
+  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
+  id: PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
   parent: FastEndpoints.IPostProcessor`2
   langs:
   - csharp
   - vb
   name: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
   nameWithType: IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
-  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
+  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<FastEndpoints.Validation.Results.ValidationFailure>, CancellationToken)
   type: Method
   source:
     id: PostProcessAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
     startLine: 46
   assemblies:
   - FastEndpoints
@@ -67,7 +67,7 @@ items:
     - id: ctx
       type: Microsoft.AspNetCore.Http.HttpContext
     - id: failures
-      type: IReadOnlyCollection{ValidationFailure}
+      type: IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure}
     - id: ct
       type: CancellationToken
     return:
@@ -75,7 +75,7 @@ items:
     content.vb: Function PostProcessAsync(req As TRequest, res As TResponse, ctx As HttpContext, failures As IReadOnlyCollection(Of ValidationFailure), ct As CancellationToken) As Task
   overload: FastEndpoints.IPostProcessor`2.PostProcessAsync*
   nameWithType.vb: IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
-  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
+  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of FastEndpoints.Validation.Results.ValidationFailure), CancellationToken)
   name.vb: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
 references:
 - uid: FastEndpoints
@@ -109,14 +109,14 @@ references:
   name: HttpContext
   nameWithType: HttpContext
   fullName: Microsoft.AspNetCore.Http.HttpContext
-- uid: IReadOnlyCollection{ValidationFailure}
-  commentId: '!:IReadOnlyCollection{ValidationFailure}'
+- uid: IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure}
+  commentId: '!:IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure}'
   definition: IReadOnlyCollection`1
   name: IReadOnlyCollection<ValidationFailure>
   nameWithType: IReadOnlyCollection<ValidationFailure>
-  fullName: IReadOnlyCollection<ValidationFailure>
+  fullName: IReadOnlyCollection<FastEndpoints.Validation.Results.ValidationFailure>
   nameWithType.vb: IReadOnlyCollection(Of ValidationFailure)
-  fullName.vb: IReadOnlyCollection(Of ValidationFailure)
+  fullName.vb: IReadOnlyCollection(Of FastEndpoints.Validation.Results.ValidationFailure)
   name.vb: IReadOnlyCollection(Of ValidationFailure)
   spec.csharp:
   - uid: IReadOnlyCollection`1
@@ -127,11 +127,10 @@ references:
   - name: <
     nameWithType: <
     fullName: <
-  - uid: ValidationFailure
+  - uid: FastEndpoints.Validation.Results.ValidationFailure
     name: ValidationFailure
     nameWithType: ValidationFailure
-    fullName: ValidationFailure
-    isExternal: true
+    fullName: FastEndpoints.Validation.Results.ValidationFailure
   - name: '>'
     nameWithType: '>'
     fullName: '>'
@@ -144,11 +143,10 @@ references:
   - name: '(Of '
     nameWithType: '(Of '
     fullName: '(Of '
-  - uid: ValidationFailure
+  - uid: FastEndpoints.Validation.Results.ValidationFailure
     name: ValidationFailure
     nameWithType: ValidationFailure
-    fullName: ValidationFailure
-    isExternal: true
+    fullName: FastEndpoints.Validation.Results.ValidationFailure
   - name: )
     nameWithType: )
     fullName: )

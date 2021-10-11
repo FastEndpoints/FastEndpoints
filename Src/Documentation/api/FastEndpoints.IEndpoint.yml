@@ -14,7 +14,7 @@ items:
   type: Interface
   source:
     id: IEndpoint
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Interfaces.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
     startLine: 54
   assemblies:
   - FastEndpoints

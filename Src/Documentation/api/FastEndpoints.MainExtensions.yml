@@ -16,7 +16,7 @@ items:
   type: Class
   source:
     id: MainExtensions
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\MainExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
     startLine: 14
   assemblies:
   - FastEndpoints
@@ -55,7 +55,7 @@ items:
   type: Method
   source:
     id: AddFastEndpoints
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\MainExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
     startLine: 50
   assemblies:
   - FastEndpoints
@@ -95,7 +95,7 @@ items:
   type: Method
   source:
     id: UseFastEndpoints
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\MainExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
     startLine: 139
   assemblies:
   - FastEndpoints

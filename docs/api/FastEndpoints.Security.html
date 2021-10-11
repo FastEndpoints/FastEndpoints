@@ -15,10 +15,10 @@
     -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Interface IPostProcessor&lt;TRequest, TResponse&gt;
+    <title>Namespace FastEndpoints.Security
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Interface IPostProcessor&lt;TRequest, TResponse&gt;
+    <meta name="title" content="Namespace FastEndpoints.Security
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
@@ -94,105 +94,30 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.IPostProcessor`2">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.Security">
   
-  
-  <h1 id="FastEndpoints_IPostProcessor_2" data-uid="FastEndpoints.IPostProcessor`2" class="text-break">Interface IPostProcessor&lt;TRequest, TResponse&gt;
+  <h1 id="FastEndpoints_Security" data-uid="FastEndpoints.Security" class="text-break">Namespace FastEndpoints.Security
   </h1>
-  <div class="markdown level0 summary"><p>interface for defining post-processors to be executed after the main endpoint handler is done</p>
-</div>
+  <div class="markdown level0 summary"></div>
   <div class="markdown level0 conceptual"></div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
-  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_IPostProcessor_2_syntax">Syntax</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public interface IPostProcessor&lt;TRequest, TResponse&gt;</code></pre>
-  </div>
-  <h5 class="typeParameters">Type Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="parametername">TRequest</span></td>
-        <td><p>the type of the request dto</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="parametername">TResponse</span></td>
-        <td><p>the type of the response dto</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <h3 id="methods">Methods
+  <div class="markdown level0 remarks"></div>
+    <h3 id="classes">Classes
   </h3>
-  
-  
-  <a id="FastEndpoints_IPostProcessor_2_PostProcessAsync_" data-uid="FastEndpoints.IPostProcessor`2.PostProcessAsync*"></a>
-  <h4 id="FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_FastEndpoints_Validation_Results_ValidationFailure__CancellationToken_" data-uid="FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)">PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection&lt;ValidationFailure&gt;, CancellationToken)</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection&lt;ValidationFailure&gt; failures, CancellationToken ct)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">TRequest</span></td>
-        <td><span class="parametername">req</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">TResponse</span></td>
-        <td><span class="parametername">res</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">Microsoft.AspNetCore.Http.HttpContext</span></td>
-        <td><span class="parametername">ctx</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">IReadOnlyCollection</span>&lt;<span class="xref">FastEndpoints.Validation.Results.ValidationFailure</span>&gt;</td>
-        <td><span class="parametername">failures</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">CancellationToken</span></td>
-        <td><span class="parametername">ct</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Task</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
+      <h4><a class="xref" href="FastEndpoints.Security.AuthExtensions.html">AuthExtensions</a></h4>
+      <section></section>
+      <h4><a class="xref" href="FastEndpoints.Security.Constants.html">Constants</a></h4>
+      <section></section>
+      <h4><a class="xref" href="FastEndpoints.Security.JWTBearer.html">JWTBearer</a></h4>
+      <section></section>
+      <h4><a class="xref" href="FastEndpoints.Security.Permissions.html">Permissions</a></h4>
+      <section><p>inherit from this class and define your applications permissions as <code>public const string</code></p>
+<p>
+<pre><code>public const string Inventory_Create_Item = &quot;100&quot;;
+public const string Inventory_Retrieve_Item = &quot;101&quot;;
+public const string Inventory_Update_Item = &quot;102&quot;;
+public const string Inventory_Delete_Item = &quot;103&quot;;</code></pre>
+</p>
+</section>
 </article>
           </div>
           

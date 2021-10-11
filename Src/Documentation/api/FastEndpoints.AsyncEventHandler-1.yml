@@ -14,7 +14,7 @@ items:
   type: Delegate
   source:
     id: AsyncEventHandler
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Extensions\EventHandlerExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\EventHandlerExtensions.cs
     startLine: 2
   assemblies:
   - FastEndpoints

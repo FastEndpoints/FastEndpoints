@@ -59,6 +59,17 @@
     name: MainExtensions
   - uid: FastEndpoints.Mode
     name: Mode
+- uid: FastEndpoints.Security
+  name: FastEndpoints.Security
+  items:
+  - uid: FastEndpoints.Security.AuthExtensions
+    name: AuthExtensions
+  - uid: FastEndpoints.Security.Constants
+    name: Constants
+  - uid: FastEndpoints.Security.JWTBearer
+    name: JWTBearer
+  - uid: FastEndpoints.Security.Permissions
+    name: Permissions
 - uid: FastEndpoints.Validation
   name: FastEndpoints.Validation
   items:

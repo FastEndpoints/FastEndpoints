@@ -1,0 +1,40 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.Security
+  commentId: N:FastEndpoints.Security
+  id: FastEndpoints.Security
+  children:
+  - FastEndpoints.Security.AuthExtensions
+  - FastEndpoints.Security.Constants
+  - FastEndpoints.Security.JWTBearer
+  - FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: FastEndpoints.Security
+  nameWithType: FastEndpoints.Security
+  fullName: FastEndpoints.Security
+  type: Namespace
+  assemblies:
+  - FastEndpoints.Security
+references:
+- uid: FastEndpoints.Security.AuthExtensions
+  commentId: T:FastEndpoints.Security.AuthExtensions
+  name: AuthExtensions
+  nameWithType: AuthExtensions
+  fullName: FastEndpoints.Security.AuthExtensions
+- uid: FastEndpoints.Security.Constants
+  commentId: T:FastEndpoints.Security.Constants
+  name: Constants
+  nameWithType: Constants
+  fullName: FastEndpoints.Security.Constants
+- uid: FastEndpoints.Security.JWTBearer
+  commentId: T:FastEndpoints.Security.JWTBearer
+  name: JWTBearer
+  nameWithType: JWTBearer
+  fullName: FastEndpoints.Security.JWTBearer
+- uid: FastEndpoints.Security.Permissions
+  commentId: T:FastEndpoints.Security.Permissions
+  name: Permissions
+  nameWithType: Permissions
+  fullName: FastEndpoints.Security.Permissions

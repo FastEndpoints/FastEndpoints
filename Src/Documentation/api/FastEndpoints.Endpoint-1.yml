@@ -14,7 +14,7 @@ items:
   type: Class
   source:
     id: Endpoint
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
     startLine: 62
   assemblies:
   - FastEndpoints

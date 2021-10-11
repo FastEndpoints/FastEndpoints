@@ -1,0 +1,828 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.Security.Permissions
+  commentId: T:FastEndpoints.Security.Permissions
+  id: Permissions
+  parent: FastEndpoints.Security
+  children:
+  - FastEndpoints.Security.Permissions.#ctor
+  - FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable{System.String})
+  - FastEndpoints.Security.Permissions.GetEnumerator
+  - FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})
+  - FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
+  langs:
+  - csharp
+  - vb
+  name: Permissions
+  nameWithType: Permissions
+  fullName: FastEndpoints.Security.Permissions
+  type: Class
+  source:
+    id: Permissions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 16
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\ninherit from this class and define your applications permissions as <code>public const string</code>\n<p>\n<pre><code>public const string Inventory_Create_Item = &quot;100&quot;;\npublic const string Inventory_Retrieve_Item = &quot;101&quot;;\npublic const string Inventory_Update_Item = &quot;102&quot;;\npublic const string Inventory_Delete_Item = &quot;103&quot;;</code></pre>\n</p>\n"
+  example: []
+  syntax:
+    content: 'public class Permissions : IEnumerable<(string PermissionName, string PermissionCode)>'
+    content.vb: >-
+      Public Class Permissions
+
+          Implements IEnumerable(Of(PermissionName As String, PermissionCode As String)(Of String , String))
+  inheritance:
+  - System.Object
+  implements:
+  - System.Collections.IEnumerable{System.ValueTuple{System.String,System.String}}
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: FastEndpoints.Security.Permissions.#ctor
+  commentId: M:FastEndpoints.Security.Permissions.#ctor
+  id: '#ctor'
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: Permissions()
+  nameWithType: Permissions.Permissions()
+  fullName: FastEndpoints.Security.Permissions.Permissions()
+  type: Constructor
+  source:
+    id: .ctor
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 23
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  syntax:
+    content: public Permissions()
+    content.vb: Public Sub New
+  overload: FastEndpoints.Security.Permissions.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})
+  commentId: M:FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})
+  id: NamesFor(System.Collections.IEnumerable{System.String})
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: NamesFor(IEnumerable<String>)
+  nameWithType: Permissions.NamesFor(IEnumerable<String>)
+  fullName: FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable<System.String>)
+  type: Method
+  source:
+    id: NamesFor
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 43
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\ngets a list of permission names for the given list of permission codes\n"
+  example: []
+  syntax:
+    content: public IEnumerable<string> NamesFor(IEnumerable<string> codes)
+    parameters:
+    - id: codes
+      type: System.Collections.IEnumerable{System.String}
+      description: the permission codes to get the permission names for
+    return:
+      type: System.Collections.IEnumerable{System.String}
+    content.vb: Public Function NamesFor(codes As IEnumerable(Of String)) As IEnumerable(Of String)
+  overload: FastEndpoints.Security.Permissions.NamesFor*
+  nameWithType.vb: Permissions.NamesFor(IEnumerable(Of String))
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable(Of System.String))
+  name.vb: NamesFor(IEnumerable(Of String))
+- uid: FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable{System.String})
+  commentId: M:FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable{System.String})
+  id: CodesFor(System.Collections.IEnumerable{System.String})
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: CodesFor(IEnumerable<String>)
+  nameWithType: Permissions.CodesFor(IEnumerable<String>)
+  fullName: FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable<System.String>)
+  type: Method
+  source:
+    id: CodesFor
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 54
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\nget a list of permission codes for a given list of permission names\n"
+  example: []
+  syntax:
+    content: public IEnumerable<string> CodesFor(IEnumerable<string> names)
+    parameters:
+    - id: names
+      type: System.Collections.IEnumerable{System.String}
+      description: the permission names to get the codes for
+    return:
+      type: System.Collections.IEnumerable{System.String}
+    content.vb: Public Function CodesFor(names As IEnumerable(Of String)) As IEnumerable(Of String)
+  overload: FastEndpoints.Security.Permissions.CodesFor*
+  nameWithType.vb: Permissions.CodesFor(IEnumerable(Of String))
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable(Of System.String))
+  name.vb: CodesFor(IEnumerable(Of String))
+- uid: FastEndpoints.Security.Permissions.GetEnumerator
+  commentId: M:FastEndpoints.Security.Permissions.GetEnumerator
+  id: GetEnumerator
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: GetEnumerator()
+  nameWithType: Permissions.GetEnumerator()
+  fullName: FastEndpoints.Security.Permissions.GetEnumerator()
+  type: Method
+  source:
+    id: GetEnumerator
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 63
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  example: []
+  syntax:
+    content: public IEnumerator<(string PermissionName, string PermissionCode)> GetEnumerator()
+    return:
+      type: System.Collections.IEnumerator{System.ValueTuple{System.String,System.String}}
+    content.vb: Public Function GetEnumerator As IEnumerator(Of(PermissionName As String, PermissionCode As String)(Of String , String))
+  overload: FastEndpoints.Security.Permissions.GetEnumerator*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
+  commentId: M:FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
+  id: System#Collections#IEnumerable#GetEnumerator
+  isEii: true
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: IEnumerable.GetEnumerator()
+  nameWithType: Permissions.IEnumerable.GetEnumerator()
+  fullName: FastEndpoints.Security.Permissions.System.Collections.IEnumerable.GetEnumerator()
+  type: Method
+  source:
+    id: System.Collections.IEnumerable.GetEnumerator
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 68
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  syntax:
+    content: IEnumerator IEnumerable.GetEnumerator()
+    return:
+      type: System.Collections.IEnumerator
+    content.vb: Function System.Collections.IEnumerable.GetEnumerator As IEnumerator Implements IEnumerable.GetEnumerator
+  overload: FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator*
+  nameWithType.vb: Permissions.System.Collections.IEnumerable.GetEnumerator()
+  name.vb: System.Collections.IEnumerable.GetEnumerator()
+references:
+- uid: FastEndpoints.Security
+  commentId: N:FastEndpoints.Security
+  name: FastEndpoints.Security
+  nameWithType: FastEndpoints.Security
+  fullName: FastEndpoints.Security
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Collections.IEnumerable{System.ValueTuple{System.String,System.String}}
+  commentId: '!:System.Collections.IEnumerable{System.ValueTuple{System.String,System.String}}'
+  definition: System.Collections.IEnumerable`1
+  name: IEnumerable<(T1, T2)<String, String>>
+  nameWithType: IEnumerable<(T1, T2)<String, String>>
+  fullName: System.Collections.IEnumerable<System.ValueTuple<System.String, System.String>>
+  nameWithType.vb: IEnumerable(Of (T1, T2)(Of String, String))
+  fullName.vb: System.Collections.IEnumerable(Of System.ValueTuple(Of System.String, System.String))
+  name.vb: IEnumerable(Of (T1, T2)(Of String, String))
+  spec.csharp:
+  - uid: System.Collections.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.ValueTuple`2
+    name: (T1, T2)
+    nameWithType: (T1, T2)
+    fullName: System.ValueTuple
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.ValueTuple`2
+    name: (T1, T2)
+    nameWithType: (T1, T2)
+    fullName: System.ValueTuple
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.Collections.IEnumerable`1
+  isExternal: true
+  name: IEnumerable<>
+  nameWithType: IEnumerable<>
+  fullName: System.Collections.IEnumerable<>
+  nameWithType.vb: IEnumerable(Of )
+  fullName.vb: System.Collections.IEnumerable(Of )
+  name.vb: IEnumerable(Of )
+  spec.csharp:
+  - uid: System.Collections.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Security.Permissions.#ctor*
+  commentId: Overload:FastEndpoints.Security.Permissions.#ctor
+  name: Permissions
+  nameWithType: Permissions.Permissions
+  fullName: FastEndpoints.Security.Permissions.Permissions
+- uid: FastEndpoints.Security.Permissions.NamesFor*
+  commentId: Overload:FastEndpoints.Security.Permissions.NamesFor
+  name: NamesFor
+  nameWithType: Permissions.NamesFor
+  fullName: FastEndpoints.Security.Permissions.NamesFor
+- uid: System.Collections.IEnumerable{System.String}
+  commentId: '!:System.Collections.IEnumerable{System.String}'
+  definition: System.Collections.IEnumerable`1
+  name: IEnumerable<String>
+  nameWithType: IEnumerable<String>
+  fullName: System.Collections.IEnumerable<System.String>
+  nameWithType.vb: IEnumerable(Of String)
+  fullName.vb: System.Collections.IEnumerable(Of System.String)
+  name.vb: IEnumerable(Of String)
+  spec.csharp:
+  - uid: System.Collections.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: System.Collections.IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Security.Permissions.CodesFor*
+  commentId: Overload:FastEndpoints.Security.Permissions.CodesFor
+  name: CodesFor
+  nameWithType: Permissions.CodesFor
+  fullName: FastEndpoints.Security.Permissions.CodesFor
+- uid: FastEndpoints.Security.Permissions.GetEnumerator*
+  commentId: Overload:FastEndpoints.Security.Permissions.GetEnumerator
+  name: GetEnumerator
+  nameWithType: Permissions.GetEnumerator
+  fullName: FastEndpoints.Security.Permissions.GetEnumerator
+- uid: System.Collections.IEnumerator{System.ValueTuple{System.String,System.String}}
+  commentId: '!:System.Collections.IEnumerator{System.ValueTuple{System.String,System.String}}'
+  definition: System.Collections.IEnumerator`1
+  name: IEnumerator<(T1, T2)<String, String>>
+  nameWithType: IEnumerator<(T1, T2)<String, String>>
+  fullName: System.Collections.IEnumerator<System.ValueTuple<System.String, System.String>>
+  nameWithType.vb: IEnumerator(Of (T1, T2)(Of String, String))
+  fullName.vb: System.Collections.IEnumerator(Of System.ValueTuple(Of System.String, System.String))
+  name.vb: IEnumerator(Of (T1, T2)(Of String, String))
+  spec.csharp:
+  - uid: System.Collections.IEnumerator`1
+    name: IEnumerator
+    nameWithType: IEnumerator
+    fullName: System.Collections.IEnumerator
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.ValueTuple`2
+    name: (T1, T2)
+    nameWithType: (T1, T2)
+    fullName: System.ValueTuple
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.IEnumerator`1
+    name: IEnumerator
+    nameWithType: IEnumerator
+    fullName: System.Collections.IEnumerator
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.ValueTuple`2
+    name: (T1, T2)
+    nameWithType: (T1, T2)
+    fullName: System.ValueTuple
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Collections.IEnumerator`1
+  commentId: '!:System.Collections.IEnumerator`1'
+  isExternal: true
+  name: IEnumerator<>
+  nameWithType: IEnumerator<>
+  fullName: System.Collections.IEnumerator<>
+  nameWithType.vb: IEnumerator(Of )
+  fullName.vb: System.Collections.IEnumerator(Of )
+  name.vb: IEnumerator(Of )
+  spec.csharp:
+  - uid: System.Collections.IEnumerator`1
+    name: IEnumerator
+    nameWithType: IEnumerator
+    fullName: System.Collections.IEnumerator
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Collections.IEnumerator`1
+    name: IEnumerator
+    nameWithType: IEnumerator
+    fullName: System.Collections.IEnumerator
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator*
+  commentId: Overload:FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
+  name: IEnumerable.GetEnumerator
+  nameWithType: Permissions.IEnumerable.GetEnumerator
+  fullName: FastEndpoints.Security.Permissions.System.Collections.IEnumerable.GetEnumerator
+  nameWithType.vb: Permissions.System.Collections.IEnumerable.GetEnumerator
+  name.vb: System.Collections.IEnumerable.GetEnumerator
+- uid: System.Collections.IEnumerator
+  commentId: T:System.Collections.IEnumerator
+  parent: System.Collections
+  isExternal: true
+  name: IEnumerator
+  nameWithType: IEnumerator
+  fullName: System.Collections.IEnumerator
+- uid: System.Collections
+  commentId: N:System.Collections
+  isExternal: true
+  name: System.Collections
+  nameWithType: System.Collections
+  fullName: System.Collections

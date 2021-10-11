@@ -14,7 +14,7 @@ items:
   type: Class
   source:
     id: EmptyRequest
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\DTOs\EmptyRequest.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\EmptyRequest.cs
     startLine: 5
   assemblies:
   - FastEndpoints

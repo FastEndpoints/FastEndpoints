@@ -14,7 +14,7 @@ items:
   type: Class
   source:
     id: BaseEventHandler
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Events\EventHandler.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
     startLine: 2
   assemblies:
   - FastEndpoints

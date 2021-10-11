@@ -21,6 +21,7 @@
     <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -37,10 +38,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md" Link="Content\Readme">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="..\..\README.md" Pack="true" Link="Content\Readme"/>
+    <None Include="..\Documentation\images\icon.png" Pack="true" Link="Content\Icon" />
   </ItemGroup>
 
   <ItemGroup>

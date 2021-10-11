@@ -128,6 +128,7 @@
 <p><strong>SendStreamAsync()</strong> - you can supply a <code>System.IO.Stream</code> to this method for reading binary data from.</p>
 <p><strong>SendFileAsync()</strong> - you can supply a <code>System.IO.FileInfo</code> instance as the source of the binary data.</p>
 <p><strong>SendBytesAsync()</strong> - you can supply a byte array as the source of data to be sent to the client.</p>
+<p>all three methods allow you to optionally specify the <code>content-type</code> and <code>file name</code>. if file name is specified, the <code>Content-Disposition: attachment</code> response header will be set with the given file name so that a file download will be initiated by the client/browser.</p>
 </article>
           </div>
           

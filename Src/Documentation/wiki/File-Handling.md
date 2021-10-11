@@ -41,3 +41,5 @@ there are 3 methods you can use to send file data down to the client.
 **SendFileAsync()** - you can supply a `System.IO.FileInfo` instance as the source of the binary data.
 
 **SendBytesAsync()** - you can supply a byte array as the source of data to be sent to the client.
+
+all three methods allow you to optionally specify the `content-type` and `file name`. if file name is specified, the `Content-Disposition: attachment` response header will be set with the given file name so that a file download will be initiated by the client/browser.

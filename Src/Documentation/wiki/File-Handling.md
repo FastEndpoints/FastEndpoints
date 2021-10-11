@@ -19,12 +19,11 @@ public class MyEndpoint : Endpoint<MyRequest>
             var file = Files[0];
 
             await SendStreamAsync(
-                file.OpenReadStream(),
-                "my-image.png",
-                file.Length,
-                "image/png");
+                stream: file.OpenReadStream(),
+                fileName: "test.png",
+                fileLengthBytes: file.Length,
+                contentType: "image/png");
         }
-
         await SendNoContentAsync();
     }
 }

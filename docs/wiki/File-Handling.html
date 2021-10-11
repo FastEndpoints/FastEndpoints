@@ -112,12 +112,11 @@
             var file = Files[0];
 
             await SendStreamAsync(
-                file.OpenReadStream(),
-                &quot;my-image.png&quot;,
-                file.Length,
-                &quot;image/png&quot;);
+                stream: file.OpenReadStream(),
+                fileName: &quot;test.png&quot;,
+                fileLengthBytes: file.Length,
+                contentType: &quot;image/png&quot;);
         }
-
         await SendNoContentAsync();
     }
 }

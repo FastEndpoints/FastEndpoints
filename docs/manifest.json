@@ -500,7 +500,19 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Dependency-Injection.html",
-          "hash": "F+z/4zxvc2fxrJIinKtFaNK477J/8GYgXQdIuF+ZhcE="
+          "hash": "SwHzFqQw5ysP0JnoK4R/rhT1jWGspyRF5XNZyfo6Ldk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "wiki/File-Handling.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/File-Handling.html",
+          "hash": "2SQKBhzjiSwsAeldeyOl3DFkSpsKYS9bDF08QHzBC7k="
         }
       },
       "is_incremental": false,
@@ -555,12 +567,15 @@
       "version": ""
     },
     {
+      "log_codes": [
+        "InvalidFileLink"
+      ],
       "type": "Toc",
       "source_relative_path": "wiki/toc.md",
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "Du7s+tcGZR5Ahmqbhcph0hZ67lqrLcT28tyevnbDpOs="
+          "hash": "NMtLGu+MQbGmJn/IeoeRqUB0AkHjVjTxnJ5Ma/nKw7w="
         }
       },
       "is_incremental": false,
@@ -579,8 +594,8 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 7,
-          "skipped_file_count": 7
+          "total_file_count": 8,
+          "skipped_file_count": 6
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

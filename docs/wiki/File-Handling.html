@@ -15,9 +15,9 @@
     -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>dependency injection | FastEndpoints </title>
+    <title>handling file uploads | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="dependency injection | FastEndpoints ">
+    <meta name="title" content="handling file uploads | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
     <link rel="shortcut icon" href="../images/favicon.ico">
@@ -93,80 +93,41 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="dependency-injection">dependency injection</h1>
+<h1 id="handling-file-uploads">handling file uploads</h1>
 
-<p>there are two ways to get access to services registered in the ioc container.</p>
-<p>consider the following service registration.</p>
-<p><strong>the service</strong></p>
-<pre><code class="lang-csharp">public interface IHelloWorldService
+<p>the following example relays back the image data uploaded to the endpoint in order to show both receiving and sending of file data:</p>
+<pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest&gt;
 {
-    string SayHello();
-}
-
-public class HelloWorldService : IHelloWorldService
-{
-    public string SayHello() =&gt; &quot;hello world!&quot;;
-}
-</code></pre>
-<p><strong>ioc registration</strong></p>
-<pre><code>builder.Services.AddScoped&lt;IHelloWorldService, HelloWorldService&gt;();
-</code></pre>
-<h1 id="automatic-injection">automatic injection</h1>
-<p>services can be automatically property injected by simply adding properties to the endpoint like so:</p>
-<pre><code class="lang-csharp">public class MyEndpoint : EndpointWithoutRequest
-{
-    public IHelloWorldService HelloService { get; set; }
-
     public MyEndpoint()
     {
-        Verbs(Http.GET);
-        Routes(&quot;/api/hello-world&quot;);
+        Verbs(Http.POST);
+        Routes(&quot;/api/uploads/image&quot;);
+        AllowFileUploads();
     }
 
-    protected override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+    protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
     {
-        await SendAsync(HelloService.SayHello());
+        if (Files.Count &gt; 0)
+        {
+            var file = Files[0];
+
+            await SendStreamAsync(
+                file.OpenReadStream(),
+                &quot;my-image.png&quot;,
+                file.Length,
+                &quot;image/png&quot;);
+        }
+
+        await SendNoContentAsync();
     }
 }
 </code></pre>
-<h1 id="manual-resolving">manual resolving</h1>
-<p>services can be resolved manually like so:</p>
-<pre><code class="lang-csharp">protected override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
-{
-    IHelloWorldService? helloSvc = TryResolve&lt;IHelloWorldService&gt;();
-
-    if (helloSvc is null)
-        ThrowError(&quot;service not resolved!&quot;);
-
-    var logger = Resolve&lt;ILogger&lt;MyEndpoint&gt;&gt;();
-
-    logger.LogInformation(&quot;hello service is resolved...&quot;);
-
-    await SendAsync(helloSvc.SayHello());
-}
-</code></pre>
-<p><strong>TryResolve()</strong> - this method will try to resolve the given service. returns null if not resolved.</p>
-<p><strong>Resolve()</strong> - this method will throw an exception if the requested service cannot be resolved.</p>
-<h1 id="pre-resolved-services">pre-resolved services</h1>
-<p>the following services are pre-resolved and available for every endpoint handler with the following properties:</p>
-<pre><code>property: Config
-service : IConfiguration
-
-property: Env
-service : IWebHostEnvironment
-
-property: Logger
-service : ILogger
-</code></pre>
-<p>they can be used in the endpoint handlers like so:</p>
-<pre><code class="lang-csharp">protected override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
-{
-    Logger.LogInformation(&quot;this is a log message&quot;);
-    var isProduction = Env.IsProduction();
-    var smtpServer = Config[&quot;SMTP:HostName&quot;];
-    ...
-}
-</code></pre>
+<p>endpoints by default won't allow <code>multipart/form-data</code> content uploads. you'd have to enable file uploads by using the <code>AllowFileUploads()</code> method in the handler ctor like shown above. the received files are exposed to the endpoint handler via the <code>Files</code> property which is of <code>IFormFileCollection</code> type.</p>
+<h1 id="sending-file-responses">sending file responses</h1>
+<p>there are 3 methods you can use to send file data down to the client.</p>
+<p><strong>SendStreamAsync()</strong> - you can supply a <code>System.IO.Stream</code> to this method for reading binary data from.</p>
+<p><strong>SendFileAsync()</strong> - you can supply a <code>System.IO.FileInfo</code> instance as the source of the binary data.</p>
+<p><strong>SendBytesAsync()</strong> - you can supply a byte array as the source of data to be sent to the client.</p>
 </article>
           </div>
           

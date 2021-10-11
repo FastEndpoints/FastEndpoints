@@ -64,3 +64,27 @@ protected override async Task HandleAsync(EmptyRequest req, CancellationToken ct
 **TryResolve()** - this method will try to resolve the given service. returns null if not resolved.
 
 **Resolve()** - this method will throw an exception if the requested service cannot be resolved.
+
+# pre-resolved services
+the following services are pre-resolved and available for every endpoint handler with the following properties:
+```
+property: Config
+service : IConfiguration
+
+property: Env
+service : IWebHostEnvironment
+
+property: Logger
+service : ILogger
+```
+
+they can be used in the endpoint handlers like so:
+```csharp
+protected override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+{
+    Logger.LogInformation("this is a log message");
+    var isProduction = Env.IsProduction();
+    var smtpServer = Config["SMTP:HostName"];
+    ...
+}
+```

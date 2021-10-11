@@ -3,3 +3,8 @@
 # [Model Binding](Model-Binding.md)
 # [Validation](Validation.md)
 # [Dependency Injection](Dependency-Injection.md)
+# [File Handling](File-Handling.md)
+# [Pipeline Behaviors](Pipeline-Behaviors.md)
+# [Event Notifications](Event-Notifications.md)
+# [Integration Testing](Integration-Testing.md)
+# [VS Extension](VS-Extension.md)

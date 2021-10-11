@@ -9,6 +9,8 @@ items:
   - FastEndpoints.Endpoint`2.AddError(System.String)
   - FastEndpoints.Endpoint`2.AllowAnnonymous
   - FastEndpoints.Endpoint`2.AllowFileUploads
+  - FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+  - FastEndpoints.Endpoint`2.AnyPermission(System.String[])
   - FastEndpoints.Endpoint`2.BaseURL
   - FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])
   - FastEndpoints.Endpoint`2.Claims(System.String[])
@@ -71,6 +73,7 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint where TRequest : new()
+
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -79,7 +82,9 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New, TResponse As New)
+
           Inherits BaseEndpoint
+
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -831,6 +836,41 @@ items:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions(System.Boolean, System.String())
   name.vb: Permissions(Boolean, String())
+- uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+  commentId: M:FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+  id: AnyPermission(System.String[])
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: AnyPermission(String[])
+  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission(String[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission(System.String[])
+  type: Method
+  source:
+    id: AnyPermission
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
+    startLine: 184
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nspecify to allow access if the user has any of the given permissions\n"
+  example: []
+  syntax:
+    content: protected void AnyPermission(params string[] permissions)
+    parameters:
+    - id: permissions
+      type: System.String[]
+      description: the permissions
+    content.vb: Protected Sub AnyPermission(ParamArray permissions As String())
+  overload: FastEndpoints.Endpoint`2.AnyPermission*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission(String())
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission(System.String())
+  name.vb: AnyPermission(String())
 - uid: FastEndpoints.Endpoint`2.Claims(System.String[])
   commentId: M:FastEndpoints.Endpoint`2.Claims(System.String[])
   id: Claims(System.String[])
@@ -845,7 +885,7 @@ items:
   source:
     id: Claims
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 184
+    startLine: 189
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -880,7 +920,7 @@ items:
   source:
     id: Claims
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 190
+    startLine: 195
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -904,6 +944,41 @@ items:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims(System.Boolean, System.String())
   name.vb: Claims(Boolean, String())
+- uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+  commentId: M:FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+  id: AnyClaim(System.String[])
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: AnyClaim(String[])
+  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim(String[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim(System.String[])
+  type: Method
+  source:
+    id: AnyClaim
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
+    startLine: 204
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nspecify to allow access if the user has any of the given claims\n"
+  example: []
+  syntax:
+    content: protected void AnyClaim(params string[] claims)
+    parameters:
+    - id: claims
+      type: System.String[]
+      description: the claims
+    content.vb: Protected Sub AnyClaim(ParamArray claims As String())
+  overload: FastEndpoints.Endpoint`2.AnyClaim*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim(String())
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim(System.String())
+  name.vb: AnyClaim(String())
 - uid: FastEndpoints.Endpoint`2.PreProcessors(FastEndpoints.IPreProcessor{`0}[])
   commentId: M:FastEndpoints.Endpoint`2.PreProcessors(FastEndpoints.IPreProcessor{`0}[])
   id: PreProcessors(FastEndpoints.IPreProcessor{`0}[])
@@ -918,7 +993,7 @@ items:
   source:
     id: PreProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 199
+    startLine: 209
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -953,7 +1028,7 @@ items:
   source:
     id: PostProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 204
+    startLine: 214
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -988,7 +1063,7 @@ items:
   source:
     id: Options
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 209
+    startLine: 219
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1023,7 +1098,7 @@ items:
   source:
     id: HandleAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 216
+    startLine: 226
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1064,7 +1139,7 @@ items:
   source:
     id: AddError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 246
+    startLine: 256
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1098,7 +1173,7 @@ items:
   source:
     id: AddError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 254
+    startLine: 264
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1136,7 +1211,7 @@ items:
   source:
     id: ThrowIfAnyErrors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 263
+    startLine: 273
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1166,7 +1241,7 @@ items:
   source:
     id: ThrowError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 272
+    startLine: 282
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1200,7 +1275,7 @@ items:
   source:
     id: ThrowError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 283
+    startLine: 293
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1238,7 +1313,7 @@ items:
   source:
     id: SendAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 295
+    startLine: 305
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1280,7 +1355,7 @@ items:
   source:
     id: SendOkAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 305
+    startLine: 315
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1312,7 +1387,7 @@ items:
   source:
     id: SendErrorsAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 315
+    startLine: 325
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1348,7 +1423,7 @@ items:
   source:
     id: SendNoContentAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 324
+    startLine: 334
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1380,7 +1455,7 @@ items:
   source:
     id: SendNotFoundAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 333
+    startLine: 343
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1412,7 +1487,7 @@ items:
   source:
     id: SendUnauthorizedAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 342
+    startLine: 352
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1444,7 +1519,7 @@ items:
   source:
     id: SendForbiddenAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 351
+    startLine: 361
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1476,7 +1551,7 @@ items:
   source:
     id: SendBytesAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 363
+    startLine: 373
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1522,7 +1597,7 @@ items:
   source:
     id: SendFileAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 375
+    startLine: 385
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1564,7 +1639,7 @@ items:
   source:
     id: SendStreamAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 388
+    startLine: 398
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1613,7 +1688,7 @@ items:
   source:
     id: PublishAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 410
+    startLine: 420
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1622,6 +1697,7 @@ items:
   syntax:
     content: >-
       protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
           where TEvent : class
     parameters:
     - id: eventModel
@@ -1668,7 +1744,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 417
+    startLine: 427
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1704,7 +1780,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 423
+    startLine: 433
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1740,7 +1816,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 430
+    startLine: 440
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1776,7 +1852,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Endpoint.cs
-    startLine: 437
+    startLine: 447
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2488,6 +2564,13 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Permissions
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions
+- uid: FastEndpoints.Endpoint`2.AnyPermission*
+  commentId: Overload:FastEndpoints.Endpoint`2.AnyPermission
+  name: AnyPermission
+  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission
 - uid: FastEndpoints.Endpoint`2.Claims*
   commentId: Overload:FastEndpoints.Endpoint`2.Claims
   name: Claims
@@ -2495,6 +2578,13 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Claims
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims
+- uid: FastEndpoints.Endpoint`2.AnyClaim*
+  commentId: Overload:FastEndpoints.Endpoint`2.AnyClaim
+  name: AnyClaim
+  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim
 - uid: FastEndpoints.Endpoint`2.PreProcessors*
   commentId: Overload:FastEndpoints.Endpoint`2.PreProcessors
   name: PreProcessors

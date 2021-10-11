@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-1.html",
-          "hash": "Nldp5K0IUnCcnmbbC3Pvd8ICaCV86eyHE4RKGxAF/X0="
+          "hash": "ufTNkX/ZyLlhEZM4XlTh5V6f0A/z6+qY/4BfC5TFTGE="
         }
       },
       "is_incremental": false,
@@ -113,7 +113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "aEA09FaowrlM2gCQJrWbKKRb2iUSeEmfYfGVk+kR0eQ="
+          "hash": "QzVQrb0CJzPhJASSEuk5K7QaO+jQvMYsxBhtpUgVnNs="
         }
       },
       "is_incremental": false,
@@ -137,7 +137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.html",
-          "hash": "CrL3q5wM0Vpbg3iQZfTJDaLjyyqgBQNQpfV+X+3gfpY="
+          "hash": "4J5JkHaqduUkgnPJhhrhNl24NkPvdBCL8f6VT9btVcI="
         }
       },
       "is_incremental": false,
@@ -149,7 +149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest.html",
-          "hash": "LVyccFVuNh1s83dlbmA4IW06QpxcxZBNzRGjFYBv4vU="
+          "hash": "USTHOVd6/NEyZgv7ZNjJLZei9l9MdSubTy3vT0LTlfs="
         }
       },
       "is_incremental": false,
@@ -221,7 +221,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
-          "hash": "FeDsoZljQDN809teOIR11FjM7cAm2zoFNbxEMSbzYbU="
+          "hash": "aW5SpIDEaaDoSct+miPXOCMmXplcAf4+iN91HkokYdA="
         }
       },
       "is_incremental": false,
@@ -508,11 +508,23 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/Model-Binding.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Model-Binding.html",
+          "hash": "BYp4dhL5PIDNDY9H5NIBc2ECoH5hSKctLJM/XOPPreM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/Security.md",
       "output": {
         ".html": {
           "relative_path": "wiki/Security.html",
-          "hash": "fCAzWVn/YJDxj/PmWo6s+mFor1jG8v7zZgcks5Ts5Ws="
+          "hash": "dIY/tVvJbjftBTzfBBM/G1rciwAlNYSu1ci0ZGnoPOc="
         }
       },
       "is_incremental": false,
@@ -524,7 +536,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "jjMPtYjc2+eJNFmEz+/uU0kiaB3DWtmeEDM5Ck0/BrM="
+          "hash": "n5hmbfOVgJkQkVmjfIPNdJp2nT/xbPT7aR3KmiWkzNI="
         }
       },
       "is_incremental": false,
@@ -543,8 +555,8 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 4,
-          "skipped_file_count": 4
+          "total_file_count": 5,
+          "skipped_file_count": 5
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

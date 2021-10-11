@@ -28,6 +28,7 @@ items:
     content: 'public class FromClaimAttribute : Attribute'
     content.vb: >-
       Public Class FromClaimAttribute
+
           Inherits Attribute
   inheritance:
   - System.Object

@@ -143,6 +143,7 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint where TRequest : new()
+
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -570,6 +571,64 @@
   </div>
   
   
+  <a id="FastEndpoints_Endpoint_2_AnyClaim_" data-uid="FastEndpoints.Endpoint`2.AnyClaim*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_AnyClaim_System_String___" data-uid="FastEndpoints.Endpoint`2.AnyClaim(System.String[])">AnyClaim(String[])</h4>
+  <div class="markdown level1 summary"><p>specify to allow access if the user has any of the given claims</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void AnyClaim(params string[] claims)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">claims</span></td>
+        <td><p>the claims</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_AnyPermission_" data-uid="FastEndpoints.Endpoint`2.AnyPermission*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_AnyPermission_System_String___" data-uid="FastEndpoints.Endpoint`2.AnyPermission(System.String[])">AnyPermission(String[])</h4>
+  <div class="markdown level1 summary"><p>specify to allow access if the user has any of the given permissions</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void AnyPermission(params string[] permissions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">permissions</span></td>
+        <td><p>the permissions</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_Claims_" data-uid="FastEndpoints.Endpoint`2.Claims*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Claims_System_Boolean_System_String___" data-uid="FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])">Claims(Boolean, String[])</h4>
   <div class="markdown level1 summary"><p>specify the claim types a user principal should posses in order to access this endpoint.</p>
@@ -883,6 +942,7 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>

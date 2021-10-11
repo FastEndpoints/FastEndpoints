@@ -30,7 +30,9 @@ items:
     - id: TRequest
     content.vb: >-
       Public MustInherit Class Validator(Of TRequest As Class)
+
           Inherits AbstractValidator(Of TRequest)
+
           Implements IHasServiceProvider
   inheritance:
   - System.Object

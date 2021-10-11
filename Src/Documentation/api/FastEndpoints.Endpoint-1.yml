@@ -28,7 +28,9 @@ items:
       description: ''
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New)
+
           Inherits Endpoint(Of TRequest, Object)
+
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -60,8 +62,10 @@ items:
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Roles(System.String[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Permissions(System.String[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Permissions(System.Boolean,System.String[])
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.AnyPermission(System.String[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Claims(System.String[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Claims(System.Boolean,System.String[])
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.AnyClaim(System.String[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.PreProcessors(FastEndpoints.IPreProcessor{{TRequest}}[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.PostProcessors(FastEndpoints.IPostProcessor{{TRequest},System.Object}[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Options(Action{Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder})
@@ -686,6 +690,54 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.AnyPermission(System.String[])
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.AnyPermission(System.String[])
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+  name: AnyPermission(String[])
+  nameWithType: Endpoint<TRequest, Object>.AnyPermission(String[])
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.AnyPermission(System.String[])
+  nameWithType.vb: Endpoint(Of TRequest, Object).AnyPermission(String())
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).AnyPermission(System.String())
+  name.vb: AnyPermission(String())
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+    name: AnyPermission
+    nameWithType: Endpoint<TRequest, Object>.AnyPermission
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.AnyPermission
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+    name: AnyPermission
+    nameWithType: Endpoint(Of TRequest, Object).AnyPermission
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).AnyPermission
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
 - uid: FastEndpoints.Endpoint{{TRequest},System.Object}.Claims(System.String[])
   commentId: M:FastEndpoints.Endpoint{`0,System.Object}.Claims(System.String[])
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
@@ -787,6 +839,54 @@ references:
   - name: ', '
     nameWithType: ', '
     fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.AnyClaim(System.String[])
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.AnyClaim(System.String[])
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+  name: AnyClaim(String[])
+  nameWithType: Endpoint<TRequest, Object>.AnyClaim(String[])
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.AnyClaim(System.String[])
+  nameWithType.vb: Endpoint(Of TRequest, Object).AnyClaim(String())
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).AnyClaim(System.String())
+  name.vb: AnyClaim(String())
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+    name: AnyClaim
+    nameWithType: Endpoint<TRequest, Object>.AnyClaim
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.AnyClaim
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+    name: AnyClaim
+    nameWithType: Endpoint(Of TRequest, Object).AnyClaim
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).AnyClaim
+  - name: (
+    nameWithType: (
+    fullName: (
   - uid: System.String
     name: String
     nameWithType: String
@@ -2979,6 +3079,53 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+  commentId: M:FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+  isExternal: true
+  name: AnyPermission(String[])
+  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission(String[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission(System.String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission(String())
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission(System.String())
+  name.vb: AnyPermission(String())
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+    name: AnyPermission
+    nameWithType: Endpoint<TRequest, TResponse>.AnyPermission
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+    name: AnyPermission
+    nameWithType: Endpoint(Of TRequest, TResponse).AnyPermission
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
 - uid: FastEndpoints.Endpoint`2.Claims(System.String[])
   commentId: M:FastEndpoints.Endpoint`2.Claims(System.String[])
   isExternal: true
@@ -3078,6 +3225,53 @@ references:
   - name: ', '
     nameWithType: ', '
     fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+  commentId: M:FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+  isExternal: true
+  name: AnyClaim(String[])
+  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim(String[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim(System.String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim(String())
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim(System.String())
+  name.vb: AnyClaim(String())
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+    name: AnyClaim
+    nameWithType: Endpoint<TRequest, TResponse>.AnyClaim
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+    name: AnyClaim
+    nameWithType: Endpoint(Of TRequest, TResponse).AnyClaim
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim
+  - name: (
+    nameWithType: (
+    fullName: (
   - uid: System.String
     name: String
     nameWithType: String

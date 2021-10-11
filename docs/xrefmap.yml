@@ -130,6 +130,42 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFileUploads
   nameWithType: Endpoint<TRequest, TResponse>.AllowFileUploads
   nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFileUploads
+- uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+  name: AnyClaim(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyClaim_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.AnyClaim(System.String[])
+  name.vb: AnyClaim(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim(String())
+- uid: FastEndpoints.Endpoint`2.AnyClaim*
+  name: AnyClaim
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyClaim_
+  commentId: Overload:FastEndpoints.Endpoint`2.AnyClaim
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim
+  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim
+- uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+  name: AnyPermission(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyPermission_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.AnyPermission(System.String[])
+  name.vb: AnyPermission(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission(String())
+- uid: FastEndpoints.Endpoint`2.AnyPermission*
+  name: AnyPermission
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyPermission_
+  commentId: Overload:FastEndpoints.Endpoint`2.AnyPermission
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission
+  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission
 - uid: FastEndpoints.Endpoint`2.BaseURL
   name: BaseURL
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_BaseURL

@@ -31,7 +31,9 @@ items:
       description: the type of the event to handle
     content.vb: >-
       Public MustInherit Class FastEventHandler(Of TEvent As {Class, New})
+
           Inherits BaseEventHandler
+
           Implements IEventHandler
   inheritance:
   - System.Object

@@ -109,6 +109,8 @@ public class RestrictedEndpoint : Endpoint<RestrictedRequest>
 with this method you are specifying that if a user has all the specified claims, access should be allowed. you can specify to allow access if they have any one of the given claims by using the overload:
 ```csharp
 Claims(allowAny: true, "SomeClaimType", "AnotherClaimType");
+//or
+AnyClaim("SomeClaimType", "AnotherClaimType");
 ```
 
 **Permissions() method**
@@ -116,6 +118,8 @@ Claims(allowAny: true, "SomeClaimType", "AnotherClaimType");
 just like above, you can specify that all permissions mentioned must be present to allow access or using the following overload, you can allow access even if any one of the permissions is present:
 ```csharp
 Permissions(allowAny: true, "SomePermission", "AnotherPermission");
+//or
+AnyPermission("SomePermission", "AnotherPermission");
 ```
 
 **Roles() method**

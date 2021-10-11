@@ -4,7 +4,7 @@ endpoints are secure by default and you'd have to call `AllowAnnonymous()` in th
 ## jwt bearer authentication
 support for easy jwt bearer authentication is provided. you simply need to install the `FastEndpoints.Security` package and register it in the middleware pipeline like so:
 
-### Program.cs
+### program.cs
 ```csharp
 using FastEndpoints;
 using FastEndpoints.Security;

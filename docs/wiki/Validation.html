@@ -173,7 +173,7 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
 
     protected override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
     {
-        bool userExists = await userRepo.UserAlreadyExists(req.UserID);
+        bool userExists = await userRepo.UserAlreadyExists(req.EmailAddress);
         if (userExists)
             AddError(r =&gt; r.UserID, &quot;this user id already exists!&quot;);
 

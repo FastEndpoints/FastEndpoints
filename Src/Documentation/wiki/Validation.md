@@ -89,7 +89,7 @@ public class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse
 
     protected override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
     {
-        bool userExists = await userRepo.UserAlreadyExists(req.UserID);
+        bool userExists = await userRepo.UserAlreadyExists(req.EmailAddress);
         if (userExists)
             AddError(r => r.UserID, "this user id already exists!");
 

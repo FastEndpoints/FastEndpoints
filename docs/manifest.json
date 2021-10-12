@@ -604,6 +604,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/Pipeline-Behaviors.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Pipeline-Behaviors.html",
+          "hash": "gAO2aRX2QeEy+gfUrQuDg9vdf274jg4jaQCWjPt+VDM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/Security.md",
       "output": {
         ".html": {
@@ -635,7 +647,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "NMtLGu+MQbGmJn/IeoeRqUB0AkHjVjTxnJ5Ma/nKw7w="
+          "hash": "pB9U9PA1SOBo1v1EF42HE1XDv25HsROE0wHvzPdvnq0="
         }
       },
       "is_incremental": false,
@@ -654,8 +666,8 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 8,
-          "skipped_file_count": 7
+          "total_file_count": 9,
+          "skipped_file_count": 9
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

@@ -15,6 +15,9 @@ namespace FastEndpoints
     /// <typeparam name="TEvent">the type of the event to handle</typeparam>
     public abstract class FastEventHandler<TEvent> : BaseEventHandler, IEventHandler where TEvent : class, new()
     {
+        void IEventHandler.Subscribe()
+            => Event<TEvent>.OnReceived += (e, c) => HandleAsync(e, c);
+
         /// <summary>
         /// this method will be called when an event of the specified type is published.
         /// </summary>
@@ -22,8 +25,18 @@ namespace FastEndpoints
         /// <param name="ct">an optional cancellation token</param>
         public abstract Task HandleAsync(TEvent eventModel, CancellationToken ct);
 
-        void IEventHandler.Subscribe()
-            => Event<TEvent>.OnReceived += (e, c) => HandleAsync(e, c);
+        /// <summary>
+        /// publish the given model/dto to all the subscribers of the event notification
+        /// </summary>
+        /// <param name="eventModel">the notification event model/dto to publish</param>
+        /// <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+        ///<param name="cancellation">an optional cancellation token</param>
+        /// <returns>a Task that matches the wait mode specified.
+        /// Mode.WaitForNone returns an already completed Task (fire and forget).
+        /// Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
+        /// Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</returns>
+        protected Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : class
+            => Event<TEventModel>.PublishAsync(eventModel, waitMode, cancellation);
 
         /// <summary>
         /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.

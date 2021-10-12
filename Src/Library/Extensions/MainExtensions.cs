@@ -28,7 +28,7 @@ namespace FastEndpoints
                 internal string[]? routes;
                 internal string[]? verbs;
                 internal bool throwIfValidationFailed = true;
-                internal bool allowAnnonymous;
+                internal bool allowAnonymous;
                 internal string[]? policies;
                 internal string[]? roles;
                 internal string[]? permissions;
@@ -184,7 +184,7 @@ namespace FastEndpoints
                         eb.RequireAuthorization(); //secure by default
 
                     if (epSettings.allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
-                    if (epSettings.allowAnnonymous is true) eb.AllowAnonymous();
+                    if (epSettings.allowAnonymous is true) eb.AllowAnonymous();
 
                     if (epSettings.userConfigAction is not null) epSettings.userConfigAction(eb);//always do this last - allow user to override everything done above
 
@@ -306,7 +306,7 @@ namespace FastEndpoints
                     routes = fields.GetValues(nameof(BaseEndpoint.routes), epInstance),
                     verbs = fields.GetValues(nameof(BaseEndpoint.verbs), epInstance),
                     throwIfValidationFailed = fields.GetValue<bool>(nameof(BaseEndpoint.throwIfValidationFailed), epInstance),
-                    allowAnnonymous = fields.GetValue<bool>(nameof(BaseEndpoint.allowAnonymous), epInstance),
+                    allowAnonymous = fields.GetValue<bool>(nameof(BaseEndpoint.allowAnonymous), epInstance),
                     policies = fields.GetValues(nameof(BaseEndpoint.policies), epInstance),
                     roles = fields.GetValues(nameof(BaseEndpoint.roles), epInstance),
                     permissions = fields.GetValues(nameof(BaseEndpoint.permissions), epInstance),

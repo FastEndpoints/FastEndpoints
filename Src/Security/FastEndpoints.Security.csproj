@@ -14,10 +14,16 @@
     <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0-rc.1.21452.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0-rc.2.21480.10" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon"/>
+  </ItemGroup>
+  
 </Project>

@@ -43,6 +43,7 @@ namespace FastEndpoints
         /// </summary>
         /// <typeparam name="TService">the type of the service to resolve</typeparam>
         protected TService? TryResolve<TService>() => ServiceProvider.GetService<TService>();
+
         /// <summary>
         /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
         /// </summary>

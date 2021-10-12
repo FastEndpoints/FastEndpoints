@@ -15,7 +15,12 @@
     <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon"/>
+  </ItemGroup>
+  
 </Project>

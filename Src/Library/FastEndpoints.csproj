@@ -6,7 +6,8 @@
     
     <PackageReleaseNotes>
       - fix typo AllowAnnonymous() to AllowAnonymous()
-      - 
+      - upgrade dependancies
+      - misc. code changes
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>
@@ -38,8 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="/" Link="Content\Readme"/>
-    <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="/" Link="Content\Icon"/>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme"/>
+    <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon"/>
   </ItemGroup>
 
   <ItemGroup>

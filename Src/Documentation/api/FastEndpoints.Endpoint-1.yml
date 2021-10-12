@@ -28,9 +28,7 @@ items:
       description: ''
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New)
-
           Inherits Endpoint(Of TRequest, Object)
-
           Implements IEndpoint
   inheritance:
   - System.Object

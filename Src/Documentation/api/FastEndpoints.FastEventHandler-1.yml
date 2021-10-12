@@ -6,8 +6,11 @@ items:
   parent: FastEndpoints
   children:
   - FastEndpoints.FastEventHandler`1.HandleAsync(`0,CancellationToken)
+  - FastEndpoints.FastEventHandler`1.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)
   - FastEndpoints.FastEventHandler`1.Resolve(Type)
   - FastEndpoints.FastEventHandler`1.Resolve``1
+  - FastEndpoints.FastEventHandler`1.TryResolve(Type)
+  - FastEndpoints.FastEventHandler`1.TryResolve``1
   langs:
   - csharp
   - vb
@@ -18,7 +21,7 @@ items:
   source:
     id: FastEventHandler
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 13
+    startLine: 15
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -31,9 +34,7 @@ items:
       description: the type of the event to handle
     content.vb: >-
       Public MustInherit Class FastEventHandler(Of TEvent As {Class, New})
-
           Inherits BaseEventHandler
-
           Implements IEventHandler
   inheritance:
   - System.Object
@@ -71,7 +72,7 @@ items:
   source:
     id: HandleAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 20
+    startLine: 25
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -98,6 +99,133 @@ items:
   - Public
   - MustOverride
   fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).HandleAsync(TEvent, CancellationToken)
+- uid: FastEndpoints.FastEventHandler`1.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)
+  commentId: M:FastEndpoints.FastEventHandler`1.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)
+  id: PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)
+  parent: FastEndpoints.FastEventHandler`1
+  langs:
+  - csharp
+  - vb
+  name: PublishAsync<TEventModel>(TEventModel, Mode, CancellationToken)
+  nameWithType: FastEventHandler<TEvent>.PublishAsync<TEventModel>(TEventModel, Mode, CancellationToken)
+  fullName: FastEndpoints.FastEventHandler<TEvent>.PublishAsync<TEventModel>(TEventModel, FastEndpoints.Mode, CancellationToken)
+  type: Method
+  source:
+    id: PublishAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
+    startLine: 37
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\npublish the given model/dto to all the subscribers of the event notification\n"
+  example: []
+  syntax:
+    content: >-
+      protected Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+          where TEventModel : class
+    parameters:
+    - id: eventModel
+      type: '{TEventModel}'
+      description: the notification event model/dto to publish
+    - id: waitMode
+      type: FastEndpoints.Mode
+      description: specify whether to wait for none, any or all of the subscribers to complete their work
+    - id: cancellation
+      type: CancellationToken
+      description: an optional cancellation token
+    typeParameters:
+    - id: TEventModel
+    return:
+      type: Task
+      description: >-
+        a Task that matches the wait mode specified.
+
+        Mode.WaitForNone returns an already completed Task (fire and forget).
+
+        Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
+
+        Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.
+    content.vb: Protected Function PublishAsync(Of TEventModel As Class)(eventModel As TEventModel, waitMode As Mode = Mode.WaitForAll, cancellation As CancellationToken = Nothing) As Task
+  overload: FastEndpoints.FastEventHandler`1.PublishAsync*
+  nameWithType.vb: FastEventHandler(Of TEvent).PublishAsync(Of TEventModel)(TEventModel, Mode, CancellationToken)
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).PublishAsync(Of TEventModel)(TEventModel, FastEndpoints.Mode, CancellationToken)
+  name.vb: PublishAsync(Of TEventModel)(TEventModel, Mode, CancellationToken)
+- uid: FastEndpoints.FastEventHandler`1.TryResolve``1
+  commentId: M:FastEndpoints.FastEventHandler`1.TryResolve``1
+  id: TryResolve``1
+  parent: FastEndpoints.FastEventHandler`1
+  langs:
+  - csharp
+  - vb
+  name: TryResolve<TService>()
+  nameWithType: FastEventHandler<TEvent>.TryResolve<TService>()
+  fullName: FastEndpoints.FastEventHandler<TEvent>.TryResolve<TService>()
+  type: Method
+  source:
+    id: TryResolve
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
+    startLine: 44
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
+  example: []
+  syntax:
+    content: protected TService TryResolve<TService>()
+    typeParameters:
+    - id: TService
+      description: the type of the service to resolve
+    return:
+      type: '{TService}'
+    content.vb: Protected Function TryResolve(Of TService) As TService
+  overload: FastEndpoints.FastEventHandler`1.TryResolve*
+  nameWithType.vb: FastEventHandler(Of TEvent).TryResolve(Of TService)()
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).TryResolve(Of TService)()
+  name.vb: TryResolve(Of TService)()
+- uid: FastEndpoints.FastEventHandler`1.TryResolve(Type)
+  commentId: M:FastEndpoints.FastEventHandler`1.TryResolve(Type)
+  id: TryResolve(Type)
+  parent: FastEndpoints.FastEventHandler`1
+  langs:
+  - csharp
+  - vb
+  name: TryResolve(Type)
+  nameWithType: FastEventHandler<TEvent>.TryResolve(Type)
+  fullName: FastEndpoints.FastEventHandler<TEvent>.TryResolve(Type)
+  type: Method
+  source:
+    id: TryResolve
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
+    startLine: 49
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
+  example: []
+  syntax:
+    content: protected object TryResolve(Type typeOfService)
+    parameters:
+    - id: typeOfService
+      type: Type
+      description: the type of the service to resolve
+    return:
+      type: System.Object
+    content.vb: Protected Function TryResolve(typeOfService As Type) As Object
+  overload: FastEndpoints.FastEventHandler`1.TryResolve*
+  nameWithType.vb: FastEventHandler(Of TEvent).TryResolve(Type)
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).TryResolve(Type)
 - uid: FastEndpoints.FastEventHandler`1.Resolve``1
   commentId: M:FastEndpoints.FastEventHandler`1.Resolve``1
   id: Resolve``1
@@ -112,11 +240,11 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 29
+    startLine: 56
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
+  summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
     content: protected TService Resolve<TService>()
@@ -148,11 +276,11 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 35
+    startLine: 63
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
+  summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
     content: protected object Resolve(Type typeOfService)
@@ -501,13 +629,37 @@ references:
   name: TEvent
   nameWithType: TEvent
   fullName: TEvent
-- uid: FastEndpoints.FastEventHandler`1.Resolve*
-  commentId: Overload:FastEndpoints.FastEventHandler`1.Resolve
-  name: Resolve
-  nameWithType: FastEventHandler<TEvent>.Resolve
-  fullName: FastEndpoints.FastEventHandler<TEvent>.Resolve
-  nameWithType.vb: FastEventHandler(Of TEvent).Resolve
-  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve
+- uid: FastEndpoints.FastEventHandler`1.PublishAsync*
+  commentId: Overload:FastEndpoints.FastEventHandler`1.PublishAsync
+  name: PublishAsync
+  nameWithType: FastEventHandler<TEvent>.PublishAsync
+  fullName: FastEndpoints.FastEventHandler<TEvent>.PublishAsync
+  nameWithType.vb: FastEventHandler(Of TEvent).PublishAsync
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).PublishAsync
+- uid: '{TEventModel}'
+  commentId: '!:TEventModel'
+  definition: TEventModel
+  name: TEventModel
+  nameWithType: TEventModel
+  fullName: TEventModel
+- uid: FastEndpoints.Mode
+  commentId: T:FastEndpoints.Mode
+  parent: FastEndpoints
+  name: Mode
+  nameWithType: Mode
+  fullName: FastEndpoints.Mode
+- uid: TEventModel
+  commentId: '!:TEventModel'
+  name: TEventModel
+  nameWithType: TEventModel
+  fullName: TEventModel
+- uid: FastEndpoints.FastEventHandler`1.TryResolve*
+  commentId: Overload:FastEndpoints.FastEventHandler`1.TryResolve
+  name: TryResolve
+  nameWithType: FastEventHandler<TEvent>.TryResolve
+  fullName: FastEndpoints.FastEventHandler<TEvent>.TryResolve
+  nameWithType.vb: FastEventHandler(Of TEvent).TryResolve
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).TryResolve
 - uid: '{TService}'
   commentId: '!:TService'
   definition: TService
@@ -523,3 +675,10 @@ references:
   name: Type
   nameWithType: Type
   fullName: Type
+- uid: FastEndpoints.FastEventHandler`1.Resolve*
+  commentId: Overload:FastEndpoints.FastEventHandler`1.Resolve
+  name: Resolve
+  nameWithType: FastEventHandler<TEvent>.Resolve
+  fullName: FastEndpoints.FastEventHandler<TEvent>.Resolve
+  nameWithType.vb: FastEventHandler(Of TEvent).Resolve
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve

@@ -129,7 +129,6 @@ items:
   syntax:
     content: >-
       public static Task<(HttpResponseMessage? response, TResponse result)> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client
@@ -184,7 +183,6 @@ items:
   syntax:
     content: >-
       public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client
@@ -238,7 +236,6 @@ items:
   syntax:
     content: >-
       public static Task<(HttpResponseMessage? response, TResponse result)> POSTAsync<TEndpoint, TResponse>(this HttpClient client)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client
@@ -342,7 +339,6 @@ items:
   syntax:
     content: >-
       public static Task<(HttpResponseMessage? response, TResponse result)> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client
@@ -397,7 +393,6 @@ items:
   syntax:
     content: >-
       public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client
@@ -451,7 +446,6 @@ items:
   syntax:
     content: >-
       public static Task<(HttpResponseMessage? response, TResponse result)> PUTAsync<TEndpoint, TResponse>(this HttpClient client)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client
@@ -555,7 +549,6 @@ items:
   syntax:
     content: >-
       public static Task<(HttpResponseMessage? response, TResponse result)> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client
@@ -610,7 +603,6 @@ items:
   syntax:
     content: >-
       public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client
@@ -664,7 +656,6 @@ items:
   syntax:
     content: >-
       public static Task<(HttpResponseMessage? response, TResponse result)> GETAsync<TEndpoint, TResponse>(this HttpClient client)
-
           where TEndpoint : BaseEndpoint, new()
     parameters:
     - id: client

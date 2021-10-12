@@ -14,11 +14,9 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Interface IPostProcessor&lt;TRequest, TResponse&gt;
-   | FastEndpoints </title>
+    <title>in-process pub/sub notifications | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Interface IPostProcessor&lt;TRequest, TResponse&gt;
-   | FastEndpoints ">
+    <meta name="title" content="in-process pub/sub notifications | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
     <link rel="shortcut icon" href="../images/favicon.ico">
@@ -93,105 +91,76 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.IPostProcessor`2">
-  
-  
-  <h1 id="FastEndpoints_IPostProcessor_2" data-uid="FastEndpoints.IPostProcessor`2" class="text-break">Interface IPostProcessor&lt;TRequest, TResponse&gt;
-  </h1>
-  <div class="markdown level0 summary"><p>interface for defining post-processors to be executed after the main endpoint handler is done</p>
-</div>
-  <div class="markdown level0 conceptual"></div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
-  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_IPostProcessor_2_syntax">Syntax</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public interface IPostProcessor&lt;TRequest, TResponse&gt;</code></pre>
-  </div>
-  <h5 class="typeParameters">Type Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="parametername">TRequest</span></td>
-        <td><p>the type of the request dto</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="parametername">TResponse</span></td>
-        <td><p>the type of the response dto</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <h3 id="methods">Methods
-  </h3>
-  
-  
-  <a id="FastEndpoints_IPostProcessor_2_PostProcessAsync_" data-uid="FastEndpoints.IPostProcessor`2.PostProcessAsync*"></a>
-  <h4 id="FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_ValidationFailure__CancellationToken_" data-uid="FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)">PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection&lt;ValidationFailure&gt;, CancellationToken)</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection&lt;ValidationFailure&gt; failures, CancellationToken ct)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">TRequest</span></td>
-        <td><span class="parametername">req</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">TResponse</span></td>
-        <td><span class="parametername">res</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">Microsoft.AspNetCore.Http.HttpContext</span></td>
-        <td><span class="parametername">ctx</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">IReadOnlyCollection</span>&lt;<span class="xref">ValidationFailure</span>&gt;</td>
-        <td><span class="parametername">failures</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">CancellationToken</span></td>
-        <td><span class="parametername">ct</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  <h5 class="returns">Returns</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Task</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="in-process-pubsub-notifications">in-process pub/sub notifications</h1>
+
+<p>if you'd like to take an event driven approach to building your application, you have the option to publish events from your endpoint handlers and have completely decoupled <strong>event-handlers</strong> to take action when events are published. it's a simple 3 step process to do event driven work.</p>
+<h2 id="1-define-an-event-model-dto">1. define an event model/ dto</h2>
+<p>this is the data contract that will be communicated across processes.</p>
+<pre><code class="lang-csharp">public class OrderCreatedEvent
+{
+    public string OrderID { get; set; }
+    public string CustomerName { get; set; }
+    public decimal OrderTotal { get; set; }
+}
+</code></pre>
+<h2 id="2-define-an-event-handler">2. define an event handler</h2>
+<p>this is the code that will be fired/executed when events of the above dto type gets published.</p>
+<pre><code class="lang-csharp">public class OrderCreationHandler : FastEventHandler&lt;OrderCreatedEvent&gt;
+{
+    public override Task HandleAsync(OrderCreatedEvent eventModel, CancellationToken ct)
+    {
+        var logger = Resolve&lt;ILogger&lt;OrderCreationHandler&gt;&gt;();
+        logger.LogInformation($&quot;order created event received:[{eventModel.OrderID}]&quot;);
+        return Task.CompletedTask;
+    }
+}
+</code></pre>
+<h2 id="3-publish-the-event">3. publish the event</h2>
+<p>simply hand in an event model/dto to the <code>PublishAsync()</code> method.</p>
+<pre><code class="lang-csharp">public class CreateOrderEndpoint : Endpoint&lt;CreateOrderRequest&gt;
+{
+    public CreateOrderEndpoint()
+    {
+        Verbs(Http.POST);
+        Routes(&quot;/sales/orders/create&quot;);
+    }
+
+    protected override async Task HandleAsync(CreateOrderRequest req, CancellationToken ct)
+    {
+        var orderID = await orderRepo.CreateNewOrder(req);
+
+        await PublishAsync(new OrderCreatedEvent
+        {
+            OrderID = orderID,
+            CustomerName = req.Customer,
+            OrderTotal = req.OrderValue
+        });
+
+        await SendOkAsync();
+    }
+}
+</code></pre>
+<h1 id="the-publishasync-method">the PublishAsync() method</h1>
+<p>the <code>PublishAsync()</code> method has an overload that will take a <code>Mode</code> enum that lets you specify whether to wait for <strong>all subscribers</strong> to finish; wait for <strong>any subscriber</strong> to finish; or wait for <strong>none of the subscribers</strong> to finish.</p>
+<p>for example, you can publish an event in a fire-n-forget manner with the following:</p>
+<pre><code class="lang-csharp">await PublishAsync(eventModel, Mode.WaitForNone);
+</code></pre>
+<p>the default mode is <code>Mode.WaitForAll</code> which will await all subscribers. i.e. execution will only continue after each and every subscriber of the event has completed their work.</p>
+<h2 id="publishing-from-event-handlers">publishing from event handlers</h2>
+<p>it is also possible to publish events from within event handlers themselves like so:</p>
+<pre><code class="lang-csharp">public class OrderCreationHandler : FastEventHandler&lt;OrderCreatedEvent&gt;
+{
+    public override async Task HandleAsync(OrderCreatedEvent eventModel, CancellationToken ct)
+    {
+        await PublishAsync(new ReOrderLevelReachedEvent
+        {
+            ItemId = &quot;ITM-0001&quot;,
+            CurrentLevel = 5,
+        });
+    }
+}
+</code></pre>
 </article>
           </div>
           

@@ -5,7 +5,7 @@ items:
   id: IPreProcessor`1
   parent: FastEndpoints
   children:
-  - FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
+  - FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
   langs:
   - csharp
   - vb
@@ -37,16 +37,16 @@ items:
   - Interface
   fullName.vb: FastEndpoints.IPreProcessor(Of TRequest)
   name.vb: IPreProcessor(Of TRequest)
-- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
-  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
-  id: PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
+- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  id: PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
   parent: FastEndpoints.IPreProcessor`1
   langs:
   - csharp
   - vb
   name: PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
   nameWithType: IPreProcessor<TRequest>.PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
-  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<FastEndpoints.Validation.Results.ValidationFailure>, CancellationToken)
+  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<ValidationFailure>, CancellationToken)
   type: Method
   source:
     id: PreProcessAsync
@@ -63,7 +63,7 @@ items:
     - id: ctx
       type: Microsoft.AspNetCore.Http.HttpContext
     - id: failures
-      type: List{FastEndpoints.Validation.Results.ValidationFailure}
+      type: List{ValidationFailure}
     - id: ct
       type: CancellationToken
     return:
@@ -71,7 +71,7 @@ items:
     content.vb: Function PreProcessAsync(req As TRequest, ctx As HttpContext, failures As List(Of ValidationFailure), ct As CancellationToken) As Task
   overload: FastEndpoints.IPreProcessor`1.PreProcessAsync*
   nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
-  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of FastEndpoints.Validation.Results.ValidationFailure), CancellationToken)
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of ValidationFailure), CancellationToken)
   name.vb: PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
 references:
 - uid: FastEndpoints
@@ -99,14 +99,14 @@ references:
   name: HttpContext
   nameWithType: HttpContext
   fullName: Microsoft.AspNetCore.Http.HttpContext
-- uid: List{FastEndpoints.Validation.Results.ValidationFailure}
-  commentId: '!:List{FastEndpoints.Validation.Results.ValidationFailure}'
+- uid: List{ValidationFailure}
+  commentId: '!:List{ValidationFailure}'
   definition: List`1
   name: List<ValidationFailure>
   nameWithType: List<ValidationFailure>
-  fullName: List<FastEndpoints.Validation.Results.ValidationFailure>
+  fullName: List<ValidationFailure>
   nameWithType.vb: List(Of ValidationFailure)
-  fullName.vb: List(Of FastEndpoints.Validation.Results.ValidationFailure)
+  fullName.vb: List(Of ValidationFailure)
   name.vb: List(Of ValidationFailure)
   spec.csharp:
   - uid: List`1
@@ -117,10 +117,11 @@ references:
   - name: <
     nameWithType: <
     fullName: <
-  - uid: FastEndpoints.Validation.Results.ValidationFailure
+  - uid: ValidationFailure
     name: ValidationFailure
     nameWithType: ValidationFailure
-    fullName: FastEndpoints.Validation.Results.ValidationFailure
+    fullName: ValidationFailure
+    isExternal: true
   - name: '>'
     nameWithType: '>'
     fullName: '>'
@@ -133,10 +134,11 @@ references:
   - name: '(Of '
     nameWithType: '(Of '
     fullName: '(Of '
-  - uid: FastEndpoints.Validation.Results.ValidationFailure
+  - uid: ValidationFailure
     name: ValidationFailure
     nameWithType: ValidationFailure
-    fullName: FastEndpoints.Validation.Results.ValidationFailure
+    fullName: ValidationFailure
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )

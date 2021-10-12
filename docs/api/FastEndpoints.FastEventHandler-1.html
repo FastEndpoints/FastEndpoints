@@ -207,9 +207,85 @@
   </table>
   
   
+  <a id="FastEndpoints_FastEventHandler_1_PublishAsync_" data-uid="FastEndpoints.FastEventHandler`1.PublishAsync*"></a>
+  <h4 id="FastEndpoints_FastEventHandler_1_PublishAsync__1___0_FastEndpoints_Mode_CancellationToken_" data-uid="FastEndpoints.FastEventHandler`1.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)">PublishAsync&lt;TEventModel&gt;(TEventModel, Mode, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>publish the given model/dto to all the subscribers of the event notification</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task PublishAsync&lt;TEventModel&gt;(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+    where TEventModel : class</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TEventModel</span></td>
+        <td><span class="parametername">eventModel</span></td>
+        <td><p>the notification event model/dto to publish</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.Mode.html">Mode</a></td>
+        <td><span class="parametername">waitMode</span></td>
+        <td><p>specify whether to wait for none, any or all of the subscribers to complete their work</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>an optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td><p>a Task that matches the wait mode specified.
+Mode.WaitForNone returns an already completed Task (fire and forget).
+Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
+Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TEventModel</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_FastEventHandler_1_Resolve_" data-uid="FastEndpoints.FastEventHandler`1.Resolve*"></a>
   <h4 id="FastEndpoints_FastEventHandler_1_Resolve_Type_" data-uid="FastEndpoints.FastEventHandler`1.Resolve(Type)">Resolve(Type)</h4>
-  <div class="markdown level1 summary"><p>try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.</p>
+  <div class="markdown level1 summary"><p>resolve an instance for the given type from the dependency injection container. will throw if unresolvable.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -253,12 +329,98 @@
   
   <a id="FastEndpoints_FastEventHandler_1_Resolve_" data-uid="FastEndpoints.FastEventHandler`1.Resolve*"></a>
   <h4 id="FastEndpoints_FastEventHandler_1_Resolve__1" data-uid="FastEndpoints.FastEventHandler`1.Resolve``1">Resolve&lt;TService&gt;()</h4>
-  <div class="markdown level1 summary"><p>try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.</p>
+  <div class="markdown level1 summary"><p>resolve an instance for the given type from the dependency injection container. will throw if unresolvable.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected TService Resolve&lt;TService&gt;()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TService</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TService</span></td>
+        <td><p>the type of the service to resolve</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_FastEventHandler_1_TryResolve_" data-uid="FastEndpoints.FastEventHandler`1.TryResolve*"></a>
+  <h4 id="FastEndpoints_FastEventHandler_1_TryResolve_Type_" data-uid="FastEndpoints.FastEventHandler`1.TryResolve(Type)">TryResolve(Type)</h4>
+  <div class="markdown level1 summary"><p>try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected object TryResolve(Type typeOfService)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Type</span></td>
+        <td><span class="parametername">typeOfService</span></td>
+        <td><p>the type of the service to resolve</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_FastEventHandler_1_TryResolve_" data-uid="FastEndpoints.FastEventHandler`1.TryResolve*"></a>
+  <h4 id="FastEndpoints_FastEventHandler_1_TryResolve__1" data-uid="FastEndpoints.FastEventHandler`1.TryResolve``1">TryResolve&lt;TService&gt;()</h4>
+  <div class="markdown level1 summary"><p>try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected TService TryResolve&lt;TService&gt;()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">

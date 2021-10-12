@@ -73,7 +73,6 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint where TRequest : new()
-
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -82,9 +81,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New, TResponse As New)
-
           Inherits BaseEndpoint
-
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -417,7 +414,7 @@ items:
     content: public List<ValidationFailure> ValidationFailures { get; }
     parameters: []
     return:
-      type: List{FastEndpoints.Validation.Results.ValidationFailure}
+      type: List{ValidationFailure}
     content.vb: Public ReadOnly Property ValidationFailures As List(Of ValidationFailure)
   overload: FastEndpoints.Endpoint`2.ValidationFailures*
   nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailures
@@ -1697,7 +1694,6 @@ items:
   syntax:
     content: >-
       protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
           where TEvent : class
     parameters:
     - id: eventModel
@@ -2335,14 +2331,14 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailures
   nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailures
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailures
-- uid: List{FastEndpoints.Validation.Results.ValidationFailure}
-  commentId: '!:List{FastEndpoints.Validation.Results.ValidationFailure}'
+- uid: List{ValidationFailure}
+  commentId: '!:List{ValidationFailure}'
   definition: List`1
   name: List<ValidationFailure>
   nameWithType: List<ValidationFailure>
-  fullName: List<FastEndpoints.Validation.Results.ValidationFailure>
+  fullName: List<ValidationFailure>
   nameWithType.vb: List(Of ValidationFailure)
-  fullName.vb: List(Of FastEndpoints.Validation.Results.ValidationFailure)
+  fullName.vb: List(Of ValidationFailure)
   name.vb: List(Of ValidationFailure)
   spec.csharp:
   - uid: List`1
@@ -2353,10 +2349,11 @@ references:
   - name: <
     nameWithType: <
     fullName: <
-  - uid: FastEndpoints.Validation.Results.ValidationFailure
+  - uid: ValidationFailure
     name: ValidationFailure
     nameWithType: ValidationFailure
-    fullName: FastEndpoints.Validation.Results.ValidationFailure
+    fullName: ValidationFailure
+    isExternal: true
   - name: '>'
     nameWithType: '>'
     fullName: '>'
@@ -2369,10 +2366,11 @@ references:
   - name: '(Of '
     nameWithType: '(Of '
     fullName: '(Of '
-  - uid: FastEndpoints.Validation.Results.ValidationFailure
+  - uid: ValidationFailure
     name: ValidationFailure
     nameWithType: ValidationFailure
-    fullName: FastEndpoints.Validation.Results.ValidationFailure
+    fullName: ValidationFailure
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )

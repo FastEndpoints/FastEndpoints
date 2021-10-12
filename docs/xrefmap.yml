@@ -915,13 +915,13 @@ references:
   commentId: M:FastEndpoints.ErrorResponse.#ctor
   fullName: FastEndpoints.ErrorResponse.ErrorResponse()
   nameWithType: ErrorResponse.ErrorResponse()
-- uid: FastEndpoints.ErrorResponse.#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})
+- uid: FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
   name: ErrorResponse(IEnumerable<ValidationFailure>)
-  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_IEnumerable_FastEndpoints_Validation_Results_ValidationFailure__
-  commentId: M:FastEndpoints.ErrorResponse.#ctor(IEnumerable{FastEndpoints.Validation.Results.ValidationFailure})
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_IEnumerable_ValidationFailure__
+  commentId: M:FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
   name.vb: ErrorResponse(IEnumerable(Of ValidationFailure))
-  fullName: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable<FastEndpoints.Validation.Results.ValidationFailure>)
-  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable(Of FastEndpoints.Validation.Results.ValidationFailure))
+  fullName: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
+  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
   nameWithType: ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
   nameWithType.vb: ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
 - uid: FastEndpoints.ErrorResponse.#ctor*
@@ -996,6 +996,24 @@ references:
   fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).HandleAsync
   nameWithType: FastEventHandler<TEvent>.HandleAsync
   nameWithType.vb: FastEventHandler(Of TEvent).HandleAsync
+- uid: FastEndpoints.FastEventHandler`1.PublishAsync*
+  name: PublishAsync
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_PublishAsync_
+  commentId: Overload:FastEndpoints.FastEventHandler`1.PublishAsync
+  isSpec: "True"
+  fullName: FastEndpoints.FastEventHandler<TEvent>.PublishAsync
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).PublishAsync
+  nameWithType: FastEventHandler<TEvent>.PublishAsync
+  nameWithType.vb: FastEventHandler(Of TEvent).PublishAsync
+- uid: FastEndpoints.FastEventHandler`1.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)
+  name: PublishAsync<TEventModel>(TEventModel, Mode, CancellationToken)
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_PublishAsync__1___0_FastEndpoints_Mode_CancellationToken_
+  commentId: M:FastEndpoints.FastEventHandler`1.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)
+  name.vb: PublishAsync(Of TEventModel)(TEventModel, Mode, CancellationToken)
+  fullName: FastEndpoints.FastEventHandler<TEvent>.PublishAsync<TEventModel>(TEventModel, FastEndpoints.Mode, CancellationToken)
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).PublishAsync(Of TEventModel)(TEventModel, FastEndpoints.Mode, CancellationToken)
+  nameWithType: FastEventHandler<TEvent>.PublishAsync<TEventModel>(TEventModel, Mode, CancellationToken)
+  nameWithType.vb: FastEventHandler(Of TEvent).PublishAsync(Of TEventModel)(TEventModel, Mode, CancellationToken)
 - uid: FastEndpoints.FastEventHandler`1.Resolve(Type)
   name: Resolve(Type)
   href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_Resolve_Type_
@@ -1022,6 +1040,32 @@ references:
   fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve(Of TService)()
   nameWithType: FastEventHandler<TEvent>.Resolve<TService>()
   nameWithType.vb: FastEventHandler(Of TEvent).Resolve(Of TService)()
+- uid: FastEndpoints.FastEventHandler`1.TryResolve(Type)
+  name: TryResolve(Type)
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_TryResolve_Type_
+  commentId: M:FastEndpoints.FastEventHandler`1.TryResolve(Type)
+  fullName: FastEndpoints.FastEventHandler<TEvent>.TryResolve(Type)
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).TryResolve(Type)
+  nameWithType: FastEventHandler<TEvent>.TryResolve(Type)
+  nameWithType.vb: FastEventHandler(Of TEvent).TryResolve(Type)
+- uid: FastEndpoints.FastEventHandler`1.TryResolve*
+  name: TryResolve
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_TryResolve_
+  commentId: Overload:FastEndpoints.FastEventHandler`1.TryResolve
+  isSpec: "True"
+  fullName: FastEndpoints.FastEventHandler<TEvent>.TryResolve
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).TryResolve
+  nameWithType: FastEventHandler<TEvent>.TryResolve
+  nameWithType.vb: FastEventHandler(Of TEvent).TryResolve
+- uid: FastEndpoints.FastEventHandler`1.TryResolve``1
+  name: TryResolve<TService>()
+  href: api/FastEndpoints.FastEventHandler-1.html#FastEndpoints_FastEventHandler_1_TryResolve__1
+  commentId: M:FastEndpoints.FastEventHandler`1.TryResolve``1
+  name.vb: TryResolve(Of TService)()
+  fullName: FastEndpoints.FastEventHandler<TEvent>.TryResolve<TService>()
+  fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).TryResolve(Of TService)()
+  nameWithType: FastEventHandler<TEvent>.TryResolve<TService>()
+  nameWithType.vb: FastEventHandler(Of TEvent).TryResolve(Of TService)()
 - uid: FastEndpoints.FromAttribute
   name: FromAttribute
   href: api/FastEndpoints.FromAttribute.html
@@ -1266,13 +1310,13 @@ references:
   fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse)
   nameWithType: IPostProcessor<TRequest, TResponse>
   nameWithType.vb: IPostProcessor(Of TRequest, TResponse)
-- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
+- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
   name: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
-  href: api/FastEndpoints.IPostProcessor-2.html#FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_FastEndpoints_Validation_Results_ValidationFailure__CancellationToken_
-  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
+  href: api/FastEndpoints.IPostProcessor-2.html#FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
   name.vb: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
-  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<FastEndpoints.Validation.Results.ValidationFailure>, CancellationToken)
-  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of FastEndpoints.Validation.Results.ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
   nameWithType: IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
   nameWithType.vb: IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
 - uid: FastEndpoints.IPostProcessor`2.PostProcessAsync*
@@ -1293,13 +1337,13 @@ references:
   fullName.vb: FastEndpoints.IPreProcessor(Of TRequest)
   nameWithType: IPreProcessor<TRequest>
   nameWithType.vb: IPreProcessor(Of TRequest)
-- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
+- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
   name: PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
-  href: api/FastEndpoints.IPreProcessor-1.html#FastEndpoints_IPreProcessor_1_PreProcessAsync__0_Microsoft_AspNetCore_Http_HttpContext_List_FastEndpoints_Validation_Results_ValidationFailure__CancellationToken_
-  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FastEndpoints.Validation.Results.ValidationFailure},CancellationToken)
+  href: api/FastEndpoints.IPreProcessor-1.html#FastEndpoints_IPreProcessor_1_PreProcessAsync__0_Microsoft_AspNetCore_Http_HttpContext_List_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
   name.vb: PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
-  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<FastEndpoints.Validation.Results.ValidationFailure>, CancellationToken)
-  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of FastEndpoints.Validation.Results.ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of ValidationFailure), CancellationToken)
   nameWithType: IPreProcessor<TRequest>.PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
   nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
 - uid: FastEndpoints.IPreProcessor`1.PreProcessAsync*

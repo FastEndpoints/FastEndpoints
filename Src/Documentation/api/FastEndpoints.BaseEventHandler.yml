@@ -15,7 +15,7 @@ items:
   source:
     id: BaseEventHandler
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 2
+    startLine: 4
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

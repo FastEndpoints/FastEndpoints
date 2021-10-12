@@ -100,7 +100,7 @@
 <pre><code>dotnet new web -n MyWebApp
 </code></pre>
 <h2 id="install-nuget-package">install nuget package</h2>
-<p>install the latest library version using the following nuget command:</p>
+<p>install the latest library version using the following cli command:</p>
 <pre><code>dotnet add package FastEndpoints
 </code></pre>
 <p>or with nuget package manager:</p>
@@ -143,7 +143,7 @@ app.Run();
     {
         Verbs(Http.POST);
         Routes(&quot;/api/user/create&quot;);
-        AllowAnnonymous();
+        AllowAnonymous();
     }
 
     protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
@@ -171,7 +171,7 @@ app.Run();
     &quot;IsOver18&quot;: true
 }
 </code></pre>
-<p>that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as <code>Verbs()</code>, <code>Routes()</code>, <code>AllowAnnonymous()</code>, etc. then you override the <code>HandleAsync()</code> method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the <code>SendAsync()</code> method with a new response dto to be sent to the requesting client.</p>
+<p>that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as <code>Verbs()</code>, <code>Routes()</code>, <code>AllowAnonymous()</code>, etc. then you override the <code>HandleAsync()</code> method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the <code>SendAsync()</code> method with a new response dto to be sent to the requesting client.</p>
 <h1 id="endpoint-types">endpoint types</h1>
 <p>there are 4 different endpoint types you can inherit from.</p>
 <ol>

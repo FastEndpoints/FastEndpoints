@@ -94,7 +94,7 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="securing-endpoints">securing endpoints</h1>
 
-<p>endpoints are secure by default and you'd have to call <code>AllowAnnonymous()</code> in the constructor if you'd like to allow unauthenticated users to access a particular endpoint.</p>
+<p>endpoints are secure by default and you'd have to call <code>AllowAnonymous()</code> in the constructor if you'd like to allow unauthenticated users to access a particular endpoint.</p>
 <h2 id="jwt-bearer-authentication">jwt bearer authentication</h2>
 <p>support for easy jwt bearer authentication is provided. you simply need to install the <code>FastEndpoints.Security</code> package and register it in the middleware pipeline like so:</p>
 <h3 id="programcs">program.cs</h3>
@@ -119,7 +119,7 @@ app.Run();
     {
         Verbs(Http.POST);
         Routes(&quot;/api/login&quot;);
-        AllowAnnonymous();
+        AllowAnonymous();
     }
 
     protected override async Task HandleAsync(LoginRequest req, CancellationToken ct)

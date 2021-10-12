@@ -11,7 +11,7 @@
   "FastEndpoints.Endpoint`2": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.AddError(System.String)": "FastEndpoints.Endpoint-2.yml",
-  "FastEndpoints.Endpoint`2.AllowAnnonymous": "FastEndpoints.Endpoint-2.yml",
+  "FastEndpoints.Endpoint`2.AllowAnonymous": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.AllowFileUploads": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.AnyClaim(System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.AnyPermission(System.String[])": "FastEndpoints.Endpoint-2.yml",

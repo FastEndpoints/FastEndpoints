@@ -96,23 +96,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError
   nameWithType: Endpoint<TRequest, TResponse>.AddError
   nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError
-- uid: FastEndpoints.Endpoint`2.AllowAnnonymous
-  name: AllowAnnonymous()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnnonymous
-  commentId: M:FastEndpoints.Endpoint`2.AllowAnnonymous
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnnonymous()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnnonymous()
-  nameWithType: Endpoint<TRequest, TResponse>.AllowAnnonymous()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnnonymous()
-- uid: FastEndpoints.Endpoint`2.AllowAnnonymous*
-  name: AllowAnnonymous
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnnonymous_
-  commentId: Overload:FastEndpoints.Endpoint`2.AllowAnnonymous
+- uid: FastEndpoints.Endpoint`2.AllowAnonymous
+  name: AllowAnonymous()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnonymous
+  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous()
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous()
+- uid: FastEndpoints.Endpoint`2.AllowAnonymous*
+  name: AllowAnonymous
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnonymous_
+  commentId: Overload:FastEndpoints.Endpoint`2.AllowAnonymous
   isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnnonymous
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnnonymous
-  nameWithType: Endpoint<TRequest, TResponse>.AllowAnnonymous
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnnonymous
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous
 - uid: FastEndpoints.Endpoint`2.AllowFileUploads
   name: AllowFileUploads()
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads

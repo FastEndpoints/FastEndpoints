@@ -6,7 +6,7 @@ create an empty web project with the dotnet cli using the following command or u
 dotnet new web -n MyWebApp
 ```
 ## install nuget package
-install the latest library version using the following nuget command:
+install the latest library version using the following cli command:
 ```
 dotnet add package FastEndpoints
 ```

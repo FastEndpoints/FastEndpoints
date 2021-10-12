@@ -7,7 +7,7 @@ items:
   children:
   - FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
   - FastEndpoints.Endpoint`2.AddError(System.String)
-  - FastEndpoints.Endpoint`2.AllowAnnonymous
+  - FastEndpoints.Endpoint`2.AllowAnonymous
   - FastEndpoints.Endpoint`2.AllowFileUploads
   - FastEndpoints.Endpoint`2.AnyClaim(System.String[])
   - FastEndpoints.Endpoint`2.AnyPermission(System.String[])
@@ -630,19 +630,19 @@ items:
   modifiers.vb:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).DontThrowIfValidationFails()
-- uid: FastEndpoints.Endpoint`2.AllowAnnonymous
-  commentId: M:FastEndpoints.Endpoint`2.AllowAnnonymous
-  id: AllowAnnonymous
+- uid: FastEndpoints.Endpoint`2.AllowAnonymous
+  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous
+  id: AllowAnonymous
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: AllowAnnonymous()
-  nameWithType: Endpoint<TRequest, TResponse>.AllowAnnonymous()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnnonymous()
+  name: AllowAnonymous()
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous()
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous()
   type: Method
   source:
-    id: AllowAnnonymous
+    id: AllowAnonymous
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
     startLine: 150
   assemblies:
@@ -651,15 +651,15 @@ items:
   summary: "\nallow unauthenticated requests to this endpoint\n"
   example: []
   syntax:
-    content: protected void AllowAnnonymous()
-    content.vb: Protected Sub AllowAnnonymous
-  overload: FastEndpoints.Endpoint`2.AllowAnnonymous*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnnonymous()
+    content: protected void AllowAnonymous()
+    content.vb: Protected Sub AllowAnonymous
+  overload: FastEndpoints.Endpoint`2.AllowAnonymous*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous()
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnnonymous()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous()
 - uid: FastEndpoints.Endpoint`2.AllowFileUploads
   commentId: M:FastEndpoints.Endpoint`2.AllowFileUploads
   id: AllowFileUploads
@@ -2525,13 +2525,13 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, TResponse>.DontThrowIfValidationFails
   nameWithType.vb: Endpoint(Of TRequest, TResponse).DontThrowIfValidationFails
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).DontThrowIfValidationFails
-- uid: FastEndpoints.Endpoint`2.AllowAnnonymous*
-  commentId: Overload:FastEndpoints.Endpoint`2.AllowAnnonymous
-  name: AllowAnnonymous
-  nameWithType: Endpoint<TRequest, TResponse>.AllowAnnonymous
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnnonymous
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnnonymous
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnnonymous
+- uid: FastEndpoints.Endpoint`2.AllowAnonymous*
+  commentId: Overload:FastEndpoints.Endpoint`2.AllowAnonymous
+  name: AllowAnonymous
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous
 - uid: FastEndpoints.Endpoint`2.AllowFileUploads*
   commentId: Overload:FastEndpoints.Endpoint`2.AllowFileUploads
   name: AllowFileUploads

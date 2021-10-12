@@ -54,7 +54,7 @@ items:
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Routes(System.String[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Verbs(FastEndpoints.Http[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.DontThrowIfValidationFails
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.AllowAnnonymous
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.AllowAnonymous
   - FastEndpoints.Endpoint{{TRequest},System.Object}.AllowFileUploads
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Policies(System.String[])
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Roles(System.String[])
@@ -418,20 +418,20 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.AllowAnnonymous
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.AllowAnnonymous
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.AllowAnonymous
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.AllowAnonymous
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.AllowAnnonymous
-  name: AllowAnnonymous()
-  nameWithType: Endpoint<TRequest, Object>.AllowAnnonymous()
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.AllowAnnonymous()
-  nameWithType.vb: Endpoint(Of TRequest, Object).AllowAnnonymous()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).AllowAnnonymous()
+  definition: FastEndpoints.Endpoint`2.AllowAnonymous
+  name: AllowAnonymous()
+  nameWithType: Endpoint<TRequest, Object>.AllowAnonymous()
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.AllowAnonymous()
+  nameWithType.vb: Endpoint(Of TRequest, Object).AllowAnonymous()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).AllowAnonymous()
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.AllowAnnonymous
-    name: AllowAnnonymous
-    nameWithType: Endpoint<TRequest, Object>.AllowAnnonymous
-    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.AllowAnnonymous
+  - uid: FastEndpoints.Endpoint`2.AllowAnonymous
+    name: AllowAnonymous
+    nameWithType: Endpoint<TRequest, Object>.AllowAnonymous
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.AllowAnonymous
   - name: (
     nameWithType: (
     fullName: (
@@ -439,10 +439,10 @@ references:
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.AllowAnnonymous
-    name: AllowAnnonymous
-    nameWithType: Endpoint(Of TRequest, Object).AllowAnnonymous
-    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).AllowAnnonymous
+  - uid: FastEndpoints.Endpoint`2.AllowAnonymous
+    name: AllowAnonymous
+    nameWithType: Endpoint(Of TRequest, Object).AllowAnonymous
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).AllowAnonymous
   - name: (
     nameWithType: (
     fullName: (
@@ -2815,18 +2815,18 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.AllowAnnonymous
-  commentId: M:FastEndpoints.Endpoint`2.AllowAnnonymous
-  name: AllowAnnonymous()
-  nameWithType: Endpoint<TRequest, TResponse>.AllowAnnonymous()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnnonymous()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnnonymous()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnnonymous()
+- uid: FastEndpoints.Endpoint`2.AllowAnonymous
+  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous
+  name: AllowAnonymous()
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous()
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous()
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.AllowAnnonymous
-    name: AllowAnnonymous
-    nameWithType: Endpoint<TRequest, TResponse>.AllowAnnonymous
-    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnnonymous
+  - uid: FastEndpoints.Endpoint`2.AllowAnonymous
+    name: AllowAnonymous
+    nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous
   - name: (
     nameWithType: (
     fullName: (
@@ -2834,10 +2834,10 @@ references:
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.AllowAnnonymous
-    name: AllowAnnonymous
-    nameWithType: Endpoint(Of TRequest, TResponse).AllowAnnonymous
-    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnnonymous
+  - uid: FastEndpoints.Endpoint`2.AllowAnonymous
+    name: AllowAnonymous
+    nameWithType: Endpoint(Of TRequest, TResponse).AllowAnonymous
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous
   - name: (
     nameWithType: (
     fullName: (

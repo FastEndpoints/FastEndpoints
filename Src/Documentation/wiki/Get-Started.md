@@ -56,7 +56,7 @@ public class MyEndpoint : Endpoint<MyRequest>
     {
         Verbs(Http.POST);
         Routes("/api/user/create");
-        AllowAnnonymous();
+        AllowAnonymous();
     }
 
     protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
@@ -87,7 +87,7 @@ you should then get a response back such as this:
 }
 ```
 
-that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as `Verbs()`, `Routes()`, `AllowAnnonymous()`, etc. then you override the `HandleAsync()` method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the `SendAsync()` method with a new response dto to be sent to the requesting client.
+that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as `Verbs()`, `Routes()`, `AllowAnonymous()`, etc. then you override the `HandleAsync()` method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the `SendAsync()` method with a new response dto to be sent to the requesting client.
 
 # endpoint types
 there are 4 different endpoint types you can inherit from.

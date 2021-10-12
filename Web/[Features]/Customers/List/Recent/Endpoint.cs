@@ -16,7 +16,7 @@ namespace Customers.List.Recent
             Permissions(
                 Allow.Customers_Retrieve,
                 Allow.Customers_Create);
-            AllowAnnonymous();
+            AllowAnonymous();
         }
 
         protected override Task HandleAsync(EmptyRequest er, CancellationToken ct)

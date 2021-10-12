@@ -10,7 +10,7 @@ namespace Admin.Login
         {
             Verbs(Http.POST);
             Routes("/admin/login");
-            AllowAnnonymous();
+            AllowAnonymous();
             Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         }
 

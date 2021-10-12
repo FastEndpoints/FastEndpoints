@@ -1,5 +1,5 @@
 # securing endpoints
-endpoints are secure by default and you'd have to call `AllowAnnonymous()` in the constructor if you'd like to allow unauthenticated users to access a particular endpoint.
+endpoints are secure by default and you'd have to call `AllowAnonymous()` in the constructor if you'd like to allow unauthenticated users to access a particular endpoint.
 
 ## jwt bearer authentication
 support for easy jwt bearer authentication is provided. you simply need to install the `FastEndpoints.Security` package and register it in the middleware pipeline like so:
@@ -30,7 +30,7 @@ public class UserLoginEndpoint : Endpoint<LoginRequest>
     {
         Verbs(Http.POST);
         Routes("/api/login");
-        AllowAnnonymous();
+        AllowAnonymous();
     }
 
     protected override async Task HandleAsync(LoginRequest req, CancellationToken ct)

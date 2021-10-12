@@ -10,7 +10,7 @@ namespace Customers.Login
         {
             Verbs(Http.GET);
             Routes("/customers/login");
-            AllowAnnonymous();
+            AllowAnonymous();
         }
 
         protected override Task HandleAsync(EmptyRequest r, CancellationToken t)

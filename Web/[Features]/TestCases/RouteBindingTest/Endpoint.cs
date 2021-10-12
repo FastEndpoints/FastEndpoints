@@ -8,7 +8,7 @@ namespace TestCases.RouteBindingTest
         {
             Verbs(Http.POST);
             Routes("/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}");
-            AllowAnnonymous();
+            AllowAnonymous();
             DontThrowIfValidationFails();
 
             //Options(b => b

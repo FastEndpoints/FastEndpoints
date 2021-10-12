@@ -306,7 +306,7 @@ namespace FastEndpoints
                     routes = fields.GetValues(nameof(BaseEndpoint.routes), epInstance),
                     verbs = fields.GetValues(nameof(BaseEndpoint.verbs), epInstance),
                     throwIfValidationFailed = fields.GetValue<bool>(nameof(BaseEndpoint.throwIfValidationFailed), epInstance),
-                    allowAnnonymous = fields.GetValue<bool>(nameof(BaseEndpoint.allowAnnonymous), epInstance),
+                    allowAnnonymous = fields.GetValue<bool>(nameof(BaseEndpoint.allowAnonymous), epInstance),
                     policies = fields.GetValues(nameof(BaseEndpoint.policies), epInstance),
                     roles = fields.GetValues(nameof(BaseEndpoint.roles), epInstance),
                     permissions = fields.GetValues(nameof(BaseEndpoint.permissions), epInstance),

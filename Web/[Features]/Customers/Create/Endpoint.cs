@@ -20,7 +20,7 @@ namespace Customers.Create
             Routes(
                 "/customers/new/{RefererID}",
                 "/customers/create");
-            AllowAnnonymous();
+            AllowAnonymous();
         }
 
         protected override Task HandleAsync(Request r, CancellationToken t)

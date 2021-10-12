@@ -23,7 +23,7 @@ namespace FastEndpoints
         internal string[]? routes;
         internal string[]? verbs;
         internal bool throwIfValidationFailed = true;
-        internal bool allowAnnonymous;
+        internal bool allowAnonymous;
         internal string[]? policies;
         internal string[]? roles;
         internal string[]? permissions;
@@ -148,7 +148,7 @@ namespace FastEndpoints
         /// <summary>
         /// allow unauthenticated requests to this endpoint
         /// </summary>
-        protected void AllowAnnonymous() => allowAnnonymous = true;
+        protected void AllowAnonymous() => allowAnonymous = true;
         /// <summary>
         /// enable file uploads with multipart/form-data content type
         /// </summary>

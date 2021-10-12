@@ -9,7 +9,7 @@ namespace Uploads.Image.Save
             Verbs(Http.POST);
             Routes("uploads/image/save");
             AllowFileUploads();
-            AllowAnnonymous();
+            AllowAnonymous();
         }
 
         protected override Task HandleAsync(Request r, CancellationToken ct)

@@ -2,13 +2,11 @@
 
   <PropertyGroup>
     
-    <Version>1.8.0</Version>
+    <Version>1.9.0-beta1</Version>
     
     <PackageReleaseNotes>
-      - add event publishing support for event handlers
-      - improve event handler service resolving methods
-      - add AnyClaim() method to endpoint class
-      - add AnyPermission() method to endpoint class
+      - fix typo AllowAnnonymous() to AllowAnonymous()
+      - 
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

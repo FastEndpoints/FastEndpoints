@@ -39,7 +39,7 @@ namespace FastEndpointsBench
         {
             Verbs(Http.POST);
             Routes("/benchmark/ok/{id}");
-            AllowAnnonymous();
+            AllowAnonymous();
         }
 
         protected override Task HandleAsync(Request req, CancellationToken ct)

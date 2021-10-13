@@ -488,9 +488,9 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
 
     private static void BindFromUserClaims(TRequest req, HttpContext ctx, List<ValidationFailure> failures)
     {
-        for (int i = 0; i < ReqTypeCache<TRequest>.FromClaimProps.Count; i++)
+        for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromClaimProps.Count; i++)
         {
-            var (claimType, forbidIfMissing, propInfo) = ReqTypeCache<TRequest>.FromClaimProps[i];
+            var (claimType, forbidIfMissing, propInfo) = ReqTypeCache<TRequest>.CachedFromClaimProps[i];
             var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
             if (claimVal is null && forbidIfMissing)
@@ -512,40 +512,40 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
 
     private static void Bind(TRequest req, KeyValuePair<string, object?> rv)
     {
-        if (ReqTypeCache<TRequest>.Props.TryGetValue(rv.Key.ToLower(), out var prop))
+        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(rv.Key.ToLower(), out var prop))
         {
             bool success = false;
 
-            switch (prop.typeCode)
+            switch (prop.TypeCode)
             {
                 case TypeCode.String:
                     success = true;
-                    prop.propInfo.SetValue(req, rv.Value);
+                    prop.PropInfo.SetValue(req, rv.Value);
                     break;
 
                 case TypeCode.Boolean:
                     success = bool.TryParse((string?)rv.Value, out var resBool);
-                    prop.propInfo.SetValue(req, resBool);
+                    prop.PropInfo.SetValue(req, resBool);
                     break;
 
                 case TypeCode.Int32:
                     success = int.TryParse((string?)rv.Value, out var resInt);
-                    prop.propInfo.SetValue(req, resInt);
+                    prop.PropInfo.SetValue(req, resInt);
                     break;
 
                 case TypeCode.Int64:
                     success = long.TryParse((string?)rv.Value, out var resLong);
-                    prop.propInfo.SetValue(req, resLong);
+                    prop.PropInfo.SetValue(req, resLong);
                     break;
 
                 case TypeCode.Double:
                     success = double.TryParse((string?)rv.Value, out var resDbl);
-                    prop.propInfo.SetValue(req, resDbl);
+                    prop.PropInfo.SetValue(req, resDbl);
                     break;
 
                 case TypeCode.Decimal:
                     success = decimal.TryParse((string?)rv.Value, out var resDec);
-                    prop.propInfo.SetValue(req, resDec);
+                    prop.PropInfo.SetValue(req, resDec);
                     break;
             }
 
@@ -553,7 +553,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
             {
                 throw new NotSupportedException(
                 "Binding route value failed! " +
-                $"{typeof(TRequest).FullName}.{prop.propInfo.Name}[{prop.typeCode}] Tried: \"{rv.Value}\"");
+                $"{typeof(TRequest).FullName}.{prop.PropInfo.Name}[{prop.TypeCode}] Tried: \"{rv.Value}\"");
             }
         }
     }

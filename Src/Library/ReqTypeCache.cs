@@ -2,12 +2,18 @@
 
 namespace FastEndpoints;
 
+internal record PropCacheEntry(
+    PropertyInfo PropInfo,
+    TypeCode TypeCode);
+
+internal record FromClaimPropCacheEntry(string ClaimType, bool ForbidIfMissing, PropertyInfo PropInfo);
+
 internal static class ReqTypeCache<TRequest>
 {
     //note: key is lowercased property name
-    internal static Dictionary<string, (PropertyInfo propInfo, TypeCode typeCode)> Props { get; } = new();
+    internal static Dictionary<string, PropCacheEntry> CachedProps { get; } = new();
 
-    internal static List<(string claimType, bool forbidIfMissing, PropertyInfo propInfo)> FromClaimProps { get; } = new();
+    internal static List<FromClaimPropCacheEntry> CachedFromClaimProps { get; } = new();
 
     static ReqTypeCache()
     {
@@ -15,7 +21,7 @@ internal static class ReqTypeCache<TRequest>
         {
             var propName = propInfo.Name.ToLower();
 
-            Props.Add(propName, (propInfo, Type.GetTypeCode(propInfo.PropertyType)));
+            CachedProps.Add(propName, new(propInfo, Type.GetTypeCode(propInfo.PropertyType)));
 
             if (propInfo.IsDefined(typeof(FromClaimAttribute), false))
             {
@@ -27,7 +33,7 @@ internal static class ReqTypeCache<TRequest>
                 var claimType = attrib?.ClaimType ?? "null";
                 var forbidIfMissing = attrib?.IsRequired ?? false;
 
-                FromClaimProps.Add((claimType, forbidIfMissing, propInfo));
+                CachedFromClaimProps.Add(new(claimType, forbidIfMissing, propInfo));
             }
         }
     }

@@ -5,10 +5,15 @@ using System.Reflection;
 
 namespace FastEndpoints;
 
+internal record EndpointDefinitionCacheEntry(
+    Func<object> EndpointFactory,
+    MethodInfo ExecAsyncMethod,
+    IValidator? Validator);
+
 public static class EndpointExecutor
 {
     //key: route url for the endpoint
-    internal static Dictionary<string, (Func<object> endpointFactory, MethodInfo execAsyncMethod, IValidator? validator)> CachedEndpointTypes { get; } = new();
+    internal static Dictionary<string, EndpointDefinitionCacheEntry> CachedEndpointDefinitions { get; } = new();
 
     //key: TEndpoint
     internal static Dictionary<Type, PropertyInfo[]> CachedServiceBoundProps { get; } = new();
@@ -19,7 +24,7 @@ public static class EndpointExecutor
         var route = ((RouteEndpoint?)ctx.GetEndpoint())?.RoutePattern.RawText;
         if (route is null) throw new InvalidOperationException("Unable to instantiate endpoint!!!");
 
-        var (endpointFactory, execAsyncMethod, validator) = CachedEndpointTypes[route];
+        var (endpointFactory, execAsyncMethod, validator) = CachedEndpointDefinitions[route];
 
         var endpointInstance = endpointFactory();
 

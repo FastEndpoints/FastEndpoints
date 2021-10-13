@@ -53,6 +53,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors();
+app.UseCors(b => b.AllowAnyOrigin());
 app.UseFastEndpoints();
 app.Run();

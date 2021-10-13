@@ -15,7 +15,7 @@ namespace FastEndpoints;
 public static class MainExtensions
 {
 #pragma warning disable CS8618
-    private class DiscoveredEndpoint
+    private class EndpointDefinition
     {
         public Type EndpointType { get; set; }
         public object EndpointInstance { get; set; }
@@ -42,7 +42,7 @@ public static class MainExtensions
     }
 #pragma warning restore CS8618
 
-    private static DiscoveredEndpoint[]? discoveredEndpoints;
+    private static EndpointDefinition[]? discoveredEndpointDefinitions;
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -55,11 +55,86 @@ public static class MainExtensions
         return services;
     }
 
+    /// <summary>
+    /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
+    {
+        if (discoveredEndpointDefinitions is null) throw new InvalidOperationException($"Please use .{nameof(AddFastEndpoints)}() first!");
+
+        BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+        BaseEventHandler.ServiceProvider = builder.ServiceProvider;
+
+        var routeToHandlerCounts = new Dictionary<string, int>();
+        var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
+
+        foreach (var ep in discoveredEndpointDefinitions)
+        {
+            var epName = ep.EndpointType.FullName;
+            var epSettings = ep.Settings;
+
+            var execMethod = ep.EndpointType.GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
+            if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
+            if (epSettings.verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
+            if (epSettings.routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
+
+            foreach (var route in epSettings.routes) //for logging a warning if duplicate handlers are registered
+            {
+                routeToHandlerCounts.TryGetValue(route, out var count);
+                routeToHandlerCounts[route] = count + 1;
+            }
+
+            var policiesToAdd = new List<string>();
+            if (epSettings.policies?.Any() is true) policiesToAdd.AddRange(epSettings.policies);
+            if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
+
+            var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
+
+            EndpointExecutor.CachedServiceBoundProps[ep.EndpointType]
+                = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            foreach (var route in epSettings.routes)
+            {
+                var eb = builder.MapMethods(route, epSettings.verbs, EndpointExecutor.HandleAsync);
+
+                if (epSettings.internalConfigAction is not null) epSettings.internalConfigAction(eb);//always do this first
+
+                if (policiesToAdd.Count > 0)
+                    eb.RequireAuthorization(policiesToAdd.ToArray());
+                else
+                    eb.RequireAuthorization(); //secure by default
+
+                if (epSettings.allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
+                if (epSettings.allowAnonymous is true) eb.AllowAnonymous();
+
+                if (epSettings.userConfigAction is not null) epSettings.userConfigAction(eb);//always do this last - allow user to override everything done above
+
+                var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
+                if (validatorInstance is not null) ((IHasServiceProvider)validatorInstance).ServiceProvider = builder.ServiceProvider;
+
+                EndpointExecutor.CachedEndpointDefinitions[route] = new(epFactory, execMethod, validatorInstance);
+            }
+        }
+
+        foreach (var kvp in routeToHandlerCounts)
+            if (kvp.Value > 1) logger.LogWarning($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
+
+        Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromMinutes(1)).ConfigureAwait(false);
+            discoveredEndpointDefinitions = null;
+        });
+
+        return builder;
+    }
+
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
-        if (discoveredEndpoints is null) throw new InvalidOperationException("Unable to discover any endpoint declarations!");
+        if (discoveredEndpointDefinitions is null) throw new InvalidOperationException("Unable to discover any endpoint declarations!");
 
-        foreach (var ep in discoveredEndpoints)
+        foreach (var ep in discoveredEndpointDefinitions)
         {
             var eps = ep.Settings;
 
@@ -132,81 +207,6 @@ public static class MainExtensions
         }
     }
 
-    /// <summary>
-    /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
-    /// </summary>
-    /// <exception cref="InvalidOperationException"></exception>
-    /// <exception cref="ArgumentException"></exception>
-    public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
-    {
-        if (discoveredEndpoints is null) throw new InvalidOperationException($"Please use .{nameof(AddFastEndpoints)}() first!");
-
-        BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
-        BaseEventHandler.ServiceProvider = builder.ServiceProvider;
-
-        var routeToHandlerCounts = new Dictionary<string, int>();
-        var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
-
-        foreach (var ep in discoveredEndpoints)
-        {
-            var epName = ep.EndpointType.FullName;
-            var epSettings = ep.Settings;
-
-            var execMethod = ep.EndpointType.GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
-            if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
-            if (epSettings.verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
-            if (epSettings.routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
-
-            foreach (var route in epSettings.routes) //for logging a warning if duplicate handlers are registered
-            {
-                routeToHandlerCounts.TryGetValue(route, out var count);
-                routeToHandlerCounts[route] = count + 1;
-            }
-
-            var policiesToAdd = new List<string>();
-            if (epSettings.policies?.Any() is true) policiesToAdd.AddRange(epSettings.policies);
-            if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
-
-            var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
-
-            EndpointExecutor.CachedServiceBoundProps[ep.EndpointType]
-                = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            foreach (var route in epSettings.routes)
-            {
-                var eb = builder.MapMethods(route, epSettings.verbs, EndpointExecutor.HandleAsync);
-
-                if (epSettings.internalConfigAction is not null) epSettings.internalConfigAction(eb);//always do this first
-
-                if (policiesToAdd.Count > 0)
-                    eb.RequireAuthorization(policiesToAdd.ToArray());
-                else
-                    eb.RequireAuthorization(); //secure by default
-
-                if (epSettings.allowFileUpload is true) eb.Accepts<IFormFile>("multipart/form-data");
-                if (epSettings.allowAnonymous is true) eb.AllowAnonymous();
-
-                if (epSettings.userConfigAction is not null) epSettings.userConfigAction(eb);//always do this last - allow user to override everything done above
-
-                var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
-                if (validatorInstance is not null) ((IHasServiceProvider)validatorInstance).ServiceProvider = builder.ServiceProvider;
-
-                EndpointExecutor.CachedEndpointTypes[route] = (epFactory, execMethod, validatorInstance);
-            }
-        }
-
-        foreach (var kvp in routeToHandlerCounts)
-            if (kvp.Value > 1) logger.LogWarning($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
-
-        Task.Run(async () =>
-        {
-            await Task.Delay(TimeSpan.FromMinutes(1)).ConfigureAwait(false);
-            discoveredEndpoints = null;
-        });
-
-        return builder;
-    }
-
     private static void Discover_Endpoints_Validators_EventHandlers()
     {
         var excludes = new[]
@@ -276,11 +276,11 @@ public static class MainExtensions
 #pragma warning restore CS8602
         }
 #pragma warning disable CS8601
-        discoveredEndpoints = epList
+        discoveredEndpointDefinitions = epList
             .Select(x =>
             {
                 var instance = Activator.CreateInstance(x.tEndpoint);
-                return new DiscoveredEndpoint()
+                return new EndpointDefinition()
                 {
                     EndpointType = x.tEndpoint,
                     EndpointInstance = instance,
@@ -298,7 +298,7 @@ public static class MainExtensions
             return valType;
         }
 
-        DiscoveredEndpoint.Vars ReadVariables(Type epBaseType, object? epInstance)
+        EndpointDefinition.Vars ReadVariables(Type epBaseType, object? epInstance)
         {
             var fields = epBaseType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
             return new()

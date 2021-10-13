@@ -363,15 +363,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Logger
   nameWithType: Endpoint<TRequest, TResponse>.Logger
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Logger
-- uid: FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder})
-  name: Options(Action<DelegateEndpointConventionBuilder>)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_DelegateEndpointConventionBuilder__
-  commentId: M:FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder})
-  name.vb: Options(Action(Of DelegateEndpointConventionBuilder))
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Options(Action<Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder>)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Options(Action(Of Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder))
-  nameWithType: Endpoint<TRequest, TResponse>.Options(Action<DelegateEndpointConventionBuilder>)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Options(Action(Of DelegateEndpointConventionBuilder))
+- uid: FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  name: Options(Action<RouteHandlerBuilder>)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__
+  commentId: M:FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  name.vb: Options(Action(Of RouteHandlerBuilder))
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Options(Action<Microsoft.AspNetCore.Builder.RouteHandlerBuilder>)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Options(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder))
+  nameWithType: Endpoint<TRequest, TResponse>.Options(Action<RouteHandlerBuilder>)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Options(Action(Of RouteHandlerBuilder))
 - uid: FastEndpoints.Endpoint`2.Options*
   name: Options
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_

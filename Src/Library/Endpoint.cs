@@ -119,7 +119,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// </summary>
     protected IFormCollection Form => HttpContext.Request.Form;
     /// <summary>
-    /// the files sent with the request. only populated is content-type is 'multipart/form-data'
+    /// the files sent with the request. only populated when content-type is 'multipart/form-data'
     /// </summary>
     protected IFormFileCollection Files => Form.Files;
 

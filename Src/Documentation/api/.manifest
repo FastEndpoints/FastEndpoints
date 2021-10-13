@@ -27,7 +27,7 @@
   "FastEndpoints.Endpoint`2.HttpContext": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.HttpMethod": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Logger": "FastEndpoints.Endpoint-2.yml",
-  "FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.DelegateEndpointConventionBuilder})": "FastEndpoints.Endpoint-2.yml",
+  "FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Permissions(System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Policies(System.String[])": "FastEndpoints.Endpoint-2.yml",

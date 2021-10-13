@@ -7,4 +7,5 @@
 # [Pipeline Behaviors](Pipeline-Behaviors.md)
 # [Event Notifications](Event-Notifications.md)
 # [Integration Testing](Integration-Testing.md)
+# [Misc. Conveniences](Misc-Conveniences.md)
 # [VS Extension](VS-Extension.md)

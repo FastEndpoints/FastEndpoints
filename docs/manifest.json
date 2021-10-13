@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-1.html",
-          "hash": "yEGGKfBrBu+0uGQuA9OwjNBpeNUhTV5z/XUNaC6yq4Q="
+          "hash": "+LIUeZGoLmgRAKLPzSM+YXxjFcRkzKLcFP27FDjc8oY="
         }
       },
       "is_incremental": false,
@@ -113,7 +113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "7bNBBcD/xIDYc4VzkvnvdEMHxuBxQW/z5sHz2njJX9s="
+          "hash": "+/O6P3cZczjV0J0JnetGbGefGRsQWmDq0zjEnA07nh0="
         }
       },
       "is_incremental": false,
@@ -137,7 +137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.html",
-          "hash": "jMbw6bzxfU37bVHriHbpQqaUZ06FJcGnY7MvtGsFgS4="
+          "hash": "gkhN+4i/z+Z8UP5Fk2OlhyscVZQ8HGGVuqMTKDDoUu0="
         }
       },
       "is_incremental": false,
@@ -149,7 +149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest.html",
-          "hash": "WeGqyqgiUnw8lkdafSwSV+eAxynb5Q51wpr7ydD12k4="
+          "hash": "PCGt1tX4xg9d5NqIv7GEvrQQ3l8iXjqY3C8yg5B0008="
         }
       },
       "is_incremental": false,
@@ -616,6 +616,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/Misc-Conveniences.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Misc-Conveniences.html",
+          "hash": "weg2OAtudddfLO0A+tHHMN/3SQDksft1GqpqU+3djeA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/Model-Binding.md",
       "output": {
         ".html": {
@@ -671,7 +683,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "sxcdMh27H6OuynpJ1Ch38pmF4/CwdoBFkNYNvjiPQao="
+          "hash": "8GZgpqZYRaHirG516Q3Y0DUwnVJgV2r7M1AobYgx5go="
         }
       },
       "is_incremental": false,
@@ -690,14 +702,14 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 11,
-          "skipped_file_count": 9
+          "total_file_count": 12,
+          "skipped_file_count": 12
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 32,
-          "skipped_file_count": 27
+          "skipped_file_count": 32
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,

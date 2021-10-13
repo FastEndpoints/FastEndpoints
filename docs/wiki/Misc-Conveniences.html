@@ -94,9 +94,9 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="endpoint-options">endpoint options</h1>
 
-<p>in addition to the convenient methods you can use in the constructor to define your endpoints (mentioned in previous pages), you can use the <code>Options()</code> method to customize any of the aspects of endpoint registration like so:</p>
+<p>in addition to the convenient methods you can use in the constructor to define your endpoints (mentioned in previous pages), you can use the <code>Options()</code> method to customize aspects of endpoint registration like so:</p>
 <pre><code class="lang-csharp">Options(b =&gt; b.RequireCors(x =&gt; x.AllowAnyOrigin())
-              .RequireHost(&quot;http://somedomain.com&quot;)
+              .RequireHost(&quot;https://somedomain.com&quot;)
               .ProducesProblem(404));
 </code></pre>
 <h1 id="endpoint-properties">endpoint properties</h1>
@@ -125,6 +125,22 @@
 <p>indicates the current validation status</p>
 <h4 id="validationfailures-list">ValidationFailures (List<validationfailure>)</validationfailure></h4>
 <p>the list of validation failures for the current execution context.</p>
+<h1 id="send-methods">send methods</h1>
+<p>the following response sending methods are available for use from within endpoint handlers:</p>
+<h4 id="sendasync">SendAsync()</h4>
+<p>sends a given response dto or any object that can be serialized as json down to the requesting client.</p>
+<h4 id="sendokasync">SendOkAsync()</h4>
+<p>sends a 200 ok response without any body.</p>
+<h4 id="senderrorsasync">SendErrorsAsync()</h4>
+<p>sends a 400 error response with the current list of validation errors describing the validation failures.</p>
+<h4 id="sendnocontentasync">SendNoContentAsync()</h4>
+<p>sends a 204 no content response</p>
+<h4 id="sendnotfoundasync">SendNotFoundAsync()</h4>
+<p>sends a 404 not found response</p>
+<h4 id="sendunauthorizedasync">SendUnauthorizedAsync()</h4>
+<p>sends a 401 unauthorized response</p>
+<h4 id="sendforbiddenasync">SendForbiddenAsync()</h4>
+<p>sends a 403 unauthorized response</p>
 </article>
           </div>
           

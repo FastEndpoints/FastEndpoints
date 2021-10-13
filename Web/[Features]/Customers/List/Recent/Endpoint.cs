@@ -1,39 +1,36 @@
-﻿using FastEndpoints;
-using Web.Auth;
+﻿namespace Customers.List.Recent;
 
-namespace Customers.List.Recent
+public class Endpoint : EndpointWithoutRequest
 {
-    public class Endpoint : EndpointWithoutRequest
+    public Endpoint()
     {
-        public Endpoint()
-        {
-            Verbs(Http.GET);
-            Routes("/customers/list/recent");
-            Policies("AdminOnly");
-            Roles(
-                Role.Admin,
-                Role.Staff);
-            Permissions(
-                Allow.Customers_Retrieve,
-                Allow.Customers_Create);
-            AllowAnonymous();
-        }
+        Verbs(Http.GET);
+        Routes("/customers/list/recent");
+        Policies("AdminOnly");
+        Roles(
+            Role.Admin,
+            Role.Staff);
+        Permissions(
+            Allow.Customers_Retrieve,
+            Allow.Customers_Create);
+        AllowAnonymous();
+    }
 
-        protected override Task HandleAsync(EmptyRequest er, CancellationToken ct)
+    protected override Task HandleAsync(EmptyRequest er, CancellationToken ct)
+    {
+        return SendAsync(new Response
         {
-            return SendAsync(new Response
-            {
-                Customers = new[] {
+            Customers = new[] {
                     new KeyValuePair<string,int>("ryan gunner", 123),
                     new KeyValuePair<string,int>("debby ryan", 124),
                     new KeyValuePair<string,int>("ryan reynolds",321)
                 }
-            });
-        }
-    }
-
-    public class Response
-    {
-        public IEnumerable<KeyValuePair<string, int>>? Customers { get; set; }
+        });
     }
 }
+
+public class Response
+{
+    public IEnumerable<KeyValuePair<string, int>>? Customers { get; set; }
+}
+

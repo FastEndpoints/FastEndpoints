@@ -1,19 +1,16 @@
-﻿using FastEndpoints;
+﻿namespace Inventory.List.Recent;
 
-namespace Inventory.List.Recent
+public class Endpoint : EndpointWithoutRequest<Response>
 {
-    public class Endpoint : EndpointWithoutRequest<Response>
+    public Endpoint()
     {
-        public Endpoint()
-        {
-            Verbs(Http.GET);
-            Routes("/inventory/list/recent/{CategoryID}");
-        }
+        Verbs(Http.GET);
+        Routes("/inventory/list/recent/{CategoryID}");
+    }
 
-        protected override Task HandleAsync(EmptyRequest r, CancellationToken t)
-        {
-            Response.Category = HttpContext.GetRouteValue("CategoryID")?.ToString();
-            return SendAsync(Response);
-        }
+    protected override Task HandleAsync(EmptyRequest r, CancellationToken t)
+    {
+        Response.Category = HttpContext.GetRouteValue("CategoryID")?.ToString();
+        return SendAsync(Response);
     }
 }

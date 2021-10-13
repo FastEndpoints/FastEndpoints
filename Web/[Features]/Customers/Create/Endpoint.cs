@@ -1,33 +1,30 @@
-﻿using FastEndpoints;
-using Web.Auth;
-using Web.Services;
+﻿using Web.Services;
 
-namespace Customers.Create
+namespace Customers.Create;
+
+public class Request
 {
-    public class Request
+    [From(Claim.UserName)] public string? CreatedBy { get; set; }
+    public string? CustomerName { get; set; }
+}
+
+public class Endpoint : Endpoint<Request>
+{
+    public IEmailService? Emailer { get; set; }
+
+    public Endpoint()
     {
-        [From(Claim.UserName)] public string? CreatedBy { get; set; }
-        public string? CustomerName { get; set; }
+        Verbs(Http.POST);
+        Routes(
+            "/customers/new/{RefererID}",
+            "/customers/create");
+        AllowAnonymous();
     }
 
-    public class Endpoint : Endpoint<Request>
+    protected override Task HandleAsync(Request r, CancellationToken t)
     {
-        public IEmailService? Emailer { get; set; }
+        var msg = Emailer?.SendEmail() + " " + r.CreatedBy;
 
-        public Endpoint()
-        {
-            Verbs(Http.POST);
-            Routes(
-                "/customers/new/{RefererID}",
-                "/customers/create");
-            AllowAnonymous();
-        }
-
-        protected override Task HandleAsync(Request r, CancellationToken t)
-        {
-            var msg = Emailer?.SendEmail() + " " + r.CreatedBy;
-
-            return SendAsync(msg ?? "emailer not resolved!");
-        }
+        return SendAsync(msg ?? "emailer not resolved!");
     }
 }

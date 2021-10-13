@@ -1,11 +1,7 @@
-﻿using FastEndpoints;
-using Web.Auth;
+﻿namespace TestCases.MissingClaimTest;
 
-namespace TestCases.MissingClaimTest
+public class DontThrowIfMissingRequest
 {
-    public class DontThrowIfMissingRequest
-    {
-        [From(Claim.NullClaim, isRequired: false)]
-        public string? TestProp { get; set; }
-    }
+    [From(Claim.NullClaim, isRequired: false)]
+    public string? TestProp { get; set; }
 }

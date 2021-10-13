@@ -1,8 +1,9 @@
-using FastEndpoints;
-using FastEndpoints.Security;
+global using FastEndpoints;
+global using FastEndpoints.Security;
+global using FastEndpoints.Validation;
+global using Web.Auth;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.OpenApi.Models;
-using Web.Auth;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
@@ -16,6 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o =>
 {
     o.CustomSchemaIds(type => type.FullName);
+    o.TagActionsBy(d => new[] { d.RelativePath?.Split('/').First() });
     o.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
     {
         Name = "Authorization",

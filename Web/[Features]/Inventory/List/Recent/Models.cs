@@ -1,7 +1,6 @@
-﻿namespace Inventory.List.Recent
+﻿namespace Inventory.List.Recent;
+
+public class Response
 {
-    public class Response
-    {
-        public string? Category { get; set; }
-    }
+    public string? Category { get; set; }
 }

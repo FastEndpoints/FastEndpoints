@@ -1,41 +1,37 @@
-﻿using FastEndpoints;
-using Web.Auth;
+﻿namespace Inventory.Manage.Create;
 
-namespace Inventory.Manage.Create
+public class Endpoint : Endpoint<Request>
 {
-    public class Endpoint : Endpoint<Request>
+    public Endpoint()
     {
-        public Endpoint()
-        {
-            Verbs(Http.POST);
-            Routes("/inventory/manage/create");
-            Permissions(allowAny: true,
-                Allow.Inventory_Create_Item,
-                Allow.Inventory_Update_Item);
-        }
+        Verbs(Http.POST);
+        Routes("/inventory/manage/create");
+        Permissions(allowAny: true,
+            Allow.Inventory_Create_Item,
+            Allow.Inventory_Update_Item);
+    }
 
-        protected override Task HandleAsync(Request req, CancellationToken ct)
-        {
+    protected override Task HandleAsync(Request req, CancellationToken ct)
+    {
 #pragma warning disable CS8603
-            if (string.IsNullOrEmpty(req.Description))
-                AddError(x => x.Description, "Please enter a product descriptions!");
+        if (string.IsNullOrEmpty(req.Description))
+            AddError(x => x.Description, "Please enter a product descriptions!");
 #pragma warning restore CS8603
 
-            if (req.Price > 1000)
-                AddError(x => x.Price, "Price is too high!");
+        if (req.Price > 1000)
+            AddError(x => x.Price, "Price is too high!");
 
-            ThrowIfAnyErrors();
+        ThrowIfAnyErrors();
 
-            if (req.Name == "Apple Juice")
-                ThrowError("Product already exists!");
+        if (req.Name == "Apple Juice")
+            ThrowError("Product already exists!");
 
-            var res = new Response
-            {
-                ProductId = new Random().Next(1, 1000),
-                ProductName = req.Name
-            };
+        var res = new Response
+        {
+            ProductId = new Random().Next(1, 1000),
+            ProductName = req.Name
+        };
 
-            return SendAsync(res);
-        }
+        return SendAsync(res);
     }
 }

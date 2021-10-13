@@ -1,18 +1,15 @@
-﻿using FastEndpoints;
+﻿namespace TestCases.MissingClaimTest;
 
-namespace TestCases.MissingClaimTest
+public class DontThrowIfMissingEndpoint : Endpoint<DontThrowIfMissingRequest>
 {
-    public class DontThrowIfMissingEndpoint : Endpoint<DontThrowIfMissingRequest>
+    public DontThrowIfMissingEndpoint()
     {
-        public DontThrowIfMissingEndpoint()
-        {
-            Verbs(Http.POST);
-            Routes("/test-cases/missing-claim-test/dont-throw");
-        }
+        Verbs(Http.POST);
+        Routes("/test-cases/missing-claim-test/dont-throw");
+    }
 
-        protected override Task HandleAsync(DontThrowIfMissingRequest req, CancellationToken ct)
-        {
-            return SendAsync($"you sent {req.TestProp}");
-        }
+    protected override Task HandleAsync(DontThrowIfMissingRequest req, CancellationToken ct)
+    {
+        return SendAsync($"you sent {req.TestProp}");
     }
 }

@@ -1,7 +1,7 @@
-﻿namespace FastEndpoints.Security
+﻿namespace FastEndpoints.Security;
+
+public static class Constants
 {
-    public static class Constants
-    {
-        public const string PermissionsClaimType = "prm";//must match with FastEnpoints.Constants.PermissionsClaimType
-    }
+    public const string PermissionsClaimType = "prm";//must match with FastEnpoints.Constants.PermissionsClaimType
 }
+

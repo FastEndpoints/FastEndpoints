@@ -1,17 +1,16 @@
-﻿using FastEndpoints;
-using FastEndpoints.Validation.Results;
+﻿using FastEndpoints.Validation.Results;
 
-namespace Web.PipelineBehaviors.PreProcessors
+namespace Web.PipelineBehaviors.PreProcessors;
+
+public class MyRequestLogger<TRequest> : IPreProcessor<TRequest>
 {
-    public class MyRequestLogger<TRequest> : IPreProcessor<TRequest>
+    public Task PreProcessAsync(TRequest req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
     {
-        public Task PreProcessAsync(TRequest req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
-        {
-            var logger = ctx.RequestServices.GetRequiredService<ILogger<TRequest>>();
+        var logger = ctx.RequestServices.GetRequiredService<ILogger<TRequest>>();
 
-            logger.LogInformation($"request:{req?.GetType().FullName} path: {ctx.Request.Path}");
+        logger.LogInformation($"request:{req?.GetType().FullName} path: {ctx.Request.Path}");
 
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }
+

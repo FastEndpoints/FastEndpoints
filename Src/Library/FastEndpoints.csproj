@@ -6,6 +6,7 @@
     
     <PackageReleaseNotes>
       - fix typo AllowAnnonymous() to AllowAnonymous()
+      - improve swagger support
       - upgrade project to .net 6 rc2
       - upgrade dependancies
       - misc. code changes

@@ -175,7 +175,7 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
     {
         bool userExists = await userRepo.UserAlreadyExists(req.EmailAddress);
         if (userExists)
-            AddError(r =&gt; r.UserID, &quot;this user id already exists!&quot;);
+            AddError(r =&gt; r.EmailAddress, &quot;this email is already in use!&quot;);
 
         var maxAge = await userRepo.GetMaxAllowedAge();
         if (req.Age &gt;= maxAge)

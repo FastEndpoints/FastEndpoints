@@ -16,6 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="BenchmarkDotNet.Artifacts\**" />
     <None Remove="run.cmd" />
   </ItemGroup>
 

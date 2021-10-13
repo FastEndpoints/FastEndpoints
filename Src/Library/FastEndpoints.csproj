@@ -2,13 +2,12 @@
 
   <PropertyGroup>
     
-    <Version>1.9.0-beta1</Version>
+    <Version>1.9.0</Version>
     
     <PackageReleaseNotes>
       - fix typo AllowAnnonymous() to AllowAnonymous()
       - improve swagger support
       - upgrade project to .net 6 rc2
-      - upgrade dependancies
       - misc. code changes
     </PackageReleaseNotes>
     

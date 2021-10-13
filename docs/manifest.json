@@ -664,6 +664,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/VS-Extension.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/VS-Extension.html",
+          "hash": "SNXxx7VJmeCoI1U6XImmntE6bs8sDJSJhn5NxaTaOMM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/Validation.md",
       "output": {
         ".html": {
@@ -675,15 +687,12 @@
       "version": ""
     },
     {
-      "log_codes": [
-        "InvalidFileLink"
-      ],
       "type": "Toc",
       "source_relative_path": "wiki/toc.md",
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "8GZgpqZYRaHirG516Q3Y0DUwnVJgV2r7M1AobYgx5go="
+          "hash": "TNuysFTj3thQsjk14PbstrfXGkrt2ezkS4nhne/HEgc="
         }
       },
       "is_incremental": false,
@@ -702,7 +711,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 12,
+          "total_file_count": 13,
           "skipped_file_count": 12
         },
         "ManagedReferenceDocumentProcessor": {

@@ -1,18 +1,15 @@
-﻿using FastEndpoints;
+﻿namespace $fileinputname$;
 
-namespace $fileinputname$
+public class Endpoint : Endpoint<Request, Response>
 {
-    public class Endpoint : Endpoint<Request, Response>
+    public Endpoint()
     {
-        public Endpoint()
-        {
-            Verbs(Http.GET);
-            Routes("/route/path/here");
-        }
+        Verbs(Http.GET);
+        Routes("/route/path/here");
+    }
 
-        protected override Task HandleAsync(Request r, CancellationToken t)
-        {
-            return SendAsync(Response);
-        }
+    protected override Task HandleAsync(Request r, CancellationToken c)
+    {
+        return SendAsync(Response);
     }
 }

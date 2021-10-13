@@ -1,7 +1,6 @@
-﻿namespace $fileinputname$
-{
-    public static class Data
-    {
+﻿namespace $fileinputname$;
 
-    }
+public static class Data
+{
+
 }

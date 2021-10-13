@@ -36,8 +36,8 @@ namespace FastEndpoints
                 internal string[]? claims;
                 internal bool allowAnyClaim;
                 internal bool allowFileUpload;
-                internal Action<DelegateEndpointConventionBuilder>? internalConfigAction;
-                internal Action<DelegateEndpointConventionBuilder>? userConfigAction;
+                internal Action<RouteHandlerBuilder>? internalConfigAction;
+                internal Action<RouteHandlerBuilder>? userConfigAction;
             }
         }
 #pragma warning restore CS8618
@@ -314,8 +314,8 @@ namespace FastEndpoints
                     claims = fields.GetValues(nameof(BaseEndpoint.claims), epInstance),
                     allowAnyClaim = fields.GetValue<bool>(nameof(BaseEndpoint.allowAnyClaim), epInstance),
                     allowFileUpload = fields.GetValue<bool>(nameof(BaseEndpoint.allowFileUploads), epInstance),
-                    internalConfigAction = fields.GetValue<Action<DelegateEndpointConventionBuilder>>(nameof(BaseEndpoint.internalConfigAction), epInstance),
-                    userConfigAction = fields.GetValue<Action<DelegateEndpointConventionBuilder>>(nameof(BaseEndpoint.userConfigAction), epInstance)
+                    internalConfigAction = fields.GetValue<Action<RouteHandlerBuilder>>(nameof(BaseEndpoint.internalConfigAction), epInstance),
+                    userConfigAction = fields.GetValue<Action<RouteHandlerBuilder>>(nameof(BaseEndpoint.userConfigAction), epInstance)
                 };
             }
         }

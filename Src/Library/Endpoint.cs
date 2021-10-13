@@ -31,8 +31,8 @@ namespace FastEndpoints
         internal string[]? claims;
         internal bool allowAnyClaim;
         internal bool allowFileUploads;
-        internal Action<DelegateEndpointConventionBuilder>? internalConfigAction;
-        internal Action<DelegateEndpointConventionBuilder>? userConfigAction;
+        internal Action<RouteHandlerBuilder>? internalConfigAction;
+        internal Action<RouteHandlerBuilder>? userConfigAction;
 
         internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
 
@@ -54,20 +54,20 @@ namespace FastEndpoints
     /// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
     /// </summary>
     /// <typeparam name="TResponse"></typeparam>
-    public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : new() { }
+    public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : notnull, new() { }
 
     /// <summary>
     /// use this base class for defining endpoints that only use a request dto and don't use a response dto.
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
-    public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : new() { };
+    public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull, new() { };
 
     /// <summary>
     /// use this base class for defining endpoints that use both request and response dtos.
     /// </summary>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : new() where TResponse : new()
+    public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
     {
         private IPreProcessor<TRequest>[] preProcessors = Array.Empty<IPreProcessor<TRequest>>();
         private IPostProcessor<TRequest, TResponse>[] postProcessors = Array.Empty<IPostProcessor<TRequest, TResponse>>();
@@ -217,7 +217,7 @@ namespace FastEndpoints
         /// set endpoint configurations options using an endpoint builder action
         /// </summary>
         /// <param name="builder">the builder for this endpoint</param>
-        protected void Options(Action<DelegateEndpointConventionBuilder> builder) => userConfigAction = builder;
+        protected void Options(Action<RouteHandlerBuilder> builder) => userConfigAction = builder;
 
         /// <summary>
         /// the handler method for the endpoint. this method is called for each request received.

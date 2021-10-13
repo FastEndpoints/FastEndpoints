@@ -5,8 +5,8 @@ builder.Services.AddCarter();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-app.UseAuthorization();
 app.UseRouting();
+app.UseAuthorization();
 app.UseEndpoints(builder => builder.MapCarter());
 app.Run();
 

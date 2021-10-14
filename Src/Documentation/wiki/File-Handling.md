@@ -5,14 +5,14 @@ the following example relays back the image data uploaded to the endpoint in ord
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest>
 {
-    public MyEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/api/uploads/image");
         AllowFileUploads();
     }
 
-    protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
+    public override async Task HandleAsync(MyRequest req, CancellationToken ct)
     {
         if (Files.Count > 0)
         {
@@ -29,7 +29,7 @@ public class MyEndpoint : Endpoint<MyRequest>
 }
 ```
 
-endpoints by default won't allow `multipart/form-data` content uploads. you'd have to enable file uploads by using the `AllowFileUploads()` method in the handler constructor like shown above. the received files are exposed to the endpoint handler via the `Files` property which is of `IFormFileCollection` type.
+endpoints by default won't allow `multipart/form-data` content uploads. you'd have to enable file uploads by using the `AllowFileUploads()` method in the handler configuration like shown above. the received files are exposed to the endpoint handler via the `Files` property which is of `IFormFileCollection` type.
 
 # sending file responses
 

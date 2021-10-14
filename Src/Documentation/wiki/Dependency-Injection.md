@@ -30,13 +30,13 @@ public class MyEndpoint : EndpointWithoutRequest
 {
     public IHelloWorldService HelloService { get; set; }
 
-    public MyEndpoint()
+    public override void Configure()
     {
         Verbs(Http.GET);
         Routes("/api/hello-world");
     }
 
-    protected override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+    public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
     {
         await SendAsync(HelloService.SayHello());
     }
@@ -47,7 +47,7 @@ public class MyEndpoint : EndpointWithoutRequest
 
 services can be resolved manually like so:
 ```csharp
-protected override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
 {
     IHelloWorldService? helloSvc = TryResolve<IHelloWorldService>();
 
@@ -80,7 +80,7 @@ service : ILogger
 
 they can be used in the endpoint handlers like so:
 ```csharp
-protected override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
 {
     Logger.LogInformation("this is a log message");
     var isProduction = Env.IsProduction();

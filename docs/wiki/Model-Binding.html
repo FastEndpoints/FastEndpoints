@@ -144,7 +144,7 @@ json body:
 <p><strong>endpoint</strong></p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest&gt;
 {
-    public MyEndpoint()
+    public override void Configure()
     {
         Verbs(Http.GET);
         Routes(&quot;/api/{MyString}/{MyBool}/{MyInt}/{MyLong}/{MyDouble}/{MyDecimal}&quot;);

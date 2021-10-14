@@ -15,7 +15,7 @@ items:
   source:
     id: EndpointWithoutRequest
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 48
+    startLine: 49
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -25,7 +25,9 @@ items:
     content: 'public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest>, IEndpoint'
     content.vb: >-
       Public MustInherit Class EndpointWithoutRequest
+
           Inherits Endpoint(Of EmptyRequest)
+
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -60,6 +62,7 @@ items:
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AnyClaim(System.String[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.PreProcessors(FastEndpoints.IPreProcessor{FastEndpoints.EmptyRequest}[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.PostProcessors(FastEndpoints.IPostProcessor{FastEndpoints.EmptyRequest,System.Object}[])
+  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.HandleAsync(FastEndpoints.EmptyRequest,CancellationToken)
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AddError(System.String)
@@ -1065,6 +1068,118 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+  parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}
+  definition: FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+  name: ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String[])
+  nameWithType: Endpoint<EmptyRequest, Object>.ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String[])
+  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.ResponseCache(System.Int32, Microsoft.AspNetCore.Mvc.ResponseCacheLocation, System.Boolean, System.String, System.String[])
+  nameWithType.vb: Endpoint(Of EmptyRequest, Object).ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String())
+  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).ResponseCache(System.Int32, Microsoft.AspNetCore.Mvc.ResponseCacheLocation, System.Boolean, System.String, System.String())
+  name.vb: ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String())
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+    name: ResponseCache
+    nameWithType: Endpoint<EmptyRequest, Object>.ResponseCache
+    fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.ResponseCache
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: Microsoft.AspNetCore.Mvc.ResponseCacheLocation
+    name: ResponseCacheLocation
+    nameWithType: ResponseCacheLocation
+    fullName: Microsoft.AspNetCore.Mvc.ResponseCacheLocation
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+    name: ResponseCache
+    nameWithType: Endpoint(Of EmptyRequest, Object).ResponseCache
+    fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).ResponseCache
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: Microsoft.AspNetCore.Mvc.ResponseCacheLocation
+    name: ResponseCacheLocation
+    nameWithType: ResponseCacheLocation
+    fullName: Microsoft.AspNetCore.Mvc.ResponseCacheLocation
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
   - name: ()
     nameWithType: ()
     fullName: ()
@@ -3484,6 +3599,117 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+  - name: ()
+    nameWithType: ()
+    fullName: ()
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+  commentId: M:FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+  isExternal: true
+  name: ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String[])
+  nameWithType: Endpoint<TRequest, TResponse>.ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ResponseCache(System.Int32, Microsoft.AspNetCore.Mvc.ResponseCacheLocation, System.Boolean, System.String, System.String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String())
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ResponseCache(System.Int32, Microsoft.AspNetCore.Mvc.ResponseCacheLocation, System.Boolean, System.String, System.String())
+  name.vb: ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String())
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+    name: ResponseCache
+    nameWithType: Endpoint<TRequest, TResponse>.ResponseCache
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ResponseCache
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: Microsoft.AspNetCore.Mvc.ResponseCacheLocation
+    name: ResponseCacheLocation
+    nameWithType: ResponseCacheLocation
+    fullName: Microsoft.AspNetCore.Mvc.ResponseCacheLocation
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+    name: ResponseCache
+    nameWithType: Endpoint(Of TRequest, TResponse).ResponseCache
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).ResponseCache
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: Microsoft.AspNetCore.Mvc.ResponseCacheLocation
+    name: ResponseCacheLocation
+    nameWithType: ResponseCacheLocation
+    fullName: Microsoft.AspNetCore.Mvc.ResponseCacheLocation
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Boolean
+    name: Boolean
+    nameWithType: Boolean
+    fullName: System.Boolean
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
   - name: ()
     nameWithType: ()
     fullName: ()

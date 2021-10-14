@@ -94,7 +94,7 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="securing-endpoints">securing endpoints</h1>
 
-<p>endpoints are secure by default and you'd have to call <code>AllowAnonymous()</code> in the constructor if you'd like to allow unauthenticated users to access a particular endpoint.</p>
+<p>endpoints are secure by default and you'd have to call <code>AllowAnonymous()</code> in the configuration if you'd like to allow unauthenticated users to access a particular endpoint.</p>
 <h2 id="jwt-bearer-authentication">jwt bearer authentication</h2>
 <p>support for easy jwt bearer authentication is provided. you simply need to install the <code>FastEndpoints.Security</code> package and register it in the middleware pipeline like so:</p>
 <h3 id="programcs">program.cs</h3>
@@ -115,14 +115,14 @@ app.Run();
 <p>you can generate a jwt token for sending to the client with an endpoint that signs in users like so:</p>
 <pre><code class="lang-csharp">public class UserLoginEndpoint : Endpoint&lt;LoginRequest&gt;
 {
-    public UserLoginEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes(&quot;/api/login&quot;);
         AllowAnonymous();
     }
 
-    protected override async Task HandleAsync(LoginRequest req, CancellationToken ct)
+    public override async Task HandleAsync(LoginRequest req, CancellationToken ct)
     {
         if (req.Username == &quot;admin&quot; &amp;&amp; req.Password == &quot;pass&quot;)
         {
@@ -165,7 +165,7 @@ app.Run();
 <p><strong>endpoint</strong></p>
 <pre><code class="lang-csharp">public class UpdateUserEndpoint : Endpoint&lt;UpdateUserRequest&gt;
 {
-    public ManageUsers()
+    public override void Configure()
     {
         Verbs(Http.PUT);
         Routes(&quot;/api/users/update&quot;);
@@ -174,10 +174,10 @@ app.Run();
 }
 </code></pre>
 <h3 id="declarative-security-policies">declarative security policies</h3>
-<p>instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint constructors themselves like so:</p>
+<p>instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint configuration themselves like so:</p>
 <pre><code class="lang-csharp">public class RestrictedEndpoint : Endpoint&lt;RestrictedRequest&gt;
 {
-    public RestrictedEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes(&quot;/api/restricted&quot;);

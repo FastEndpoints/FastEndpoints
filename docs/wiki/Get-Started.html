@@ -139,14 +139,14 @@ app.Run();
 <p>create a file called <code>MyEndpoint.cs</code> and add the following:</p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest&gt;
 {
-    public MyEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes(&quot;/api/user/create&quot;);
         AllowAnonymous();
     }
 
-    protected override async Task HandleAsync(MyRequest req, CancellationToken ct)
+    public override async Task HandleAsync(MyRequest req, CancellationToken ct)
     {
         var response = new MyResponse()
         {
@@ -171,7 +171,7 @@ app.Run();
     &quot;IsOver18&quot;: true
 }
 </code></pre>
-<p>that's all there's to it. you simply specify how the endpoint should be listening to incoming requests from clients in the constructor using methods such as <code>Verbs()</code>, <code>Routes()</code>, <code>AllowAnonymous()</code>, etc. then you override the <code>HandleAsync()</code> method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the <code>SendAsync()</code> method with a new response dto to be sent to the requesting client.</p>
+<p>that's all there's to it. you simply configure how the endpoint should be listening to incoming requests from clients in the <code>Configure()</code> section calling methods such as <code>Verbs()</code>, <code>Routes()</code>, <code>AllowAnonymous()</code>, etc. then you override the <code>HandleAsync()</code> method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the <code>SendAsync()</code> method with a new response dto to be sent to the requesting client.</p>
 <h1 id="endpoint-types">endpoint types</h1>
 <p>there are 4 different endpoint types you can inherit from.</p>
 <ol>

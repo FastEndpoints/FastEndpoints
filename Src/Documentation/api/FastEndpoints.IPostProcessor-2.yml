@@ -16,7 +16,7 @@ items:
   source:
     id: IPostProcessor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
-    startLine: 44
+    startLine: 45
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -53,7 +53,7 @@ items:
   source:
     id: PostProcessAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
-    startLine: 46
+    startLine: 47
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

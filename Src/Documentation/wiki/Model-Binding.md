@@ -63,7 +63,7 @@ public class MyRequest
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest>
 {
-    public MyEndpoint()
+    public override void Configure()
     {
         Verbs(Http.GET);
         Routes("/api/{MyString}/{MyBool}/{MyInt}/{MyLong}/{MyDouble}/{MyDecimal}");

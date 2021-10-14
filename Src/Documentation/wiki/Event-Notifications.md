@@ -32,13 +32,13 @@ simply hand in an event model/dto to the `PublishAsync()` method.
 ```csharp
 public class CreateOrderEndpoint : Endpoint<CreateOrderRequest>
 {
-    public CreateOrderEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/sales/orders/create");
     }
 
-    protected override async Task HandleAsync(CreateOrderRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CreateOrderRequest req, CancellationToken ct)
     {
         var orderID = await orderRepo.CreateNewOrder(req);
 

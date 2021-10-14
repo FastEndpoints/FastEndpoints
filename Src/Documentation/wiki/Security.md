@@ -1,5 +1,5 @@
 # securing endpoints
-endpoints are secure by default and you'd have to call `AllowAnonymous()` in the constructor if you'd like to allow unauthenticated users to access a particular endpoint.
+endpoints are secure by default and you'd have to call `AllowAnonymous()` in the configuration if you'd like to allow unauthenticated users to access a particular endpoint.
 
 ## jwt bearer authentication
 support for easy jwt bearer authentication is provided. you simply need to install the `FastEndpoints.Security` package and register it in the middleware pipeline like so:
@@ -26,14 +26,14 @@ you can generate a jwt token for sending to the client with an endpoint that sig
 ```csharp
 public class UserLoginEndpoint : Endpoint<LoginRequest>
 {
-    public UserLoginEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/api/login");
         AllowAnonymous();
     }
 
-    protected override async Task HandleAsync(LoginRequest req, CancellationToken ct)
+    public override async Task HandleAsync(LoginRequest req, CancellationToken ct)
     {
         if (req.Username == "admin" && req.Password == "pass")
         {
@@ -81,7 +81,7 @@ builder.Services.AddAuthorization(o =>
 ```csharp
 public class UpdateUserEndpoint : Endpoint<UpdateUserRequest>
 {
-    public ManageUsers()
+    public override void Configure()
     {
         Verbs(Http.PUT);
         Routes("/api/users/update");
@@ -90,11 +90,11 @@ public class UpdateUserEndpoint : Endpoint<UpdateUserRequest>
 }
 ```
 ### declarative security policies
-instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint constructors themselves like so:
+instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint configuration themselves like so:
 ```csharp
 public class RestrictedEndpoint : Endpoint<RestrictedRequest>
 {
-    public RestrictedEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/api/restricted");

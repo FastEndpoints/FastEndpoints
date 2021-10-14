@@ -27,16 +27,20 @@ items:
   summary: "\ninherit from this base class to define your dto validators\n"
   example: []
   syntax:
-    content: 'public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IHasServiceProvider where TRequest : class'
+    content: 'public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IValidatorWithState, IValidator where TRequest : class'
     typeParameters:
     - id: TRequest
       description: the type of the request dto
     content.vb: >-
       Public MustInherit Class Validator(Of TRequest As Class)
+
           Inherits AbstractValidator(Of TRequest)
-          Implements IHasServiceProvider
+
+          Implements IValidatorWithState, IValidator
   inheritance:
   - System.Object
+  implements:
+  - IValidator
   nameWithType.vb: Validator(Of TRequest)
   modifiers.csharp:
   - public
@@ -95,7 +99,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 18
+    startLine: 20
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -131,7 +135,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 23
+    startLine: 25
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -167,7 +171,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 30
+    startLine: 32
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -203,7 +207,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 37
+    startLine: 39
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -238,6 +242,12 @@ references:
   name: Object
   nameWithType: Object
   fullName: System.Object
+- uid: IValidator
+  commentId: '!:IValidator'
+  isExternal: true
+  name: IValidator
+  nameWithType: IValidator
+  fullName: IValidator
 - uid: System
   commentId: N:System
   isExternal: true

@@ -32,6 +32,7 @@
   "FastEndpoints.Endpoint`2.Resolve(Type)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Resolve``1": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Response": "FastEndpoints.Endpoint-2.yml",
+  "FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Roles(System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Routes(System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)": "FastEndpoints.Endpoint-2.yml",

@@ -47,11 +47,11 @@ if a request is received that doesn't meet the above model validation criteria, 
 ```
 
 ## disable automatic failure response
-in cases where you need more control of the validations, you can turn off the default behavior by calling the `DontThrowIfValidationFails()` method in the endpoint constructor like so:
+in cases where you need more control of the validations, you can turn off the default behavior by calling the `DontThrowIfValidationFails()` method in the endpoint configuration like so:
 ```csharp
 public class CreateUserEndpoint : Endpoint<CreateUserRequest>
 {
-    public CreateUserEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/api/user/create");
@@ -62,7 +62,7 @@ public class CreateUserEndpoint : Endpoint<CreateUserRequest>
 doing so will not send an automatic error response to the client and your handler will be executed. you can check the validation status in your handler by looking at the `ValidationFailures` property of the handler like so:
 
 ```csharp
-protected override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
+public override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
 {
     if (ValidationFailed)
     {
@@ -81,13 +81,13 @@ in cases where there are app/business logic validation failures during the proce
 ```csharp
 public class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse>
 {
-    public CreateUserEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/api/user/create");
     }
 
-    protected override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
     {
         bool userExists = await userRepo.UserAlreadyExists(req.EmailAddress);
         if (userExists)

@@ -16,7 +16,7 @@ items:
   source:
     id: IResponse
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
-    startLine: 21
+    startLine: 22
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -51,7 +51,7 @@ items:
   source:
     id: FromEntity
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
-    startLine: 27
+    startLine: 28
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

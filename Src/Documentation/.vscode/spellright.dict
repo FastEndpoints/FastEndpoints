@@ -1,3 +1,5 @@
 nuget
 dto
 fluentvalidations
+jwt
+url

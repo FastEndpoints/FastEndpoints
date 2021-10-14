@@ -23,7 +23,7 @@ and then attach it to the endpoints you need like so:
 ```csharp
 public class CreateOrderEndpoint : Endpoint<CreateOrderRequest>
 {
-    public CreateOrderEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/sales/orders/create");
@@ -72,7 +72,7 @@ and then attach it to endpoints like so:
 ```csharp
 public class CreateOrderEndpoint : Endpoint<CreateSaleRequest, CreateSaleResponse>
 {
-    public CreateOrderEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/sales/orders/create");

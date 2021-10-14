@@ -490,6 +490,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Response
   nameWithType: Endpoint<TRequest, TResponse>.Response
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Response
+- uid: FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+  name: ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ResponseCache_System_Int32_Microsoft_AspNetCore_Mvc_ResponseCacheLocation_System_Boolean_System_String_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
+  name.vb: ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ResponseCache(System.Int32, Microsoft.AspNetCore.Mvc.ResponseCacheLocation, System.Boolean, System.String, System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ResponseCache(System.Int32, Microsoft.AspNetCore.Mvc.ResponseCacheLocation, System.Boolean, System.String, System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String())
+- uid: FastEndpoints.Endpoint`2.ResponseCache*
+  name: ResponseCache
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ResponseCache_
+  commentId: Overload:FastEndpoints.Endpoint`2.ResponseCache
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ResponseCache
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ResponseCache
+  nameWithType: Endpoint<TRequest, TResponse>.ResponseCache
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ResponseCache
 - uid: FastEndpoints.Endpoint`2.Roles(System.String[])
   name: Roles(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Roles_System_String___

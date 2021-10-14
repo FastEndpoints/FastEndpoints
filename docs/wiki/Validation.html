@@ -136,10 +136,10 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
 }
 </code></pre>
 <h2 id="disable-automatic-failure-response">disable automatic failure response</h2>
-<p>in cases where you need more control of the validations, you can turn off the default behavior by calling the <code>DontThrowIfValidationFails()</code> method in the endpoint constructor like so:</p>
+<p>in cases where you need more control of the validations, you can turn off the default behavior by calling the <code>DontThrowIfValidationFails()</code> method in the endpoint configuration like so:</p>
 <pre><code class="lang-csharp">public class CreateUserEndpoint : Endpoint&lt;CreateUserRequest&gt;
 {
-    public CreateUserEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes(&quot;/api/user/create&quot;);
@@ -148,7 +148,7 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
 }
 </code></pre>
 <p>doing so will not send an automatic error response to the client and your handler will be executed. you can check the validation status in your handler by looking at the <code>ValidationFailures</code> property of the handler like so:</p>
-<pre><code class="lang-csharp">protected override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
+<pre><code class="lang-csharp">public override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
 {
     if (ValidationFailed)
     {
@@ -165,13 +165,13 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
 <p>in cases where there are app/business logic validation failures during the processing of a request in the handler, you can send an error response to the client like so:</p>
 <pre><code class="lang-csharp">public class CreateUserEndpoint : Endpoint&lt;CreateUserRequest, CreateUserResponse&gt;
 {
-    public CreateUserEndpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes(&quot;/api/user/create&quot;);
     }
 
-    protected override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
     {
         bool userExists = await userRepo.UserAlreadyExists(req.EmailAddress);
         if (userExists)

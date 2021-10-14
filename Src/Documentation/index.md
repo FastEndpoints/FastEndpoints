@@ -24,6 +24,7 @@ Performance is on par with the Minimal APIs and is faster; uses less memory; and
 - Model validation using FluentValidation rules
 - Convenient business logic validation and error responses
 - Easy access to environment and configuration settings
+- Supports response caching
 - Supports pipeline behaviors like MediatR
 - Supports in-process pub/sub event notifications
 - Auto discovery of event notification handlers

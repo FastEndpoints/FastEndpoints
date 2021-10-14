@@ -1,5 +1,5 @@
 # endpoint options
-in addition to the convenient methods you can use in the constructor to define your endpoints (mentioned in previous pages), you can use the `Options()` method to customize aspects of endpoint registration/setup like so:
+in addition to the convenient methods you can use in the endpoint configuration to setup your endpoints (mentioned in previous pages), you can use the `Options()` method to customize aspects of endpoint registration/setup like so:
 ```csharp
 Options(b => b.RequireCors(x => x.AllowAnyOrigin())
               .RequireHost("domain.com")

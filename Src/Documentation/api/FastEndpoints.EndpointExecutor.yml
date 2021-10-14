@@ -16,7 +16,7 @@ items:
   source:
     id: EndpointExecutor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EndpointExecutor.cs
-    startLine: 7
+    startLine: 12
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -54,7 +54,7 @@ items:
   source:
     id: HandleAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EndpointExecutor.cs
-    startLine: 16
+    startLine: 21
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

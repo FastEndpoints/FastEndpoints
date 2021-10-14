@@ -108,7 +108,7 @@
 </code></pre>
 <h2 id="prepare-startup">prepare startup</h2>
 <p>replace the contents of <code>Program.cs</code> file with the following:</p>
-<pre><code class="lang-csharp">using FastEndpoints;
+<pre><code class="lang-csharp">global using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
@@ -175,10 +175,10 @@ app.Run();
 <h1 id="endpoint-types">endpoint types</h1>
 <p>there are 4 different endpoint types you can inherit from.</p>
 <ol>
-<li><strong>Endpoint&lt;TRequest&gt;</strong> - use this type if there's only a request dto.</li>
-<li><strong>Endpoint&lt;TRequest,TResponse&gt;</strong> - use this type if you have both request and response dtos.</li>
-<li><strong>EndpointWithoutRequest</strong> - use this type if there's no request nor response dto.</li>
-<li><strong>EndpointWithoutRequest&lt;TResponse&gt;</strong> - use this type if there's no request dto but there's a response dto.</li>
+<li><strong>Endpoint&lt;TRequest&gt;</strong> - use this type if there's only a request dto. you can however send any object to the client that can be serialized as a response with this generic overload.</li>
+<li><strong>Endpoint&lt;TRequest,TResponse&gt;</strong> - use this type if you have both request and response dtos. the benefit of this generic overload is that you get strongly-typed access to properties of the dto when doing integration testing and validations.</li>
+<li><strong>EndpointWithoutRequest</strong> - use this type if there's no request nor response dto. you can send any serializable object as a response here also.</li>
+<li><strong>EndpointWithoutRequest&lt;TResponse&gt;</strong> - use this type if there's no request dto but there is a response dto.</li>
 </ol>
 <p>it is also possible to define endpoints with <code>EmptyRequest</code> and <code>EmptyResponse</code> if needed like so:</p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;EmptyRequest,EmptyResponse&gt; { }

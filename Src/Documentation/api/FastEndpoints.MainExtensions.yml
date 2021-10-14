@@ -96,7 +96,7 @@ items:
   source:
     id: UseFastEndpoints
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 139
+    startLine: 62
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

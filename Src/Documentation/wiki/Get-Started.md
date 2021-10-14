@@ -17,7 +17,7 @@ Install-Package FastEndpoints
 ## prepare startup
 replace the contents of `Program.cs` file with the following:
 ```csharp
-using FastEndpoints;
+global using FastEndpoints;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
@@ -92,10 +92,10 @@ that's all there's to it. you simply specify how the endpoint should be listenin
 # endpoint types
 there are 4 different endpoint types you can inherit from.
 
-1. **Endpoint\<TRequest\>** - use this type if there's only a request dto.
-2. **Endpoint<TRequest,TResponse>** - use this type if you have both request and response dtos.
-3. **EndpointWithoutRequest** - use this type if there's no request nor response dto.
-4. **EndpointWithoutRequest\<TResponse\>** - use this type if there's no request dto but there's a response dto.
+1. **Endpoint\<TRequest\>** - use this type if there's only a request dto. you can however send any object to the client that can be serialized as a response with this generic overload.
+2. **Endpoint<TRequest,TResponse>** - use this type if you have both request and response dtos. the benefit of this generic overload is that you get strongly-typed access to properties of the dto when doing integration testing and validations.
+3. **EndpointWithoutRequest** - use this type if there's no request nor response dto. you can send any serializable object as a response here also.
+4. **EndpointWithoutRequest\<TResponse\>** - use this type if there's no request dto but there is a response dto.
 
 it is also possible to define endpoints with `EmptyRequest` and `EmptyResponse` if needed like so:
 

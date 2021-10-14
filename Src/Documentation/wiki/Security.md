@@ -6,8 +6,8 @@ support for easy jwt bearer authentication is provided. you simply need to insta
 
 ### program.cs
 ```csharp
-using FastEndpoints;
-using FastEndpoints.Security;
+global using FastEndpoints;
+global using FastEndpoints.Security;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();

@@ -6,7 +6,8 @@
     
     <PackageReleaseNotes>
       - improve code readeability
-      - centralize endpoint setttings handling
+      - improve validation system
+      - improve endpoint config handling
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

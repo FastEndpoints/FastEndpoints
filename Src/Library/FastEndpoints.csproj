@@ -8,6 +8,7 @@
       - improve code readeability
       - improve validation system
       - improve endpoint config handling
+      - improve startup performance
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

@@ -3,6 +3,7 @@ using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -208,6 +209,25 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
     protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => Settings.PostProcessors = postProcessors;
+    /// <summary>
+    /// specify response caching settings for this endpoint
+    /// </summary>
+    /// <param name="durationSeconds">the duration in seconds for which the response is cached</param>
+    /// <param name="location">the location where the data from a particular URL must be cached</param>
+    /// <param name="noStore">specify whether the data should be stored or not</param>
+    /// <param name="varyByHeader">the value for the Vary response header</param>
+    /// <param name="varyByQueryKeys">the query keys to vary by</param>
+    protected void ResponseCache(int durationSeconds, ResponseCacheLocation location = ResponseCacheLocation.Any, bool noStore = false, string? varyByHeader = null, string[]? varyByQueryKeys = null)
+    {
+        Settings.ResponseCacheSettings = new()
+        {
+            Duration = durationSeconds,
+            Location = location,
+            NoStore = noStore,
+            VaryByHeader = varyByHeader,
+            VaryByQueryKeys = varyByQueryKeys
+        };
+    }
     /// <summary>
     /// set endpoint configurations options using an endpoint builder action
     /// </summary>

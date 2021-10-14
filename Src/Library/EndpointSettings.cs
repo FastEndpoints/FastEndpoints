@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FastEndpoints;
 
@@ -19,5 +20,5 @@ internal class EndpointSettings
     internal Action<RouteHandlerBuilder>? UserConfigAction;
     internal object? PreProcessors;
     internal object? PostProcessors;
+    internal ResponseCacheAttribute? ResponseCacheSettings;
 }
-

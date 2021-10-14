@@ -1,12 +1,13 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System.Reflection;
 
 namespace FastEndpoints;
 
 internal record EndpointDefinitionCacheEntry(
-    Func<object> EndpointFactory,
+    Func<object> CreateInstance,
     IValidator? Validator,
     object? PreProcessors,
     object? PostProcessors);
@@ -23,12 +24,14 @@ public static class EndpointExecutor
     //note: this handler is called by .net for each http request
     public static Task HandleAsync(HttpContext ctx, CancellationToken cancellation)
     {
-        var route = ((RouteEndpoint?)ctx.GetEndpoint())?.RoutePattern.RawText;
-        if (route is null) throw new InvalidOperationException("Unable to instantiate endpoint!!!");
-
+        var ep = ((RouteEndpoint?)ctx.GetEndpoint());
+        var route = ep?.RoutePattern.RawText; if (route == null) throw new InvalidOperationException("Unable to instantiate endpoint!!!");
         var epDef = CachedEndpointDefinitions[route];
+        var endpointInstance = epDef.CreateInstance();
 
-        var endpointInstance = epDef.EndpointFactory();
+        var respCacheAttrib = ep?.Metadata.OfType<ResponseCacheAttribute>().FirstOrDefault();
+        if (respCacheAttrib is not null)
+            ResponseCacheExecutor.Execute(ctx, respCacheAttrib);
 
         ResolveServices(endpointInstance, ctx);
 

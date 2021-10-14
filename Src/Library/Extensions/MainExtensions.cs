@@ -88,9 +88,9 @@ public static class MainExtensions
                 else
                     eb.RequireAuthorization(); //secure by default
 
+                if (epSettings.ResponseCacheSettings is not null) eb.WithMetadata(epSettings.ResponseCacheSettings);
                 if (epSettings.AllowFileUploads is true) eb.Accepts<IFormFile>("multipart/form-data");
                 if (epSettings.AllowAnonymous is true) eb.AllowAnonymous();
-
                 if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(eb);//always do this last - allow user to override everything done above
 
                 var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));

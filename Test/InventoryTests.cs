@@ -81,5 +81,17 @@ namespace Test
             Assert.IsTrue(result?.ProductId > 1);
             Assert.AreEqual("Grape Juice", result?.ProductName);
         }
+
+        [TestMethod]
+        public async Task ResponseCaching()
+        {
+            var (_, res1) = await GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+
+            await Task.Delay(100);
+
+            var (_, res2) = await GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+
+            Assert.AreEqual(res1?.LastModified, res2?.LastModified);
+        }
     }
 }

@@ -7,7 +7,7 @@ internal class EndpointSettings
     internal string[]? Routes;
     internal string[]? Verbs;
     internal bool AllowAnonymous;
-    internal bool ThrowIfValidationFailed = true;
+    internal bool ThrowIfValidationFails = true;
     internal string[]? Policies;
     internal string[]? Roles;
     internal string[]? Permissions;

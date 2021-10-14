@@ -6,11 +6,13 @@ namespace FastEndpoints.Validation;
 /// inherit from this base class to define your dto validators
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
-public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IHasServiceProvider where TRequest : class
+public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IValidatorWithState where TRequest : class
 {
 #pragma warning disable CS8618
     public IServiceProvider ServiceProvider { get; set; } //set from .UseFastEndpoints() upon initialization
 #pragma warning restore CS8618
+
+    bool IValidatorWithState.ThrowIfValidationFails { get; set; }
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.

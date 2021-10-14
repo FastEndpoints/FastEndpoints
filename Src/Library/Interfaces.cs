@@ -1,4 +1,5 @@
-﻿using FastEndpoints.Validation.Results;
+﻿using FastEndpoints.Validation;
+using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
@@ -52,11 +53,11 @@ internal interface IEventHandler
     internal void Subscribe();
 }
 
-[HideFromDocs]
-public interface IEndpoint { }
-
-internal interface IHasServiceProvider
+internal interface IValidatorWithState : IValidator
 {
+    internal bool ThrowIfValidationFails { get; set; }
     public IServiceProvider ServiceProvider { get; set; }
 }
 
+[HideFromDocs]
+public interface IEndpoint { }

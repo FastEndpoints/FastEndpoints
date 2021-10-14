@@ -97,8 +97,12 @@ public static class MainExtensions
 
                 if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(eb);//always do this last - allow user to override everything done above
 
-                var validatorInstance = (IValidator?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
-                if (validatorInstance is not null) ((IHasServiceProvider)validatorInstance).ServiceProvider = builder.ServiceProvider;
+                var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
+                if (validatorInstance is not null)
+                {
+                    validatorInstance.ServiceProvider = builder.ServiceProvider;
+                    validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
+                }
 
                 EndpointExecutor.CachedEndpointDefinitions[route] = new(epFactory, execMethod, validatorInstance);
             }

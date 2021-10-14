@@ -130,7 +130,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint
     /// </summary>
-    protected void DontThrowIfValidationFails() => Settings.ThrowIfValidationFailed = false;
+    protected void DontThrowIfValidationFails() => Settings.ThrowIfValidationFails = false;
     /// <summary>
     /// allow unauthenticated requests to this endpoint
     /// </summary>
@@ -220,7 +220,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
         {
             BindFromUserClaims(req, ctx, ValidationFailures);
 
-            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, Settings.ThrowIfValidationFailed, cancellation).ConfigureAwait(false);
+            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, cancellation).ConfigureAwait(false);
 
             foreach (var p in preProcessors)
                 await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
@@ -449,7 +449,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
         return req;
     }
 
-    private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, bool throwIfFailed, CancellationToken cancellation)
+    private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, CancellationToken cancellation)
     {
         if (validator is null) return;
 
@@ -458,7 +458,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
         if (!valResult.IsValid)
             ValidationFailures.AddRange(valResult.Errors);
 
-        if (ValidationFailed && throwIfFailed)
+        if (ValidationFailed && ((IValidatorWithState)validator).ThrowIfValidationFails)
             throw new ValidationFailureException();
     }
 

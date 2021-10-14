@@ -2,7 +2,7 @@
 
 public class Endpoint : Endpoint<Request>
 {
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/inventory/manage/create");
@@ -11,7 +11,7 @@ public class Endpoint : Endpoint<Request>
             Allow.Inventory_Update_Item);
     }
 
-    protected override Task HandleAsync(Request req, CancellationToken ct)
+    public override Task HandleAsync(Request req, CancellationToken ct)
     {
 #pragma warning disable CS8603
         if (string.IsNullOrEmpty(req.Description))

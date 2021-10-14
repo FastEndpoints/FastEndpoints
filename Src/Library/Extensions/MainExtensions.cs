@@ -21,7 +21,6 @@ public static class MainExtensions
     {
 #pragma warning disable CS8618
         public Type EndpointType { get; set; }
-        public object EndpointInstance { get; set; }
         public Type? ValidatorType { get; set; }
         public string? SecurityPolicyName { get; set; }
         public EndpointSettings Settings { get; set; }
@@ -101,7 +100,7 @@ public static class MainExtensions
                     validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
                 }
 
-                EndpointExecutor.CachedEndpointDefinitions[route] = new(epFactory, validatorInstance);
+                EndpointExecutor.CachedEndpointDefinitions[route] = new(epFactory, validatorInstance, epSettings.PreProcessors, epSettings.PostProcessors);
             }
         }
 
@@ -269,11 +268,11 @@ public static class MainExtensions
         discoveredEndpointDefinitions = epList
             .Select(x =>
             {
-                var instance = Activator.CreateInstance(x.tEndpoint);
+                var instance = (IEndpoint)Activator.CreateInstance(x.tEndpoint);
+                instance?.Configure();
                 return new EndpointDefinition()
                 {
                     EndpointType = x.tEndpoint,
-                    EndpointInstance = instance,
                     ValidatorType = valDict.GetValueOrDefault(x.tRequest),
                     Settings = (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)
                 };

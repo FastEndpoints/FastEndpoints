@@ -60,4 +60,7 @@ internal interface IValidatorWithState : IValidator
 }
 
 [HideFromDocs]
-public interface IEndpoint { }
+public interface IEndpoint
+{
+    void Configure();
+}

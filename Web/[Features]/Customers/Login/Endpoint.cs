@@ -2,14 +2,14 @@
 
 public class Endpoint : EndpointWithoutRequest
 {
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.GET);
         Routes("/customers/login");
         AllowAnonymous();
     }
 
-    protected override Task HandleAsync(EmptyRequest r, CancellationToken t)
+    public override Task HandleAsync(EmptyRequest r, CancellationToken t)
     {
         var token = JWTBearer.CreateToken(
             signingKey: Config["TokenKey"],

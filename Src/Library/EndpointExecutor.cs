@@ -7,7 +7,9 @@ namespace FastEndpoints;
 
 internal record EndpointDefinitionCacheEntry(
     Func<object> EndpointFactory,
-    IValidator? Validator);
+    IValidator? Validator,
+    object? PreProcessors,
+    object? PostProcessors);
 
 [HideFromDocs]
 public static class EndpointExecutor
@@ -24,14 +26,14 @@ public static class EndpointExecutor
         var route = ((RouteEndpoint?)ctx.GetEndpoint())?.RoutePattern.RawText;
         if (route is null) throw new InvalidOperationException("Unable to instantiate endpoint!!!");
 
-        var (endpointFactory, validator) = CachedEndpointDefinitions[route];
+        var epDef = CachedEndpointDefinitions[route];
 
-        var endpointInstance = endpointFactory();
+        var endpointInstance = epDef.EndpointFactory();
 
         ResolveServices(endpointInstance, ctx);
 
 #pragma warning disable CS8601
-        return (Task?)BaseEndpoint.ExecMethodInfo.Invoke(endpointInstance, new object[] { ctx, validator, cancellation })
+        return (Task?)BaseEndpoint.ExecMethodInfo.Invoke(endpointInstance, new object[] { ctx, epDef.Validator, epDef.PreProcessors, epDef.PostProcessors, cancellation })
             ?? Task.CompletedTask;
 #pragma warning restore CS8601
     }

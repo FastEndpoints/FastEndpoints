@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     
-    <Version>1.10.0-beta1</Version>
+    <Version>2.0.0-beta1</Version>
     
     <PackageReleaseNotes>
+      - move endpoint configuration to Configure() method from ctor
       - improve code readeability
       - improve validation system
       - improve endpoint config handling

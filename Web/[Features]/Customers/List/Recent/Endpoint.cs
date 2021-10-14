@@ -2,7 +2,7 @@
 
 public class Endpoint : EndpointWithoutRequest
 {
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.GET);
         Routes("/customers/list/recent");
@@ -16,7 +16,7 @@ public class Endpoint : EndpointWithoutRequest
         AllowAnonymous();
     }
 
-    protected override Task HandleAsync(EmptyRequest er, CancellationToken ct)
+    public override Task HandleAsync(EmptyRequest er, CancellationToken ct)
     {
         return SendAsync(new Response
         {

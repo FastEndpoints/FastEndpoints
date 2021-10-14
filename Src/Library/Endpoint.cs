@@ -25,15 +25,22 @@ public abstract class BaseEndpoint : IEndpoint
 
     internal EndpointSettings Settings { get; set; } = new();
 
-    internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
+    internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, object preProcessors, object postProcessors, CancellationToken ct);
 
     internal string GetTestURL()
     {
+        Configure();
+
         if (Settings.Routes is null)
-            throw new ArgumentNullException(nameof(Settings.Routes));
+            throw new ArgumentNullException($"GetTestURL()[{nameof(Settings.Routes)}]");
 
         return Settings.Routes[0];
     }
+
+    /// <summary>
+    /// use this method to configure how this endpoint should be listening to incoming requests
+    /// </summary>
+    public abstract void Configure();
 }
 
 /// <summary>
@@ -60,9 +67,6 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TReq
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
 {
-    private IPreProcessor<TRequest>[] preProcessors = Array.Empty<IPreProcessor<TRequest>>();
-    private IPostProcessor<TRequest, TResponse>[] postProcessors = Array.Empty<IPostProcessor<TRequest, TResponse>>();
-
     /// <summary>
     /// the http context of the current request
     /// </summary>
@@ -198,12 +202,12 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>
-    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => this.preProcessors = preProcessors;
+    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => Settings.PreProcessors = preProcessors;
     /// <summary>
     /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
-    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => this.postProcessors = postProcessors;
+    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => Settings.PostProcessors = postProcessors;
     /// <summary>
     /// set endpoint configurations options using an endpoint builder action
     /// </summary>
@@ -215,9 +219,9 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// </summary>
     /// <param name="req">the request dto</param>
     /// <param name="ct">a cancellation token</param>
-    protected abstract Task HandleAsync(TRequest req, CancellationToken ct);
+    public abstract Task HandleAsync(TRequest req, CancellationToken ct);
 
-    internal override async Task ExecAsync(HttpContext ctx, IValidator? validator, CancellationToken cancellation)
+    internal override async Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
     {
         HttpContext = ctx;
         var req = await BindIncomingDataAsync(ctx, cancellation).ConfigureAwait(false);
@@ -227,13 +231,19 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
 
             await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, cancellation).ConfigureAwait(false);
 
-            foreach (var p in preProcessors)
-                await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            if (preProcessors != null)
+            {
+                foreach (var p in (IPreProcessor<TRequest>[])preProcessors)
+                    await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            }
 
             await HandleAsync(req, cancellation).ConfigureAwait(false);
 
-            foreach (var pp in postProcessors)
-                await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            if (postProcessors != null)
+            {
+                foreach (var pp in (IPostProcessor<TRequest, TResponse>[])postProcessors)
+                    await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            }
         }
         catch (ValidationFailureException)
         {

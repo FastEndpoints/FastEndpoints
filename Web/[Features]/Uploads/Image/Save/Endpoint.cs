@@ -2,7 +2,7 @@
 
 public class Endpoint : Endpoint<Request>
 {
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("uploads/image/save");
@@ -10,7 +10,7 @@ public class Endpoint : Endpoint<Request>
         AllowAnonymous();
     }
 
-    protected override Task HandleAsync(Request r, CancellationToken ct)
+    public override Task HandleAsync(Request r, CancellationToken ct)
     {
         if (Files.Count > 0)
         {

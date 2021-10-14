@@ -35,14 +35,14 @@ public class Endpoint : Endpoint<Request>
 {
     public ILogger<Endpoint>? MyProperty { get; set; }
 
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/benchmark/ok/{id}");
         AllowAnonymous();
     }
 
-    protected override Task HandleAsync(Request req, CancellationToken ct)
+    public override Task HandleAsync(Request req, CancellationToken ct)
     {
         //Logger.LogInformation("request received!");
 

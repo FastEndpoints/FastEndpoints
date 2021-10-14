@@ -6,7 +6,7 @@ namespace Sales.Orders.Create;
 
 public class Endpoint : Endpoint<Request, Response>
 {
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/sales/orders/create");
@@ -16,7 +16,7 @@ public class Endpoint : Endpoint<Request, Response>
             new MyResponseLogger<Request, Response>());
     }
 
-    protected override async Task HandleAsync(Request r, CancellationToken t)
+    public override async Task HandleAsync(Request r, CancellationToken t)
     {
         var userType = User.ClaimValue(Claim.UserType);
 

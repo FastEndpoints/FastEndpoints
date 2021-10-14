@@ -2,7 +2,7 @@
 
 public class Endpoint : Endpoint<Request, Response>
 {
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes("/admin/login");
@@ -10,7 +10,7 @@ public class Endpoint : Endpoint<Request, Response>
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
     }
 
-    protected override Task HandleAsync(Request r, CancellationToken ct)
+    public override Task HandleAsync(Request r, CancellationToken ct)
     {
         if (r.UserName == "admin" && r.Password == "pass")
         {

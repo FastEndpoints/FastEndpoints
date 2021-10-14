@@ -2,13 +2,13 @@
 
 public class Endpoint : EndpointWithoutRequest<Response>
 {
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.GET);
         Routes("/inventory/list/recent/{CategoryID}");
     }
 
-    protected override Task HandleAsync(EmptyRequest r, CancellationToken t)
+    public override Task HandleAsync(EmptyRequest r, CancellationToken t)
     {
         Response.Category = HttpContext.GetRouteValue("CategoryID")?.ToString();
         return SendAsync(Response);

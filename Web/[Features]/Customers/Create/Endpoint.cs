@@ -12,7 +12,7 @@ public class Endpoint : Endpoint<Request>
 {
     public IEmailService? Emailer { get; set; }
 
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.POST);
         Routes(
@@ -21,7 +21,7 @@ public class Endpoint : Endpoint<Request>
         AllowAnonymous();
     }
 
-    protected override Task HandleAsync(Request r, CancellationToken t)
+    public override Task HandleAsync(Request r, CancellationToken t)
     {
         var msg = Emailer?.SendEmail() + " " + r.CreatedBy;
 

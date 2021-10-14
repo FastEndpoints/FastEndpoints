@@ -17,5 +17,7 @@ internal class EndpointSettings
     internal bool AllowFileUploads;
     internal Action<RouteHandlerBuilder>? InternalConfigAction;
     internal Action<RouteHandlerBuilder>? UserConfigAction;
+    internal object? PreProcessors;
+    internal object? PostProcessors;
 }
 

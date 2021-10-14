@@ -14,7 +14,7 @@ public class Request
 
 public class Endpoint : Endpoint<Request>
 {
-    public Endpoint()
+    public override void Configure()
     {
         Verbs(Http.PUT);
         Routes("/customers/update");
@@ -24,7 +24,7 @@ public class Endpoint : Endpoint<Request>
         Permissions(Allow.Customers_Update);
     }
 
-    protected override Task HandleAsync(Request req, CancellationToken ct)
+    public override Task HandleAsync(Request req, CancellationToken ct)
     {
         if (!User.HasPermission(Allow.Customers_Update))
             ThrowError("no permission!");

@@ -18,28 +18,16 @@ public abstract class BaseEndpoint : IEndpoint
 {
     internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
 
-    internal string[]? routes;
-    internal string[]? verbs;
-    internal bool throwIfValidationFailed = true;
-    internal bool allowAnonymous;
-    internal string[]? policies;
-    internal string[]? roles;
-    internal string[]? permissions;
-    internal bool allowAnyPermission;
-    internal string[]? claims;
-    internal bool allowAnyClaim;
-    internal bool allowFileUploads;
-    internal Action<RouteHandlerBuilder>? internalConfigAction;
-    internal Action<RouteHandlerBuilder>? userConfigAction;
+    internal EndpointSettings Settings { get; set; } = new();
 
     internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
 
     internal string GetTestURL()
     {
-        if (routes is null)
-            throw new ArgumentNullException(nameof(routes));
+        if (Settings.Routes is null)
+            throw new ArgumentNullException(nameof(Settings.Routes));
 
-        return routes[0];
+        return Settings.Routes[0];
     }
 }
 
@@ -70,10 +58,10 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     private IPreProcessor<TRequest>[] preProcessors = Array.Empty<IPreProcessor<TRequest>>();
     private IPostProcessor<TRequest, TResponse>[] postProcessors = Array.Empty<IPostProcessor<TRequest, TResponse>>();
 
-#pragma warning disable CS8618
     /// <summary>
     /// the http context of the current request
     /// </summary>
+#pragma warning disable CS8618
     protected HttpContext HttpContext { get; private set; }
 #pragma warning restore CS8618
     /// <summary>
@@ -127,8 +115,8 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// <param name="patterns"></param>
     protected void Routes(params string[] patterns)
     {
-        routes = patterns;
-        internalConfigAction = b =>
+        Settings.Routes = patterns;
+        Settings.InternalConfigAction = b =>
         {
             if (typeof(TRequest) != typeof(EmptyRequest)) b.Accepts<TRequest>("application/json");
             b.Produces<TResponse>();
@@ -138,29 +126,29 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
     /// <param name="methods"></param>
-    protected void Verbs(params Http[] methods) => verbs = methods.Select(m => m.ToString()).ToArray();
+    protected void Verbs(params Http[] methods) => Settings.Verbs = methods.Select(m => m.ToString()).ToArray();
     /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint
     /// </summary>
-    protected void DontThrowIfValidationFails() => throwIfValidationFailed = false;
+    protected void DontThrowIfValidationFails() => Settings.ThrowIfValidationFailed = false;
     /// <summary>
     /// allow unauthenticated requests to this endpoint
     /// </summary>
-    protected void AllowAnonymous() => allowAnonymous = true;
+    protected void AllowAnonymous() => Settings.AllowAnonymous = true;
     /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
-    protected void AllowFileUploads() => allowFileUploads = true;
+    protected void AllowFileUploads() => Settings.AllowFileUploads = true;
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
     /// </summary>
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
-    protected void Policies(params string[] policyNames) => policies = policyNames;
+    protected void Policies(params string[] policyNames) => Settings.Policies = policyNames;
     /// <summary>
     /// specify that the current claim principal/ user should posses at least one of the roles (claim type) mentioned here. access will be forbidden if the user doesn't have any of the specified roles.
     /// </summary>
     /// <param name="rolesNames">one or more roles that has access</param>
-    protected void Roles(params string[] rolesNames) => roles = rolesNames;
+    protected void Roles(params string[] rolesNames) => Settings.Roles = rolesNames;
     /// <summary>
     /// specify the permissions a user principal should posses in order to access this endpoint. they must posses ALL of the permissions mentioned here. if not, a 403 forbidden response will be sent.
     /// </summary>
@@ -173,8 +161,8 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// <param name="permissions">the permissions</param>
     protected void Permissions(bool allowAny, params string[] permissions)
     {
-        allowAnyPermission = allowAny;
-        this.permissions = permissions;
+        Settings.AllowAnyPermission = allowAny;
+        Settings.Permissions = permissions;
     }
     /// <summary>
     /// specify to allow access if the user has any of the given permissions
@@ -193,8 +181,8 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// <param name="claims">the claims</param>
     protected void Claims(bool allowAny, params string[] claims)
     {
-        allowAnyClaim = allowAny;
-        this.claims = claims;
+        Settings.AllowAnyClaim = allowAny;
+        Settings.Claims = claims;
     }
     /// <summary>
     /// specify to allow access if the user has any of the given claims
@@ -215,7 +203,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// set endpoint configurations options using an endpoint builder action
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
-    protected void Options(Action<RouteHandlerBuilder> builder) => userConfigAction = builder;
+    protected void Options(Action<RouteHandlerBuilder> builder) => Settings.UserConfigAction = builder;
 
     /// <summary>
     /// the handler method for the endpoint. this method is called for each request received.
@@ -232,7 +220,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
         {
             BindFromUserClaims(req, ctx, ValidationFailures);
 
-            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, throwIfValidationFailed, cancellation).ConfigureAwait(false);
+            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, Settings.ThrowIfValidationFailed, cancellation).ConfigureAwait(false);
 
             foreach (var p in preProcessors)
                 await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);

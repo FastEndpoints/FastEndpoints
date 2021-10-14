@@ -253,18 +253,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Security.Constants.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.Security.Constants.html",
-          "hash": "PYrv7EJtRe/3m2lh8BVHjPpE9+KVMvDEeuzaTtiZ960="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/FastEndpoints.Security.JWTBearer.yml",
       "output": {
         ".html": {
@@ -293,7 +281,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Security.html",
-          "hash": "+LLoAnxZ04NVtyw9g54df9pc+Cr/vBfMx3ZWqbzrchs="
+          "hash": "AiIAtHzlDWpEh3kiyncdgkAmS7yREwkFLMmyupvXv3k="
         }
       },
       "is_incremental": false,
@@ -341,7 +329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "IwNshd+FPhA635iTQDkymrgBYYC/o6I3HdBtpBXm2Y8="
+          "hash": "Wid6uyeNy5yOT+GVIzsO5wFpyZmxrnEkfB8RMi93f5I="
         }
       },
       "is_incremental": false,
@@ -645,8 +633,8 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 26,
-          "skipped_file_count": 26
+          "total_file_count": 25,
+          "skipped_file_count": 25
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,

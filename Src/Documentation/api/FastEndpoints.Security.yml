@@ -5,7 +5,6 @@ items:
   id: FastEndpoints.Security
   children:
   - FastEndpoints.Security.AuthExtensions
-  - FastEndpoints.Security.Constants
   - FastEndpoints.Security.JWTBearer
   - FastEndpoints.Security.Permissions
   langs:
@@ -23,11 +22,6 @@ references:
   name: AuthExtensions
   nameWithType: AuthExtensions
   fullName: FastEndpoints.Security.AuthExtensions
-- uid: FastEndpoints.Security.Constants
-  commentId: T:FastEndpoints.Security.Constants
-  name: Constants
-  nameWithType: Constants
-  fullName: FastEndpoints.Security.Constants
 - uid: FastEndpoints.Security.JWTBearer
   commentId: T:FastEndpoints.Security.JWTBearer
   name: JWTBearer

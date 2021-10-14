@@ -112,8 +112,6 @@
   "FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)": "FastEndpoints.Security.AuthExtensions.yml",
   "FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)": "FastEndpoints.Security.AuthExtensions.yml",
   "FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)": "FastEndpoints.Security.AuthExtensions.yml",
-  "FastEndpoints.Security.Constants": "FastEndpoints.Security.Constants.yml",
-  "FastEndpoints.Security.Constants.PermissionsClaimType": "FastEndpoints.Security.Constants.yml",
   "FastEndpoints.Security.JWTBearer": "FastEndpoints.Security.JWTBearer.yml",
   "FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}})": "FastEndpoints.Security.JWTBearer.yml",
   "FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.ValueTuple{System.String,System.String}[])": "FastEndpoints.Security.JWTBearer.yml",

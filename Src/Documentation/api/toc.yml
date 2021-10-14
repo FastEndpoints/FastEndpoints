@@ -51,8 +51,6 @@
   items:
   - uid: FastEndpoints.Security.AuthExtensions
     name: AuthExtensions
-  - uid: FastEndpoints.Security.Constants
-    name: Constants
   - uid: FastEndpoints.Security.JWTBearer
     name: JWTBearer
   - uid: FastEndpoints.Security.Permissions

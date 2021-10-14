@@ -1456,18 +1456,6 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Security.AuthExtensions.HasPermission
   nameWithType: AuthExtensions.HasPermission
-- uid: FastEndpoints.Security.Constants
-  name: Constants
-  href: api/FastEndpoints.Security.Constants.html
-  commentId: T:FastEndpoints.Security.Constants
-  fullName: FastEndpoints.Security.Constants
-  nameWithType: Constants
-- uid: FastEndpoints.Security.Constants.PermissionsClaimType
-  name: PermissionsClaimType
-  href: api/FastEndpoints.Security.Constants.html#FastEndpoints_Security_Constants_PermissionsClaimType
-  commentId: F:FastEndpoints.Security.Constants.PermissionsClaimType
-  fullName: FastEndpoints.Security.Constants.PermissionsClaimType
-  nameWithType: Constants.PermissionsClaimType
 - uid: FastEndpoints.Security.JWTBearer
   name: JWTBearer
   href: api/FastEndpoints.Security.JWTBearer.html

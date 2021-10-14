@@ -54,15 +54,12 @@ public static class MainExtensions
         BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
         var routeToHandlerCounts = new Dictionary<string, int>();
-        var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
         foreach (var ep in discoveredEndpointDefinitions)
         {
             var epName = ep.EndpointType.FullName;
             var epSettings = ep.Settings;
 
-            var execMethod = ep.EndpointType.GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.Instance | BindingFlags.NonPublic);
-            if (execMethod is null) throw new InvalidOperationException($"Unable to find the `ExecAsync` method on: [{epName}]");
             if (epSettings.Verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
             if (epSettings.Routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
@@ -104,9 +101,11 @@ public static class MainExtensions
                     validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
                 }
 
-                EndpointExecutor.CachedEndpointDefinitions[route] = new(epFactory, execMethod, validatorInstance);
+                EndpointExecutor.CachedEndpointDefinitions[route] = new(epFactory, validatorInstance);
             }
         }
+
+        var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
         foreach (var kvp in routeToHandlerCounts)
             if (kvp.Value > 1) logger.LogWarning($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
@@ -248,7 +247,6 @@ public static class MainExtensions
                 ((IEventHandler?)Activator.CreateInstance(type))?.Subscribe();
                 continue;
             }
-#pragma warning disable CS8602
             if (interfacesOfType.Contains(typeof(IEndpoint)))
             {
                 var tRequest = typeof(EmptyRequest);
@@ -260,11 +258,13 @@ public static class MainExtensions
             }
             else
             {
+#pragma warning disable CS8602
                 Type tRequest = type.BaseType.GetGenericArguments()[0];
                 valDict.Add(tRequest, type);
-            }
 #pragma warning restore CS8602
+            }
         }
+#pragma warning disable CS8600
 #pragma warning disable CS8601
         discoveredEndpointDefinitions = epList
             .Select(x =>
@@ -274,32 +274,13 @@ public static class MainExtensions
                 {
                     EndpointType = x.tEndpoint,
                     EndpointInstance = instance,
-                    ValidatorType = GetValidatorType(x.tRequest),
-                    Settings = GetEndpointSettings(x.tEndpoint, instance)
+                    ValidatorType = valDict.GetValueOrDefault(x.tRequest),
+                    Settings = (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)
                 };
             })
             .ToArray();
-#pragma warning restore CS8601
-
-        Type? GetValidatorType(Type tRequest)
-        {
-            Type? valType = null;
-            valDict?.TryGetValue(tRequest, out valType);
-            return valType;
-        }
-
-        EndpointSettings GetEndpointSettings(Type epBaseType, object? epInstance)
-        {
-#pragma warning disable CS8600
-#pragma warning disable CS8603
-#pragma warning disable CS8602
-            return (EndpointSettings)
-                epBaseType.GetProperty(nameof(BaseEndpoint.Settings), BindingFlags.NonPublic | BindingFlags.Instance)
-                          .GetValue(epInstance);
-#pragma warning restore CS8602
-#pragma warning restore CS8603
 #pragma warning restore CS8600
-        }
+#pragma warning restore CS8601
     }
 }
 

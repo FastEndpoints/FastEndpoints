@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -21,6 +22,10 @@ public abstract class BaseEndpoint : IEndpoint
     internal EndpointSettings Settings { get; set; } = new();
 
     internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, CancellationToken ct);
+
+    internal static MethodInfo ExecMethodInfo { get; set; } = typeof(BaseEndpoint).GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.NonPublic | BindingFlags.Instance);
+
+    internal static PropertyInfo SettingsPropInfo { get; set; } = typeof(BaseEndpoint).GetProperty(nameof(Settings), BindingFlags.NonPublic | BindingFlags.Instance);
 
     internal string GetTestURL()
     {

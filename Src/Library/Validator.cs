@@ -2,6 +2,10 @@
 
 namespace FastEndpoints.Validation;
 
+/// <summary>
+/// inherit from this base class to define your dto validators
+/// </summary>
+/// <typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IHasServiceProvider where TRequest : class
 {
 #pragma warning disable CS8618

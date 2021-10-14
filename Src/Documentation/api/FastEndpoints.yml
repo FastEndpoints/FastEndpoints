@@ -4,15 +4,10 @@ items:
   commentId: N:FastEndpoints
   id: FastEndpoints
   children:
-  - FastEndpoints.AsyncEventHandler`1
-  - FastEndpoints.BaseEndpoint
-  - FastEndpoints.BaseEventHandler
-  - FastEndpoints.Constants
   - FastEndpoints.EmptyRequest
   - FastEndpoints.EmptyResponse
   - FastEndpoints.Endpoint`1
   - FastEndpoints.Endpoint`2
-  - FastEndpoints.EndpointExecutor
   - FastEndpoints.EndpointWithoutRequest
   - FastEndpoints.EndpointWithoutRequest`1
   - FastEndpoints.ErrorResponse
@@ -21,7 +16,6 @@ items:
   - FastEndpoints.FromClaimAttribute
   - FastEndpoints.Http
   - FastEndpoints.HttpClientExtensions
-  - FastEndpoints.IEndpoint
   - FastEndpoints.IPostProcessor`2
   - FastEndpoints.IPreProcessor`1
   - FastEndpoints.IRequest`1
@@ -49,11 +43,6 @@ references:
   name: FromAttribute
   nameWithType: FromAttribute
   fullName: FastEndpoints.FromAttribute
-- uid: FastEndpoints.Constants
-  commentId: T:FastEndpoints.Constants
-  name: Constants
-  nameWithType: Constants
-  fullName: FastEndpoints.Constants
 - uid: FastEndpoints.EmptyRequest
   commentId: T:FastEndpoints.EmptyRequest
   name: EmptyRequest
@@ -69,12 +58,6 @@ references:
   name: ErrorResponse
   nameWithType: ErrorResponse
   fullName: FastEndpoints.ErrorResponse
-- uid: FastEndpoints.BaseEndpoint
-  commentId: T:FastEndpoints.BaseEndpoint
-  parent: FastEndpoints
-  name: BaseEndpoint
-  nameWithType: BaseEndpoint
-  fullName: FastEndpoints.BaseEndpoint
 - uid: FastEndpoints.EndpointWithoutRequest
   commentId: T:FastEndpoints.EndpointWithoutRequest
   name: EndpointWithoutRequest
@@ -200,11 +183,6 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.EndpointExecutor
-  commentId: T:FastEndpoints.EndpointExecutor
-  name: EndpointExecutor
-  nameWithType: EndpointExecutor
-  fullName: FastEndpoints.EndpointExecutor
 - uid: FastEndpoints.Http
   commentId: T:FastEndpoints.Http
   parent: FastEndpoints
@@ -217,12 +195,6 @@ references:
   name: Mode
   nameWithType: Mode
   fullName: FastEndpoints.Mode
-- uid: FastEndpoints.BaseEventHandler
-  commentId: T:FastEndpoints.BaseEventHandler
-  parent: FastEndpoints
-  name: BaseEventHandler
-  nameWithType: BaseEventHandler
-  fullName: FastEndpoints.BaseEventHandler
 - uid: FastEndpoints.FastEventHandler`1
   commentId: T:FastEndpoints.FastEventHandler`1
   name: FastEventHandler<TEvent>
@@ -256,42 +228,6 @@ references:
   - name: TEvent
     nameWithType: TEvent
     fullName: TEvent
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.AsyncEventHandler`1
-  commentId: T:FastEndpoints.AsyncEventHandler`1
-  name: AsyncEventHandler<TEventArgs>
-  nameWithType: AsyncEventHandler<TEventArgs>
-  fullName: FastEndpoints.AsyncEventHandler<TEventArgs>
-  nameWithType.vb: AsyncEventHandler(Of TEventArgs)
-  fullName.vb: FastEndpoints.AsyncEventHandler(Of TEventArgs)
-  name.vb: AsyncEventHandler(Of TEventArgs)
-  spec.csharp:
-  - uid: FastEndpoints.AsyncEventHandler`1
-    name: AsyncEventHandler
-    nameWithType: AsyncEventHandler
-    fullName: FastEndpoints.AsyncEventHandler
-  - name: <
-    nameWithType: <
-    fullName: <
-  - name: TEventArgs
-    nameWithType: TEventArgs
-    fullName: TEventArgs
-  - name: '>'
-    nameWithType: '>'
-    fullName: '>'
-  spec.vb:
-  - uid: FastEndpoints.AsyncEventHandler`1
-    name: AsyncEventHandler
-    nameWithType: AsyncEventHandler
-    fullName: FastEndpoints.AsyncEventHandler
-  - name: '(Of '
-    nameWithType: '(Of '
-    fullName: '(Of '
-  - name: TEventArgs
-    nameWithType: TEventArgs
-    fullName: TEventArgs
   - name: )
     nameWithType: )
     fullName: )
@@ -461,12 +397,6 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.IEndpoint
-  commentId: T:FastEndpoints.IEndpoint
-  parent: FastEndpoints
-  name: IEndpoint
-  nameWithType: IEndpoint
-  fullName: FastEndpoints.IEndpoint
 - uid: FastEndpoints
   commentId: N:FastEndpoints
   name: FastEndpoints

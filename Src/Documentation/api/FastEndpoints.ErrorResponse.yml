@@ -20,10 +20,12 @@ items:
   source:
     id: ErrorResponse
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
-    startLine: 4
+    startLine: 7
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\nthe dto used to send an error response to the client\n"
+  example: []
   syntax:
     content: public class ErrorResponse
     content.vb: Public Class ErrorResponse
@@ -57,10 +59,12 @@ items:
   source:
     id: StatusCode
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
-    startLine: 6
+    startLine: 12
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\nthe http status code sent to the client. default is 400.\n"
+  example: []
   syntax:
     content: public int StatusCode { get; set; }
     parameters: []
@@ -88,10 +92,12 @@ items:
   source:
     id: Message
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
-    startLine: 7
+    startLine: 17
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\nthe message for the error response\n"
+  example: []
   syntax:
     content: public string Message { get; set; }
     parameters: []
@@ -119,10 +125,12 @@ items:
   source:
     id: Errors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
-    startLine: 8
+    startLine: 22
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\nthe collection of errors for the current context\n"
+  example: []
   syntax:
     content: public Dictionary<string, IEnumerable<string>> Errors { get; set; }
     parameters: []
@@ -150,10 +158,12 @@ items:
   source:
     id: .ctor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
-    startLine: 10
+    startLine: 27
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\ninstantiate a new error response without any errors\n"
+  example: []
   syntax:
     content: public ErrorResponse()
     content.vb: Public Sub New
@@ -176,15 +186,18 @@ items:
   source:
     id: .ctor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\ErrorResponse.cs
-    startLine: 12
+    startLine: 33
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\ninstantiate an error response with the given collection validation failures\n"
+  example: []
   syntax:
     content: public ErrorResponse(IEnumerable<ValidationFailure> failures)
     parameters:
     - id: failures
       type: IEnumerable{ValidationFailure}
+      description: ''
     content.vb: Public Sub New(failures As IEnumerable(Of ValidationFailure))
   overload: FastEndpoints.ErrorResponse.#ctor*
   nameWithType.vb: ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))

@@ -4,6 +4,9 @@ using System.Text.Json;
 
 namespace FastEndpoints;
 
+/// <summary>
+/// a set of extensions to the httpclient in order to facilitate route-less integration testing
+/// </summary>
 public static class HttpClientExtensions
 {
     /// <summary>

@@ -6,6 +6,9 @@ using System.Text;
 
 namespace FastEndpoints.Security;
 
+/// <summary>
+/// a set of auth related extensions
+/// </summary>
 public static class AuthExtensions
 {
     /// <summary>

@@ -7,39 +7,6 @@ references:
   commentId: N:FastEndpoints
   fullName: FastEndpoints
   nameWithType: FastEndpoints
-- uid: FastEndpoints.AsyncEventHandler`1
-  name: AsyncEventHandler<TEventArgs>
-  href: api/FastEndpoints.AsyncEventHandler-1.html
-  commentId: T:FastEndpoints.AsyncEventHandler`1
-  name.vb: AsyncEventHandler(Of TEventArgs)
-  fullName: FastEndpoints.AsyncEventHandler<TEventArgs>
-  fullName.vb: FastEndpoints.AsyncEventHandler(Of TEventArgs)
-  nameWithType: AsyncEventHandler<TEventArgs>
-  nameWithType.vb: AsyncEventHandler(Of TEventArgs)
-- uid: FastEndpoints.BaseEndpoint
-  name: BaseEndpoint
-  href: api/FastEndpoints.BaseEndpoint.html
-  commentId: T:FastEndpoints.BaseEndpoint
-  fullName: FastEndpoints.BaseEndpoint
-  nameWithType: BaseEndpoint
-- uid: FastEndpoints.BaseEventHandler
-  name: BaseEventHandler
-  href: api/FastEndpoints.BaseEventHandler.html
-  commentId: T:FastEndpoints.BaseEventHandler
-  fullName: FastEndpoints.BaseEventHandler
-  nameWithType: BaseEventHandler
-- uid: FastEndpoints.Constants
-  name: Constants
-  href: api/FastEndpoints.Constants.html
-  commentId: T:FastEndpoints.Constants
-  fullName: FastEndpoints.Constants
-  nameWithType: Constants
-- uid: FastEndpoints.Constants.PermissionsClaimType
-  name: PermissionsClaimType
-  href: api/FastEndpoints.Constants.html#FastEndpoints_Constants_PermissionsClaimType
-  commentId: F:FastEndpoints.Constants.PermissionsClaimType
-  fullName: FastEndpoints.Constants.PermissionsClaimType
-  nameWithType: Constants.PermissionsClaimType
 - uid: FastEndpoints.EmptyRequest
   name: EmptyRequest
   href: api/FastEndpoints.EmptyRequest.html
@@ -869,25 +836,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Verbs
   nameWithType: Endpoint<TRequest, TResponse>.Verbs
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Verbs
-- uid: FastEndpoints.EndpointExecutor
-  name: EndpointExecutor
-  href: api/FastEndpoints.EndpointExecutor.html
-  commentId: T:FastEndpoints.EndpointExecutor
-  fullName: FastEndpoints.EndpointExecutor
-  nameWithType: EndpointExecutor
-- uid: FastEndpoints.EndpointExecutor.HandleAsync(Microsoft.AspNetCore.Http.HttpContext,CancellationToken)
-  name: HandleAsync(HttpContext, CancellationToken)
-  href: api/FastEndpoints.EndpointExecutor.html#FastEndpoints_EndpointExecutor_HandleAsync_Microsoft_AspNetCore_Http_HttpContext_CancellationToken_
-  commentId: M:FastEndpoints.EndpointExecutor.HandleAsync(Microsoft.AspNetCore.Http.HttpContext,CancellationToken)
-  fullName: FastEndpoints.EndpointExecutor.HandleAsync(Microsoft.AspNetCore.Http.HttpContext, CancellationToken)
-  nameWithType: EndpointExecutor.HandleAsync(HttpContext, CancellationToken)
-- uid: FastEndpoints.EndpointExecutor.HandleAsync*
-  name: HandleAsync
-  href: api/FastEndpoints.EndpointExecutor.html#FastEndpoints_EndpointExecutor_HandleAsync_
-  commentId: Overload:FastEndpoints.EndpointExecutor.HandleAsync
-  isSpec: "True"
-  fullName: FastEndpoints.EndpointExecutor.HandleAsync
-  nameWithType: EndpointExecutor.HandleAsync
 - uid: FastEndpoints.EndpointWithoutRequest
   name: EndpointWithoutRequest
   href: api/FastEndpoints.EndpointWithoutRequest.html
@@ -1295,12 +1243,6 @@ references:
   fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
   nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
   nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
-- uid: FastEndpoints.IEndpoint
-  name: IEndpoint
-  href: api/FastEndpoints.IEndpoint.html
-  commentId: T:FastEndpoints.IEndpoint
-  fullName: FastEndpoints.IEndpoint
-  nameWithType: IEndpoint
 - uid: FastEndpoints.IPostProcessor`2
   name: IPostProcessor<TRequest, TResponse>
   href: api/FastEndpoints.IPostProcessor-2.html

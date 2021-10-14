@@ -20,14 +20,17 @@ items:
   source:
     id: Validator
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 4
+    startLine: 8
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
+  summary: "\ninherit from this base class to define your dto validators\n"
+  example: []
   syntax:
     content: 'public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IHasServiceProvider where TRequest : class'
     typeParameters:
     - id: TRequest
+      description: the type of the request dto
     content.vb: >-
       Public MustInherit Class Validator(Of TRequest As Class)
           Inherits AbstractValidator(Of TRequest)
@@ -59,7 +62,7 @@ items:
   source:
     id: ServiceProvider
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 7
+    startLine: 11
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -92,7 +95,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 14
+    startLine: 18
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -128,7 +131,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 19
+    startLine: 23
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -164,7 +167,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 26
+    startLine: 30
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -200,7 +203,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 33
+    startLine: 37
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation

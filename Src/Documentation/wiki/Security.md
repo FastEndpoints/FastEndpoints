@@ -124,7 +124,7 @@ AnyPermission("SomePermission", "AnotherPermission");
 
 **Roles() method**
 
-roles behaves differently than the above as in access will always be allowed if a user has any of the specified roles assigned to them.
+roles behaves differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.
 
-## other authentication providers
-all authorization providers compatible with the `asp.net` middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the `[Authorize]` attribute as you would typically do.
+## other auth providers
+all auth providers compatible with the `asp.net` middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the `[Authorize]` attribute as you would typically do.

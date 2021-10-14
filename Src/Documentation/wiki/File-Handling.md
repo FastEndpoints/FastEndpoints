@@ -1,6 +1,6 @@
 # handling file uploads
 
-the following example relays back the image data uploaded to the endpoint in order to show both receiving and sending of file data:
+the following example relays back the image data uploaded to the endpoint in order to demonstrate both receiving and sending of file data:
 
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest>
@@ -29,7 +29,7 @@ public class MyEndpoint : Endpoint<MyRequest>
 }
 ```
 
-endpoints by default won't allow `multipart/form-data` content uploads. you'd have to enable file uploads by using the `AllowFileUploads()` method in the handler ctor like shown above. the received files are exposed to the endpoint handler via the `Files` property which is of `IFormFileCollection` type.
+endpoints by default won't allow `multipart/form-data` content uploads. you'd have to enable file uploads by using the `AllowFileUploads()` method in the handler constructor like shown above. the received files are exposed to the endpoint handler via the `Files` property which is of `IFormFileCollection` type.
 
 # sending file responses
 

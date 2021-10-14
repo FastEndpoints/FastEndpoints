@@ -25,54 +25,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.AsyncEventHandler-1.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.AsyncEventHandler-1.html",
-          "hash": "SAqgf3eWRLN8Efq5Hid4BzgqEtn8lnP1yU0A3ZDCIyc="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.BaseEndpoint.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.BaseEndpoint.html",
-          "hash": "aCgkc+Dz/wZy3F5yFOuCta/1BOeWR+7Jw8SCApprLi8="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.BaseEventHandler.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.BaseEventHandler.html",
-          "hash": "fskLhMsZc7u7m91PDnu4U/Ls3tXTIT6VI+Q0ot1iG7s="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Constants.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.Constants.html",
-          "hash": "30xj4DuRpJXQeX+q1Laeo0bMDbhxJioL3GqOvv6zk9w="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/FastEndpoints.EmptyRequest.yml",
       "output": {
         ".html": {
@@ -101,7 +53,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-1.html",
-          "hash": "+LIUeZGoLmgRAKLPzSM+YXxjFcRkzKLcFP27FDjc8oY="
+          "hash": "N+ydxXXD9lhYg+OC+KMA/CGmQfO1y3YsqKSyZZZgfKI="
         }
       },
       "is_incremental": false,
@@ -113,19 +65,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "+/O6P3cZczjV0J0JnetGbGefGRsQWmDq0zjEnA07nh0="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.EndpointExecutor.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.EndpointExecutor.html",
-          "hash": "ULcrLYTEycA5HDi5W/VukCSyUKrvbF3W//CZLNxq6RA="
+          "hash": "7KL8A3BI4gBUYjyXDK92M1lBfdxNbaL4mraOXlyHsxQ="
         }
       },
       "is_incremental": false,
@@ -137,7 +77,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.html",
-          "hash": "gkhN+4i/z+Z8UP5Fk2OlhyscVZQ8HGGVuqMTKDDoUu0="
+          "hash": "Gv/uxvRxRw6kl9TrBmmb9I+44btJZrGOUsIg/Pe+EIs="
         }
       },
       "is_incremental": false,
@@ -149,7 +89,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest.html",
-          "hash": "PCGt1tX4xg9d5NqIv7GEvrQQ3l8iXjqY3C8yg5B0008="
+          "hash": "l305DsCj/9gI4PfcVUmTgU6gbx3XxxDH4UyNxixmRmo="
         }
       },
       "is_incremental": false,
@@ -161,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.ErrorResponse.html",
-          "hash": "k6vekSAaUcKzHa5zrEwXi0vDdPUvvXwYli96YJnvPfA="
+          "hash": "wQoRilW3JqbnXPGIXT+CIZuknaUuJ2tYc7VK2pRQE1s="
         }
       },
       "is_incremental": false,
@@ -173,7 +113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.FastEventHandler-1.html",
-          "hash": "WJZZqvnsQdYugyYXn8qbob+fY97krAKpzULAI7aczdk="
+          "hash": "iId6jisH0U7tIJWCYQQHKiovjLCbbm7KW9eBMqSQyU4="
         }
       },
       "is_incremental": false,
@@ -221,19 +161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
-          "hash": "63CctTBtjI3qi/5o7NCGoSVzMr5V6H0Q0CR924sco7c="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.IEndpoint.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.IEndpoint.html",
-          "hash": "ESZbANuwmgB4CTsXUy67d6bO8Jp9nWcNlpCmHh70xD4="
+          "hash": "RKiOKG77E8a8bUOSB7be+SfgTwzUwAboytDXiEdh7mY="
         }
       },
       "is_incremental": false,
@@ -293,7 +221,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.MainExtensions.html",
-          "hash": "vNffGrqsFB9g2Gd/m2UcUVVlJVLWCqRztaT3jaJRhts="
+          "hash": "ylH3V+s6qrSeepm9fwHu1l38NE14KVTfZyGhxed7IFM="
         }
       },
       "is_incremental": false,
@@ -317,7 +245,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Security.AuthExtensions.html",
-          "hash": "sRdkqI3ACcsC/6PVbTl5jyeXFcrftL/a9dpl1BejhFc="
+          "hash": "P6sfjNLGiTignodwB3oCglxFfxrpiauw9zWXOqWhCxo="
         }
       },
       "is_incremental": false,
@@ -341,7 +269,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Security.JWTBearer.html",
-          "hash": "cKH0VvcA7VSW67kBlZrWg44yWsAO7yKT20K1bgBOKGU="
+          "hash": "WpORz/TBzPwQQRRE9DXOb8LP+dxZi+dGZZrUMbDmYbU="
         }
       },
       "is_incremental": false,
@@ -365,7 +293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Security.html",
-          "hash": "aey0ROo2+8OhNmo/HmM1f6ZNCH2TX3Nn76Nn4fLcb0E="
+          "hash": "+LLoAnxZ04NVtyw9g54df9pc+Cr/vBfMx3ZWqbzrchs="
         }
       },
       "is_incremental": false,
@@ -377,7 +305,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Validation.Validator-1.html",
-          "hash": "bjdKpUB41rgQgmPqjNfBIKEPLgswcYFn9wCgNhW5w8s="
+          "hash": "m/HYRd8T8equiIXGJclDfHyxm58WeO5aeUFP6h9MaZU="
         }
       },
       "is_incremental": false,
@@ -389,7 +317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Validation.html",
-          "hash": "mGFXSJrlAXKmed+yfu64BsnfNdPSXxGDTEA2UXukupY="
+          "hash": "e6uh0V46SDlrZdeRXvw7XlQfVxk/lZcu+u4lSr2VlF0="
         }
       },
       "is_incremental": false,
@@ -401,7 +329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.html",
-          "hash": "qKJdkgbimpawhwPaVZRA7eXFNxjRSu2Dy4JWQIyLKDY="
+          "hash": "yQ7mGh27Lg2qjBo6SeQyeECompHIPnwpHdlcCxEEdE0="
         }
       },
       "is_incremental": false,
@@ -413,7 +341,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "19WUOiv09zCgbjSBx+OpdkbJq/IzyM/fB5J94X6FX/o="
+          "hash": "IwNshd+FPhA635iTQDkymrgBYYC/o6I3HdBtpBXm2Y8="
         }
       },
       "is_incremental": false,
@@ -584,7 +512,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/File-Handling.html",
-          "hash": "NTJOL/YcZHzSYSHmdIwW6K8bUG+5kbVuP/0oR+age2M="
+          "hash": "rOg5JVxH4bHc5PGvWSCHBjR+MEPmzwNB+ubjykMOh/8="
         }
       },
       "is_incremental": false,
@@ -608,7 +536,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Integration-Testing.html",
-          "hash": "7WOLUoMkuzTNz5hqmJ4U1AkWBXyG2PAgdRkLV/wFIok="
+          "hash": "sMXY4GiLJ9tMI2zsDVRDUqMBMUHyFuPqKkhw6EE7WoQ="
         }
       },
       "is_incremental": false,
@@ -620,7 +548,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Misc-Conveniences.html",
-          "hash": "wwOMKynGJX6HJfqVNw2BI1odmfvORkdOEe05h9ydcoo="
+          "hash": "4shHga8nk/KmZz94z+b5OaGhBfzl8JGprcVsEC/huRc="
         }
       },
       "is_incremental": false,
@@ -656,7 +584,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Security.html",
-          "hash": "WJ9JUEkrgiNELR4/B9+0WemRO8P4WLKaJUgejOLH5kw="
+          "hash": "BL8VcPpb88M4JPR+lw53/fsLy0qHC32eyQmKKCFrbDU="
         }
       },
       "is_incremental": false,
@@ -680,7 +608,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Validation.html",
-          "hash": "Nm/DPSMXxBpzg4fIID4pIxucoAYJkfOIpQqNjDeTaZA="
+          "hash": "NnYyIOQvsXGW8/QV6Dc5uYBTYbdh8Qi4NUpoja1JsdM="
         }
       },
       "is_incremental": false,
@@ -712,13 +640,13 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 13,
-          "skipped_file_count": 12
+          "skipped_file_count": 13
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 32,
-          "skipped_file_count": 32
+          "total_file_count": 26,
+          "skipped_file_count": 26
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,

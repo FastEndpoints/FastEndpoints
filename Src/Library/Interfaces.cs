@@ -52,6 +52,7 @@ internal interface IEventHandler
     internal void Subscribe();
 }
 
+[HideFromDocs]
 public interface IEndpoint { }
 
 internal interface IHasServiceProvider

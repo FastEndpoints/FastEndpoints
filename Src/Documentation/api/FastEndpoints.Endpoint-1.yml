@@ -15,7 +15,7 @@ items:
   source:
     id: Endpoint
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 62
+    startLine: 60
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -25,7 +25,7 @@ items:
     content: 'public abstract class Endpoint<TRequest> : Endpoint<TRequest, object>, IEndpoint where TRequest : new()'
     typeParameters:
     - id: TRequest
-      description: ''
+      description: the type of the request dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New)
           Inherits Endpoint(Of TRequest, Object)
@@ -36,8 +36,6 @@ items:
   - FastEndpoints.Endpoint{{TRequest},System.Object}
   derivedClasses:
   - FastEndpoints.EndpointWithoutRequest
-  implements:
-  - FastEndpoints.IEndpoint
   inheritedMembers:
   - FastEndpoints.Endpoint{{TRequest},System.Object}.HttpContext
   - FastEndpoints.Endpoint{{TRequest},System.Object}.User
@@ -179,12 +177,6 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.IEndpoint
-  commentId: T:FastEndpoints.IEndpoint
-  parent: FastEndpoints
-  name: IEndpoint
-  nameWithType: IEndpoint
-  fullName: FastEndpoints.IEndpoint
 - uid: FastEndpoints.Endpoint{{TRequest},System.Object}.HttpContext
   commentId: P:FastEndpoints.Endpoint{`0,System.Object}.HttpContext
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}

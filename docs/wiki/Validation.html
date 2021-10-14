@@ -94,7 +94,7 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="request-dto-validation">request dto validation</h1>
 
-<p>request validation is done using <a href="https://fluentvalidation.net/">FluentValidation</a> rules. <code>fastendpoints</code> uses a customized version of the fluentvalidations library but the api for the end user is the same. please refer to the fluentvalidations website if you haven't used it before. the built-in validation is provided by the <code>FastEndpoints.Validation</code> package. make sure to import it first before writing any validators.</p>
+<p>request validation is done using <a href="https://fluentvalidation.net/">FluentValidation</a> rules. <code>fastendpoints</code> uses a customized version of the fluentvalidations library but the api for the end user is the same. please refer to the fluentvalidations website if you haven't used it before. the built-in validation is provided by the <code>FastEndpoints.Validation</code> package. make sure to import it first <em>(or add a global using statement in program.cs)</em> before writing any validators.</p>
 <p><strong>request dto</strong></p>
 <pre><code class="lang-csharp">public class CreateUserRequest
 {
@@ -136,7 +136,7 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
 }
 </code></pre>
 <h2 id="disable-automatic-failure-response">disable automatic failure response</h2>
-<p>in cases where you need more control of the validations, you can turn off the default behavior by calling the <code>DontThrowIfValidationFails()</code> method in the endpoint ctor like so:</p>
+<p>in cases where you need more control of the validations, you can turn off the default behavior by calling the <code>DontThrowIfValidationFails()</code> method in the endpoint constructor like so:</p>
 <pre><code class="lang-csharp">public class CreateUserEndpoint : Endpoint&lt;CreateUserRequest&gt;
 {
     public CreateUserEndpoint()

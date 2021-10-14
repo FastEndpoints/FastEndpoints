@@ -5,6 +5,9 @@ using System.Text;
 
 namespace FastEndpoints.Security;
 
+/// <summary>
+/// static class for easy creation of jwt bearer auth tokens
+/// </summary>
 public static class JWTBearer
 {
     /// <summary>

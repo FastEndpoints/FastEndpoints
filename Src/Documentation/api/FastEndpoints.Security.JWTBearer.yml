@@ -17,10 +17,12 @@ items:
   source:
     id: JWTBearer
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\JWTBearer.cs
-    startLine: 7
+    startLine: 10
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
+  summary: "\nstatic class for easy creation of jwt bearer auth tokens\n"
+  example: []
   syntax:
     content: public static class JWTBearer
     content.vb: Public Module JWTBearer
@@ -55,7 +57,7 @@ items:
   source:
     id: CreateToken
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\JWTBearer.cs
-    startLine: 17
+    startLine: 20
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -106,7 +108,7 @@ items:
   source:
     id: CreateToken
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\JWTBearer.cs
-    startLine: 38
+    startLine: 41
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security

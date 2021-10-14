@@ -2,6 +2,7 @@
 
 namespace FastEndpoints;
 
+[HideFromDocs]
 public abstract class BaseEventHandler
 {
 #pragma warning disable CS8618

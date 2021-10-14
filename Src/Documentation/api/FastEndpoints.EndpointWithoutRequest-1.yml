@@ -15,7 +15,7 @@ items:
   source:
     id: EndpointWithoutRequest
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 56
+    startLine: 54
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -25,7 +25,7 @@ items:
     content: 'public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse>, IEndpoint where TResponse : new()'
     typeParameters:
     - id: TResponse
-      description: ''
+      description: the type of the response dto
     content.vb: >-
       Public MustInherit Class EndpointWithoutRequest(Of TResponse As New)
           Inherits Endpoint(Of EmptyRequest, TResponse)
@@ -34,8 +34,6 @@ items:
   - System.Object
   - FastEndpoints.BaseEndpoint
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}
-  implements:
-  - FastEndpoints.IEndpoint
   inheritedMembers:
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.HttpContext
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.User
@@ -175,12 +173,6 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.IEndpoint
-  commentId: T:FastEndpoints.IEndpoint
-  parent: FastEndpoints
-  name: IEndpoint
-  nameWithType: IEndpoint
-  fullName: FastEndpoints.IEndpoint
 - uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.HttpContext
   commentId: P:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,`0}.HttpContext
   parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}

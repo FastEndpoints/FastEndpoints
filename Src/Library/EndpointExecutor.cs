@@ -10,6 +10,7 @@ internal record EndpointDefinitionCacheEntry(
     MethodInfo ExecAsyncMethod,
     IValidator? Validator);
 
+[HideFromDocs]
 public static class EndpointExecutor
 {
     //key: route url for the endpoint

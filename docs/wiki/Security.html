@@ -200,9 +200,9 @@ AnyClaim(&quot;SomeClaimType&quot;, &quot;AnotherClaimType&quot;);
 AnyPermission(&quot;SomePermission&quot;, &quot;AnotherPermission&quot;);
 </code></pre>
 <p><strong>Roles() method</strong></p>
-<p>roles behaves differently than the above as in access will always be allowed if a user has any of the specified roles assigned to them.</p>
-<h2 id="other-authentication-providers">other authentication providers</h2>
-<p>all authorization providers compatible with the <code>asp.net</code> middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the <code>[Authorize]</code> attribute as you would typically do.</p>
+<p>roles behaves differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.</p>
+<h2 id="other-auth-providers">other auth providers</h2>
+<p>all auth providers compatible with the <code>asp.net</code> middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the <code>[Authorize]</code> attribute as you would typically do.</p>
 </article>
           </div>
           

@@ -15,7 +15,7 @@ items:
   source:
     id: EndpointWithoutRequest
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 50
+    startLine: 48
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -32,8 +32,6 @@ items:
   - FastEndpoints.BaseEndpoint
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest}
-  implements:
-  - FastEndpoints.IEndpoint
   inheritedMembers:
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.HttpContext
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.User
@@ -214,12 +212,6 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.IEndpoint
-  commentId: T:FastEndpoints.IEndpoint
-  parent: FastEndpoints
-  name: IEndpoint
-  nameWithType: IEndpoint
-  fullName: FastEndpoints.IEndpoint
 - uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.HttpContext
   commentId: P:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.HttpContext
   parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}

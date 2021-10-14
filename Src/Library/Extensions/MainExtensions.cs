@@ -12,6 +12,9 @@ using System.Reflection;
 
 namespace FastEndpoints;
 
+/// <summary>
+/// provides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline
+/// </summary>
 public static class MainExtensions
 {
 #pragma warning disable CS8618

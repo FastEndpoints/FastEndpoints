@@ -13,9 +13,7 @@ using System.Text.Json;
 
 namespace FastEndpoints;
 
-/// <summary>
-/// base class for all endpoint classes
-/// </summary>
+[HideFromDocs]
 public abstract class BaseEndpoint : IEndpoint
 {
     internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
@@ -53,13 +51,13 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest> { }
 /// <summary>
 /// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
 /// </summary>
-/// <typeparam name="TResponse"></typeparam>
+/// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : notnull, new() { }
 
 /// <summary>
 /// use this base class for defining endpoints that only use a request dto and don't use a response dto.
 /// </summary>
-/// <typeparam name="TRequest"></typeparam>
+/// <typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull, new() { };
 
 /// <summary>

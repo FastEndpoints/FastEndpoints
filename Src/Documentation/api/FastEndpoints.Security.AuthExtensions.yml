@@ -18,10 +18,12 @@ items:
   source:
     id: AuthExtensions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
-    startLine: 8
+    startLine: 11
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
+  summary: "\na set of auth related extensions\n"
+  example: []
   syntax:
     content: public static class AuthExtensions
     content.vb: Public Module AuthExtensions
@@ -57,7 +59,7 @@ items:
   source:
     id: AddAuthenticationJWTBearer
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
-    startLine: 14
+    startLine: 17
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -99,7 +101,7 @@ items:
   source:
     id: HasPermission
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
-    startLine: 39
+    startLine: 42
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -141,7 +143,7 @@ items:
   source:
     id: ClaimValue
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
-    startLine: 49
+    startLine: 52
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security

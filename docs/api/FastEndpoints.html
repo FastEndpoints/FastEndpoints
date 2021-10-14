@@ -102,13 +102,6 @@
   <div class="markdown level0 remarks"></div>
     <h3 id="classes">Classes
   </h3>
-      <h4><a class="xref" href="FastEndpoints.BaseEndpoint.html">BaseEndpoint</a></h4>
-      <section><p>base class for all endpoint classes</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.BaseEventHandler.html">BaseEventHandler</a></h4>
-      <section></section>
-      <h4><a class="xref" href="FastEndpoints.Constants.html">Constants</a></h4>
-      <section></section>
       <h4><a class="xref" href="FastEndpoints.EmptyRequest.html">EmptyRequest</a></h4>
       <section><p>a request dto that doesn't have any properties</p>
 </section>
@@ -121,8 +114,6 @@
       <h4><a class="xref" href="FastEndpoints.Endpoint-2.html">Endpoint&lt;TRequest, TResponse&gt;</a></h4>
       <section><p>use this base class for defining endpoints that use both request and response dtos.</p>
 </section>
-      <h4><a class="xref" href="FastEndpoints.EndpointExecutor.html">EndpointExecutor</a></h4>
-      <section></section>
       <h4><a class="xref" href="FastEndpoints.EndpointWithoutRequest.html">EndpointWithoutRequest</a></h4>
       <section><p>use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.</p>
 </section>
@@ -130,7 +121,8 @@
       <section><p>use this base class for defining endpoints that doesn't need a request dto but return a response dto.</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.ErrorResponse.html">ErrorResponse</a></h4>
-      <section></section>
+      <section><p>the dto used to send an error response to the client</p>
+</section>
       <h4><a class="xref" href="FastEndpoints.FastEventHandler-1.html">FastEventHandler&lt;TEvent&gt;</a></h4>
       <section><p>use this base class to handle events published by the notification system</p>
 </section>
@@ -141,13 +133,13 @@
       <section><p>properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.HttpClientExtensions.html">HttpClientExtensions</a></h4>
-      <section></section>
+      <section><p>a set of extensions to the httpclient in order to facilitate route-less integration testing</p>
+</section>
       <h4><a class="xref" href="FastEndpoints.MainExtensions.html">MainExtensions</a></h4>
-      <section></section>
+      <section><p>provides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline</p>
+</section>
     <h3 id="interfaces">Interfaces
   </h3>
-      <h4><a class="xref" href="FastEndpoints.IEndpoint.html">IEndpoint</a></h4>
-      <section></section>
       <h4><a class="xref" href="FastEndpoints.IPostProcessor-2.html">IPostProcessor&lt;TRequest, TResponse&gt;</a></h4>
       <section><p>interface for defining post-processors to be executed after the main endpoint handler is done</p>
 </section>
@@ -168,10 +160,6 @@
       <h4><a class="xref" href="FastEndpoints.Mode.html">Mode</a></h4>
       <section><p>enum for specifying the waiting mode for event notifications</p>
 </section>
-    <h3 id="delegates">Delegates
-  </h3>
-      <h4><a class="xref" href="FastEndpoints.AsyncEventHandler-1.html">AsyncEventHandler&lt;TEventArgs&gt;</a></h4>
-      <section></section>
 </article>
           </div>
           

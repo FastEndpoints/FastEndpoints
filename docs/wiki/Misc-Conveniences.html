@@ -94,9 +94,9 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="endpoint-options">endpoint options</h1>
 
-<p>in addition to the convenient methods you can use in the constructor to define your endpoints (mentioned in previous pages), you can use the <code>Options()</code> method to customize aspects of endpoint registration like so:</p>
+<p>in addition to the convenient methods you can use in the constructor to define your endpoints (mentioned in previous pages), you can use the <code>Options()</code> method to customize aspects of endpoint registration/setup like so:</p>
 <pre><code class="lang-csharp">Options(b =&gt; b.RequireCors(x =&gt; x.AllowAnyOrigin())
-              .RequireHost(&quot;https://somedomain.com&quot;)
+              .RequireHost(&quot;domain.com&quot;)
               .ProducesProblem(404));
 </code></pre>
 <h1 id="endpoint-properties">endpoint properties</h1>

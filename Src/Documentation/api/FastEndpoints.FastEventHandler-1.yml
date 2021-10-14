@@ -21,7 +21,7 @@ items:
   source:
     id: FastEventHandler
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 15
+    startLine: 16
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -72,7 +72,7 @@ items:
   source:
     id: HandleAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 25
+    startLine: 26
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -113,7 +113,7 @@ items:
   source:
     id: PublishAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 37
+    startLine: 38
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -168,7 +168,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 44
+    startLine: 45
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -204,7 +204,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 50
+    startLine: 51
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -240,7 +240,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 57
+    startLine: 58
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -276,7 +276,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 64
+    startLine: 65
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

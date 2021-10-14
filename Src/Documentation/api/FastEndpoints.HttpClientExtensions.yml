@@ -27,10 +27,12 @@ items:
   source:
     id: HttpClientExtensions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 6
+    startLine: 9
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\na set of extensions to the httpclient in order to facilitate route-less integration testing\n"
+  example: []
   syntax:
     content: public static class HttpClientExtensions
     content.vb: Public Module HttpClientExtensions
@@ -66,7 +68,7 @@ items:
   source:
     id: POSTAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 16
+    startLine: 19
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -120,7 +122,7 @@ items:
   source:
     id: POSTAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 46
+    startLine: 49
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -174,7 +176,7 @@ items:
   source:
     id: POSTAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 55
+    startLine: 58
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -227,7 +229,7 @@ items:
   source:
     id: POSTAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 66
+    startLine: 69
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -276,7 +278,7 @@ items:
   source:
     id: PUTAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 77
+    startLine: 80
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -330,7 +332,7 @@ items:
   source:
     id: PUTAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 107
+    startLine: 110
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -384,7 +386,7 @@ items:
   source:
     id: PUTAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 116
+    startLine: 119
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -437,7 +439,7 @@ items:
   source:
     id: PUTAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 127
+    startLine: 130
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -486,7 +488,7 @@ items:
   source:
     id: GETAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 138
+    startLine: 141
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -540,7 +542,7 @@ items:
   source:
     id: GETAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 174
+    startLine: 177
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -594,7 +596,7 @@ items:
   source:
     id: GETAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 183
+    startLine: 186
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -647,7 +649,7 @@ items:
   source:
     id: GETAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpClientExtensions.cs
-    startLine: 194
+    startLine: 197
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

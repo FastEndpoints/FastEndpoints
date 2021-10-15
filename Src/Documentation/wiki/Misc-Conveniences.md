@@ -42,7 +42,7 @@ the current claims principal associated with the current request.
 #### ValidationFailed (bool)
 indicates the current validation status
 
-#### ValidationFailures (List<ValidationFailure>)
+#### ValidationFailures (List\<ValidationFailure\>)
 the list of validation failures for the current execution context.
 
 # send methods

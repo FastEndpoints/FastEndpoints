@@ -536,7 +536,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Misc-Conveniences.html",
-          "hash": "bCmDiFnSPWR/XF6NhoZmQ66Z4kW3/q/hqMq8I5sGjq0="
+          "hash": "mknlwXY7jO0XXUhOY0u5VwW2n/+gOZK6nUfooY2ypn4="
         }
       },
       "is_incremental": false,
@@ -568,11 +568,23 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/Response-Caching.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Response-Caching.html",
+          "hash": "WGQXK4v2va94kNPP70VdIibP6wdXErOo3AzaoCI5ais="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/Security.md",
       "output": {
         ".html": {
           "relative_path": "wiki/Security.html",
-          "hash": "6BnUs7j5jje0R5OlndyxKSbucvRAD97rM+BPe+kgc2s="
+          "hash": "cN6UkoF980PZxZiqo3I1sj/JPz24YN+7zXkNtzkW2QY="
         }
       },
       "is_incremental": false,
@@ -608,7 +620,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "TNuysFTj3thQsjk14PbstrfXGkrt2ezkS4nhne/HEgc="
+          "hash": "E4udCptWvkTBcwAjxFqbdfsYi46fmwii46q4CbsX3fc="
         }
       },
       "is_incremental": false,
@@ -627,7 +639,7 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 13,
+          "total_file_count": 14,
           "skipped_file_count": 13
         },
         "ManagedReferenceDocumentProcessor": {

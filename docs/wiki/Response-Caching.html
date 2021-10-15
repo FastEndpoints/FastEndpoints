@@ -14,9 +14,9 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>securing endpoints | FastEndpoints </title>
+    <title>response caching | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="securing endpoints | FastEndpoints ">
+    <meta name="title" content="response caching | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
     <link rel="shortcut icon" href="../images/favicon.ico">
@@ -92,117 +92,42 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="securing-endpoints">securing endpoints</h1>
+<h1 id="response-caching">response caching</h1>
 
-<p>endpoints are secure by default and you'd have to call <code>AllowAnonymous()</code> in the configuration if you'd like to allow unauthenticated users to access a particular endpoint.</p>
-<h2 id="jwt-bearer-authentication">jwt bearer authentication</h2>
-<p>support for easy jwt bearer authentication is provided. you simply need to install the <code>FastEndpoints.Security</code> package and register it in the middleware pipeline like so:</p>
-<h3 id="programcs">program.cs</h3>
+<p>in order to get response caching working, you need to enable the response caching middleware and define how responses are cached using the <code>ResponseCache()</code> method in the endpoint configuration. this method supports all arguments of the <code>[ResponseCache]</code> attribute you'd typically use with mvc except for the <code>CacheProfileName</code> argument as cache profiles are not supported. <a href="https://docs.microsoft.com/en-us/aspnet/core/performance/caching/response?view=aspnetcore-6.0">see this document</a> for an intro to response caching in asp.net middleware.</p>
+<p><strong>startup</strong></p>
 <pre><code class="lang-csharp">global using FastEndpoints;
-global using FastEndpoints.Security; //add this
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
-builder.Services.AddAuthenticationJWTBearer(&quot;TokenSigningKey&quot;); //add this
+builder.Services.AddResponseCaching(); //add this
 
 var app = builder.Build();
-app.UseAuthentication(); //add this
 app.UseAuthorization();
+app.UseResponseCaching(); //add this
 app.UseFastEndpoints();
 app.Run();
 </code></pre>
-<h3 id="generating-jwt-tokens">generating jwt tokens</h3>
-<p>you can generate a jwt token for sending to the client with an endpoint that signs in users like so:</p>
-<pre><code class="lang-csharp">public class UserLoginEndpoint : Endpoint&lt;LoginRequest&gt;
-{
-    public override void Configure()
+<p><strong>endpoint</strong></p>
+<pre><code class="lang-csharp">    public class MyEndpoint : EndpointWithoutRequest
     {
-        Verbs(Http.POST);
-        Routes(&quot;/api/login&quot;);
-        AllowAnonymous();
-    }
-
-    public override async Task HandleAsync(LoginRequest req, CancellationToken ct)
-    {
-        if (req.Username == &quot;admin&quot; &amp;&amp; req.Password == &quot;pass&quot;)
+        public override void Configure()
         {
-            var jwtToken = JWTBearer.CreateToken(
-                signingKey: &quot;TokenSigningKey&quot;,
-                expireAt: DateTime.UtcNow.AddDays(1),
-                claims: new[] { (&quot;Username&quot;, req.Username), (&quot;UserID&quot;, &quot;001&quot;) },
-                roles: new[] { &quot;Admin&quot;, &quot;Management&quot; },
-                permissions: new[] { &quot;ManageInventory&quot;, &quot;ManageUsers&quot; });
+            Verbs(Http.GET);
+            Routes(&quot;/api/cached-ticks&quot;);
+            ResponseCache(60); //cache for 60 seconds
+        }
 
-            await SendAsync(new
+        public override Task HandleAsync(EmptyRequest req, CancellationToken ct)
+        {
+            return SendAsync(new
             {
-                Username = req.Username,
-                Token = jwtToken
+                Message = &quot;this response is cached&quot;
+                Ticks = DateTime.UtcNow.Ticks
             });
         }
-        else
-        {
-            ThrowError(&quot;The supplied credentials are invalid!&quot;);
-        }
     }
-}
 </code></pre>
-<h2 id="endpoint-authorization">endpoint authorization</h2>
-<p>once an authentication provider is registered such as jwt bearer as shown above, you can restrict access to users based on the following:</p>
-<ul>
-<li>policies</li>
-<li>claims</li>
-<li>roles</li>
-<li>permissions</li>
-</ul>
-<h3 id="pre-built-security-policies">pre-built security policies</h3>
-<p>security policies can be pre-built and registered during app startup and endpoints can choose to allow access to users based on the registered policy names like so:</p>
-<p><strong>startup</strong></p>
-<pre><code class="lang-csharp">builder.Services.AddAuthorization(o =&gt;
-    o.AddPolicy(&quot;ManagersOnlyPolicy&quot;, b =&gt;
-        b.RequireRole(&quot;Manager&quot;)
-         .RequireClaim(&quot;ManagerID&quot;)));
-</code></pre>
-<p><strong>endpoint</strong></p>
-<pre><code class="lang-csharp">public class UpdateUserEndpoint : Endpoint&lt;UpdateUserRequest&gt;
-{
-    public override void Configure()
-    {
-        Verbs(Http.PUT);
-        Routes(&quot;/api/users/update&quot;);
-        Policies(&quot;ManagersOnlyPolicy&quot;);
-    }       
-}
-</code></pre>
-<h3 id="declarative-security-policies">declarative security policies</h3>
-<p>instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint configuration themselves like so:</p>
-<pre><code class="lang-csharp">public class RestrictedEndpoint : Endpoint&lt;RestrictedRequest&gt;
-{
-    public override void Configure()
-    {
-        Verbs(Http.POST);
-        Routes(&quot;/api/restricted&quot;);
-        Claims(&quot;AdminID&quot;, &quot;UserType&quot;);
-        Roles(&quot;Admin&quot;, &quot;Manager&quot;);
-        Permissions(&quot;UpdateUsersPermission&quot;, &quot;DeleteUsersPermission&quot;);
-    }
-}
-</code></pre>
-<p><strong>Claims() method</strong></p>
-<p>with this method you are specifying that if a user has all the specified claims, access should be allowed. you can specify to allow access if they have any one of the given claims by using the overload:</p>
-<pre><code class="lang-csharp">Claims(allowAny: true, &quot;SomeClaimType&quot;, &quot;AnotherClaimType&quot;);
-//or
-AnyClaim(&quot;SomeClaimType&quot;, &quot;AnotherClaimType&quot;);
-</code></pre>
-<p><strong>Permissions() method</strong></p>
-<p>just like above, you can specify that all permissions mentioned must be present to allow access or using the following overload, you can allow access even if any one of the permissions is present:</p>
-<pre><code class="lang-csharp">Permissions(allowAny: true, &quot;SomePermission&quot;, &quot;AnotherPermission&quot;);
-//or
-AnyPermission(&quot;SomePermission&quot;, &quot;AnotherPermission&quot;);
-</code></pre>
-<p><strong>Roles() method</strong></p>
-<p>roles behaves differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.</p>
-<h2 id="other-auth-providers">other auth providers</h2>
-<p>all auth providers compatible with the <code>asp.net</code> middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the <code>[Authorize]</code> attribute as you would typically do.</p>
 </article>
           </div>
           

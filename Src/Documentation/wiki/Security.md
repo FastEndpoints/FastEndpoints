@@ -7,14 +7,14 @@ support for easy jwt bearer authentication is provided. you simply need to insta
 ### program.cs
 ```csharp
 global using FastEndpoints;
-global using FastEndpoints.Security;
+global using FastEndpoints.Security; //add this
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
-builder.Services.AddAuthenticationJWTBearer("TokenSigningKey");
+builder.Services.AddAuthenticationJWTBearer("TokenSigningKey"); //add this
 
 var app = builder.Build();
-app.UseAuthentication();
+app.UseAuthentication(); //add this
 app.UseAuthorization();
 app.UseFastEndpoints();
 app.Run();

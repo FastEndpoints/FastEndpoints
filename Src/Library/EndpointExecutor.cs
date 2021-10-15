@@ -15,7 +15,7 @@ internal record EndpointDefinitionCacheEntry(
 [HideFromDocs]
 public static class EndpointExecutor
 {
-    //key: route url for the endpoint
+    //key: endpoint route with verb prefixed - {verb}:{path/of/route}
     internal static Dictionary<string, EndpointDefinitionCacheEntry> CachedEndpointDefinitions { get; } = new();
 
     //key: TEndpoint
@@ -24,9 +24,9 @@ public static class EndpointExecutor
     //note: this handler is called by .net for each http request
     public static Task HandleAsync(HttpContext ctx, CancellationToken cancellation)
     {
-        var ep = ((RouteEndpoint?)ctx.GetEndpoint());
-        var route = ep?.RoutePattern.RawText; if (route == null) throw new InvalidOperationException("Unable to instantiate endpoint!!!");
-        var epDef = CachedEndpointDefinitions[route];
+        var ep = (RouteEndpoint?)ctx.GetEndpoint();
+        var routePath = ep?.RoutePattern.RawText;
+        var epDef = CachedEndpointDefinitions[$"{ctx.Request.Method}:{routePath}"];
         var endpointInstance = epDef.CreateInstance();
 
         var respCacheAttrib = ep?.Metadata.OfType<ResponseCacheAttribute>().FirstOrDefault();

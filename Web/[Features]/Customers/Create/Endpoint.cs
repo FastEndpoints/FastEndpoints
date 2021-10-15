@@ -17,7 +17,7 @@ public class Endpoint : Endpoint<Request>
         Verbs(Http.POST);
         Routes(
             "/customers/new/{RefererID}",
-            "/customers/create");
+            "/customer/save");
         AllowAnonymous();
     }
 

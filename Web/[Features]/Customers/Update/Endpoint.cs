@@ -17,7 +17,9 @@ public class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Verbs(Http.PUT);
-        Routes("/customers/update");
+        Routes(
+            "/customers/update",
+            "/customer/save");
         Claims(allowAny: true,
             Claim.AdminID,
             Claim.CustomerID);

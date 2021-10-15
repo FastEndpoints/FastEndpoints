@@ -62,12 +62,6 @@ public static class MainExtensions
             if (epSettings.Verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
             if (epSettings.Routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
-            foreach (var route in epSettings.Routes) //for logging a warning if duplicate handlers are registered
-            {
-                routeToHandlerCounts.TryGetValue(route, out var count);
-                routeToHandlerCounts[route] = count + 1;
-            }
-
             var policiesToAdd = new List<string>();
             if (epSettings.Policies?.Any() is true) policiesToAdd.AddRange(epSettings.Policies);
             if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
@@ -100,14 +94,23 @@ public static class MainExtensions
                     validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
                 }
 
-                EndpointExecutor.CachedEndpointDefinitions[route] = new(epFactory, validatorInstance, epSettings.PreProcessors, epSettings.PostProcessors);
+                foreach (var verb in epSettings.Verbs)
+                {
+                    var key = $"{verb}:{route}";
+
+                    EndpointExecutor.CachedEndpointDefinitions[key]
+                        = new(epFactory, validatorInstance, epSettings.PreProcessors, epSettings.PostProcessors);
+
+                    routeToHandlerCounts.TryGetValue(key, out var count);
+                    routeToHandlerCounts[key] = count + 1;
+                }
             }
         }
 
         var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
         foreach (var kvp in routeToHandlerCounts)
-            if (kvp.Value > 1) logger.LogWarning($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
+            if (kvp.Value > 1) logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
 
         Task.Run(async () =>
         {

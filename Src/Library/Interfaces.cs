@@ -62,5 +62,7 @@ internal interface IValidatorWithState : IValidator
 [HideFromDocs]
 public interface IEndpoint
 {
+    HttpContext HttpContext { get; set; } //this is for writing extension methods by consumers
+    List<ValidationFailure> ValidationFailures { get; } //also for extensibility
     void Configure();
 }

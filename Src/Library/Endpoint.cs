@@ -39,9 +39,21 @@ public abstract class BaseEndpoint : IEndpoint
     }
 
     /// <summary>
+    /// the http context of the current request
+    /// </summary>
+#pragma warning disable CS8618
+    public HttpContext HttpContext { get; set; }
+#pragma warning restore CS8618
+
+    /// <summary>
     /// use this method to configure how this endpoint should be listening to incoming requests
     /// </summary>
     public abstract void Configure();
+
+    /// <summary>
+    /// the list of validation failures for the current request dto
+    /// </summary>
+    public List<ValidationFailure> ValidationFailures { get; } = new();
 }
 
 /// <summary>
@@ -69,11 +81,9 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TReq
 public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
 {
     /// <summary>
-    /// the http context of the current request
+    /// indicates if there are any validation failures for the current request
     /// </summary>
-#pragma warning disable CS8618
-    protected HttpContext HttpContext { get; private set; }
-#pragma warning restore CS8618
+    public bool ValidationFailed => ValidationFailures.Count > 0;
     /// <summary>
     /// the current user principal
     /// </summary>
@@ -102,14 +112,6 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// the http method of the current request
     /// </summary>
     protected Http HttpMethod => Enum.Parse<Http>(HttpContext.Request.Method);
-    /// <summary>
-    /// the list of validation failures for the current request dto
-    /// </summary>
-    public List<ValidationFailure> ValidationFailures { get; } = new();
-    /// <summary>
-    /// indicates if there are any validation failures for the current request
-    /// </summary>
-    public bool ValidationFailed => ValidationFailures.Count > 0;
     /// <summary>
     /// the form sent with the request. only populated if content-type is 'application/x-www-form-urlencoded' or 'multipart/form-data'
     /// </summary>

@@ -2,15 +2,10 @@
 
   <PropertyGroup>
 
-    <Version>2.0.0</Version>
+    <Version>2.1.0-beta1</Version>
     
     <PackageReleaseNotes>
-      - move endpoint configuration to Configure() method from ctor
-      - add support for response caching
-      - improve code readeability
-      - improve validation system
-      - improve endpoint config handling
-      - improve startup performance
+      - improve extensibility of endpoint class
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

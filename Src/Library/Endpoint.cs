@@ -334,6 +334,18 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     }
 
     /// <summary>
+    /// send the supplied string content to the client.
+    /// </summary>
+    /// <param name="content">the string to write to the response body</param>
+    /// <param name="statusCode">optional custom http status code</param>
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendStringAsync(string content, int statusCode = 200, CancellationToken cancellation = default)
+    {
+        HttpContext.Response.StatusCode = statusCode;
+        return HttpContext.Response.WriteAsync(content, cancellation);
+    }
+
+    /// <summary>
     /// send an http 200 ok response without any body
     /// </summary>
     protected Task SendOkAsync()

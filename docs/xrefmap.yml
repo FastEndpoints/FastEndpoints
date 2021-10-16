@@ -279,23 +279,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HandleAsync
   nameWithType: Endpoint<TRequest, TResponse>.HandleAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).HandleAsync
-- uid: FastEndpoints.Endpoint`2.HttpContext
-  name: HttpContext
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpContext
-  commentId: P:FastEndpoints.Endpoint`2.HttpContext
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HttpContext
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HttpContext
-  nameWithType: Endpoint<TRequest, TResponse>.HttpContext
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).HttpContext
-- uid: FastEndpoints.Endpoint`2.HttpContext*
-  name: HttpContext
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpContext_
-  commentId: Overload:FastEndpoints.Endpoint`2.HttpContext
-  isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HttpContext
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HttpContext
-  nameWithType: Endpoint<TRequest, TResponse>.HttpContext
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).HttpContext
 - uid: FastEndpoints.Endpoint`2.HttpMethod
   name: HttpMethod
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpMethod
@@ -819,23 +802,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailed
   nameWithType: Endpoint<TRequest, TResponse>.ValidationFailed
   nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailed
-- uid: FastEndpoints.Endpoint`2.ValidationFailures
-  name: ValidationFailures
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailures
-  commentId: P:FastEndpoints.Endpoint`2.ValidationFailures
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailures
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailures
-  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailures
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailures
-- uid: FastEndpoints.Endpoint`2.ValidationFailures*
-  name: ValidationFailures
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailures_
-  commentId: Overload:FastEndpoints.Endpoint`2.ValidationFailures
-  isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailures
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailures
-  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailures
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailures
 - uid: FastEndpoints.Endpoint`2.Verbs(FastEndpoints.Http[])
   name: Verbs(Http[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Verbs_FastEndpoints_Http___

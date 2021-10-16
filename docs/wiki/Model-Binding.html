@@ -99,6 +99,7 @@
 <li>json body</li>
 <li>form data</li>
 <li>route parameters</li>
+<li>query parameters</li>
 <li>user claims (if property has [FromClaim] attribute)</li>
 </ol>
 <p>consider the following request dto and http request:</p>
@@ -109,14 +110,12 @@
 }
 </code></pre>
 <p><strong>http request</strong></p>
-<pre><code>url: /api/user/12345
+<pre><code>pattern : /api/user/{UserID}
+url     : /api/user/54321
 
-json body:
-{
-    &quot;UserID&quot;: 54321
-}
+json    : { &quot;UserID&quot;: 12345 }
 </code></pre>
-<p>when the handler receives the request dto, the value of <code>UserID</code> will be <code>12345</code> because route parameters have higher priority than json body.</p>
+<p>when the handler receives the request dto, the value of <code>UserID</code> will be <code>54321</code> because route parameters have higher priority than json body.</p>
 <p>likewise, if you decorate the <code>UserID</code> property with <code>[FromClaim]</code> attribute like so:</p>
 <pre><code class="lang-csharp">public class GetUserRequest
 {
@@ -129,7 +128,7 @@ json body:
 </code></pre>
 <p>doing so will allow the endpoint handler to execute even if the current user doesn't have the specified claim and model binding will take the value from the highest priority source of the other binding sources mentioned above (if a matching field/route param is present). an example can be seen <a href="https://github.com/dj-nitehawk/FastEndpoints/blob/main/Web/%5BFeatures%5D/Customers/Update/Endpoint.cs">here</a>.</p>
 <h1 id="route-parameters">route parameters</h1>
-<p>route parameters can be bound to primitive types on the dto using route templates like you'd typically do. for example:</p>
+<p>route parameters can be bound to primitive types on the dto using route templates like you'd typically do.</p>
 <p><strong>request dto</strong></p>
 <pre><code class="lang-csharp">public class MyRequest
 {
@@ -159,6 +158,11 @@ MyLong    - 12345678
 MyDouble  - 123.45
 MyDecimal - 123.4567
 </code></pre>
+<h1 id="query-parameters">query parameters</h1>
+<p>in order to bind from query string params, simply use a url that has the same param names as your request dto such as:</p>
+<pre><code class="lang-java">/api/hello-world/?Message=hello+from+query+string
+</code></pre>
+<p>if your request dto has a property called <code>Message</code> it would then have <code>hello from query string</code> as it's value.</p>
 <h1 id="complex-model-binding">complex model binding</h1>
 <p>complex model binding is only supported from the json body. for example, the following request dto will be automatically populated from the below json request body.</p>
 <p><strong>request dto</strong></p>

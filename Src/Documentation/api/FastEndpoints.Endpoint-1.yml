@@ -15,7 +15,7 @@ items:
   source:
     id: Endpoint
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 61
+    startLine: 73
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -28,9 +28,7 @@ items:
       description: the type of the request dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New)
-
           Inherits Endpoint(Of TRequest, Object)
-
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -39,7 +37,7 @@ items:
   derivedClasses:
   - FastEndpoints.EndpointWithoutRequest
   inheritedMembers:
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.HttpContext
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.ValidationFailed
   - FastEndpoints.Endpoint{{TRequest},System.Object}.User
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Response
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Config
@@ -47,8 +45,6 @@ items:
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Logger
   - FastEndpoints.Endpoint{{TRequest},System.Object}.BaseURL
   - FastEndpoints.Endpoint{{TRequest},System.Object}.HttpMethod
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.ValidationFailures
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.ValidationFailed
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Form
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Files
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Routes(System.String[])
@@ -180,15 +176,15 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.HttpContext
-  commentId: P:FastEndpoints.Endpoint{`0,System.Object}.HttpContext
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.ValidationFailed
+  commentId: P:FastEndpoints.Endpoint{`0,System.Object}.ValidationFailed
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.HttpContext
-  name: HttpContext
-  nameWithType: Endpoint<TRequest, Object>.HttpContext
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.HttpContext
-  nameWithType.vb: Endpoint(Of TRequest, Object).HttpContext
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).HttpContext
+  definition: FastEndpoints.Endpoint`2.ValidationFailed
+  name: ValidationFailed
+  nameWithType: Endpoint<TRequest, Object>.ValidationFailed
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.ValidationFailed
+  nameWithType.vb: Endpoint(Of TRequest, Object).ValidationFailed
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).ValidationFailed
 - uid: FastEndpoints.Endpoint{{TRequest},System.Object}.User
   commentId: P:FastEndpoints.Endpoint{`0,System.Object}.User
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
@@ -252,24 +248,6 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, System.Object>.HttpMethod
   nameWithType.vb: Endpoint(Of TRequest, Object).HttpMethod
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).HttpMethod
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.ValidationFailures
-  commentId: P:FastEndpoints.Endpoint{`0,System.Object}.ValidationFailures
-  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.ValidationFailures
-  name: ValidationFailures
-  nameWithType: Endpoint<TRequest, Object>.ValidationFailures
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.ValidationFailures
-  nameWithType.vb: Endpoint(Of TRequest, Object).ValidationFailures
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).ValidationFailures
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.ValidationFailed
-  commentId: P:FastEndpoints.Endpoint{`0,System.Object}.ValidationFailed
-  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.ValidationFailed
-  name: ValidationFailed
-  nameWithType: Endpoint<TRequest, Object>.ValidationFailed
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.ValidationFailed
-  nameWithType.vb: Endpoint(Of TRequest, Object).ValidationFailed
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).ValidationFailed
 - uid: FastEndpoints.Endpoint{{TRequest},System.Object}.Form
   commentId: P:FastEndpoints.Endpoint{`0,System.Object}.Form
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
@@ -2718,13 +2696,13 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.HttpContext
-  commentId: P:FastEndpoints.Endpoint`2.HttpContext
-  name: HttpContext
-  nameWithType: Endpoint<TRequest, TResponse>.HttpContext
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HttpContext
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).HttpContext
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HttpContext
+- uid: FastEndpoints.Endpoint`2.ValidationFailed
+  commentId: P:FastEndpoints.Endpoint`2.ValidationFailed
+  name: ValidationFailed
+  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailed
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailed
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailed
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailed
 - uid: FastEndpoints.Endpoint`2.User
   commentId: P:FastEndpoints.Endpoint`2.User
   name: User
@@ -2774,20 +2752,6 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HttpMethod
   nameWithType.vb: Endpoint(Of TRequest, TResponse).HttpMethod
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HttpMethod
-- uid: FastEndpoints.Endpoint`2.ValidationFailures
-  commentId: P:FastEndpoints.Endpoint`2.ValidationFailures
-  name: ValidationFailures
-  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailures
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailures
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailures
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailures
-- uid: FastEndpoints.Endpoint`2.ValidationFailed
-  commentId: P:FastEndpoints.Endpoint`2.ValidationFailed
-  name: ValidationFailed
-  nameWithType: Endpoint<TRequest, TResponse>.ValidationFailed
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ValidationFailed
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).ValidationFailed
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ValidationFailed
 - uid: FastEndpoints.Endpoint`2.Form
   commentId: P:FastEndpoints.Endpoint`2.Form
   name: Form

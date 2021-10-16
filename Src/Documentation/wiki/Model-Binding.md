@@ -4,7 +4,8 @@ the endpoint handlers are supplied with fully populated request dtos. the dto pr
 1. json body
 2. form data
 3. route parameters
-4. user claims (if property has [FromClaim] attribute)
+4. query parameters
+5. user claims (if property has [FromClaim] attribute)
 
 consider the following request dto and http request:
 
@@ -18,15 +19,13 @@ public class GetUserRequest
 
 **http request**
 ```
-url: /api/user/12345
+pattern : /api/user/{UserID}
+url     : /api/user/54321
 
-json body:
-{
-    "UserID": 54321
-}
+json    : { "UserID": 12345 }
 ```
 
-when the handler receives the request dto, the value of `UserID` will be `12345` because route parameters have higher priority than json body.
+when the handler receives the request dto, the value of `UserID` will be `54321` because route parameters have higher priority than json body.
 
 likewise, if you decorate the `UserID` property with `[FromClaim]` attribute like so:
 ```csharp
@@ -43,7 +42,7 @@ the value of `UserID` will be whatever claim value the user has for the claim ty
 doing so will allow the endpoint handler to execute even if the current user doesn't have the specified claim and model binding will take the value from the highest priority source of the other binding sources mentioned above (if a matching field/route param is present). an example can be seen [here](https://github.com/dj-nitehawk/FastEndpoints/blob/main/Web/%5BFeatures%5D/Customers/Update/Endpoint.cs).
 
 # route parameters
-route parameters can be bound to primitive types on the dto using route templates like you'd typically do. for example:
+route parameters can be bound to primitive types on the dto using route templates like you'd typically do.
 
 **request dto**
 
@@ -81,6 +80,13 @@ MyLong    - 12345678
 MyDouble  - 123.45
 MyDecimal - 123.4567
 ```
+
+# query parameters
+in order to bind from query string params, simply use a url that has the same param names as your request dto such as:
+```java
+/api/hello-world/?Message=hello+from+query+string
+```
+if your request dto has a property called `Message` it would then have `hello from query string` as it's value.
 
 # complex model binding
 

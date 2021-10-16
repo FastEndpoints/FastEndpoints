@@ -143,5 +143,23 @@ namespace Test
 
             Assert.AreEqual("8A1F6A8E27D2E440280050DA549CBE3E", resMD5);
         }
+
+        [TestMethod]
+        public async Task PreProcessorsAreRunIfValidationFailuresOccur()
+        {
+            var (rsp, res) = await AdminClient.POSTAsync<
+                TestCases.PreProcessorIsRunOnValidationFailure.Endpoint,
+                TestCases.PreProcessorIsRunOnValidationFailure.Request,
+                ErrorResponse>
+                (new()
+                {
+                    FailureCount = 0,
+                    FirstName = ""
+                });
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, rsp.StatusCode);
+            Assert.AreEqual(2, res.Errors.Count);
+            Assert.AreEqual("blah", res.Errors["x"].First());
+        }
     }
 }

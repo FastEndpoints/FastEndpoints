@@ -2,14 +2,10 @@
 
   <PropertyGroup>
 
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     
     <PackageReleaseNotes>
-      - add query param binding support
-      - add SendStringAsync() method
-      - improve extensibility of endpoint class
-      - improve duplication handler registration detection
-      - improve security extensions
+      - fix issue with pre processors not running when validation fails
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

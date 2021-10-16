@@ -2,9 +2,10 @@
 
   <PropertyGroup>
 
-    <Version>2.1.0-beta2</Version>
+    <Version>2.1.0-beta3</Version>
     
     <PackageReleaseNotes>
+      - add query param binding support
       - improve extensibility of endpoint class
       - improve duplication handler registration detection
     </PackageReleaseNotes>

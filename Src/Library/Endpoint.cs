@@ -253,7 +253,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
 
             await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, cancellation).ConfigureAwait(false);
 
-            if (preProcessors != null)
+            if (preProcessors is not null)
             {
                 foreach (var p in (IPreProcessor<TRequest>[])preProcessors)
                     await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
@@ -261,7 +261,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
 
             await HandleAsync(req, cancellation).ConfigureAwait(false);
 
-            if (postProcessors != null)
+            if (postProcessors is not null)
             {
                 foreach (var pp in (IPostProcessor<TRequest, TResponse>[])postProcessors)
                     await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
@@ -479,9 +479,11 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
 
         if (req is null) req = new();
 
-        BindFromFormValues(req, ctx);
+        BindFromFormValues(req, ctx.Request);
 
         BindFromRouteValues(req, ctx.Request.RouteValues);
+
+        BindFromQueryParams(req, ctx.Request.Query);
 
         return req;
     }
@@ -499,11 +501,11 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
             throw new ValidationFailureException();
     }
 
-    private static void BindFromFormValues(TRequest req, HttpContext ctx)
+    private static void BindFromFormValues(TRequest req, HttpRequest httpRequest)
     {
-        if (!ctx.Request.HasFormContentType) return;
+        if (!httpRequest.HasFormContentType) return;
 
-        var formFields = ctx.Request.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
+        var formFields = httpRequest.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
 
         for (int i = 0; i < formFields.Length; i++)
             Bind(req, formFields[i]);
@@ -531,6 +533,14 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
 
         for (int i = 0; i < routeKVPs.Length; i++)
             Bind(req, routeKVPs[i]);
+    }
+
+    private static void BindFromQueryParams(TRequest req, IQueryCollection query)
+    {
+        var queryParams = query.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
+
+        for (int i = 0; i < queryParams.Length; i++)
+            Bind(req, queryParams[i]);
     }
 
     private static void Bind(TRequest req, KeyValuePair<string, object?> rv)

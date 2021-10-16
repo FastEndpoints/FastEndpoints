@@ -250,22 +250,10 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
         try
         {
             BindFromUserClaims(req, ctx, ValidationFailures);
-
-            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, cancellation).ConfigureAwait(false);
-
-            if (preProcessors is not null)
-            {
-                foreach (var p in (IPreProcessor<TRequest>[])preProcessors)
-                    await p.PreProcessAsync(req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
-            }
-
+            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, preProcessors, cancellation).ConfigureAwait(false);
+            await RunPreprocessors(preProcessors, req, cancellation).ConfigureAwait(false);
             await HandleAsync(req, cancellation).ConfigureAwait(false);
-
-            if (postProcessors is not null)
-            {
-                foreach (var pp in (IPostProcessor<TRequest, TResponse>[])postProcessors)
-                    await pp.PostProcessAsync(req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
-            }
+            await RunPostProcessors(postProcessors, req, cancellation).ConfigureAwait(false);
         }
         catch (ValidationFailureException)
         {
@@ -500,7 +488,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
         return req;
     }
 
-    private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, CancellationToken cancellation)
+    private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, object? preProcessors, CancellationToken cancellation)
     {
         if (validator is null) return;
 
@@ -510,7 +498,28 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
             ValidationFailures.AddRange(valResult.Errors);
 
         if (ValidationFailed && ((IValidatorWithState)validator).ThrowIfValidationFails)
+        {
+            await RunPreprocessors(preProcessors, req, cancellation).ConfigureAwait(false);
             throw new ValidationFailureException();
+        }
+    }
+
+    private async Task RunPostProcessors(object? postProcessors, TRequest req, CancellationToken cancellation)
+    {
+        if (postProcessors is not null)
+        {
+            foreach (var pp in (IPostProcessor<TRequest, TResponse>[])postProcessors)
+                await pp.PostProcessAsync(req, Response, HttpContext, ValidationFailures, cancellation).ConfigureAwait(false);
+        }
+    }
+
+    private async Task RunPreprocessors(object? preProcessors, TRequest req, CancellationToken cancellation)
+    {
+        if (preProcessors is not null)
+        {
+            foreach (var p in (IPreProcessor<TRequest>[])preProcessors)
+                await p.PreProcessAsync(req, HttpContext, ValidationFailures, cancellation).ConfigureAwait(false);
+        }
     }
 
     private static void BindFromFormValues(TRequest req, HttpRequest httpRequest)

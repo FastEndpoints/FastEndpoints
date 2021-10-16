@@ -30,6 +30,7 @@ items:
     content: 'public class Permissions : IEnumerable<(string PermissionName, string PermissionCode)>'
     content.vb: >-
       Public Class Permissions
+
           Implements IEnumerable(Of(PermissionName As String, PermissionCode As String)(Of String , String))
   inheritance:
   - System.Object

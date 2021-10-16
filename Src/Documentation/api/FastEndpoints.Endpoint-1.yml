@@ -28,7 +28,9 @@ items:
       description: the type of the request dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New)
+
           Inherits Endpoint(Of TRequest, Object)
+
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -71,6 +73,7 @@ items:
   - FastEndpoints.Endpoint{{TRequest},System.Object}.ThrowError(System.String)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.ThrowError(System.Linq.Expressions.Expression{Func{{TRequest},System.Object}},System.String)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendAsync(System.Object,System.Int32,CancellationToken)
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendStringAsync(System.String,System.Int32,CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendOkAsync
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendErrorsAsync(CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendNoContentAsync
@@ -1636,6 +1639,79 @@ references:
     name: Object
     nameWithType: Object
     fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendStringAsync(System.String,System.Int32,CancellationToken)
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendStringAsync(System.String,System.Int32,CancellationToken)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+  name: SendStringAsync(String, Int32, CancellationToken)
+  nameWithType: Endpoint<TRequest, Object>.SendStringAsync(String, Int32, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendStringAsync(System.String, System.Int32, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, Object).SendStringAsync(String, Int32, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendStringAsync(System.String, System.Int32, CancellationToken)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+    name: SendStringAsync
+    nameWithType: Endpoint<TRequest, Object>.SendStringAsync
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendStringAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+    name: SendStringAsync
+    nameWithType: Endpoint(Of TRequest, Object).SendStringAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).SendStringAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
     isExternal: true
   - name: ', '
     nameWithType: ', '
@@ -4098,6 +4174,78 @@ references:
   - name: TResponse
     nameWithType: TResponse
     fullName: TResponse
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+  isExternal: true
+  name: SendStringAsync(String, Int32, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendStringAsync(String, Int32, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStringAsync(System.String, System.Int32, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStringAsync(String, Int32, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStringAsync(System.String, System.Int32, CancellationToken)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+    name: SendStringAsync
+    nameWithType: Endpoint<TRequest, TResponse>.SendStringAsync
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStringAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Int32
+    name: Int32
+    nameWithType: Int32
+    fullName: System.Int32
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+    name: SendStringAsync
+    nameWithType: Endpoint(Of TRequest, TResponse).SendStringAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStringAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
   - name: ', '
     nameWithType: ', '
     fullName: ', '

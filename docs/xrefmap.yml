@@ -682,6 +682,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStreamAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendStreamAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStreamAsync
+- uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+  name: SendStringAsync(String, Int32, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStringAsync_System_String_System_Int32_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStringAsync(System.String, System.Int32, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStringAsync(System.String, System.Int32, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendStringAsync(String, Int32, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStringAsync(String, Int32, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendStringAsync*
+  name: SendStringAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStringAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendStringAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStringAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStringAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendStringAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStringAsync
 - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
   name: SendUnauthorizedAsync()
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync
@@ -1080,6 +1097,12 @@ references:
   commentId: F:FastEndpoints.Http.GET
   fullName: FastEndpoints.Http.GET
   nameWithType: Http.GET
+- uid: FastEndpoints.Http.PATCH
+  name: PATCH
+  href: api/FastEndpoints.Http.html#FastEndpoints_Http_PATCH
+  commentId: F:FastEndpoints.Http.PATCH
+  fullName: FastEndpoints.Http.PATCH
+  nameWithType: Http.PATCH
 - uid: FastEndpoints.Http.POST
   name: POST
   href: api/FastEndpoints.Http.html#FastEndpoints_Http_POST
@@ -1427,6 +1450,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Security.AuthExtensions.ClaimValue
   nameWithType: AuthExtensions.ClaimValue
+- uid: FastEndpoints.Security.AuthExtensions.HasClaimType(System.Security.Claims.ClaimsPrincipal,System.String)
+  name: HasClaimType(ClaimsPrincipal, String)
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_HasClaimType_System_Security_Claims_ClaimsPrincipal_System_String_
+  commentId: M:FastEndpoints.Security.AuthExtensions.HasClaimType(System.Security.Claims.ClaimsPrincipal,System.String)
+  fullName: FastEndpoints.Security.AuthExtensions.HasClaimType(System.Security.Claims.ClaimsPrincipal, System.String)
+  nameWithType: AuthExtensions.HasClaimType(ClaimsPrincipal, String)
+- uid: FastEndpoints.Security.AuthExtensions.HasClaimType*
+  name: HasClaimType
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_HasClaimType_
+  commentId: Overload:FastEndpoints.Security.AuthExtensions.HasClaimType
+  isSpec: "True"
+  fullName: FastEndpoints.Security.AuthExtensions.HasClaimType
+  nameWithType: AuthExtensions.HasClaimType
 - uid: FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)
   name: HasPermission(ClaimsPrincipal, String)
   href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_HasPermission_System_Security_Claims_ClaimsPrincipal_System_String_

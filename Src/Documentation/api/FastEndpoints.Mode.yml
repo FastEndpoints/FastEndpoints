@@ -18,7 +18,7 @@ items:
   source:
     id: Mode
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 16
+    startLine: 36
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -47,7 +47,7 @@ items:
   source:
     id: WaitForNone
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 21
+    startLine: 41
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -77,7 +77,7 @@ items:
   source:
     id: WaitForAny
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 25
+    startLine: 45
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -107,7 +107,7 @@ items:
   source:
     id: WaitForAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 29
+    startLine: 49
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

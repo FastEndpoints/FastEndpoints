@@ -51,8 +51,12 @@ the following response sending methods are available for use from within endpoin
 #### SendAsync()
 sends a given response dto or any object that can be serialized as json down to the requesting client.
 
+#### SendStringAsync()
+sends a given string to the client in the response body
+
 #### SendOkAsync()
 sends a 200 ok response without any body.
+
 
 #### SendErrorsAsync()
 sends a 400 error response with the current list of validation errors describing the validation failures.

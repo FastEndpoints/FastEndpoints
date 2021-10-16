@@ -7,6 +7,7 @@ items:
   children:
   - FastEndpoints.Http.DELETE
   - FastEndpoints.Http.GET
+  - FastEndpoints.Http.PATCH
   - FastEndpoints.Http.POST
   - FastEndpoints.Http.PUT
   langs:
@@ -48,12 +49,14 @@ items:
   source:
     id: GET
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 7
+    startLine: 10
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\nretrieve a record\n"
+  example: []
   syntax:
-    content: GET = 0
+    content: GET = 1
     return:
       type: FastEndpoints.Http
   modifiers.csharp:
@@ -76,12 +79,14 @@ items:
   source:
     id: POST
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 8
+    startLine: 15
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\ncreate a record\n"
+  example: []
   syntax:
-    content: POST = 1
+    content: POST = 2
     return:
       type: FastEndpoints.Http
   modifiers.csharp:
@@ -104,12 +109,44 @@ items:
   source:
     id: PUT
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 9
+    startLine: 20
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\nreplace a record\n"
+  example: []
   syntax:
-    content: PUT = 2
+    content: PUT = 3
+    return:
+      type: FastEndpoints.Http
+  modifiers.csharp:
+  - public
+  - const
+  modifiers.vb:
+  - Public
+  - Const
+- uid: FastEndpoints.Http.PATCH
+  commentId: F:FastEndpoints.Http.PATCH
+  id: PATCH
+  parent: FastEndpoints.Http
+  langs:
+  - csharp
+  - vb
+  name: PATCH
+  nameWithType: Http.PATCH
+  fullName: FastEndpoints.Http.PATCH
+  type: Field
+  source:
+    id: PATCH
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
+    startLine: 25
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\npartially update a record\n"
+  example: []
+  syntax:
+    content: PATCH = 4
     return:
       type: FastEndpoints.Http
   modifiers.csharp:
@@ -132,12 +169,14 @@ items:
   source:
     id: DELETE
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 10
+    startLine: 30
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
+  summary: "\nremove a record\n"
+  example: []
   syntax:
-    content: DELETE = 3
+    content: DELETE = 5
     return:
       type: FastEndpoints.Http
   modifiers.csharp:

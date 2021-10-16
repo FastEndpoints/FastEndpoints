@@ -7,6 +7,7 @@ items:
   children:
   - FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
   - FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
+  - FastEndpoints.Security.AuthExtensions.HasClaimType(System.Security.Claims.ClaimsPrincipal,System.String)
   - FastEndpoints.Security.AuthExtensions.HasPermission(System.Security.Claims.ClaimsPrincipal,System.String)
   langs:
   - csharp
@@ -128,6 +129,48 @@ items:
   modifiers.vb:
   - Public
   - Shared
+- uid: FastEndpoints.Security.AuthExtensions.HasClaimType(System.Security.Claims.ClaimsPrincipal,System.String)
+  commentId: M:FastEndpoints.Security.AuthExtensions.HasClaimType(System.Security.Claims.ClaimsPrincipal,System.String)
+  id: HasClaimType(System.Security.Claims.ClaimsPrincipal,System.String)
+  isExtensionMethod: true
+  parent: FastEndpoints.Security.AuthExtensions
+  langs:
+  - csharp
+  - vb
+  name: HasClaimType(ClaimsPrincipal, String)
+  nameWithType: AuthExtensions.HasClaimType(ClaimsPrincipal, String)
+  fullName: FastEndpoints.Security.AuthExtensions.HasClaimType(System.Security.Claims.ClaimsPrincipal, System.String)
+  type: Method
+  source:
+    id: HasClaimType
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
+    startLine: 52
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\ndetermines if the current user principal has the given claim type\n"
+  example: []
+  syntax:
+    content: public static bool HasClaimType(this ClaimsPrincipal principal, string claimType)
+    parameters:
+    - id: principal
+      type: System.Security.Claims.ClaimsPrincipal
+    - id: claimType
+      type: System.String
+      description: the claim type to check for
+    return:
+      type: System.Boolean
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function HasClaimType(principal As ClaimsPrincipal, claimType As String) As Boolean
+  overload: FastEndpoints.Security.AuthExtensions.HasClaimType*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
 - uid: FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
   commentId: M:FastEndpoints.Security.AuthExtensions.ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
   id: ClaimValue(System.Security.Claims.ClaimsPrincipal,System.String)
@@ -143,7 +186,7 @@ items:
   source:
     id: ClaimValue
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
-    startLine: 52
+    startLine: 59
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -518,6 +561,11 @@ references:
   name: System.Security.Claims
   nameWithType: System.Security.Claims
   fullName: System.Security.Claims
+- uid: FastEndpoints.Security.AuthExtensions.HasClaimType*
+  commentId: Overload:FastEndpoints.Security.AuthExtensions.HasClaimType
+  name: HasClaimType
+  nameWithType: AuthExtensions.HasClaimType
+  fullName: FastEndpoints.Security.AuthExtensions.HasClaimType
 - uid: FastEndpoints.Security.AuthExtensions.ClaimValue*
   commentId: Overload:FastEndpoints.Security.AuthExtensions.ClaimValue
   name: ClaimValue

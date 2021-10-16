@@ -2,12 +2,13 @@
 
   <PropertyGroup>
 
-    <Version>2.1.0-beta4</Version>
+    <Version>2.1.0-beta5</Version>
     
     <PackageReleaseNotes>
       - add query param binding support
       - improve extensibility of endpoint class
       - improve duplication handler registration detection
+      - improve security extensions
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

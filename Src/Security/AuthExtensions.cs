@@ -47,6 +47,13 @@ public static class AuthExtensions
         .Contains(permissionCode) ?? false;
 
     /// <summary>
+    /// determines if the current user principal has the given claim type
+    /// </summary>
+    /// <param name="claimType">the claim type to check for</param>
+    public static bool HasClaimType(this ClaimsPrincipal principal, string claimType)
+        => principal.HasClaim(c => c.Type == claimType);
+
+    /// <summary>
     /// get the claim value for a given claim type of the current user principal. if the user doesn't have the requested claim type, a null will be returned.
     /// </summary>
     /// <param name="claimType">the claim type to look for</param>

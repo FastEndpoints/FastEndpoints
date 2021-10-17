@@ -102,5 +102,4 @@ it is also possible to define endpoints with `EmptyRequest` and `EmptyResponse` 
 ```csharp
 public class MyEndpoint : Endpoint<EmptyRequest,EmptyResponse> { }
 ```
-
-you can mix-n-match as needed depending on your requirement.
+you can mix-n-match depending on your requirement.

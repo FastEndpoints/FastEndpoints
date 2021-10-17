@@ -28,9 +28,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class EndpointWithoutRequest(Of TResponse As New)
-
           Inherits Endpoint(Of EmptyRequest, TResponse)
-
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -50,7 +48,7 @@ items:
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.Routes(System.String[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.Verbs(FastEndpoints.Http[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.DontThrowIfValidationFails
-  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.AllowAnonymous
+  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.AllowAnonymous(FastEndpoints.Http[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.AllowFileUploads
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.Policies(System.String[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.Roles(System.String[])
@@ -390,34 +388,49 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.AllowAnonymous
-  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,`0}.AllowAnonymous
+- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.AllowAnonymous(FastEndpoints.Http[])
+  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,`0}.AllowAnonymous(FastEndpoints.Http[])
   parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}
-  definition: FastEndpoints.Endpoint`2.AllowAnonymous
-  name: AllowAnonymous()
-  nameWithType: Endpoint<EmptyRequest, TResponse>.AllowAnonymous()
-  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, TResponse>.AllowAnonymous()
-  nameWithType.vb: Endpoint(Of EmptyRequest, TResponse).AllowAnonymous()
-  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, TResponse).AllowAnonymous()
+  definition: FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
+  name: AllowAnonymous(Http[])
+  nameWithType: Endpoint<EmptyRequest, TResponse>.AllowAnonymous(Http[])
+  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, TResponse>.AllowAnonymous(FastEndpoints.Http[])
+  nameWithType.vb: Endpoint(Of EmptyRequest, TResponse).AllowAnonymous(Http())
+  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, TResponse).AllowAnonymous(FastEndpoints.Http())
+  name.vb: AllowAnonymous(Http())
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.AllowAnonymous
+  - uid: FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
     name: AllowAnonymous
     nameWithType: Endpoint<EmptyRequest, TResponse>.AllowAnonymous
     fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, TResponse>.AllowAnonymous
   - name: (
     nameWithType: (
     fullName: (
+  - uid: FastEndpoints.Http
+    name: Http
+    nameWithType: Http
+    fullName: FastEndpoints.Http
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.AllowAnonymous
+  - uid: FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
     name: AllowAnonymous
     nameWithType: Endpoint(Of EmptyRequest, TResponse).AllowAnonymous
     fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, TResponse).AllowAnonymous
   - name: (
     nameWithType: (
     fullName: (
+  - uid: FastEndpoints.Http
+    name: Http
+    nameWithType: Http
+    fullName: FastEndpoints.Http
+  - name: ()
+    nameWithType: ()
+    fullName: ()
   - name: )
     nameWithType: )
     fullName: )
@@ -2960,32 +2973,47 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.AllowAnonymous
-  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous
-  name: AllowAnonymous()
-  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous()
+- uid: FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
+  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
+  name: AllowAnonymous(Http[])
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous(Http[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous(FastEndpoints.Http[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous(Http())
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous(FastEndpoints.Http())
+  name.vb: AllowAnonymous(Http())
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.AllowAnonymous
+  - uid: FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
     name: AllowAnonymous
     nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous
     fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous
   - name: (
     nameWithType: (
     fullName: (
+  - uid: FastEndpoints.Http
+    name: Http
+    nameWithType: Http
+    fullName: FastEndpoints.Http
+  - name: '[]'
+    nameWithType: '[]'
+    fullName: '[]'
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.AllowAnonymous
+  - uid: FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
     name: AllowAnonymous
     nameWithType: Endpoint(Of TRequest, TResponse).AllowAnonymous
     fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous
   - name: (
     nameWithType: (
     fullName: (
+  - uid: FastEndpoints.Http
+    name: Http
+    nameWithType: Http
+    fullName: FastEndpoints.Http
+  - name: ()
+    nameWithType: ()
+    fullName: ()
   - name: )
     nameWithType: )
     fullName: )

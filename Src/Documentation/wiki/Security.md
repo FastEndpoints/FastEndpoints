@@ -124,7 +124,25 @@ AnyPermission("SomePermission", "AnotherPermission");
 
 **Roles() method**
 
-roles behaves differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.
+roles behave differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.
+
+**AllowAnonymous() method**
+
+use this method if you'd like to allow unauthenticated users to access a particular endpoint. it is also possible to specify which http verbs you'd like to allow anonymous access to:
+```csharp
+public class RestrictedEndpoint : Endpoint<RestrictedRequest>
+{
+    public override void Configure()
+    {
+        Verbs(Http.POST, Http.PUT, Http.PATCH);
+        Routes("/api/restricted");
+        AllowAnonymous(Http.POST);
+    }
+}
+```
+the above endpoint is listening for all 3 http methods on the same route but only `POST` method is allowed to be accessed anonymously. it is useful for example when you'd like to use the same handler logic for create/replace/update scenarios and create operation is allowed to be done by anonymous users.
+
+using just `AllowAnonymous()` without any arguments means all verbs are allowed anonymous access.
 
 ## other auth providers
 all auth providers compatible with the `asp.net` middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the `[Authorize]` attribute as you would typically do.

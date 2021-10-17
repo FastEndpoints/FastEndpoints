@@ -7,7 +7,7 @@ items:
   children:
   - FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
   - FastEndpoints.Endpoint`2.AddError(System.String)
-  - FastEndpoints.Endpoint`2.AllowAnonymous
+  - FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
   - FastEndpoints.Endpoint`2.AllowFileUploads
   - FastEndpoints.Endpoint`2.AnyClaim(System.String[])
   - FastEndpoints.Endpoint`2.AnyPermission(System.String[])
@@ -73,7 +73,6 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint where TRequest : new()
-
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -82,9 +81,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New, TResponse As New)
-
           Inherits BaseEndpoint
-
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -561,36 +558,40 @@ items:
   modifiers.vb:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).DontThrowIfValidationFails()
-- uid: FastEndpoints.Endpoint`2.AllowAnonymous
-  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous
-  id: AllowAnonymous
+- uid: FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
+  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
+  id: AllowAnonymous(FastEndpoints.Http[])
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: AllowAnonymous()
-  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous()
+  name: AllowAnonymous(Http[])
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous(Http[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous(FastEndpoints.Http[])
   type: Method
   source:
     id: AllowAnonymous
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 148
+    startLine: 149
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nallow unauthenticated requests to this endpoint\n"
+  summary: "\nallow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.\ni.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require authentication.\n"
   example: []
   syntax:
-    content: protected void AllowAnonymous()
-    content.vb: Protected Sub AllowAnonymous
+    content: protected void AllowAnonymous(params Http[] verbs)
+    parameters:
+    - id: verbs
+      type: FastEndpoints.Http[]
+    content.vb: Protected Sub AllowAnonymous(ParamArray verbs As Http())
   overload: FastEndpoints.Endpoint`2.AllowAnonymous*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous(Http())
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous(FastEndpoints.Http())
+  name.vb: AllowAnonymous(Http())
 - uid: FastEndpoints.Endpoint`2.AllowFileUploads
   commentId: M:FastEndpoints.Endpoint`2.AllowFileUploads
   id: AllowFileUploads
@@ -605,7 +606,7 @@ items:
   source:
     id: AllowFileUploads
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 152
+    startLine: 159
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -635,7 +636,7 @@ items:
   source:
     id: Policies
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 157
+    startLine: 164
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -670,7 +671,7 @@ items:
   source:
     id: Roles
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 162
+    startLine: 169
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -705,7 +706,7 @@ items:
   source:
     id: Permissions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 167
+    startLine: 174
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -740,7 +741,7 @@ items:
   source:
     id: Permissions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 173
+    startLine: 180
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -778,7 +779,7 @@ items:
   source:
     id: AnyPermission
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 182
+    startLine: 189
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -813,7 +814,7 @@ items:
   source:
     id: Claims
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 187
+    startLine: 194
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -848,7 +849,7 @@ items:
   source:
     id: Claims
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 193
+    startLine: 200
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -886,7 +887,7 @@ items:
   source:
     id: AnyClaim
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 202
+    startLine: 209
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -921,7 +922,7 @@ items:
   source:
     id: PreProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 207
+    startLine: 214
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -956,7 +957,7 @@ items:
   source:
     id: PostProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 212
+    startLine: 219
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -991,7 +992,7 @@ items:
   source:
     id: ResponseCache
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 221
+    startLine: 228
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1038,7 +1039,7 @@ items:
   source:
     id: Options
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 236
+    startLine: 243
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1073,7 +1074,7 @@ items:
   source:
     id: HandleAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 243
+    startLine: 250
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1114,7 +1115,7 @@ items:
   source:
     id: AddError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 279
+    startLine: 274
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1148,7 +1149,7 @@ items:
   source:
     id: AddError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 287
+    startLine: 282
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1186,7 +1187,7 @@ items:
   source:
     id: ThrowIfAnyErrors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 296
+    startLine: 291
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1216,7 +1217,7 @@ items:
   source:
     id: ThrowError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 305
+    startLine: 300
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1250,7 +1251,7 @@ items:
   source:
     id: ThrowError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 316
+    startLine: 311
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1288,7 +1289,7 @@ items:
   source:
     id: SendAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 328
+    startLine: 323
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1330,7 +1331,7 @@ items:
   source:
     id: SendStringAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 341
+    startLine: 336
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1372,7 +1373,7 @@ items:
   source:
     id: SendOkAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 350
+    startLine: 345
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1404,7 +1405,7 @@ items:
   source:
     id: SendErrorsAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 360
+    startLine: 355
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1440,7 +1441,7 @@ items:
   source:
     id: SendNoContentAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 369
+    startLine: 364
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1472,7 +1473,7 @@ items:
   source:
     id: SendNotFoundAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 378
+    startLine: 373
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1504,7 +1505,7 @@ items:
   source:
     id: SendUnauthorizedAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 387
+    startLine: 382
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1536,7 +1537,7 @@ items:
   source:
     id: SendForbiddenAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 396
+    startLine: 391
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1568,7 +1569,7 @@ items:
   source:
     id: SendBytesAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 408
+    startLine: 403
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1614,7 +1615,7 @@ items:
   source:
     id: SendFileAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 420
+    startLine: 415
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1656,7 +1657,7 @@ items:
   source:
     id: SendStreamAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 433
+    startLine: 428
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1705,7 +1706,7 @@ items:
   source:
     id: PublishAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 455
+    startLine: 450
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1714,7 +1715,6 @@ items:
   syntax:
     content: >-
       protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
           where TEvent : class
     parameters:
     - id: eventModel
@@ -1761,7 +1761,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 462
+    startLine: 457
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1797,7 +1797,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 468
+    startLine: 463
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1833,7 +1833,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 475
+    startLine: 470
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1869,7 +1869,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 482
+    startLine: 477
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

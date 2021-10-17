@@ -200,7 +200,21 @@ AnyClaim(&quot;SomeClaimType&quot;, &quot;AnotherClaimType&quot;);
 AnyPermission(&quot;SomePermission&quot;, &quot;AnotherPermission&quot;);
 </code></pre>
 <p><strong>Roles() method</strong></p>
-<p>roles behaves differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.</p>
+<p>roles behave differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.</p>
+<p><strong>AllowAnonymous() method</strong></p>
+<p>use this method if you'd like to allow unauthenticated users to access a particular endpoint. it is also possible to specify which http verbs you'd like to allow anonymous access to:</p>
+<pre><code class="lang-csharp">public class RestrictedEndpoint : Endpoint&lt;RestrictedRequest&gt;
+{
+    public override void Configure()
+    {
+        Verbs(Http.POST, Http.PUT, Http.PATCH);
+        Routes(&quot;/api/restricted&quot;);
+        AllowAnonymous(Http.POST);
+    }
+}
+</code></pre>
+<p>the above endpoint is listening for all 3 http methods on the same route but only <code>POST</code> method is allowed to be accessed anonymously. it is useful for example when you'd like to use the same handler logic for create/replace/update scenarios and create operation is allowed to be done by anonymous users.</p>
+<p>using just <code>AllowAnonymous()</code> without any arguments means all verbs are allowed anonymous access.</p>
 <h2 id="other-auth-providers">other auth providers</h2>
 <p>all auth providers compatible with the <code>asp.net</code> middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the <code>[Authorize]</code> attribute as you would typically do.</p>
 </article>

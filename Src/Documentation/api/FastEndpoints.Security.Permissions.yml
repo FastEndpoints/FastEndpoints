@@ -6,9 +6,13 @@ items:
   parent: FastEndpoints.Security
   children:
   - FastEndpoints.Security.Permissions.#ctor
+  - FastEndpoints.Security.Permissions.AllCodes
+  - FastEndpoints.Security.Permissions.AllNames
   - FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable{System.String})
   - FastEndpoints.Security.Permissions.GetEnumerator
   - FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})
+  - FastEndpoints.Security.Permissions.PermissionFromCode(System.String)
+  - FastEndpoints.Security.Permissions.PermissionFromName(System.String)
   - FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
   langs:
   - csharp
@@ -27,10 +31,9 @@ items:
   summary: "\ninherit from this class and define your applications permissions as <code>public const string</code>\n<p>\n<pre><code>public const string Inventory_Create_Item = &quot;100&quot;;\npublic const string Inventory_Retrieve_Item = &quot;101&quot;;\npublic const string Inventory_Update_Item = &quot;102&quot;;\npublic const string Inventory_Delete_Item = &quot;103&quot;;</code></pre>\n</p>\n"
   example: []
   syntax:
-    content: 'public class Permissions : IEnumerable<(string PermissionName, string PermissionCode)>'
+    content: 'public abstract class Permissions : IEnumerable<(string PermissionName, string PermissionCode)>'
     content.vb: >-
-      Public Class Permissions
-
+      Public MustInherit Class Permissions
           Implements IEnumerable(Of(PermissionName As String, PermissionCode As String)(Of String , String))
   inheritance:
   - System.Object
@@ -46,9 +49,11 @@ items:
   - System.Object.ToString
   modifiers.csharp:
   - public
+  - abstract
   - class
   modifiers.vb:
   - Public
+  - MustInherit
   - Class
 - uid: FastEndpoints.Security.Permissions.#ctor
   commentId: M:FastEndpoints.Security.Permissions.#ctor
@@ -69,13 +74,13 @@ items:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
   syntax:
-    content: public Permissions()
-    content.vb: Public Sub New
+    content: protected Permissions()
+    content.vb: Protected Sub New
   overload: FastEndpoints.Security.Permissions.#ctor*
   modifiers.csharp:
-  - public
+  - protected
   modifiers.vb:
-  - Public
+  - Protected
 - uid: FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})
   commentId: M:FastEndpoints.Security.Permissions.NamesFor(System.Collections.IEnumerable{System.String})
   id: NamesFor(System.Collections.IEnumerable{System.String})
@@ -127,7 +132,7 @@ items:
   source:
     id: CodesFor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 54
+    startLine: 53
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -150,6 +155,134 @@ items:
   - Public
   fullName.vb: FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable(Of System.String))
   name.vb: CodesFor(IEnumerable(Of String))
+- uid: FastEndpoints.Security.Permissions.PermissionFromName(System.String)
+  commentId: M:FastEndpoints.Security.Permissions.PermissionFromName(System.String)
+  id: PermissionFromName(System.String)
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: PermissionFromName(String)
+  nameWithType: Permissions.PermissionFromName(String)
+  fullName: FastEndpoints.Security.Permissions.PermissionFromName(System.String)
+  type: Method
+  source:
+    id: PermissionFromName
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 63
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\nget the permission tuple using it&apos;s name. returns null if not found\n"
+  example: []
+  syntax:
+    content: public (string PermissionName, string PermissionCode)? PermissionFromName(string permissionName)
+    parameters:
+    - id: permissionName
+      type: System.String
+      description: name of the permission
+    return:
+      type: System.Nullable{System.ValueTuple{System.String,System.String}}
+    content.vb: Public Function PermissionFromName(permissionName As String) As(PermissionName As String, PermissionCode As String)(Of String , String)
+  overload: FastEndpoints.Security.Permissions.PermissionFromName*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.Security.Permissions.PermissionFromCode(System.String)
+  commentId: M:FastEndpoints.Security.Permissions.PermissionFromCode(System.String)
+  id: PermissionFromCode(System.String)
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: PermissionFromCode(String)
+  nameWithType: Permissions.PermissionFromCode(String)
+  fullName: FastEndpoints.Security.Permissions.PermissionFromCode(System.String)
+  type: Method
+  source:
+    id: PermissionFromCode
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 69
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\nget the permission tuple using it&apos;s code. returns null if not found\n"
+  example: []
+  syntax:
+    content: public (string PermissionName, string PermissionCode)? PermissionFromCode(string permissionCode)
+    parameters:
+    - id: permissionCode
+      type: System.String
+      description: code of the permission to get
+    return:
+      type: System.Nullable{System.ValueTuple{System.String,System.String}}
+    content.vb: Public Function PermissionFromCode(permissionCode As String) As(PermissionName As String, PermissionCode As String)(Of String , String)
+  overload: FastEndpoints.Security.Permissions.PermissionFromCode*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.Security.Permissions.AllNames
+  commentId: M:FastEndpoints.Security.Permissions.AllNames
+  id: AllNames
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: AllNames()
+  nameWithType: Permissions.AllNames()
+  fullName: FastEndpoints.Security.Permissions.AllNames()
+  type: Method
+  source:
+    id: AllNames
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 74
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\nget a list of all permission names\n"
+  example: []
+  syntax:
+    content: public IEnumerable<string> AllNames()
+    return:
+      type: System.Collections.IEnumerable{System.String}
+    content.vb: Public Function AllNames As IEnumerable(Of String)
+  overload: FastEndpoints.Security.Permissions.AllNames*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.Security.Permissions.AllCodes
+  commentId: M:FastEndpoints.Security.Permissions.AllCodes
+  id: AllCodes
+  parent: FastEndpoints.Security.Permissions
+  langs:
+  - csharp
+  - vb
+  name: AllCodes()
+  nameWithType: Permissions.AllCodes()
+  fullName: FastEndpoints.Security.Permissions.AllCodes()
+  type: Method
+  source:
+    id: AllCodes
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
+    startLine: 79
+  assemblies:
+  - FastEndpoints.Security
+  namespace: FastEndpoints.Security
+  summary: "\nget a list of all permission codes\n"
+  example: []
+  syntax:
+    content: public IEnumerable<string> AllCodes()
+    return:
+      type: System.Collections.IEnumerable{System.String}
+    content.vb: Public Function AllCodes As IEnumerable(Of String)
+  overload: FastEndpoints.Security.Permissions.AllCodes*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
 - uid: FastEndpoints.Security.Permissions.GetEnumerator
   commentId: M:FastEndpoints.Security.Permissions.GetEnumerator
   id: GetEnumerator
@@ -164,7 +297,7 @@ items:
   source:
     id: GetEnumerator
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 63
+    startLine: 84
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -194,7 +327,7 @@ items:
   source:
     id: System.Collections.IEnumerable.GetEnumerator
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 68
+    startLine: 89
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -681,6 +814,154 @@ references:
   name: CodesFor
   nameWithType: Permissions.CodesFor
   fullName: FastEndpoints.Security.Permissions.CodesFor
+- uid: FastEndpoints.Security.Permissions.PermissionFromName*
+  commentId: Overload:FastEndpoints.Security.Permissions.PermissionFromName
+  name: PermissionFromName
+  nameWithType: Permissions.PermissionFromName
+  fullName: FastEndpoints.Security.Permissions.PermissionFromName
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System.Nullable{System.ValueTuple{System.String,System.String}}
+  commentId: T:System.Nullable{System.ValueTuple{System.String,System.String}}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<(T1, T2)<String, String>>
+  nameWithType: Nullable<(T1, T2)<String, String>>
+  fullName: System.Nullable<System.ValueTuple<System.String, System.String>>
+  nameWithType.vb: Nullable(Of (T1, T2)(Of String, String))
+  fullName.vb: System.Nullable(Of System.ValueTuple(Of System.String, System.String))
+  name.vb: Nullable(Of (T1, T2)(Of String, String))
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.ValueTuple`2
+    name: (T1, T2)
+    nameWithType: (T1, T2)
+    fullName: System.ValueTuple
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.ValueTuple`2
+    name: (T1, T2)
+    nameWithType: (T1, T2)
+    fullName: System.ValueTuple
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Security.Permissions.PermissionFromCode*
+  commentId: Overload:FastEndpoints.Security.Permissions.PermissionFromCode
+  name: PermissionFromCode
+  nameWithType: Permissions.PermissionFromCode
+  fullName: FastEndpoints.Security.Permissions.PermissionFromCode
+- uid: FastEndpoints.Security.Permissions.AllNames*
+  commentId: Overload:FastEndpoints.Security.Permissions.AllNames
+  name: AllNames
+  nameWithType: Permissions.AllNames
+  fullName: FastEndpoints.Security.Permissions.AllNames
+- uid: FastEndpoints.Security.Permissions.AllCodes*
+  commentId: Overload:FastEndpoints.Security.Permissions.AllCodes
+  name: AllCodes
+  nameWithType: Permissions.AllCodes
+  fullName: FastEndpoints.Security.Permissions.AllCodes
 - uid: FastEndpoints.Security.Permissions.GetEnumerator*
   commentId: Overload:FastEndpoints.Security.Permissions.GetEnumerator
   name: GetEnumerator

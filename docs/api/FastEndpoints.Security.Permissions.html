@@ -144,7 +144,7 @@ public const string Inventory_Delete_Item = &quot;103&quot;;</code></pre>
   <h6><strong>Assembly</strong>: FastEndpoints.Security.dll</h6>
   <h5 id="FastEndpoints_Security_Permissions_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class Permissions : IEnumerable&lt;(string PermissionName, string PermissionCode)&gt;</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class Permissions : IEnumerable&lt;(string PermissionName, string PermissionCode)&gt;</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -156,10 +156,62 @@ public const string Inventory_Delete_Item = &quot;103&quot;;</code></pre>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Permissions()</code></pre>
+    <pre><code class="lang-csharp hljs">protected Permissions()</code></pre>
   </div>
   <h3 id="methods">Methods
   </h3>
+  
+  
+  <a id="FastEndpoints_Security_Permissions_AllCodes_" data-uid="FastEndpoints.Security.Permissions.AllCodes*"></a>
+  <h4 id="FastEndpoints_Security_Permissions_AllCodes" data-uid="FastEndpoints.Security.Permissions.AllCodes">AllCodes()</h4>
+  <div class="markdown level1 summary"><p>get a list of all permission codes</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;string&gt; AllCodes()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Security_Permissions_AllNames_" data-uid="FastEndpoints.Security.Permissions.AllNames*"></a>
+  <h4 id="FastEndpoints_Security_Permissions_AllNames" data-uid="FastEndpoints.Security.Permissions.AllNames">AllNames()</h4>
+  <div class="markdown level1 summary"><p>get a list of all permission names</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;string&gt; AllNames()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   
   
   <a id="FastEndpoints_Security_Permissions_CodesFor_" data-uid="FastEndpoints.Security.Permissions.CodesFor*"></a>
@@ -269,6 +321,94 @@ public const string Inventory_Delete_Item = &quot;103&quot;;</code></pre>
     <tbody>
       <tr>
         <td><span class="xref">System.Collections.IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Security_Permissions_PermissionFromCode_" data-uid="FastEndpoints.Security.Permissions.PermissionFromCode*"></a>
+  <h4 id="FastEndpoints_Security_Permissions_PermissionFromCode_System_String_" data-uid="FastEndpoints.Security.Permissions.PermissionFromCode(System.String)">PermissionFromCode(String)</h4>
+  <div class="markdown level1 summary"><p>get the permission tuple using it's code. returns null if not found</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public (string PermissionName, string PermissionCode)? PermissionFromCode(string permissionCode)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">permissionCode</span></td>
+        <td><p>code of the permission to get</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.ValueTuple</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Security_Permissions_PermissionFromName_" data-uid="FastEndpoints.Security.Permissions.PermissionFromName*"></a>
+  <h4 id="FastEndpoints_Security_Permissions_PermissionFromName_System_String_" data-uid="FastEndpoints.Security.Permissions.PermissionFromName(System.String)">PermissionFromName(String)</h4>
+  <div class="markdown level1 summary"><p>get the permission tuple using it's name. returns null if not found</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public (string PermissionName, string PermissionCode)? PermissionFromName(string permissionName)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">permissionName</span></td>
+        <td><p>name of the permission</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.ValueTuple</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;&gt;</td>
         <td></td>
       </tr>
     </tbody>

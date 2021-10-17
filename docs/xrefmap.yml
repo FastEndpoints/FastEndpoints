@@ -63,14 +63,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError
   nameWithType: Endpoint<TRequest, TResponse>.AddError
   nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError
-- uid: FastEndpoints.Endpoint`2.AllowAnonymous
-  name: AllowAnonymous()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnonymous
-  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous()
-  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous()
+- uid: FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
+  name: AllowAnonymous(Http[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnonymous_FastEndpoints_Http___
+  commentId: M:FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
+  name.vb: AllowAnonymous(Http())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowAnonymous(FastEndpoints.Http[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous(FastEndpoints.Http())
+  nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous(Http[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous(Http())
 - uid: FastEndpoints.Endpoint`2.AllowAnonymous*
   name: AllowAnonymous
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnonymous_
@@ -1526,6 +1527,32 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Security.Permissions.Permissions
   nameWithType: Permissions.Permissions
+- uid: FastEndpoints.Security.Permissions.AllCodes
+  name: AllCodes()
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_AllCodes
+  commentId: M:FastEndpoints.Security.Permissions.AllCodes
+  fullName: FastEndpoints.Security.Permissions.AllCodes()
+  nameWithType: Permissions.AllCodes()
+- uid: FastEndpoints.Security.Permissions.AllCodes*
+  name: AllCodes
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_AllCodes_
+  commentId: Overload:FastEndpoints.Security.Permissions.AllCodes
+  isSpec: "True"
+  fullName: FastEndpoints.Security.Permissions.AllCodes
+  nameWithType: Permissions.AllCodes
+- uid: FastEndpoints.Security.Permissions.AllNames
+  name: AllNames()
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_AllNames
+  commentId: M:FastEndpoints.Security.Permissions.AllNames
+  fullName: FastEndpoints.Security.Permissions.AllNames()
+  nameWithType: Permissions.AllNames()
+- uid: FastEndpoints.Security.Permissions.AllNames*
+  name: AllNames
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_AllNames_
+  commentId: Overload:FastEndpoints.Security.Permissions.AllNames
+  isSpec: "True"
+  fullName: FastEndpoints.Security.Permissions.AllNames
+  nameWithType: Permissions.AllNames
 - uid: FastEndpoints.Security.Permissions.CodesFor(System.Collections.IEnumerable{System.String})
   name: CodesFor(IEnumerable<String>)
   href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_CodesFor_System_Collections_IEnumerable_System_String__
@@ -1571,6 +1598,32 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Security.Permissions.NamesFor
   nameWithType: Permissions.NamesFor
+- uid: FastEndpoints.Security.Permissions.PermissionFromCode(System.String)
+  name: PermissionFromCode(String)
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_PermissionFromCode_System_String_
+  commentId: M:FastEndpoints.Security.Permissions.PermissionFromCode(System.String)
+  fullName: FastEndpoints.Security.Permissions.PermissionFromCode(System.String)
+  nameWithType: Permissions.PermissionFromCode(String)
+- uid: FastEndpoints.Security.Permissions.PermissionFromCode*
+  name: PermissionFromCode
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_PermissionFromCode_
+  commentId: Overload:FastEndpoints.Security.Permissions.PermissionFromCode
+  isSpec: "True"
+  fullName: FastEndpoints.Security.Permissions.PermissionFromCode
+  nameWithType: Permissions.PermissionFromCode
+- uid: FastEndpoints.Security.Permissions.PermissionFromName(System.String)
+  name: PermissionFromName(String)
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_PermissionFromName_System_String_
+  commentId: M:FastEndpoints.Security.Permissions.PermissionFromName(System.String)
+  fullName: FastEndpoints.Security.Permissions.PermissionFromName(System.String)
+  nameWithType: Permissions.PermissionFromName(String)
+- uid: FastEndpoints.Security.Permissions.PermissionFromName*
+  name: PermissionFromName
+  href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_PermissionFromName_
+  commentId: Overload:FastEndpoints.Security.Permissions.PermissionFromName
+  isSpec: "True"
+  fullName: FastEndpoints.Security.Permissions.PermissionFromName
+  nameWithType: Permissions.PermissionFromName
 - uid: FastEndpoints.Security.Permissions.System#Collections#IEnumerable#GetEnumerator
   name: IEnumerable.GetEnumerator()
   href: api/FastEndpoints.Security.Permissions.html#FastEndpoints_Security_Permissions_System_Collections_IEnumerable_GetEnumerator

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Claims;
 
 namespace FastEndpoints;
 
@@ -141,34 +142,27 @@ public static class MainExtensions
 
             opts.AddPolicy(secPolName, b =>
             {
+                b.RequireAuthenticatedUser();
+
                 if (eps.Permissions?.Any() is true)
                 {
                     if (eps.AllowAnyPermission is true)
                     {
                         b.RequireAssertion(x =>
                         {
-                            var hasAny = x.User.Claims
-                            .FirstOrDefault(c => c.Type == Constants.PermissionsClaimType)?.Value
-                            .Split(',')
-                            .Intersect(eps.Permissions)
-                            .Any();
-                            return hasAny is true;
+                            var prmClaimVal = x.User.FindFirstValue(Constants.PermissionsClaimType);
+                            if (prmClaimVal is null) return false;
+                            return prmClaimVal.Split(',').Intersect(eps.Permissions).Any();
                         });
                     }
                     else
                     {
-#pragma warning disable CS8602
                         b.RequireAssertion(x =>
                         {
-                            var hasAll = !eps.Permissions
-                            .Except(
-                                x.User.Claims
-                                 .FirstOrDefault(c => c.Type == Constants.PermissionsClaimType).Value
-                                 .Split(','))
-                            .Any();
-                            return hasAll is true;
+                            var prmClaimVal = x.User.FindFirstValue(Constants.PermissionsClaimType);
+                            if (prmClaimVal is null) return false;
+                            return !eps.Permissions.Except(prmClaimVal.Split(',')).Any();
                         });
-#pragma warning restore CS8602
                     }
                 }
 
@@ -178,23 +172,19 @@ public static class MainExtensions
                     {
                         b.RequireAssertion(x =>
                         {
-                            var hasAny = x.User.Claims
+                            return x.User.Claims
                             .Select(c => c.Type)
                             .Intersect(eps.Claims)
                             .Any();
-                            return hasAny is true;
                         });
                     }
                     else
                     {
                         b.RequireAssertion(x =>
                         {
-                            var hasAll = !eps.Claims
-                            .Except(
-                                x.User.Claims
-                                 .Select(c => c.Type))
+                            return !eps.Claims
+                            .Except(x.User.Claims.Select(c => c.Type))
                             .Any();
-                            return hasAll is true;
                         });
                     }
                 }

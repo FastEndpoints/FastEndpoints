@@ -4,10 +4,12 @@ public class Endpoint : Endpoint<Request>
 {
     public override void Configure()
     {
-        Verbs(Http.POST);
+        Verbs(Http.POST, Http.PUT);
+        AllowAnonymous(Http.POST);
         Routes("uploads/image/save");
+        Permissions(Allow.Image_Update);
+        Claims(Claim.AdminID);
         AllowFileUploads();
-        AllowAnonymous();
     }
 
     public override Task HandleAsync(Request r, CancellationToken ct)

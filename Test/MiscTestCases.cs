@@ -12,6 +12,19 @@ namespace Test
     public class MiscTestCases
     {
         [TestMethod]
+        public async Task MultiVerbEndpointAnonymousUserPutFail()
+        {
+            using var imageContent = new ByteArrayContent(new byte[0]);
+            imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+
+            using var form = new MultipartFormDataContent { { imageContent, "File", "test.png" } };
+
+            var res = await GuestClient.PutAsync("uploads/image/save", form);
+
+            Assert.AreEqual(HttpStatusCode.Unauthorized, res.StatusCode);
+        }
+
+        [TestMethod]
         public async Task ClaimMissing()
         {
             var (_, result) = await AdminClient.POSTAsync<

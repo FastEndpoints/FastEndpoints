@@ -22,7 +22,6 @@ public static class MainExtensions
 #pragma warning disable CS8618
         public Type EndpointType { get; set; }
         public Type? ValidatorType { get; set; }
-        public string? SecurityPolicyName { get; set; }
         public EndpointSettings Settings { get; set; }
 #pragma warning restore CS8618
     }
@@ -36,7 +35,7 @@ public static class MainExtensions
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
     {
         Discover_Endpoints_Validators_EventHandlers();
-        services.AddAuthorization(BuildSecurityPoliciesForEndpoints);
+        services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         return services;
     }
 
@@ -63,46 +62,50 @@ public static class MainExtensions
             if (epSettings.Routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
             var policiesToAdd = new List<string>();
-            if (epSettings.Policies?.Any() is true) policiesToAdd.AddRange(epSettings.Policies);
-            if (ep.SecurityPolicyName is not null) policiesToAdd.Add(ep.SecurityPolicyName);
+            if (epSettings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(epSettings.PreBuiltUserPolicies);
+            if (epSettings.Permissions?.Any() is true ||
+                epSettings.Claims?.Any() is true ||
+                epSettings.Roles?.Any() is true)
+            {
+                policiesToAdd.Add(SecurityPolicyName(ep.EndpointType));
+            }
 
             var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
+
+            var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
+            if (validatorInstance is not null)
+            {
+                validatorInstance.ServiceProvider = builder.ServiceProvider;
+                validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
+            }
 
             EndpointExecutor.CachedServiceBoundProps[ep.EndpointType]
                 = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             foreach (var route in epSettings.Routes)
             {
-                var eb = builder.MapMethods(route, epSettings.Verbs, EndpointExecutor.HandleAsync);
-
-                if (epSettings.InternalConfigAction is not null) epSettings.InternalConfigAction(eb);//always do this first
-
-                if (policiesToAdd.Count > 0)
-                    eb.RequireAuthorization(policiesToAdd.ToArray());
-                else
-                    eb.RequireAuthorization(); //secure by default
-
-                if (epSettings.ResponseCacheSettings is not null) eb.WithMetadata(epSettings.ResponseCacheSettings);
-                if (epSettings.AllowFileUploads is true) eb.Accepts<IFormFile>("multipart/form-data");
-                if (epSettings.AllowAnonymous is true) eb.AllowAnonymous();
-                if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(eb);//always do this last - allow user to override everything done above
-
-                var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
-                if (validatorInstance is not null)
-                {
-                    validatorInstance.ServiceProvider = builder.ServiceProvider;
-                    validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
-                }
-
                 foreach (var verb in epSettings.Verbs)
                 {
-                    var key = $"{verb}:{route}";
+                    var eb = builder.MapMethods(route, new[] { verb }, EndpointExecutor.HandleAsync);
 
-                    EndpointExecutor.CachedEndpointDefinitions[key]
+                    if (epSettings.InternalConfigAction is not null) epSettings.InternalConfigAction(eb);//always do this first
+
+                    if (epSettings.AnonymousVerbs?.Contains(verb) is true)
+                        eb.AllowAnonymous();
+                    else
+                        eb.RequireAuthorization(policiesToAdd.ToArray());
+
+                    if (epSettings.ResponseCacheSettings is not null) eb.WithMetadata(epSettings.ResponseCacheSettings);
+                    if (epSettings.AllowFileUploads is true) eb.Accepts<IFormFile>("multipart/form-data");
+                    if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(eb);//always do this last - allow user to override everything done above
+
+                    var cacheKey = $"{verb}:{route}";
+
+                    EndpointExecutor.CachedEndpointDefinitions[cacheKey]
                         = new(epFactory, validatorInstance, epSettings.PreProcessors, epSettings.PostProcessors);
 
-                    routeToHandlerCounts.TryGetValue(key, out var count);
-                    routeToHandlerCounts[key] = count + 1;
+                    routeToHandlerCounts.TryGetValue(cacheKey, out var count);
+                    routeToHandlerCounts[cacheKey] = count + 1;
                 }
             }
         }
@@ -123,6 +126,9 @@ public static class MainExtensions
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
+        //WARNING: don't assign anything to discovered endpoint definitions in this method
+        //         because this delegate is not guranteed to run before UseEndpoints()
+
         if (discoveredEndpointDefinitions is null) throw new InvalidOperationException("Unable to discover any endpoint declarations!");
 
         foreach (var ep in discoveredEndpointDefinitions)
@@ -131,9 +137,9 @@ public static class MainExtensions
 
             if (eps.Roles is null && eps.Permissions is null && eps.Claims is null) continue;
 
-            ep.SecurityPolicyName = $"epPolicy:{ep.EndpointType.FullName}";
+            var secPolName = SecurityPolicyName(ep.EndpointType);
 
-            opts.AddPolicy(ep.SecurityPolicyName, b =>
+            opts.AddPolicy(secPolName, b =>
             {
                 if (eps.Permissions?.Any() is true)
                 {
@@ -153,15 +159,15 @@ public static class MainExtensions
                     {
 #pragma warning disable CS8602
                         b.RequireAssertion(x =>
-                    {
-                        var hasAll = !eps.Permissions
-                        .Except(
-                            x.User.Claims
-                             .FirstOrDefault(c => c.Type == Constants.PermissionsClaimType).Value
-                             .Split(','))
-                        .Any();
-                        return hasAll is true;
-                    });
+                        {
+                            var hasAll = !eps.Permissions
+                            .Except(
+                                x.User.Claims
+                                 .FirstOrDefault(c => c.Type == Constants.PermissionsClaimType).Value
+                                 .Split(','))
+                            .Any();
+                            return hasAll is true;
+                        });
 #pragma warning restore CS8602
                     }
                 }
@@ -283,6 +289,11 @@ public static class MainExtensions
             .ToArray();
 #pragma warning restore CS8600
 #pragma warning restore CS8601
+    }
+
+    private static string SecurityPolicyName(Type endpointType)
+    {
+        return $"epPolicy:{endpointType.FullName}";
     }
 }
 

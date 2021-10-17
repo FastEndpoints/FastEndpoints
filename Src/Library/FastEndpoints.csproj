@@ -2,10 +2,13 @@
 
   <PropertyGroup>
 
-    <Version>2.1.1</Version>
+    <Version>2.2.0</Version>
     
     <PackageReleaseNotes>
-      - fix issue with pre processors not running when validation fails
+      - add ability to specify anonymous access per http verb
+      - reworked security policy building internals
+      - increase test coverage
+      - misc. code changes
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

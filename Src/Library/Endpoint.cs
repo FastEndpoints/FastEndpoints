@@ -144,9 +144,16 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// </summary>
     protected void DontThrowIfValidationFails() => Settings.ThrowIfValidationFails = false;
     /// <summary>
-    /// allow unauthenticated requests to this endpoint
+    /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
+    /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require authentication.
     /// </summary>
-    protected void AllowAnonymous() => Settings.AllowAnonymous = true;
+    protected void AllowAnonymous(params Http[] verbs)
+    {
+        Settings.AnonymousVerbs =
+            verbs.Length > 0
+            ? verbs.Select(v => v.ToString()).ToArray()
+            : Enum.GetNames(typeof(Http));
+    }
     /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
@@ -155,7 +162,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
     /// </summary>
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
-    protected void Policies(params string[] policyNames) => Settings.Policies = policyNames;
+    protected void Policies(params string[] policyNames) => Settings.PreBuiltUserPolicies = policyNames;
     /// <summary>
     /// specify that the current claim principal/ user should posses at least one of the roles (claim type) mentioned here. access will be forbidden if the user doesn't have any of the specified roles.
     /// </summary>

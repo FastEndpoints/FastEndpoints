@@ -19,7 +19,6 @@
     <Folder Include="[Features]\Customers\List\Search\" />
     <Folder Include="[Features]\Inventory\List\Search\" />
     <Folder Include="[Features]\Inventory\Manage\Delete\" />
-    <Folder Include="[Features]\Inventory\Manage\Update\" />
     <Folder Include="[Features]\Sales\Orders\Retrieve\" />
   </ItemGroup>
 

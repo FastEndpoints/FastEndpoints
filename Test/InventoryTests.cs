@@ -64,6 +64,28 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task CreateProductFailNoPermission()
+        {
+            try
+            {
+                var (res, _) = await CustomerClient.PUTAsync<
+                    Inventory.Manage.Update.Endpoint,
+                    Inventory.Manage.Update.Request,
+                    Inventory.Manage.Update.Response>(new()
+                    {
+                        Name = "Grape Juice",
+                        Description = "description",
+                        ModifiedBy = "me",
+                        Price = 100
+                    });
+            }
+            catch (InvalidOperationException x)
+            {
+                Assert.IsTrue(x.Message.Contains("Forbidden"));
+            }
+        }
+
+        [TestMethod]
         public async Task CreateProductSuccess()
         {
             var (res, result) = await AdminClient.POSTAsync<

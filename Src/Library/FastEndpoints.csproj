@@ -7,6 +7,7 @@
     <PackageReleaseNotes>
       - add ability to specify anonymous access per http verb
       - reworked security policy building internals
+      - improved security extension methods
       - increase test coverage
       - misc. code changes
     </PackageReleaseNotes>

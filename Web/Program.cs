@@ -18,7 +18,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o =>
 {
     o.CustomSchemaIds(type => type.FullName);
-    o.TagActionsBy(d => new[] { d.RelativePath?.Split('/').First() });
+    o.TagActionsBy(d => new[] { d.RelativePath?.Split('/')[0] });
     o.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
     {
         Name = "Authorization",

@@ -272,8 +272,7 @@ public static class MainExtensions
 #pragma warning restore CS8602
             }
         }
-#pragma warning disable CS8600
-#pragma warning disable CS8601
+#pragma warning disable CS8600, CS8601
         discoveredEndpointDefinitions = epList
             .Select(x =>
             {
@@ -287,8 +286,7 @@ public static class MainExtensions
                 };
             })
             .ToArray();
-#pragma warning restore CS8600
-#pragma warning restore CS8601
+#pragma warning restore CS8600, CS8601
     }
 
     private static string SecurityPolicyName(Type endpointType)

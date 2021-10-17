@@ -101,7 +101,7 @@ public class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse
 
         var userID = await userRepo.CreateNew(req);
         if (userID is null)
-            ThrowError("creating a user did not go so well!");
+            ThrowError("creating a user did not go so well!"); //error response thrown here
 
         await SendAsync(new CreateUserResponse
         {

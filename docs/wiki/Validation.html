@@ -185,7 +185,7 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
 
         var userID = await userRepo.CreateNew(req);
         if (userID is null)
-            ThrowError(&quot;creating a user did not go so well!&quot;);
+            ThrowError(&quot;creating a user did not go so well!&quot;); //error response thrown here
 
         await SendAsync(new CreateUserResponse
         {

@@ -1,6 +1,5 @@
 ﻿namespace Customers.Update;
 
-#pragma warning disable CS8618
 public class Request
 {
     [From(Claim.CustomerID, IsRequired = false)] //allow non customers to set the customer id for updates
@@ -10,7 +9,6 @@ public class Request
     public int Age { get; set; }
     public string Address { get; set; }
 }
-#pragma warning restore CS8618
 
 public class Endpoint : Endpoint<Request>
 {
@@ -20,10 +18,11 @@ public class Endpoint : Endpoint<Request>
         Routes(
             "/customers/update",
             "/customer/save");
-        Claims(allowAny: true,
+        AnyClaim(
             Claim.AdminID,
             Claim.CustomerID);
-        Permissions(Allow.Customers_Update);
+        Permissions(
+            Allow.Customers_Update);
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)

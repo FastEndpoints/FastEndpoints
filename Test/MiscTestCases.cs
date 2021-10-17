@@ -14,7 +14,7 @@ namespace Test
         [TestMethod]
         public async Task MultiVerbEndpointAnonymousUserPutFail()
         {
-            using var imageContent = new ByteArrayContent(new byte[0]);
+            using var imageContent = new ByteArrayContent(Array.Empty<byte>());
             imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
 
             using var form = new MultipartFormDataContent { { imageContent, "File", "test.png" } };

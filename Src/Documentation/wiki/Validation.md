@@ -97,7 +97,7 @@ public class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse
         if (req.Age >= maxAge)
             AddError(r => r.Age, "you are not eligible for insurance!");
 
-        ThrowIfAnyErrors();
+        ThrowIfAnyErrors(); //because if there are errors, we shouldn't go beyond this point
 
         var userID = await userRepo.CreateNew(req);
         if (userID is null)

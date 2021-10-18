@@ -143,6 +143,16 @@
 <p>sends a 401 unauthorized response</p>
 <h4 id="sendforbiddenasync">SendForbiddenAsync()</h4>
 <p>sends a 403 unauthorized response</p>
+<h1 id="hook-methods">hook methods</h1>
+<p>the following 4 hook methods allow you to do something before and after dto validation as well as handler execution.</p>
+<h4 id="onbeforevalidate">OnBeforeValidate()</h4>
+<p>override this method if you'd like to do something to the request dto before it gets validated.</p>
+<h4 id="onaftervalidate">OnAfterValidate()</h4>
+<p>override this method if you'd like to do something to the request dto after it gets validated.</p>
+<h4 id="onbeforehandle">OnBeforeHandle()</h4>
+<p>override this method if you'd like to do something to the request dto before the handler is executed.</p>
+<h4 id="onafterhandle">OnAfterHandle()</h4>
+<p>override this method if you'd like to do something after the handler is executed.</p>
 </article>
           </div>
           

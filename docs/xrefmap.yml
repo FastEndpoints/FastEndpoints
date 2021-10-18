@@ -314,6 +314,74 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Logger
   nameWithType: Endpoint<TRequest, TResponse>.Logger
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Logger
+- uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  name: OnAfterHandle(TRequest, TResponse)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandle__0__1_
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
+- uid: FastEndpoints.Endpoint`2.OnAfterHandle*
+  name: OnAfterHandle
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandle_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnAfterHandle
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle
+- uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  name: OnAfterValidate(TRequest)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidate__0_
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnAfterValidate*
+  name: OnAfterValidate
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidate_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnAfterValidate
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  name: OnBeforeHandle(TRequest)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandle__0_
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandle*
+  name: OnBeforeHandle
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandle_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnBeforeHandle
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  name: OnBeforeValidate(TRequest)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidate__0_
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidate*
+  name: OnBeforeValidate
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidate_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnBeforeValidate
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate
 - uid: FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
   name: Options(Action<RouteHandlerBuilder>)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__

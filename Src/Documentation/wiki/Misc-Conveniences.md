@@ -57,7 +57,6 @@ sends a given string to the client in the response body
 #### SendOkAsync()
 sends a 200 ok response without any body.
 
-
 #### SendErrorsAsync()
 sends a 400 error response with the current list of validation errors describing the validation failures.
 
@@ -72,3 +71,18 @@ sends a 401 unauthorized response
 
 #### SendForbiddenAsync()
 sends a 403 unauthorized response
+
+# hook methods
+the following 4 hook methods allow you to do something before and after dto validation as well as handler execution.
+
+#### OnBeforeValidate()
+override this method if you'd like to do something to the request dto before it gets validated.
+
+#### OnAfterValidate()
+override this method if you'd like to do something to the request dto after it gets validated.
+
+#### OnBeforeHandle()
+override this method if you'd like to do something to the request dto before the handler is executed.
+
+#### OnAfterHandle()
+override this method if you'd like to do something after the handler is executed.

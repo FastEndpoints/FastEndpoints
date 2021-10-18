@@ -714,6 +714,128 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   </table>
   
   
+  <a id="FastEndpoints_Endpoint_2_OnAfterHandle_" data-uid="FastEndpoints.Endpoint`2.OnAfterHandle*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnAfterHandle__0__1_" data-uid="FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)">OnAfterHandle(TRequest, TResponse)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something after the handler is executed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void OnAfterHandle(TRequest req, TResponse res)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">TResponse</span></td>
+        <td><span class="parametername">res</span></td>
+        <td><p>the response dto that was sent to the client</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_OnAfterValidate_" data-uid="FastEndpoints.Endpoint`2.OnAfterValidate*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnAfterValidate__0_" data-uid="FastEndpoints.Endpoint`2.OnAfterValidate(`0)">OnAfterValidate(TRequest)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto after it gets validated.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void OnAfterValidate(TRequest req)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_OnBeforeHandle_" data-uid="FastEndpoints.Endpoint`2.OnBeforeHandle*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnBeforeHandle__0_" data-uid="FastEndpoints.Endpoint`2.OnBeforeHandle(`0)">OnBeforeHandle(TRequest)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto before the handler is executed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void OnBeforeHandle(TRequest req)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_OnBeforeValidate_" data-uid="FastEndpoints.Endpoint`2.OnBeforeValidate*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnBeforeValidate__0_" data-uid="FastEndpoints.Endpoint`2.OnBeforeValidate(`0)">OnBeforeValidate(TRequest)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto before it gets validated.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected virtual void OnBeforeValidate(TRequest req)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_Options_" data-uid="FastEndpoints.Endpoint`2.Options*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__" data-uid="FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})">Options(Action&lt;RouteHandlerBuilder&gt;)</h4>
   <div class="markdown level1 summary"><p>set endpoint configurations options using an endpoint builder action</p>

@@ -60,6 +60,10 @@ items:
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.PostProcessors(FastEndpoints.IPostProcessor{FastEndpoints.EmptyRequest,System.Object}[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnBeforeValidate(FastEndpoints.EmptyRequest)
+  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnAfterValidate(FastEndpoints.EmptyRequest)
+  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnBeforeHandle(FastEndpoints.EmptyRequest)
+  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnAfterHandle(FastEndpoints.EmptyRequest,System.Object)
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.HandleAsync(FastEndpoints.EmptyRequest,CancellationToken)
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AddError(System.String)
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AddError(System.Linq.Expressions.Expression{Func{FastEndpoints.EmptyRequest,System.Object}},System.String)
@@ -1241,6 +1245,178 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnBeforeValidate(FastEndpoints.EmptyRequest)
+  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnBeforeValidate(FastEndpoints.EmptyRequest)
+  parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}
+  definition: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  name: OnBeforeValidate(EmptyRequest)
+  nameWithType: Endpoint<EmptyRequest, Object>.OnBeforeValidate(EmptyRequest)
+  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.OnBeforeValidate(FastEndpoints.EmptyRequest)
+  nameWithType.vb: Endpoint(Of EmptyRequest, Object).OnBeforeValidate(EmptyRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).OnBeforeValidate(FastEndpoints.EmptyRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+    name: OnBeforeValidate
+    nameWithType: Endpoint<EmptyRequest, Object>.OnBeforeValidate
+    fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.OnBeforeValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+    nameWithType: EmptyRequest
+    fullName: FastEndpoints.EmptyRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+    name: OnBeforeValidate
+    nameWithType: Endpoint(Of EmptyRequest, Object).OnBeforeValidate
+    fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).OnBeforeValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+    nameWithType: EmptyRequest
+    fullName: FastEndpoints.EmptyRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnAfterValidate(FastEndpoints.EmptyRequest)
+  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnAfterValidate(FastEndpoints.EmptyRequest)
+  parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}
+  definition: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  name: OnAfterValidate(EmptyRequest)
+  nameWithType: Endpoint<EmptyRequest, Object>.OnAfterValidate(EmptyRequest)
+  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.OnAfterValidate(FastEndpoints.EmptyRequest)
+  nameWithType.vb: Endpoint(Of EmptyRequest, Object).OnAfterValidate(EmptyRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).OnAfterValidate(FastEndpoints.EmptyRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+    name: OnAfterValidate
+    nameWithType: Endpoint<EmptyRequest, Object>.OnAfterValidate
+    fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.OnAfterValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+    nameWithType: EmptyRequest
+    fullName: FastEndpoints.EmptyRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+    name: OnAfterValidate
+    nameWithType: Endpoint(Of EmptyRequest, Object).OnAfterValidate
+    fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).OnAfterValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+    nameWithType: EmptyRequest
+    fullName: FastEndpoints.EmptyRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnBeforeHandle(FastEndpoints.EmptyRequest)
+  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnBeforeHandle(FastEndpoints.EmptyRequest)
+  parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}
+  definition: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  name: OnBeforeHandle(EmptyRequest)
+  nameWithType: Endpoint<EmptyRequest, Object>.OnBeforeHandle(EmptyRequest)
+  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.OnBeforeHandle(FastEndpoints.EmptyRequest)
+  nameWithType.vb: Endpoint(Of EmptyRequest, Object).OnBeforeHandle(EmptyRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).OnBeforeHandle(FastEndpoints.EmptyRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+    name: OnBeforeHandle
+    nameWithType: Endpoint<EmptyRequest, Object>.OnBeforeHandle
+    fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.OnBeforeHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+    nameWithType: EmptyRequest
+    fullName: FastEndpoints.EmptyRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+    name: OnBeforeHandle
+    nameWithType: Endpoint(Of EmptyRequest, Object).OnBeforeHandle
+    fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).OnBeforeHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+    nameWithType: EmptyRequest
+    fullName: FastEndpoints.EmptyRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnAfterHandle(FastEndpoints.EmptyRequest,System.Object)
+  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.OnAfterHandle(FastEndpoints.EmptyRequest,System.Object)
+  parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}
+  definition: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  name: OnAfterHandle(EmptyRequest, Object)
+  nameWithType: Endpoint<EmptyRequest, Object>.OnAfterHandle(EmptyRequest, Object)
+  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.OnAfterHandle(FastEndpoints.EmptyRequest, System.Object)
+  nameWithType.vb: Endpoint(Of EmptyRequest, Object).OnAfterHandle(EmptyRequest, Object)
+  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).OnAfterHandle(FastEndpoints.EmptyRequest, System.Object)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+    name: OnAfterHandle
+    nameWithType: Endpoint<EmptyRequest, Object>.OnAfterHandle
+    fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.OnAfterHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+    nameWithType: EmptyRequest
+    fullName: FastEndpoints.EmptyRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+    name: OnAfterHandle
+    nameWithType: Endpoint(Of EmptyRequest, Object).OnAfterHandle
+    fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).OnAfterHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: FastEndpoints.EmptyRequest
+    name: EmptyRequest
+    nameWithType: EmptyRequest
+    fullName: FastEndpoints.EmptyRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
@@ -3844,6 +4020,158 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  name: OnBeforeValidate(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+    name: OnBeforeValidate
+    nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+    name: OnBeforeValidate
+    nameWithType: Endpoint(Of TRequest, TResponse).OnBeforeValidate
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  name: OnAfterValidate(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+    name: OnAfterValidate
+    nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+    name: OnAfterValidate
+    nameWithType: Endpoint(Of TRequest, TResponse).OnAfterValidate
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  name: OnBeforeHandle(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+    name: OnBeforeHandle
+    nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+    name: OnBeforeHandle
+    nameWithType: Endpoint(Of TRequest, TResponse).OnBeforeHandle
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  name: OnAfterHandle(TRequest, TResponse)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+    name: OnAfterHandle
+    nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+    name: OnAfterHandle
+    nameWithType: Endpoint(Of TRequest, TResponse).OnAfterHandle
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
   - name: )
     nameWithType: )
     fullName: )

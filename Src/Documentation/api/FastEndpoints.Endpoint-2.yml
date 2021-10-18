@@ -22,6 +22,10 @@ items:
   - FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)
   - FastEndpoints.Endpoint`2.HttpMethod
   - FastEndpoints.Endpoint`2.Logger
+  - FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  - FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  - FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  - FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
   - FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
   - FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
   - FastEndpoints.Endpoint`2.Permissions(System.String[])
@@ -1060,6 +1064,153 @@ items:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Options(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder))
   name.vb: Options(Action(Of RouteHandlerBuilder))
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  id: OnBeforeValidate(`0)
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: OnBeforeValidate(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
+  type: Method
+  source:
+    id: OnBeforeValidate
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 248
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\noverride this method if you&apos;d like to do something to the request dto before it gets validated.\n"
+  example: []
+  syntax:
+    content: protected virtual void OnBeforeValidate(TRequest req)
+    parameters:
+    - id: req
+      type: '{TRequest}'
+      description: the request dto
+    content.vb: Protected Overridable Sub OnBeforeValidate(req As TRequest)
+  overload: FastEndpoints.Endpoint`2.OnBeforeValidate*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
+  modifiers.csharp:
+  - protected
+  - virtual
+  modifiers.vb:
+  - Protected
+  - Overridable
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  id: OnAfterValidate(`0)
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: OnAfterValidate(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
+  type: Method
+  source:
+    id: OnAfterValidate
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 253
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\noverride this method if you&apos;d like to do something to the request dto after it gets validated.\n"
+  example: []
+  syntax:
+    content: protected virtual void OnAfterValidate(TRequest req)
+    parameters:
+    - id: req
+      type: '{TRequest}'
+      description: the request dto
+    content.vb: Protected Overridable Sub OnAfterValidate(req As TRequest)
+  overload: FastEndpoints.Endpoint`2.OnAfterValidate*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
+  modifiers.csharp:
+  - protected
+  - virtual
+  modifiers.vb:
+  - Protected
+  - Overridable
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  id: OnBeforeHandle(`0)
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: OnBeforeHandle(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
+  type: Method
+  source:
+    id: OnBeforeHandle
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 258
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\noverride this method if you&apos;d like to do something to the request dto before the handler is executed.\n"
+  example: []
+  syntax:
+    content: protected virtual void OnBeforeHandle(TRequest req)
+    parameters:
+    - id: req
+      type: '{TRequest}'
+      description: the request dto
+    content.vb: Protected Overridable Sub OnBeforeHandle(req As TRequest)
+  overload: FastEndpoints.Endpoint`2.OnBeforeHandle*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
+  modifiers.csharp:
+  - protected
+  - virtual
+  modifiers.vb:
+  - Protected
+  - Overridable
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  id: OnAfterHandle(`0,`1)
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: OnAfterHandle(TRequest, TResponse)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
+  type: Method
+  source:
+    id: OnAfterHandle
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 264
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\noverride this method if you&apos;d like to do something after the handler is executed.\n"
+  example: []
+  syntax:
+    content: protected virtual void OnAfterHandle(TRequest req, TResponse res)
+    parameters:
+    - id: req
+      type: '{TRequest}'
+      description: the request dto
+    - id: res
+      type: '{TResponse}'
+      description: the response dto that was sent to the client
+    content.vb: Protected Overridable Sub OnAfterHandle(req As TRequest, res As TResponse)
+  overload: FastEndpoints.Endpoint`2.OnAfterHandle*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
+  modifiers.csharp:
+  - protected
+  - virtual
+  modifiers.vb:
+  - Protected
+  - Overridable
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
 - uid: FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)
   commentId: M:FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)
   id: HandleAsync(`0,CancellationToken)
@@ -1074,7 +1225,7 @@ items:
   source:
     id: HandleAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 250
+    startLine: 271
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1115,7 +1266,7 @@ items:
   source:
     id: AddError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 274
+    startLine: 299
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1149,7 +1300,7 @@ items:
   source:
     id: AddError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 282
+    startLine: 307
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1187,7 +1338,7 @@ items:
   source:
     id: ThrowIfAnyErrors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 291
+    startLine: 316
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1217,7 +1368,7 @@ items:
   source:
     id: ThrowError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 300
+    startLine: 325
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1251,7 +1402,7 @@ items:
   source:
     id: ThrowError
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 311
+    startLine: 336
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1289,7 +1440,7 @@ items:
   source:
     id: SendAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 323
+    startLine: 348
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1331,7 +1482,7 @@ items:
   source:
     id: SendStringAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 336
+    startLine: 361
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1373,7 +1524,7 @@ items:
   source:
     id: SendOkAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 345
+    startLine: 371
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1405,7 +1556,7 @@ items:
   source:
     id: SendErrorsAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 355
+    startLine: 381
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1441,7 +1592,7 @@ items:
   source:
     id: SendNoContentAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 364
+    startLine: 390
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1473,7 +1624,7 @@ items:
   source:
     id: SendNotFoundAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 373
+    startLine: 399
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1505,7 +1656,7 @@ items:
   source:
     id: SendUnauthorizedAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 382
+    startLine: 408
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1537,7 +1688,7 @@ items:
   source:
     id: SendForbiddenAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 391
+    startLine: 417
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1569,7 +1720,7 @@ items:
   source:
     id: SendBytesAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 403
+    startLine: 429
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1615,7 +1766,7 @@ items:
   source:
     id: SendFileAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 415
+    startLine: 441
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1657,7 +1808,7 @@ items:
   source:
     id: SendStreamAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 428
+    startLine: 454
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1706,7 +1857,7 @@ items:
   source:
     id: PublishAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 450
+    startLine: 476
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1761,7 +1912,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 457
+    startLine: 483
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1797,7 +1948,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 463
+    startLine: 489
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1833,7 +1984,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 470
+    startLine: 496
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1869,7 +2020,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 477
+    startLine: 503
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2720,6 +2871,44 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidate*
+  commentId: Overload:FastEndpoints.Endpoint`2.OnBeforeValidate
+  name: OnBeforeValidate
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate
+- uid: '{TRequest}'
+  commentId: '!:TRequest'
+  definition: TRequest
+  name: TRequest
+  nameWithType: TRequest
+  fullName: TRequest
+- uid: TRequest
+  name: TRequest
+  nameWithType: TRequest
+  fullName: TRequest
+- uid: FastEndpoints.Endpoint`2.OnAfterValidate*
+  commentId: Overload:FastEndpoints.Endpoint`2.OnAfterValidate
+  name: OnAfterValidate
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandle*
+  commentId: Overload:FastEndpoints.Endpoint`2.OnBeforeHandle
+  name: OnBeforeHandle
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle
+- uid: FastEndpoints.Endpoint`2.OnAfterHandle*
+  commentId: Overload:FastEndpoints.Endpoint`2.OnAfterHandle
+  name: OnAfterHandle
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle
 - uid: FastEndpoints.Endpoint`2.HandleAsync*
   commentId: Overload:FastEndpoints.Endpoint`2.HandleAsync
   name: HandleAsync
@@ -2727,12 +2916,6 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, TResponse>.HandleAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).HandleAsync
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HandleAsync
-- uid: '{TRequest}'
-  commentId: '!:TRequest'
-  definition: TRequest
-  name: TRequest
-  nameWithType: TRequest
-  fullName: TRequest
 - uid: CancellationToken
   isExternal: true
   name: CancellationToken
@@ -2743,10 +2926,6 @@ references:
   name: Task
   nameWithType: Task
   fullName: Task
-- uid: TRequest
-  name: TRequest
-  nameWithType: TRequest
-  fullName: TRequest
 - uid: FastEndpoints.Endpoint`2.AddError*
   commentId: Overload:FastEndpoints.Endpoint`2.AddError
   name: AddError

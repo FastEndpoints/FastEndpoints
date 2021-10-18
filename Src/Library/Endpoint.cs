@@ -242,6 +242,27 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
     protected void Options(Action<RouteHandlerBuilder> builder) => Settings.UserConfigAction = builder;
+    /// <summary>
+    /// override this method if you'd like to do something to the request dto before it gets validated.
+    /// </summary>
+    /// <param name="req">the request dto</param>
+    protected virtual void OnBeforeValidate(TRequest req) { }
+    /// <summary>
+    /// override this method if you'd like to do something to the request dto after it gets validated.
+    /// </summary>
+    /// <param name="req">the request dto</param>
+    protected virtual void OnAfterValidate(TRequest req) { }
+    /// <summary>
+    /// override this method if you'd like to do something to the request dto before the handler is executed.
+    /// </summary>
+    /// <param name="req">the request dto</param>
+    protected virtual void OnBeforeHandle(TRequest req) { }
+    /// <summary>
+    /// override this method if you'd like to do something after the handler is executed.
+    /// </summary>
+    /// <param name="req">the request dto</param>
+    /// <param name="res">the response dto that was sent to the client</param>
+    protected virtual void OnAfterHandle(TRequest req, TResponse res) { }
 
     /// <summary>
     /// the handler method for the endpoint. this method is called for each request received.
@@ -257,10 +278,14 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
         try
         {
             BindFromUserClaims(req, ctx, ValidationFailures);
-            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, preProcessors, cancellation).ConfigureAwait(false);
-            await RunPreprocessors(preProcessors, req, cancellation).ConfigureAwait(false);
+            OnBeforeValidate(req);
+            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, ctx, preProcessors, ValidationFailures, cancellation).ConfigureAwait(false);
+            OnAfterValidate(req);
+            await RunPreprocessors(preProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            OnBeforeHandle(req);
             await HandleAsync(req, cancellation).ConfigureAwait(false);
-            await RunPostProcessors(postProcessors, req, cancellation).ConfigureAwait(false);
+            OnAfterHandle(req, Response);
+            await RunPostProcessors(postProcessors, req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
         }
         catch (ValidationFailureException)
         {
@@ -496,37 +521,37 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
         return req;
     }
 
-    private async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, object? preProcessors, CancellationToken cancellation)
+    private static async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, HttpContext ctx, object? preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         if (validator is null) return;
 
         var valResult = await validator.ValidateAsync(req, cancellation).ConfigureAwait(false);
 
         if (!valResult.IsValid)
-            ValidationFailures.AddRange(valResult.Errors);
+            validationFailures.AddRange(valResult.Errors);
 
-        if (ValidationFailed && ((IValidatorWithState)validator).ThrowIfValidationFails)
+        if (validationFailures.Count > 0 && ((IValidatorWithState)validator).ThrowIfValidationFails)
         {
-            await RunPreprocessors(preProcessors, req, cancellation).ConfigureAwait(false);
+            await RunPreprocessors(preProcessors, req, ctx, validationFailures, cancellation).ConfigureAwait(false);
             throw new ValidationFailureException();
         }
     }
 
-    private async Task RunPostProcessors(object? postProcessors, TRequest req, CancellationToken cancellation)
+    private static async Task RunPostProcessors(object? postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         if (postProcessors is not null)
         {
             foreach (var pp in (IPostProcessor<TRequest, TResponse>[])postProcessors)
-                await pp.PostProcessAsync(req, Response, HttpContext, ValidationFailures, cancellation).ConfigureAwait(false);
+                await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation).ConfigureAwait(false);
         }
     }
 
-    private async Task RunPreprocessors(object? preProcessors, TRequest req, CancellationToken cancellation)
+    private static async Task RunPreprocessors(object? preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         if (preProcessors is not null)
         {
             foreach (var p in (IPreProcessor<TRequest>[])preProcessors)
-                await p.PreProcessAsync(req, HttpContext, ValidationFailures, cancellation).ConfigureAwait(false);
+                await p.PreProcessAsync(req, ctx, validationFailures, cancellation).ConfigureAwait(false);
         }
     }
 

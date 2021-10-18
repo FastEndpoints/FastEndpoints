@@ -2,11 +2,13 @@
 
   <PropertyGroup>
 
-    <Version>2.3.0-beta1</Version>
+    <Version>2.3.0-beta2</Version>
     
     <PackageReleaseNotes>
+      - add OnBeforeValidate/OnAfterValidate hooks
+      - add OnBeforeHandle/OnAfterHandle hooks
       - set content-type to text/plain in SendStringAsync()
-      - 
+      - optimize Endpoint class
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

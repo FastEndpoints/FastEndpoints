@@ -174,5 +174,21 @@ namespace Test
             Assert.AreEqual(2, res.Errors.Count);
             Assert.AreEqual("blah", res.Errors["x"].First());
         }
+
+        [TestMethod]
+        public async Task OnBeforeOnAfterValidation()
+        {
+            var (rsp, res) = await AdminClient.POSTAsync<
+            TestCases.OnBeforeAfterValidationTest.Endpoint,
+            TestCases.OnBeforeAfterValidationTest.Request,
+            TestCases.OnBeforeAfterValidationTest.Response>(new()
+            {
+                Host = "blah",
+                Verb = Http.DELETE
+            });
+
+            Assert.AreEqual(HttpStatusCode.OK, rsp.StatusCode);
+            Assert.AreEqual("localhost", res.Host);
+        }
     }
 }

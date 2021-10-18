@@ -55,5 +55,6 @@ public class Endpoint : Endpoint<Request, Response>
 
         return SendErrorsAsync();
     }
+
 }
 

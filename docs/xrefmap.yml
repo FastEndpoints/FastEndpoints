@@ -195,6 +195,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Config
   nameWithType: Endpoint<TRequest, TResponse>.Config
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Config
+- uid: FastEndpoints.Endpoint`2.Delete(System.String[])
+  name: Delete(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Delete_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Delete(System.String[])
+  name.vb: Delete(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Delete(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Delete(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Delete(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Delete(String())
+- uid: FastEndpoints.Endpoint`2.Delete*
+  name: Delete
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Delete_
+  commentId: Overload:FastEndpoints.Endpoint`2.Delete
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Delete
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Delete
+  nameWithType: Endpoint<TRequest, TResponse>.Delete
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Delete
 - uid: FastEndpoints.Endpoint`2.DontThrowIfValidationFails
   name: DontThrowIfValidationFails()
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontThrowIfValidationFails
@@ -263,6 +281,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Form
   nameWithType: Endpoint<TRequest, TResponse>.Form
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Form
+- uid: FastEndpoints.Endpoint`2.Get(System.String[])
+  name: Get(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Get_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Get(System.String[])
+  name.vb: Get(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Get(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Get(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Get(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Get(String())
+- uid: FastEndpoints.Endpoint`2.Get*
+  name: Get
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Get_
+  commentId: Overload:FastEndpoints.Endpoint`2.Get
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Get
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Get
+  nameWithType: Endpoint<TRequest, TResponse>.Get
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Get
 - uid: FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)
   name: HandleAsync(TRequest, CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HandleAsync__0_CancellationToken_
@@ -400,6 +436,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Options
   nameWithType: Endpoint<TRequest, TResponse>.Options
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Options
+- uid: FastEndpoints.Endpoint`2.Patch(System.String[])
+  name: Patch(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Patch_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Patch(System.String[])
+  name.vb: Patch(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Patch(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Patch(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Patch(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Patch(String())
+- uid: FastEndpoints.Endpoint`2.Patch*
+  name: Patch
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Patch_
+  commentId: Overload:FastEndpoints.Endpoint`2.Patch
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Patch
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Patch
+  nameWithType: Endpoint<TRequest, TResponse>.Patch
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Patch
 - uid: FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
   name: Permissions(Boolean, String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Permissions_System_Boolean_System_String___
@@ -445,6 +499,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Policies
   nameWithType: Endpoint<TRequest, TResponse>.Policies
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Policies
+- uid: FastEndpoints.Endpoint`2.Post(System.String[])
+  name: Post(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Post_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Post(System.String[])
+  name.vb: Post(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Post(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Post(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Post(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Post(String())
+- uid: FastEndpoints.Endpoint`2.Post*
+  name: Post
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Post_
+  commentId: Overload:FastEndpoints.Endpoint`2.Post
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Post
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Post
+  nameWithType: Endpoint<TRequest, TResponse>.Post
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Post
 - uid: FastEndpoints.Endpoint`2.PostProcessors(FastEndpoints.IPostProcessor{`0,`1}[])
   name: PostProcessors(IPostProcessor<TRequest, TResponse>[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PostProcessors_FastEndpoints_IPostProcessor__0__1____
@@ -499,6 +571,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PublishAsync(Of TEvent)(TEvent, FastEndpoints.Mode, CancellationToken)
   nameWithType: Endpoint<TRequest, TResponse>.PublishAsync<TEvent>(TEvent, Mode, CancellationToken)
   nameWithType.vb: Endpoint(Of TRequest, TResponse).PublishAsync(Of TEvent)(TEvent, Mode, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.Put(System.String[])
+  name: Put(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Put_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Put(System.String[])
+  name.vb: Put(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Put(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Put(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Put(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Put(String())
+- uid: FastEndpoints.Endpoint`2.Put*
+  name: Put
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Put_
+  commentId: Overload:FastEndpoints.Endpoint`2.Put
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Put
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Put
+  nameWithType: Endpoint<TRequest, TResponse>.Put
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Put
 - uid: FastEndpoints.Endpoint`2.Resolve(Type)
   name: Resolve(Type)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Resolve_Type_

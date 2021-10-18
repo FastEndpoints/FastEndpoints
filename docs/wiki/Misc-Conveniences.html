@@ -99,6 +99,14 @@
               .RequireHost(&quot;domain.com&quot;)
               .ProducesProblem(404));
 </code></pre>
+<h1 id="shorthand-route-configuration">shorthand route configuration</h1>
+<p>instead of the <code>Verbs() and Routes()</code> combo, you can use the shorthand versions that combines them with <code>Get(), Post(), Put(), Patch(), Delete()</code> when configuring your endpoints like so:</p>
+<pre><code class="lang-csharp">public override void Configure( )
+{
+    Get(&quot;/api/customer/{CustomerID}&quot;);
+}
+</code></pre>
+<p>the above is equivalent to using both <code>Verbs() and Routes()</code>. do note that you can't configure multiple verbs with the shorthand version. you can however setup multiple route patterns with the shorthand methods.</p>
 <h1 id="endpoint-properties">endpoint properties</h1>
 <p>the following properties are available to all endpoint classes.</p>
 <h4 id="baseurl-string">BaseURL (string)</h4>

@@ -6,6 +6,17 @@ Options(b => b.RequireCors(x => x.AllowAnyOrigin())
               .ProducesProblem(404));
 ```
 
+# shorthand route configuration
+
+instead of the `Verbs() and Routes()` combo, you can use the shorthand versions that combines them with `Get(), Post(), Put(), Patch(), Delete()` when configuring your endpoints like so:
+```csharp
+public override void Configure( )
+{
+    Get("/api/customer/{CustomerID}");
+}
+```
+the above is equivalent to using both `Verbs() and Routes()`. do note that you can't configure multiple verbs with the shorthand version. you can however setup multiple route patterns with the shorthand methods.
+
 # endpoint properties
 the following properties are available to all endpoint classes.
 

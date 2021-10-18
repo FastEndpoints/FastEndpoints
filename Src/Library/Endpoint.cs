@@ -337,6 +337,7 @@ public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint where TReques
     protected Task SendStringAsync(string content, int statusCode = 200, CancellationToken cancellation = default)
     {
         HttpContext.Response.StatusCode = statusCode;
+        HttpContext.Response.ContentType = "text/plain";
         return HttpContext.Response.WriteAsync(content, cancellation);
     }
 

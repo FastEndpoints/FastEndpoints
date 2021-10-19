@@ -28,9 +28,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class EndpointWithoutRequest(Of TResponse As New)
-
           Inherits Endpoint(Of EmptyRequest, TResponse)
-
           Implements IEndpoint
   inheritance:
   - System.Object

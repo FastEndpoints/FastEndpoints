@@ -25,9 +25,7 @@ items:
     content: 'public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest>, IEndpoint'
     content.vb: >-
       Public MustInherit Class EndpointWithoutRequest
-
           Inherits Endpoint(Of EmptyRequest)
-
           Implements IEndpoint
   inheritance:
   - System.Object

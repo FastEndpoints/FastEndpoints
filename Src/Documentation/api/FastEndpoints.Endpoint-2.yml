@@ -83,7 +83,6 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint where TRequest : new()
-
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -92,9 +91,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New, TResponse As New)
-
           Inherits BaseEndpoint
-
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -476,7 +473,6 @@ items:
   syntax:
     content: >-
       protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
           where TEvent : class
     parameters:
     - id: eventModel

@@ -65,7 +65,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "/N81H7W/S8ybJUbMYT5KxDhhASwNltiRDFzcRa7JW2o="
+          "hash": "thlBaOzMJgh7SWEgjrk/zYfB3rDAK1AmvWgxccJldZc="
         }
       },
       "is_incremental": false,
@@ -113,7 +113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.FastEventHandler-1.html",
-          "hash": "GQOaZvgzry1STObncoIw7mfbkU8dEnYyWXjOimnPvb0="
+          "hash": "iId6jisH0U7tIJWCYQQHKiovjLCbbm7KW9eBMqSQyU4="
         }
       },
       "is_incremental": false,
@@ -161,7 +161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
-          "hash": "vqBZchAOR0GZNSLSDxkji1u6LnN+d1zZA4E97t1umBY="
+          "hash": "RKiOKG77E8a8bUOSB7be+SfgTwzUwAboytDXiEdh7mY="
         }
       },
       "is_incremental": false,
@@ -592,6 +592,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/Swagger-Support.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Swagger-Support.html",
+          "hash": "ncn1mG/d2T5e6yk103tPyboyiI7HBP+ckFSGnHgm2/s="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/VS-Extension.md",
       "output": {
         ".html": {
@@ -620,7 +632,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "E4udCptWvkTBcwAjxFqbdfsYi46fmwii46q4CbsX3fc="
+          "hash": "4P/e0Oq7bWgZVqQ9/Z/wf6kObGtbJBSt71tSJK0GJDU="
         }
       },
       "is_incremental": false,
@@ -639,14 +651,14 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 14,
-          "skipped_file_count": 13
+          "total_file_count": 15,
+          "skipped_file_count": 14
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 25,
-          "skipped_file_count": 15
+          "skipped_file_count": 25
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,

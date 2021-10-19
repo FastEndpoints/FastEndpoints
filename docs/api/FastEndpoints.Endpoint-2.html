@@ -138,6 +138,7 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint where TRequest : new()
+
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -528,6 +529,17 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected void AllowFileUploads()</code></pre>
+  </div>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_AllowFormData_" data-uid="FastEndpoints.Endpoint`2.AllowFormData*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_AllowFormData" data-uid="FastEndpoints.Endpoint`2.AllowFormData">AllowFormData()</h4>
+  <div class="markdown level1 summary"><p>enable multipart/form-data submissions</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void AllowFormData()</code></pre>
   </div>
   
   
@@ -1136,6 +1148,7 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>

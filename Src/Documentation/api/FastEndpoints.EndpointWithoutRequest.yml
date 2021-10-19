@@ -25,7 +25,9 @@ items:
     content: 'public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest>, IEndpoint'
     content.vb: >-
       Public MustInherit Class EndpointWithoutRequest
+
           Inherits Endpoint(Of EmptyRequest)
+
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -74,6 +76,7 @@ items:
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.DontThrowIfValidationFails
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AllowAnonymous(FastEndpoints.Http[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AllowFileUploads
+  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AllowFormData
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.Policies(System.String[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.Roles(System.String[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.Permissions(System.String[])
@@ -1827,6 +1830,37 @@ references:
     name: AllowFileUploads
     nameWithType: Endpoint(Of EmptyRequest, Object).AllowFileUploads
     fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).AllowFileUploads
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AllowFormData
+  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.AllowFormData
+  parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}
+  definition: FastEndpoints.Endpoint`2.AllowFormData
+  name: AllowFormData()
+  nameWithType: Endpoint<EmptyRequest, Object>.AllowFormData()
+  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.AllowFormData()
+  nameWithType.vb: Endpoint(Of EmptyRequest, Object).AllowFormData()
+  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).AllowFormData()
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.AllowFormData
+    name: AllowFormData
+    nameWithType: Endpoint<EmptyRequest, Object>.AllowFormData
+    fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, System.Object>.AllowFormData
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.AllowFormData
+    name: AllowFormData
+    nameWithType: Endpoint(Of EmptyRequest, Object).AllowFormData
+    fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, System.Object).AllowFormData
   - name: (
     nameWithType: (
     fullName: (
@@ -4809,6 +4843,35 @@ references:
     name: AllowFileUploads
     nameWithType: Endpoint(Of TRequest, TResponse).AllowFileUploads
     fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFileUploads
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.AllowFormData
+  commentId: M:FastEndpoints.Endpoint`2.AllowFormData
+  name: AllowFormData()
+  nameWithType: Endpoint<TRequest, TResponse>.AllowFormData()
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowFormData()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFormData()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFormData()
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.AllowFormData
+    name: AllowFormData
+    nameWithType: Endpoint<TRequest, TResponse>.AllowFormData
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowFormData
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.AllowFormData
+    name: AllowFormData
+    nameWithType: Endpoint(Of TRequest, TResponse).AllowFormData
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFormData
   - name: (
     nameWithType: (
     fullName: (

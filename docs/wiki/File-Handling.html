@@ -121,6 +121,17 @@
 }
 </code></pre>
 <p>endpoints by default won't allow <code>multipart/form-data</code> content uploads. you'd have to enable file uploads by using the <code>AllowFileUploads()</code> method in the handler configuration like shown above. the received files are exposed to the endpoint handler via the <code>Files</code> property which is of <code>IFormFileCollection</code> type.</p>
+<h2 id="binding-files-to-dto">binding files to dto</h2>
+<p>file data can also be automatically bound to the request dto by simply adding an <code>IFormFile</code> property with a matching name.</p>
+<pre><code class="lang-csharp">public class MyRequest
+{
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public IFormFile File1 { get; set; }
+    public IFormFile File2 { get; set; }
+    public IFormFile File3 { get; set; }
+}
+</code></pre>
 <h1 id="sending-file-responses">sending file responses</h1>
 <p>there are 3 methods you can use to send file data down to the client.</p>
 <p><strong>SendStreamAsync()</strong> - you can supply a <code>System.IO.Stream</code> to this method for reading binary data from.</p>

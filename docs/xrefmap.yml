@@ -98,6 +98,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFileUploads
   nameWithType: Endpoint<TRequest, TResponse>.AllowFileUploads
   nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFileUploads
+- uid: FastEndpoints.Endpoint`2.AllowFormData
+  name: AllowFormData()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFormData
+  commentId: M:FastEndpoints.Endpoint`2.AllowFormData
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowFormData()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFormData()
+  nameWithType: Endpoint<TRequest, TResponse>.AllowFormData()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFormData()
+- uid: FastEndpoints.Endpoint`2.AllowFormData*
+  name: AllowFormData
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFormData_
+  commentId: Overload:FastEndpoints.Endpoint`2.AllowFormData
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowFormData
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFormData
+  nameWithType: Endpoint<TRequest, TResponse>.AllowFormData
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFormData
 - uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
   name: AnyClaim(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyClaim_System_String___

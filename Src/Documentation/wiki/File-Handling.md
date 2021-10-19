@@ -31,6 +31,19 @@ public class MyEndpoint : Endpoint<MyRequest>
 
 endpoints by default won't allow `multipart/form-data` content uploads. you'd have to enable file uploads by using the `AllowFileUploads()` method in the handler configuration like shown above. the received files are exposed to the endpoint handler via the `Files` property which is of `IFormFileCollection` type.
 
+## binding files to dto
+file data can also be automatically bound to the request dto by simply adding an `IFormFile` property with a matching name.
+```csharp
+public class MyRequest
+{
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public IFormFile File1 { get; set; }
+    public IFormFile File2 { get; set; }
+    public IFormFile File3 { get; set; }
+}
+```
+
 # sending file responses
 
 there are 3 methods you can use to send file data down to the client.

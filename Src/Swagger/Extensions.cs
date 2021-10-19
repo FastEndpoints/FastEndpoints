@@ -3,7 +3,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.RegularExpressions;
 
-namespace FastEndpoints.SwaggerExtensions;
+namespace FastEndpoints.Swagger;
 
 /// <summary>
 /// a set of extension methods to adding swagger support

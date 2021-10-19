@@ -80,7 +80,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
-    protected void AllowFileUploads() => Settings.AllowFileUploads = true;
+    protected void AllowFileUploads() => Settings.DtoTypeForFormData = typeof(TRequest);
+    /// <summary>
+    /// enable multipart/form-data submissions
+    /// </summary>
+    protected void AllowFormData() => Settings.DtoTypeForFormData = typeof(TRequest);
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
     /// </summary>

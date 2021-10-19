@@ -10,6 +10,7 @@ public class Endpoint : Endpoint<Request>
         Permissions(Allow.Image_Update);
         Claims(Claim.AdminID);
         AllowFileUploads();
+        Options(b => b.Accepts<Request>("multipart/form-data"));
     }
 
     public override Task HandleAsync(Request r, CancellationToken ct)

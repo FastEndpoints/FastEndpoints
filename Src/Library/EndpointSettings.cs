@@ -15,7 +15,7 @@ internal class EndpointSettings
     internal bool AllowAnyPermission;
     internal string[]? Claims;
     internal bool AllowAnyClaim;
-    internal bool AllowFileUploads;
+    internal Type? DtoTypeForFormData;
     internal Action<RouteHandlerBuilder>? InternalConfigAction;
     internal Action<RouteHandlerBuilder>? UserConfigAction;
     internal object? PreProcessors;

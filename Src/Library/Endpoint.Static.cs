@@ -65,8 +65,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         var formFields = httpRequest.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
 
-        for (int i = 0; i < formFields.Length; i++)
-            Bind(req, formFields[i]);
+        for (int x = 0; x < formFields.Length; x++)
+            Bind(req, formFields[x]);
+
+        for (int y = 0; y < httpRequest.Form.Files.Count; y++)
+        {
+            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(httpRequest.Form.Files[y].Name.ToLower(), out var prop))
+            {
+                if (prop.PropInfo.PropertyType == typeof(IFormFile))
+                    prop.PropInfo.SetValue(req, httpRequest.Form.Files[y]);
+                else
+                    throw new NotSupportedException($"{typeof(TRequest).FullName}.{prop.PropInfo.Name} is not an IFormFile property!");
+            }
+        }
     }
 
     private static void BindFromUserClaims(TRequest req, HttpContext ctx, List<ValidationFailure> failures)
@@ -143,7 +154,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (!success)
             {
                 throw new NotSupportedException(
-                "Binding route value failed! " +
+                "Model binding failed! " +
                 $"{typeof(TRequest).FullName}.{prop.PropInfo.Name}[{prop.TypeCode}] Tried: \"{rv.Value}\"");
             }
         }

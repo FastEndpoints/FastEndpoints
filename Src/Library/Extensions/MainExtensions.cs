@@ -97,7 +97,7 @@ public static class MainExtensions
                         eb.RequireAuthorization(policiesToAdd.ToArray());
 
                     if (epSettings.ResponseCacheSettings is not null) eb.WithMetadata(epSettings.ResponseCacheSettings);
-                    if (epSettings.AllowFileUploads is true) eb.Accepts<IFormFile>("multipart/form-data");
+                    if (epSettings.DtoTypeForFormData is not null) eb.Accepts(epSettings.DtoTypeForFormData, "multipart/form-data");
                     if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(eb);//always do this last - allow user to override everything done above
 
                     var cacheKey = $"{verb}:{route}";

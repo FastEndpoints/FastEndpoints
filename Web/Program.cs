@@ -42,7 +42,7 @@ builder.Services.AddSwaggerGen(o =>
             Array.Empty<string>()
         }
     });
-}).AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
+}).AddMvcCore().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 
 WebApplication app = builder.Build();
 

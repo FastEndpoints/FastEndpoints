@@ -14,12 +14,7 @@ builder.Services.AddCors();
 builder.Services.AddResponseCaching();
 builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(o =>
-{
-    o.EnableFastEndpoints();
-    o.EnableJWTBearerAuth();
-}).AddMvcCore().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
+builder.Services.AddSwagger();
 
 WebApplication app = builder.Build();
 

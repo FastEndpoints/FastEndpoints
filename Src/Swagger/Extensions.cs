@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text.RegularExpressions;
@@ -25,14 +26,14 @@ public static class Extensions
     /// </summary>
     public static void EnableJWTBearerAuth(this SwaggerGenOptions options)
     {
-        options.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme
+        options.AddSecurityDefinition("BearerAuth", new OpenApiSecurityScheme
         {
             Name = "Authorization",
             Type = SecuritySchemeType.Http,
             Scheme = "bearer",
             BearerFormat = "JWT",
             In = ParameterLocation.Header,
-            Description = "JWT Authorization header using the Bearer scheme."
+            Description = "Enter a JWT token to authorize the requests..."
         });
 
         options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -43,12 +44,39 @@ public static class Extensions
                     Reference = new OpenApiReference
                     {
                         Type = ReferenceType.SecurityScheme,
-                        Id = "bearerAuth"
+                        Id = "BearerAuth"
                     }
                 },
                 Array.Empty<string>()
             }
         });
+    }
+
+    /// <summary>
+    /// enable swagger support for FastEndpoints with a single call.
+    /// </summary>
+    /// <param name="options">swaggergen config options</param>
+    /// <param name="serializerOptions">json serializer options</param>
+    /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
+    public static IServiceCollection AddSwagger(this IServiceCollection services,
+        Action<SwaggerGenOptions>? options = null,
+        Action<JsonOptions>? serializerOptions = null,
+        bool addJWTBearerAuth = true)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(o =>
+        {
+            o.EnableFastEndpoints();
+            if (addJWTBearerAuth) o.EnableJWTBearerAuth();
+            options?.Invoke(o);
+        });
+
+        if (serializerOptions is not null)
+            services.AddMvcCore().AddJsonOptions(serializerOptions);
+        else
+            services.AddMvcCore().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
+
+        return services;
     }
 }
 

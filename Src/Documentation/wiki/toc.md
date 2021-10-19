@@ -9,4 +9,5 @@
 # [Event Notifications](Event-Notifications.md)
 # [Integration Testing](Integration-Testing.md)
 # [Misc. Conveniences](Misc-Conveniences.md)
+# [Swagger Support](Swagger-Support.md)
 # [VS Extension](VS-Extension.md)

@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Security", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarterModules", "Benchmark\CarterModules\CarterModules.csproj", "{3158231C-FECB-4114-8875-BEEDB8AEDA37}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Swagger", "Src\Swagger\FastEndpoints.Swagger.csproj", "{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,6 +115,14 @@ Global
 		{3158231C-FECB-4114-8875-BEEDB8AEDA37}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3158231C-FECB-4114-8875-BEEDB8AEDA37}.Release|x86.ActiveCfg = Release|Any CPU
 		{3158231C-FECB-4114-8875-BEEDB8AEDA37}.Release|x86.Build.0 = Release|Any CPU
+		{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}.Debug|x86.Build.0 = Debug|Any CPU
+		{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}.Release|x86.ActiveCfg = Release|Any CPU
+		{70DD83F4-83A5-4DA1-AC8A-BABB801B6C14}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

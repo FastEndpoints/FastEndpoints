@@ -158,6 +158,38 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task FileHandlingFileBinding()
+        {
+            using var imageContent1 = new ByteArrayContent(
+                await new StreamContent(
+                    File.OpenRead("test.png"))
+                .ReadAsByteArrayAsync());
+            imageContent1.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+
+            using var imageContent2 = new ByteArrayContent(
+                await new StreamContent(
+                    File.OpenRead("test.png"))
+                .ReadAsByteArrayAsync());
+            imageContent2.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+
+            using var form = new MultipartFormDataContent
+            {
+                { imageContent1, "File1", "test.png" },
+                { imageContent2, "File2", "test.png" },
+                { new StringContent("500"),"Width" },
+                { new StringContent("500"),"Height" }
+            };
+
+            var res = await AdminClient.PostAsync("uploads/image/save-typed", form);
+
+            using var md5Instance = MD5.Create();
+            using var stream = await res.Content.ReadAsStreamAsync();
+            var resMD5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
+
+            Assert.AreEqual("8A1F6A8E27D2E440280050DA549CBE3E", resMD5);
+        }
+
+        [TestMethod]
         public async Task PreProcessorsAreRunIfValidationFailuresOccur()
         {
             var (rsp, res) = await AdminClient.POSTAsync<

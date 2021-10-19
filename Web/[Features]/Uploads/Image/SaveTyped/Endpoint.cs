@@ -16,7 +16,7 @@ public class Endpoint : Endpoint<Request>
     {
         if (r.File1 is not null && r.File2 is not null)
         {
-            await SendStreamAsync(r.File1.OpenReadStream(), "test1.png", r.File1.Length, "image/png", ct);
+            await SendStreamAsync(r.File1.OpenReadStream(), "test.png", r.File1.Length, "image/png", ct);
             return;
         }
 

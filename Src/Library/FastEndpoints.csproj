@@ -2,14 +2,11 @@
 
   <PropertyGroup>
 
-    <Version>2.3.0</Version>
+    <Version>2.4.0</Version>
     
     <PackageReleaseNotes>
-      - add shorthand route/verb defining methods
-      - add OnBeforeValidate/OnAfterValidate hooks
-      - add OnBeforeHandle/OnAfterHandle hooks
-      - set content-type to text/plain in SendStringAsync()
-      - optimize Endpoint class
+      - add IFormFile binding support
+      - increase test coverage
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

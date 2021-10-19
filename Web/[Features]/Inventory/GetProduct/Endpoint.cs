@@ -5,7 +5,7 @@
         public override void Configure()
         {
             Verbs(Http.GET);
-            Routes("/api/get-product/{ProductID}");
+            Routes("/inventory/get-product/{ProductID}");
             AllowAnonymous();
             ResponseCache(10);
         }

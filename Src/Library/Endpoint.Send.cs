@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
 
@@ -117,6 +118,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         return HttpContext.WriteToResponseAsync(stream, cancellation == default ? HttpContext.RequestAborted : cancellation);
     }
-
+    /// <summary>
+    /// send an empty json object in the body
+    /// </summary>
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendEmptyJsonObject(CancellationToken cancellation = default)
+    {
+        HttpContext.Response.StatusCode = 200;
+        return HttpContext.Response.WriteAsJsonAsync(new JsonObject(), SerializerOptions, cancellation);
+    }
 }
 

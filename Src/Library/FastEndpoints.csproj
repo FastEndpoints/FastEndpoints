@@ -2,13 +2,10 @@
 
   <PropertyGroup>
 
-    <Version>2.4.0</Version>
+    <Version>2.5.0-beta1</Version>
     
     <PackageReleaseNotes>
-      - add IFormFile binding support
-      - add swagger extension library
-      - improve swagger integration
-      - increase test coverage
+      - 
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

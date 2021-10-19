@@ -6,6 +6,7 @@
     
     <PackageReleaseNotes>
       - add IFormFile binding support
+      - improve swagger integration
       - increase test coverage
     </PackageReleaseNotes>
     

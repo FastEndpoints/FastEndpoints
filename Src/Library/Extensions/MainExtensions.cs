@@ -65,7 +65,7 @@ public static class MainExtensions
             var policiesToAdd = new List<string>();
             if (epSettings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(epSettings.PreBuiltUserPolicies);
             if (epSettings.Permissions?.Any() is true ||
-                epSettings.Claims?.Any() is true ||
+                epSettings.ClaimTypes?.Any() is true ||
                 epSettings.Roles?.Any() is true)
             {
                 policiesToAdd.Add(SecurityPolicyName(ep.EndpointType));
@@ -136,7 +136,7 @@ public static class MainExtensions
         {
             var eps = ep.Settings;
 
-            if (eps.Roles is null && eps.Permissions is null && eps.Claims is null) continue;
+            if (eps.Roles is null && eps.Permissions is null && eps.ClaimTypes is null) continue;
 
             var secPolName = SecurityPolicyName(ep.EndpointType);
 
@@ -166,7 +166,7 @@ public static class MainExtensions
                     }
                 }
 
-                if (eps.Claims?.Any() is true)
+                if (eps.ClaimTypes?.Any() is true)
                 {
                     if (eps.AllowAnyClaim is true)
                     {
@@ -174,7 +174,7 @@ public static class MainExtensions
                         {
                             return x.User.Claims
                             .Select(c => c.Type)
-                            .Intersect(eps.Claims)
+                            .Intersect(eps.ClaimTypes)
                             .Any();
                         });
                     }
@@ -182,7 +182,7 @@ public static class MainExtensions
                     {
                         b.RequireAssertion(x =>
                         {
-                            return !eps.Claims
+                            return !eps.ClaimTypes
                             .Except(x.User.Claims.Select(c => c.Type))
                             .Any();
                         });

@@ -13,7 +13,7 @@ internal class EndpointSettings
     internal string[]? Roles;
     internal string[]? Permissions;
     internal bool AllowAnyPermission;
-    internal string[]? Claims;
+    internal string[]? ClaimTypes;
     internal bool AllowAnyClaim;
     internal Type? DtoTypeForFormData;
     internal Action<RouteHandlerBuilder>? InternalConfigAction;

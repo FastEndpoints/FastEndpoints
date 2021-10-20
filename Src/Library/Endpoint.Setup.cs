@@ -91,50 +91,46 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
     protected void Policies(params string[] policyNames) => Settings.PreBuiltUserPolicies = policyNames;
     /// <summary>
-    /// specify that the current claim principal/ user should posses at least one of the roles (claim type) mentioned here. access will be forbidden if the user doesn't have any of the specified roles.
+    /// allows access if the claims principal has ANY of the given roles
     /// </summary>
     /// <param name="rolesNames">one or more roles that has access</param>
     protected void Roles(params string[] rolesNames) => Settings.Roles = rolesNames;
     /// <summary>
-    /// specify the permissions a user principal should posses in order to access this endpoint. they must posses ALL of the permissions mentioned here. if not, a 403 forbidden response will be sent.
+    /// allows access if the claims principal has ANY of the given permissions
     /// </summary>
-    /// <param name="permissions">the permissions needed to access this endpoint</param>
-    protected void Permissions(params string[] permissions) => Permissions(false, permissions);
-    /// <summary>
-    /// specify the permissions a user principal should posses in order to access this endpoint.
-    /// </summary>
-    /// <param name="allowAny">if set to true, having any 1 of the specified permissions will enable access</param>
     /// <param name="permissions">the permissions</param>
-    protected void Permissions(bool allowAny, params string[] permissions)
+    protected void Permissions(params string[] permissions)
     {
-        Settings.AllowAnyPermission = allowAny;
+        Settings.AllowAnyPermission = true;
         Settings.Permissions = permissions;
     }
     /// <summary>
-    /// specify to allow access if the user has any of the given permissions
+    /// allows access if the claims principal has ALL of the given permissions
     /// </summary>
     /// <param name="permissions">the permissions</param>
-    protected void AnyPermission(params string[] permissions) => Permissions(true, permissions);
-    /// <summary>
-    /// specify the claim types a user principal should posses in order to access this endpoint. they must posses ALL of the claim types mentioned here. if not, a 403 forbidden response will be sent.
-    /// </summary>
-    /// <param name="claims">the claims needed to access this endpoint</param>
-    protected void Claims(params string[] claims) => Claims(false, claims);
-    /// <summary>
-    /// specify the claim types a user principal should posses in order to access this endpoint.
-    /// </summary>
-    /// <param name="allowAny">if set to true, having any 1 of the specified permissions will enable access</param>
-    /// <param name="claims">the claims</param>
-    protected void Claims(bool allowAny, params string[] claims)
+    protected void PermissionsAll(params string[] permissions)
     {
-        Settings.AllowAnyClaim = allowAny;
-        Settings.Claims = claims;
+        Settings.AllowAnyPermission = false;
+        Settings.Permissions = permissions;
     }
     /// <summary>
-    /// specify to allow access if the user has any of the given claims
+    /// allows access if the claims principal has ANY of the given claim types
     /// </summary>
-    /// <param name="claims">the claims</param>
-    protected void AnyClaim(params string[] claims) => Claims(true, claims);
+    /// <param name="claimTypes">the claim types</param>
+    protected void Claims(params string[] claimTypes)
+    {
+        Settings.AllowAnyClaim = true;
+        Settings.ClaimTypes = claimTypes;
+    }
+    /// <summary>
+    /// allows access if the claims principal has ALL of the given claim types
+    /// </summary>
+    /// <param name="claimTypes">the claim types</param>
+    protected void ClaimsAll(params string[] claimTypes)
+    {
+        Settings.AllowAnyClaim = false;
+        Settings.ClaimTypes = claimTypes;
+    }
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>

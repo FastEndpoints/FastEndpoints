@@ -2,9 +2,11 @@
 
   <PropertyGroup>
 
-    <Version>2.5.0-beta1</Version>
+    <Version>2.5.0</Version>
     
     <PackageReleaseNotes>
+      - change behavior of Claims() and Permissions() method to allow ANY
+      - add ClaimsAll() and PermissionsAll() methods to require ALL
       - 
     </PackageReleaseNotes>
     

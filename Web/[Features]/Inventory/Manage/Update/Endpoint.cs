@@ -7,7 +7,7 @@ public class Endpoint : Endpoint<Request>
         Verbs(Http.PUT);
         Routes("/inventory/manage/update");
         Policies("AdminOnly");
-        Permissions(allowAny: true,
+        Permissions(
             Allow.Inventory_Create_Item,
             Allow.Inventory_Update_Item);
     }

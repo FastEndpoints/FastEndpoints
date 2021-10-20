@@ -18,7 +18,7 @@ public class Endpoint : Endpoint<Request>
         Routes(
             "/customers/update",
             "/customer/save");
-        AnyClaim(
+        Claims(
             Claim.AdminID,
             Claim.CustomerID);
         Permissions(

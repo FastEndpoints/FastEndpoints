@@ -84,11 +84,16 @@ internal class SwaggerOperationFilter : IOperationFilter
 {
     private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
 
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    public void Apply(OpenApiOperation op, OperationFilterContext ctx)
     {
+        //var resDtoType = op.RequestBody?.Content.FirstOrDefault().Value.Schema.Reference?.Id.Split(".").LastOrDefault();
+
+        if (op.RequestBody != null)
+            op.RequestBody.Required = ctx.ApiDescription.HttpMethod != "GET";
+
 #pragma warning disable CS8604
         var parms = regex
-            .Matches(context.ApiDescription.RelativePath)
+            .Matches(ctx.ApiDescription.RelativePath)
             .Select(m => new OpenApiParameter
             {
                 Name = m.Value,
@@ -98,6 +103,6 @@ internal class SwaggerOperationFilter : IOperationFilter
 #pragma warning restore CS8604
 
         foreach (var p in parms)
-            operation.Parameters.Add(p);
+            op.Parameters.Add(p);
     }
 }

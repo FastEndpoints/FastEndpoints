@@ -542,107 +542,14 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   </div>
   
   
-  <a id="FastEndpoints_Endpoint_2_AnyClaim_" data-uid="FastEndpoints.Endpoint`2.AnyClaim*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_AnyClaim_System_String___" data-uid="FastEndpoints.Endpoint`2.AnyClaim(System.String[])">AnyClaim(String[])</h4>
-  <div class="markdown level1 summary"><p>specify to allow access if the user has any of the given claims</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void AnyClaim(params string[] claims)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.String</span>[]</td>
-        <td><span class="parametername">claims</span></td>
-        <td><p>the claims</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="FastEndpoints_Endpoint_2_AnyPermission_" data-uid="FastEndpoints.Endpoint`2.AnyPermission*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_AnyPermission_System_String___" data-uid="FastEndpoints.Endpoint`2.AnyPermission(System.String[])">AnyPermission(String[])</h4>
-  <div class="markdown level1 summary"><p>specify to allow access if the user has any of the given permissions</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void AnyPermission(params string[] permissions)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.String</span>[]</td>
-        <td><span class="parametername">permissions</span></td>
-        <td><p>the permissions</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="FastEndpoints_Endpoint_2_Claims_" data-uid="FastEndpoints.Endpoint`2.Claims*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_Claims_System_Boolean_System_String___" data-uid="FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])">Claims(Boolean, String[])</h4>
-  <div class="markdown level1 summary"><p>specify the claim types a user principal should posses in order to access this endpoint.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Claims(bool allowAny, params string[] claims)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Boolean</span></td>
-        <td><span class="parametername">allowAny</span></td>
-        <td><p>if set to true, having any 1 of the specified permissions will enable access</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.String</span>[]</td>
-        <td><span class="parametername">claims</span></td>
-        <td><p>the claims</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <a id="FastEndpoints_Endpoint_2_Claims_" data-uid="FastEndpoints.Endpoint`2.Claims*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Claims_System_String___" data-uid="FastEndpoints.Endpoint`2.Claims(System.String[])">Claims(String[])</h4>
-  <div class="markdown level1 summary"><p>specify the claim types a user principal should posses in order to access this endpoint. they must posses ALL of the claim types mentioned here. if not, a 403 forbidden response will be sent.</p>
+  <div class="markdown level1 summary"><p>allows access if the claims principal has ANY of the given claim types</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Claims(params string[] claims)</code></pre>
+    <pre><code class="lang-csharp hljs">protected void Claims(params string[] claimTypes)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -656,8 +563,37 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
     <tbody>
       <tr>
         <td><span class="xref">System.String</span>[]</td>
-        <td><span class="parametername">claims</span></td>
-        <td><p>the claims needed to access this endpoint</p>
+        <td><span class="parametername">claimTypes</span></td>
+        <td><p>the claim types</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_ClaimsAll_" data-uid="FastEndpoints.Endpoint`2.ClaimsAll*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_ClaimsAll_System_String___" data-uid="FastEndpoints.Endpoint`2.ClaimsAll(System.String[])">ClaimsAll(String[])</h4>
+  <div class="markdown level1 summary"><p>allows access if the claims principal has ALL of the given claim types</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void ClaimsAll(params string[] claimTypes)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">claimTypes</span></td>
+        <td><p>the claim types</p>
 </td>
       </tr>
     </tbody>
@@ -961,43 +897,8 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   
   
   <a id="FastEndpoints_Endpoint_2_Permissions_" data-uid="FastEndpoints.Endpoint`2.Permissions*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_Permissions_System_Boolean_System_String___" data-uid="FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])">Permissions(Boolean, String[])</h4>
-  <div class="markdown level1 summary"><p>specify the permissions a user principal should posses in order to access this endpoint.</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Permissions(bool allowAny, params string[] permissions)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Boolean</span></td>
-        <td><span class="parametername">allowAny</span></td>
-        <td><p>if set to true, having any 1 of the specified permissions will enable access</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.String</span>[]</td>
-        <td><span class="parametername">permissions</span></td>
-        <td><p>the permissions</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="FastEndpoints_Endpoint_2_Permissions_" data-uid="FastEndpoints.Endpoint`2.Permissions*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Permissions_System_String___" data-uid="FastEndpoints.Endpoint`2.Permissions(System.String[])">Permissions(String[])</h4>
-  <div class="markdown level1 summary"><p>specify the permissions a user principal should posses in order to access this endpoint. they must posses ALL of the permissions mentioned here. if not, a 403 forbidden response will be sent.</p>
+  <div class="markdown level1 summary"><p>allows access if the claims principal has ANY of the given permissions</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -1017,7 +918,36 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
       <tr>
         <td><span class="xref">System.String</span>[]</td>
         <td><span class="parametername">permissions</span></td>
-        <td><p>the permissions needed to access this endpoint</p>
+        <td><p>the permissions</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_PermissionsAll_" data-uid="FastEndpoints.Endpoint`2.PermissionsAll*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_PermissionsAll_System_String___" data-uid="FastEndpoints.Endpoint`2.PermissionsAll(System.String[])">PermissionsAll(String[])</h4>
+  <div class="markdown level1 summary"><p>allows access if the claims principal has ALL of the given permissions</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void PermissionsAll(params string[] permissions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">permissions</span></td>
+        <td><p>the permissions</p>
 </td>
       </tr>
     </tbody>
@@ -1384,7 +1314,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   <a id="FastEndpoints_Endpoint_2_Roles_" data-uid="FastEndpoints.Endpoint`2.Roles*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Roles_System_String___" data-uid="FastEndpoints.Endpoint`2.Roles(System.String[])">Roles(String[])</h4>
-  <div class="markdown level1 summary"><p>specify that the current claim principal/ user should posses at least one of the roles (claim type) mentioned here. access will be forbidden if the user doesn't have any of the specified roles.</p>
+  <div class="markdown level1 summary"><p>allows access if the claims principal has ANY of the given roles</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -1531,6 +1461,50 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
         <td><p>optional content type to set on the http response</p>
 </td>
       </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendEmptyJsonObject_" data-uid="FastEndpoints.Endpoint`2.SendEmptyJsonObject*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendEmptyJsonObject_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)">SendEmptyJsonObject(CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send an empty json object in the body</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendEmptyJsonObject(CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>

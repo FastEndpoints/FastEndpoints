@@ -115,42 +115,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFormData
   nameWithType: Endpoint<TRequest, TResponse>.AllowFormData
   nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFormData
-- uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
-  name: AnyClaim(String[])
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyClaim_System_String___
-  commentId: M:FastEndpoints.Endpoint`2.AnyClaim(System.String[])
-  name.vb: AnyClaim(String())
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim(System.String[])
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim(System.String())
-  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim(String[])
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim(String())
-- uid: FastEndpoints.Endpoint`2.AnyClaim*
-  name: AnyClaim
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyClaim_
-  commentId: Overload:FastEndpoints.Endpoint`2.AnyClaim
-  isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim
-  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim
-- uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
-  name: AnyPermission(String[])
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyPermission_System_String___
-  commentId: M:FastEndpoints.Endpoint`2.AnyPermission(System.String[])
-  name.vb: AnyPermission(String())
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission(System.String[])
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission(System.String())
-  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission(String[])
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission(String())
-- uid: FastEndpoints.Endpoint`2.AnyPermission*
-  name: AnyPermission
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AnyPermission_
-  commentId: Overload:FastEndpoints.Endpoint`2.AnyPermission
-  isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission
-  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission
 - uid: FastEndpoints.Endpoint`2.BaseURL
   name: BaseURL
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_BaseURL
@@ -168,15 +132,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).BaseURL
   nameWithType: Endpoint<TRequest, TResponse>.BaseURL
   nameWithType.vb: Endpoint(Of TRequest, TResponse).BaseURL
-- uid: FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])
-  name: Claims(Boolean, String[])
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Claims_System_Boolean_System_String___
-  commentId: M:FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])
-  name.vb: Claims(Boolean, String())
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Claims(System.Boolean, System.String[])
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims(System.Boolean, System.String())
-  nameWithType: Endpoint<TRequest, TResponse>.Claims(Boolean, String[])
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims(Boolean, String())
 - uid: FastEndpoints.Endpoint`2.Claims(System.String[])
   name: Claims(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Claims_System_String___
@@ -195,6 +150,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims
   nameWithType: Endpoint<TRequest, TResponse>.Claims
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims
+- uid: FastEndpoints.Endpoint`2.ClaimsAll(System.String[])
+  name: ClaimsAll(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ClaimsAll_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.ClaimsAll(System.String[])
+  name.vb: ClaimsAll(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ClaimsAll(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ClaimsAll(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.ClaimsAll(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ClaimsAll(String())
+- uid: FastEndpoints.Endpoint`2.ClaimsAll*
+  name: ClaimsAll
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ClaimsAll_
+  commentId: Overload:FastEndpoints.Endpoint`2.ClaimsAll
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ClaimsAll
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ClaimsAll
+  nameWithType: Endpoint<TRequest, TResponse>.ClaimsAll
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ClaimsAll
 - uid: FastEndpoints.Endpoint`2.Config
   name: Config
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Config
@@ -471,15 +444,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Patch
   nameWithType: Endpoint<TRequest, TResponse>.Patch
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Patch
-- uid: FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
-  name: Permissions(Boolean, String[])
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Permissions_System_Boolean_System_String___
-  commentId: M:FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
-  name.vb: Permissions(Boolean, String())
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Permissions(System.Boolean, System.String[])
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions(System.Boolean, System.String())
-  nameWithType: Endpoint<TRequest, TResponse>.Permissions(Boolean, String[])
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions(Boolean, String())
 - uid: FastEndpoints.Endpoint`2.Permissions(System.String[])
   name: Permissions(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Permissions_System_String___
@@ -498,6 +462,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions
   nameWithType: Endpoint<TRequest, TResponse>.Permissions
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions
+- uid: FastEndpoints.Endpoint`2.PermissionsAll(System.String[])
+  name: PermissionsAll(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PermissionsAll_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.PermissionsAll(System.String[])
+  name.vb: PermissionsAll(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PermissionsAll(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PermissionsAll(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.PermissionsAll(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PermissionsAll(String())
+- uid: FastEndpoints.Endpoint`2.PermissionsAll*
+  name: PermissionsAll
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PermissionsAll_
+  commentId: Overload:FastEndpoints.Endpoint`2.PermissionsAll
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PermissionsAll
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PermissionsAll
+  nameWithType: Endpoint<TRequest, TResponse>.PermissionsAll
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PermissionsAll
 - uid: FastEndpoints.Endpoint`2.Policies(System.String[])
   name: Policies(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Policies_System_String___
@@ -738,6 +720,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendBytesAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendBytesAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendBytesAsync
+- uid: FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
+  name: SendEmptyJsonObject(CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEmptyJsonObject_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEmptyJsonObject(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEmptyJsonObject(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendEmptyJsonObject(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEmptyJsonObject(CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendEmptyJsonObject*
+  name: SendEmptyJsonObject
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEmptyJsonObject_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendEmptyJsonObject
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEmptyJsonObject
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEmptyJsonObject
+  nameWithType: Endpoint<TRequest, TResponse>.SendEmptyJsonObject
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEmptyJsonObject
 - uid: FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)
   name: SendErrorsAsync(CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendErrorsAsync_CancellationToken_

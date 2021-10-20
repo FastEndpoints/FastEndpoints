@@ -181,28 +181,21 @@ app.Run();
     {
         Verbs(Http.POST);
         Routes(&quot;/api/restricted&quot;);
-        Claims(&quot;AdminID&quot;, &quot;UserType&quot;);
+        Claims(&quot;AdminID&quot;, &quot;EmployeeID&quot;);
         Roles(&quot;Admin&quot;, &quot;Manager&quot;);
         Permissions(&quot;UpdateUsersPermission&quot;, &quot;DeleteUsersPermission&quot;);
     }
 }
 </code></pre>
 <p><strong>Claims() method</strong></p>
-<p>with this method you are specifying that if a user has all the specified claims, access should be allowed. you can specify to allow access if they have any one of the given claims by using the overload:</p>
-<pre><code class="lang-csharp">Claims(allowAny: true, &quot;SomeClaimType&quot;, &quot;AnotherClaimType&quot;);
-//or
-AnyClaim(&quot;SomeClaimType&quot;, &quot;AnotherClaimType&quot;);
-</code></pre>
+<p>with this method you are specifying that if a user principal has <code>ANY</code> of the specified claims, access should be allowed.
+if the requirement is to allow access only if <code>ALL</code> specified claims are present, you can use the <code>ClaimsAll()</code> method.</p>
 <p><strong>Permissions() method</strong></p>
-<p>just like above, you can specify that all permissions mentioned must be present to allow access or using the following overload, you can allow access even if any one of the permissions is present:</p>
-<pre><code class="lang-csharp">Permissions(allowAny: true, &quot;SomePermission&quot;, &quot;AnotherPermission&quot;);
-//or
-AnyPermission(&quot;SomePermission&quot;, &quot;AnotherPermission&quot;);
-</code></pre>
+<p>just like above, you can specify that <code>ANY</code> of the specified permissions should allow access. Or require <code>ALL</code> of the specified permissions by using the <code>PermissionsAll()</code> method.</p>
 <p><strong>Roles() method</strong></p>
-<p>roles behave differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.</p>
+<p>similarly, you are specifying that <code>ANY</code> of the given roles should allow access to a user principal who has it.</p>
 <p><strong>AllowAnonymous() method</strong></p>
-<p>use this method if you'd like to allow unauthenticated users to access a particular endpoint. it is also possible to specify which http verbs you'd like to allow anonymous access to:</p>
+<p>use this method if you'd like to allow unauthenticated users to access a particular endpoint. it is also possible to specify which http verbs you'd like to allow anonymous access to like so:</p>
 <pre><code class="lang-csharp">public class RestrictedEndpoint : Endpoint&lt;RestrictedRequest&gt;
 {
     public override void Configure()

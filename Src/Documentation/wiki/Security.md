@@ -98,7 +98,7 @@ public class RestrictedEndpoint : Endpoint<RestrictedRequest>
     {
         Verbs(Http.POST);
         Routes("/api/restricted");
-        Claims("AdminID", "UserType");
+        Claims("AdminID", "EmployeeID");
         Roles("Admin", "Manager");
         Permissions("UpdateUsersPermission", "DeleteUsersPermission");
     }
@@ -106,29 +106,20 @@ public class RestrictedEndpoint : Endpoint<RestrictedRequest>
 ```
 **Claims() method**
 
-with this method you are specifying that if a user has all the specified claims, access should be allowed. you can specify to allow access if they have any one of the given claims by using the overload:
-```csharp
-Claims(allowAny: true, "SomeClaimType", "AnotherClaimType");
-//or
-AnyClaim("SomeClaimType", "AnotherClaimType");
-```
+with this method you are specifying that if a user principal has `ANY` of the specified claims, access should be allowed. 
+if the requirement is to allow access only if `ALL` specified claims are present, you can use the `ClaimsAll()` method.
 
 **Permissions() method**
 
-just like above, you can specify that all permissions mentioned must be present to allow access or using the following overload, you can allow access even if any one of the permissions is present:
-```csharp
-Permissions(allowAny: true, "SomePermission", "AnotherPermission");
-//or
-AnyPermission("SomePermission", "AnotherPermission");
-```
+just like above, you can specify that `ANY` of the specified permissions should allow access. Or require `ALL` of the specified permissions by using the `PermissionsAll()` method.
 
 **Roles() method**
 
-roles behave differently than the above; as in access will always be allowed if a user has any of the specified roles assigned to them.
+similarly, you are specifying that `ANY` of the given roles should allow access to a user principal who has it.
 
 **AllowAnonymous() method**
 
-use this method if you'd like to allow unauthenticated users to access a particular endpoint. it is also possible to specify which http verbs you'd like to allow anonymous access to:
+use this method if you'd like to allow unauthenticated users to access a particular endpoint. it is also possible to specify which http verbs you'd like to allow anonymous access to like so:
 ```csharp
 public class RestrictedEndpoint : Endpoint<RestrictedRequest>
 {

@@ -10,11 +10,9 @@ items:
   - FastEndpoints.Endpoint`2.AllowAnonymous(FastEndpoints.Http[])
   - FastEndpoints.Endpoint`2.AllowFileUploads
   - FastEndpoints.Endpoint`2.AllowFormData
-  - FastEndpoints.Endpoint`2.AnyClaim(System.String[])
-  - FastEndpoints.Endpoint`2.AnyPermission(System.String[])
   - FastEndpoints.Endpoint`2.BaseURL
-  - FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])
   - FastEndpoints.Endpoint`2.Claims(System.String[])
+  - FastEndpoints.Endpoint`2.ClaimsAll(System.String[])
   - FastEndpoints.Endpoint`2.Config
   - FastEndpoints.Endpoint`2.Delete(System.String[])
   - FastEndpoints.Endpoint`2.DontThrowIfValidationFails
@@ -31,8 +29,8 @@ items:
   - FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
   - FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
   - FastEndpoints.Endpoint`2.Patch(System.String[])
-  - FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
   - FastEndpoints.Endpoint`2.Permissions(System.String[])
+  - FastEndpoints.Endpoint`2.PermissionsAll(System.String[])
   - FastEndpoints.Endpoint`2.Policies(System.String[])
   - FastEndpoints.Endpoint`2.Post(System.String[])
   - FastEndpoints.Endpoint`2.PostProcessors(FastEndpoints.IPostProcessor{`0,`1}[])
@@ -47,6 +45,7 @@ items:
   - FastEndpoints.Endpoint`2.Routes(System.String[])
   - FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)
   - FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
+  - FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
   - FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)
   - FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)
   - FastEndpoints.Endpoint`2.SendForbiddenAsync
@@ -869,7 +868,7 @@ items:
   source:
     id: SendAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 12
+    startLine: 13
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -911,7 +910,7 @@ items:
   source:
     id: SendStringAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 24
+    startLine: 25
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -953,7 +952,7 @@ items:
   source:
     id: SendOkAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 33
+    startLine: 34
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -985,7 +984,7 @@ items:
   source:
     id: SendErrorsAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 42
+    startLine: 43
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1021,7 +1020,7 @@ items:
   source:
     id: SendNoContentAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 50
+    startLine: 51
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1053,7 +1052,7 @@ items:
   source:
     id: SendNotFoundAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 58
+    startLine: 59
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1085,7 +1084,7 @@ items:
   source:
     id: SendUnauthorizedAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 66
+    startLine: 67
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1117,7 +1116,7 @@ items:
   source:
     id: SendForbiddenAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 74
+    startLine: 75
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1149,7 +1148,7 @@ items:
   source:
     id: SendBytesAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 85
+    startLine: 86
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1195,7 +1194,7 @@ items:
   source:
     id: SendFileAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 96
+    startLine: 97
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1237,7 +1236,7 @@ items:
   source:
     id: SendStreamAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 108
+    startLine: 109
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1272,6 +1271,42 @@ items:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStreamAsync(Stream, System.String, System.Nullable(Of System.Int64), System.String, CancellationToken)
   name.vb: SendStreamAsync(Stream, String, Nullable(Of Int64), String, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
+  id: SendEmptyJsonObject(CancellationToken)
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: SendEmptyJsonObject(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendEmptyJsonObject(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEmptyJsonObject(CancellationToken)
+  type: Method
+  source:
+    id: SendEmptyJsonObject
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
+    startLine: 124
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nsend an empty json object in the body\n"
+  example: []
+  syntax:
+    content: protected Task SendEmptyJsonObject(CancellationToken cancellation = null)
+    parameters:
+    - id: cancellation
+      type: CancellationToken
+      description: optional cancellation token
+    return:
+      type: Task
+    content.vb: Protected Function SendEmptyJsonObject(cancellation As CancellationToken = Nothing) As Task
+  overload: FastEndpoints.Endpoint`2.SendEmptyJsonObject*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEmptyJsonObject(CancellationToken)
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEmptyJsonObject(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.Get(System.String[])
   commentId: M:FastEndpoints.Endpoint`2.Get(System.String[])
   id: Get(System.String[])
@@ -1687,7 +1722,7 @@ items:
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nspecify that the current claim principal/ user should posses at least one of the roles (claim type) mentioned here. access will be forbidden if the user doesn&apos;t have any of the specified roles.\n"
+  summary: "\nallows access if the claims principal has ANY of the given roles\n"
   example: []
   syntax:
     content: protected void Roles(params string[] rolesNames)
@@ -1722,14 +1757,14 @@ items:
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nspecify the permissions a user principal should posses in order to access this endpoint. they must posses ALL of the permissions mentioned here. if not, a 403 forbidden response will be sent.\n"
+  summary: "\nallows access if the claims principal has ANY of the given permissions\n"
   example: []
   syntax:
     content: protected void Permissions(params string[] permissions)
     parameters:
     - id: permissions
       type: System.String[]
-      description: the permissions needed to access this endpoint
+      description: the permissions
     content.vb: Protected Sub Permissions(ParamArray permissions As String())
   overload: FastEndpoints.Endpoint`2.Permissions*
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions(String())
@@ -1739,79 +1774,41 @@ items:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions(System.String())
   name.vb: Permissions(String())
-- uid: FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
-  commentId: M:FastEndpoints.Endpoint`2.Permissions(System.Boolean,System.String[])
-  id: Permissions(System.Boolean,System.String[])
+- uid: FastEndpoints.Endpoint`2.PermissionsAll(System.String[])
+  commentId: M:FastEndpoints.Endpoint`2.PermissionsAll(System.String[])
+  id: PermissionsAll(System.String[])
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: Permissions(Boolean, String[])
-  nameWithType: Endpoint<TRequest, TResponse>.Permissions(Boolean, String[])
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Permissions(System.Boolean, System.String[])
+  name: PermissionsAll(String[])
+  nameWithType: Endpoint<TRequest, TResponse>.PermissionsAll(String[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PermissionsAll(System.String[])
   type: Method
   source:
-    id: Permissions
+    id: PermissionsAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 107
+    startLine: 110
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nspecify the permissions a user principal should posses in order to access this endpoint.\n"
+  summary: "\nallows access if the claims principal has ALL of the given permissions\n"
   example: []
   syntax:
-    content: protected void Permissions(bool allowAny, params string[] permissions)
-    parameters:
-    - id: allowAny
-      type: System.Boolean
-      description: if set to true, having any 1 of the specified permissions will enable access
-    - id: permissions
-      type: System.String[]
-      description: the permissions
-    content.vb: Protected Sub Permissions(allowAny As Boolean, ParamArray permissions As String())
-  overload: FastEndpoints.Endpoint`2.Permissions*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions(Boolean, String())
-  modifiers.csharp:
-  - protected
-  modifiers.vb:
-  - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions(System.Boolean, System.String())
-  name.vb: Permissions(Boolean, String())
-- uid: FastEndpoints.Endpoint`2.AnyPermission(System.String[])
-  commentId: M:FastEndpoints.Endpoint`2.AnyPermission(System.String[])
-  id: AnyPermission(System.String[])
-  parent: FastEndpoints.Endpoint`2
-  langs:
-  - csharp
-  - vb
-  name: AnyPermission(String[])
-  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission(String[])
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission(System.String[])
-  type: Method
-  source:
-    id: AnyPermission
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 116
-  assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  summary: "\nspecify to allow access if the user has any of the given permissions\n"
-  example: []
-  syntax:
-    content: protected void AnyPermission(params string[] permissions)
+    content: protected void PermissionsAll(params string[] permissions)
     parameters:
     - id: permissions
       type: System.String[]
       description: the permissions
-    content.vb: Protected Sub AnyPermission(ParamArray permissions As String())
-  overload: FastEndpoints.Endpoint`2.AnyPermission*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission(String())
+    content.vb: Protected Sub PermissionsAll(ParamArray permissions As String())
+  overload: FastEndpoints.Endpoint`2.PermissionsAll*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PermissionsAll(String())
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission(System.String())
-  name.vb: AnyPermission(String())
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PermissionsAll(System.String())
+  name.vb: PermissionsAll(String())
 - uid: FastEndpoints.Endpoint`2.Claims(System.String[])
   commentId: M:FastEndpoints.Endpoint`2.Claims(System.String[])
   id: Claims(System.String[])
@@ -1826,19 +1823,19 @@ items:
   source:
     id: Claims
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 121
+    startLine: 119
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nspecify the claim types a user principal should posses in order to access this endpoint. they must posses ALL of the claim types mentioned here. if not, a 403 forbidden response will be sent.\n"
+  summary: "\nallows access if the claims principal has ANY of the given claim types\n"
   example: []
   syntax:
-    content: protected void Claims(params string[] claims)
+    content: protected void Claims(params string[] claimTypes)
     parameters:
-    - id: claims
+    - id: claimTypes
       type: System.String[]
-      description: the claims needed to access this endpoint
-    content.vb: Protected Sub Claims(ParamArray claims As String())
+      description: the claim types
+    content.vb: Protected Sub Claims(ParamArray claimTypes As String())
   overload: FastEndpoints.Endpoint`2.Claims*
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims(String())
   modifiers.csharp:
@@ -1847,79 +1844,41 @@ items:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims(System.String())
   name.vb: Claims(String())
-- uid: FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])
-  commentId: M:FastEndpoints.Endpoint`2.Claims(System.Boolean,System.String[])
-  id: Claims(System.Boolean,System.String[])
+- uid: FastEndpoints.Endpoint`2.ClaimsAll(System.String[])
+  commentId: M:FastEndpoints.Endpoint`2.ClaimsAll(System.String[])
+  id: ClaimsAll(System.String[])
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: Claims(Boolean, String[])
-  nameWithType: Endpoint<TRequest, TResponse>.Claims(Boolean, String[])
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Claims(System.Boolean, System.String[])
+  name: ClaimsAll(String[])
+  nameWithType: Endpoint<TRequest, TResponse>.ClaimsAll(String[])
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ClaimsAll(System.String[])
   type: Method
   source:
-    id: Claims
+    id: ClaimsAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 127
+    startLine: 128
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nspecify the claim types a user principal should posses in order to access this endpoint.\n"
+  summary: "\nallows access if the claims principal has ALL of the given claim types\n"
   example: []
   syntax:
-    content: protected void Claims(bool allowAny, params string[] claims)
+    content: protected void ClaimsAll(params string[] claimTypes)
     parameters:
-    - id: allowAny
-      type: System.Boolean
-      description: if set to true, having any 1 of the specified permissions will enable access
-    - id: claims
+    - id: claimTypes
       type: System.String[]
-      description: the claims
-    content.vb: Protected Sub Claims(allowAny As Boolean, ParamArray claims As String())
-  overload: FastEndpoints.Endpoint`2.Claims*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims(Boolean, String())
+      description: the claim types
+    content.vb: Protected Sub ClaimsAll(ParamArray claimTypes As String())
+  overload: FastEndpoints.Endpoint`2.ClaimsAll*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ClaimsAll(String())
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims(System.Boolean, System.String())
-  name.vb: Claims(Boolean, String())
-- uid: FastEndpoints.Endpoint`2.AnyClaim(System.String[])
-  commentId: M:FastEndpoints.Endpoint`2.AnyClaim(System.String[])
-  id: AnyClaim(System.String[])
-  parent: FastEndpoints.Endpoint`2
-  langs:
-  - csharp
-  - vb
-  name: AnyClaim(String[])
-  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim(String[])
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim(System.String[])
-  type: Method
-  source:
-    id: AnyClaim
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 136
-  assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  summary: "\nspecify to allow access if the user has any of the given claims\n"
-  example: []
-  syntax:
-    content: protected void AnyClaim(params string[] claims)
-    parameters:
-    - id: claims
-      type: System.String[]
-      description: the claims
-    content.vb: Protected Sub AnyClaim(ParamArray claims As String())
-  overload: FastEndpoints.Endpoint`2.AnyClaim*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim(String())
-  modifiers.csharp:
-  - protected
-  modifiers.vb:
-  - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim(System.String())
-  name.vb: AnyClaim(String())
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ClaimsAll(System.String())
+  name.vb: ClaimsAll(String())
 - uid: FastEndpoints.Endpoint`2.PreProcessors(FastEndpoints.IPreProcessor{`0}[])
   commentId: M:FastEndpoints.Endpoint`2.PreProcessors(FastEndpoints.IPreProcessor{`0}[])
   id: PreProcessors(FastEndpoints.IPreProcessor{`0}[])
@@ -1934,7 +1893,7 @@ items:
   source:
     id: PreProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 141
+    startLine: 137
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1969,7 +1928,7 @@ items:
   source:
     id: PostProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 146
+    startLine: 142
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2004,7 +1963,7 @@ items:
   source:
     id: ResponseCache
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 155
+    startLine: 151
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2051,7 +2010,7 @@ items:
   source:
     id: Options
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 170
+    startLine: 166
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -3034,6 +2993,13 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.Endpoint`2.SendEmptyJsonObject*
+  commentId: Overload:FastEndpoints.Endpoint`2.SendEmptyJsonObject
+  name: SendEmptyJsonObject
+  nameWithType: Endpoint<TRequest, TResponse>.SendEmptyJsonObject
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEmptyJsonObject
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEmptyJsonObject
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEmptyJsonObject
 - uid: FastEndpoints.Endpoint`2.Get*
   commentId: Overload:FastEndpoints.Endpoint`2.Get
   name: Get
@@ -3182,13 +3148,13 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Permissions
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Permissions
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Permissions
-- uid: FastEndpoints.Endpoint`2.AnyPermission*
-  commentId: Overload:FastEndpoints.Endpoint`2.AnyPermission
-  name: AnyPermission
-  nameWithType: Endpoint<TRequest, TResponse>.AnyPermission
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyPermission
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyPermission
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyPermission
+- uid: FastEndpoints.Endpoint`2.PermissionsAll*
+  commentId: Overload:FastEndpoints.Endpoint`2.PermissionsAll
+  name: PermissionsAll
+  nameWithType: Endpoint<TRequest, TResponse>.PermissionsAll
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.PermissionsAll
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).PermissionsAll
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).PermissionsAll
 - uid: FastEndpoints.Endpoint`2.Claims*
   commentId: Overload:FastEndpoints.Endpoint`2.Claims
   name: Claims
@@ -3196,13 +3162,13 @@ references:
   fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Claims
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Claims
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Claims
-- uid: FastEndpoints.Endpoint`2.AnyClaim*
-  commentId: Overload:FastEndpoints.Endpoint`2.AnyClaim
-  name: AnyClaim
-  nameWithType: Endpoint<TRequest, TResponse>.AnyClaim
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AnyClaim
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AnyClaim
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AnyClaim
+- uid: FastEndpoints.Endpoint`2.ClaimsAll*
+  commentId: Overload:FastEndpoints.Endpoint`2.ClaimsAll
+  name: ClaimsAll
+  nameWithType: Endpoint<TRequest, TResponse>.ClaimsAll
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ClaimsAll
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ClaimsAll
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ClaimsAll
 - uid: FastEndpoints.Endpoint`2.PreProcessors*
   commentId: Overload:FastEndpoints.Endpoint`2.PreProcessors
   name: PreProcessors

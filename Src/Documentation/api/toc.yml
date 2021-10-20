@@ -55,6 +55,11 @@
     name: JWTBearer
   - uid: FastEndpoints.Security.Permissions
     name: Permissions
+- uid: FastEndpoints.Swagger
+  name: FastEndpoints.Swagger
+  items:
+  - uid: FastEndpoints.Swagger.Extensions
+    name: Extensions
 - uid: FastEndpoints.Validation
   name: FastEndpoints.Validation
   items:

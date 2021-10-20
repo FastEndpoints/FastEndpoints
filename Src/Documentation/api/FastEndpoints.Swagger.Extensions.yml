@@ -1,0 +1,688 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.Swagger.Extensions
+  commentId: T:FastEndpoints.Swagger.Extensions
+  id: Extensions
+  parent: FastEndpoints.Swagger
+  children:
+  - FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  - FastEndpoints.Swagger.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  - FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  langs:
+  - csharp
+  - vb
+  name: Extensions
+  nameWithType: Extensions
+  fullName: FastEndpoints.Swagger.Extensions
+  type: Class
+  source:
+    id: Extensions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swagger\Extensions.cs
+    startLine: 11
+  assemblies:
+  - FastEndpoints.Swagger
+  namespace: FastEndpoints.Swagger
+  summary: "\na set of extension methods for adding swagger support\n"
+  example: []
+  syntax:
+    content: public static class Extensions
+    content.vb: Public Module Extensions
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - static
+  - class
+  modifiers.vb:
+  - Public
+  - Module
+- uid: FastEndpoints.Swagger.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  commentId: M:FastEndpoints.Swagger.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  id: EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  isExtensionMethod: true
+  parent: FastEndpoints.Swagger.Extensions
+  langs:
+  - csharp
+  - vb
+  name: EnableFastEndpoints(SwaggerGenOptions)
+  nameWithType: Extensions.EnableFastEndpoints(SwaggerGenOptions)
+  fullName: FastEndpoints.Swagger.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  type: Method
+  source:
+    id: EnableFastEndpoints
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swagger\Extensions.cs
+    startLine: 16
+  assemblies:
+  - FastEndpoints.Swagger
+  namespace: FastEndpoints.Swagger
+  summary: "\nenable support for FastEndpoints in swagger\n"
+  example: []
+  syntax:
+    content: public static void EnableFastEndpoints(this SwaggerGenOptions options)
+    parameters:
+    - id: options
+      type: Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Sub EnableFastEndpoints(options As SwaggerGenOptions)
+  overload: FastEndpoints.Swagger.Extensions.EnableFastEndpoints*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  commentId: M:FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  id: EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  isExtensionMethod: true
+  parent: FastEndpoints.Swagger.Extensions
+  langs:
+  - csharp
+  - vb
+  name: EnableJWTBearerAuth(SwaggerGenOptions)
+  nameWithType: Extensions.EnableJWTBearerAuth(SwaggerGenOptions)
+  fullName: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  type: Method
+  source:
+    id: EnableJWTBearerAuth
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swagger\Extensions.cs
+    startLine: 26
+  assemblies:
+  - FastEndpoints.Swagger
+  namespace: FastEndpoints.Swagger
+  summary: "\nenable jwt bearer authorization support\n"
+  example: []
+  syntax:
+    content: public static void EnableJWTBearerAuth(this SwaggerGenOptions options)
+    parameters:
+    - id: options
+      type: Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Sub EnableJWTBearerAuth(options As SwaggerGenOptions)
+  overload: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  commentId: M:FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  id: AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  isExtensionMethod: true
+  parent: FastEndpoints.Swagger.Extensions
+  langs:
+  - csharp
+  - vb
+  name: AddSwagger(IServiceCollection, Nullable<Action<SwaggerGenOptions>>, Nullable<Action<JsonOptions>>, Boolean)
+  nameWithType: Extensions.AddSwagger(IServiceCollection, Nullable<Action<SwaggerGenOptions>>, Nullable<Action<JsonOptions>>, Boolean)
+  fullName: FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions>>, System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>, System.Boolean)
+  type: Method
+  source:
+    id: AddSwagger
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swagger\Extensions.cs
+    startLine: 60
+  assemblies:
+  - FastEndpoints.Swagger
+  namespace: FastEndpoints.Swagger
+  summary: "\nenable swagger support for FastEndpoints with a single call.\n"
+  example: []
+  syntax:
+    content: public static IServiceCollection AddSwagger(this IServiceCollection services, Action<SwaggerGenOptions>? options = null, Action<JsonOptions>? serializerOptions = null, bool addJWTBearerAuth = true)
+    parameters:
+    - id: services
+      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
+    - id: options
+      type: System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}}
+      description: swaggergen config options
+    - id: serializerOptions
+      type: System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}}
+      description: json serializer options
+    - id: addJWTBearerAuth
+      type: System.Boolean
+      description: set to false to disable auto addition of jwt bearer auth support
+    return:
+      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function AddSwagger(services As IServiceCollection, options As Action(Of SwaggerGenOptions)? = Nothing, serializerOptions As Action(Of JsonOptions)? = Nothing, addJWTBearerAuth As Boolean = True) As IServiceCollection
+  overload: FastEndpoints.Swagger.Extensions.AddSwagger*
+  nameWithType.vb: Extensions.AddSwagger(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean)
+  name.vb: AddSwagger(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean)
+references:
+- uid: FastEndpoints.Swagger
+  commentId: N:FastEndpoints.Swagger
+  name: FastEndpoints.Swagger
+  nameWithType: FastEndpoints.Swagger
+  fullName: FastEndpoints.Swagger
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: FastEndpoints.Swagger.Extensions.EnableFastEndpoints*
+  commentId: Overload:FastEndpoints.Swagger.Extensions.EnableFastEndpoints
+  name: EnableFastEndpoints
+  nameWithType: Extensions.EnableFastEndpoints
+  fullName: FastEndpoints.Swagger.Extensions.EnableFastEndpoints
+- uid: Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+  commentId: T:Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+  parent: Swashbuckle.AspNetCore.SwaggerGen
+  isExternal: true
+  name: SwaggerGenOptions
+  nameWithType: SwaggerGenOptions
+  fullName: Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+- uid: Swashbuckle.AspNetCore.SwaggerGen
+  commentId: N:Swashbuckle.AspNetCore.SwaggerGen
+  isExternal: true
+  name: Swashbuckle.AspNetCore.SwaggerGen
+  nameWithType: Swashbuckle.AspNetCore.SwaggerGen
+  fullName: Swashbuckle.AspNetCore.SwaggerGen
+- uid: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth*
+  commentId: Overload:FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth
+  name: EnableJWTBearerAuth
+  nameWithType: Extensions.EnableJWTBearerAuth
+  fullName: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth
+- uid: FastEndpoints.Swagger.Extensions.AddSwagger*
+  commentId: Overload:FastEndpoints.Swagger.Extensions.AddSwagger
+  name: AddSwagger
+  nameWithType: Extensions.AddSwagger
+  fullName: FastEndpoints.Swagger.Extensions.AddSwagger
+- uid: Microsoft.Extensions.DependencyInjection.IServiceCollection
+  commentId: T:Microsoft.Extensions.DependencyInjection.IServiceCollection
+  parent: Microsoft.Extensions.DependencyInjection
+  isExternal: true
+  name: IServiceCollection
+  nameWithType: IServiceCollection
+  fullName: Microsoft.Extensions.DependencyInjection.IServiceCollection
+- uid: System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}}
+  commentId: T:System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<Action<SwaggerGenOptions>>
+  nameWithType: Nullable<Action<SwaggerGenOptions>>
+  fullName: System.Nullable<Action<Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions>>
+  nameWithType.vb: Nullable(Of Action(Of SwaggerGenOptions))
+  fullName.vb: System.Nullable(Of Action(Of Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions))
+  name.vb: Nullable(Of Action(Of SwaggerGenOptions))
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+    name: SwaggerGenOptions
+    nameWithType: SwaggerGenOptions
+    fullName: Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+    name: SwaggerGenOptions
+    nameWithType: SwaggerGenOptions
+    fullName: Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}}
+  commentId: T:System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<Action<JsonOptions>>
+  nameWithType: Nullable<Action<JsonOptions>>
+  fullName: System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>
+  nameWithType.vb: Nullable(Of Action(Of JsonOptions))
+  fullName.vb: System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions))
+  name.vb: Nullable(Of Action(Of JsonOptions))
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.AspNetCore.Mvc.JsonOptions
+    name: JsonOptions
+    nameWithType: JsonOptions
+    fullName: Microsoft.AspNetCore.Mvc.JsonOptions
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.AspNetCore.Mvc.JsonOptions
+    name: JsonOptions
+    nameWithType: JsonOptions
+    fullName: Microsoft.AspNetCore.Mvc.JsonOptions
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: Microsoft.Extensions.DependencyInjection
+  commentId: N:Microsoft.Extensions.DependencyInjection
+  isExternal: true
+  name: Microsoft.Extensions.DependencyInjection
+  nameWithType: Microsoft.Extensions.DependencyInjection
+  fullName: Microsoft.Extensions.DependencyInjection
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )

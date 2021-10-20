@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace FastEndpoints.Swagger;
 
 /// <summary>
-/// a set of extension methods to adding swagger support
+/// a set of extension methods for adding swagger support
 /// </summary>
 public static class Extensions
 {

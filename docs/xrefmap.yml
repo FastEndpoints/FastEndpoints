@@ -1815,6 +1815,60 @@ references:
   fullName: FastEndpoints.Security.Permissions.System.Collections.IEnumerable.GetEnumerator
   nameWithType: Permissions.IEnumerable.GetEnumerator
   nameWithType.vb: Permissions.System.Collections.IEnumerable.GetEnumerator
+- uid: FastEndpoints.Swagger
+  name: FastEndpoints.Swagger
+  href: api/FastEndpoints.Swagger.html
+  commentId: N:FastEndpoints.Swagger
+  fullName: FastEndpoints.Swagger
+  nameWithType: FastEndpoints.Swagger
+- uid: FastEndpoints.Swagger.Extensions
+  name: Extensions
+  href: api/FastEndpoints.Swagger.Extensions.html
+  commentId: T:FastEndpoints.Swagger.Extensions
+  fullName: FastEndpoints.Swagger.Extensions
+  nameWithType: Extensions
+- uid: FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  name: AddSwagger(IServiceCollection, Nullable<Action<SwaggerGenOptions>>, Nullable<Action<JsonOptions>>, Boolean)
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddSwagger_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions___System_Nullable_Action_Microsoft_AspNetCore_Mvc_JsonOptions___System_Boolean_
+  commentId: M:FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  name.vb: AddSwagger(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean)
+  fullName: FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions>>, System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>, System.Boolean)
+  fullName.vb: FastEndpoints.Swagger.Extensions.AddSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean)
+  nameWithType: Extensions.AddSwagger(IServiceCollection, Nullable<Action<SwaggerGenOptions>>, Nullable<Action<JsonOptions>>, Boolean)
+  nameWithType.vb: Extensions.AddSwagger(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean)
+- uid: FastEndpoints.Swagger.Extensions.AddSwagger*
+  name: AddSwagger
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddSwagger_
+  commentId: Overload:FastEndpoints.Swagger.Extensions.AddSwagger
+  isSpec: "True"
+  fullName: FastEndpoints.Swagger.Extensions.AddSwagger
+  nameWithType: Extensions.AddSwagger
+- uid: FastEndpoints.Swagger.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  name: EnableFastEndpoints(SwaggerGenOptions)
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_EnableFastEndpoints_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions_
+  commentId: M:FastEndpoints.Swagger.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  fullName: FastEndpoints.Swagger.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  nameWithType: Extensions.EnableFastEndpoints(SwaggerGenOptions)
+- uid: FastEndpoints.Swagger.Extensions.EnableFastEndpoints*
+  name: EnableFastEndpoints
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_EnableFastEndpoints_
+  commentId: Overload:FastEndpoints.Swagger.Extensions.EnableFastEndpoints
+  isSpec: "True"
+  fullName: FastEndpoints.Swagger.Extensions.EnableFastEndpoints
+  nameWithType: Extensions.EnableFastEndpoints
+- uid: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  name: EnableJWTBearerAuth(SwaggerGenOptions)
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_EnableJWTBearerAuth_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions_
+  commentId: M:FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  fullName: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
+  nameWithType: Extensions.EnableJWTBearerAuth(SwaggerGenOptions)
+- uid: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth*
+  name: EnableJWTBearerAuth
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_EnableJWTBearerAuth_
+  commentId: Overload:FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth
+  isSpec: "True"
+  fullName: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth
+  nameWithType: Extensions.EnableJWTBearerAuth
 - uid: FastEndpoints.Validation
   name: FastEndpoints.Validation
   href: api/FastEndpoints.Validation.html

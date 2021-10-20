@@ -18,15 +18,6 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    private class EndpointDefinition
-    {
-#pragma warning disable CS8618
-        public Type EndpointType { get; set; }
-        public Type? ValidatorType { get; set; }
-        public EndpointSettings Settings { get; set; }
-#pragma warning restore CS8618
-    }
-
     private static EndpointDefinition[]? discoveredEndpointDefinitions;
 
     /// <summary>
@@ -169,24 +160,9 @@ public static class MainExtensions
                 if (eps.ClaimTypes?.Any() is true)
                 {
                     if (eps.AllowAnyClaim is true)
-                    {
-                        b.RequireAssertion(x =>
-                        {
-                            return x.User.Claims
-                            .Select(c => c.Type)
-                            .Intersect(eps.ClaimTypes)
-                            .Any();
-                        });
-                    }
+                        b.RequireAssertion(x => x.User.Claims.Select(c => c.Type).Intersect(eps.ClaimTypes).Any());
                     else
-                    {
-                        b.RequireAssertion(x =>
-                        {
-                            return !eps.ClaimTypes
-                            .Except(x.User.Claims.Select(c => c.Type))
-                            .Any();
-                        });
-                    }
+                        b.RequireAssertion(x => !eps.ClaimTypes.Except(x.User.Claims.Select(c => c.Type)).Any());
                 }
 
                 if (eps.Roles?.Any() is true) b.RequireRole(eps.Roles);

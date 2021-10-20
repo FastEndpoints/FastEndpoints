@@ -52,16 +52,29 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void Routes(params string[] patterns)
     {
         Settings.Routes = patterns;
-        Settings.InternalConfigAction = b =>
-        {
-            if (typeof(TRequest) != typeof(EmptyRequest)) b.Accepts<TRequest>("application/json");
-            b.Produces<TResponse>();
-        };
     }
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
-    protected void Verbs(params Http[] methods) => Settings.Verbs = methods.Select(m => m.ToString()).ToArray();
+    protected void Verbs(params Http[] methods)
+    {
+        Settings.Verbs = methods.Select(m => m.ToString()).ToArray();
+        Settings.InternalConfigAction = b =>
+        {
+            if (typeof(TRequest) != typeof(EmptyRequest))
+            {
+                if (methods.Contains(Http.GET))
+                    b.Accepts<TRequest>("text/plain", "application/json");
+                else
+                    b.Accepts<TRequest>("application/json");
+            }
+
+            if (typeof(TResponse) == typeof(object) || typeof(TResponse) == typeof(EmptyResponse))
+                b.Produces<TResponse>(200, "text/plain", "application/json");
+            else
+                b.Produces<TResponse>(200, "application/json");
+        };
+    }
     /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint
     /// </summary>

@@ -82,7 +82,6 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint where TRequest : new()
-
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -91,9 +90,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New, TResponse As New)
-
           Inherits BaseEndpoint
-
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -475,7 +472,6 @@ items:
   syntax:
     content: >-
       protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
           where TEvent : class
     parameters:
     - id: eventModel
@@ -1529,7 +1525,7 @@ items:
   source:
     id: Verbs
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 63
+    startLine: 58
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1563,7 +1559,7 @@ items:
   source:
     id: DontThrowIfValidationFails
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 67
+    startLine: 80
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1593,7 +1589,7 @@ items:
   source:
     id: AllowAnonymous
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 72
+    startLine: 85
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1627,7 +1623,7 @@ items:
   source:
     id: AllowFileUploads
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 82
+    startLine: 95
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1657,7 +1653,7 @@ items:
   source:
     id: AllowFormData
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 86
+    startLine: 99
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1687,7 +1683,7 @@ items:
   source:
     id: Policies
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 91
+    startLine: 104
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1722,7 +1718,7 @@ items:
   source:
     id: Roles
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 96
+    startLine: 109
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1757,7 +1753,7 @@ items:
   source:
     id: Permissions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 101
+    startLine: 114
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1792,7 +1788,7 @@ items:
   source:
     id: PermissionsAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 110
+    startLine: 123
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1827,7 +1823,7 @@ items:
   source:
     id: Claims
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 119
+    startLine: 132
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1862,7 +1858,7 @@ items:
   source:
     id: ClaimsAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 128
+    startLine: 141
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1897,7 +1893,7 @@ items:
   source:
     id: PreProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 137
+    startLine: 150
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1932,7 +1928,7 @@ items:
   source:
     id: PostProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 142
+    startLine: 155
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1967,7 +1963,7 @@ items:
   source:
     id: ResponseCache
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 151
+    startLine: 164
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2014,7 +2010,7 @@ items:
   source:
     id: Options
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 166
+    startLine: 179
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

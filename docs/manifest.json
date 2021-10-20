@@ -65,7 +65,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "LgDL6anyAtuwNmhG5PIBUM/hOKb1ptXetUYy7DZ1DhM="
+          "hash": "CPme0eNM2pS/o/ZMXpIZMzPSTWdwHAp82FZYrf5XjI8="
         }
       },
       "is_incremental": false,
@@ -113,7 +113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.FastEventHandler-1.html",
-          "hash": "GQOaZvgzry1STObncoIw7mfbkU8dEnYyWXjOimnPvb0="
+          "hash": "iId6jisH0U7tIJWCYQQHKiovjLCbbm7KW9eBMqSQyU4="
         }
       },
       "is_incremental": false,
@@ -161,7 +161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
-          "hash": "vqBZchAOR0GZNSLSDxkji1u6LnN+d1zZA4E97t1umBY="
+          "hash": "RKiOKG77E8a8bUOSB7be+SfgTwzUwAboytDXiEdh7mY="
         }
       },
       "is_incremental": false,
@@ -682,7 +682,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 27,
-          "skipped_file_count": 26
+          "skipped_file_count": 27
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,

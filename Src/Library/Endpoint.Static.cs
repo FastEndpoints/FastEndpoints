@@ -149,6 +149,48 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                     success = decimal.TryParse((string?)rv.Value, out var resDec);
                     prop.PropInfo.SetValue(req, resDec);
                     break;
+
+                case TypeCode.DateTime:
+                    success = DateTime.TryParse((string?)rv.Value, out var resDateTime);
+                    prop.PropInfo.SetValue(req, resDateTime);
+                    break;
+            }
+
+            if (!success)
+            {
+                var pt = prop.PropInfo.PropertyType;
+
+                if (pt == typeof(Guid))
+                {
+                    success = Guid.TryParse((string?)rv.Value, out var resGuid);
+                    prop.PropInfo.SetValue(req, resGuid);
+                }
+
+                if (pt == typeof(Enum))
+                {
+                    success = Enum.TryParse(pt, (string?)rv.Value, out var resEnum);
+                    prop.PropInfo.SetValue(req, resEnum);
+                }
+
+#pragma warning disable CS8604
+                if (pt == typeof(Uri))
+                {
+                    success = true;
+                    prop.PropInfo.SetValue(req, new Uri((string?)rv.Value));
+                }
+#pragma warning restore CS8604
+
+                if (pt == typeof(Version))
+                {
+                    success = Version.TryParse((string?)rv.Value, out var resUri);
+                    prop.PropInfo.SetValue(req, resUri);
+                }
+
+                if (pt == typeof(TimeSpan))
+                {
+                    success = TimeSpan.TryParse((string?)rv.Value, out var resTimeSpan);
+                    prop.PropInfo.SetValue(req, resTimeSpan);
+                }
             }
 
             if (!success)

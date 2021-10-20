@@ -7,7 +7,7 @@
     <PackageReleaseNotes>
       - change behavior of Claims() and Permissions() method to allow ANY
       - add ClaimsAll() and PermissionsAll() methods to require ALL
-      - 
+      - add more system types to route binding support
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Swagger;
@@ -88,8 +89,12 @@ internal class SwaggerOperationFilter : IOperationFilter
     {
         //var resDtoType = op.RequestBody?.Content.FirstOrDefault().Value.Schema.Reference?.Id.Split(".").LastOrDefault();
 
-        if (op.RequestBody != null)
-            op.RequestBody.Required = ctx.ApiDescription.HttpMethod != "GET";
+        var reqDtoType = ctx.ApiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
+
+        var isGETRequest = ctx.ApiDescription.HttpMethod == "GET";
+
+        if (isGETRequest && op.RequestBody != null)
+            op.RequestBody.Required = false;
 
 #pragma warning disable CS8604
         var parms = regex
@@ -101,6 +106,19 @@ internal class SwaggerOperationFilter : IOperationFilter
                 Required = true
             });
 #pragma warning restore CS8604
+
+        if (isGETRequest && !parms.Any() && reqDtoType != null)
+        {
+            parms = reqDtoType
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                .Select(p => new OpenApiParameter
+                {
+                    Name = p.Name,
+                    Required = false,
+                    Schema = new() { Type = p.PropertyType.Name },
+                    In = ParameterLocation.Query
+                });
+        }
 
         foreach (var p in parms)
             op.Parameters.Add(p);

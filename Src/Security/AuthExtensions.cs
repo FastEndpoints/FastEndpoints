@@ -41,10 +41,7 @@ public static class AuthExtensions
     /// </summary>
     /// <param name="permissionCode">the permission code to check for</param>
     public static bool HasPermission(this ClaimsPrincipal principal, string permissionCode)
-        => principal.Claims
-        .FirstOrDefault(x => x.Type == Constants.PermissionsClaimType)?
-        .Value.Split(',')
-        .Contains(permissionCode) ?? false;
+        => principal.FindAll(Constants.PermissionsClaimType).Select(c => c.Value).Contains(permissionCode);
 
     /// <summary>
     /// determines if the current user principal has the given claim type

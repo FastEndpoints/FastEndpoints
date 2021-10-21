@@ -2,10 +2,12 @@
 
   <PropertyGroup>
 
-    <Version>2.5.1</Version>
+    <Version>2.6.0</Version>
     
     <PackageReleaseNotes>
       - improve swagger integration
+      - improve permission handling
+      - improve third-pary auth provider support
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

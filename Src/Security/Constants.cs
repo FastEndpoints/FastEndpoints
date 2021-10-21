@@ -3,6 +3,6 @@
 [HideFromDocs]
 public static class Constants
 {
-    public const string PermissionsClaimType = "prm";//must match with FastEnpoints.Constants.PermissionsClaimType
+    public const string PermissionsClaimType = "permissions";//must match with FastEnpoints.Constants.PermissionsClaimType
 }
 

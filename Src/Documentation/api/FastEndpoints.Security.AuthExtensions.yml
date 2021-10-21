@@ -144,7 +144,7 @@ items:
   source:
     id: HasClaimType
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
-    startLine: 52
+    startLine: 49
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -186,7 +186,7 @@ items:
   source:
     id: ClaimValue
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\AuthExtensions.cs
-    startLine: 59
+    startLine: 56
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security

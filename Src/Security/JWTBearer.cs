@@ -52,10 +52,10 @@ public static class JWTBearer
             claimList.AddRange(claims);
 
         if (permissions != null)
-            claimList.Add(new Claim(Constants.PermissionsClaimType, string.Join(',', permissions)));
+            claimList.AddRange(permissions.Select(p => new Claim(Constants.PermissionsClaimType, p)));
 
         if (roles != null)
-            claimList.AddRange(roles.Select(r => new Claim(System.Security.Claims.ClaimTypes.Role, r)));
+            claimList.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
         var descriptor = new SecurityTokenDescriptor
         {

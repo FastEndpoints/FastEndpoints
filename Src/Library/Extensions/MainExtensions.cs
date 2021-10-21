@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Security.Claims;
 
 namespace FastEndpoints;
 
@@ -141,18 +140,18 @@ public static class MainExtensions
                     {
                         b.RequireAssertion(x =>
                         {
-                            var prmClaimVal = x.User.FindFirstValue(Constants.PermissionsClaimType);
-                            if (prmClaimVal is null) return false;
-                            return prmClaimVal.Split(',').Intersect(eps.Permissions).Any();
+                            var prmClaimVals = x.User.FindAll(Constants.PermissionsClaimType).Select(c => c.Value);
+                            if (!prmClaimVals.Any()) return false;
+                            return prmClaimVals.Intersect(eps.Permissions).Any();
                         });
                     }
                     else
                     {
                         b.RequireAssertion(x =>
                         {
-                            var prmClaimVal = x.User.FindFirstValue(Constants.PermissionsClaimType);
-                            if (prmClaimVal is null) return false;
-                            return !eps.Permissions.Except(prmClaimVal.Split(',')).Any();
+                            var prmClaimVals = x.User.FindAll(Constants.PermissionsClaimType).Select(c => c.Value);
+                            if (!prmClaimVals.Any()) return false;
+                            return !eps.Permissions.Except(prmClaimVals).Any();
                         });
                     }
                 }

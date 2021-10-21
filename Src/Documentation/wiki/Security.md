@@ -137,3 +137,6 @@ using just `AllowAnonymous()` without any arguments means all verbs are allowed 
 
 ## other auth providers
 all auth providers compatible with the `asp.net` middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the `[Authorize]` attribute as you would typically do.
+
+> [!TIP]
+> here's an **[example project](https://github.com/dj-nitehawk/FastEndpoints-Auth0-Demo)** using **[Auth0](https://auth0.com/access-management)** with permissions.

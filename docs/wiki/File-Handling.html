@@ -138,6 +138,11 @@
 <p><strong>SendFileAsync()</strong> - you can supply a <code>System.IO.FileInfo</code> instance as the source of the binary data.</p>
 <p><strong>SendBytesAsync()</strong> - you can supply a byte array as the source of data to be sent to the client.</p>
 <p>all three methods allow you to optionally specify the <code>content-type</code> and <code>file name</code>. if file name is specified, the <code>Content-Disposition: attachment</code> response header will be set with the given file name so that a file download will be initiated by the client/browser.</p>
+<h1 id="write-to-response-stream">write to response stream</h1>
+<p>instead of using the above methods, you also have the choice of writing directly to the http response stream.</p>
+<blockquote>
+<p><strong><a href="https://github.com/dj-nitehawk/FastEndpoints-FileHandling-Demo">see here</a></strong> for an example project that stores and retrieves images in mongodb.</p>
+</blockquote>
 </article>
           </div>
           

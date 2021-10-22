@@ -55,3 +55,8 @@ there are 3 methods you can use to send file data down to the client.
 **SendBytesAsync()** - you can supply a byte array as the source of data to be sent to the client.
 
 all three methods allow you to optionally specify the `content-type` and `file name`. if file name is specified, the `Content-Disposition: attachment` response header will be set with the given file name so that a file download will be initiated by the client/browser.
+
+# write to response stream
+
+instead of using the above methods, you also have the choice of writing directly to the http response stream.
+> **[see here](https://github.com/dj-nitehawk/FastEndpoints-FileHandling-Demo)** for an example project that stores and retrieves images in mongodb.

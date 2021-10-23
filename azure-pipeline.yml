@@ -1,0 +1,45 @@
+trigger:
+  tags:
+    include:
+      - "v*"
+  branches:
+    exclude:
+      - "*"
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  buildConfiguration: "Release"
+
+steps:
+  - task: UseDotNet@2
+    displayName: "Use .Net Core SDK 6.x"
+    inputs:
+      packageType: "sdk"
+      version: "6.x"
+      includePreviewVersions: true
+
+  - task: DotNetCoreCLI@2
+    displayName: "Run Tests"
+    inputs:
+      command: "test"
+      projects: "**/*[Tt]est/*.csproj"
+      arguments: "--configuration $(BuildConfiguration)"
+      workingDirectory: "Test"
+
+  - task: DotNetCoreCLI@2
+    displayName: "Make Nuget Package"
+    inputs:
+      command: "pack"
+      packagesToPack: "Src/*.csproj"
+      versioningScheme: "off"
+      verbosityPack: "Minimal"
+
+  - task: NuGetCommand@2
+    displayName: "Publish To Nuget"
+    inputs:
+      command: "push"
+      packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg"
+      nuGetFeedType: "external"
+      publishFeedCredentials: "nuget-djnitehawk"

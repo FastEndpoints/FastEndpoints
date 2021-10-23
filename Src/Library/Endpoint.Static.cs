@@ -117,10 +117,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(rv.Key.ToLower(), out var prop))
         {
             bool success = false;
-            string propType = "Object";
+            string propType = string.Empty;
 
             switch (prop.TypeCode)
             {
+                case TypeCode.Object: //this is most likely an IFormFile.
+                    return; //binding to Object type props is not supported, so just return here;
+
                 case TypeCode.String:
                     propType = "String";
                     success = true;

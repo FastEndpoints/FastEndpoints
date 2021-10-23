@@ -32,7 +32,7 @@ steps:
     displayName: "Make Nuget Package"
     inputs:
       command: "pack"
-      packagesToPack: "Src/*.csproj"
+      packagesToPack: "Src/**/*.csproj"
       versioningScheme: "off"
       verbosityPack: "Minimal"
 

@@ -82,7 +82,6 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint where TRequest : new()
-
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -91,9 +90,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New, TResponse As New)
-
           Inherits BaseEndpoint
-
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -322,7 +319,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 127
+    startLine: 126
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -358,7 +355,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 132
+    startLine: 131
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -394,7 +391,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 138
+    startLine: 137
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -430,7 +427,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 144
+    startLine: 143
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -466,7 +463,7 @@ items:
   source:
     id: PublishAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 156
+    startLine: 155
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -475,7 +472,6 @@ items:
   syntax:
     content: >-
       protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
           where TEvent : class
     parameters:
     - id: eventModel

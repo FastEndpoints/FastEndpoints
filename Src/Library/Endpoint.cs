@@ -102,10 +102,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     internal override async Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
     {
         HttpContext = ctx;
-        var req = await BindIncomingDataAsync(ctx, cancellation).ConfigureAwait(false);
         try
         {
-            BindFromUserClaims(req, ctx, ValidationFailures);
+            var req = await BindToModelAsync(ctx, ValidationFailures, cancellation).ConfigureAwait(false);
             OnBeforeValidate(req);
             await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, ctx, preProcessors, ValidationFailures, cancellation).ConfigureAwait(false);
             OnAfterValidate(req);

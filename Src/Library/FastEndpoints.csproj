@@ -2,9 +2,11 @@
 
   <PropertyGroup>
 
-    <Version>2.7.0-beta1</Version>
+    <Version>2.7.0</Version>
     
     <PackageReleaseNotes>
+      - streamline model binding
+      - streamline validation error response
       - improve swagger integration
     </PackageReleaseNotes>
     
@@ -37,8 +39,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme"/>
-    <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon"/>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme" />
+    <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
   </ItemGroup>
 
   <ItemGroup>

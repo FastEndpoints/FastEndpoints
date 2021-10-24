@@ -9,7 +9,7 @@ public class Endpoint : Endpoint<Request, Response>
     public override void Configure()
     {
         Verbs(Http.POST);
-        Routes("/sales/orders/create");
+        Routes("/sales/orders/create/{GuidTest}");
         PreProcessors(
             new MyRequestLogger<Request>());
         PostProcessors(
@@ -32,7 +32,8 @@ public class Endpoint : Endpoint<Request, Response>
         await SendAsync(new Response
         {
             Message = "order created!",
-            OrderID = 54321
+            OrderID = 54321,
+            GuidTest = r.GuidTest
         });
     }
 }

@@ -45,6 +45,7 @@ public static class EndpointExecutor
 
     private static void ResolveServices(object endpointInstance, HttpContext ctx)
     {
+#pragma warning disable CS8604
         if (CachedServiceBoundProps.TryGetValue(endpointInstance.GetType(), out var props))
         {
             for (int i = 0; i < props.Length; i++)
@@ -54,6 +55,7 @@ public static class EndpointExecutor
                 prop.PropSetter(endpointInstance, serviceInstance);
             }
         }
+#pragma warning restore CS8604
     }
 }
 

@@ -86,5 +86,27 @@ namespace Test
             Assert.IsTrue(rsp?.IsSuccessStatusCode);
             Assert.AreEqual(res?.OrderID, 54321);
         }
+
+        [TestMethod]
+        public async Task CreateOrderByCustomerGuidTest()
+        {
+            var guid = Guid.NewGuid();
+
+            var (rsp, res) = await CustomerClient.POSTAsync<
+                Sales.Orders.Create.Request,
+                Sales.Orders.Create.Response>(
+                $"/sales/orders/create/{guid}",
+                new()
+                {
+                    CustomerID = 12345,
+                    ProductID = 100,
+                    Quantity = 23,
+                    GuidTest = Guid.NewGuid()
+                });
+
+            Assert.IsTrue(rsp?.IsSuccessStatusCode);
+            Assert.AreEqual(res?.OrderID, 54321);
+            Assert.AreEqual(guid, res.GuidTest);
+        }
     }
 }

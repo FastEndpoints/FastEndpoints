@@ -38,9 +38,10 @@ internal static class ReflectionExtensions
         var sourceObjectParam = Expression.Parameter(typeof(object), "source");
 
         var propertyValueParam = Expression.Parameter(typeof(object), "value");
-        var valueExpression = Expression.Convert(propertyValueParam, propertyInfo.PropertyType);
 
 #pragma warning disable CS8602, CS8604
+        var valueExpression = Expression.Convert(propertyValueParam, propertyInfo.PropertyType);
+
         return Expression.Lambda<Action<object, object>>(
             Expression.Call(
                 Expression.Convert(sourceObjectParam, source),

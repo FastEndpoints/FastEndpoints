@@ -2,11 +2,13 @@
 
   <PropertyGroup>
 
-    <Version>2.8.0-beta2</Version>
+    <Version>2.8.0</Version>
     
     <PackageReleaseNotes>
       - eliminate reflection use for handler execution
       - eliminate reflection use for model binding
+      - eliminate reflection use for service bound props (DI)
+      - improve referenece type route binding
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

@@ -121,14 +121,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
             switch (prop.PropTypeCode)
             {
-                case TypeCode.Object: //this is most likely an IFormFile.
-                    return; //binding to Object type props is not supported, so just return here;
-
+#pragma warning disable CS8604
                 case TypeCode.String:
                     propType = "String";
                     success = true;
                     prop.PropSetter(req, rv.Value);
                     break;
+#pragma warning restore CS8604
 
                 case TypeCode.Boolean:
                     propType = "Bool";
@@ -165,48 +164,51 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                     success = DateTime.TryParse((string?)rv.Value, out var resDateTime);
                     prop.PropSetter(req, resDateTime);
                     break;
-            }
 
-            if (!success)
-            {
-                var pt = prop.PropType;
+                case TypeCode.Object:
 
-                if (pt == typeof(Guid))
-                {
-                    propType = "Guid";
-                    success = Guid.TryParse((string?)rv.Value, out var resGuid);
-                    prop.PropSetter(req, resGuid);
-                }
+                    var prpType = prop.PropType;
 
-                if (pt == typeof(Enum))
-                {
-                    propType = "Enum";
-                    success = Enum.TryParse(pt, (string?)rv.Value, out var resEnum);
-                    prop.PropSetter(req, resEnum);
-                }
+                    if (prpType == typeof(IFormFile))
+                        return; //skip if it's a form file field
+
+                    if (prpType == typeof(Guid))
+                    {
+                        propType = "Guid";
+                        success = Guid.TryParse((string?)rv.Value, out var resGuid);
+                        prop.PropSetter(req, resGuid);
+                    }
 
 #pragma warning disable CS8604
-                if (pt == typeof(Uri))
-                {
-                    propType = "Uri";
-                    success = true;
-                    prop.PropSetter(req, new Uri((string?)rv.Value));
-                }
+                    if (prpType == typeof(Enum))
+                    {
+                        propType = "Enum";
+                        success = Enum.TryParse(prpType, (string?)rv.Value, out var resEnum);
+                        prop.PropSetter(req, resEnum);
+                    }
+
+                    if (prpType == typeof(Uri))
+                    {
+                        propType = "Uri";
+                        success = true;
+                        prop.PropSetter(req, new Uri((string?)rv.Value));
+                    }
+
+                    if (prpType == typeof(Version))
+                    {
+                        propType = "Version";
+                        success = Version.TryParse((string?)rv.Value, out var resUri);
+                        prop.PropSetter(req, resUri);
+                    }
 #pragma warning restore CS8604
 
-                if (pt == typeof(Version))
-                {
-                    propType = "Version";
-                    success = Version.TryParse((string?)rv.Value, out var resUri);
-                    prop.PropSetter(req, resUri);
-                }
-
-                if (pt == typeof(TimeSpan))
-                {
-                    propType = "TimeSpan";
-                    success = TimeSpan.TryParse((string?)rv.Value, out var resTimeSpan);
-                    prop.PropSetter(req, resTimeSpan);
-                }
+                    if (prpType == typeof(TimeSpan))
+                    {
+                        propType = "TimeSpan";
+                        success = TimeSpan.TryParse((string?)rv.Value, out var resTimeSpan);
+                        prop.PropSetter(req, resTimeSpan);
+                    }
+                    break;
             }
 
             if (!success)

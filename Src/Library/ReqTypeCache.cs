@@ -2,26 +2,37 @@
 
 namespace FastEndpoints;
 
-internal record PropCacheEntry(
-    PropertyInfo PropInfo,
-    TypeCode TypeCode);
+internal record PropCacheEntry<TRequest>(
+    string PropName,
+    Type PropType,
+    TypeCode PropTypeCode,
+    Action<TRequest, object> PropSetter);
 
-internal record FromClaimPropCacheEntry(string ClaimType, bool ForbidIfMissing, PropertyInfo PropInfo);
+internal record FromClaimPropCacheEntry<TRequest>(
+    string ClaimType,
+    bool ForbidIfMissing,
+    Action<TRequest, object> PropSetter);
 
 internal static class ReqTypeCache<TRequest>
 {
     //note: key is lowercased property name
-    internal static Dictionary<string, PropCacheEntry> CachedProps { get; } = new();
+    internal static Dictionary<string, PropCacheEntry<TRequest>> CachedProps { get; } = new();
 
-    internal static List<FromClaimPropCacheEntry> CachedFromClaimProps { get; } = new();
+    internal static List<FromClaimPropCacheEntry<TRequest>> CachedFromClaimProps { get; } = new();
 
     static ReqTypeCache()
     {
         foreach (var propInfo in typeof(TRequest).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
-            var propName = propInfo.Name.ToLower();
+            var propName = propInfo.Name;
+            var compiledSetter = Tool.CompiledSetter<TRequest>(propName);
 
-            CachedProps.Add(propName, new(propInfo, Type.GetTypeCode(propInfo.PropertyType)));
+            CachedProps.Add(propName.ToLower(),
+                new(
+                    propName,
+                    propInfo.PropertyType,
+                    Type.GetTypeCode(propInfo.PropertyType),
+                    compiledSetter));
 
             if (propInfo.IsDefined(typeof(FromClaimAttribute), false))
             {
@@ -33,7 +44,7 @@ internal static class ReqTypeCache<TRequest>
                 var claimType = attrib?.ClaimType ?? "null";
                 var forbidIfMissing = attrib?.IsRequired ?? false;
 
-                CachedFromClaimProps.Add(new(claimType, forbidIfMissing, propInfo));
+                CachedFromClaimProps.Add(new(claimType, forbidIfMissing, compiledSetter));
             }
         }
     }

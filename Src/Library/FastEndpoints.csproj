@@ -6,7 +6,7 @@
     
     <PackageReleaseNotes>
       - eliminate reflection use for handler execution
-      - 
+      - eliminate reflection use for model binding
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

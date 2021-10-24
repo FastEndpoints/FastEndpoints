@@ -55,7 +55,7 @@ public class Benchmarks
             });
     }
 
-    [Benchmark]
+    //[Benchmark]
     public async Task CarterModule()
     {
         await CarterClient.POSTAsync<CarterModules.Request, CarterModules.Response>(
@@ -75,7 +75,7 @@ public class Benchmarks
              });
     }
 
-    [Benchmark]
+    //[Benchmark]
     public async Task AspNetCoreMVC()
     {
         await MvcClient.POSTAsync<MvcControllers.Request, MvcControllers.Response>(

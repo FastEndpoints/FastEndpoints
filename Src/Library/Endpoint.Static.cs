@@ -73,10 +73,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(httpRequest.Form.Files[y].Name.ToLower(), out var prop))
             {
-                if (prop.PropInfo.PropertyType == typeof(IFormFile))
-                    prop.PropInfo.SetValue(req, httpRequest.Form.Files[y]);
+                if (prop.PropType == typeof(IFormFile))
+                    prop.PropSetter(req, httpRequest.Form.Files[y]);
                 else
-                    failures.Add(new(prop.PropInfo.Name, "Files can only be bound to properties of type IFormFile!"));
+                    failures.Add(new(prop.PropName, "Files can only be bound to properties of type IFormFile!"));
             }
         }
     }
@@ -101,14 +101,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromClaimProps.Count; i++)
         {
-            var (claimType, forbidIfMissing, propInfo) = ReqTypeCache<TRequest>.CachedFromClaimProps[i];
+            var (claimType, forbidIfMissing, propSetter) = ReqTypeCache<TRequest>.CachedFromClaimProps[i];
             var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
             if (claimVal is null && forbidIfMissing)
                 failures.Add(new(claimType, "User doesn't have this claim type!"));
 
             if (claimVal is not null)
-                propInfo.SetValue(req, claimVal);
+                propSetter(req, claimVal);
         }
     }
 
@@ -119,7 +119,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             bool success = false;
             string propType = string.Empty;
 
-            switch (prop.TypeCode)
+            switch (prop.PropTypeCode)
             {
                 case TypeCode.Object: //this is most likely an IFormFile.
                     return; //binding to Object type props is not supported, so just return here;
@@ -127,62 +127,62 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 case TypeCode.String:
                     propType = "String";
                     success = true;
-                    prop.PropInfo.SetValue(req, rv.Value);
+                    prop.PropSetter(req, rv.Value);
                     break;
 
                 case TypeCode.Boolean:
                     propType = "Bool";
                     success = bool.TryParse((string?)rv.Value, out var resBool);
-                    prop.PropInfo.SetValue(req, resBool);
+                    prop.PropSetter(req, resBool);
                     break;
 
                 case TypeCode.Int32:
                     propType = "Int";
                     success = int.TryParse((string?)rv.Value, out var resInt);
-                    prop.PropInfo.SetValue(req, resInt);
+                    prop.PropSetter(req, resInt);
                     break;
 
                 case TypeCode.Int64:
                     propType = "Long";
                     success = long.TryParse((string?)rv.Value, out var resLong);
-                    prop.PropInfo.SetValue(req, resLong);
+                    prop.PropSetter(req, resLong);
                     break;
 
                 case TypeCode.Double:
                     propType = "Double";
                     success = double.TryParse((string?)rv.Value, out var resDbl);
-                    prop.PropInfo.SetValue(req, resDbl);
+                    prop.PropSetter(req, resDbl);
                     break;
 
                 case TypeCode.Decimal:
                     propType = "Decimal";
                     success = decimal.TryParse((string?)rv.Value, out var resDec);
-                    prop.PropInfo.SetValue(req, resDec);
+                    prop.PropSetter(req, resDec);
                     break;
 
                 case TypeCode.DateTime:
                     propType = "DateTime";
                     success = DateTime.TryParse((string?)rv.Value, out var resDateTime);
-                    prop.PropInfo.SetValue(req, resDateTime);
+                    prop.PropSetter(req, resDateTime);
                     break;
             }
 
             if (!success)
             {
-                var pt = prop.PropInfo.PropertyType;
+                var pt = prop.PropType;
 
                 if (pt == typeof(Guid))
                 {
                     propType = "Guid";
                     success = Guid.TryParse((string?)rv.Value, out var resGuid);
-                    prop.PropInfo.SetValue(req, resGuid);
+                    prop.PropSetter(req, resGuid);
                 }
 
                 if (pt == typeof(Enum))
                 {
                     propType = "Enum";
                     success = Enum.TryParse(pt, (string?)rv.Value, out var resEnum);
-                    prop.PropInfo.SetValue(req, resEnum);
+                    prop.PropSetter(req, resEnum);
                 }
 
 #pragma warning disable CS8604
@@ -190,7 +190,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 {
                     propType = "Uri";
                     success = true;
-                    prop.PropInfo.SetValue(req, new Uri((string?)rv.Value));
+                    prop.PropSetter(req, new Uri((string?)rv.Value));
                 }
 #pragma warning restore CS8604
 
@@ -198,19 +198,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 {
                     propType = "Version";
                     success = Version.TryParse((string?)rv.Value, out var resUri);
-                    prop.PropInfo.SetValue(req, resUri);
+                    prop.PropSetter(req, resUri);
                 }
 
                 if (pt == typeof(TimeSpan))
                 {
                     propType = "TimeSpan";
                     success = TimeSpan.TryParse((string?)rv.Value, out var resTimeSpan);
-                    prop.PropInfo.SetValue(req, resTimeSpan);
+                    prop.PropSetter(req, resTimeSpan);
                 }
             }
 
             if (!success)
-                failures.Add(new(prop.PropInfo.Name, $"Unable to bind [{rv.Value}] to a [{propType}] property!"));
+                failures.Add(new(prop.PropName, $"Unable to bind [{rv.Value}] to a [{propType}] property!"));
         }
     }
 }

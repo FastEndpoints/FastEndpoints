@@ -12,6 +12,8 @@ public class Request
     public decimal Decimal { get; set; }
 
     public string FromBody { get; set; }
+
+    public int ReadOnly => 100;
 }
 
 public class Validator : Validator<Request>

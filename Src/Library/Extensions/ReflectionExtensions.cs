@@ -17,6 +17,9 @@ internal static class ReflectionExtensions
     {
         var propertyInfo = source.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
+        if (propertyInfo?.CanRead != true)
+            throw new InvalidOperationException($"[{source.FullName}.{propertyName}] is not readable!");
+
         var sourceObjectParam = Expression.Parameter(typeof(object), "source");
 
 #pragma warning disable CS8602,CS8604
@@ -34,6 +37,9 @@ internal static class ReflectionExtensions
     internal static Action<object, object> SetterForProp(this Type source, string propertyName)
     {
         var propertyInfo = source.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+        if (propertyInfo?.CanWrite != true)
+            throw new InvalidOperationException($"[{source.FullName}.{propertyName}] is not writable!");
 
         var sourceObjectParam = Expression.Parameter(typeof(object), "source");
 

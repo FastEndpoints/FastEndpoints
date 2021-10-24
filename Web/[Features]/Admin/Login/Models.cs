@@ -4,6 +4,7 @@ public class Request
 {
     public string? UserName { get; set; }
     public string? Password { get; set; }
+    public string GetterOnlyProp => "test";
 }
 
 public class Validator : Validator<Request>

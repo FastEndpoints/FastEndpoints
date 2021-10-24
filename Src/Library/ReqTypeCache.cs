@@ -26,6 +26,9 @@ internal static class ReqTypeCache<TRequest>
 
         foreach (var propInfo in reqType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
+            if (!propInfo.CanRead || !propInfo.CanWrite)
+                return;
+
             var propName = propInfo.Name;
             var compiledSetter = reqType.SetterForProp(propName);
 

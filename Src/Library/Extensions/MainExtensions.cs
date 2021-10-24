@@ -73,6 +73,7 @@ public static class MainExtensions
             EndpointExecutor.CachedServiceBoundProps[ep.EndpointType] =
                 ep.EndpointType
                   .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                  .Where(p => p.CanRead && p.CanWrite)
                   .Select(p => new ServiceBoundPropCacheEntry(
                       p.PropertyType,
                       ep.EndpointType.SetterForProp(p.Name))

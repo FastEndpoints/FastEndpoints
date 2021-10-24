@@ -2,37 +2,38 @@
 
 namespace FastEndpoints;
 
-internal record PropCacheEntry<TRequest>(
+internal record PropCacheEntry(
     string PropName,
     Type PropType,
     TypeCode PropTypeCode,
-    Action<TRequest, object> PropSetter);
+    Action<object, object> PropSetter);
 
-internal record FromClaimPropCacheEntry<TRequest>(
+internal record FromClaimPropCacheEntry(
     string ClaimType,
     bool ForbidIfMissing,
-    Action<TRequest, object> PropSetter);
+    Action<object, object> PropSetter);
 
 internal static class ReqTypeCache<TRequest>
 {
     //note: key is lowercased property name
-    internal static Dictionary<string, PropCacheEntry<TRequest>> CachedProps { get; } = new();
+    internal static Dictionary<string, PropCacheEntry> CachedProps { get; } = new();
 
-    internal static List<FromClaimPropCacheEntry<TRequest>> CachedFromClaimProps { get; } = new();
+    internal static List<FromClaimPropCacheEntry> CachedFromClaimProps { get; } = new();
 
     static ReqTypeCache()
     {
-        foreach (var propInfo in typeof(TRequest).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+        var reqType = typeof(TRequest);
+
+        foreach (var propInfo in reqType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
             var propName = propInfo.Name;
-            var compiledSetter = Tool.CompiledSetter<TRequest>(propName);
+            var compiledSetter = reqType.SetterForProp(propName);
 
-            CachedProps.Add(propName.ToLower(),
-                new(
-                    propName,
-                    propInfo.PropertyType,
-                    Type.GetTypeCode(propInfo.PropertyType),
-                    compiledSetter));
+            CachedProps.Add(propName.ToLower(), new(
+                propName,
+                propInfo.PropertyType,
+                Type.GetTypeCode(propInfo.PropertyType),
+                compiledSetter));
 
             if (propInfo.IsDefined(typeof(FromClaimAttribute), false))
             {

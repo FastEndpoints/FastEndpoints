@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Reflection;
 
 namespace FastEndpoints;
 
@@ -12,6 +11,10 @@ internal record EndpointDefinitionCacheEntry(
     object? PreProcessors,
     object? PostProcessors);
 
+internal record ServiceBoundPropCacheEntry(
+    Type PropType,
+    Action<object, object> PropSetter);
+
 [HideFromDocs]
 public static class EndpointExecutor
 {
@@ -19,7 +22,7 @@ public static class EndpointExecutor
     internal static Dictionary<string, EndpointDefinitionCacheEntry> CachedEndpointDefinitions { get; } = new();
 
     //key: TEndpoint
-    internal static Dictionary<Type, PropertyInfo[]> CachedServiceBoundProps { get; } = new();
+    internal static Dictionary<Type, ServiceBoundPropCacheEntry[]> CachedServiceBoundProps { get; } = new();
 
     //note: this handler is called by .net for each http request
     public static Task HandleAsync(HttpContext ctx, CancellationToken cancellation)
@@ -46,9 +49,9 @@ public static class EndpointExecutor
         {
             for (int i = 0; i < props.Length; i++)
             {
-                PropertyInfo? prop = props[i];
-                var serviceInstance = ctx.RequestServices.GetService(prop.PropertyType);
-                prop.SetValue(endpointInstance, serviceInstance);
+                var prop = props[i];
+                var serviceInstance = ctx.RequestServices.GetService(prop.PropType);
+                prop.PropSetter(endpointInstance, serviceInstance);
             }
         }
     }

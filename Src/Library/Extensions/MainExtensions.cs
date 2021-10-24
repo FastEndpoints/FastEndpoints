@@ -70,8 +70,13 @@ public static class MainExtensions
                 validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
             }
 
-            EndpointExecutor.CachedServiceBoundProps[ep.EndpointType]
-                = ep.EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            EndpointExecutor.CachedServiceBoundProps[ep.EndpointType] =
+                ep.EndpointType
+                  .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                  .Select(p => new ServiceBoundPropCacheEntry(
+                      p.PropertyType,
+                      ep.EndpointType.SetterForProp(p.Name))
+                  ).ToArray();
 
             foreach (var route in epSettings.Routes)
             {

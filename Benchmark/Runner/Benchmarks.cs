@@ -16,7 +16,7 @@ public class Benchmarks
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
     private static HttpClient CarterClient { get; } = new WebApplicationFactory<CarterModules.Program>().CreateClient();
 
-    [Benchmark(Baseline = true)]
+    [Benchmark]
     public async Task FastEndpointsEndpoint()
     {
         await FastEndpointClient.POSTAsync<FastEndpointsBench.Request, FastEndpointsBench.Response>(
@@ -35,7 +35,7 @@ public class Benchmarks
             });
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public async Task MinimalApiEndpoint()
     {
         await MinimalClient.POSTAsync<MinimalApi.Request, MinimalApi.Response>(

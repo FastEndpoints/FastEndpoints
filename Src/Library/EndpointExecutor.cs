@@ -27,7 +27,7 @@ public static class EndpointExecutor
         var ep = (RouteEndpoint?)ctx.GetEndpoint();
         var routePath = ep?.RoutePattern.RawText;
         var epDef = CachedEndpointDefinitions[$"{ctx.Request.Method}:{routePath}"];
-        var endpointInstance = epDef.CreateInstance();
+        var endpointInstance = (BaseEndpoint)epDef.CreateInstance();
 
         var respCacheAttrib = ep?.Metadata.OfType<ResponseCacheAttribute>().FirstOrDefault();
         if (respCacheAttrib is not null)
@@ -35,10 +35,9 @@ public static class EndpointExecutor
 
         ResolveServices(endpointInstance, ctx);
 
-#pragma warning disable CS8601
-        return (Task?)BaseEndpoint.ExecMethodInfo.Invoke(endpointInstance, new object[] { ctx, epDef.Validator, epDef.PreProcessors, epDef.PostProcessors, cancellation })
-            ?? Task.CompletedTask;
-#pragma warning restore CS8601
+#pragma warning disable CS8601,CS8604
+        return endpointInstance.ExecAsync(ctx, epDef.Validator, epDef.PreProcessors, epDef.PostProcessors, cancellation);
+#pragma warning restore CS8601,CS8604
     }
 
     private static void ResolveServices(object endpointInstance, HttpContext ctx)

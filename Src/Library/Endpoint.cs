@@ -10,11 +10,11 @@ namespace FastEndpoints;
 [HideFromDocs]
 public abstract class BaseEndpoint : IEndpoint
 {
-#pragma warning disable CS8601
     internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
-    internal static MethodInfo ExecMethodInfo { get; set; } = typeof(BaseEndpoint).GetMethod(nameof(BaseEndpoint.ExecAsync), BindingFlags.NonPublic | BindingFlags.Instance);
+
+#pragma warning disable CS8601,CS8602
     internal static PropertyInfo SettingsPropInfo { get; set; } = typeof(BaseEndpoint).GetProperty(nameof(Settings), BindingFlags.NonPublic | BindingFlags.Instance);
-#pragma warning restore CS8601
+#pragma warning restore CS8601,CS8602
 
     internal EndpointSettings Settings { get; set; } = new();
 

@@ -14,9 +14,9 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Bombardier Load Test | FastEndpoints </title>
+    <title>Head-To-Head Benchmark | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Bombardier Load Test | FastEndpoints ">
+    <meta name="title" content="Head-To-Head Benchmark | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
     <link rel="shortcut icon" href="../images/favicon.ico">
@@ -85,43 +85,105 @@
         <div class="article row grid">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h2 id="bombardier-load-test">Bombardier Load Test</h2>
+<h2 id="head-to-head-benchmark">Head-To-Head Benchmark</h2>
 
-<h3 id="fastendpoints-33772-more-requests-per-second-than-mvc-controller">FastEndpoints <em>(33,772 more requests per second than mvc controller)</em></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">Error</th>
+<th style="text-align: right;">StdDev</th>
+<th style="text-align: right;">Ratio</th>
+<th style="text-align: right;">RatioSD</th>
+<th style="text-align: right;">Gen 0</th>
+<th style="text-align: right;">Gen 1</th>
+<th style="text-align: right;">Allocated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AspNet Minimal Api</td>
+<td style="text-align: right;">84.06 μs</td>
+<td style="text-align: right;">3.721 μs</td>
+<td style="text-align: right;">2.214 μs</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">2.6000</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">21 KB</td>
+</tr>
+<tr>
+<td>FastEndpoints</td>
+<td style="text-align: right;">84.93 μs</td>
+<td style="text-align: right;">2.539 μs</td>
+<td style="text-align: right;">1.328 μs</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">2.5000</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">21 KB</td>
+</tr>
+<tr>
+<td>AspNet MVC Controller</td>
+<td style="text-align: right;">112.75 μs</td>
+<td style="text-align: right;">5.053 μs</td>
+<td style="text-align: right;">3.007 μs</td>
+<td style="text-align: right;">1.34</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">3.4000</td>
+<td style="text-align: right;">0.1000</td>
+<td style="text-align: right;">28 KB</td>
+</tr>
+<tr>
+<td>Carter Module</td>
+<td style="text-align: right;">602.90 μs</td>
+<td style="text-align: right;">7.663 μs</td>
+<td style="text-align: right;">5.069 μs</td>
+<td style="text-align: right;">7.17</td>
+<td style="text-align: right;">0.22</td>
+<td style="text-align: right;">5.9000</td>
+<td style="text-align: right;">2.9000</td>
+<td style="text-align: right;">49 KB</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bombardier-load-test">Bombardier Load Test</h2>
+<h3 id="fastendpoints-46341-more-requests-per-second-than-mvc-controller">FastEndpoints <em>(46,341 more requests per second than mvc controller)</em></h3>
 <pre><code>Statistics        Avg      Stdev        Max
-  Reqs/sec    134251.40   16085.58  190809.19
-  Latency        3.68ms     1.35ms   371.64ms
+  Reqs/sec    141291.31   16967.65  230746.18
+  Latency        3.50ms   479.73us    95.00ms
   HTTP codes:
-    1xx - 0, 2xx - 1357086, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 1428565, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    68.05MB/s
+  Throughput:    71.64MB/s
 </code></pre>
 <h3 id="aspnet-minimal-api">AspNet Minimal Api</h3>
 <pre><code>Statistics        Avg      Stdev        Max
-  Reqs/sec    136898.40   13732.59  185851.32
-  Latency        3.62ms   470.46us    94.99ms
+  Reqs/sec    145044.77   17963.08  250949.81
+  Latency        3.39ms   284.73us    62.00ms
   HTTP codes:
-    1xx - 0, 2xx - 1379343, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 1471745, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    69.19MB/s
+  Throughput:    73.78MB/s
 </code></pre>
 <h3 id="aspnet-mvc-controller">AspNet MVC Controller</h3>
 <pre><code>Statistics        Avg      Stdev        Max
-  Reqs/sec    100479.98   13649.02  123388.00
-  Latency        4.90ms     1.67ms   375.00ms
+  Reqs/sec     94950.85   11212.91  118144.21
+  Latency        5.22ms     2.46ms   489.99ms
   HTTP codes:
-    1xx - 0, 2xx - 1019171, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 957021, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    50.91MB/s
+  Throughput:    47.82MB/s
 </code></pre>
 <h3 id="carter-module">Carter Module</h3>
 <pre><code>Statistics        Avg      Stdev        Max
-  Reqs/sec      7592.05    3153.39   18037.17
-  Latency       65.45ms    17.77ms   560.62ms
+  Reqs/sec      7655.85    3286.81   25178.10
+  Latency       65.09ms    11.37ms   453.00ms
   HTTP codes:
-    1xx - 0, 2xx - 76638, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 77050, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:     3.82MB/s
+  Throughput:     3.85MB/s
 </code></pre>
 <p><strong>parameters used:</strong> <code>-c 500 -m POST -f &quot;body.json&quot; -H &quot;Content-Type:application/json&quot;  -d 10s</code></p>
  <!-- .\bomb.exe -c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/benchmark/ok/123 -->
@@ -139,68 +201,6 @@
   ]
 }
 ``` -->
-<h2 id="head-to-head-benchmark">Head-To-Head Benchmark</h2>
-<table>
-<thead>
-<tr>
-<th>Method</th>
-<th style="text-align: right;">Mean</th>
-<th style="text-align: right;">Error</th>
-<th style="text-align: right;">StdDev</th>
-<th style="text-align: right;">Ratio</th>
-<th style="text-align: right;">RatioSD</th>
-<th style="text-align: right;">Gen 0</th>
-<th style="text-align: right;">Gen 1</th>
-<th style="text-align: right;">Allocated</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>FastEndpointsEndpoint</td>
-<td style="text-align: right;">83.03 μs</td>
-<td style="text-align: right;">5.007 μs</td>
-<td style="text-align: right;">3.312 μs</td>
-<td style="text-align: right;">1.00</td>
-<td style="text-align: right;">0.00</td>
-<td style="text-align: right;">2.6000</td>
-<td style="text-align: right;">0.1000</td>
-<td style="text-align: right;">22 KB</td>
-</tr>
-<tr>
-<td>MinimalApiEndpoint</td>
-<td style="text-align: right;">83.51 μs</td>
-<td style="text-align: right;">3.781 μs</td>
-<td style="text-align: right;">2.501 μs</td>
-<td style="text-align: right;">1.01</td>
-<td style="text-align: right;">0.03</td>
-<td style="text-align: right;">2.5000</td>
-<td style="text-align: right;">-</td>
-<td style="text-align: right;">21 KB</td>
-</tr>
-<tr>
-<td>AspNetCoreMVC</td>
-<td style="text-align: right;">114.20 μs</td>
-<td style="text-align: right;">3.806 μs</td>
-<td style="text-align: right;">2.518 μs</td>
-<td style="text-align: right;">1.38</td>
-<td style="text-align: right;">0.06</td>
-<td style="text-align: right;">3.4000</td>
-<td style="text-align: right;">0.2000</td>
-<td style="text-align: right;">28 KB</td>
-</tr>
-<tr>
-<td>CarterModule</td>
-<td style="text-align: right;">607.48 μs</td>
-<td style="text-align: right;">1.455 μs</td>
-<td style="text-align: right;">0.962 μs</td>
-<td style="text-align: right;">7.33</td>
-<td style="text-align: right;">0.29</td>
-<td style="text-align: right;">5.9000</td>
-<td style="text-align: right;">2.9000</td>
-<td style="text-align: right;">48 KB</td>
-</tr>
-</tbody>
-</table>
 </article>
           </div>
           

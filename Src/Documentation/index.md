@@ -8,7 +8,7 @@ title: Welcome
 
 # Intro
 **FastEndpoints** offers a more elegant solution than the **Minimal APIs** and **MVC Controllers** with the goal of increasing developer productivity.
-Performance is on par with the Minimal APIs and is faster; uses less memory; and outperforms a MVC Controller by about **[34k requests per second](wiki/Benchmarks.md)** on a Ryzen 3700X desktop.
+Performance is on par with the Minimal APIs and is faster; uses less memory; and outperforms a MVC Controller by about **[46k requests per second](wiki/Benchmarks.md)** in a head-to-head comparison.
 
 # Features
 - Define your endpoints in multiple class files (even in deeply nested folders)

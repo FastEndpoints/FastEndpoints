@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -18,6 +19,7 @@ namespace FastEndpoints;
 public static class MainExtensions
 {
     private static EndpointDefinition[]? discoveredEndpointDefinitions;
+    private static Stopwatch? stopwatch = new();
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -25,6 +27,7 @@ public static class MainExtensions
     /// <param name="services"></param>
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
     {
+        stopwatch?.Start();
         Discover_Endpoints_Validators_EventHandlers();
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         return services;
@@ -117,6 +120,12 @@ public static class MainExtensions
             await Task.Delay(TimeSpan.FromMinutes(1)).ConfigureAwait(false);
             discoveredEndpointDefinitions = null;
         });
+
+        builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>()
+            .LogInformation($"Endpoint registration completed in {stopwatch?.Elapsed.TotalSeconds:0.0} seconds!");
+
+        stopwatch?.Stop();
+        stopwatch = null;
 
         return builder;
     }
@@ -266,4 +275,5 @@ public static class MainExtensions
     }
 }
 
+internal class StartupTimer { }
 internal class DuplicateHandlerRegistration { }

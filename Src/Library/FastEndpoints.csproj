@@ -2,11 +2,12 @@
 
   <PropertyGroup>
 
-    <Version>2.9.0-beta2</Version>
+    <Version>2.9.0-beta3</Version>
     
     <PackageReleaseNotes>
+      - add support for publishing events from anywhere
       - add startup time measurement
-      - 
+      - upgrade dependancies
     </PackageReleaseNotes>
     
     <TargetFramework>net6.0</TargetFramework>

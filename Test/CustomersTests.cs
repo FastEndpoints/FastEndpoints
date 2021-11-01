@@ -106,7 +106,7 @@ namespace Test
 
             Assert.IsTrue(rsp?.IsSuccessStatusCode);
             Assert.AreEqual(res?.OrderID, 54321);
-            Assert.AreEqual(guid, res.GuidTest);
+            Assert.AreEqual(guid, res!.GuidTest);
         }
     }
 }

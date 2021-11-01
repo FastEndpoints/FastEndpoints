@@ -17,7 +17,7 @@ builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingP
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSwagger();
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseAuthentication();
 app.UseAuthorization();

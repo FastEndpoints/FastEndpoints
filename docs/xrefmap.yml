@@ -1094,6 +1094,32 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.ErrorResponse.StatusCode
   nameWithType: ErrorResponse.StatusCode
+- uid: FastEndpoints.Event`1
+  name: Event<TEvent>
+  href: api/FastEndpoints.Event-1.html
+  commentId: T:FastEndpoints.Event`1
+  name.vb: Event(Of TEvent)
+  fullName: FastEndpoints.Event<TEvent>
+  fullName.vb: FastEndpoints.Event(Of TEvent)
+  nameWithType: Event<TEvent>
+  nameWithType.vb: Event(Of TEvent)
+- uid: FastEndpoints.Event`1.PublishAsync(`0,FastEndpoints.Mode,CancellationToken)
+  name: PublishAsync(TEvent, Mode, CancellationToken)
+  href: api/FastEndpoints.Event-1.html#FastEndpoints_Event_1_PublishAsync__0_FastEndpoints_Mode_CancellationToken_
+  commentId: M:FastEndpoints.Event`1.PublishAsync(`0,FastEndpoints.Mode,CancellationToken)
+  fullName: FastEndpoints.Event<TEvent>.PublishAsync(TEvent, FastEndpoints.Mode, CancellationToken)
+  fullName.vb: FastEndpoints.Event(Of TEvent).PublishAsync(TEvent, FastEndpoints.Mode, CancellationToken)
+  nameWithType: Event<TEvent>.PublishAsync(TEvent, Mode, CancellationToken)
+  nameWithType.vb: Event(Of TEvent).PublishAsync(TEvent, Mode, CancellationToken)
+- uid: FastEndpoints.Event`1.PublishAsync*
+  name: PublishAsync
+  href: api/FastEndpoints.Event-1.html#FastEndpoints_Event_1_PublishAsync_
+  commentId: Overload:FastEndpoints.Event`1.PublishAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Event<TEvent>.PublishAsync
+  fullName.vb: FastEndpoints.Event(Of TEvent).PublishAsync
+  nameWithType: Event<TEvent>.PublishAsync
+  nameWithType.vb: Event(Of TEvent).PublishAsync
 - uid: FastEndpoints.FastEventHandler`1
   name: FastEventHandler<TEvent>
   href: api/FastEndpoints.FastEventHandler-1.html

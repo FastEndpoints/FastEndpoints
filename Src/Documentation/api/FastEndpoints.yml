@@ -11,6 +11,7 @@ items:
   - FastEndpoints.EndpointWithoutRequest
   - FastEndpoints.EndpointWithoutRequest`1
   - FastEndpoints.ErrorResponse
+  - FastEndpoints.Event`1
   - FastEndpoints.FastEventHandler`1
   - FastEndpoints.FromAttribute
   - FastEndpoints.FromClaimAttribute
@@ -222,6 +223,42 @@ references:
     name: FastEventHandler
     nameWithType: FastEventHandler
     fullName: FastEndpoints.FastEventHandler
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TEvent
+    nameWithType: TEvent
+    fullName: TEvent
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Event`1
+  commentId: T:FastEndpoints.Event`1
+  name: Event<TEvent>
+  nameWithType: Event<TEvent>
+  fullName: FastEndpoints.Event<TEvent>
+  nameWithType.vb: Event(Of TEvent)
+  fullName.vb: FastEndpoints.Event(Of TEvent)
+  name.vb: Event(Of TEvent)
+  spec.csharp:
+  - uid: FastEndpoints.Event`1
+    name: Event
+    nameWithType: Event
+    fullName: FastEndpoints.Event
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TEvent
+    nameWithType: TEvent
+    fullName: TEvent
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: FastEndpoints.Event`1
+    name: Event
+    nameWithType: Event
+    fullName: FastEndpoints.Event
   - name: '(Of '
     nameWithType: '(Of '
     fullName: '(Of '

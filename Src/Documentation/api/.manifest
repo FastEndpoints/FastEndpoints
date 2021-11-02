@@ -70,6 +70,8 @@
   "FastEndpoints.ErrorResponse.Errors": "FastEndpoints.ErrorResponse.yml",
   "FastEndpoints.ErrorResponse.Message": "FastEndpoints.ErrorResponse.yml",
   "FastEndpoints.ErrorResponse.StatusCode": "FastEndpoints.ErrorResponse.yml",
+  "FastEndpoints.Event`1": "FastEndpoints.Event-1.yml",
+  "FastEndpoints.Event`1.PublishAsync(`0,FastEndpoints.Mode,CancellationToken)": "FastEndpoints.Event-1.yml",
   "FastEndpoints.FastEventHandler`1": "FastEndpoints.FastEventHandler-1.yml",
   "FastEndpoints.FastEventHandler`1.HandleAsync(`0,CancellationToken)": "FastEndpoints.FastEventHandler-1.yml",
   "FastEndpoints.FastEventHandler`1.PublishAsync``1(``0,FastEndpoints.Mode,CancellationToken)": "FastEndpoints.FastEventHandler-1.yml",

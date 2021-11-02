@@ -1,31 +1,36 @@
 ### YamlMime:ManagedReference
 items:
-- uid: FastEndpoints.MainExtensions
-  commentId: T:FastEndpoints.MainExtensions
-  id: MainExtensions
+- uid: FastEndpoints.Event`1
+  commentId: T:FastEndpoints.Event`1
+  id: Event`1
   parent: FastEndpoints
   children:
-  - FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  - FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  - FastEndpoints.Event`1.PublishAsync(`0,FastEndpoints.Mode,CancellationToken)
   langs:
   - csharp
   - vb
-  name: MainExtensions
-  nameWithType: MainExtensions
-  fullName: FastEndpoints.MainExtensions
+  name: Event<TEvent>
+  nameWithType: Event<TEvent>
+  fullName: FastEndpoints.Event<TEvent>
   type: Class
   source:
-    id: MainExtensions
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 18
+    id: Event
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHub.cs
+    startLine: 6
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nprovides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline\n"
+  summary: "\nevent notification hub which uses an in-process pub/sub messaging system based on .net events\n"
   example: []
   syntax:
-    content: public static class MainExtensions
-    content.vb: Public Module MainExtensions
+    content: >-
+      public static class Event<TEvent>
+
+          where TEvent : class
+    typeParameters:
+    - id: TEvent
+      description: the type of notification event
+    content.vb: Public Module Event(Of TEvent As Class)
   inheritance:
   - System.Object
   inheritedMembers:
@@ -36,6 +41,7 @@ items:
   - System.Object.MemberwiseClone
   - System.Object.ReferenceEquals(System.Object,System.Object)
   - System.Object.ToString
+  nameWithType.vb: Event(Of TEvent)
   modifiers.csharp:
   - public
   - static
@@ -43,85 +49,60 @@ items:
   modifiers.vb:
   - Public
   - Module
-- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  id: AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  isExtensionMethod: true
-  parent: FastEndpoints.MainExtensions
+  fullName.vb: FastEndpoints.Event(Of TEvent)
+  name.vb: Event(Of TEvent)
+- uid: FastEndpoints.Event`1.PublishAsync(`0,FastEndpoints.Mode,CancellationToken)
+  commentId: M:FastEndpoints.Event`1.PublishAsync(`0,FastEndpoints.Mode,CancellationToken)
+  id: PublishAsync(`0,FastEndpoints.Mode,CancellationToken)
+  parent: FastEndpoints.Event`1
   langs:
   - csharp
   - vb
-  name: AddFastEndpoints(IServiceCollection)
-  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection)
-  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
+  name: PublishAsync(TEvent, Mode, CancellationToken)
+  nameWithType: Event<TEvent>.PublishAsync(TEvent, Mode, CancellationToken)
+  fullName: FastEndpoints.Event<TEvent>.PublishAsync(TEvent, FastEndpoints.Mode, CancellationToken)
   type: Method
   source:
-    id: AddFastEndpoints
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 27
+    id: PublishAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHub.cs
+    startLine: 20
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nadds the FastEndpoints services to the ASP.Net middleware pipeline\n"
+  summary: "\npublish the given model/dto to all the subscribers of the event notification\n"
   example: []
   syntax:
-    content: public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
+    content: public static Task PublishAsync(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
     parameters:
-    - id: services
-      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
-      description: ''
+    - id: eventModel
+      type: '{TEvent}'
+      description: the notification event model/dto to publish
+    - id: waitMode
+      type: FastEndpoints.Mode
+      description: specify whether to wait for none, any or all of the subscribers to complete their work
+    - id: cancellation
+      type: CancellationToken
+      description: an optional cancellation token
     return:
-      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
-    content.vb: >-
-      <ExtensionAttribute>
+      type: Task
+      description: >-
+        a Task that matches the wait mode specified.
 
-      Public Shared Function AddFastEndpoints(services As IServiceCollection) As IServiceCollection
-  overload: FastEndpoints.MainExtensions.AddFastEndpoints*
+        Mode.WaitForNone returns an already completed Task (fire and forget).
+
+        Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
+
+        Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.
+    content.vb: Public Shared Function PublishAsync(eventModel As TEvent, waitMode As Mode = Mode.WaitForAll, cancellation As CancellationToken = Nothing) As Task
+  overload: FastEndpoints.Event`1.PublishAsync*
+  nameWithType.vb: Event(Of TEvent).PublishAsync(TEvent, Mode, CancellationToken)
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  id: UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  isExtensionMethod: true
-  parent: FastEndpoints.MainExtensions
-  langs:
-  - csharp
-  - vb
-  name: UseFastEndpoints(IEndpointRouteBuilder)
-  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder)
-  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  type: Method
-  source:
-    id: UseFastEndpoints
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 40
-  assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  summary: "\nfinalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests\n"
-  example: []
-  syntax:
-    content: public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
-    parameters:
-    - id: builder
-      type: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-    return:
-      type: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-    content.vb: >-
-      <ExtensionAttribute>
-
-      Public Shared Function UseFastEndpoints(builder As IEndpointRouteBuilder) As IEndpointRouteBuilder
-  overload: FastEndpoints.MainExtensions.UseFastEndpoints*
-  modifiers.csharp:
-  - public
-  - static
-  modifiers.vb:
-  - Public
-  - Shared
+  fullName.vb: FastEndpoints.Event(Of TEvent).PublishAsync(TEvent, FastEndpoints.Mode, CancellationToken)
 references:
 - uid: FastEndpoints
   commentId: N:FastEndpoints
@@ -420,39 +401,36 @@ references:
   name: System
   nameWithType: System
   fullName: System
-- uid: FastEndpoints.MainExtensions.AddFastEndpoints*
-  commentId: Overload:FastEndpoints.MainExtensions.AddFastEndpoints
-  name: AddFastEndpoints
-  nameWithType: MainExtensions.AddFastEndpoints
-  fullName: FastEndpoints.MainExtensions.AddFastEndpoints
-- uid: Microsoft.Extensions.DependencyInjection.IServiceCollection
-  commentId: T:Microsoft.Extensions.DependencyInjection.IServiceCollection
-  parent: Microsoft.Extensions.DependencyInjection
+- uid: FastEndpoints.Event`1.PublishAsync*
+  commentId: Overload:FastEndpoints.Event`1.PublishAsync
+  name: PublishAsync
+  nameWithType: Event<TEvent>.PublishAsync
+  fullName: FastEndpoints.Event<TEvent>.PublishAsync
+  nameWithType.vb: Event(Of TEvent).PublishAsync
+  fullName.vb: FastEndpoints.Event(Of TEvent).PublishAsync
+- uid: '{TEvent}'
+  commentId: '!:TEvent'
+  definition: TEvent
+  name: TEvent
+  nameWithType: TEvent
+  fullName: TEvent
+- uid: FastEndpoints.Mode
+  commentId: T:FastEndpoints.Mode
+  parent: FastEndpoints
+  name: Mode
+  nameWithType: Mode
+  fullName: FastEndpoints.Mode
+- uid: CancellationToken
   isExternal: true
-  name: IServiceCollection
-  nameWithType: IServiceCollection
-  fullName: Microsoft.Extensions.DependencyInjection.IServiceCollection
-- uid: Microsoft.Extensions.DependencyInjection
-  commentId: N:Microsoft.Extensions.DependencyInjection
+  name: CancellationToken
+  nameWithType: CancellationToken
+  fullName: CancellationToken
+- uid: Task
   isExternal: true
-  name: Microsoft.Extensions.DependencyInjection
-  nameWithType: Microsoft.Extensions.DependencyInjection
-  fullName: Microsoft.Extensions.DependencyInjection
-- uid: FastEndpoints.MainExtensions.UseFastEndpoints*
-  commentId: Overload:FastEndpoints.MainExtensions.UseFastEndpoints
-  name: UseFastEndpoints
-  nameWithType: MainExtensions.UseFastEndpoints
-  fullName: FastEndpoints.MainExtensions.UseFastEndpoints
-- uid: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-  commentId: T:Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-  parent: Microsoft.AspNetCore.Routing
-  isExternal: true
-  name: IEndpointRouteBuilder
-  nameWithType: IEndpointRouteBuilder
-  fullName: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-- uid: Microsoft.AspNetCore.Routing
-  commentId: N:Microsoft.AspNetCore.Routing
-  isExternal: true
-  name: Microsoft.AspNetCore.Routing
-  nameWithType: Microsoft.AspNetCore.Routing
-  fullName: Microsoft.AspNetCore.Routing
+  name: Task
+  nameWithType: Task
+  fullName: Task
+- uid: TEvent
+  name: TEvent
+  nameWithType: TEvent
+  fullName: TEvent

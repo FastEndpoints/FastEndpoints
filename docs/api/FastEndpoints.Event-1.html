@@ -14,10 +14,10 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Namespace FastEndpoints
+    <title>Class Event&lt;TEvent&gt;
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Namespace FastEndpoints
+    <meta name="title" content="Class Event&lt;TEvent&gt;
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
@@ -93,76 +93,129 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.Event`1">
   
-  <h1 id="FastEndpoints" data-uid="FastEndpoints" class="text-break">Namespace FastEndpoints
+  
+  <h1 id="FastEndpoints_Event_1" data-uid="FastEndpoints.Event`1" class="text-break">Class Event&lt;TEvent&gt;
   </h1>
-  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 summary"><p>event notification hub which uses an in-process pub/sub messaging system based on .net events</p>
+</div>
   <div class="markdown level0 conceptual"></div>
-  <div class="markdown level0 remarks"></div>
-    <h3 id="classes">Classes
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">Event&lt;TEvent&gt;</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
+  <h5 id="FastEndpoints_Event_1_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static class Event&lt;TEvent&gt;
+
+    where TEvent : class</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TEvent</span></td>
+        <td><p>the type of notification event</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
   </h3>
-      <h4><a class="xref" href="FastEndpoints.EmptyRequest.html">EmptyRequest</a></h4>
-      <section><p>a request dto that doesn't have any properties</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.EmptyResponse.html">EmptyResponse</a></h4>
-      <section><p>a response dto that doesn't have any properties</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.Endpoint-1.html">Endpoint&lt;TRequest&gt;</a></h4>
-      <section><p>use this base class for defining endpoints that only use a request dto and don't use a response dto.</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.Endpoint-2.html">Endpoint&lt;TRequest, TResponse&gt;</a></h4>
-      <section><p>use this base class for defining endpoints that use both request and response dtos.</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.EndpointWithoutRequest.html">EndpointWithoutRequest</a></h4>
-      <section><p>use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.EndpointWithoutRequest-1.html">EndpointWithoutRequest&lt;TResponse&gt;</a></h4>
-      <section><p>use this base class for defining endpoints that doesn't need a request dto but return a response dto.</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.ErrorResponse.html">ErrorResponse</a></h4>
-      <section><p>the dto used to send an error response to the client</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.Event-1.html">Event&lt;TEvent&gt;</a></h4>
-      <section><p>event notification hub which uses an in-process pub/sub messaging system based on .net events</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.FastEventHandler-1.html">FastEventHandler&lt;TEvent&gt;</a></h4>
-      <section><p>use this base class to handle events published by the notification system</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.FromAttribute.html">FromAttribute</a></h4>
-      <section><p>properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.FromClaimAttribute.html">FromClaimAttribute</a></h4>
-      <section><p>properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.HttpClientExtensions.html">HttpClientExtensions</a></h4>
-      <section><p>a set of extensions to the httpclient in order to facilitate route-less integration testing</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.MainExtensions.html">MainExtensions</a></h4>
-      <section><p>provides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline</p>
-</section>
-    <h3 id="interfaces">Interfaces
-  </h3>
-      <h4><a class="xref" href="FastEndpoints.IPostProcessor-2.html">IPostProcessor&lt;TRequest, TResponse&gt;</a></h4>
-      <section><p>interface for defining post-processors to be executed after the main endpoint handler is done</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.IPreProcessor-1.html">IPreProcessor&lt;TRequest&gt;</a></h4>
-      <section><p>interface for defining pre-processors to be executed before the main endpoint handler is called</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.IRequest-1.html">IRequest&lt;TEntity&gt;</a></h4>
-      <section><p>use this interface to add functionality to easily map a request dto to a given entity</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.IResponse-1.html">IResponse&lt;TEntity&gt;</a></h4>
-      <section><p>use this interface to populate a response dto from a given entity</p>
-</section>
-    <h3 id="enums">Enums
-  </h3>
-      <h4><a class="xref" href="FastEndpoints.Http.html">Http</a></h4>
-      <section><p>enum for specifying a http verb</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.Mode.html">Mode</a></h4>
-      <section><p>enum for specifying the waiting mode for event notifications</p>
-</section>
+  
+  
+  <a id="FastEndpoints_Event_1_PublishAsync_" data-uid="FastEndpoints.Event`1.PublishAsync*"></a>
+  <h4 id="FastEndpoints_Event_1_PublishAsync__0_FastEndpoints_Mode_CancellationToken_" data-uid="FastEndpoints.Event`1.PublishAsync(`0,FastEndpoints.Mode,CancellationToken)">PublishAsync(TEvent, Mode, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>publish the given model/dto to all the subscribers of the event notification</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Task PublishAsync(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TEvent</span></td>
+        <td><span class="parametername">eventModel</span></td>
+        <td><p>the notification event model/dto to publish</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.Mode.html">Mode</a></td>
+        <td><span class="parametername">waitMode</span></td>
+        <td><p>specify whether to wait for none, any or all of the subscribers to complete their work</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>an optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td><p>a Task that matches the wait mode specified.
+Mode.WaitForNone returns an already completed Task (fire and forget).
+Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
+Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
 </article>
           </div>
           

@@ -2,12 +2,13 @@
 
   <PropertyGroup>
 
-    <Version>2.9.0-beta3</Version>
+    <Version>2.9.0</Version>
     
     <PackageReleaseNotes>
       - add support for publishing events from anywhere      
       - add startup time measurement
       - improve model binding of empty json requests
+      - improve swagger integration
       - upgrade dependancies
     </PackageReleaseNotes>
     

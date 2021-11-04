@@ -64,7 +64,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (typeof(TRequest) != typeof(EmptyRequest))
             {
                 if (methods.Contains(Http.GET))
-                    b.Accepts<TRequest>("text/plain", "application/json");
+                    b.Accepts<TRequest>("*/*", "application/json");
                 else
                     b.Accepts<TRequest>("application/json");
             }

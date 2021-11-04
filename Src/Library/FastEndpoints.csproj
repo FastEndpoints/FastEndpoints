@@ -5,8 +5,9 @@
     <Version>2.9.0-beta3</Version>
     
     <PackageReleaseNotes>
-      - add support for publishing events from anywhere
+      - add support for publishing events from anywhere      
       - add startup time measurement
+      - improve model binding of empty json requests
       - upgrade dependancies
     </PackageReleaseNotes>
     

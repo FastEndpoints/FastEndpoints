@@ -11,7 +11,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         TRequest? req = default;
 
-        if (ctx.Request.HasJsonContentType())
+        if (ctx.Request.HasJsonContentType() && ctx.Request.ContentLength > 0)
             req = await ctx.Request.ReadFromJsonAsync<TRequest>(SerializerOptions, cancellation).ConfigureAwait(false);
 
         if (req is null) req = new();

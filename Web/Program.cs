@@ -13,7 +13,12 @@ builder.Services.AddResponseCaching();
 builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
-builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingPolicy = null);
+builder.Services.Configure<JsonOptions>(o =>
+{
+    o.SerializerOptions.PropertyNamingPolicy = null;
+    o.SerializerOptions.AddContext<Admin.Login.ReqJsonCtx>();
+    o.SerializerOptions.AddContext<Admin.Login.ResJsonCtx>();
+});
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddSwagger();
 

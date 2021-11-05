@@ -1,5 +1,9 @@
-﻿namespace Admin.Login;
+﻿using System.Text.Json.Serialization;
 
+namespace Admin.Login;
+
+[JsonSerializable(typeof(Request))]
+public partial class ReqJsonCtx : JsonSerializerContext { }
 public class Request
 {
     public string? UserName { get; set; }
@@ -21,10 +25,11 @@ public class Validator : Validator<Request>
     }
 }
 
+[JsonSerializable(typeof(Response))]
+public partial class ResJsonCtx : JsonSerializerContext { }
 public class Response
 {
     public string? JWTToken { get; set; }
     public DateTime ExpiryDate { get; set; }
     public IEnumerable<string>? Permissions { get; set; }
 }
-

@@ -1,52 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
+    <PropertyGroup>
 
-    <Version>2.9.0</Version>
-    
-    <PackageReleaseNotes>
-      - add support for publishing events from anywhere      
-      - add startup time measurement
-      - improve model binding of empty json requests
-      - improve swagger integration
-      - upgrade dependancies
-    </PackageReleaseNotes>
-    
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <OutputType>Library</OutputType>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>1701;1702;CS1591;CS1573,CA2254</NoWarn>
-    <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
-    <Description>An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.</Description>
-    <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
+        <Version>2.9.1</Version>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
-  </ItemGroup>
+        <PackageReleaseNotes>
+            - upgrade dependancies to .net 6.0
+        </PackageReleaseNotes>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Library</OutputType>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>1701;1702;CS1591;CS1573,CA2254</NoWarn>
+        <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
+        <Description>An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.</Description>
+        <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme" />
-    <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
-  </ItemGroup>
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <InternalsVisibleTo Include="Test" />
-  </ItemGroup>
- 
+    <ItemGroup>
+        <Folder Include="Properties\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme" />
+        <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Test" />
+    </ItemGroup>
+
 </Project>

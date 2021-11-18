@@ -1,29 +1,30 @@
 ### YamlMime:ManagedReference
 items:
-- uid: FastEndpoints.EmptyRequest
-  commentId: T:FastEndpoints.EmptyRequest
-  id: EmptyRequest
+- uid: FastEndpoints.ExceptionHandlerExtensions
+  commentId: T:FastEndpoints.ExceptionHandlerExtensions
+  id: ExceptionHandlerExtensions
   parent: FastEndpoints
-  children: []
+  children:
+  - FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Logging.ILogger)
   langs:
   - csharp
   - vb
-  name: EmptyRequest
-  nameWithType: EmptyRequest
-  fullName: FastEndpoints.EmptyRequest
+  name: ExceptionHandlerExtensions
+  nameWithType: ExceptionHandlerExtensions
+  fullName: FastEndpoints.ExceptionHandlerExtensions
   type: Class
   source:
-    id: EmptyRequest
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\DTOs\EmptyRequest.cs
-    startLine: 5
+    id: ExceptionHandlerExtensions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\ExceptionHandlerExtensions.cs
+    startLine: 14
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\na request dto that doesn&apos;t have any properties\n"
+  summary: "\nextensions for global exception handling\n"
   example: []
   syntax:
-    content: public class EmptyRequest
-    content.vb: Public Class EmptyRequest
+    content: public static class ExceptionHandlerExtensions
+    content.vb: Public Module ExceptionHandlerExtensions
   inheritance:
   - System.Object
   inheritedMembers:
@@ -36,10 +37,51 @@ items:
   - System.Object.ToString
   modifiers.csharp:
   - public
+  - static
   - class
   modifiers.vb:
   - Public
-  - Class
+  - Module
+- uid: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Logging.ILogger)
+  commentId: M:FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Logging.ILogger)
+  id: UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Logging.ILogger)
+  isExtensionMethod: true
+  parent: FastEndpoints.ExceptionHandlerExtensions
+  langs:
+  - csharp
+  - vb
+  name: UseDefaultExceptionHandler(IApplicationBuilder, ILogger)
+  nameWithType: ExceptionHandlerExtensions.UseDefaultExceptionHandler(IApplicationBuilder, ILogger)
+  fullName: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder, Microsoft.Extensions.Logging.ILogger)
+  type: Method
+  source:
+    id: UseDefaultExceptionHandler
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\ExceptionHandlerExtensions.cs
+    startLine: 24
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nregisters the default global exception handler which will log the exceptions on the server and return a user-friendly json response to the client when unhandled exceptions occur.\nTIP: when using this exception handler, you may want to turn off the asp.net core exception middleware logging to avoid duplication like so:\n<pre><code>&quot;Logging&quot;: { &quot;LogLevel&quot;: { &quot;Default&quot;: &quot;Warning&quot;, &quot;Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware&quot;: &quot;None&quot; } }</code></pre>\n"
+  example: []
+  syntax:
+    content: public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger logger = null)
+    parameters:
+    - id: app
+      type: Microsoft.AspNetCore.Builder.IApplicationBuilder
+    - id: logger
+      type: Microsoft.Extensions.Logging.ILogger
+      description: an optional logger instance
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Sub UseDefaultExceptionHandler(app As IApplicationBuilder, logger As ILogger = Nothing)
+  overload: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
 references:
 - uid: FastEndpoints
   commentId: N:FastEndpoints
@@ -338,3 +380,34 @@ references:
   name: System
   nameWithType: System
   fullName: System
+- uid: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler*
+  commentId: Overload:FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler
+  name: UseDefaultExceptionHandler
+  nameWithType: ExceptionHandlerExtensions.UseDefaultExceptionHandler
+  fullName: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler
+- uid: Microsoft.AspNetCore.Builder.IApplicationBuilder
+  commentId: T:Microsoft.AspNetCore.Builder.IApplicationBuilder
+  parent: Microsoft.AspNetCore.Builder
+  isExternal: true
+  name: IApplicationBuilder
+  nameWithType: IApplicationBuilder
+  fullName: Microsoft.AspNetCore.Builder.IApplicationBuilder
+- uid: Microsoft.Extensions.Logging.ILogger
+  commentId: T:Microsoft.Extensions.Logging.ILogger
+  parent: Microsoft.Extensions.Logging
+  isExternal: true
+  name: ILogger
+  nameWithType: ILogger
+  fullName: Microsoft.Extensions.Logging.ILogger
+- uid: Microsoft.AspNetCore.Builder
+  commentId: N:Microsoft.AspNetCore.Builder
+  isExternal: true
+  name: Microsoft.AspNetCore.Builder
+  nameWithType: Microsoft.AspNetCore.Builder
+  fullName: Microsoft.AspNetCore.Builder
+- uid: Microsoft.Extensions.Logging
+  commentId: N:Microsoft.Extensions.Logging
+  isExternal: true
+  name: Microsoft.Extensions.Logging
+  nameWithType: Microsoft.Extensions.Logging
+  fullName: Microsoft.Extensions.Logging

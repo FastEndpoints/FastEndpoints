@@ -22,6 +22,8 @@
   - uid: FastEndpoints.Event`1
     name: Event<TEvent>
     name.vb: Event(Of TEvent)
+  - uid: FastEndpoints.ExceptionHandlerExtensions
+    name: ExceptionHandlerExtensions
   - uid: FastEndpoints.FastEventHandler`1
     name: FastEventHandler<TEvent>
     name.vb: FastEventHandler(Of TEvent)

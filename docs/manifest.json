@@ -121,6 +121,18 @@
     },
     {
       "type": "ManagedReference",
+      "source_relative_path": "api/FastEndpoints.ExceptionHandlerExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FastEndpoints.ExceptionHandlerExtensions.html",
+          "hash": "QC82dbVJSYrO5oSSHhqf181gDxbBzRBsLUM2rVI8y7A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
       "source_relative_path": "api/FastEndpoints.FastEventHandler-1.yml",
       "output": {
         ".html": {
@@ -353,7 +365,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.html",
-          "hash": "CUVxqAI/z7bmas/GUPdSGINBuUT74lAyXL/CdDR/KUk="
+          "hash": "ULeYvXxfMPlFjR+5kDGkBZcR0JpzkaXdIY5Bxi0hqq4="
         }
       },
       "is_incremental": false,
@@ -365,7 +377,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "Woeq6P/9JdCsNntBdvhmsxpideU7v+IXODh920VhYxY="
+          "hash": "s0wz/aGOZO6+FRrnCrQxNHHFUtMI1o7+nberRAlr3P0="
         }
       },
       "is_incremental": false,
@@ -693,8 +705,8 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 28,
-          "skipped_file_count": 17
+          "total_file_count": 29,
+          "skipped_file_count": 29
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,

@@ -12,6 +12,7 @@ items:
   - FastEndpoints.EndpointWithoutRequest`1
   - FastEndpoints.ErrorResponse
   - FastEndpoints.Event`1
+  - FastEndpoints.ExceptionHandlerExtensions
   - FastEndpoints.FastEventHandler`1
   - FastEndpoints.FromAttribute
   - FastEndpoints.FromClaimAttribute
@@ -268,6 +269,11 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.ExceptionHandlerExtensions
+  commentId: T:FastEndpoints.ExceptionHandlerExtensions
+  name: ExceptionHandlerExtensions
+  nameWithType: ExceptionHandlerExtensions
+  fullName: FastEndpoints.ExceptionHandlerExtensions
 - uid: FastEndpoints.HttpClientExtensions
   commentId: T:FastEndpoints.HttpClientExtensions
   name: HttpClientExtensions

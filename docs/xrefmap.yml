@@ -1120,6 +1120,25 @@ references:
   fullName.vb: FastEndpoints.Event(Of TEvent).PublishAsync
   nameWithType: Event<TEvent>.PublishAsync
   nameWithType.vb: Event(Of TEvent).PublishAsync
+- uid: FastEndpoints.ExceptionHandlerExtensions
+  name: ExceptionHandlerExtensions
+  href: api/FastEndpoints.ExceptionHandlerExtensions.html
+  commentId: T:FastEndpoints.ExceptionHandlerExtensions
+  fullName: FastEndpoints.ExceptionHandlerExtensions
+  nameWithType: ExceptionHandlerExtensions
+- uid: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Logging.ILogger)
+  name: UseDefaultExceptionHandler(IApplicationBuilder, ILogger)
+  href: api/FastEndpoints.ExceptionHandlerExtensions.html#FastEndpoints_ExceptionHandlerExtensions_UseDefaultExceptionHandler_Microsoft_AspNetCore_Builder_IApplicationBuilder_Microsoft_Extensions_Logging_ILogger_
+  commentId: M:FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Logging.ILogger)
+  fullName: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder, Microsoft.Extensions.Logging.ILogger)
+  nameWithType: ExceptionHandlerExtensions.UseDefaultExceptionHandler(IApplicationBuilder, ILogger)
+- uid: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler*
+  name: UseDefaultExceptionHandler
+  href: api/FastEndpoints.ExceptionHandlerExtensions.html#FastEndpoints_ExceptionHandlerExtensions_UseDefaultExceptionHandler_
+  commentId: Overload:FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler
+  isSpec: "True"
+  fullName: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler
+  nameWithType: ExceptionHandlerExtensions.UseDefaultExceptionHandler
 - uid: FastEndpoints.FastEventHandler`1
   name: FastEventHandler<TEvent>
   href: api/FastEndpoints.FastEventHandler-1.html

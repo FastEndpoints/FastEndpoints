@@ -2,10 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.9.1</Version>
+        <Version>2.10.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - upgrade dependancies to .net 6.0
+            - add a default global exception handler
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

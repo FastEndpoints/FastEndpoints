@@ -38,24 +38,20 @@ public static class EndpointExecutor
 
         ResolveServices(endpointInstance, ctx);
 
-#pragma warning disable CS8601,CS8604
-        return endpointInstance.ExecAsync(ctx, epDef.Validator, epDef.PreProcessors, epDef.PostProcessors, cancellation);
-#pragma warning restore CS8601,CS8604
+        return endpointInstance.ExecAsync(ctx, epDef.Validator!, epDef.PreProcessors!, epDef.PostProcessors!, cancellation);
     }
 
     private static void ResolveServices(object endpointInstance, HttpContext ctx)
     {
-#pragma warning disable CS8604
         if (CachedServiceBoundProps.TryGetValue(endpointInstance.GetType(), out var props))
         {
             for (int i = 0; i < props.Length; i++)
             {
                 var prop = props[i];
                 var serviceInstance = ctx.RequestServices.GetService(prop.PropType);
-                prop.PropSetter(endpointInstance, serviceInstance);
+                prop.PropSetter(endpointInstance, serviceInstance!);
             }
         }
-#pragma warning restore CS8604
     }
 }
 

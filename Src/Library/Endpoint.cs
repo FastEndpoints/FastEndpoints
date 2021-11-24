@@ -12,9 +12,7 @@ public abstract class BaseEndpoint : IEndpoint
 {
     internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
 
-#pragma warning disable CS8601,CS8602
-    internal static PropertyInfo SettingsPropInfo { get; set; } = typeof(BaseEndpoint).GetProperty(nameof(Settings), BindingFlags.NonPublic | BindingFlags.Instance);
-#pragma warning restore CS8601,CS8602
+    internal static PropertyInfo SettingsPropInfo { get; set; } = typeof(BaseEndpoint).GetProperty(nameof(Settings), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     internal EndpointSettings Settings { get; set; } = new();
 

@@ -31,12 +31,12 @@ public static class ExceptionHandlerExtensions
                 var exHandlerFeature = ctx.Features.Get<IExceptionHandlerFeature>();
                 if (exHandlerFeature is not null)
                 {
-                    var method = ctx.Request.Method;
-                    var route = exHandlerFeature.Path;
+                    var type = exHandlerFeature.Error.GetType().Name;
                     var error = exHandlerFeature.Error.Message;
                     var msg =
                         "=================================" + Environment.NewLine +
                        $"{exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0]}" + Environment.NewLine +
+                       $"TYPE: {type}" + Environment.NewLine +
                        $"REASON: {error}" + Environment.NewLine +
                         "---------------------------------" + Environment.NewLine +
                         exHandlerFeature.Error.StackTrace;
@@ -52,7 +52,7 @@ public static class ExceptionHandlerExtensions
                         Code = ctx.Response.StatusCode,
                         Reason = error,
                         Note = "See application log for stack trace."
-                    });
+                    }).ConfigureAwait(false);
                 }
             });
         });

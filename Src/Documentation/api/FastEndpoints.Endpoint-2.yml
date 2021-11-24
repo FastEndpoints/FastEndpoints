@@ -134,7 +134,7 @@ items:
   source:
     id: OnBeforeValidate
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 78
+    startLine: 76
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -170,7 +170,7 @@ items:
   source:
     id: OnAfterValidate
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 83
+    startLine: 81
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -206,7 +206,7 @@ items:
   source:
     id: OnBeforeHandle
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 88
+    startLine: 86
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -242,7 +242,7 @@ items:
   source:
     id: OnAfterHandle
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 94
+    startLine: 92
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -281,7 +281,7 @@ items:
   source:
     id: HandleAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 100
+    startLine: 98
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -322,7 +322,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 126
+    startLine: 124
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -358,7 +358,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 131
+    startLine: 129
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -394,7 +394,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 137
+    startLine: 135
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -430,7 +430,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 143
+    startLine: 141
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -466,7 +466,7 @@ items:
   source:
     id: PublishAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 155
+    startLine: 153
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

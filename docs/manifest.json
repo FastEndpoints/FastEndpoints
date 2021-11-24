@@ -544,6 +544,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/Exception-Handler.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Exception-Handler.html",
+          "hash": "msanJ9/m1Y0ZtW7BNADhqh7PCpIV9Lc2vJh4KKjoiAE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/File-Handling.md",
       "output": {
         ".html": {
@@ -680,7 +692,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "4P/e0Oq7bWgZVqQ9/Z/wf6kObGtbJBSt71tSJK0GJDU="
+          "hash": "1kl4Bu4lBuDUVCV/8QoKnJVaib3cKxOY5/mD8qbdpPI="
         }
       },
       "is_incremental": false,
@@ -699,8 +711,8 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 15,
-          "skipped_file_count": 15
+          "total_file_count": 16,
+          "skipped_file_count": 16
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

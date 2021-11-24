@@ -15,7 +15,7 @@ items:
   source:
     id: Endpoint
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 65
+    startLine: 63
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

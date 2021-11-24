@@ -7,6 +7,7 @@
 # [Response Caching](Response-Caching.md)
 # [Pipeline Behaviors](Pipeline-Behaviors.md)
 # [Event Notifications](Event-Notifications.md)
+# [Exception Handler](Exception-Handler.md)
 # [Integration Testing](Integration-Testing.md)
 # [Misc. Conveniences](Misc-Conveniences.md)
 # [Swagger Support](Swagger-Support.md)

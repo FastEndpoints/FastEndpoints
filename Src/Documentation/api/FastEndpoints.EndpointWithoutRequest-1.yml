@@ -15,7 +15,7 @@ items:
   source:
     id: EndpointWithoutRequest
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 59
+    startLine: 57
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

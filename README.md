@@ -2,9 +2,9 @@
 
 # FastEndpoints
 
-An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.
+A light-weight REST Api framework for ASP.Net 6 that implements [REPR (Request-Endpoint-Response) Pattern](https://deviq.com/design-patterns/repr-design-pattern).
 
-**FastEndpoints** offers a more elegant solution than the **Minimal APIs** and **MVC Controllers** with the goal of increasing developer productivity. Performance is on par with the Minimal APIs and is faster; uses less memory; and outperforms a MVC Controller by about **[46k requests per second](https://fast-endpoints.com/wiki/Benchmarks.html)** in a head-to-head comparison.
+**FastEndpoints** offers a better alternative than the **Minimal Api** and **MVC Controllers** with the aim of increasing developer productivity. Performance is on par with the Minimal Api and is faster; uses less memory; and outperforms a MVC Controller by about **[46k requests per second](https://fast-endpoints.com/wiki/Benchmarks.html)** in a head-to-head comparison.
 
 ## Documentation: [https://fast-endpoints.com](https://fast-endpoints.com)
 please visit the official website for detailed documentation.

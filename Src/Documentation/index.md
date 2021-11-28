@@ -1,14 +1,23 @@
 ---
 title: Welcome
+_disableAffix: true
 ---
 
-![](images/header.svg)
+<div class="logo-container">
+  <img src="images/logo.svg">
+</div>
 
-[![license](https://img.shields.io/github/license/dj-nitehawk/FastEndpoints?color=blue&label=license&logo=Github&style=flat-square)](https://github.com/dj-nitehawk/FastEndpoints/blob/master/README.md) [![nuget](https://img.shields.io/nuget/v/FastEndpoints?label=version&logo=NuGet&style=flat-square)](https://www.nuget.org/packages/FastEndpoints) [![nuget](https://img.shields.io/nuget/dt/FastEndpoints?color=blue&label=downloads&logo=NuGet&style=flat-square)](https://www.nuget.org/packages/FastEndpoints)
+<span class="center-content">
 
-# Intro
-**FastEndpoints** offers a more elegant solution than the **Minimal APIs** and **MVC Controllers** with the goal of increasing developer productivity.
-Performance is on par with the Minimal APIs and is faster; uses less memory; and outperforms a MVC Controller by about **[46k requests per second](wiki/Benchmarks.md)** in a head-to-head comparison.
+[![license](https://img.shields.io/github/license/dj-nitehawk/FastEndpoints?color=blue&label=license&logo=Github&style=flat-square)](https://github.com/dj-nitehawk/FastEndpoints/blob/master/README.md) [![nuget](https://img.shields.io/nuget/v/FastEndpoints?label=version&logo=NuGet&style=flat-square)](https://www.nuget.org/packages/FastEndpoints) [![tests](https://img.shields.io/azure-devops/tests/RyanGunner/FastEndpoints/6?color=blue&label=tests&logo=Azure%20DevOps&style=flat-square)](https://dev.azure.com/RyanGunner/FastEndpoints/_build/latest?definitionId=6) [![nuget](https://img.shields.io/nuget/dt/FastEndpoints?color=blue&label=downloads&logo=NuGet&style=flat-square)](https://www.nuget.org/packages/FastEndpoints)
+
+</span>
+
+<div class="centered-div">
+
+A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request-Endpoint-Response) Pattern](https://deviq.com/design-patterns/repr-design-pattern)**.
+
+**FastEndpoints** offers a better alternative than the **Minimal Api** and **MVC Controllers** with the aim of increasing developer productivity. Performance is on par with the Minimal Api and is faster; uses less memory; and outperforms a MVC Controller by about **[46k requests per second](https://fast-endpoints.com/wiki/Benchmarks.html)** in a head-to-head comparison.
 
 # Features
 - Define your endpoints in multiple class files (even in deeply nested folders)
@@ -18,7 +27,7 @@ Performance is on par with the Minimal APIs and is faster; uses less memory; and
 - Built-in support for JWT Bearer auth scheme
 - Supports policy/permission/role/claim based security
 - Declarative security policy building (inside each endpoint)
-- Supports any IOC container (compatible with asp.net)
+- Supports any IOC container compatible with asp.net
 - Dependencies are automatically property injected
 - Model binding support from route/json body/claims/forms
 - Easy file handling (multipart/form-data)
@@ -31,9 +40,11 @@ Performance is on par with the Minimal APIs and is faster; uses less memory; and
 - Auto discovery of event notification handlers
 - Convenient integration testing (route-less and strongly-typed)
 - Plays well with the asp.net middleware pipeline
+- Built-in uncaught exception handler
 - Supports swagger/serilog/etc.
 - Visual studio extension (vsix) for easy vertical slice feature scaffolding
 - Plus anything else the `Minimal APIs` can do...
+</div>
 
 ---
 

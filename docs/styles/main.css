@@ -29,10 +29,14 @@ article[data-uid="MongoDB.Entities"] h4{
   border-bottom: 1px solid #d6d6d6;
 }
 
-.actions-container {
+.actions-container, .logo-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.logo-container img{
+  width: 15em;
 }
 
 .actions-container div{
@@ -61,4 +65,16 @@ pre{
 pre code{
   white-space: pre;
   padding: 0;
+}
+
+.center-content{
+  display: flex;
+  justify-content: center;
+}
+
+.centered-div{
+  padding-top: 1em;
+  max-width: 50em;
+  margin-left: auto;
+  margin-right: auto;
 }

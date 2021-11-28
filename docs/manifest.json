@@ -451,6 +451,17 @@
     },
     {
       "type": "Resource",
+      "source_relative_path": "images/logo.svg",
+      "output": {
+        "resource": {
+          "relative_path": "images/logo.svg"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
       "source_relative_path": "images/social-square.png",
       "output": {
         "resource": {
@@ -488,7 +499,7 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "IkhRoITBJI3XntOZrjFXVjuMHWQ6ShAYR3nV80qumn0="
+          "hash": "vqlHWI0spSJ4dB/mXD50WkDxIPnSDEfT9NqCrybUFTk="
         }
       },
       "is_incremental": false,

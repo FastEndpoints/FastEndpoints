@@ -385,6 +385,17 @@
     },
     {
       "type": "Resource",
+      "source_relative_path": "images/code-sample.png",
+      "output": {
+        "resource": {
+          "relative_path": "images/code-sample.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
       "source_relative_path": "images/donate.png",
       "output": {
         "resource": {
@@ -499,7 +510,7 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "vqlHWI0spSJ4dB/mXD50WkDxIPnSDEfT9NqCrybUFTk="
+          "hash": "WTTfb0g6PmAxnkZSHNQ1hJKUmefA9k7Iqm9zzBrW7W0="
         }
       },
       "is_incremental": false,

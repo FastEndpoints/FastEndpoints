@@ -19,6 +19,12 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 
 **FastEndpoints** offers a better alternative than the **Minimal Api** and **MVC Controllers** with the aim of increasing developer productivity. Performance is on par with the Minimal Api and is faster; uses less memory; and outperforms a MVC Controller by about **[46k requests per second](https://fast-endpoints.com/wiki/Benchmarks.html)** in a head-to-head comparison.
 
+<br/>
+
+<span class="center-content">
+  <img src="images/code-sample.png">
+</span>
+
 # Features
 - Define your endpoints in multiple class files (even in deeply nested folders)
 - Auto discovery and registration of endpoints

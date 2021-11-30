@@ -8,10 +8,8 @@ public class MyResponseLogger<TRequest, TResponse> : IPostProcessor<TRequest, TR
     {
         var logger = ctx.RequestServices.GetRequiredService<ILogger<TResponse>>();
 
-        if (res?.GetType() == typeof(Sales.Orders.Create.Response))
+        if (res is Sales.Orders.Create.Response response)
         {
-            var response = res as Sales.Orders.Create.Response;
-
             logger.LogWarning($"sale complete: {response?.OrderID}");
         }
 

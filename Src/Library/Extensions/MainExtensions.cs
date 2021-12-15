@@ -18,19 +18,7 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    private static Lazy<List<EndpointDefinition>> endPointDefinitions = new(() =>
-    {
-        var sw = new Stopwatch(); sw.Start();
-        var result = GenerateEndpointDefinitions();
-        endpointDiscoveryDurationTicks = sw.ElapsedTicks;
-        sw.Stop();
-
-        if (result is null || result.Length == 0)
-            throw new InvalidOperationException("FastEndpoints was unable to discover any endpoint declarations!");
-
-        return result.ToList();
-    });
-    private static long endpointDiscoveryDurationTicks;
+    private static EndpointData endpointData = new();
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -49,14 +37,14 @@ public static class MainExtensions
     /// <exception cref="ArgumentException"></exception>
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
     {
-        var sw = new Stopwatch(); sw.Start();
+        EndpointData.Watch.Start();
 
         BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
         BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
         var routeToHandlerCounts = new Dictionary<string, int>();
 
-        foreach (var ep in endPointDefinitions.Value)
+        foreach (var ep in endpointData.Definitions)
         {
             var epName = ep.EndpointType.FullName;
             var epSettings = ep.Settings;
@@ -130,17 +118,15 @@ public static class MainExtensions
             //we wait for 10 minutes in case WAF might create multiple instances of the web application in some testing scenarios.
 
             await Task.Delay(TimeSpan.FromMinutes(10)).ConfigureAwait(false);
-            if (endPointDefinitions.IsValueCreated)
-            {
-                endPointDefinitions.Value.Clear();
-            }
-            endpointDiscoveryDurationTicks = 0;
+            endpointData = null;
         });
+        
+        EndpointData.Watch.Stop();
 
         builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>()
             .LogInformation(
                  "Endpoint registration completed in " +
-                $"{TimeSpan.FromTicks(sw.Elapsed.Ticks + endpointDiscoveryDurationTicks).TotalSeconds:0.000} " +
+                $"{TimeSpan.FromTicks(EndpointData.Watch.Elapsed.Ticks).TotalSeconds:0.000} " +
                  "seconds!");
 
         return builder;
@@ -148,7 +134,7 @@ public static class MainExtensions
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
-        foreach (var ep in endPointDefinitions.Value)
+        foreach (var ep in endpointData.Definitions)
         {
             var eps = ep.Settings;
 
@@ -195,90 +181,110 @@ public static class MainExtensions
         }
     }
 
-    private static EndpointDefinition[]? GenerateEndpointDefinitions()
-    {
-
-        var excludes = new[]
-            {
-                    "Microsoft.",
-                    "System.",
-                    "FastEndpoints.",
-                    "testhost",
-                    "netstandard",
-                    "Newtonsoft.",
-                    "mscorlib",
-                    "NuGet."
-                };
-
-        var discoveredTypes = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .Where(a =>
-                  !a.IsDynamic &&
-                  !excludes.Any(n => a.FullName!.StartsWith(n)))
-            .SelectMany(a => a.GetTypes())
-            .Where(t =>
-                  !t.IsAbstract &&
-                  !t.IsInterface &&
-                  t.GetInterfaces().Intersect(new[] {
-                          typeof(IEndpoint),
-                          typeof(IValidator),
-                          typeof(IEventHandler)
-                  }).Any());
-
-        if (!discoveredTypes.Any())
-            throw new InvalidOperationException("Unable to find any endpoint declarations!");
-
-        //Endpoint<TRequest>
-        //Validator<TRequest>
-
-        var epList = new List<(Type tEndpoint, Type tRequest)>();
-
-        //key: TRequest //val: TValidator
-        var valDict = new Dictionary<Type, Type>();
-
-        foreach (var type in discoveredTypes)
-        {
-            var interfacesOfType = type.GetInterfaces();
-
-            if (interfacesOfType.Contains(typeof(IEventHandler)))
-            {
-                ((IEventHandler?)Activator.CreateInstance(type))?.Subscribe();
-                continue;
-            }
-            if (interfacesOfType.Contains(typeof(IEndpoint)))
-            {
-                var tRequest = typeof(EmptyRequest);
-
-                if (type.BaseType?.IsGenericType is true)
-                    tRequest = type.BaseType?.GetGenericArguments()?[0] ?? tRequest;
-
-                epList.Add((type, tRequest));
-            }
-            else
-            {
-                Type tRequest = type.BaseType?.GetGenericArguments()[0]!;
-                valDict.Add(tRequest, type);
-            }
-        }
-
-        return epList
-            .Select(x =>
-            {
-                var instance = (IEndpoint)Activator.CreateInstance(x.tEndpoint)!;
-                instance?.Configure();
-                return new EndpointDefinition()
-                {
-                    EndpointType = x.tEndpoint,
-                    ValidatorType = valDict.GetValueOrDefault(x.tRequest),
-                    Settings = (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)!
-                };
-            })
-            .ToArray();
-    }
 
     private static string SecurityPolicyName(Type endpointType)
     {
         return $"epPolicy:{endpointType.FullName}";
+    }
+
+    private sealed class EndpointData
+    {
+        private readonly Lazy<EndpointDefinition[]> _endpoints =  new(() =>
+        {
+            Watch.Start();
+            var result = GenerateEndpointDefinitions();
+            Watch.Stop();
+
+            if (result is null || result.Length == 0)
+                throw new InvalidOperationException("FastEndpoints was unable to discover any endpoint declarations!");
+
+            return result;
+        });
+
+        internal EndpointDefinition[] Definitions => _endpoints.Value;
+        
+        internal static Stopwatch Watch { get; } = new();
+
+        private static EndpointDefinition[]? GenerateEndpointDefinitions()
+        {
+
+            var excludes = new[]
+            {
+                "Microsoft.",
+                "System.",
+                "FastEndpoints.",
+                "testhost",
+                "netstandard",
+                "Newtonsoft.",
+                "mscorlib",
+                "NuGet."
+            };
+
+            var discoveredTypes = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Where(a =>
+                    !a.IsDynamic &&
+                    !excludes.Any(n => a.FullName!.StartsWith(n)))
+                .SelectMany(a => a.GetTypes())
+                .Where(t =>
+                    !t.IsAbstract &&
+                    !t.IsInterface &&
+                    t.GetInterfaces().Intersect(new[] {
+                        typeof(IEndpoint),
+                        typeof(IValidator),
+                        typeof(IEventHandler)
+                    }).Any());
+
+            if (!discoveredTypes.Any())
+                throw new InvalidOperationException("Unable to find any endpoint declarations!");
+
+            //Endpoint<TRequest>
+            //Validator<TRequest>
+
+            var epList = new List<(Type tEndpoint, Type tRequest)>();
+
+            //key: TRequest //val: TValidator
+            var valDict = new Dictionary<Type, Type>();
+
+            foreach (var type in discoveredTypes)
+            {
+                var interfacesOfType = type.GetInterfaces();
+
+                if (interfacesOfType.Contains(typeof(IEventHandler)))
+                {
+                    ((IEventHandler?)Activator.CreateInstance(type))?.Subscribe();
+                    continue;
+                }
+                if (interfacesOfType.Contains(typeof(IEndpoint)))
+                {
+                    var tRequest = typeof(EmptyRequest);
+
+                    if (type.BaseType?.IsGenericType is true)
+                        tRequest = type.BaseType?.GetGenericArguments()?[0] ?? tRequest;
+
+                    epList.Add((type, tRequest));
+                }
+                else
+                {
+                    Type tRequest = type.BaseType?.GetGenericArguments()[0]!;
+                    valDict.Add(tRequest, type);
+                }
+            }
+
+            return epList
+                .Select(x =>
+                {
+                    var instance = (IEndpoint)Activator.CreateInstance(x.tEndpoint)!;
+                    instance?.Configure();
+                    return new EndpointDefinition()
+                    {
+                        EndpointType = x.tEndpoint,
+                        ValidatorType = valDict.GetValueOrDefault(x.tRequest),
+                        Settings = (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)!
+                    };
+                })
+                .ToArray();
+        }
     }
 }
 

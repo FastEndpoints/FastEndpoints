@@ -115,11 +115,11 @@ public static class MainExtensions
         foreach (var kvp in routeToHandlerCounts)
             if (kvp.Value > 1) logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
 
-        Task.Run(async () =>
-        {
-            await Task.Delay(TimeSpan.FromMinutes(1)).ConfigureAwait(false);
-            discoveredEndpointDefinitions = null;
-        });
+        //Task.Run(async () =>
+        //{
+        //    await Task.Delay(TimeSpan.FromMinutes(1)).ConfigureAwait(false);
+        //    discoveredEndpointDefinitions = null;
+        //});
 
         builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>()
             .LogInformation($"Endpoint registration completed in {stopwatch?.Elapsed.TotalSeconds:0.0} seconds!");

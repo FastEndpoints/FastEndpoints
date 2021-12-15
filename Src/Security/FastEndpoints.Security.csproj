@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>2.10.1-beta1</Version>
+        <Version>2.11.0</Version>
 
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -19,7 +19,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
     </ItemGroup>
 
     <ItemGroup>

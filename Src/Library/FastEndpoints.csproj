@@ -2,12 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>2.10.1-beta1</Version>
+        <Version>2.11.0</Version>
 
         <PackageReleaseNotes>
-            - add default global exception handler
+            - improve endpoint discovery and registration
             - upgrade project dependancies
-            - minor code cleanups
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

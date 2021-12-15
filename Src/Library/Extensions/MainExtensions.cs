@@ -18,8 +18,19 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    private static EndpointDefinition[]? discoveredEndpointDefinitions;
-    private static Stopwatch? stopwatch = new();
+    private static EndpointDefinition[]? endPointDefinitions;
+    private static long endpointDiscoveryDurationTicks;
+
+    static MainExtensions()
+    {
+        var sw = new Stopwatch(); sw.Start();
+        endPointDefinitions = GenerateEndpointDefinitions();
+        endpointDiscoveryDurationTicks = sw.ElapsedTicks;
+        sw.Stop();
+
+        if (endPointDefinitions is null || endPointDefinitions.Length == 0)
+            throw new InvalidOperationException("FastEndpoints was unable to discover any endpoint declarations!");
+    }
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -27,8 +38,6 @@ public static class MainExtensions
     /// <param name="services"></param>
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
     {
-        stopwatch?.Start();
-        Discover_Endpoints_Validators_EventHandlers();
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         return services;
     }
@@ -40,14 +49,14 @@ public static class MainExtensions
     /// <exception cref="ArgumentException"></exception>
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
     {
-        if (discoveredEndpointDefinitions is null) throw new InvalidOperationException($"Please use .{nameof(AddFastEndpoints)}() first!");
+        var sw = new Stopwatch(); sw.Start();
 
         BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
         BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
         var routeToHandlerCounts = new Dictionary<string, int>();
 
-        foreach (var ep in discoveredEndpointDefinitions)
+        foreach (var ep in endPointDefinitions!)
         {
             var epName = ep.EndpointType.FullName;
             var epSettings = ep.Settings;
@@ -115,29 +124,28 @@ public static class MainExtensions
         foreach (var kvp in routeToHandlerCounts)
             if (kvp.Value > 1) logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
 
-        //Task.Run(async () =>
-        //{
-        //    await Task.Delay(TimeSpan.FromMinutes(1)).ConfigureAwait(false);
-        //    discoveredEndpointDefinitions = null;
-        //});
+        Task.Run(async () =>
+        {
+            //release memory held by the two static vars after 10 mins as it's not needed after app startup.
+            //we wait for 10 minutes in case WAF might create multiple instances of the web application in some testing scenarios.
+
+            await Task.Delay(TimeSpan.FromMinutes(10)).ConfigureAwait(false);
+            endPointDefinitions = null;
+            endpointDiscoveryDurationTicks = 0;
+        });
 
         builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>()
-            .LogInformation($"Endpoint registration completed in {stopwatch?.Elapsed.TotalSeconds:0.0} seconds!");
-
-        stopwatch?.Stop();
-        stopwatch = null;
+            .LogInformation(
+                 "Endpoint registration completed in " +
+                $"{TimeSpan.FromTicks(sw.Elapsed.Ticks + endpointDiscoveryDurationTicks).TotalSeconds:0.000} " +
+                 "seconds!");
 
         return builder;
     }
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
-        //WARNING: don't assign anything to discovered endpoint definitions in this method
-        //         because this delegate is not guranteed to run before UseEndpoints()
-
-        if (discoveredEndpointDefinitions is null) throw new InvalidOperationException("Unable to discover any endpoint declarations!");
-
-        foreach (var ep in discoveredEndpointDefinitions)
+        foreach (var ep in endPointDefinitions!)
         {
             var eps = ep.Settings;
 
@@ -184,8 +192,9 @@ public static class MainExtensions
         }
     }
 
-    private static void Discover_Endpoints_Validators_EventHandlers()
+    private static EndpointDefinition[]? GenerateEndpointDefinitions()
     {
+
         var excludes = new[]
             {
                     "Microsoft.",
@@ -198,12 +207,11 @@ public static class MainExtensions
                     "NuGet."
                 };
 
-#pragma warning disable CS8602
         var discoveredTypes = AppDomain.CurrentDomain
             .GetAssemblies()
             .Where(a =>
                   !a.IsDynamic &&
-                  !excludes.Any(n => a.FullName.StartsWith(n)))
+                  !excludes.Any(n => a.FullName!.StartsWith(n)))
             .SelectMany(a => a.GetTypes())
             .Where(t =>
                   !t.IsAbstract &&
@@ -213,7 +221,6 @@ public static class MainExtensions
                           typeof(IValidator),
                           typeof(IEventHandler)
                   }).Any());
-#pragma warning restore CS8602
 
         if (!discoveredTypes.Any())
             throw new InvalidOperationException("Unable to find any endpoint declarations!");
@@ -246,27 +253,24 @@ public static class MainExtensions
             }
             else
             {
-#pragma warning disable CS8602
-                Type tRequest = type.BaseType.GetGenericArguments()[0];
+                Type tRequest = type.BaseType?.GetGenericArguments()[0]!;
                 valDict.Add(tRequest, type);
-#pragma warning restore CS8602
             }
         }
-#pragma warning disable CS8600, CS8601
-        discoveredEndpointDefinitions = epList
+
+        return epList
             .Select(x =>
             {
-                var instance = (IEndpoint)Activator.CreateInstance(x.tEndpoint);
+                var instance = (IEndpoint)Activator.CreateInstance(x.tEndpoint)!;
                 instance?.Configure();
                 return new EndpointDefinition()
                 {
                     EndpointType = x.tEndpoint,
                     ValidatorType = valDict.GetValueOrDefault(x.tRequest),
-                    Settings = (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)
+                    Settings = (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)!
                 };
             })
             .ToArray();
-#pragma warning restore CS8600, CS8601
     }
 
     private static string SecurityPolicyName(Type endpointType)

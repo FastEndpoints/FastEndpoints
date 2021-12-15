@@ -12,7 +12,7 @@
   
   <ItemGroup>
     <PackageReference Include="Carter" Version="5.2.0" />
-    <PackageReference Include="FluentValidation" Version="10.3.4" />
+    <PackageReference Include="FluentValidation" Version="10.3.6" />
   </ItemGroup>
   
 </Project>

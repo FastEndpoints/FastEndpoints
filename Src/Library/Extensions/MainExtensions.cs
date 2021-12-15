@@ -18,19 +18,19 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    private static EndpointDefinition[]? endPointDefinitions;
-    private static long endpointDiscoveryDurationTicks;
-
-    static MainExtensions()
+    private static Lazy<List<EndpointDefinition>> endPointDefinitions = new(() =>
     {
         var sw = new Stopwatch(); sw.Start();
-        endPointDefinitions = GenerateEndpointDefinitions();
+        var result = GenerateEndpointDefinitions();
         endpointDiscoveryDurationTicks = sw.ElapsedTicks;
         sw.Stop();
 
-        if (endPointDefinitions is null || endPointDefinitions.Length == 0)
+        if (result is null || result.Length == 0)
             throw new InvalidOperationException("FastEndpoints was unable to discover any endpoint declarations!");
-    }
+
+        return result.ToList();
+    });
+    private static long endpointDiscoveryDurationTicks;
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -56,7 +56,7 @@ public static class MainExtensions
 
         var routeToHandlerCounts = new Dictionary<string, int>();
 
-        foreach (var ep in endPointDefinitions!)
+        foreach (var ep in endPointDefinitions.Value)
         {
             var epName = ep.EndpointType.FullName;
             var epSettings = ep.Settings;
@@ -130,7 +130,10 @@ public static class MainExtensions
             //we wait for 10 minutes in case WAF might create multiple instances of the web application in some testing scenarios.
 
             await Task.Delay(TimeSpan.FromMinutes(10)).ConfigureAwait(false);
-            endPointDefinitions = null;
+            if (endPointDefinitions.IsValueCreated)
+            {
+                endPointDefinitions.Value.Clear();
+            }
             endpointDiscoveryDurationTicks = 0;
         });
 
@@ -145,7 +148,7 @@ public static class MainExtensions
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
-        foreach (var ep in endPointDefinitions!)
+        foreach (var ep in endPointDefinitions.Value)
         {
             var eps = ep.Settings;
 

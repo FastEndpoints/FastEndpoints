@@ -36,12 +36,13 @@ public static class MainExtensions
     /// <exception cref="ArgumentException"></exception>
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
     {
-        EndpointData.Watch.Start();
 
         BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
         BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
         var routeToHandlerCounts = new Dictionary<string, int>();
+
+        EndpointData.StopWatch.Start();
 
         foreach (var ep in endpointData.Definitions)
         {
@@ -106,6 +107,13 @@ public static class MainExtensions
             }
         }
 
+        EndpointData.StopWatch.Stop();
+
+        builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>()
+            .LogInformation(
+                $"Registered {EndpointExecutor.CachedEndpointDefinitions.Count} endpoints in " +
+                $"{EndpointData.StopWatch.Elapsed.TotalMilliseconds:0} milliseconds.");
+
         var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
         foreach (var kvp in routeToHandlerCounts)
@@ -120,14 +128,6 @@ public static class MainExtensions
             await Task.Delay(TimeSpan.FromMinutes(10)).ConfigureAwait(false);
             endpointData = null!;
         });
-
-        EndpointData.Watch.Stop();
-
-        builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>()
-            .LogInformation(
-                 "Endpoint registration completed in " +
-                $"{EndpointData.Watch.Elapsed.TotalSeconds:0.000} " +
-                 "seconds!");
 
         return builder;
     }

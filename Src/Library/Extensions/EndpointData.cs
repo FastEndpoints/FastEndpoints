@@ -8,23 +8,22 @@ internal sealed class EndpointData
     //using Lazy<T> to prevent contention when WAF testing (see issue #10)
     private readonly Lazy<EndpointDefinition[]> _endpoints = new(() =>
     {
-        Watch.Start();
+        StopWatch.Start();
         var epDefs = GenerateEndpointDefinitions();
-        Watch.Stop();
+        StopWatch.Stop();
 
-        if (epDefs is null || epDefs.Length == 0)
-            throw new InvalidOperationException("FastEndpoints was unable to discover any endpoint declarations!");
+        if (epDefs.Length == 0)
+            throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
 
-        return epDefs;
+        return epDefs!;
     });
 
     internal EndpointDefinition[] Definitions => _endpoints.Value;
 
-    internal static Stopwatch Watch { get; } = new();
+    internal static Stopwatch StopWatch { get; } = new();
 
-    private static EndpointDefinition[]? GenerateEndpointDefinitions()
+    private static EndpointDefinition[] GenerateEndpointDefinitions()
     {
-
         var excludes = new[]
         {
                 "Microsoft.",
@@ -35,7 +34,7 @@ internal sealed class EndpointData
                 "Newtonsoft.",
                 "mscorlib",
                 "NuGet."
-            };
+        };
 
         var discoveredTypes = AppDomain.CurrentDomain
             .GetAssemblies()
@@ -52,9 +51,6 @@ internal sealed class EndpointData
                         typeof(IEventHandler)
                 }).Any());
 
-        if (!discoveredTypes.Any())
-            throw new InvalidOperationException("Unable to find any endpoint declarations!");
-
         //Endpoint<TRequest>
         //Validator<TRequest>
 
@@ -70,9 +66,8 @@ internal sealed class EndpointData
             if (interfacesOfType.Contains(typeof(IEventHandler)))
             {
                 ((IEventHandler?)Activator.CreateInstance(type))?.Subscribe();
-                continue;
             }
-            if (interfacesOfType.Contains(typeof(IEndpoint)))
+            else if (interfacesOfType.Contains(typeof(IEndpoint)))
             {
                 var tRequest = typeof(EmptyRequest);
 

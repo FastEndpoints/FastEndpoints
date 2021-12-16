@@ -2,11 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.11.0</Version>
+        <Version>2.12.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - improve endpoint discovery and registration
-            - upgrade project dependancies
+            - solve potential WAF testing concurrency issues (see #10)
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -36,13 +36,10 @@ public static class MainExtensions
     /// <exception cref="ArgumentException"></exception>
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
     {
-
         BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
         BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
         var routeToHandlerCounts = new Dictionary<string, int>();
-
-        EndpointData.StopWatch.Start();
 
         foreach (var ep in endpointData.Definitions)
         {
@@ -107,12 +104,11 @@ public static class MainExtensions
             }
         }
 
-        EndpointData.StopWatch.Stop();
+        builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
+            $"Registered {EndpointExecutor.CachedEndpointDefinitions.Count} endpoints in " +
+            $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
-        builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>()
-            .LogInformation(
-                $"Registered {EndpointExecutor.CachedEndpointDefinitions.Count} endpoints in " +
-                $"{EndpointData.StopWatch.Elapsed.TotalMilliseconds:0} milliseconds.");
+        EndpointData.Stopwatch.Stop();
 
         var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
@@ -134,6 +130,8 @@ public static class MainExtensions
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
+        Task.Delay(1000).GetAwaiter().GetResult();
+
         foreach (var ep in endpointData.Definitions)
         {
             var eps = ep.Settings;

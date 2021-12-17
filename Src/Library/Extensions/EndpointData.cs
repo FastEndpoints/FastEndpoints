@@ -8,9 +8,7 @@ internal sealed class EndpointData
     //using Lazy<T> to prevent contention when WAF testing (see issue #10)
     private readonly Lazy<EndpointDefinition[]> _endpoints = new(() =>
     {
-        StopWatch.Start();
         var epDefs = GenerateEndpointDefinitions();
-        StopWatch.Stop();
 
         if (epDefs.Length == 0)
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
@@ -20,10 +18,12 @@ internal sealed class EndpointData
 
     internal EndpointDefinition[] Definitions => _endpoints.Value;
 
-    internal static Stopwatch StopWatch { get; } = new();
+    internal static Stopwatch Stopwatch { get; } = new();
 
     private static EndpointDefinition[] GenerateEndpointDefinitions()
     {
+        Stopwatch.Start();
+
         var excludes = new[]
         {
                 "Microsoft.",

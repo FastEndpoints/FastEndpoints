@@ -31,13 +31,13 @@ likewise, if you decorate the `UserID` property with `[FromClaim]` attribute lik
 ```csharp
 public class GetUserRequest
 {
-    [FromClaim("UserID")]
+    [FromClaim]
     public int UserID { get; set; }
 }
 ```
 the value of `UserID` will be whatever claim value the user has for the claim type `UserID` in their claims. by default if the user does not have a claim type called `UserID`, then a validation error will be sent automatically to the client. you can make the claim optional by using the following overload of the attribute:
 ```java
-[FromClaim("UserID", IsRequired = false)]
+[FromClaim(IsRequired = false)]
 ```
 doing so will allow the endpoint handler to execute even if the current user doesn't have the specified claim and model binding will take the value from the highest priority source of the other binding sources mentioned above (if a matching field/route param is present). an example can be seen [here](https://github.com/dj-nitehawk/FastEndpoints/blob/main/Web/%5BFeatures%5D/Customers/Update/Endpoint.cs).
 

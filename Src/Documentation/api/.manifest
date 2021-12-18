@@ -88,6 +88,7 @@
   "FastEndpoints.FromAttribute": "FastEndpoints.FromAttribute.yml",
   "FastEndpoints.FromAttribute.#ctor(System.String,System.Boolean)": "FastEndpoints.FromAttribute.yml",
   "FastEndpoints.FromClaimAttribute": "FastEndpoints.FromClaimAttribute.yml",
+  "FastEndpoints.FromClaimAttribute.#ctor(System.Boolean)": "FastEndpoints.FromClaimAttribute.yml",
   "FastEndpoints.FromClaimAttribute.#ctor(System.String,System.Boolean)": "FastEndpoints.FromClaimAttribute.yml",
   "FastEndpoints.FromClaimAttribute.ClaimType": "FastEndpoints.FromClaimAttribute.yml",
   "FastEndpoints.FromClaimAttribute.IsRequired": "FastEndpoints.FromClaimAttribute.yml",

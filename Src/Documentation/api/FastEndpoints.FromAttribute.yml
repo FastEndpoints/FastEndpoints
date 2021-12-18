@@ -16,17 +16,16 @@ items:
   source:
     id: FromAttribute
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Attributes.cs
-    startLine: 33
+    startLine: 44
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nproperties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal\n"
+  summary: "\nproperties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal.\nthis is a shorter alias for the [FromClaim] attribute.\n"
   example: []
   syntax:
     content: 'public class FromAttribute : FromClaimAttribute'
     content.vb: >-
       Public Class FromAttribute
-
           Inherits FromClaimAttribute
   inheritance:
   - System.Object
@@ -54,11 +53,11 @@ items:
   source:
     id: .ctor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Attributes.cs
-    startLine: 41
+    startLine: 53
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nproperties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal\n"
+  summary: "\nproperties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal.\nthis is a shorter alias for the [FromClaim] attribute.\n"
   example: []
   syntax:
     content: public FromAttribute(string claimType, bool isRequired = true)

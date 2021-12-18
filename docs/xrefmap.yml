@@ -1305,6 +1305,12 @@ references:
   commentId: T:FastEndpoints.FromClaimAttribute
   fullName: FastEndpoints.FromClaimAttribute
   nameWithType: FromClaimAttribute
+- uid: FastEndpoints.FromClaimAttribute.#ctor(System.Boolean)
+  name: FromClaimAttribute(Boolean)
+  href: api/FastEndpoints.FromClaimAttribute.html#FastEndpoints_FromClaimAttribute__ctor_System_Boolean_
+  commentId: M:FastEndpoints.FromClaimAttribute.#ctor(System.Boolean)
+  fullName: FastEndpoints.FromClaimAttribute.FromClaimAttribute(System.Boolean)
+  nameWithType: FromClaimAttribute.FromClaimAttribute(Boolean)
 - uid: FastEndpoints.FromClaimAttribute.#ctor(System.String,System.Boolean)
   name: FromClaimAttribute(String, Boolean)
   href: api/FastEndpoints.FromClaimAttribute.html#FastEndpoints_FromClaimAttribute__ctor_System_String_System_Boolean_

@@ -2,7 +2,7 @@
 
 public class Request
 {
-    [From(Claim.CustomerID, IsRequired = false)] //allow non customers to set the customer id for updates
+    [FromClaim(Claim.CustomerID, IsRequired = false)] //allow non customers to set the customer id for updates
     public string CustomerID { get; set; }
 
     public string Name { get; set; }

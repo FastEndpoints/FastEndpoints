@@ -4,6 +4,10 @@ public class Request
 {
     [From(Claim.AdminID)]
     public string? UserID { get; set; }
+
+    [FromClaim]
+    public string? Username { get; set; }
+
     public int Id { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }

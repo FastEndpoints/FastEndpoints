@@ -45,7 +45,7 @@ internal static class ReqTypeCache<TRequest>
                 //could add claim binding support for other types just like in route binding.
 
                 var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
-                var claimType = attrib?.ClaimType ?? "null";
+                var claimType = attrib?.ClaimType ?? propName;
                 var forbidIfMissing = attrib?.IsRequired ?? false;
 
                 CachedFromClaimProps.Add(new(claimType, forbidIfMissing, compiledSetter));

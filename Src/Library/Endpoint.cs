@@ -7,7 +7,6 @@ using System.Text.Json;
 
 namespace FastEndpoints;
 
-[HideFromDocs]
 public abstract class BaseEndpoint : IEndpoint
 {
     internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
@@ -36,7 +35,8 @@ public abstract class BaseEndpoint : IEndpoint
 #pragma warning restore CS8618
 
     /// <summary>
-    /// use this method to configure how this endpoint should be listening to incoming requests
+    /// use this method to configure how the endpoint should be listening to incoming requests.
+    /// <para>HINT: it is only called once during endpoint auto registration during app startup.</para>
     /// </summary>
     public abstract void Configure();
 

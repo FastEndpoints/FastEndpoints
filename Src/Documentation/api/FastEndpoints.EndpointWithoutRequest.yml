@@ -93,6 +93,9 @@ items:
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.ThrowIfAnyErrors
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.ThrowError(System.String)
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,System.Object}.ThrowError(System.Linq.Expressions.Expression{Func{FastEndpoints.EmptyRequest,System.Object}},System.String)
+  - FastEndpoints.BaseEndpoint.HttpContext
+  - FastEndpoints.BaseEndpoint.Configure
+  - FastEndpoints.BaseEndpoint.ValidationFailures
   - System.Object.Equals(System.Object)
   - System.Object.Equals(System.Object,System.Object)
   - System.Object.GetHashCode
@@ -2864,6 +2867,46 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.BaseEndpoint.HttpContext
+  commentId: P:FastEndpoints.BaseEndpoint.HttpContext
+  parent: FastEndpoints.BaseEndpoint
+  name: HttpContext
+  nameWithType: BaseEndpoint.HttpContext
+  fullName: FastEndpoints.BaseEndpoint.HttpContext
+- uid: FastEndpoints.BaseEndpoint.Configure
+  commentId: M:FastEndpoints.BaseEndpoint.Configure
+  parent: FastEndpoints.BaseEndpoint
+  name: Configure()
+  nameWithType: BaseEndpoint.Configure()
+  fullName: FastEndpoints.BaseEndpoint.Configure()
+  spec.csharp:
+  - uid: FastEndpoints.BaseEndpoint.Configure
+    name: Configure
+    nameWithType: BaseEndpoint.Configure
+    fullName: FastEndpoints.BaseEndpoint.Configure
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.BaseEndpoint.Configure
+    name: Configure
+    nameWithType: BaseEndpoint.Configure
+    fullName: FastEndpoints.BaseEndpoint.Configure
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.BaseEndpoint.ValidationFailures
+  commentId: P:FastEndpoints.BaseEndpoint.ValidationFailures
+  parent: FastEndpoints.BaseEndpoint
+  name: ValidationFailures
+  nameWithType: BaseEndpoint.ValidationFailures
+  fullName: FastEndpoints.BaseEndpoint.ValidationFailures
 - uid: System.Object.Equals(System.Object)
   commentId: M:System.Object.Equals(System.Object)
   parent: System.Object

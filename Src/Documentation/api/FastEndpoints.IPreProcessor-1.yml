@@ -163,7 +163,6 @@ references:
   nameWithType: Microsoft.AspNetCore.Http
   fullName: Microsoft.AspNetCore.Http
 - uid: List`1
-  commentId: '!:List`1'
   isExternal: true
   name: List<>
   nameWithType: List<>

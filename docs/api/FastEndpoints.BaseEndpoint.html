@@ -106,10 +106,6 @@
     <div class="level1"><span class="xref">BaseEndpoint</span></div>
       <div class="level2"><a class="xref" href="FastEndpoints.Endpoint-2.html">Endpoint&lt;TRequest, TResponse&gt;</a></div>
   </div>
-  <div classs="implements">
-    <h5>Implements</h5>
-    <div><a class="xref" href="FastEndpoints.IEndpoint.html">IEndpoint</a></div>
-  </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
     <div>
@@ -140,9 +136,73 @@
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class BaseEndpoint : IEndpoint</code></pre>
   </div>
-  <h3 id="implements">Implements</h3>
-  <div>
-      <a class="xref" href="FastEndpoints.IEndpoint.html">IEndpoint</a>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="FastEndpoints_BaseEndpoint_HttpContext_" data-uid="FastEndpoints.BaseEndpoint.HttpContext*"></a>
+  <h4 id="FastEndpoints_BaseEndpoint_HttpContext" data-uid="FastEndpoints.BaseEndpoint.HttpContext">HttpContext</h4>
+  <div class="markdown level1 summary"><p>the http context of the current request</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public HttpContext HttpContext { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Http.HttpContext</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_BaseEndpoint_ValidationFailures_" data-uid="FastEndpoints.BaseEndpoint.ValidationFailures*"></a>
+  <h4 id="FastEndpoints_BaseEndpoint_ValidationFailures" data-uid="FastEndpoints.BaseEndpoint.ValidationFailures">ValidationFailures</h4>
+  <div class="markdown level1 summary"><p>the list of validation failures for the current request dto</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public List&lt;ValidationFailure&gt; ValidationFailures { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">List</span>&lt;<span class="xref">ValidationFailure</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="FastEndpoints_BaseEndpoint_Configure_" data-uid="FastEndpoints.BaseEndpoint.Configure*"></a>
+  <h4 id="FastEndpoints_BaseEndpoint_Configure" data-uid="FastEndpoints.BaseEndpoint.Configure">Configure()</h4>
+  <div class="markdown level1 summary"><p>use this method to configure how the endpoint should be listening to incoming requests.</p>
+<p>HINT: it is only called once during endpoint auto registration during app startup.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract void Configure()</code></pre>
   </div>
 </article>
           </div>

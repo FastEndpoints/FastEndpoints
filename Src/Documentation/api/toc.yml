@@ -2,6 +2,8 @@
 - uid: FastEndpoints
   name: FastEndpoints
   items:
+  - uid: FastEndpoints.BaseEndpoint
+    name: BaseEndpoint
   - uid: FastEndpoints.EmptyRequest
     name: EmptyRequest
   - uid: FastEndpoints.EmptyResponse

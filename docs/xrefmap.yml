@@ -7,6 +7,51 @@ references:
   commentId: N:FastEndpoints
   fullName: FastEndpoints
   nameWithType: FastEndpoints
+- uid: FastEndpoints.BaseEndpoint
+  name: BaseEndpoint
+  href: api/FastEndpoints.BaseEndpoint.html
+  commentId: T:FastEndpoints.BaseEndpoint
+  fullName: FastEndpoints.BaseEndpoint
+  nameWithType: BaseEndpoint
+- uid: FastEndpoints.BaseEndpoint.Configure
+  name: Configure()
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configure
+  commentId: M:FastEndpoints.BaseEndpoint.Configure
+  fullName: FastEndpoints.BaseEndpoint.Configure()
+  nameWithType: BaseEndpoint.Configure()
+- uid: FastEndpoints.BaseEndpoint.Configure*
+  name: Configure
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configure_
+  commentId: Overload:FastEndpoints.BaseEndpoint.Configure
+  isSpec: "True"
+  fullName: FastEndpoints.BaseEndpoint.Configure
+  nameWithType: BaseEndpoint.Configure
+- uid: FastEndpoints.BaseEndpoint.HttpContext
+  name: HttpContext
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_HttpContext
+  commentId: P:FastEndpoints.BaseEndpoint.HttpContext
+  fullName: FastEndpoints.BaseEndpoint.HttpContext
+  nameWithType: BaseEndpoint.HttpContext
+- uid: FastEndpoints.BaseEndpoint.HttpContext*
+  name: HttpContext
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_HttpContext_
+  commentId: Overload:FastEndpoints.BaseEndpoint.HttpContext
+  isSpec: "True"
+  fullName: FastEndpoints.BaseEndpoint.HttpContext
+  nameWithType: BaseEndpoint.HttpContext
+- uid: FastEndpoints.BaseEndpoint.ValidationFailures
+  name: ValidationFailures
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_ValidationFailures
+  commentId: P:FastEndpoints.BaseEndpoint.ValidationFailures
+  fullName: FastEndpoints.BaseEndpoint.ValidationFailures
+  nameWithType: BaseEndpoint.ValidationFailures
+- uid: FastEndpoints.BaseEndpoint.ValidationFailures*
+  name: ValidationFailures
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_ValidationFailures_
+  commentId: Overload:FastEndpoints.BaseEndpoint.ValidationFailures
+  isSpec: "True"
+  fullName: FastEndpoints.BaseEndpoint.ValidationFailures
+  nameWithType: BaseEndpoint.ValidationFailures
 - uid: FastEndpoints.EmptyRequest
   name: EmptyRequest
   href: api/FastEndpoints.EmptyRequest.html

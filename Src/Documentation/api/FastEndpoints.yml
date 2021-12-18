@@ -4,6 +4,7 @@ items:
   commentId: N:FastEndpoints
   id: FastEndpoints
   children:
+  - FastEndpoints.BaseEndpoint
   - FastEndpoints.EmptyRequest
   - FastEndpoints.EmptyResponse
   - FastEndpoints.Endpoint`1
@@ -60,6 +61,12 @@ references:
   name: ErrorResponse
   nameWithType: ErrorResponse
   fullName: FastEndpoints.ErrorResponse
+- uid: FastEndpoints.BaseEndpoint
+  commentId: T:FastEndpoints.BaseEndpoint
+  parent: FastEndpoints
+  name: BaseEndpoint
+  nameWithType: BaseEndpoint
+  fullName: FastEndpoints.BaseEndpoint
 - uid: FastEndpoints.EndpointWithoutRequest
   commentId: T:FastEndpoints.EndpointWithoutRequest
   name: EndpointWithoutRequest

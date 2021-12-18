@@ -1,33 +1,37 @@
 ### YamlMime:ManagedReference
 items:
-- uid: FastEndpoints.MainExtensions
-  commentId: T:FastEndpoints.MainExtensions
-  id: MainExtensions
+- uid: FastEndpoints.BaseEndpoint
+  commentId: T:FastEndpoints.BaseEndpoint
+  id: BaseEndpoint
   parent: FastEndpoints
   children:
-  - FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  - FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  - FastEndpoints.BaseEndpoint.Configure
+  - FastEndpoints.BaseEndpoint.HttpContext
+  - FastEndpoints.BaseEndpoint.ValidationFailures
   langs:
   - csharp
   - vb
-  name: MainExtensions
-  nameWithType: MainExtensions
-  fullName: FastEndpoints.MainExtensions
+  name: BaseEndpoint
+  nameWithType: BaseEndpoint
+  fullName: FastEndpoints.BaseEndpoint
   type: Class
   source:
-    id: MainExtensions
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 17
+    id: BaseEndpoint
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 9
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nprovides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline\n"
-  example: []
   syntax:
-    content: public static class MainExtensions
-    content.vb: Public Module MainExtensions
+    content: 'public abstract class BaseEndpoint : IEndpoint'
+    content.vb: >-
+      Public MustInherit Class BaseEndpoint
+
+          Implements IEndpoint
   inheritance:
   - System.Object
+  derivedClasses:
+  - FastEndpoints.Endpoint`2
   inheritedMembers:
   - System.Object.Equals(System.Object)
   - System.Object.Equals(System.Object,System.Object)
@@ -38,90 +42,108 @@ items:
   - System.Object.ToString
   modifiers.csharp:
   - public
-  - static
+  - abstract
   - class
   modifiers.vb:
   - Public
-  - Module
-- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  id: AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  isExtensionMethod: true
-  parent: FastEndpoints.MainExtensions
+  - MustInherit
+  - Class
+- uid: FastEndpoints.BaseEndpoint.HttpContext
+  commentId: P:FastEndpoints.BaseEndpoint.HttpContext
+  id: HttpContext
+  parent: FastEndpoints.BaseEndpoint
   langs:
   - csharp
   - vb
-  name: AddFastEndpoints(IServiceCollection)
-  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection)
-  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  type: Method
+  name: HttpContext
+  nameWithType: BaseEndpoint.HttpContext
+  fullName: FastEndpoints.BaseEndpoint.HttpContext
+  type: Property
   source:
-    id: AddFastEndpoints
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 25
+    id: HttpContext
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 33
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nadds the FastEndpoints services to the ASP.Net middleware pipeline\n"
+  summary: "\nthe http context of the current request\n"
   example: []
   syntax:
-    content: public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
-    parameters:
-    - id: services
-      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
-      description: ''
+    content: public HttpContext HttpContext { get; set; }
+    parameters: []
     return:
-      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
-    content.vb: >-
-      <ExtensionAttribute>
-
-      Public Shared Function AddFastEndpoints(services As IServiceCollection) As IServiceCollection
-  overload: FastEndpoints.MainExtensions.AddFastEndpoints*
+      type: Microsoft.AspNetCore.Http.HttpContext
+    content.vb: Public Property HttpContext As HttpContext
+  overload: FastEndpoints.BaseEndpoint.HttpContext*
   modifiers.csharp:
   - public
-  - static
+  - get
+  - set
   modifiers.vb:
   - Public
-  - Shared
-- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  id: UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  isExtensionMethod: true
-  parent: FastEndpoints.MainExtensions
+- uid: FastEndpoints.BaseEndpoint.Configure
+  commentId: M:FastEndpoints.BaseEndpoint.Configure
+  id: Configure
+  parent: FastEndpoints.BaseEndpoint
   langs:
   - csharp
   - vb
-  name: UseFastEndpoints(IEndpointRouteBuilder)
-  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder)
-  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  name: Configure()
+  nameWithType: BaseEndpoint.Configure()
+  fullName: FastEndpoints.BaseEndpoint.Configure()
   type: Method
   source:
-    id: UseFastEndpoints
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 36
+    id: Configure
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 40
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nfinalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests\n"
+  summary: "\nuse this method to configure how the endpoint should be listening to incoming requests.\n<p>HINT: it is only called once during endpoint auto registration during app startup.</p>\n"
   example: []
   syntax:
-    content: public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
-    parameters:
-    - id: builder
-      type: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-    return:
-      type: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-    content.vb: >-
-      <ExtensionAttribute>
-
-      Public Shared Function UseFastEndpoints(builder As IEndpointRouteBuilder) As IEndpointRouteBuilder
-  overload: FastEndpoints.MainExtensions.UseFastEndpoints*
+    content: public abstract void Configure()
+    content.vb: Public MustOverride Sub Configure
+  overload: FastEndpoints.BaseEndpoint.Configure*
   modifiers.csharp:
   - public
-  - static
+  - abstract
   modifiers.vb:
   - Public
-  - Shared
+  - MustOverride
+- uid: FastEndpoints.BaseEndpoint.ValidationFailures
+  commentId: P:FastEndpoints.BaseEndpoint.ValidationFailures
+  id: ValidationFailures
+  parent: FastEndpoints.BaseEndpoint
+  langs:
+  - csharp
+  - vb
+  name: ValidationFailures
+  nameWithType: BaseEndpoint.ValidationFailures
+  fullName: FastEndpoints.BaseEndpoint.ValidationFailures
+  type: Property
+  source:
+    id: ValidationFailures
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 45
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nthe list of validation failures for the current request dto\n"
+  example: []
+  syntax:
+    content: public List<ValidationFailure> ValidationFailures { get; }
+    parameters: []
+    return:
+      type: List{ValidationFailure}
+    content.vb: Public ReadOnly Property ValidationFailures As List(Of ValidationFailure)
+  overload: FastEndpoints.BaseEndpoint.ValidationFailures*
+  modifiers.csharp:
+  - public
+  - get
+  modifiers.vb:
+  - Public
+  - ReadOnly
 references:
 - uid: FastEndpoints
   commentId: N:FastEndpoints
@@ -420,39 +442,112 @@ references:
   name: System
   nameWithType: System
   fullName: System
-- uid: FastEndpoints.MainExtensions.AddFastEndpoints*
-  commentId: Overload:FastEndpoints.MainExtensions.AddFastEndpoints
-  name: AddFastEndpoints
-  nameWithType: MainExtensions.AddFastEndpoints
-  fullName: FastEndpoints.MainExtensions.AddFastEndpoints
-- uid: Microsoft.Extensions.DependencyInjection.IServiceCollection
-  commentId: T:Microsoft.Extensions.DependencyInjection.IServiceCollection
-  parent: Microsoft.Extensions.DependencyInjection
+- uid: FastEndpoints.BaseEndpoint.HttpContext*
+  commentId: Overload:FastEndpoints.BaseEndpoint.HttpContext
+  name: HttpContext
+  nameWithType: BaseEndpoint.HttpContext
+  fullName: FastEndpoints.BaseEndpoint.HttpContext
+- uid: Microsoft.AspNetCore.Http.HttpContext
+  commentId: T:Microsoft.AspNetCore.Http.HttpContext
+  parent: Microsoft.AspNetCore.Http
   isExternal: true
-  name: IServiceCollection
-  nameWithType: IServiceCollection
-  fullName: Microsoft.Extensions.DependencyInjection.IServiceCollection
-- uid: Microsoft.Extensions.DependencyInjection
-  commentId: N:Microsoft.Extensions.DependencyInjection
+  name: HttpContext
+  nameWithType: HttpContext
+  fullName: Microsoft.AspNetCore.Http.HttpContext
+- uid: Microsoft.AspNetCore.Http
+  commentId: N:Microsoft.AspNetCore.Http
   isExternal: true
-  name: Microsoft.Extensions.DependencyInjection
-  nameWithType: Microsoft.Extensions.DependencyInjection
-  fullName: Microsoft.Extensions.DependencyInjection
-- uid: FastEndpoints.MainExtensions.UseFastEndpoints*
-  commentId: Overload:FastEndpoints.MainExtensions.UseFastEndpoints
-  name: UseFastEndpoints
-  nameWithType: MainExtensions.UseFastEndpoints
-  fullName: FastEndpoints.MainExtensions.UseFastEndpoints
-- uid: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-  commentId: T:Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-  parent: Microsoft.AspNetCore.Routing
+  name: Microsoft.AspNetCore.Http
+  nameWithType: Microsoft.AspNetCore.Http
+  fullName: Microsoft.AspNetCore.Http
+- uid: FastEndpoints.BaseEndpoint.Configure*
+  commentId: Overload:FastEndpoints.BaseEndpoint.Configure
+  name: Configure
+  nameWithType: BaseEndpoint.Configure
+  fullName: FastEndpoints.BaseEndpoint.Configure
+- uid: FastEndpoints.BaseEndpoint.ValidationFailures*
+  commentId: Overload:FastEndpoints.BaseEndpoint.ValidationFailures
+  name: ValidationFailures
+  nameWithType: BaseEndpoint.ValidationFailures
+  fullName: FastEndpoints.BaseEndpoint.ValidationFailures
+- uid: List{ValidationFailure}
+  commentId: '!:List{ValidationFailure}'
+  definition: List`1
+  name: List<ValidationFailure>
+  nameWithType: List<ValidationFailure>
+  fullName: List<ValidationFailure>
+  nameWithType.vb: List(Of ValidationFailure)
+  fullName.vb: List(Of ValidationFailure)
+  name.vb: List(Of ValidationFailure)
+  spec.csharp:
+  - uid: List`1
+    name: List
+    nameWithType: List
+    fullName: List
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: ValidationFailure
+    name: ValidationFailure
+    nameWithType: ValidationFailure
+    fullName: ValidationFailure
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: List`1
+    name: List
+    nameWithType: List
+    fullName: List
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: ValidationFailure
+    name: ValidationFailure
+    nameWithType: ValidationFailure
+    fullName: ValidationFailure
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: List`1
   isExternal: true
-  name: IEndpointRouteBuilder
-  nameWithType: IEndpointRouteBuilder
-  fullName: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
-- uid: Microsoft.AspNetCore.Routing
-  commentId: N:Microsoft.AspNetCore.Routing
-  isExternal: true
-  name: Microsoft.AspNetCore.Routing
-  nameWithType: Microsoft.AspNetCore.Routing
-  fullName: Microsoft.AspNetCore.Routing
+  name: List<>
+  nameWithType: List<>
+  fullName: List<>
+  nameWithType.vb: List(Of )
+  fullName.vb: List(Of )
+  name.vb: List(Of )
+  spec.csharp:
+  - uid: List`1
+    name: List
+    nameWithType: List
+    fullName: List
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: List`1
+    name: List
+    nameWithType: List
+    fullName: List
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: )
+    nameWithType: )
+    fullName: )

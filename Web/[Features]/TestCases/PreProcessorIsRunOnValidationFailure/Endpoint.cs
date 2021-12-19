@@ -5,7 +5,7 @@
         public override void Configure()
         {
             Verbs(Http.POST);
-            Routes("/testCases/pre-processor-is-run-on-validation-failure");
+            Routes("/test-cases/pre-processor-is-run-on-validation-failure");
             PreProcessors(new MyPreProcessor());
         }
 

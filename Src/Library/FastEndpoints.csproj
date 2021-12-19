@@ -6,7 +6,8 @@
 
         <PackageReleaseNotes>
             - add [FromHeader] attribute for binding from headers
-            - make claim type parameter optional for [FromClaim] attribute
+            - add swagger support for header binding
+            - make claimType parameter optional for [FromClaim] attribute
             - optimize model binding logic
         </PackageReleaseNotes>
 

@@ -20,11 +20,11 @@
 
     <ItemGroup>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+        <ProjectReference Include="..\Library\FastEndpoints.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon"/>
+        <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
     </ItemGroup>
-
 
 </Project>

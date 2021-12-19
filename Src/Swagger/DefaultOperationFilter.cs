@@ -14,6 +14,7 @@ internal class DefaultOperationFilter : IOperationFilter
         //var resDtoType = op.RequestBody?.Content.FirstOrDefault().Value.Schema.Reference?.Id.Split(".").LastOrDefault();
 
         var reqDtoType = ctx.ApiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
+        var reqDtoProps = reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
         var isGETRequest = ctx.ApiDescription.HttpMethod == "GET";
 
@@ -26,23 +27,46 @@ internal class DefaultOperationFilter : IOperationFilter
             {
                 Name = m.Value,
                 In = ParameterLocation.Path,
-                Required = true
+                Required = true,
+                Schema = new() { Type = "string" }
             });
 
         if (isGETRequest && !parms.Any() && reqDtoType != null)
         {
-            parms = reqDtoType
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                .Select(p => new OpenApiParameter
+            parms = reqDtoProps?.Select(p =>
+                new OpenApiParameter
                 {
                     Name = p.Name,
                     Required = false,
-                    Schema = new() { Type = p.PropertyType.Name },
+                    Schema = new() { Type = p.PropertyType.Name.ToLowerInvariant() },
                     In = ParameterLocation.Query
                 });
         }
 
-        foreach (var p in parms)
-            op.Parameters.Add(p);
+        if (parms is not null)
+        {
+            foreach (var p in parms)
+                op.Parameters.Add(p);
+        }
+
+        if (reqDtoProps is not null)
+        {
+            foreach (var prop in reqDtoProps)
+            {
+                var attrib = prop.GetCustomAttribute<FromHeaderAttribute>(true);
+                if (attrib is not null)
+                {
+                    op.Parameters.Add(new OpenApiParameter
+                    {
+                        Name = attrib?.HeaderName ?? prop.Name,
+                        Required = attrib?.IsRequired ?? false,
+                        Schema = new() { Type = prop.PropertyType.Name.ToLowerInvariant() },
+                        In = ParameterLocation.Header
+                    });
+                }
+            }
+        }
+
+        //todo: this abomination of a method needs to be refactored!
     }
 }

@@ -119,7 +119,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromHeaderProps.Count; i++)
         {
             var (headerName, forbidIfMissing, propSetter) = ReqTypeCache<TRequest>.CachedFromHeaderProps[i];
-            var hdrVal = headers[headerName][0];
+            var hdrVal = headers[headerName].FirstOrDefault();
 
             if (hdrVal is null && forbidIfMissing)
                 failures.Add(new(headerName, "This header is missing from the request!"));

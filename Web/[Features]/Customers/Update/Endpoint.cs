@@ -5,6 +5,9 @@ public class Request
     [FromClaim(Claim.CustomerID, IsRequired = false)] //allow non customers to set the customer id for updates
     public string CustomerID { get; set; }
 
+    [FromHeader("tenant-id", IsRequired = false)]
+    public string TenantID { get; set; }
+
     public string Name { get; set; }
     public int Age { get; set; }
     public string Address { get; set; }

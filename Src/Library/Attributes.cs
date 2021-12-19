@@ -83,11 +83,11 @@ public class FromHeaderAttribute : Attribute
     /// <summary>
     /// properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.
     /// </summary>
-    /// <param name="claimType">optionally specify the header name to bind from. if not specified, the header name must match the name of the property being bound to.</param>
+    /// <param name="headerName">optionally specify the header name to bind from. if not specified, the header name must match the name of the property being bound to.</param>
     /// <param name="isRequired">set to false if a validation error shouldn't be thrown when the current request doesn't have the specified header.</param>
-    public FromHeaderAttribute(string? claimType = null, bool isRequired = true)
+    public FromHeaderAttribute(string? headerName = null, bool isRequired = true)
     {
-        HeaderName = claimType;
+        HeaderName = headerName;
         IsRequired = isRequired;
     }
 }

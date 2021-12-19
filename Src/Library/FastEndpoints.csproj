@@ -7,7 +7,7 @@
         <PackageReleaseNotes>
             - add [FromHeader] attribute for binding from headers
             - make claim type parameter optional for [FromClaim] attribute
-            - minor optimizations to model binding logic
+            - optimize model binding logic
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

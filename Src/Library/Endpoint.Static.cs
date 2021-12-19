@@ -2,6 +2,7 @@
 using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using System.Security.Claims;
 
 namespace FastEndpoints;
 
@@ -19,7 +20,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         BindFromFormValues(req, ctx.Request, failures);
         BindFromRouteValues(req, ctx.Request.RouteValues, failures);
         BindFromQueryParams(req, ctx.Request.Query, failures);
-        BindFromUserClaims(req, ctx, failures);
+        BindFromUserClaims(req, ctx.User, failures);
+        BindFromHeaders(req, ctx.Request.Headers, failures);
 
         if (failures.Count > 0) throw new ValidationFailureException();
 
@@ -71,7 +73,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         for (int y = 0; y < httpRequest.Form.Files.Count; y++)
         {
-            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(httpRequest.Form.Files[y].Name.ToLower(), out var prop))
+            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(httpRequest.Form.Files[y].Name.ToUpperInvariant(), out var prop))
             {
                 if (prop.PropType == typeof(IFormFile))
                     prop.PropSetter(req, httpRequest.Form.Files[y]);
@@ -97,12 +99,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             Bind(req, queryParams[i], failures);
     }
 
-    private static void BindFromUserClaims(TRequest req, HttpContext ctx, List<ValidationFailure> failures)
+    private static void BindFromUserClaims(TRequest req, ClaimsPrincipal principal, List<ValidationFailure> failures)
     {
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromClaimProps.Count; i++)
         {
             var (claimType, forbidIfMissing, propSetter) = ReqTypeCache<TRequest>.CachedFromClaimProps[i];
-            var claimVal = ctx.User.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
+            var claimVal = principal.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
             if (claimVal is null && forbidIfMissing)
                 failures.Add(new(claimType, "User doesn't have this claim type!"));
@@ -112,22 +114,35 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
+    private static void BindFromHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
+    {
+        for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromHeaderProps.Count; i++)
+        {
+            var (headerName, forbidIfMissing, propSetter) = ReqTypeCache<TRequest>.CachedFromHeaderProps[i];
+            var hdrVal = headers[headerName][0];
+
+            if (hdrVal is null && forbidIfMissing)
+                failures.Add(new(headerName, "This header is missing from the request!"));
+
+            if (hdrVal is not null)
+                propSetter(req, hdrVal);
+        }
+    }
+
     private static void Bind(TRequest req, KeyValuePair<string, object?> rv, List<ValidationFailure> failures)
     {
-        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(rv.Key.ToLower(), out var prop))
+        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(rv.Key.ToUpperInvariant(), out var prop))
         {
             bool success = false;
             string propType = string.Empty;
 
             switch (prop.PropTypeCode)
             {
-#pragma warning disable CS8604
                 case TypeCode.String:
                     propType = "String";
                     success = true;
-                    prop.PropSetter(req, rv.Value);
+                    prop.PropSetter(req, rv.Value!);
                     break;
-#pragma warning restore CS8604
 
                 case TypeCode.Boolean:
                     propType = "Bool";
@@ -179,28 +194,26 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                         prop.PropSetter(req, resGuid);
                     }
 
-#pragma warning disable CS8604
                     if (prpType == typeof(Enum))
                     {
                         propType = "Enum";
                         success = Enum.TryParse(prpType, (string?)rv.Value, out var resEnum);
-                        prop.PropSetter(req, resEnum);
+                        prop.PropSetter(req, resEnum!);
                     }
 
                     if (prpType == typeof(Uri))
                     {
                         propType = "Uri";
                         success = true;
-                        prop.PropSetter(req, new Uri((string?)rv.Value));
+                        prop.PropSetter(req, new Uri((string?)rv.Value!));
                     }
 
                     if (prpType == typeof(Version))
                     {
                         propType = "Version";
                         success = Version.TryParse((string?)rv.Value, out var resUri);
-                        prop.PropSetter(req, resUri);
+                        prop.PropSetter(req, resUri!);
                     }
-#pragma warning restore CS8604
 
                     if (prpType == typeof(TimeSpan))
                     {

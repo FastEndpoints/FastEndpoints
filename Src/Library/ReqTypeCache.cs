@@ -87,7 +87,7 @@ internal static class ReqTypeCache<TRequest>
 
     private static void AddPropCacheEntry(PropertyInfo propInfo, string propName, Action<object, object> compiledSetter)
     {
-        CachedProps.Add(propName.ToLower(), new(
+        CachedProps.Add(propName.ToUpperInvariant(), new(
             propName,
             propInfo.PropertyType,
             Type.GetTypeCode(propInfo.PropertyType),

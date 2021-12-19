@@ -130,8 +130,6 @@ public static class MainExtensions
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
-        Task.Delay(1000).GetAwaiter().GetResult();
-
         foreach (var ep in endpointData.Definitions)
         {
             var eps = ep.Settings;

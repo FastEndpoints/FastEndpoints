@@ -45,17 +45,15 @@ internal static class ReflectionExtensions
 
         var propertyValueParam = Expression.Parameter(typeof(object), "value");
 
-#pragma warning disable CS8602, CS8604
         var valueExpression = Expression.Convert(propertyValueParam, propertyInfo.PropertyType);
 
         return Expression.Lambda<Action<object, object>>(
             Expression.Call(
                 Expression.Convert(sourceObjectParam, source),
-                propertyInfo.GetSetMethod(),
+                propertyInfo.GetSetMethod()!,
                 valueExpression),
             sourceObjectParam,
             propertyValueParam).Compile();
-#pragma warning restore CS8602, CS8604
     }
 }
 

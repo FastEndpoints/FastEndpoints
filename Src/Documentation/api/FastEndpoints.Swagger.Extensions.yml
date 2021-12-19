@@ -18,7 +18,7 @@ items:
   source:
     id: Extensions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swagger\Extensions.cs
-    startLine: 12
+    startLine: 10
   assemblies:
   - FastEndpoints.Swagger
   namespace: FastEndpoints.Swagger
@@ -59,7 +59,7 @@ items:
   source:
     id: EnableFastEndpoints
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swagger\Extensions.cs
-    startLine: 17
+    startLine: 15
   assemblies:
   - FastEndpoints.Swagger
   namespace: FastEndpoints.Swagger
@@ -96,7 +96,7 @@ items:
   source:
     id: EnableJWTBearerAuth
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swagger\Extensions.cs
-    startLine: 27
+    startLine: 25
   assemblies:
   - FastEndpoints.Swagger
   namespace: FastEndpoints.Swagger
@@ -133,7 +133,7 @@ items:
   source:
     id: AddSwagger
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swagger\Extensions.cs
-    startLine: 61
+    startLine: 59
   assemblies:
   - FastEndpoints.Swagger
   namespace: FastEndpoints.Swagger

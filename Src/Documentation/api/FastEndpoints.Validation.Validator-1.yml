@@ -33,7 +33,9 @@ items:
       description: the type of the request dto
     content.vb: >-
       Public MustInherit Class Validator(Of TRequest As Class)
+
           Inherits AbstractValidator(Of TRequest)
+
           Implements IValidatorWithState, IValidator
   inheritance:
   - System.Object

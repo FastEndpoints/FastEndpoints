@@ -1350,6 +1350,57 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.FromClaimAttribute.IsRequired
   nameWithType: FromClaimAttribute.IsRequired
+- uid: FastEndpoints.FromHeaderAttribute
+  name: FromHeaderAttribute
+  href: api/FastEndpoints.FromHeaderAttribute.html
+  commentId: T:FastEndpoints.FromHeaderAttribute
+  fullName: FastEndpoints.FromHeaderAttribute
+  nameWithType: FromHeaderAttribute
+- uid: FastEndpoints.FromHeaderAttribute.#ctor(System.Boolean)
+  name: FromHeaderAttribute(Boolean)
+  href: api/FastEndpoints.FromHeaderAttribute.html#FastEndpoints_FromHeaderAttribute__ctor_System_Boolean_
+  commentId: M:FastEndpoints.FromHeaderAttribute.#ctor(System.Boolean)
+  fullName: FastEndpoints.FromHeaderAttribute.FromHeaderAttribute(System.Boolean)
+  nameWithType: FromHeaderAttribute.FromHeaderAttribute(Boolean)
+- uid: FastEndpoints.FromHeaderAttribute.#ctor(System.String,System.Boolean)
+  name: FromHeaderAttribute(String, Boolean)
+  href: api/FastEndpoints.FromHeaderAttribute.html#FastEndpoints_FromHeaderAttribute__ctor_System_String_System_Boolean_
+  commentId: M:FastEndpoints.FromHeaderAttribute.#ctor(System.String,System.Boolean)
+  fullName: FastEndpoints.FromHeaderAttribute.FromHeaderAttribute(System.String, System.Boolean)
+  nameWithType: FromHeaderAttribute.FromHeaderAttribute(String, Boolean)
+- uid: FastEndpoints.FromHeaderAttribute.#ctor*
+  name: FromHeaderAttribute
+  href: api/FastEndpoints.FromHeaderAttribute.html#FastEndpoints_FromHeaderAttribute__ctor_
+  commentId: Overload:FastEndpoints.FromHeaderAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.FromHeaderAttribute.FromHeaderAttribute
+  nameWithType: FromHeaderAttribute.FromHeaderAttribute
+- uid: FastEndpoints.FromHeaderAttribute.HeaderName
+  name: HeaderName
+  href: api/FastEndpoints.FromHeaderAttribute.html#FastEndpoints_FromHeaderAttribute_HeaderName
+  commentId: P:FastEndpoints.FromHeaderAttribute.HeaderName
+  fullName: FastEndpoints.FromHeaderAttribute.HeaderName
+  nameWithType: FromHeaderAttribute.HeaderName
+- uid: FastEndpoints.FromHeaderAttribute.HeaderName*
+  name: HeaderName
+  href: api/FastEndpoints.FromHeaderAttribute.html#FastEndpoints_FromHeaderAttribute_HeaderName_
+  commentId: Overload:FastEndpoints.FromHeaderAttribute.HeaderName
+  isSpec: "True"
+  fullName: FastEndpoints.FromHeaderAttribute.HeaderName
+  nameWithType: FromHeaderAttribute.HeaderName
+- uid: FastEndpoints.FromHeaderAttribute.IsRequired
+  name: IsRequired
+  href: api/FastEndpoints.FromHeaderAttribute.html#FastEndpoints_FromHeaderAttribute_IsRequired
+  commentId: P:FastEndpoints.FromHeaderAttribute.IsRequired
+  fullName: FastEndpoints.FromHeaderAttribute.IsRequired
+  nameWithType: FromHeaderAttribute.IsRequired
+- uid: FastEndpoints.FromHeaderAttribute.IsRequired*
+  name: IsRequired
+  href: api/FastEndpoints.FromHeaderAttribute.html#FastEndpoints_FromHeaderAttribute_IsRequired_
+  commentId: Overload:FastEndpoints.FromHeaderAttribute.IsRequired
+  isSpec: "True"
+  fullName: FastEndpoints.FromHeaderAttribute.IsRequired
+  nameWithType: FromHeaderAttribute.IsRequired
 - uid: FastEndpoints.Http
   name: Http
   href: api/FastEndpoints.Http.html

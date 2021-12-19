@@ -16,7 +16,7 @@ public class Endpoint : Endpoint<Request>
     {
         Verbs(Http.PUT);
         Routes(
-            "/customers/update",
+            "/customer/update",
             "/customer/save");
         Claims(
             Claim.AdminID,

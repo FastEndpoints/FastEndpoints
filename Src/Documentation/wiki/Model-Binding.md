@@ -5,7 +5,8 @@ the endpoint handlers are supplied with fully populated request dtos. the dto pr
 2. form data
 3. route parameters
 4. query parameters
-5. user claims (if property has [FromClaim] attribute)
+5. user claims (if property has *[FromClaim]* attribute)
+6. http headers (if property has *[FromHeader]* attribute)
 
 consider the following request dto and http request:
 
@@ -19,10 +20,9 @@ public class GetUserRequest
 
 **http request**
 ```
-pattern : /api/user/{UserID}
-url     : /api/user/54321
-
-json    : { "UserID": 12345 }
+route : /api/user/{UserID}
+url   : /api/user/54321
+json  : { "UserID": 12345 }
 ```
 
 when the handler receives the request dto, the value of `UserID` will be `54321` because route parameters have higher priority than json body.
@@ -40,6 +40,25 @@ the value of `UserID` will be whatever claim value the user has for the claim ty
 [FromClaim(IsRequired = false)]
 ```
 doing so will allow the endpoint handler to execute even if the current user doesn't have the specified claim and model binding will take the value from the highest priority source of the other binding sources mentioned above (if a matching field/route param is present). an example can be seen [here](https://github.com/dj-nitehawk/FastEndpoints/blob/main/Web/%5BFeatures%5D/Customers/Update/Endpoint.cs).
+
+it is also possible to model bind automatically from http headers like so:
+```csharp
+public class GetUserRequest
+{
+    [FromHeader]
+    public int TenantID { get; set; }
+}
+```
+`FromHeader` attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing `[FromHeader(IsRequired = false)]` just like with the FromHeader attribute. both attributes have the same overloads and behavior.
+
+it is also possible for both attributes to bind to properties when the names don't match like so:
+```csharp
+[FromHeader("tenant-id")]
+public int TenantID { get; set; }
+
+[FromClaim("user-id")]
+public int UserID { get; set; }
+```
 
 # route parameters
 route parameters can be bound to primitive types on the dto using route templates like you'd typically do.

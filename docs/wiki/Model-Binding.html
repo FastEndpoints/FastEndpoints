@@ -100,7 +100,8 @@
 <li>form data</li>
 <li>route parameters</li>
 <li>query parameters</li>
-<li>user claims (if property has [FromClaim] attribute)</li>
+<li>user claims (if property has <em>[FromClaim]</em> attribute)</li>
+<li>http headers (if property has <em>[FromHeader]</em> attribute)</li>
 </ol>
 <p>consider the following request dto and http request:</p>
 <p><strong>dto</strong></p>
@@ -110,10 +111,9 @@
 }
 </code></pre>
 <p><strong>http request</strong></p>
-<pre><code>pattern : /api/user/{UserID}
-url     : /api/user/54321
-
-json    : { &quot;UserID&quot;: 12345 }
+<pre><code>route : /api/user/{UserID}
+url   : /api/user/54321
+json  : { &quot;UserID&quot;: 12345 }
 </code></pre>
 <p>when the handler receives the request dto, the value of <code>UserID</code> will be <code>54321</code> because route parameters have higher priority than json body.</p>
 <p>likewise, if you decorate the <code>UserID</code> property with <code>[FromClaim]</code> attribute like so:</p>
@@ -127,6 +127,21 @@ json    : { &quot;UserID&quot;: 12345 }
 <pre><code class="lang-java">[FromClaim(IsRequired = false)]
 </code></pre>
 <p>doing so will allow the endpoint handler to execute even if the current user doesn't have the specified claim and model binding will take the value from the highest priority source of the other binding sources mentioned above (if a matching field/route param is present). an example can be seen <a href="https://github.com/dj-nitehawk/FastEndpoints/blob/main/Web/%5BFeatures%5D/Customers/Update/Endpoint.cs">here</a>.</p>
+<p>it is also possible to model bind automatically from http headers like so:</p>
+<pre><code class="lang-csharp">public class GetUserRequest
+{
+    [FromHeader]
+    public int TenantID { get; set; }
+}
+</code></pre>
+<p><code>FromHeader</code> attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing <code>[FromHeader(IsRequired = false)]</code> just like with the FromHeader attribute. both attributes have the same overloads and behavior.</p>
+<p>it is also possible for both attributes to bind to properties when the names don't match like so:</p>
+<pre><code class="lang-csharp">[FromHeader(&quot;tenant-id&quot;)]
+public int TenantID { get; set; }
+
+[FromClaim(&quot;user-id&quot;)]
+public int UserID { get; set; }
+</code></pre>
 <h1 id="route-parameters">route parameters</h1>
 <p>route parameters can be bound to primitive types on the dto using route templates like you'd typically do.</p>
 <p><strong>request dto</strong></p>

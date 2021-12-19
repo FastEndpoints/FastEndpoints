@@ -14,10 +14,10 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class Event&lt;TEvent&gt;
+    <title>Class FromHeaderAttribute
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class Event&lt;TEvent&gt;
+    <meta name="title" content="Class FromHeaderAttribute
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
@@ -93,79 +93,37 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.Event`1">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.FromHeaderAttribute">
   
   
-  <h1 id="FastEndpoints_Event_1" data-uid="FastEndpoints.Event`1" class="text-break">Class Event&lt;TEvent&gt;
+  <h1 id="FastEndpoints_FromHeaderAttribute" data-uid="FastEndpoints.FromHeaderAttribute" class="text-break">Class FromHeaderAttribute
   </h1>
-  <div class="markdown level0 summary"><p>event notification hub which uses an in-process pub/sub messaging system based on .net events</p>
+  <div class="markdown level0 summary"><p>properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">Event&lt;TEvent&gt;</span></div>
-  </div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <span class="xref">System.Object.Equals(System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.GetHashCode()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.GetType()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.MemberwiseClone()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.ToString()</span>
-    </div>
+    <div class="level1"><span class="xref">FromHeaderAttribute</span></div>
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_Event_1_syntax">Syntax</h5>
+  <h5 id="FastEndpoints_FromHeaderAttribute_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static class Event&lt;TEvent&gt;
-
-    where TEvent : class</code></pre>
+    <pre><code class="lang-csharp hljs">public class FromHeaderAttribute : Attribute</code></pre>
   </div>
-  <h5 class="typeParameters">Type Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="parametername">TEvent</span></td>
-        <td><p>the type of notification event</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <h3 id="methods">Methods
+  <h3 id="constructors">Constructors
   </h3>
   
   
-  <a id="FastEndpoints_Event_1_PublishAsync_" data-uid="FastEndpoints.Event`1.PublishAsync*"></a>
-  <h4 id="FastEndpoints_Event_1_PublishAsync__0_FastEndpoints_Mode_CancellationToken_" data-uid="FastEndpoints.Event`1.PublishAsync(`0,FastEndpoints.Mode,CancellationToken)">PublishAsync(TEvent, Mode, CancellationToken)</h4>
-  <div class="markdown level1 summary"><p>publish the given model/dto to all the subscribers of the event notification</p>
+  <a id="FastEndpoints_FromHeaderAttribute__ctor_" data-uid="FastEndpoints.FromHeaderAttribute.#ctor*"></a>
+  <h4 id="FastEndpoints_FromHeaderAttribute__ctor_System_Boolean_" data-uid="FastEndpoints.FromHeaderAttribute.#ctor(System.Boolean)">FromHeaderAttribute(Boolean)</h4>
+  <div class="markdown level1 summary"><p>properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task PublishAsync(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public FromHeaderAttribute(bool isRequired)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -178,26 +136,62 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">TEvent</span></td>
-        <td><span class="parametername">eventModel</span></td>
-        <td><p>the notification event model/dto to publish</p>
-</td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="FastEndpoints.Mode.html">Mode</a></td>
-        <td><span class="parametername">waitMode</span></td>
-        <td><p>specify whether to wait for none, any or all of the subscribers to complete their work</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">CancellationToken</span></td>
-        <td><span class="parametername">cancellation</span></td>
-        <td><p>an optional cancellation token</p>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">isRequired</span></td>
+        <td><p>set to false if a validation error shouldn't be thrown when the current user request doesn't have a header matching the property name being bound to.</p>
 </td>
       </tr>
     </tbody>
   </table>
-  <h5 class="returns">Returns</h5>
+  
+  
+  <a id="FastEndpoints_FromHeaderAttribute__ctor_" data-uid="FastEndpoints.FromHeaderAttribute.#ctor*"></a>
+  <h4 id="FastEndpoints_FromHeaderAttribute__ctor_System_String_System_Boolean_" data-uid="FastEndpoints.FromHeaderAttribute.#ctor(System.String,System.Boolean)">FromHeaderAttribute(String, Boolean)</h4>
+  <div class="markdown level1 summary"><p>properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FromHeaderAttribute(string headerName = null, bool isRequired = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">headerName</span></td>
+        <td><p>optionally specify the header name to bind from. if not specified, the header name must match the name of the property being bound to.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">isRequired</span></td>
+        <td><p>set to false if a validation error shouldn't be thrown when the current request doesn't have the specified header.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="FastEndpoints_FromHeaderAttribute_HeaderName_" data-uid="FastEndpoints.FromHeaderAttribute.HeaderName*"></a>
+  <h4 id="FastEndpoints_FromHeaderAttribute_HeaderName" data-uid="FastEndpoints.FromHeaderAttribute.HeaderName">HeaderName</h4>
+  <div class="markdown level1 summary"><p>the header name to auto bind from</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string HeaderName { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -207,12 +201,34 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Task</span></td>
-        <td><p>a Task that matches the wait mode specified.
-Mode.WaitForNone returns an already completed Task (fire and forget).
-Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
-Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</p>
-</td>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_FromHeaderAttribute_IsRequired_" data-uid="FastEndpoints.FromHeaderAttribute.IsRequired*"></a>
+  <h4 id="FastEndpoints_FromHeaderAttribute_IsRequired" data-uid="FastEndpoints.FromHeaderAttribute.IsRequired">IsRequired</h4>
+  <div class="markdown level1 summary"><p>set to true if a validation error should be thrown when the current request doesn't have the specified header</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsRequired { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
       </tr>
     </tbody>
   </table>

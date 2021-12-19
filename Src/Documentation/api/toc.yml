@@ -33,6 +33,8 @@
     name: FromAttribute
   - uid: FastEndpoints.FromClaimAttribute
     name: FromClaimAttribute
+  - uid: FastEndpoints.FromHeaderAttribute
+    name: FromHeaderAttribute
   - uid: FastEndpoints.Http
     name: Http
   - uid: FastEndpoints.HttpClientExtensions

@@ -5,7 +5,7 @@ public class Endpoint : EndpointWithoutRequest
     public override void Configure()
     {
         Verbs(Http.GET);
-        Routes("/customers/login");
+        Routes("/customer/login");
         AllowAnonymous();
     }
 

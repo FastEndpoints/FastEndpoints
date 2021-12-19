@@ -17,7 +17,7 @@ public class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Verbs(Http.PUT);
-        Routes("/customers/update-with-header");
+        Routes("/customer/update-with-header");
         Claims(
             Claim.AdminID,
             Claim.CustomerID);

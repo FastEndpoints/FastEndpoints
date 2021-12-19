@@ -17,6 +17,7 @@ items:
   - FastEndpoints.FastEventHandler`1
   - FastEndpoints.FromAttribute
   - FastEndpoints.FromClaimAttribute
+  - FastEndpoints.FromHeaderAttribute
   - FastEndpoints.Http
   - FastEndpoints.HttpClientExtensions
   - FastEndpoints.IPostProcessor`2
@@ -46,6 +47,11 @@ references:
   name: FromAttribute
   nameWithType: FromAttribute
   fullName: FastEndpoints.FromAttribute
+- uid: FastEndpoints.FromHeaderAttribute
+  commentId: T:FastEndpoints.FromHeaderAttribute
+  name: FromHeaderAttribute
+  nameWithType: FromHeaderAttribute
+  fullName: FastEndpoints.FromHeaderAttribute
 - uid: FastEndpoints.EmptyRequest
   commentId: T:FastEndpoints.EmptyRequest
   name: EmptyRequest

@@ -1,9 +1,11 @@
-﻿namespace Customers.Update;
+﻿namespace Customers.UpdateWithHeader;
 
 public class Request
 {
-    [FromClaim(Claim.CustomerID, IsRequired = false)] //allow non customers to set the customer id for updates
     public string CustomerID { get; set; }
+
+    [FromHeader("tenant-id")]
+    public string TenantID { get; set; }
 
     public string Name { get; set; }
     public int Age { get; set; }
@@ -15,9 +17,7 @@ public class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Verbs(Http.PUT);
-        Routes(
-            "/customers/update",
-            "/customer/save");
+        Routes("/customers/update-with-header");
         Claims(
             Claim.AdminID,
             Claim.CustomerID);
@@ -30,7 +30,7 @@ public class Endpoint : Endpoint<Request>
         if (!User.HasPermission(Allow.Customers_Update))
             ThrowError("no permission!");
 
-        return SendAsync(req.CustomerID);
+        return SendAsync(req.TenantID);
     }
 }
 

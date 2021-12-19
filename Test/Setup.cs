@@ -40,6 +40,7 @@ namespace Test
 
             AdminClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result?.JWTToken);
             CustomerClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", customerToken);
+            CustomerClient.DefaultRequestHeaders.Add("tenant-id", "qwerty");
         }
     }
 }

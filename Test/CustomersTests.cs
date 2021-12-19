@@ -108,5 +108,23 @@ namespace Test
             Assert.AreEqual(res?.OrderID, 54321);
             Assert.AreEqual(guid, res!.GuidTest);
         }
+
+        [TestMethod]
+        public async Task CustomerUpdateByCustomerWithTenantIDInHeader()
+        {
+            var (_, res) = await CustomerClient.PUTAsync<
+                Customers.UpdateWithHeader.Endpoint,
+                Customers.UpdateWithHeader.Request,
+                string>(new()
+                {
+                    CustomerID = "this will be auto bound from claim",
+                    Address = "address",
+                    Age = 123,
+                    Name = "test customer",
+                    TenantID = "this will be set to qwerty from header"
+                });
+
+            Assert.AreEqual("qwerty", res);
+        }
     }
 }

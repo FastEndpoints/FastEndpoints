@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>2.13.0-beta1</Version>
+        <Version>2.13.0</Version>
 
         <PackageReleaseNotes>
             - add [FromHeader] attribute for binding from headers
@@ -28,11 +28,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
     </ItemGroup>
 
     <ItemGroup>

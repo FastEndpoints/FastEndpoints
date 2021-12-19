@@ -56,6 +56,37 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task HeaderMissing()
+        {
+            var (_, result) = await AdminClient.POSTAsync<
+                TestCases.MissingHeaderTest.ThrowIfMissingEndpoint,
+                TestCases.MissingHeaderTest.ThrowIfMissingRequest,
+                ErrorResponse>(new()
+                {
+                    TenantID = "abc"
+                });
+
+            Assert.AreEqual(400, result?.StatusCode);
+            Assert.AreEqual(1, result?.Errors.Count);
+            Assert.IsTrue(result?.Errors.ContainsKey("TenantID"));
+        }
+
+        [TestMethod]
+        public async Task HeaderMissingButDontThrow()
+        {
+            var (res, result) = await AdminClient.POSTAsync<
+                TestCases.MissingHeaderTest.DontThrowIfMissingEndpoint,
+                TestCases.MissingHeaderTest.DontThrowIfMissingRequest,
+                string>(new()
+                {
+                    TenantID = "abc"
+                });
+
+            Assert.AreEqual(HttpStatusCode.OK, res?.StatusCode);
+            Assert.AreEqual("you sent abc", result);
+        }
+
+        [TestMethod]
         public async Task RouteValueBinding()
         {
             var (rsp, res) = await GuestClient.POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(

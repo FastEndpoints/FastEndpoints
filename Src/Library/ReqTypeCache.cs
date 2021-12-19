@@ -32,11 +32,7 @@ internal static class ReqTypeCache<TRequest>
             var propName = propInfo.Name;
             var compiledSetter = reqType.SetterForProp(propName);
 
-            CachedProps.Add(propName.ToLower(), new(
-                propName,
-                propInfo.PropertyType,
-                Type.GetTypeCode(propInfo.PropertyType),
-                compiledSetter));
+            AddPropCacheEntry(propInfo, propName, compiledSetter);
 
             if (propInfo.IsDefined(typeof(FromClaimAttribute), false))
             {
@@ -51,6 +47,15 @@ internal static class ReqTypeCache<TRequest>
                 CachedFromClaimProps.Add(new(claimType, forbidIfMissing, compiledSetter));
             }
         }
+    }
+
+    private static void AddPropCacheEntry(PropertyInfo propInfo, string propName, Action<object, object> compiledSetter)
+    {
+        CachedProps.Add(propName.ToLower(), new(
+            propName,
+            propInfo.PropertyType,
+            Type.GetTypeCode(propInfo.PropertyType),
+            compiledSetter));
     }
 }
 

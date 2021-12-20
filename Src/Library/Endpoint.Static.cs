@@ -28,7 +28,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return req;
     }
 
-    private static async Task ValidateRequestAsync(TRequest req, IValidator<TRequest>? validator, HttpContext ctx, object? preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task ValidateRequest(TRequest req, IValidator<TRequest>? validator, HttpContext ctx, object? preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         if (validator is null) return;
 

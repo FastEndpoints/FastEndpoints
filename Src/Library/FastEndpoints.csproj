@@ -2,13 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.13.1</Version>
+        <Version>2.14.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - add [FromHeader] attribute for binding from headers
-            - add swagger support for header binding
-            - make claimType parameter optional for [FromClaim] attribute
-            - optimize model binding logic
+            - add async hook methods for endpoint class
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

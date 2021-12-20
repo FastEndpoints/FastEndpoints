@@ -71,45 +71,29 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TReq
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
 {
     /// <summary>
-    /// override this method if you'd like to do something to the request dto before it gets validated.
-    /// </summary>
-    /// <param name="req">the request dto</param>
-    protected virtual void OnBeforeValidate(TRequest req) { }
-    /// <summary>
-    /// override this method if you'd like to do something to the request dto after it gets validated.
-    /// </summary>
-    /// <param name="req">the request dto</param>
-    protected virtual void OnAfterValidate(TRequest req) { }
-    /// <summary>
-    /// override this method if you'd like to do something to the request dto before the handler is executed.
-    /// </summary>
-    /// <param name="req">the request dto</param>
-    protected virtual void OnBeforeHandle(TRequest req) { }
-    /// <summary>
-    /// override this method if you'd like to do something after the handler is executed.
-    /// </summary>
-    /// <param name="req">the request dto</param>
-    /// <param name="res">the response dto that was sent to the client</param>
-    protected virtual void OnAfterHandle(TRequest req, TResponse res) { }
-    /// <summary>
     /// the handler method for the endpoint. this method is called for each request received.
     /// </summary>
     /// <param name="req">the request dto</param>
     /// <param name="ct">a cancellation token</param>
     public abstract Task HandleAsync(TRequest req, CancellationToken ct);
+
     internal override async Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
     {
         HttpContext = ctx;
         try
         {
             var req = await BindToModelAsync(ctx, ValidationFailures, cancellation).ConfigureAwait(false);
-            OnBeforeValidate(req);
-            await ValidateRequestAsync(req, (IValidator<TRequest>?)validator, ctx, preProcessors, ValidationFailures, cancellation).ConfigureAwait(false);
-            OnAfterValidate(req);
+
+            OnBeforeValidate(req); await OnBeforeValidateAsync(req).ConfigureAwait(false);
+            await ValidateRequest(req, (IValidator<TRequest>?)validator, ctx, preProcessors, ValidationFailures, cancellation).ConfigureAwait(false);
+            OnAfterValidate(req); await OnAfterValidateAsync(req).ConfigureAwait(false);
+
             await RunPreprocessors(preProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
-            OnBeforeHandle(req);
+
+            OnBeforeHandle(req); await OnBeforeHandleAsync(req).ConfigureAwait(false);
             await HandleAsync(req, cancellation).ConfigureAwait(false);
-            OnAfterHandle(req, Response);
+            OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response).ConfigureAwait(false);
+
             await RunPostProcessors(postProcessors, req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
         }
         catch (ValidationFailureException)

@@ -73,7 +73,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         for (int y = 0; y < httpRequest.Form.Files.Count; y++)
         {
-            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(httpRequest.Form.Files[y].Name.ToUpperInvariant(), out var prop))
+            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(httpRequest.Form.Files[y].Name, out var prop))
             {
                 if (prop.PropType == typeof(IFormFile))
                     prop.PropSetter(req, httpRequest.Form.Files[y]);
@@ -131,7 +131,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static void Bind(TRequest req, KeyValuePair<string, object?> rv, List<ValidationFailure> failures)
     {
-        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(rv.Key.ToUpperInvariant(), out var prop))
+        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(rv.Key, out var prop))
         {
             bool success = false;
             string propType = string.Empty;

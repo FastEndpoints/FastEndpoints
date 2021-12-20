@@ -20,8 +20,8 @@ internal record FromHeaderPropCacheEntry(
 
 internal static class ReqTypeCache<TRequest>
 {
-    //note: key is lowercased property name
-    internal static Dictionary<string, PropCacheEntry> CachedProps { get; } = new();
+    //key: property name
+    internal static Dictionary<string, PropCacheEntry> CachedProps { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     internal static List<FromClaimPropCacheEntry> CachedFromClaimProps { get; } = new();
 
@@ -87,7 +87,7 @@ internal static class ReqTypeCache<TRequest>
 
     private static void AddPropCacheEntry(PropertyInfo propInfo, string propName, Action<object, object> compiledSetter)
     {
-        CachedProps.Add(propName.ToUpperInvariant(), new(
+        CachedProps.Add(propName, new(
             propName,
             propInfo.PropertyType,
             Type.GetTypeCode(propInfo.PropertyType),

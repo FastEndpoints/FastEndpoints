@@ -17,6 +17,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         HttpContext.Response.StatusCode = statusCode;
         return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions, cancellation);
     }
+
     /// <summary>
     /// send the supplied string content to the client.
     /// </summary>
@@ -29,6 +30,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         HttpContext.Response.ContentType = "text/plain";
         return HttpContext.Response.WriteAsync(content, cancellation);
     }
+
     /// <summary>
     /// send an http 200 ok response without any body
     /// </summary>
@@ -37,6 +39,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         HttpContext.Response.StatusCode = 200;
         return Task.CompletedTask;
     }
+
     /// <summary>
     /// send a 400 bad request with error details of the current validation failures
     /// </summary>
@@ -46,6 +49,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         HttpContext.Response.StatusCode = 400;
         return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
     }
+
     /// <summary>
     /// send a 204 no content response
     /// </summary>
@@ -54,6 +58,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         HttpContext.Response.StatusCode = 204;
         return Task.CompletedTask;
     }
+
     /// <summary>
     /// send a 404 not found response
     /// </summary>
@@ -62,6 +67,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         HttpContext.Response.StatusCode = 404;
         return Task.CompletedTask;
     }
+
     /// <summary>
     /// send a 401 unauthorized response
     /// </summary>
@@ -70,6 +76,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         HttpContext.Response.StatusCode = 401;
         return Task.CompletedTask;
     }
+
     /// <summary>
     /// send a 403 unauthorized response
     /// </summary>
@@ -78,6 +85,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         HttpContext.Response.StatusCode = 403;
         return Task.CompletedTask;
     }
+
     /// <summary>
     /// send a byte array to the client
     /// </summary>
@@ -89,6 +97,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         using var memoryStream = new MemoryStream(bytes);
         await SendStreamAsync(memoryStream, fileName, bytes.Length, contentType, cancellation).ConfigureAwait(false);
     }
+
     /// <summary>
     /// send a file to the client
     /// </summary>
@@ -99,6 +108,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         return SendStreamAsync(fileInfo.OpenRead(), fileInfo.Name, fileInfo.Length, contentType, cancellation);
     }
+
     /// <summary>
     /// send the contents of a stream to the client
     /// </summary>
@@ -118,6 +128,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         return HttpContext.WriteToResponseAsync(stream, cancellation == default ? HttpContext.RequestAborted : cancellation);
     }
+
     /// <summary>
     /// send an empty json object in the body
     /// </summary>

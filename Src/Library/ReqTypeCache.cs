@@ -2,22 +2,6 @@
 
 namespace FastEndpoints;
 
-internal record PropCacheEntry(
-    string PropName,
-    Type PropType,
-    TypeCode PropTypeCode,
-    Action<object, object> PropSetter);
-
-internal record FromClaimPropCacheEntry(
-    string ClaimType,
-    bool ForbidIfMissing,
-    Action<object, object> PropSetter);
-
-internal record FromHeaderPropCacheEntry(
-    string HeaderName,
-    bool ForbidIfMissing,
-    Action<object, object> PropSetter);
-
 internal static class ReqTypeCache<TRequest>
 {
     //key: property name
@@ -95,3 +79,18 @@ internal static class ReqTypeCache<TRequest>
     }
 }
 
+internal record PropCacheEntry(
+    string PropName,
+    Type PropType,
+    TypeCode PropTypeCode,
+    Action<object, object> PropSetter);
+
+internal record FromClaimPropCacheEntry(
+    string ClaimType,
+    bool ForbidIfMissing,
+    Action<object, object> PropSetter);
+
+internal record FromHeaderPropCacheEntry(
+    string HeaderName,
+    bool ForbidIfMissing,
+    Action<object, object> PropSetter);

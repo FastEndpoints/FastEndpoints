@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Reflection;
+#pragma warning disable CS8618,CA1822
 
 namespace FastEndpoints.Security;
 
@@ -16,10 +17,8 @@ namespace FastEndpoints.Security;
 /// </summary>
 public abstract class Permissions : IEnumerable<(string PermissionName, string PermissionCode)>
 {
-#pragma warning disable CS8618
     private static bool isInitialized;
     private static IEnumerable<(string PermissionName, string PermissionCode)> permissions;
-#pragma warning restore CS8618
 
     protected Permissions()
     {
@@ -27,16 +26,13 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
         {
             isInitialized = true;
 
-#pragma warning disable CS8619, CS8600
             permissions = GetType()
                 .GetFields(BindingFlags.Public | BindingFlags.Static)
-                .Select(f => (f.Name, (string)f.GetValue(this)))
-                .ToArray();
-#pragma warning restore CS8600, CS8619
+                .Select(f => (f.Name, (string)f.GetValue(this)!))
+                .ToArray()!;
         }
     }
 
-#pragma warning disable CA1822
     /// <summary>
     /// gets a list of permission names for the given list of permission codes
     /// </summary>
@@ -47,6 +43,7 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
             .Where(f => codes.Contains(f.PermissionCode))
             .Select(f => f.PermissionName);
     }
+
     /// <summary>
     /// get a list of permission codes for a given list of permission names
     /// </summary>
@@ -57,29 +54,32 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
             .Where(f => names.Contains(f.PermissionName))
             .Select(f => f.PermissionCode);
     }
+
     /// <summary>
     /// get the permission tuple using it's name. returns null if not found
     /// </summary>
     /// <param name="permissionName">name of the permission</param>
     public (string PermissionName, string PermissionCode)? PermissionFromName(string permissionName)
         => permissions.SingleOrDefault(p => p.PermissionName == permissionName);
+
     /// <summary>
     /// get the permission tuple using it's code. returns null if not found
     /// </summary>
     /// <param name="permissionCode">code of the permission to get</param>
     public (string PermissionName, string PermissionCode)? PermissionFromCode(string permissionCode)
     => permissions.SingleOrDefault(p => p.PermissionCode == permissionCode);
+
     /// <summary>
     /// get a list of all permission names
     /// </summary>
     public IEnumerable<string> AllNames()
         => permissions.Select(f => f.PermissionName);
+
     /// <summary>
     /// get a list of all permission codes
     /// </summary>
     public IEnumerable<string> AllCodes()
         => permissions.Select(f => f.PermissionCode);
-#pragma warning restore CA1822
 
     /// <inheritdoc/>
     public IEnumerator<(string PermissionName, string PermissionCode)> GetEnumerator()

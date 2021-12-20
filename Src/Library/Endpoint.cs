@@ -1,67 +1,8 @@
 ﻿using FastEndpoints.Validation;
-using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-using System.Text.Json;
 
 namespace FastEndpoints;
-
-public abstract class BaseEndpoint : IEndpoint
-{
-    internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
-
-    internal static PropertyInfo SettingsPropInfo { get; set; } = typeof(BaseEndpoint).GetProperty(nameof(Settings), BindingFlags.NonPublic | BindingFlags.Instance)!;
-
-    internal EndpointSettings Settings { get; set; } = new();
-
-    internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, object preProcessors, object postProcessors, CancellationToken ct);
-
-    internal string GetTestURL()
-    {
-        Configure();
-
-        if (Settings.Routes is null)
-            throw new ArgumentNullException($"GetTestURL()[{nameof(Settings.Routes)}]");
-
-        return Settings.Routes[0];
-    }
-
-    /// <summary>
-    /// the http context of the current request
-    /// </summary>
-#pragma warning disable CS8618
-    public HttpContext HttpContext { get; set; }
-#pragma warning restore CS8618
-
-    /// <summary>
-    /// use this method to configure how the endpoint should be listening to incoming requests.
-    /// <para>HINT: it is only called once during endpoint auto registration during app startup.</para>
-    /// </summary>
-    public abstract void Configure();
-
-    /// <summary>
-    /// the list of validation failures for the current request dto
-    /// </summary>
-    public List<ValidationFailure> ValidationFailures { get; } = new();
-}
-
-/// <summary>
-/// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
-/// </summary>
-public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest> { }
-
-/// <summary>
-/// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
-/// </summary>
-/// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : notnull, new() { }
-
-/// <summary>
-/// use this base class for defining endpoints that only use a request dto and don't use a response dto.
-/// </summary>
-/// <typeparam name="TRequest">the type of the request dto</typeparam>
-public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull, new() { };
 
 /// <summary>
 /// use this base class for defining endpoints that use both request and response dtos.
@@ -138,3 +79,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : class
         => Event<TEvent>.PublishAsync(eventModel, waitMode, cancellation);
 }
+
+/// <summary>
+/// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
+/// </summary>
+public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest> { }
+
+/// <summary>
+/// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
+/// </summary>
+/// <typeparam name="TResponse">the type of the response dto</typeparam>
+public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : notnull, new() { }
+
+/// <summary>
+/// use this base class for defining endpoints that only use a request dto and don't use a response dto.
+/// </summary>
+/// <typeparam name="TRequest">the type of the request dto</typeparam>
+public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull, new() { };

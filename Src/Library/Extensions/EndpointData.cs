@@ -88,14 +88,17 @@ internal sealed class EndpointData
             {
                 var instance = (IEndpoint)Activator.CreateInstance(x.tEndpoint)!;
                 instance?.Configure();
-                return new EndpointDefinition()
-                {
-                    EndpointType = x.tEndpoint,
-                    ValidatorType = valDict.GetValueOrDefault(x.tRequest),
-                    Settings = (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)!
-                };
+                return new EndpointDefinition(
+                    x.tEndpoint,
+                    valDict.GetValueOrDefault(x.tRequest),
+                    (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)!);
             })
             .ToArray();
     }
 }
+
+internal record EndpointDefinition(
+    Type EndpointType,
+    Type? ValidatorType,
+    EndpointSettings Settings);
 

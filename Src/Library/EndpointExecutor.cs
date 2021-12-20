@@ -5,16 +5,6 @@ using Microsoft.AspNetCore.Routing;
 
 namespace FastEndpoints;
 
-internal record EndpointDefinitionCacheEntry(
-    Func<object> CreateInstance,
-    IValidator? Validator,
-    object? PreProcessors,
-    object? PostProcessors);
-
-internal record ServiceBoundPropCacheEntry(
-    Type PropType,
-    Action<object, object> PropSetter);
-
 [HideFromDocs]
 public static class EndpointExecutor
 {
@@ -54,4 +44,14 @@ public static class EndpointExecutor
         }
     }
 }
+
+internal record EndpointDefinitionCacheEntry(
+    Func<object> CreateInstance,
+    IValidator? Validator,
+    object? PreProcessors,
+    object? PostProcessors);
+
+internal record ServiceBoundPropCacheEntry(
+    Type PropType,
+    Action<object, object> PropSetter);
 

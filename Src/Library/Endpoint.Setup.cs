@@ -14,6 +14,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Verbs(Http.GET);
         Routes(routePatterns);
     }
+
     /// <summary>
     /// specify to listen for POST requests on one or more routes.
     /// </summary>
@@ -22,6 +23,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Verbs(Http.POST);
         Routes(routePatterns);
     }
+
     /// <summary>
     /// specify to listen for PUT requests on one or more routes.
     /// </summary>
@@ -30,6 +32,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Verbs(Http.PUT);
         Routes(routePatterns);
     }
+
     /// <summary>
     /// specify to listen for PATCH requests on one or more routes.
     /// </summary>
@@ -38,6 +41,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Verbs(Http.PATCH);
         Routes(routePatterns);
     }
+
     /// <summary>
     /// specify to listen for DELETE requests on one or more routes.
     /// </summary>
@@ -46,6 +50,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Verbs(Http.DELETE);
         Routes(routePatterns);
     }
+
     /// <summary>
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
@@ -53,6 +58,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         Settings.Routes = patterns;
     }
+
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
@@ -75,10 +81,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 b.Produces<TResponse>(200, "application/json");
         };
     }
+
     /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint
     /// </summary>
     protected void DontThrowIfValidationFails() => Settings.ThrowIfValidationFails = false;
+
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
     /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require authentication.
@@ -90,24 +98,29 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             ? verbs.Select(v => v.ToString()).ToArray()
             : Enum.GetNames(typeof(Http));
     }
+
     /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
     protected void AllowFileUploads() => Settings.DtoTypeForFormData = typeof(TRequest);
+
     /// <summary>
     /// enable multipart/form-data submissions
     /// </summary>
     protected void AllowFormData() => Settings.DtoTypeForFormData = typeof(TRequest);
+
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
     /// </summary>
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
     protected void Policies(params string[] policyNames) => Settings.PreBuiltUserPolicies = policyNames;
+
     /// <summary>
     /// allows access if the claims principal has ANY of the given roles
     /// </summary>
     /// <param name="rolesNames">one or more roles that has access</param>
     protected void Roles(params string[] rolesNames) => Settings.Roles = rolesNames;
+
     /// <summary>
     /// allows access if the claims principal has ANY of the given permissions
     /// </summary>
@@ -117,6 +130,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Settings.AllowAnyPermission = true;
         Settings.Permissions = permissions;
     }
+
     /// <summary>
     /// allows access if the claims principal has ALL of the given permissions
     /// </summary>
@@ -126,6 +140,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Settings.AllowAnyPermission = false;
         Settings.Permissions = permissions;
     }
+
     /// <summary>
     /// allows access if the claims principal has ANY of the given claim types
     /// </summary>
@@ -135,6 +150,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Settings.AllowAnyClaim = true;
         Settings.ClaimTypes = claimTypes;
     }
+
     /// <summary>
     /// allows access if the claims principal has ALL of the given claim types
     /// </summary>
@@ -144,16 +160,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Settings.AllowAnyClaim = false;
         Settings.ClaimTypes = claimTypes;
     }
+
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>
     protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => Settings.PreProcessors = preProcessors;
+
     /// <summary>
     /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
     protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => Settings.PostProcessors = postProcessors;
+
     /// <summary>
     /// specify response caching settings for this endpoint
     /// </summary>
@@ -173,10 +192,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             VaryByQueryKeys = varyByQueryKeys
         };
     }
+
     /// <summary>
     /// set endpoint configurations options using an endpoint builder action
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
     protected void Options(Action<RouteHandlerBuilder> builder) => Settings.UserConfigAction = builder;
 }
-

@@ -22,11 +22,9 @@ internal static class ReflectionExtensions
 
         var sourceObjectParam = Expression.Parameter(typeof(object), "source");
 
-#pragma warning disable CS8602,CS8604
         Expression returnExpression = Expression.Call(
             Expression.Convert(sourceObjectParam, source),
-            propertyInfo.GetGetMethod());
-#pragma warning restore CS8602,CS8604
+            propertyInfo.GetGetMethod()!);
 
         if (!propertyInfo.PropertyType.IsClass)
             returnExpression = Expression.Convert(returnExpression, typeof(object));

@@ -15,7 +15,7 @@
         <Nullable>enable</Nullable>
         <OutputType>Library</OutputType>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>1701;1702;CS1591;CS1573,CA2254</NoWarn>
+        <NoWarn>1701;1702;CS1591;CS1573,CA2254;RCS1079</NoWarn>
         <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
         <Description>An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.</Description>
         <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>

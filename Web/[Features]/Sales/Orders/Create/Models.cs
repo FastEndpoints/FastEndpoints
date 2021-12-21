@@ -14,3 +14,10 @@ public class Response
     public string? Message { get; set; }
     public Guid GuidTest { get; set; }
 }
+
+public class DomainEntity
+{
+    public string? OrderNumber { get; set; } = "someordernumber";
+    public int Quantity { get; set; } = 22;
+    public decimal Price { get; set; } = 123.45m;
+}

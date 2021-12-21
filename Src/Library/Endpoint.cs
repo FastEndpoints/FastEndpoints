@@ -96,3 +96,45 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull, new() { };
+
+/// <summary>
+/// use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity.
+/// </summary>
+/// <typeparam name="TRequest">the type of the request dto</typeparam>
+/// <typeparam name="TResponse">the type of the response dto</typeparam>
+/// <typeparam name="TEntity">the type of domain entity that will be mapped to/from</typeparam>
+public abstract class Endpoint<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull, new()
+{
+    /// <summary>
+    /// override this method and place the logic for mapping the request dto to the desired domain entity
+    /// </summary>
+    /// <param name="r">the request dto</param>
+    public virtual TEntity MapToEntity(TRequest r) => throw new NotImplementedException($"Please override the {nameof(MapToEntity)} method!");
+    /// <summary>
+    /// override this method and place the logic for mapping the request dto to the desired domain entity
+    /// </summary>
+    /// <param name="r">the request dto to map from</param>
+    public virtual Task<TEntity> MapToEntityAsync(TRequest r) => throw new NotImplementedException($"Please override the {nameof(MapToEntityAsync)} method!");
+
+    /// <summary>
+    /// override this method and place the logic for mapping a domain entity to a response dto
+    /// </summary>
+    /// <param name="e">the domain entity to map from</param>
+    public virtual TResponse MapFromEntity(TEntity e) => throw new NotImplementedException($"Please override the {nameof(MapFromEntity)} method!");
+    /// <summary>
+    /// override this method and place the logic for mapping a domain entity to a response dto
+    /// </summary>
+    /// <param name="e">the domain entity to map from</param>
+    public virtual Task<TResponse> MapFromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(MapFromEntityAsync)} method!");
+
+    /// <summary>
+    /// override this method and place the logic for populating the response dto property of the endpoint from a domain entity in this method.
+    /// </summary>
+    /// <param name="e">the domain entity to load the response dto from</param>
+    public virtual void LoadFromEntity(TEntity e) => throw new NotImplementedException($"Please override the {nameof(LoadFromEntity)} method!");
+    /// <summary>
+    /// override this method and place the logic for populating the response dto property of the endpoint from a domain entity in this method.
+    /// </summary>
+    /// <param name="e">the domain entity to load the response dto from</param>
+    public virtual Task LoadFromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(LoadFromEntityAsync)} method!");
+}

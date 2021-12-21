@@ -4,7 +4,7 @@ using Web.SystemEvents;
 
 namespace Sales.Orders.Create;
 
-public class Endpoint : Endpoint<Request, Response, DomainEntity>
+public class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
@@ -19,8 +19,6 @@ public class Endpoint : Endpoint<Request, Response, DomainEntity>
     public override async Task HandleAsync(Request r, CancellationToken t)
     {
         var userType = User.ClaimValue(Claim.UserType);
-
-        var domainEntity = MapToEntity(r);
 
         var saleNotification = new NewOrderCreated
         {
@@ -38,11 +36,4 @@ public class Endpoint : Endpoint<Request, Response, DomainEntity>
             GuidTest = r.GuidTest
         });
     }
-
-    protected override DomainEntity MapToEntity(Request r) => new()
-    {
-        OrderNumber = r.GuidTest.ToString(),
-        Price = 100.00m,
-        Quantity = r.Quantity
-    };
 }

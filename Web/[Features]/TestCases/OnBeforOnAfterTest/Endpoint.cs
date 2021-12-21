@@ -8,12 +8,12 @@
             Routes("/test-cases/on-before-on-after-validate");
         }
 
-        protected override void OnBeforeValidate(Request req)
+        public override void OnBeforeValidate(Request req)
         {
             req.Verb = (Http)Enum.Parse(typeof(Http), HttpContext.Request.Method);
         }
 
-        protected override void OnAfterValidate(Request req)
+        public override void OnAfterValidate(Request req)
         {
             req.Host = HttpContext.Request.Host.Value;
         }

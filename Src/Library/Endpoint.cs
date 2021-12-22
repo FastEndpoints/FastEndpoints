@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : notnull, new() where TResponse : notnull, new()
 {
     /// <summary>
     /// the handler method for the endpoint. this method is called for each request received.
@@ -47,24 +47,24 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    protected TService? TryResolve<TService>() => HttpContext.RequestServices.GetService<TService>();
+    public TService? TryResolve<TService>() where TService : notnull => HttpContext.RequestServices.GetService<TService>();
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
-    protected object? TryResolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
+    public object? TryResolve(Type typeOfService) => HttpContext.RequestServices.GetService(typeOfService);
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    protected TService Resolve<TService>() where TService : notnull => HttpContext.RequestServices.GetRequiredService<TService>();
+    public TService Resolve<TService>() where TService : notnull => HttpContext.RequestServices.GetRequiredService<TService>();
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    protected object Resolve(Type typeOfService) => HttpContext.RequestServices.GetRequiredService(typeOfService);
+    public object Resolve(Type typeOfService) => HttpContext.RequestServices.GetRequiredService(typeOfService);
 
     /// <summary>
     /// publish the given model/dto to all the subscribers of the event notification
@@ -76,7 +76,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// Mode.WaitForNone returns an already completed Task (fire and forget).
     /// Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
     /// Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</returns>
-    protected Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : class
+    public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : class
         => Event<TEvent>.PublishAsync(eventModel, waitMode, cancellation);
 }
 
@@ -126,15 +126,24 @@ public abstract class Endpoint<TRequest, TResponse, TEntity> : Endpoint<TRequest
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
     public virtual Task<TResponse> MapFromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(MapFromEntityAsync)} method!");
+}
 
+/// <summary>
+/// use this base class for defining endpoints that use both request and response dtos as well as an entity mapper.
+/// </summary>
+/// <typeparam name="TRequest">the type of the request dto</typeparam>
+/// <typeparam name="TResponse">the type of the response dto</typeparam>
+/// <typeparam name="TEntityMapper">the type of the entity mapper</typeparam>
+public abstract class EndpointWithMapper<TRequest, TResponse, TEntityMapper> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull, new() where TEntityMapper : IEntityMapper, new()
+{
     /// <summary>
-    /// override this method and place the logic for populating the response dto property of the endpoint from a domain entity in this method.
+    /// The entity mapper for the endpoint
     /// </summary>
-    /// <param name="e">the domain entity to load the response dto from</param>
-    public virtual void LoadFromEntity(TEntity e) => throw new NotImplementedException($"Please override the {nameof(LoadFromEntity)} method!");
-    /// <summary>
-    /// override this method and place the logic for populating the response dto property of the endpoint from a domain entity in this method.
-    /// </summary>
-    /// <param name="e">the domain entity to load the response dto from</param>
-    public virtual Task LoadFromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(LoadFromEntityAsync)} method!");
+    public TEntityMapper Map { get; } = new();
+
+    internal override Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
+    {
+        Map.RequestServiceProvider = ctx.RequestServices;
+        return base.ExecAsync(ctx, validator, preProcessors, postProcessors, cancellation);
+    }
 }

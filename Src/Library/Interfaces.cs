@@ -1,6 +1,7 @@
 ﻿using FastEndpoints.Validation;
 using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
+#pragma warning disable CS8618
 
 namespace FastEndpoints;
 
@@ -23,15 +24,25 @@ public interface IPostProcessor<TRequest, TResponse>
     Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
 }
 
+internal interface IServiceResolver
+{
+    static IServiceProvider RequestServiceProvider { get; set; } //set only from .UseFastEndpoints() during startup
+
+    TService? TryResolve<TService>() where TService : notnull;
+    object? TryResolve(Type typeOfService);
+
+    TService Resolve<TService>() where TService : notnull;
+    object Resolve(Type typeOfService);
+}
+
 internal interface IEventHandler
 {
-    internal void Subscribe();
+    void Subscribe();
 }
 
 internal interface IValidatorWithState : IValidator
 {
-    internal bool ThrowIfValidationFails { get; set; }
-    public IServiceProvider ServiceProvider { get; set; }
+    bool ThrowIfValidationFails { get; set; }
 }
 
 [HideFromDocs]
@@ -40,4 +51,10 @@ public interface IEndpoint
     HttpContext HttpContext { get; set; } //this is for writing extension methods by consumers
     List<ValidationFailure> ValidationFailures { get; } //also for extensibility
     void Configure();
+}
+
+[HideFromDocs]
+public interface IEntityMapper
+{
+    IServiceProvider RequestServiceProvider { get; set; }
 }

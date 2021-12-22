@@ -1,10 +1,11 @@
 ﻿using Web.PipelineBehaviors.PostProcessors;
 using Web.PipelineBehaviors.PreProcessors;
+using Web.Services;
 using Web.SystemEvents;
 
 namespace Sales.Orders.Create;
 
-public class Endpoint : Endpoint<Request, Response>
+public class Endpoint : EndpointWithMapper<Request, Response, MyMapper>
 {
     public override void Configure()
     {
@@ -32,8 +33,18 @@ public class Endpoint : Endpoint<Request, Response>
         await SendAsync(new Response
         {
             Message = "order created!",
+            AnotherMsg = Map.ToEntity(r),
             OrderID = 54321,
             GuidTest = r.GuidTest
         });
+    }
+}
+
+public class MyMapper : EntityMapper<Request, Response, string>
+{
+    public override string ToEntity(Request r)
+    {
+        var x = Resolve<IEmailService>();
+        return x.SendEmail();
     }
 }

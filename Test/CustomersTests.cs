@@ -85,6 +85,7 @@ namespace Test
 
             Assert.IsTrue(rsp?.IsSuccessStatusCode);
             Assert.AreEqual(res?.OrderID, 54321);
+            Assert.AreEqual("Email actually sent!", res?.AnotherMsg);
         }
 
         [TestMethod]

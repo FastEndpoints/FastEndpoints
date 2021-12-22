@@ -36,8 +36,8 @@ public static class MainExtensions
     /// <exception cref="ArgumentException"></exception>
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
     {
+        IServiceResolver.RequestServiceProvider = builder.ServiceProvider;
         BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
-        BaseEventHandler.ServiceProvider = builder.ServiceProvider;
 
         var routeToHandlerCounts = new Dictionary<string, int>();
 
@@ -62,10 +62,7 @@ public static class MainExtensions
 
             var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
             if (validatorInstance is not null)
-            {
-                validatorInstance.ServiceProvider = builder.ServiceProvider;
                 validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
-            }
 
             EndpointExecutor.CachedServiceBoundProps[ep.EndpointType] =
                 ep.EndpointType

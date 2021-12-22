@@ -2,19 +2,11 @@
 
 namespace FastEndpoints;
 
-[HideFromDocs]
-public abstract class BaseEventHandler
-{
-#pragma warning disable CS8618
-    internal static IServiceProvider ServiceProvider; //set from .UseFastEndpoints() upon initialization
-#pragma warning restore CS8618
-}
-
 /// <summary>
 /// use this base class to handle events published by the notification system
 /// </summary>
 /// <typeparam name="TEvent">the type of the event to handle</typeparam>
-public abstract class FastEventHandler<TEvent> : BaseEventHandler, IEventHandler where TEvent : class, new()
+public abstract class FastEventHandler<TEvent> : IEventHandler, IServiceResolver where TEvent : class, new()
 {
     void IEventHandler.Subscribe()
         => Event<TEvent>.OnReceived += (e, c) => HandleAsync(e, c);
@@ -36,33 +28,33 @@ public abstract class FastEventHandler<TEvent> : BaseEventHandler, IEventHandler
     /// Mode.WaitForNone returns an already completed Task (fire and forget).
     /// Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
     /// Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</returns>
-    protected Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : class
+    public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : class
         => Event<TEventModel>.PublishAsync(eventModel, waitMode, cancellation);
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    protected TService? TryResolve<TService>() => ServiceProvider.GetService<TService>();
+    public TService? TryResolve<TService>() where TService : notnull => IServiceResolver.RequestServiceProvider.GetService<TService>();
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
-    protected object? TryResolve(Type typeOfService) => ServiceProvider.GetService(typeOfService);
+    public object? TryResolve(Type typeOfService) => IServiceResolver.RequestServiceProvider.GetService(typeOfService);
 
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    protected TService Resolve<TService>() where TService : notnull => ServiceProvider.GetRequiredService<TService>();
+    public TService Resolve<TService>() where TService : notnull => IServiceResolver.RequestServiceProvider.GetRequiredService<TService>();
 
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    protected object Resolve(Type typeOfService) => ServiceProvider.GetRequiredService(typeOfService);
+    public object Resolve(Type typeOfService) => IServiceResolver.RequestServiceProvider.GetRequiredService(typeOfService);
 }
 

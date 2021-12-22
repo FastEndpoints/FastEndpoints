@@ -2,13 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.14.0</Version>
+        <Version>2.15.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - add async hook methods for endpoints
-            - change hook method accessors to public from protected
-            - add endpoint generic overload to help mapping to/from domain entities
-            - misc. performance optimizations
+            - add EndpointWithMapper for seperating mapping logic from endpoint
             - misc. code refactors
         </PackageReleaseNotes>
 

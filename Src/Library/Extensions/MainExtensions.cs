@@ -36,7 +36,7 @@ public static class MainExtensions
     /// <exception cref="ArgumentException"></exception>
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
     {
-        IServiceResolver.RequestServiceProvider = builder.ServiceProvider;
+        IServiceResolver.ServiceProvider = builder.ServiceProvider;
         BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
 
         var routeToHandlerCounts = new Dictionary<string, int>();

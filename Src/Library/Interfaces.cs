@@ -26,7 +26,7 @@ public interface IPostProcessor<TRequest, TResponse>
 
 internal interface IServiceResolver
 {
-    static IServiceProvider RequestServiceProvider { get; set; } //set only from .UseFastEndpoints() during startup
+    static IServiceProvider ServiceProvider { get; set; } //set only from .UseFastEndpoints() during startup
 
     TService? TryResolve<TService>() where TService : notnull;
     object? TryResolve(Type typeOfService);
@@ -56,5 +56,5 @@ public interface IEndpoint
 [HideFromDocs]
 public interface IEntityMapper
 {
-    IServiceProvider RequestServiceProvider { get; set; }
+    IServiceProvider ServiceProvider { get; set; }
 }

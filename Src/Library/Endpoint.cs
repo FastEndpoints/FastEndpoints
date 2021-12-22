@@ -143,7 +143,7 @@ public abstract class EndpointWithMapper<TRequest, TResponse, TEntityMapper> : E
 
     internal override Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
     {
-        Map.RequestServiceProvider = ctx.RequestServices;
+        Map.ServiceProvider = ctx.RequestServices;
         return base.ExecAsync(ctx, validator, preProcessors, postProcessors, cancellation);
     }
 }

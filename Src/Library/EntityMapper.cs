@@ -11,7 +11,7 @@ namespace FastEndpoints;
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
 public class EntityMapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : notnull, new() where TResponse : notnull, new()
 {
-    public IServiceProvider RequestServiceProvider { get; set; }//this is set by ExecAsync
+    public IServiceProvider ServiceProvider { get; set; }//this is set by ExecAsync
 
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity
@@ -39,22 +39,22 @@ public class EntityMapper<TRequest, TResponse, TEntity> : IEntityMapper, IServic
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    public TService? TryResolve<TService>() where TService : notnull => RequestServiceProvider.GetService<TService>();
+    public TService? TryResolve<TService>() where TService : notnull => ServiceProvider.GetService<TService>();
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
-    public object? TryResolve(Type typeOfService) => RequestServiceProvider.GetService(typeOfService);
+    public object? TryResolve(Type typeOfService) => ServiceProvider.GetService(typeOfService);
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public TService Resolve<TService>() where TService : notnull => RequestServiceProvider.GetRequiredService<TService>();
+    public TService Resolve<TService>() where TService : notnull => ServiceProvider.GetRequiredService<TService>();
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public object Resolve(Type typeOfService) => RequestServiceProvider.GetRequiredService(typeOfService);
+    public object Resolve(Type typeOfService) => ServiceProvider.GetRequiredService(typeOfService);
 }

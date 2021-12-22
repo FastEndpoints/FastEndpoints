@@ -5,7 +5,8 @@
         <Version>2.15.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - add EndpointWithMapper for seperating mapping logic from endpoint
+            - add support for seperating mapping logic from endpoint
+            - refactor service resolver
             - misc. code refactors
         </PackageReleaseNotes>
 

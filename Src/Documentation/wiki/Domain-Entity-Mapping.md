@@ -1,5 +1,5 @@
 # domain entity mapping
-for those of us who has a bone to pick with the likes of AutoMapper, this library offers a cleaner way to do manual mapping for request dto to domain entity and back from an entity to a response dto.
+for those of us who are not fans of AutoMapper and the like, this library offers a cleaner way to do manual mapping for request dto to domain entity and back from an entity to a response dto.
 
 consider the following request, response and entity classes:
 

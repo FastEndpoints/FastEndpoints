@@ -29,7 +29,6 @@ items:
     content: 'public class FromHeaderAttribute : Attribute'
     content.vb: >-
       Public Class FromHeaderAttribute
-
           Inherits Attribute
   inheritance:
   - System.Object

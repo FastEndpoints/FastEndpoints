@@ -32,8 +32,7 @@ items:
   example: []
   syntax:
     content: >-
-      public class EntityMapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : new()
-
+      public abstract class EntityMapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : new()
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -43,8 +42,7 @@ items:
     - id: TEntity
       description: the type of domain entity to map to/from
     content.vb: >-
-      Public Class EntityMapper(Of TRequest As New, TResponse As New, TEntity)
-
+      Public MustInherit Class EntityMapper(Of TRequest As New, TResponse As New, TEntity)
           Implements IEntityMapper, IServiceResolver
   inheritance:
   - System.Object
@@ -59,9 +57,11 @@ items:
   nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity)
   modifiers.csharp:
   - public
+  - abstract
   - class
   modifiers.vb:
   - Public
+  - MustInherit
   - Class
   fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity)
   name.vb: EntityMapper(Of TRequest, TResponse, TEntity)

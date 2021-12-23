@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// <typeparam name="TRequest">the type of request dto</typeparam>
 /// <typeparam name="TResponse">the type of response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public class EntityMapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract class EntityMapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : notnull, new() where TResponse : notnull, new()
 {
     public IServiceProvider ServiceProvider { get; set; }//this is set by ExecAsync
 

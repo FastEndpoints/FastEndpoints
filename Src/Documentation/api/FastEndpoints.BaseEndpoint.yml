@@ -17,8 +17,8 @@ items:
   type: Class
   source:
     id: BaseEndpoint
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 9
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
+    startLine: 8
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -61,8 +61,8 @@ items:
   type: Property
   source:
     id: HttpContext
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 33
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
+    startLine: 32
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -94,8 +94,8 @@ items:
   type: Method
   source:
     id: Configure
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 40
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
+    startLine: 39
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -124,8 +124,8 @@ items:
   type: Property
   source:
     id: ValidationFailures
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 45
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
+    startLine: 44
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

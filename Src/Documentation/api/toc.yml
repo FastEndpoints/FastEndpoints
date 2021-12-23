@@ -8,17 +8,26 @@
     name: EmptyRequest
   - uid: FastEndpoints.EmptyResponse
     name: EmptyResponse
+  - uid: FastEndpoints.Endpoint`3
+    name: Endpoint<TRequest, TResponse, TEntity>
+    name.vb: Endpoint(Of TRequest, TResponse, TEntity)
   - uid: FastEndpoints.Endpoint`2
     name: Endpoint<TRequest, TResponse>
     name.vb: Endpoint(Of TRequest, TResponse)
   - uid: FastEndpoints.Endpoint`1
     name: Endpoint<TRequest>
     name.vb: Endpoint(Of TRequest)
+  - uid: FastEndpoints.EndpointWithMapper`3
+    name: EndpointWithMapper<TRequest, TResponse, TEntityMapper>
+    name.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
   - uid: FastEndpoints.EndpointWithoutRequest
     name: EndpointWithoutRequest
   - uid: FastEndpoints.EndpointWithoutRequest`1
     name: EndpointWithoutRequest<TResponse>
     name.vb: EndpointWithoutRequest(Of TResponse)
+  - uid: FastEndpoints.EntityMapper`3
+    name: EntityMapper<TRequest, TResponse, TEntity>
+    name.vb: EntityMapper(Of TRequest, TResponse, TEntity)
   - uid: FastEndpoints.ErrorResponse
     name: ErrorResponse
   - uid: FastEndpoints.Event`1
@@ -45,12 +54,6 @@
   - uid: FastEndpoints.IPreProcessor`1
     name: IPreProcessor<TRequest>
     name.vb: IPreProcessor(Of TRequest)
-  - uid: FastEndpoints.IRequest`1
-    name: IRequest<TEntity>
-    name.vb: IRequest(Of TEntity)
-  - uid: FastEndpoints.IResponse`1
-    name: IResponse<TEntity>
-    name.vb: IResponse(Of TEntity)
   - uid: FastEndpoints.MainExtensions
     name: MainExtensions
   - uid: FastEndpoints.Mode

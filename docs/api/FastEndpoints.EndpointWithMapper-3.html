@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-VBQ9J9F5M0"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+  
+      gtag('config', 'G-VBQ9J9F5M0');
+    </script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class EndpointWithMapper&lt;TRequest, TResponse, TEntityMapper&gt;
+   | FastEndpoints </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class EndpointWithMapper&lt;TRequest, TResponse, TEntityMapper&gt;
+   | FastEndpoints ">
+    <meta name="generator" content="docfx 2.58.4.0">
+    <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
+    <link rel="shortcut icon" href="../images/favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    <meta property="docfx:rel" content="../">
+    <meta property="docfx:newtab" content="true">
+    <meta property="og:title" content="FastEndpoints">
+    <meta property="og:site_name" content="FastEndpoints">
+    <meta property="og:url" content="https://fast-endpoints.com">
+    <meta property="og:description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://fast-endpoints.com/images/social-square.png">  
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../images/icon.png" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div class="container body-content">
+        
+        <div id="search-results">
+          <div class="search-list">Search Results for <span></span></div>
+          <div class="sr-items">
+            <p><i class="glyphicon glyphicon-refresh index-loading"></i></p>
+          </div>
+          <ul id="pagination" data-first="First" data-prev="Previous" data-next="Next" data-last="Last"></ul>
+        </div>
+      </div>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.EndpointWithMapper`3">
+  
+  
+  <h1 id="FastEndpoints_EndpointWithMapper_3" data-uid="FastEndpoints.EndpointWithMapper`3" class="text-break">Class EndpointWithMapper&lt;TRequest, TResponse, TEntityMapper&gt;
+  </h1>
+  <div class="markdown level0 summary"><p>use this base class for defining endpoints that use both request and response dtos as well as an entity mapper.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="FastEndpoints.BaseEndpoint.html">BaseEndpoint</a></div>
+    <div class="level2"><a class="xref" href="FastEndpoints.Endpoint-2.html">Endpoint</a>&lt;TRequest, TResponse&gt;</div>
+    <div class="level3"><span class="xref">EndpointWithMapper&lt;TRequest, TResponse, TEntityMapper&gt;</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HandleAsync__0_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.HandleAsync(TRequest, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_TryResolve__1">Endpoint&lt;TRequest, TResponse&gt;.TryResolve&lt;TService&gt;()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_TryResolve_Type_">Endpoint&lt;TRequest, TResponse&gt;.TryResolve(Type)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Resolve__1">Endpoint&lt;TRequest, TResponse&gt;.Resolve&lt;TService&gt;()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Resolve_Type_">Endpoint&lt;TRequest, TResponse&gt;.Resolve(Type)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PublishAsync__1___0_FastEndpoints_Mode_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.PublishAsync&lt;TEvent&gt;(TEvent, Mode, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidate__0_">Endpoint&lt;TRequest, TResponse&gt;.OnBeforeValidate(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidateAsync__0_">Endpoint&lt;TRequest, TResponse&gt;.OnBeforeValidateAsync(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidate__0_">Endpoint&lt;TRequest, TResponse&gt;.OnAfterValidate(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidateAsync__0_">Endpoint&lt;TRequest, TResponse&gt;.OnAfterValidateAsync(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandle__0_">Endpoint&lt;TRequest, TResponse&gt;.OnBeforeHandle(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandleAsync__0_">Endpoint&lt;TRequest, TResponse&gt;.OnBeforeHandleAsync(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandle__0__1_">Endpoint&lt;TRequest, TResponse&gt;.OnAfterHandle(TRequest, TResponse)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandleAsync__0__1_">Endpoint&lt;TRequest, TResponse&gt;.OnAfterHandleAsync(TRequest, TResponse)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailed">Endpoint&lt;TRequest, TResponse&gt;.ValidationFailed</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_User">Endpoint&lt;TRequest, TResponse&gt;.User</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Response">Endpoint&lt;TRequest, TResponse&gt;.Response</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Config">Endpoint&lt;TRequest, TResponse&gt;.Config</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Env">Endpoint&lt;TRequest, TResponse&gt;.Env</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Logger">Endpoint&lt;TRequest, TResponse&gt;.Logger</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_BaseURL">Endpoint&lt;TRequest, TResponse&gt;.BaseURL</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpMethod">Endpoint&lt;TRequest, TResponse&gt;.HttpMethod</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Form">Endpoint&lt;TRequest, TResponse&gt;.Form</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Files">Endpoint&lt;TRequest, TResponse&gt;.Files</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendAsync__1_System_Int32_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendAsync(TResponse, Int32, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStringAsync_System_String_System_Int32_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendStringAsync(String, Int32, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync">Endpoint&lt;TRequest, TResponse&gt;.SendOkAsync()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendErrorsAsync_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendErrorsAsync(CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync">Endpoint&lt;TRequest, TResponse&gt;.SendNoContentAsync()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNotFoundAsync">Endpoint&lt;TRequest, TResponse&gt;.SendNotFoundAsync()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync">Endpoint&lt;TRequest, TResponse&gt;.SendUnauthorizedAsync()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync">Endpoint&lt;TRequest, TResponse&gt;.SendForbiddenAsync()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendBytesAsync(Byte[], String, String, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendFileAsync(FileInfo, String, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendStreamAsync(Stream, String, Nullable&lt;Int64&gt;, String, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEmptyJsonObject_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendEmptyJsonObject(CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Get_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Get(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Post_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Post(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Put_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Put(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Patch_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Patch(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Delete_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Delete(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Routes_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Routes(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Verbs_FastEndpoints_Http___">Endpoint&lt;TRequest, TResponse&gt;.Verbs(Http[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontThrowIfValidationFails">Endpoint&lt;TRequest, TResponse&gt;.DontThrowIfValidationFails()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnonymous_FastEndpoints_Http___">Endpoint&lt;TRequest, TResponse&gt;.AllowAnonymous(Http[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads">Endpoint&lt;TRequest, TResponse&gt;.AllowFileUploads()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFormData">Endpoint&lt;TRequest, TResponse&gt;.AllowFormData()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Policies_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Policies(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Roles_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Roles(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Permissions_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Permissions(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PermissionsAll_System_String___">Endpoint&lt;TRequest, TResponse&gt;.PermissionsAll(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Claims_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Claims(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ClaimsAll_System_String___">Endpoint&lt;TRequest, TResponse&gt;.ClaimsAll(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PreProcessors_FastEndpoints_IPreProcessor__0____">Endpoint&lt;TRequest, TResponse&gt;.PreProcessors(IPreProcessor&lt;TRequest&gt;[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PostProcessors_FastEndpoints_IPostProcessor__0__1____">Endpoint&lt;TRequest, TResponse&gt;.PostProcessors(IPostProcessor&lt;TRequest, TResponse&gt;[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ResponseCache_System_Int32_Microsoft_AspNetCore_Mvc_ResponseCacheLocation_System_Boolean_System_String_System_String___">Endpoint&lt;TRequest, TResponse&gt;.ResponseCache(Int32, ResponseCacheLocation, Boolean, String, String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__">Endpoint&lt;TRequest, TResponse&gt;.Options(Action&lt;RouteHandlerBuilder&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_String_">Endpoint&lt;TRequest, TResponse&gt;.AddError(String)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_">Endpoint&lt;TRequest, TResponse&gt;.AddError(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowIfAnyErrors">Endpoint&lt;TRequest, TResponse&gt;.ThrowIfAnyErrors()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_System_String_">Endpoint&lt;TRequest, TResponse&gt;.ThrowError(String)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_">Endpoint&lt;TRequest, TResponse&gt;.ThrowError(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_HttpContext">BaseEndpoint.HttpContext</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configure">BaseEndpoint.Configure()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_ValidationFailures">BaseEndpoint.ValidationFailures</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
+  <h5 id="FastEndpoints_EndpointWithMapper_3_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class EndpointWithMapper&lt;TRequest, TResponse, TEntityMapper&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : new()
+
+    where TResponse : new()
+
+    where TEntityMapper : IEntityMapper, new()</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TRequest</span></td>
+        <td><p>the type of the request dto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TResponse</span></td>
+        <td><p>the type of the response dto</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="parametername">TEntityMapper</span></td>
+        <td><p>the type of the entity mapper</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="FastEndpoints_EndpointWithMapper_3_Map_" data-uid="FastEndpoints.EndpointWithMapper`3.Map*"></a>
+  <h4 id="FastEndpoints_EndpointWithMapper_3_Map" data-uid="FastEndpoints.EndpointWithMapper`3.Map">Map</h4>
+  <div class="markdown level1 summary"><p>The entity mapper for the endpoint</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TEntityMapper Map { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TEntityMapper</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            Developed by <a href='https://github.com/dj-nitehawk'>Đĵ ΝιΓΞΗΛψΚ</a> and <a href='https://github.com/dj-nitehawk/FastEndpoints/graphs/contributors'>contributors</a> / Licensed under <a href='https://github.com/dj-nitehawk/FastEndpoints/blob/master/LICENSE'>MIT</a> / Website generated by <a href='https://dotnet.github.io/docfx/'>DocFX</a>
+            
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

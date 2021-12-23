@@ -107,6 +107,8 @@
     <div class="level1"><a class="xref" href="FastEndpoints.BaseEndpoint.html">BaseEndpoint</a></div>
     <div class="level2"><span class="xref">Endpoint&lt;TRequest, TResponse&gt;</span></div>
       <div class="level3"><a class="xref" href="FastEndpoints.Endpoint-1.html">Endpoint&lt;TRequest&gt;</a></div>
+      <div class="level3"><a class="xref" href="FastEndpoints.Endpoint-3.html">Endpoint&lt;TRequest, TResponse, TEntity&gt;</a></div>
+      <div class="level3"><a class="xref" href="FastEndpoints.EndpointWithMapper-3.html">EndpointWithMapper&lt;TRequest, TResponse, TEntityMapper&gt;</a></div>
       <div class="level3"><a class="xref" href="FastEndpoints.EndpointWithoutRequest-1.html">EndpointWithoutRequest&lt;TResponse&gt;</a></div>
   </div>
   <div class="inheritedMembers">
@@ -146,7 +148,7 @@
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint where TRequest : new()
+    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
 
     where TResponse : new()</code></pre>
   </div>
@@ -416,7 +418,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public bool ValidationFailed { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">protected bool ValidationFailed { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -734,7 +736,7 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual void OnAfterHandle(TRequest req, TResponse res)</code></pre>
+    <pre><code class="lang-csharp hljs">public virtual void OnAfterHandle(TRequest req, TResponse res)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -762,14 +764,14 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   </table>
   
   
-  <a id="FastEndpoints_Endpoint_2_OnAfterValidate_" data-uid="FastEndpoints.Endpoint`2.OnAfterValidate*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_OnAfterValidate__0_" data-uid="FastEndpoints.Endpoint`2.OnAfterValidate(`0)">OnAfterValidate(TRequest)</h4>
-  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto after it gets validated.</p>
+  <a id="FastEndpoints_Endpoint_2_OnAfterHandleAsync_" data-uid="FastEndpoints.Endpoint`2.OnAfterHandleAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnAfterHandleAsync__0__1_" data-uid="FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)">OnAfterHandleAsync(TRequest, TResponse)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something after the handler is executed.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual void OnAfterValidate(TRequest req)</code></pre>
+    <pre><code class="lang-csharp hljs">public virtual Task OnAfterHandleAsync(TRequest req, TResponse res)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -786,6 +788,100 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
         <td><span class="parametername">req</span></td>
         <td><p>the request dto</p>
 </td>
+      </tr>
+      <tr>
+        <td><span class="xref">TResponse</span></td>
+        <td><span class="parametername">res</span></td>
+        <td><p>the response dto that was sent to the client</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_OnAfterValidate_" data-uid="FastEndpoints.Endpoint`2.OnAfterValidate*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnAfterValidate__0_" data-uid="FastEndpoints.Endpoint`2.OnAfterValidate(`0)">OnAfterValidate(TRequest)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto after it gets validated.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual void OnAfterValidate(TRequest req)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_OnAfterValidateAsync_" data-uid="FastEndpoints.Endpoint`2.OnAfterValidateAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnAfterValidateAsync__0_" data-uid="FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)">OnAfterValidateAsync(TRequest)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto after it gets validated.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual Task OnAfterValidateAsync(TRequest req)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
       </tr>
     </tbody>
   </table>
@@ -798,7 +894,7 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual void OnBeforeHandle(TRequest req)</code></pre>
+    <pre><code class="lang-csharp hljs">public virtual void OnBeforeHandle(TRequest req)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -820,14 +916,14 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   </table>
   
   
-  <a id="FastEndpoints_Endpoint_2_OnBeforeValidate_" data-uid="FastEndpoints.Endpoint`2.OnBeforeValidate*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_OnBeforeValidate__0_" data-uid="FastEndpoints.Endpoint`2.OnBeforeValidate(`0)">OnBeforeValidate(TRequest)</h4>
-  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto before it gets validated.</p>
+  <a id="FastEndpoints_Endpoint_2_OnBeforeHandleAsync_" data-uid="FastEndpoints.Endpoint`2.OnBeforeHandleAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnBeforeHandleAsync__0_" data-uid="FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)">OnBeforeHandleAsync(TRequest)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto before the handler is executed.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected virtual void OnBeforeValidate(TRequest req)</code></pre>
+    <pre><code class="lang-csharp hljs">public virtual Task OnBeforeHandleAsync(TRequest req)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -844,6 +940,94 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
         <td><span class="parametername">req</span></td>
         <td><p>the request dto</p>
 </td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_OnBeforeValidate_" data-uid="FastEndpoints.Endpoint`2.OnBeforeValidate*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnBeforeValidate__0_" data-uid="FastEndpoints.Endpoint`2.OnBeforeValidate(`0)">OnBeforeValidate(TRequest)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto before it gets validated.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual void OnBeforeValidate(TRequest req)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_OnBeforeValidateAsync_" data-uid="FastEndpoints.Endpoint`2.OnBeforeValidateAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnBeforeValidateAsync__0_" data-uid="FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)">OnBeforeValidateAsync(TRequest)</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something to the request dto before it gets validated.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual Task OnBeforeValidateAsync(TRequest req)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TRequest</span></td>
+        <td><span class="parametername">req</span></td>
+        <td><p>the request dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
       </tr>
     </tbody>
   </table>
@@ -1086,7 +1270,7 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+    <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
 
     where TEvent : class</code></pre>
   </div>
@@ -1191,7 +1375,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected object Resolve(Type typeOfService)</code></pre>
+    <pre><code class="lang-csharp hljs">public object Resolve(Type typeOfService)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1235,7 +1419,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected TService Resolve&lt;TService&gt;()</code></pre>
+    <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1973,7 +2157,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected object TryResolve(Type typeOfService)</code></pre>
+    <pre><code class="lang-csharp hljs">public object TryResolve(Type typeOfService)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2017,7 +2201,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected TService TryResolve&lt;TService&gt;()</code></pre>
+    <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">

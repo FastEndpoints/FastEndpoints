@@ -77,7 +77,7 @@ items:
   source:
     id: WaitForAny
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 45
+    startLine: 46
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -107,7 +107,7 @@ items:
   source:
     id: WaitForAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Enums.cs
-    startLine: 49
+    startLine: 51
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

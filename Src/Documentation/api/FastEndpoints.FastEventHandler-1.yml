@@ -21,26 +21,23 @@ items:
   source:
     id: FastEventHandler
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 16
+    startLine: 8
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nuse this base class to handle events published by the notification system\n"
   example: []
   syntax:
-    content: 'public abstract class FastEventHandler<TEvent> : BaseEventHandler, IEventHandler where TEvent : class, new()'
+    content: 'public abstract class FastEventHandler<TEvent> : IEventHandler, IServiceResolver where TEvent : class, new()'
     typeParameters:
     - id: TEvent
       description: the type of the event to handle
     content.vb: >-
       Public MustInherit Class FastEventHandler(Of TEvent As {Class, New})
 
-          Inherits BaseEventHandler
-
-          Implements IEventHandler
+          Implements IEventHandler, IServiceResolver
   inheritance:
   - System.Object
-  - FastEndpoints.BaseEventHandler
   inheritedMembers:
   - System.Object.Equals(System.Object)
   - System.Object.Equals(System.Object,System.Object)
@@ -74,7 +71,7 @@ items:
   source:
     id: HandleAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 26
+    startLine: 18
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -115,7 +112,7 @@ items:
   source:
     id: PublishAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 38
+    startLine: 30
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -123,7 +120,7 @@ items:
   example: []
   syntax:
     content: >-
-      protected Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+      public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
 
           where TEventModel : class
     parameters:
@@ -148,13 +145,13 @@ items:
         Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
 
         Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.
-    content.vb: Protected Function PublishAsync(Of TEventModel As Class)(eventModel As TEventModel, waitMode As Mode = Mode.WaitForAll, cancellation As CancellationToken = Nothing) As Task
+    content.vb: Public Function PublishAsync(Of TEventModel As Class)(eventModel As TEventModel, waitMode As Mode = Mode.WaitForAll, cancellation As CancellationToken = Nothing) As Task
   overload: FastEndpoints.FastEventHandler`1.PublishAsync*
   nameWithType.vb: FastEventHandler(Of TEvent).PublishAsync(Of TEventModel)(TEventModel, Mode, CancellationToken)
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).PublishAsync(Of TEventModel)(TEventModel, FastEndpoints.Mode, CancellationToken)
   name.vb: PublishAsync(Of TEventModel)(TEventModel, Mode, CancellationToken)
 - uid: FastEndpoints.FastEventHandler`1.TryResolve``1
@@ -171,26 +168,26 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 45
+    startLine: 37
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
   example: []
   syntax:
-    content: protected TService TryResolve<TService>()
+    content: public TService TryResolve<TService>()
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Protected Function TryResolve(Of TService) As TService
+    content.vb: Public Function TryResolve(Of TService) As TService
   overload: FastEndpoints.FastEventHandler`1.TryResolve*
   nameWithType.vb: FastEventHandler(Of TEvent).TryResolve(Of TService)()
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).TryResolve(Of TService)()
   name.vb: TryResolve(Of TService)()
 - uid: FastEndpoints.FastEventHandler`1.TryResolve(Type)
@@ -207,27 +204,27 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 51
+    startLine: 43
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
   example: []
   syntax:
-    content: protected object TryResolve(Type typeOfService)
+    content: public object TryResolve(Type typeOfService)
     parameters:
     - id: typeOfService
       type: Type
       description: the type of the service to resolve
     return:
       type: System.Object
-    content.vb: Protected Function TryResolve(typeOfService As Type) As Object
+    content.vb: Public Function TryResolve(typeOfService As Type) As Object
   overload: FastEndpoints.FastEventHandler`1.TryResolve*
   nameWithType.vb: FastEventHandler(Of TEvent).TryResolve(Type)
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).TryResolve(Type)
 - uid: FastEndpoints.FastEventHandler`1.Resolve``1
   commentId: M:FastEndpoints.FastEventHandler`1.Resolve``1
@@ -243,26 +240,26 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 58
+    startLine: 50
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
-    content: protected TService Resolve<TService>()
+    content: public TService Resolve<TService>()
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Protected Function Resolve(Of TService) As TService
+    content.vb: Public Function Resolve(Of TService) As TService
   overload: FastEndpoints.FastEventHandler`1.Resolve*
   nameWithType.vb: FastEventHandler(Of TEvent).Resolve(Of TService)()
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve(Of TService)()
   name.vb: Resolve(Of TService)()
 - uid: FastEndpoints.FastEventHandler`1.Resolve(Type)
@@ -279,27 +276,27 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Events\EventHandler.cs
-    startLine: 65
+    startLine: 57
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
-    content: protected object Resolve(Type typeOfService)
+    content: public object Resolve(Type typeOfService)
     parameters:
     - id: typeOfService
       type: Type
       description: the type of the service to resolve
     return:
       type: System.Object
-    content.vb: Protected Function Resolve(typeOfService As Type) As Object
+    content.vb: Public Function Resolve(typeOfService As Type) As Object
   overload: FastEndpoints.FastEventHandler`1.Resolve*
   nameWithType.vb: FastEventHandler(Of TEvent).Resolve(Type)
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.FastEventHandler(Of TEvent).Resolve(Type)
 references:
 - uid: FastEndpoints
@@ -314,12 +311,6 @@ references:
   name: Object
   nameWithType: Object
   fullName: System.Object
-- uid: FastEndpoints.BaseEventHandler
-  commentId: T:FastEndpoints.BaseEventHandler
-  parent: FastEndpoints
-  name: BaseEventHandler
-  nameWithType: BaseEventHandler
-  fullName: FastEndpoints.BaseEventHandler
 - uid: System.Object.Equals(System.Object)
   commentId: M:System.Object.Equals(System.Object)
   parent: System.Object

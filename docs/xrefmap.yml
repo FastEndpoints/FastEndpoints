@@ -402,6 +402,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle
   nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle
+- uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+  name: OnAfterHandleAsync(TRequest, TResponse)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandleAsync__0__1_
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandleAsync(TRequest, TResponse)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandleAsync(TRequest, TResponse)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandleAsync(TRequest, TResponse)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandleAsync(TRequest, TResponse)
+- uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync*
+  name: OnAfterHandleAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandleAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnAfterHandleAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandleAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandleAsync
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandleAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandleAsync
 - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
   name: OnAfterValidate(TRequest)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidate__0_
@@ -419,6 +436,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate
   nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate
+- uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+  name: OnAfterValidateAsync(TRequest)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidateAsync__0_
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidateAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidateAsync(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidateAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidateAsync(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync*
+  name: OnAfterValidateAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidateAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnAfterValidateAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidateAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidateAsync
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidateAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidateAsync
 - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
   name: OnBeforeHandle(TRequest)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandle__0_
@@ -436,6 +470,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle
   nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+  name: OnBeforeHandleAsync(TRequest)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandleAsync__0_
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandleAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandleAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync*
+  name: OnBeforeHandleAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandleAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnBeforeHandleAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandleAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandleAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync
 - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
   name: OnBeforeValidate(TRequest)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidate__0_
@@ -453,6 +504,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate
   nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+  name: OnBeforeValidateAsync(TRequest)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidateAsync__0_
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidateAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidateAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync*
+  name: OnBeforeValidateAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidateAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnBeforeValidateAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidateAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidateAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync
 - uid: FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
   name: Options(Action<RouteHandlerBuilder>)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__
@@ -1057,6 +1125,109 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Verbs
   nameWithType: Endpoint<TRequest, TResponse>.Verbs
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Verbs
+- uid: FastEndpoints.Endpoint`3
+  name: Endpoint<TRequest, TResponse, TEntity>
+  href: api/FastEndpoints.Endpoint-3.html
+  commentId: T:FastEndpoints.Endpoint`3
+  name.vb: Endpoint(Of TRequest, TResponse, TEntity)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity)
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity)
+- uid: FastEndpoints.Endpoint`3.MapFromEntity(`2)
+  name: MapFromEntity(TEntity)
+  href: api/FastEndpoints.Endpoint-3.html#FastEndpoints_Endpoint_3_MapFromEntity__2_
+  commentId: M:FastEndpoints.Endpoint`3.MapFromEntity(`2)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>.MapFromEntity(TEntity)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity).MapFromEntity(TEntity)
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>.MapFromEntity(TEntity)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity).MapFromEntity(TEntity)
+- uid: FastEndpoints.Endpoint`3.MapFromEntity*
+  name: MapFromEntity
+  href: api/FastEndpoints.Endpoint-3.html#FastEndpoints_Endpoint_3_MapFromEntity_
+  commentId: Overload:FastEndpoints.Endpoint`3.MapFromEntity
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>.MapFromEntity
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity).MapFromEntity
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>.MapFromEntity
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity).MapFromEntity
+- uid: FastEndpoints.Endpoint`3.MapFromEntityAsync(`2)
+  name: MapFromEntityAsync(TEntity)
+  href: api/FastEndpoints.Endpoint-3.html#FastEndpoints_Endpoint_3_MapFromEntityAsync__2_
+  commentId: M:FastEndpoints.Endpoint`3.MapFromEntityAsync(`2)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>.MapFromEntityAsync(TEntity)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity).MapFromEntityAsync(TEntity)
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>.MapFromEntityAsync(TEntity)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity).MapFromEntityAsync(TEntity)
+- uid: FastEndpoints.Endpoint`3.MapFromEntityAsync*
+  name: MapFromEntityAsync
+  href: api/FastEndpoints.Endpoint-3.html#FastEndpoints_Endpoint_3_MapFromEntityAsync_
+  commentId: Overload:FastEndpoints.Endpoint`3.MapFromEntityAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>.MapFromEntityAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity).MapFromEntityAsync
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>.MapFromEntityAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity).MapFromEntityAsync
+- uid: FastEndpoints.Endpoint`3.MapToEntity(`0)
+  name: MapToEntity(TRequest)
+  href: api/FastEndpoints.Endpoint-3.html#FastEndpoints_Endpoint_3_MapToEntity__0_
+  commentId: M:FastEndpoints.Endpoint`3.MapToEntity(`0)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>.MapToEntity(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity).MapToEntity(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>.MapToEntity(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity).MapToEntity(TRequest)
+- uid: FastEndpoints.Endpoint`3.MapToEntity*
+  name: MapToEntity
+  href: api/FastEndpoints.Endpoint-3.html#FastEndpoints_Endpoint_3_MapToEntity_
+  commentId: Overload:FastEndpoints.Endpoint`3.MapToEntity
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>.MapToEntity
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity).MapToEntity
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>.MapToEntity
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity).MapToEntity
+- uid: FastEndpoints.Endpoint`3.MapToEntityAsync(`0)
+  name: MapToEntityAsync(TRequest)
+  href: api/FastEndpoints.Endpoint-3.html#FastEndpoints_Endpoint_3_MapToEntityAsync__0_
+  commentId: M:FastEndpoints.Endpoint`3.MapToEntityAsync(`0)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>.MapToEntityAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity).MapToEntityAsync(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>.MapToEntityAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity).MapToEntityAsync(TRequest)
+- uid: FastEndpoints.Endpoint`3.MapToEntityAsync*
+  name: MapToEntityAsync
+  href: api/FastEndpoints.Endpoint-3.html#FastEndpoints_Endpoint_3_MapToEntityAsync_
+  commentId: Overload:FastEndpoints.Endpoint`3.MapToEntityAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>.MapToEntityAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity).MapToEntityAsync
+  nameWithType: Endpoint<TRequest, TResponse, TEntity>.MapToEntityAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity).MapToEntityAsync
+- uid: FastEndpoints.EndpointWithMapper`3
+  name: EndpointWithMapper<TRequest, TResponse, TEntityMapper>
+  href: api/FastEndpoints.EndpointWithMapper-3.html
+  commentId: T:FastEndpoints.EndpointWithMapper`3
+  name.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
+  fullName: FastEndpoints.EndpointWithMapper<TRequest, TResponse, TEntityMapper>
+  fullName.vb: FastEndpoints.EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
+  nameWithType: EndpointWithMapper<TRequest, TResponse, TEntityMapper>
+  nameWithType.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
+- uid: FastEndpoints.EndpointWithMapper`3.Map
+  name: Map
+  href: api/FastEndpoints.EndpointWithMapper-3.html#FastEndpoints_EndpointWithMapper_3_Map
+  commentId: P:FastEndpoints.EndpointWithMapper`3.Map
+  fullName: FastEndpoints.EndpointWithMapper<TRequest, TResponse, TEntityMapper>.Map
+  fullName.vb: FastEndpoints.EndpointWithMapper(Of TRequest, TResponse, TEntityMapper).Map
+  nameWithType: EndpointWithMapper<TRequest, TResponse, TEntityMapper>.Map
+  nameWithType.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper).Map
+- uid: FastEndpoints.EndpointWithMapper`3.Map*
+  name: Map
+  href: api/FastEndpoints.EndpointWithMapper-3.html#FastEndpoints_EndpointWithMapper_3_Map_
+  commentId: Overload:FastEndpoints.EndpointWithMapper`3.Map
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointWithMapper<TRequest, TResponse, TEntityMapper>.Map
+  fullName.vb: FastEndpoints.EndpointWithMapper(Of TRequest, TResponse, TEntityMapper).Map
+  nameWithType: EndpointWithMapper<TRequest, TResponse, TEntityMapper>.Map
+  nameWithType.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper).Map
 - uid: FastEndpoints.EndpointWithoutRequest
   name: EndpointWithoutRequest
   href: api/FastEndpoints.EndpointWithoutRequest.html
@@ -1072,6 +1243,152 @@ references:
   fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse)
   nameWithType: EndpointWithoutRequest<TResponse>
   nameWithType.vb: EndpointWithoutRequest(Of TResponse)
+- uid: FastEndpoints.EntityMapper`3
+  name: EntityMapper<TRequest, TResponse, TEntity>
+  href: api/FastEndpoints.EntityMapper-3.html
+  commentId: T:FastEndpoints.EntityMapper`3
+  name.vb: EntityMapper(Of TRequest, TResponse, TEntity)
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity)
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity)
+- uid: FastEndpoints.EntityMapper`3.FromEntity(`2)
+  name: FromEntity(TEntity)
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_FromEntity__2_
+  commentId: M:FastEndpoints.EntityMapper`3.FromEntity(`2)
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.FromEntity(TEntity)
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).FromEntity(TEntity)
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.FromEntity(TEntity)
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).FromEntity(TEntity)
+- uid: FastEndpoints.EntityMapper`3.FromEntity*
+  name: FromEntity
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_FromEntity_
+  commentId: Overload:FastEndpoints.EntityMapper`3.FromEntity
+  isSpec: "True"
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.FromEntity
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).FromEntity
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.FromEntity
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).FromEntity
+- uid: FastEndpoints.EntityMapper`3.FromEntityAsync(`2)
+  name: FromEntityAsync(TEntity)
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_FromEntityAsync__2_
+  commentId: M:FastEndpoints.EntityMapper`3.FromEntityAsync(`2)
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.FromEntityAsync(TEntity)
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).FromEntityAsync(TEntity)
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.FromEntityAsync(TEntity)
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).FromEntityAsync(TEntity)
+- uid: FastEndpoints.EntityMapper`3.FromEntityAsync*
+  name: FromEntityAsync
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_FromEntityAsync_
+  commentId: Overload:FastEndpoints.EntityMapper`3.FromEntityAsync
+  isSpec: "True"
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.FromEntityAsync
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).FromEntityAsync
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.FromEntityAsync
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).FromEntityAsync
+- uid: FastEndpoints.EntityMapper`3.Resolve(Type)
+  name: Resolve(Type)
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_Resolve_Type_
+  commentId: M:FastEndpoints.EntityMapper`3.Resolve(Type)
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.Resolve(Type)
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).Resolve(Type)
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.Resolve(Type)
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).Resolve(Type)
+- uid: FastEndpoints.EntityMapper`3.Resolve*
+  name: Resolve
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_Resolve_
+  commentId: Overload:FastEndpoints.EntityMapper`3.Resolve
+  isSpec: "True"
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.Resolve
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).Resolve
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.Resolve
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).Resolve
+- uid: FastEndpoints.EntityMapper`3.Resolve``1
+  name: Resolve<TService>()
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_Resolve__1
+  commentId: M:FastEndpoints.EntityMapper`3.Resolve``1
+  name.vb: Resolve(Of TService)()
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.Resolve<TService>()
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).Resolve(Of TService)()
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.Resolve<TService>()
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).Resolve(Of TService)()
+- uid: FastEndpoints.EntityMapper`3.ServiceProvider
+  name: ServiceProvider
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_ServiceProvider
+  commentId: P:FastEndpoints.EntityMapper`3.ServiceProvider
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ServiceProvider
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ServiceProvider
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ServiceProvider
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ServiceProvider
+- uid: FastEndpoints.EntityMapper`3.ServiceProvider*
+  name: ServiceProvider
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_ServiceProvider_
+  commentId: Overload:FastEndpoints.EntityMapper`3.ServiceProvider
+  isSpec: "True"
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ServiceProvider
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ServiceProvider
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ServiceProvider
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ServiceProvider
+- uid: FastEndpoints.EntityMapper`3.ToEntity(`0)
+  name: ToEntity(TRequest)
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_ToEntity__0_
+  commentId: M:FastEndpoints.EntityMapper`3.ToEntity(`0)
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ToEntity(TRequest)
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ToEntity(TRequest)
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ToEntity(TRequest)
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ToEntity(TRequest)
+- uid: FastEndpoints.EntityMapper`3.ToEntity*
+  name: ToEntity
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_ToEntity_
+  commentId: Overload:FastEndpoints.EntityMapper`3.ToEntity
+  isSpec: "True"
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ToEntity
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ToEntity
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ToEntity
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ToEntity
+- uid: FastEndpoints.EntityMapper`3.ToEntityAsync(`0)
+  name: ToEntityAsync(TRequest)
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_ToEntityAsync__0_
+  commentId: M:FastEndpoints.EntityMapper`3.ToEntityAsync(`0)
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ToEntityAsync(TRequest)
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ToEntityAsync(TRequest)
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ToEntityAsync(TRequest)
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ToEntityAsync(TRequest)
+- uid: FastEndpoints.EntityMapper`3.ToEntityAsync*
+  name: ToEntityAsync
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_ToEntityAsync_
+  commentId: Overload:FastEndpoints.EntityMapper`3.ToEntityAsync
+  isSpec: "True"
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ToEntityAsync
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ToEntityAsync
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ToEntityAsync
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ToEntityAsync
+- uid: FastEndpoints.EntityMapper`3.TryResolve(Type)
+  name: TryResolve(Type)
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_TryResolve_Type_
+  commentId: M:FastEndpoints.EntityMapper`3.TryResolve(Type)
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.TryResolve(Type)
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).TryResolve(Type)
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.TryResolve(Type)
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).TryResolve(Type)
+- uid: FastEndpoints.EntityMapper`3.TryResolve*
+  name: TryResolve
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_TryResolve_
+  commentId: Overload:FastEndpoints.EntityMapper`3.TryResolve
+  isSpec: "True"
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.TryResolve
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).TryResolve
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.TryResolve
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).TryResolve
+- uid: FastEndpoints.EntityMapper`3.TryResolve``1
+  name: TryResolve<TService>()
+  href: api/FastEndpoints.EntityMapper-3.html#FastEndpoints_EntityMapper_3_TryResolve__1
+  commentId: M:FastEndpoints.EntityMapper`3.TryResolve``1
+  name.vb: TryResolve(Of TService)()
+  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.TryResolve<TService>()
+  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).TryResolve(Of TService)()
+  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.TryResolve<TService>()
+  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).TryResolve(Of TService)()
 - uid: FastEndpoints.ErrorResponse
   name: ErrorResponse
   href: api/FastEndpoints.ErrorResponse.html
@@ -1626,58 +1943,6 @@ references:
   fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync
   nameWithType: IPreProcessor<TRequest>.PreProcessAsync
   nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync
-- uid: FastEndpoints.IRequest`1
-  name: IRequest<TEntity>
-  href: api/FastEndpoints.IRequest-1.html
-  commentId: T:FastEndpoints.IRequest`1
-  name.vb: IRequest(Of TEntity)
-  fullName: FastEndpoints.IRequest<TEntity>
-  fullName.vb: FastEndpoints.IRequest(Of TEntity)
-  nameWithType: IRequest<TEntity>
-  nameWithType.vb: IRequest(Of TEntity)
-- uid: FastEndpoints.IRequest`1.ToEntity
-  name: ToEntity()
-  href: api/FastEndpoints.IRequest-1.html#FastEndpoints_IRequest_1_ToEntity
-  commentId: M:FastEndpoints.IRequest`1.ToEntity
-  fullName: FastEndpoints.IRequest<TEntity>.ToEntity()
-  fullName.vb: FastEndpoints.IRequest(Of TEntity).ToEntity()
-  nameWithType: IRequest<TEntity>.ToEntity()
-  nameWithType.vb: IRequest(Of TEntity).ToEntity()
-- uid: FastEndpoints.IRequest`1.ToEntity*
-  name: ToEntity
-  href: api/FastEndpoints.IRequest-1.html#FastEndpoints_IRequest_1_ToEntity_
-  commentId: Overload:FastEndpoints.IRequest`1.ToEntity
-  isSpec: "True"
-  fullName: FastEndpoints.IRequest<TEntity>.ToEntity
-  fullName.vb: FastEndpoints.IRequest(Of TEntity).ToEntity
-  nameWithType: IRequest<TEntity>.ToEntity
-  nameWithType.vb: IRequest(Of TEntity).ToEntity
-- uid: FastEndpoints.IResponse`1
-  name: IResponse<TEntity>
-  href: api/FastEndpoints.IResponse-1.html
-  commentId: T:FastEndpoints.IResponse`1
-  name.vb: IResponse(Of TEntity)
-  fullName: FastEndpoints.IResponse<TEntity>
-  fullName.vb: FastEndpoints.IResponse(Of TEntity)
-  nameWithType: IResponse<TEntity>
-  nameWithType.vb: IResponse(Of TEntity)
-- uid: FastEndpoints.IResponse`1.FromEntity(`0)
-  name: FromEntity(TEntity)
-  href: api/FastEndpoints.IResponse-1.html#FastEndpoints_IResponse_1_FromEntity__0_
-  commentId: M:FastEndpoints.IResponse`1.FromEntity(`0)
-  fullName: FastEndpoints.IResponse<TEntity>.FromEntity(TEntity)
-  fullName.vb: FastEndpoints.IResponse(Of TEntity).FromEntity(TEntity)
-  nameWithType: IResponse<TEntity>.FromEntity(TEntity)
-  nameWithType.vb: IResponse(Of TEntity).FromEntity(TEntity)
-- uid: FastEndpoints.IResponse`1.FromEntity*
-  name: FromEntity
-  href: api/FastEndpoints.IResponse-1.html#FastEndpoints_IResponse_1_FromEntity_
-  commentId: Overload:FastEndpoints.IResponse`1.FromEntity
-  isSpec: "True"
-  fullName: FastEndpoints.IResponse<TEntity>.FromEntity
-  fullName.vb: FastEndpoints.IResponse(Of TEntity).FromEntity
-  nameWithType: IResponse<TEntity>.FromEntity
-  nameWithType.vb: IResponse(Of TEntity).FromEntity
 - uid: FastEndpoints.MainExtensions
   name: MainExtensions
   href: api/FastEndpoints.MainExtensions.html
@@ -2057,23 +2322,6 @@ references:
   fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve(Of TService)()
   nameWithType: Validator<TRequest>.Resolve<TService>()
   nameWithType.vb: Validator(Of TRequest).Resolve(Of TService)()
-- uid: FastEndpoints.Validation.Validator`1.ServiceProvider
-  name: ServiceProvider
-  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_ServiceProvider
-  commentId: P:FastEndpoints.Validation.Validator`1.ServiceProvider
-  fullName: FastEndpoints.Validation.Validator<TRequest>.ServiceProvider
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).ServiceProvider
-  nameWithType: Validator<TRequest>.ServiceProvider
-  nameWithType.vb: Validator(Of TRequest).ServiceProvider
-- uid: FastEndpoints.Validation.Validator`1.ServiceProvider*
-  name: ServiceProvider
-  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_ServiceProvider_
-  commentId: Overload:FastEndpoints.Validation.Validator`1.ServiceProvider
-  isSpec: "True"
-  fullName: FastEndpoints.Validation.Validator<TRequest>.ServiceProvider
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).ServiceProvider
-  nameWithType: Validator<TRequest>.ServiceProvider
-  nameWithType.vb: Validator(Of TRequest).ServiceProvider
 - uid: FastEndpoints.Validation.Validator`1.TryResolve(Type)
   name: TryResolve(Type)
   href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_TryResolve_Type_

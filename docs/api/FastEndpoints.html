@@ -116,11 +116,20 @@
       <h4><a class="xref" href="FastEndpoints.Endpoint-2.html">Endpoint&lt;TRequest, TResponse&gt;</a></h4>
       <section><p>use this base class for defining endpoints that use both request and response dtos.</p>
 </section>
+      <h4><a class="xref" href="FastEndpoints.Endpoint-3.html">Endpoint&lt;TRequest, TResponse, TEntity&gt;</a></h4>
+      <section><p>use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity.</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.EndpointWithMapper-3.html">EndpointWithMapper&lt;TRequest, TResponse, TEntityMapper&gt;</a></h4>
+      <section><p>use this base class for defining endpoints that use both request and response dtos as well as an entity mapper.</p>
+</section>
       <h4><a class="xref" href="FastEndpoints.EndpointWithoutRequest.html">EndpointWithoutRequest</a></h4>
       <section><p>use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.EndpointWithoutRequest-1.html">EndpointWithoutRequest&lt;TResponse&gt;</a></h4>
       <section><p>use this base class for defining endpoints that doesn't need a request dto but return a response dto.</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.EntityMapper-3.html">EntityMapper&lt;TRequest, TResponse, TEntity&gt;</a></h4>
+      <section><p>use this base class to define domain entity mappers for your endpoints.</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.ErrorResponse.html">ErrorResponse</a></h4>
       <section><p>the dto used to send an error response to the client</p>
@@ -157,12 +166,6 @@ this is a shorter alias for the [FromClaim] attribute.</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.IPreProcessor-1.html">IPreProcessor&lt;TRequest&gt;</a></h4>
       <section><p>interface for defining pre-processors to be executed before the main endpoint handler is called</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.IRequest-1.html">IRequest&lt;TEntity&gt;</a></h4>
-      <section><p>use this interface to add functionality to easily map a request dto to a given entity</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.IResponse-1.html">IResponse&lt;TEntity&gt;</a></h4>
-      <section><p>use this interface to populate a response dto from a given entity</p>
 </section>
     <h3 id="enums">Enums
   </h3>

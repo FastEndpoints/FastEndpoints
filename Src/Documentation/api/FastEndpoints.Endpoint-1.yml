@@ -15,14 +15,14 @@ items:
   source:
     id: Endpoint
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 63
+    startLine: 97
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nuse this base class for defining endpoints that only use a request dto and don&apos;t use a response dto.\n"
   example: []
   syntax:
-    content: 'public abstract class Endpoint<TRequest> : Endpoint<TRequest, object>, IEndpoint where TRequest : new()'
+    content: 'public abstract class Endpoint<TRequest> : Endpoint<TRequest, object>, IEndpoint, IServiceResolver where TRequest : new()'
     typeParameters:
     - id: TRequest
       description: the type of the request dto
@@ -31,7 +31,7 @@ items:
 
           Inherits Endpoint(Of TRequest, Object)
 
-          Implements IEndpoint
+          Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object
   - FastEndpoints.BaseEndpoint
@@ -39,16 +39,20 @@ items:
   derivedClasses:
   - FastEndpoints.EndpointWithoutRequest
   inheritedMembers:
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeValidate({TRequest})
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterValidate({TRequest})
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeHandle({TRequest})
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterHandle({TRequest},System.Object)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.HandleAsync({TRequest},CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.TryResolve``1
   - FastEndpoints.Endpoint{{TRequest},System.Object}.TryResolve(Type)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Resolve``1
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Resolve(Type)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.PublishAsync``1({TEvent},FastEndpoints.Mode,CancellationToken)
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeValidate({TRequest})
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeValidateAsync({TRequest})
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterValidate({TRequest})
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterValidateAsync({TRequest})
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeHandle({TRequest})
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeHandleAsync({TRequest})
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterHandle({TRequest},System.Object)
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterHandleAsync({TRequest},System.Object)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.ValidationFailed
   - FastEndpoints.Endpoint{{TRequest},System.Object}.User
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Response
@@ -177,170 +181,6 @@ references:
   - name: '(Of '
     nameWithType: '(Of '
     fullName: '(Of '
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: ', '
-    nameWithType: ', '
-    fullName: ', '
-  - uid: System.Object
-    name: Object
-    nameWithType: Object
-    fullName: System.Object
-    isExternal: true
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeValidate({TRequest})
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnBeforeValidate(`0)
-  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
-  name: OnBeforeValidate(TRequest)
-  nameWithType: Endpoint<TRequest, Object>.OnBeforeValidate(TRequest)
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeValidate(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, Object).OnBeforeValidate(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeValidate(TRequest)
-  spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
-    name: OnBeforeValidate
-    nameWithType: Endpoint<TRequest, Object>.OnBeforeValidate
-    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeValidate
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-  spec.vb:
-  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
-    name: OnBeforeValidate
-    nameWithType: Endpoint(Of TRequest, Object).OnBeforeValidate
-    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeValidate
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterValidate({TRequest})
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnAfterValidate(`0)
-  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
-  name: OnAfterValidate(TRequest)
-  nameWithType: Endpoint<TRequest, Object>.OnAfterValidate(TRequest)
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterValidate(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, Object).OnAfterValidate(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterValidate(TRequest)
-  spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
-    name: OnAfterValidate
-    nameWithType: Endpoint<TRequest, Object>.OnAfterValidate
-    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterValidate
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-  spec.vb:
-  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
-    name: OnAfterValidate
-    nameWithType: Endpoint(Of TRequest, Object).OnAfterValidate
-    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterValidate
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeHandle({TRequest})
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnBeforeHandle(`0)
-  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
-  name: OnBeforeHandle(TRequest)
-  nameWithType: Endpoint<TRequest, Object>.OnBeforeHandle(TRequest)
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeHandle(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, Object).OnBeforeHandle(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeHandle(TRequest)
-  spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
-    name: OnBeforeHandle
-    nameWithType: Endpoint<TRequest, Object>.OnBeforeHandle
-    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeHandle
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-  spec.vb:
-  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
-    name: OnBeforeHandle
-    nameWithType: Endpoint(Of TRequest, Object).OnBeforeHandle
-    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeHandle
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterHandle({TRequest},System.Object)
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnAfterHandle(`0,System.Object)
-  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
-  name: OnAfterHandle(TRequest, Object)
-  nameWithType: Endpoint<TRequest, Object>.OnAfterHandle(TRequest, Object)
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterHandle(TRequest, System.Object)
-  nameWithType.vb: Endpoint(Of TRequest, Object).OnAfterHandle(TRequest, Object)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterHandle(TRequest, System.Object)
-  spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
-    name: OnAfterHandle
-    nameWithType: Endpoint<TRequest, Object>.OnAfterHandle
-    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterHandle
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: ', '
-    nameWithType: ', '
-    fullName: ', '
-  - uid: System.Object
-    name: Object
-    nameWithType: Object
-    fullName: System.Object
-    isExternal: true
-  - name: )
-    nameWithType: )
-    fullName: )
-  spec.vb:
-  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
-    name: OnAfterHandle
-    nameWithType: Endpoint(Of TRequest, Object).OnAfterHandle
-    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterHandle
-  - name: (
-    nameWithType: (
-    fullName: (
   - name: TRequest
     nameWithType: TRequest
     fullName: TRequest
@@ -618,6 +458,334 @@ references:
     name: CancellationToken
     nameWithType: CancellationToken
     fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeValidate({TRequest})
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnBeforeValidate(`0)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  name: OnBeforeValidate(TRequest)
+  nameWithType: Endpoint<TRequest, Object>.OnBeforeValidate(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeValidate(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, Object).OnBeforeValidate(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeValidate(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+    name: OnBeforeValidate
+    nameWithType: Endpoint<TRequest, Object>.OnBeforeValidate
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+    name: OnBeforeValidate
+    nameWithType: Endpoint(Of TRequest, Object).OnBeforeValidate
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeValidateAsync({TRequest})
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnBeforeValidateAsync(`0)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+  name: OnBeforeValidateAsync(TRequest)
+  nameWithType: Endpoint<TRequest, Object>.OnBeforeValidateAsync(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeValidateAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, Object).OnBeforeValidateAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeValidateAsync(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+    name: OnBeforeValidateAsync
+    nameWithType: Endpoint<TRequest, Object>.OnBeforeValidateAsync
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeValidateAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+    name: OnBeforeValidateAsync
+    nameWithType: Endpoint(Of TRequest, Object).OnBeforeValidateAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeValidateAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterValidate({TRequest})
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnAfterValidate(`0)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  name: OnAfterValidate(TRequest)
+  nameWithType: Endpoint<TRequest, Object>.OnAfterValidate(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterValidate(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, Object).OnAfterValidate(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterValidate(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+    name: OnAfterValidate
+    nameWithType: Endpoint<TRequest, Object>.OnAfterValidate
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+    name: OnAfterValidate
+    nameWithType: Endpoint(Of TRequest, Object).OnAfterValidate
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterValidateAsync({TRequest})
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnAfterValidateAsync(`0)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+  name: OnAfterValidateAsync(TRequest)
+  nameWithType: Endpoint<TRequest, Object>.OnAfterValidateAsync(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterValidateAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, Object).OnAfterValidateAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterValidateAsync(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+    name: OnAfterValidateAsync
+    nameWithType: Endpoint<TRequest, Object>.OnAfterValidateAsync
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterValidateAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+    name: OnAfterValidateAsync
+    nameWithType: Endpoint(Of TRequest, Object).OnAfterValidateAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterValidateAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeHandle({TRequest})
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnBeforeHandle(`0)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  name: OnBeforeHandle(TRequest)
+  nameWithType: Endpoint<TRequest, Object>.OnBeforeHandle(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeHandle(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, Object).OnBeforeHandle(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeHandle(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+    name: OnBeforeHandle
+    nameWithType: Endpoint<TRequest, Object>.OnBeforeHandle
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+    name: OnBeforeHandle
+    nameWithType: Endpoint(Of TRequest, Object).OnBeforeHandle
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnBeforeHandleAsync({TRequest})
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnBeforeHandleAsync(`0)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+  name: OnBeforeHandleAsync(TRequest)
+  nameWithType: Endpoint<TRequest, Object>.OnBeforeHandleAsync(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeHandleAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, Object).OnBeforeHandleAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeHandleAsync(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+    name: OnBeforeHandleAsync
+    nameWithType: Endpoint<TRequest, Object>.OnBeforeHandleAsync
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnBeforeHandleAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+    name: OnBeforeHandleAsync
+    nameWithType: Endpoint(Of TRequest, Object).OnBeforeHandleAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnBeforeHandleAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterHandle({TRequest},System.Object)
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnAfterHandle(`0,System.Object)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  name: OnAfterHandle(TRequest, Object)
+  nameWithType: Endpoint<TRequest, Object>.OnAfterHandle(TRequest, Object)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterHandle(TRequest, System.Object)
+  nameWithType.vb: Endpoint(Of TRequest, Object).OnAfterHandle(TRequest, Object)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterHandle(TRequest, System.Object)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+    name: OnAfterHandle
+    nameWithType: Endpoint<TRequest, Object>.OnAfterHandle
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+    name: OnAfterHandle
+    nameWithType: Endpoint(Of TRequest, Object).OnAfterHandle
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.OnAfterHandleAsync({TRequest},System.Object)
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.OnAfterHandleAsync(`0,System.Object)
+  parent: FastEndpoints.Endpoint{{TRequest},System.Object}
+  definition: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+  name: OnAfterHandleAsync(TRequest, Object)
+  nameWithType: Endpoint<TRequest, Object>.OnAfterHandleAsync(TRequest, Object)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterHandleAsync(TRequest, System.Object)
+  nameWithType.vb: Endpoint(Of TRequest, Object).OnAfterHandleAsync(TRequest, Object)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterHandleAsync(TRequest, System.Object)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+    name: OnAfterHandleAsync
+    nameWithType: Endpoint<TRequest, Object>.OnAfterHandleAsync
+    fullName: FastEndpoints.Endpoint<TRequest, System.Object>.OnAfterHandleAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+    name: OnAfterHandleAsync
+    nameWithType: Endpoint(Of TRequest, Object).OnAfterHandleAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).OnAfterHandleAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
     isExternal: true
   - name: )
     nameWithType: )
@@ -3187,158 +3355,6 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
-  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
-  name: OnBeforeValidate(TRequest)
-  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
-  spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
-    name: OnBeforeValidate
-    nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate
-    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-  spec.vb:
-  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
-    name: OnBeforeValidate
-    nameWithType: Endpoint(Of TRequest, TResponse).OnBeforeValidate
-    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
-  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidate(`0)
-  name: OnAfterValidate(TRequest)
-  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
-  spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
-    name: OnAfterValidate
-    nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate
-    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-  spec.vb:
-  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
-    name: OnAfterValidate
-    nameWithType: Endpoint(Of TRequest, TResponse).OnAfterValidate
-    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
-  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
-  name: OnBeforeHandle(TRequest)
-  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
-  spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
-    name: OnBeforeHandle
-    nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle
-    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-  spec.vb:
-  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
-    name: OnBeforeHandle
-    nameWithType: Endpoint(Of TRequest, TResponse).OnBeforeHandle
-    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
-  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
-  name: OnAfterHandle(TRequest, TResponse)
-  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
-  spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
-    name: OnAfterHandle
-    nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle
-    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: ', '
-    nameWithType: ', '
-    fullName: ', '
-  - name: TResponse
-    nameWithType: TResponse
-    fullName: TResponse
-  - name: )
-    nameWithType: )
-    fullName: )
-  spec.vb:
-  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
-    name: OnAfterHandle
-    nameWithType: Endpoint(Of TRequest, TResponse).OnAfterHandle
-    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle
-  - name: (
-    nameWithType: (
-    fullName: (
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: ', '
-    nameWithType: ', '
-    fullName: ', '
-  - name: TResponse
-    nameWithType: TResponse
-    fullName: TResponse
-  - name: )
-    nameWithType: )
-    fullName: )
 - uid: FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)
   commentId: M:FastEndpoints.Endpoint`2.HandleAsync(`0,CancellationToken)
   isExternal: true
@@ -3595,6 +3611,310 @@ references:
     nameWithType: CancellationToken
     fullName: CancellationToken
     isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+  name: OnBeforeValidate(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+    name: OnBeforeValidate
+    nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidate(`0)
+    name: OnBeforeValidate
+    nameWithType: Endpoint(Of TRequest, TResponse).OnBeforeValidate
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+  name: OnBeforeValidateAsync(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidateAsync(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidateAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+    name: OnBeforeValidateAsync
+    nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidateAsync
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidateAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
+    name: OnBeforeValidateAsync
+    nameWithType: Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+  name: OnAfterValidate(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+    name: OnAfterValidate
+    nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidate(`0)
+    name: OnAfterValidate
+    nameWithType: Endpoint(Of TRequest, TResponse).OnAfterValidate
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+  name: OnAfterValidateAsync(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidateAsync(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidateAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidateAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidateAsync(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+    name: OnAfterValidateAsync
+    nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidateAsync
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidateAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
+    name: OnAfterValidateAsync
+    nameWithType: Endpoint(Of TRequest, TResponse).OnAfterValidateAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidateAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+  name: OnBeforeHandle(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+    name: OnBeforeHandle
+    nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandle(`0)
+    name: OnBeforeHandle
+    nameWithType: Endpoint(Of TRequest, TResponse).OnBeforeHandle
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+  name: OnBeforeHandleAsync(TRequest)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandleAsync(TRequest)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandleAsync(TRequest)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync(TRequest)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync(TRequest)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+    name: OnBeforeHandleAsync
+    nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandleAsync
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandleAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
+    name: OnBeforeHandleAsync
+    nameWithType: Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+  name: OnAfterHandle(TRequest, TResponse)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle(TRequest, TResponse)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle(TRequest, TResponse)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+    name: OnAfterHandle
+    nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandle(`0,`1)
+    name: OnAfterHandle
+    nameWithType: Endpoint(Of TRequest, TResponse).OnAfterHandle
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+  name: OnAfterHandleAsync(TRequest, TResponse)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandleAsync(TRequest, TResponse)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandleAsync(TRequest, TResponse)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandleAsync(TRequest, TResponse)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandleAsync(TRequest, TResponse)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+    name: OnAfterHandleAsync
+    nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandleAsync
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandleAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
+    name: OnAfterHandleAsync
+    nameWithType: Endpoint(Of TRequest, TResponse).OnAfterHandleAsync
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandleAsync
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
   - name: )
     nameWithType: )
     fullName: )

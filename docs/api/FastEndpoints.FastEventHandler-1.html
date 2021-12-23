@@ -104,8 +104,7 @@
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">FastEndpoints.BaseEventHandler</span></div>
-    <div class="level2"><span class="xref">FastEventHandler&lt;TEvent&gt;</span></div>
+    <div class="level1"><span class="xref">FastEventHandler&lt;TEvent&gt;</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -135,7 +134,7 @@
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
   <h5 id="FastEndpoints_FastEventHandler_1_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class FastEventHandler&lt;TEvent&gt; : BaseEventHandler, IEventHandler where TEvent : class, new()</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class FastEventHandler&lt;TEvent&gt; : IEventHandler, IServiceResolver where TEvent : class, new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -214,7 +213,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task PublishAsync&lt;TEventModel&gt;(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+    <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEventModel&gt;(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
 
     where TEventModel : class</code></pre>
   </div>
@@ -291,7 +290,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected object Resolve(Type typeOfService)</code></pre>
+    <pre><code class="lang-csharp hljs">public object Resolve(Type typeOfService)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -335,7 +334,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected TService Resolve&lt;TService&gt;()</code></pre>
+    <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -377,7 +376,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected object TryResolve(Type typeOfService)</code></pre>
+    <pre><code class="lang-csharp hljs">public object TryResolve(Type typeOfService)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -421,7 +420,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected TService TryResolve&lt;TService&gt;()</code></pre>
+    <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">

@@ -7,7 +7,6 @@ items:
   children:
   - FastEndpoints.Validation.Validator`1.Resolve(Type)
   - FastEndpoints.Validation.Validator`1.Resolve``1
-  - FastEndpoints.Validation.Validator`1.ServiceProvider
   - FastEndpoints.Validation.Validator`1.TryResolve(Type)
   - FastEndpoints.Validation.Validator`1.TryResolve``1
   langs:
@@ -20,14 +19,14 @@ items:
   source:
     id: Validator
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 8
+    startLine: 9
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
-  summary: "\ninherit from this base class to define your dto validators\n"
+  summary: "\ninherit from this base class to define your dto validators\n<p>HINT: validators are registered as singletons. i.e. the same validator instance is used to validate each request for best performance. hance, do not maintain state in your validators.</p>\n"
   example: []
   syntax:
-    content: 'public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IValidatorWithState, IValidator where TRequest : class'
+    content: 'public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IValidatorWithState, IValidator, IServiceResolver where TRequest : class'
     typeParameters:
     - id: TRequest
       description: the type of the request dto
@@ -36,7 +35,7 @@ items:
 
           Inherits AbstractValidator(Of TRequest)
 
-          Implements IValidatorWithState, IValidator
+          Implements IValidatorWithState, IValidator, IServiceResolver
   inheritance:
   - System.Object
   implements:
@@ -52,39 +51,6 @@ items:
   - Class
   fullName.vb: FastEndpoints.Validation.Validator(Of TRequest)
   name.vb: Validator(Of TRequest)
-- uid: FastEndpoints.Validation.Validator`1.ServiceProvider
-  commentId: P:FastEndpoints.Validation.Validator`1.ServiceProvider
-  id: ServiceProvider
-  parent: FastEndpoints.Validation.Validator`1
-  langs:
-  - csharp
-  - vb
-  name: ServiceProvider
-  nameWithType: Validator<TRequest>.ServiceProvider
-  fullName: FastEndpoints.Validation.Validator<TRequest>.ServiceProvider
-  type: Property
-  source:
-    id: ServiceProvider
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 11
-  assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints.Validation
-  syntax:
-    content: public IServiceProvider ServiceProvider { get; set; }
-    parameters: []
-    return:
-      type: IServiceProvider
-    content.vb: Public Property ServiceProvider As IServiceProvider
-  overload: FastEndpoints.Validation.Validator`1.ServiceProvider*
-  nameWithType.vb: Validator(Of TRequest).ServiceProvider
-  modifiers.csharp:
-  - public
-  - get
-  - set
-  modifiers.vb:
-  - Public
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).ServiceProvider
 - uid: FastEndpoints.Validation.Validator`1.TryResolve``1
   commentId: M:FastEndpoints.Validation.Validator`1.TryResolve``1
   id: TryResolve``1
@@ -99,26 +65,26 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 20
+    startLine: 17
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
   summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
   example: []
   syntax:
-    content: protected TService TryResolve<TService>()
+    content: public TService TryResolve<TService>()
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Protected Function TryResolve(Of TService) As TService
+    content.vb: Public Function TryResolve(Of TService) As TService
   overload: FastEndpoints.Validation.Validator`1.TryResolve*
   nameWithType.vb: Validator(Of TRequest).TryResolve(Of TService)()
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve(Of TService)()
   name.vb: TryResolve(Of TService)()
 - uid: FastEndpoints.Validation.Validator`1.TryResolve(Type)
@@ -135,27 +101,27 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 25
+    startLine: 23
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
   summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
   example: []
   syntax:
-    content: protected object TryResolve(Type typeOfService)
+    content: public object TryResolve(Type typeOfService)
     parameters:
     - id: typeOfService
       type: Type
       description: the type of the service to resolve
     return:
       type: System.Object
-    content.vb: Protected Function TryResolve(typeOfService As Type) As Object
+    content.vb: Public Function TryResolve(typeOfService As Type) As Object
   overload: FastEndpoints.Validation.Validator`1.TryResolve*
   nameWithType.vb: Validator(Of TRequest).TryResolve(Type)
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve(Type)
 - uid: FastEndpoints.Validation.Validator`1.Resolve``1
   commentId: M:FastEndpoints.Validation.Validator`1.Resolve``1
@@ -171,26 +137,26 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 32
+    startLine: 30
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
   summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
-    content: protected TService Resolve<TService>()
+    content: public TService Resolve<TService>()
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Protected Function Resolve(Of TService) As TService
+    content.vb: Public Function Resolve(Of TService) As TService
   overload: FastEndpoints.Validation.Validator`1.Resolve*
   nameWithType.vb: Validator(Of TRequest).Resolve(Of TService)()
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve(Of TService)()
   name.vb: Resolve(Of TService)()
 - uid: FastEndpoints.Validation.Validator`1.Resolve(Type)
@@ -207,27 +173,27 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 39
+    startLine: 37
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
   summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
-    content: protected object Resolve(Type typeOfService)
+    content: public object Resolve(Type typeOfService)
     parameters:
     - id: typeOfService
       type: Type
       description: the type of the service to resolve
     return:
       type: System.Object
-    content.vb: Protected Function Resolve(typeOfService As Type) As Object
+    content.vb: Public Function Resolve(typeOfService As Type) As Object
   overload: FastEndpoints.Validation.Validator`1.Resolve*
   nameWithType.vb: Validator(Of TRequest).Resolve(Type)
   modifiers.csharp:
-  - protected
+  - public
   modifiers.vb:
-  - Protected
+  - Public
   fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve(Type)
 references:
 - uid: FastEndpoints.Validation
@@ -254,19 +220,6 @@ references:
   name: System
   nameWithType: System
   fullName: System
-- uid: FastEndpoints.Validation.Validator`1.ServiceProvider*
-  commentId: Overload:FastEndpoints.Validation.Validator`1.ServiceProvider
-  name: ServiceProvider
-  nameWithType: Validator<TRequest>.ServiceProvider
-  fullName: FastEndpoints.Validation.Validator<TRequest>.ServiceProvider
-  nameWithType.vb: Validator(Of TRequest).ServiceProvider
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).ServiceProvider
-- uid: IServiceProvider
-  commentId: '!:IServiceProvider'
-  isExternal: true
-  name: IServiceProvider
-  nameWithType: IServiceProvider
-  fullName: IServiceProvider
 - uid: FastEndpoints.Validation.Validator`1.TryResolve*
   commentId: Overload:FastEndpoints.Validation.Validator`1.TryResolve
   name: TryResolve

@@ -112,18 +112,6 @@
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidate__0_">Endpoint&lt;TRequest, Object&gt;.OnBeforeValidate(TRequest)</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidate__0_">Endpoint&lt;TRequest, Object&gt;.OnAfterValidate(TRequest)</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandle__0_">Endpoint&lt;TRequest, Object&gt;.OnBeforeHandle(TRequest)</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandle__0__1_">Endpoint&lt;TRequest, Object&gt;.OnAfterHandle(TRequest, Object)</a>
-    </div>
-    <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HandleAsync__0_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.HandleAsync(TRequest, CancellationToken)</a>
     </div>
     <div>
@@ -140,6 +128,30 @@
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_PublishAsync__1___0_FastEndpoints_Mode_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.PublishAsync&lt;TEvent&gt;(TEvent, Mode, CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidate__0_">Endpoint&lt;TRequest, Object&gt;.OnBeforeValidate(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidateAsync__0_">Endpoint&lt;TRequest, Object&gt;.OnBeforeValidateAsync(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidate__0_">Endpoint&lt;TRequest, Object&gt;.OnAfterValidate(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidateAsync__0_">Endpoint&lt;TRequest, Object&gt;.OnAfterValidateAsync(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandle__0_">Endpoint&lt;TRequest, Object&gt;.OnBeforeHandle(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandleAsync__0_">Endpoint&lt;TRequest, Object&gt;.OnBeforeHandleAsync(TRequest)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandle__0__1_">Endpoint&lt;TRequest, Object&gt;.OnAfterHandle(TRequest, Object)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandleAsync__0__1_">Endpoint&lt;TRequest, Object&gt;.OnAfterHandleAsync(TRequest, Object)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailed">Endpoint&lt;TRequest, Object&gt;.ValidationFailed</a>
@@ -320,7 +332,7 @@
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
   <h5 id="FastEndpoints_Endpoint_1_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest&gt; : Endpoint&lt;TRequest, object&gt;, IEndpoint where TRequest : new()</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest&gt; : Endpoint&lt;TRequest, object&gt;, IEndpoint, IServiceResolver where TRequest : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">

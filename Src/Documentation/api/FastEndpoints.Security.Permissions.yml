@@ -24,7 +24,7 @@ items:
   source:
     id: Permissions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 16
+    startLine: 17
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -70,7 +70,7 @@ items:
   source:
     id: .ctor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 23
+    startLine: 22
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -96,7 +96,7 @@ items:
   source:
     id: NamesFor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 43
+    startLine: 39
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -133,7 +133,7 @@ items:
   source:
     id: CodesFor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 53
+    startLine: 50
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -170,7 +170,7 @@ items:
   source:
     id: PermissionFromName
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 63
+    startLine: 61
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -204,7 +204,7 @@ items:
   source:
     id: PermissionFromCode
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 69
+    startLine: 68
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security
@@ -268,7 +268,7 @@ items:
   source:
     id: AllCodes
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Security\Permissions.cs
-    startLine: 79
+    startLine: 80
   assemblies:
   - FastEndpoints.Security
   namespace: FastEndpoints.Security

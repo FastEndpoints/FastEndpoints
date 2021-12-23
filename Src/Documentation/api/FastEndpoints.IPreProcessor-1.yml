@@ -16,7 +16,7 @@ items:
   source:
     id: IPreProcessor
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
-    startLine: 35
+    startLine: 11
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -51,7 +51,7 @@ items:
   source:
     id: PreProcessAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
-    startLine: 37
+    startLine: 13
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

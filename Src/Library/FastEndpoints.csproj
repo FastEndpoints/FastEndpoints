@@ -2,12 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.15.0</Version>
+        <Version>2.16.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - add support for seperating mapping logic from endpoint
-            - refactor service resolver
-            - misc. code refactors
+            - optimize endpoint discovery logic
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

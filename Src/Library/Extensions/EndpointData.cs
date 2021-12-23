@@ -59,27 +59,30 @@ internal sealed class EndpointData
         //key: TRequest //val: TValidator
         var valDict = new Dictionary<Type, Type>();
 
-        foreach (var type in discoveredTypes)
+        foreach (var dscType in discoveredTypes)
         {
-            var interfacesOfType = type.GetInterfaces();
-
-            if (interfacesOfType.Contains(typeof(IEventHandler)))
+            foreach (var infType in dscType.GetInterfaces())
             {
-                ((IEventHandler?)Activator.CreateInstance(type))?.Subscribe();
-            }
-            else if (interfacesOfType.Contains(typeof(IEndpoint)))
-            {
-                var tRequest = typeof(EmptyRequest);
+                if (infType == typeof(IEventHandler))
+                {
+                    ((IEventHandler?)Activator.CreateInstance(dscType))?.Subscribe();
+                }
 
-                if (type.BaseType?.IsGenericType is true)
-                    tRequest = type.BaseType?.GetGenericArguments()?[0] ?? tRequest;
+                if (infType == typeof(IEndpoint))
+                {
+                    var tRequest = typeof(EmptyRequest);
 
-                epList.Add((type, tRequest));
-            }
-            else
-            {
-                Type tRequest = type.BaseType?.GetGenericArguments()[0]!;
-                valDict.Add(tRequest, type);
+                    if (dscType.BaseType?.IsGenericType is true)
+                        tRequest = dscType.BaseType?.GetGenericArguments()?[0] ?? tRequest;
+
+                    epList.Add((dscType, tRequest));
+                }
+
+                if (infType == typeof(IValidator))
+                {
+                    Type tRequest = dscType.BaseType?.GetGenericArguments()[0]!;
+                    valDict.Add(tRequest, dscType);
+                }
             }
         }
 

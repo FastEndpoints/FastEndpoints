@@ -5,8 +5,10 @@
         <Version>2.16.0-beta1</Version>
 
         <PackageReleaseNotes>
+            - remove EndpointWithMapper overload
             - optimize endpoint discovery logic
             - improve di property injection logic
+            - improve service resolver interface
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -5,8 +5,10 @@ using Web.SystemEvents;
 
 namespace Sales.Orders.Create;
 
-public class Endpoint : EndpointWithMapper<Request, Response, MyMapper>
+public class Endpoint : Endpoint<Request, Response>
 {
+    private readonly MyMapper Map = new();
+
     public override void Configure()
     {
         Verbs(Http.POST);

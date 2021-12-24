@@ -6,6 +6,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
+[HideFromDocs]
+public interface IEndpoint
+{
+    HttpContext HttpContext { get; set; } //this is for writing extension methods by consumers
+    List<ValidationFailure> ValidationFailures { get; } //also for extensibility
+    void Configure();
+}
+
 /// <summary>
 /// interface for defining pre-processors to be executed before the main endpoint handler is called
 /// </summary>
@@ -48,16 +56,6 @@ internal interface IValidatorWithState : IValidator
     bool ThrowIfValidationFails { get; set; }
 }
 
-[HideFromDocs]
-public interface IEndpoint
-{
-    HttpContext HttpContext { get; set; } //this is for writing extension methods by consumers
-    List<ValidationFailure> ValidationFailures { get; } //also for extensibility
-    void Configure();
-}
+internal interface IEntityMapper { } //just a marker
 
-[HideFromDocs]
-public interface IEntityMapper
-{
-    IServiceProvider ServiceProvider { get; set; }
-}
+

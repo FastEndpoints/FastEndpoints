@@ -127,23 +127,3 @@ public abstract class Endpoint<TRequest, TResponse, TEntity> : Endpoint<TRequest
     /// <param name="e">the domain entity to map from</param>
     public virtual Task<TResponse> MapFromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(MapFromEntityAsync)} method!");
 }
-
-/// <summary>
-/// use this base class for defining endpoints that use both request and response dtos as well as an entity mapper.
-/// </summary>
-/// <typeparam name="TRequest">the type of the request dto</typeparam>
-/// <typeparam name="TResponse">the type of the response dto</typeparam>
-/// <typeparam name="TEntityMapper">the type of the entity mapper</typeparam>
-public abstract class EndpointWithMapper<TRequest, TResponse, TEntityMapper> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull, new() where TEntityMapper : IEntityMapper, new()
-{
-    /// <summary>
-    /// The entity mapper for the endpoint
-    /// </summary>
-    public TEntityMapper Map { get; } = new();
-
-    internal override Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
-    {
-        Map.ServiceProvider = ctx.RequestServices;
-        return base.ExecAsync(ctx, validator, preProcessors, postProcessors, cancellation);
-    }
-}

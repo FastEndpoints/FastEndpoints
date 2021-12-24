@@ -1,6 +1,7 @@
 ﻿using FastEndpoints.Validation;
 using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 #pragma warning disable CS8618
 
 namespace FastEndpoints;
@@ -28,10 +29,12 @@ internal interface IServiceResolver
 {
     static IServiceProvider ServiceProvider { get; set; } //set only from .UseFastEndpoints() during startup
 
-    TService? TryResolve<TService>() where TService : notnull;
+    static IHttpContextAccessor HttpContextAccessor => ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+
+    TService? TryResolve<TService>() where TService : class;
     object? TryResolve(Type typeOfService);
 
-    TService Resolve<TService>() where TService : notnull;
+    TService Resolve<TService>() where TService : class;
     object Resolve(Type typeOfService);
 }
 

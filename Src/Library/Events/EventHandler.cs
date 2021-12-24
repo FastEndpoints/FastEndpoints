@@ -35,7 +35,7 @@ public abstract class FastEventHandler<TEvent> : IEventHandler, IServiceResolver
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    public TService? TryResolve<TService>() where TService : notnull => IServiceResolver.ServiceProvider.GetService<TService>();
+    public TService? TryResolve<TService>() where TService : class => IServiceResolver.ServiceProvider.GetService<TService>();
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
@@ -48,7 +48,7 @@ public abstract class FastEventHandler<TEvent> : IEventHandler, IServiceResolver
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public TService Resolve<TService>() where TService : notnull => IServiceResolver.ServiceProvider.GetRequiredService<TService>();
+    public TService Resolve<TService>() where TService : class => IServiceResolver.ServiceProvider.GetRequiredService<TService>();
 
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.

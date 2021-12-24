@@ -47,7 +47,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    public TService? TryResolve<TService>() where TService : notnull => HttpContext.RequestServices.GetService<TService>();
+    public TService? TryResolve<TService>() where TService : class => HttpContext.RequestServices.GetService<TService>();
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
@@ -58,7 +58,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public TService Resolve<TService>() where TService : notnull => HttpContext.RequestServices.GetRequiredService<TService>();
+    public TService Resolve<TService>() where TService : class => HttpContext.RequestServices.GetRequiredService<TService>();
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>

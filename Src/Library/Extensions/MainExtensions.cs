@@ -26,6 +26,7 @@ public static class MainExtensions
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
     {
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
+        services.AddHttpContextAccessor();
         return services;
     }
 

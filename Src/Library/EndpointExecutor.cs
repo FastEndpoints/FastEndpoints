@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
@@ -38,7 +39,7 @@ public static class EndpointExecutor
             for (int i = 0; i < props.Length; i++)
             {
                 var prop = props[i];
-                var serviceInstance = ctx.RequestServices.GetService(prop.PropType);
+                var serviceInstance = ctx.RequestServices.GetRequiredService(prop.PropType);
                 prop.PropSetter(endpointInstance, serviceInstance!);
             }
         }

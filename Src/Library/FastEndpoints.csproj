@@ -6,6 +6,7 @@
 
         <PackageReleaseNotes>
             - optimize endpoint discovery logic
+            - improve di property injection logic
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

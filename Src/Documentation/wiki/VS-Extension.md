@@ -5,12 +5,14 @@ once installed, your visual studio add new item dialog will have `FastEndpoints 
 
 a new feature file set will then be created in the folder you selected.
 
-there will be 3 new files created under the namespace you chose.
+there will be 4 new files created under the namespace you chose.
 
 **Data.cs** - use this class to place all of your data access logic.
 
 **Models.cs** - place your request, response dtos and the validator in this file.
 
+**Mapper.cs** - domain entity mapping logic will live here.
+
 **Endpoint.cs** - this will be your new endpoint definition.
 
-[see here](https://github.com/dj-nitehawk/FastEndpoints/tree/main/Web/%5BFeatures%5D/Admin/Login) for an example feature file set.
+[see here](https://github.com/dj-nitehawk/MongoWebApiStarter/tree/master/Template/Source/%5BFeatures%5D/Account/Save) for an example feature file set.

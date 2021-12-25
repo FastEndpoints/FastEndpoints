@@ -97,11 +97,12 @@
 <p>if you're doing vertical slice architecture and placing each individual feature in their own namespace, you can take advantage of <a href="https://github.com/dj-nitehawk/FastEndpoints/raw/main/VSExtension/FastEndpointsVSExtension.vsix">this vs extension</a> that will add a new item to the &quot;add new file&quot; dialog of visual studio to make it convenient for you to add feature file sets to your project.</p>
 <p>once installed, your visual studio add new item dialog will have <code>FastEndpoints Feature File Set</code> listed under <code>Installed &gt; Visual C#</code> node. then, instead of entering a file name, simply enter the namespace you want your new feature to be added to followed by <code>.cs</code></p>
 <p>a new feature file set will then be created in the folder you selected.</p>
-<p>there will be 3 new files created under the namespace you chose.</p>
+<p>there will be 4 new files created under the namespace you chose.</p>
 <p><strong>Data.cs</strong> - use this class to place all of your data access logic.</p>
 <p><strong>Models.cs</strong> - place your request, response dtos and the validator in this file.</p>
+<p><strong>Mapper.cs</strong> - domain entity mapping logic will live here.</p>
 <p><strong>Endpoint.cs</strong> - this will be your new endpoint definition.</p>
-<p><a href="https://github.com/dj-nitehawk/FastEndpoints/tree/main/Web/%5BFeatures%5D/Admin/Login">see here</a> for an example feature file set.</p>
+<p><a href="https://github.com/dj-nitehawk/MongoWebApiStarter/tree/master/Template/Source/%5BFeatures%5D/Account/Save">see here</a> for an example feature file set.</p>
 </article>
           </div>
           

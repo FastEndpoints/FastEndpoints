@@ -85,7 +85,7 @@ public class PersonMapper : Mapper<Request, Response, Person>
     };
 }
 ```
-in order to use the above mapper you then need to inherit your endpoint from `Endpoint<TRequest, TResponse, TMapper>` generic overload like so:
+to use the above mapper you need to inherit your endpoint from `Endpoint<TRequest, TResponse, TMapper>` generic overload like so:
 ```csharp
 public class SavePerson : Endpoint<Request, Response, PersonMapper>
 {

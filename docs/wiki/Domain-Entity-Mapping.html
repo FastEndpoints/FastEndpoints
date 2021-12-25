@@ -172,7 +172,7 @@ public class Person
     };
 }
 </code></pre>
-<p>in order to use the above mapper you then need to inherit your endpoint from <code>Endpoint&lt;TRequest, TResponse, TMapper&gt;</code> generic overload like so:</p>
+<p>to use the above mapper you need to inherit your endpoint from <code>Endpoint&lt;TRequest, TResponse, TMapper&gt;</code> generic overload like so:</p>
 <pre><code class="lang-csharp">public class SavePerson : Endpoint&lt;Request, Response, PersonMapper&gt;
 {
     public override void Configure()

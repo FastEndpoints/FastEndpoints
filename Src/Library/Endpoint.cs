@@ -97,13 +97,18 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull, new() { };
 
+public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull, new() where TMapper : IEntityMapper, new()
+{
+    public static TMapper Map { get; } = new();
+}
+
 /// <summary>
 /// use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity.
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-/// <typeparam name="TEntity">the type of domain entity that will be mapped to/from</typeparam>
-public abstract class Endpoint<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull, new()
+/// <typeparam name="TEntity">the type of domain entity that will be mapped to/from</typeparam>/// 
+public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull, new()
 {
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity

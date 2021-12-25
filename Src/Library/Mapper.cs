@@ -8,7 +8,7 @@ namespace FastEndpoints;
 /// <typeparam name="TRequest">the type of request dto</typeparam>
 /// <typeparam name="TResponse">the type of response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class EntityMapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract class Mapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : notnull, new() where TResponse : notnull, new()
 {
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity

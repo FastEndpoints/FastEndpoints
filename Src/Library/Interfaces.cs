@@ -33,6 +33,11 @@ public interface IPostProcessor<TRequest, TResponse>
     Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
 }
 
+/// <summary>
+/// marker interface for entity mappers
+/// </summary>
+public interface IEntityMapper { }
+
 internal interface IServiceResolver
 {
     static IServiceProvider ServiceProvider { get; set; } //set only from .UseFastEndpoints() during startup
@@ -55,7 +60,5 @@ internal interface IValidatorWithState : IValidator
 {
     bool ThrowIfValidationFails { get; set; }
 }
-
-internal interface IEntityMapper { } //just a marker
 
 

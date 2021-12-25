@@ -1,6 +1,6 @@
 ﻿namespace $fileinputname$;
 
-public class Endpoint : Endpoint<Request, Response>
+public class Endpoint : Endpoint<Request, Response, Mapper>
 {
     public override void Configure()
     {

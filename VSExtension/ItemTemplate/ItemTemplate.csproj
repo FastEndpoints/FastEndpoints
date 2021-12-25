@@ -18,7 +18,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FastEndpointsItemTemplate</RootNamespace>
     <AssemblyName>FastEndpointsItemTemplate</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <GeneratePkgDefFile>false</GeneratePkgDefFile>
     <IncludeAssemblyInVSIXContainer>false</IncludeAssemblyInVSIXContainer>
@@ -61,6 +61,7 @@
     <None Include="Data.cs" />
     <None Include="Endpoint.cs" />
     <None Include="Models.cs" />
+    <None Include="Mapper.cs" />
     <None Include="zicon.ico" />
   </ItemGroup>
   <ItemGroup>

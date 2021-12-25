@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="FastEndpointsVSExtension" Version="2.1.0" Language="en-US" Publisher="Ryan Gunner" />
+        <Identity Id="FastEndpointsVSExtension" Version="2.2.0" Language="en-US" Publisher="Ryan Gunner" />
         <DisplayName>FastEndpoints VS Extension</DisplayName>
         <Description xml:space="preserve">This vsix package will add a new item template to visual studio new file dialog so you can easily add a new FastEndpoints feature file set to your project.</Description>
     </Metadata>

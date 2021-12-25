@@ -14,9 +14,11 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>domain entity mapping | FastEndpoints </title>
+    <title>Interface IEntityMapper
+   | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="domain entity mapping | FastEndpoints ">
+    <meta name="title" content="Interface IEntityMapper
+   | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
     <link rel="shortcut icon" href="../images/favicon.ico">
@@ -91,109 +93,20 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="">
-<h1 id="domain-entity-mapping">domain entity mapping</h1>
-
-<p>for those of us who are not fans of AutoMapper and the like, this library offers a cleaner way to do manual mapping for request dto to domain entity and back from an entity to a response dto.</p>
-<p>consider the following request, response and entity classes:</p>
-<pre><code class="lang-csharp">public class Request
-{
-    public int Id { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string BirthDay { get; set; }
-}
-
-public class Response
-{
-    public int Id { get; set; }
-    public string UserName { get; set; }
-    public string FullName { get; set; }
-    public int Age { get; set; }
-}
-
-public class Person
-{
-    public int Id { get; set; }
-    public string FullName { get; set; }
-    public DateOnly DateOfBirth { get; set; }
-}
-</code></pre>
-<h2 id="mapping-logic-in-the-endpoint-class">mapping logic in the endpoint class</h2>
-<p>if you prefer to place your mapping logic in the endpoint definition itself, you can simply use the <code>EndpointWithMapping&lt;TRequest,TResponse,TEntity&gt;</code> generic overload to implement your endpoint and override the <code>MapToEntity()</code> and <code>MapFromEntity()</code> methods like so:</p>
-<pre><code class="lang-csharp">public class SavePerson : EndpointWithMapping&lt;Request, Response, Person&gt;
-{
-    public override void Configure()
-    {
-        Put(&quot;/api/person&quot;);
-        AllowAnonymous();
-    }
-
-    public override Task HandleAsync(Request r, CancellationToken c)
-    {
-        Person entity = MapToEntity(r);
-        Response = MapFromEntity(entity);
-        return SendAsync(Response);
-    }
-
-    public override Person MapToEntity(Request r) =&gt; new()
-    {
-        Id = r.Id,
-        DateOfBirth = DateOnly.Parse(r.BirthDay),
-        FullName = $&quot;{r.FirstName} {r.LastName}&quot;
-    };
-
-    public override Response MapFromEntity(Person e) =&gt; new()
-    {
-        Id = e.Id,
-        FullName = e.FullName,
-        UserName = $&quot;USR{e.Id:0000000000}&quot;,
-        Age = (DateOnly.FromDateTime(DateTime.UtcNow).DayNumber - e.DateOfBirth.DayNumber) / 365,
-    };
-}
-</code></pre>
-<h2 id="mapping-logic-in-a-separate-class">mapping logic in a separate class</h2>
-<p>if your preference is to keep the mapping logic in a class of it's own, you can create a separate mapper inheriting from <code>Mapper&lt;TRequest, TResponse, TEntity&gt;</code> like so:</p>
-<pre><code class="lang-csharp">public class PersonMapper : Mapper&lt;Request, Response, Person&gt;
-{
-    public override Person ToEntity(Request r) =&gt; new()
-    {
-        Id = r.Id,
-        DateOfBirth = DateOnly.Parse(r.BirthDay),
-        FullName = $&quot;{r.FirstName} {r.LastName}&quot;
-    };
-
-    public override Response FromEntity(Person e) =&gt; new()
-    {
-        Id = e.Id,
-        FullName = e.FullName,
-        UserName = $&quot;USR{e.Id:0000000000}&quot;,
-        Age = (DateOnly.FromDateTime(DateTime.UtcNow).DayNumber - e.DateOfBirth.DayNumber) / 365,
-    };
-}
-</code></pre>
-<p>in order to use the above mapper you then need to inherit your endpoint from <code>Endpoint&lt;TRequest, TResponse, TMapper&gt;</code> generic overload like so:</p>
-<pre><code class="lang-csharp">public class SavePerson : Endpoint&lt;Request, Response, PersonMapper&gt;
-{
-    public override void Configure()
-    {
-        Put(&quot;/api/person&quot;);
-        AllowAnonymous();
-    }
-
-    public override Task HandleAsync(Request r, CancellationToken c)
-    {
-        Person entity = Map.ToEntity(r);
-        Response = Map.FromEntity(entity);
-        return SendAsync(Response);
-    }
-}
-</code></pre>
-<p>the mapping logic can be accessed from the <code>Map</code> property of the endpoint class. that's all there's to it.</p>
-<div class="NOTE">
-<h5>Note</h5>
-<p>mapper classes are used as singletons for performance reasons. you should not maintain state in your mappers.</p>
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.IEntityMapper">
+  
+  
+  <h1 id="FastEndpoints_IEntityMapper" data-uid="FastEndpoints.IEntityMapper" class="text-break">Interface IEntityMapper
+  </h1>
+  <div class="markdown level0 summary"><p>marker interface for entity mappers</p>
 </div>
+  <div class="markdown level0 conceptual"></div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
+  <h5 id="FastEndpoints_IEntityMapper_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public interface IEntityMapper</code></pre>
+  </div>
 </article>
           </div>
           

@@ -9,25 +9,22 @@
   - uid: FastEndpoints.EmptyResponse
     name: EmptyResponse
   - uid: FastEndpoints.Endpoint`3
-    name: Endpoint<TRequest, TResponse, TEntity>
-    name.vb: Endpoint(Of TRequest, TResponse, TEntity)
+    name: Endpoint<TRequest, TResponse, TMapper>
+    name.vb: Endpoint(Of TRequest, TResponse, TMapper)
   - uid: FastEndpoints.Endpoint`2
     name: Endpoint<TRequest, TResponse>
     name.vb: Endpoint(Of TRequest, TResponse)
   - uid: FastEndpoints.Endpoint`1
     name: Endpoint<TRequest>
     name.vb: Endpoint(Of TRequest)
-  - uid: FastEndpoints.EndpointWithMapper`3
-    name: EndpointWithMapper<TRequest, TResponse, TEntityMapper>
-    name.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
+  - uid: FastEndpoints.EndpointWithMapping`3
+    name: EndpointWithMapping<TRequest, TResponse, TEntity>
+    name.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity)
   - uid: FastEndpoints.EndpointWithoutRequest
     name: EndpointWithoutRequest
   - uid: FastEndpoints.EndpointWithoutRequest`1
     name: EndpointWithoutRequest<TResponse>
     name.vb: EndpointWithoutRequest(Of TResponse)
-  - uid: FastEndpoints.EntityMapper`3
-    name: EntityMapper<TRequest, TResponse, TEntity>
-    name.vb: EntityMapper(Of TRequest, TResponse, TEntity)
   - uid: FastEndpoints.ErrorResponse
     name: ErrorResponse
   - uid: FastEndpoints.Event`1
@@ -48,6 +45,8 @@
     name: Http
   - uid: FastEndpoints.HttpClientExtensions
     name: HttpClientExtensions
+  - uid: FastEndpoints.IEntityMapper
+    name: IEntityMapper
   - uid: FastEndpoints.IPostProcessor`2
     name: IPostProcessor<TRequest, TResponse>
     name.vb: IPostProcessor(Of TRequest, TResponse)
@@ -56,6 +55,9 @@
     name.vb: IPreProcessor(Of TRequest)
   - uid: FastEndpoints.MainExtensions
     name: MainExtensions
+  - uid: FastEndpoints.Mapper`3
+    name: Mapper<TRequest, TResponse, TEntity>
+    name.vb: Mapper(Of TRequest, TResponse, TEntity)
   - uid: FastEndpoints.Mode
     name: Mode
 - uid: FastEndpoints.Security

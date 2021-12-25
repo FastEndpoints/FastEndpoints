@@ -1,42 +1,47 @@
 ### YamlMime:ManagedReference
 items:
-- uid: FastEndpoints.EndpointWithMapper`3
-  commentId: T:FastEndpoints.EndpointWithMapper`3
-  id: EndpointWithMapper`3
+- uid: FastEndpoints.EndpointWithMapping`3
+  commentId: T:FastEndpoints.EndpointWithMapping`3
+  id: EndpointWithMapping`3
   parent: FastEndpoints
   children:
-  - FastEndpoints.EndpointWithMapper`3.Map
+  - FastEndpoints.EndpointWithMapping`3.MapFromEntity(`2)
+  - FastEndpoints.EndpointWithMapping`3.MapFromEntityAsync(`2)
+  - FastEndpoints.EndpointWithMapping`3.MapToEntity(`0)
+  - FastEndpoints.EndpointWithMapping`3.MapToEntityAsync(`0)
   langs:
   - csharp
   - vb
-  name: EndpointWithMapper<TRequest, TResponse, TEntityMapper>
-  nameWithType: EndpointWithMapper<TRequest, TResponse, TEntityMapper>
-  fullName: FastEndpoints.EndpointWithMapper<TRequest, TResponse, TEntityMapper>
+  name: EndpointWithMapping<TRequest, TResponse, TEntity>
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>
   type: Class
   source:
-    id: EndpointWithMapper
+    id: EndpointWithMapping
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 136
+    startLine: 120
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nuse this base class for defining endpoints that use both request and response dtos as well as an entity mapper.\n"
+  summary: "\nuse this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity.\n"
   example: []
   syntax:
     content: >-
-      public abstract class EndpointWithMapper<TRequest, TResponse, TEntityMapper> : Endpoint<TRequest, TResponse>, IEndpoint, IServiceResolver where TRequest : new()
+      public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse>, IEndpoint, IServiceResolver where TRequest : new()
+
           where TResponse : new()
-          where TEntityMapper : IEntityMapper, new()
     typeParameters:
     - id: TRequest
       description: the type of the request dto
     - id: TResponse
       description: the type of the response dto
-    - id: TEntityMapper
-      description: the type of the entity mapper
+    - id: TEntity
+      description: the type of domain entity that will be mapped to/from
     content.vb: >-
-      Public MustInherit Class EndpointWithMapper(Of TRequest As New, TResponse As New, TEntityMapper As {IEntityMapper, New})
+      Public MustInherit Class EndpointWithMapping(Of TRequest As New, TResponse As New, TEntity)
+
           Inherits Endpoint(Of TRequest, TResponse)
+
           Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object
@@ -115,7 +120,7 @@ items:
   - System.Object.MemberwiseClone
   - System.Object.ReferenceEquals(System.Object,System.Object)
   - System.Object.ToString
-  nameWithType.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity)
   modifiers.csharp:
   - public
   - abstract
@@ -124,43 +129,160 @@ items:
   - Public
   - MustInherit
   - Class
-  fullName.vb: FastEndpoints.EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
-  name.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
-- uid: FastEndpoints.EndpointWithMapper`3.Map
-  commentId: P:FastEndpoints.EndpointWithMapper`3.Map
-  id: Map
-  parent: FastEndpoints.EndpointWithMapper`3
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity)
+  name.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity)
+- uid: FastEndpoints.EndpointWithMapping`3.MapToEntity(`0)
+  commentId: M:FastEndpoints.EndpointWithMapping`3.MapToEntity(`0)
+  id: MapToEntity(`0)
+  parent: FastEndpoints.EndpointWithMapping`3
   langs:
   - csharp
   - vb
-  name: Map
-  nameWithType: EndpointWithMapper<TRequest, TResponse, TEntityMapper>.Map
-  fullName: FastEndpoints.EndpointWithMapper<TRequest, TResponse, TEntityMapper>.Map
-  type: Property
+  name: MapToEntity(TRequest)
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>.MapToEntity(TRequest)
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>.MapToEntity(TRequest)
+  type: Method
   source:
-    id: Map
+    id: MapToEntity
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 141
+    startLine: 126
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nThe entity mapper for the endpoint\n"
+  summary: "\noverride this method and place the logic for mapping the request dto to the desired domain entity\n"
   example: []
   syntax:
-    content: public TEntityMapper Map { get; }
-    parameters: []
+    content: public virtual TEntity MapToEntity(TRequest r)
+    parameters:
+    - id: r
+      type: '{TRequest}'
+      description: the request dto
     return:
-      type: '{TEntityMapper}'
-    content.vb: Public ReadOnly Property Map As TEntityMapper
-  overload: FastEndpoints.EndpointWithMapper`3.Map*
-  nameWithType.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper).Map
+      type: '{TEntity}'
+    content.vb: Public Overridable Function MapToEntity(r As TRequest) As TEntity
+  overload: FastEndpoints.EndpointWithMapping`3.MapToEntity*
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity).MapToEntity(TRequest)
   modifiers.csharp:
   - public
-  - get
+  - virtual
   modifiers.vb:
   - Public
-  - ReadOnly
-  fullName.vb: FastEndpoints.EndpointWithMapper(Of TRequest, TResponse, TEntityMapper).Map
+  - Overridable
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity).MapToEntity(TRequest)
+- uid: FastEndpoints.EndpointWithMapping`3.MapToEntityAsync(`0)
+  commentId: M:FastEndpoints.EndpointWithMapping`3.MapToEntityAsync(`0)
+  id: MapToEntityAsync(`0)
+  parent: FastEndpoints.EndpointWithMapping`3
+  langs:
+  - csharp
+  - vb
+  name: MapToEntityAsync(TRequest)
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>.MapToEntityAsync(TRequest)
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>.MapToEntityAsync(TRequest)
+  type: Method
+  source:
+    id: MapToEntityAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 131
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\noverride this method and place the logic for mapping the request dto to the desired domain entity\n"
+  example: []
+  syntax:
+    content: public virtual Task<TEntity> MapToEntityAsync(TRequest r)
+    parameters:
+    - id: r
+      type: '{TRequest}'
+      description: the request dto to map from
+    return:
+      type: Task{{TEntity}}
+    content.vb: Public Overridable Function MapToEntityAsync(r As TRequest) As Task(Of TEntity)
+  overload: FastEndpoints.EndpointWithMapping`3.MapToEntityAsync*
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity).MapToEntityAsync(TRequest)
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity).MapToEntityAsync(TRequest)
+- uid: FastEndpoints.EndpointWithMapping`3.MapFromEntity(`2)
+  commentId: M:FastEndpoints.EndpointWithMapping`3.MapFromEntity(`2)
+  id: MapFromEntity(`2)
+  parent: FastEndpoints.EndpointWithMapping`3
+  langs:
+  - csharp
+  - vb
+  name: MapFromEntity(TEntity)
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>.MapFromEntity(TEntity)
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>.MapFromEntity(TEntity)
+  type: Method
+  source:
+    id: MapFromEntity
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 137
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\noverride this method and place the logic for mapping a domain entity to a response dto\n"
+  example: []
+  syntax:
+    content: public virtual TResponse MapFromEntity(TEntity e)
+    parameters:
+    - id: e
+      type: '{TEntity}'
+      description: the domain entity to map from
+    return:
+      type: '{TResponse}'
+    content.vb: Public Overridable Function MapFromEntity(e As TEntity) As TResponse
+  overload: FastEndpoints.EndpointWithMapping`3.MapFromEntity*
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity).MapFromEntity(TEntity)
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity).MapFromEntity(TEntity)
+- uid: FastEndpoints.EndpointWithMapping`3.MapFromEntityAsync(`2)
+  commentId: M:FastEndpoints.EndpointWithMapping`3.MapFromEntityAsync(`2)
+  id: MapFromEntityAsync(`2)
+  parent: FastEndpoints.EndpointWithMapping`3
+  langs:
+  - csharp
+  - vb
+  name: MapFromEntityAsync(TEntity)
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>.MapFromEntityAsync(TEntity)
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>.MapFromEntityAsync(TEntity)
+  type: Method
+  source:
+    id: MapFromEntityAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
+    startLine: 142
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\noverride this method and place the logic for mapping a domain entity to a response dto\n"
+  example: []
+  syntax:
+    content: public virtual Task<TResponse> MapFromEntityAsync(TEntity e)
+    parameters:
+    - id: e
+      type: '{TEntity}'
+      description: the domain entity to map from
+    return:
+      type: Task{{TResponse}}
+    content.vb: Public Overridable Function MapFromEntityAsync(e As TEntity) As Task(Of TResponse)
+  overload: FastEndpoints.EndpointWithMapping`3.MapFromEntityAsync*
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity).MapFromEntityAsync(TEntity)
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity).MapFromEntityAsync(TEntity)
 references:
 - uid: FastEndpoints
   commentId: N:FastEndpoints
@@ -6050,21 +6172,177 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.EndpointWithMapper`3.Map*
-  commentId: Overload:FastEndpoints.EndpointWithMapper`3.Map
-  name: Map
-  nameWithType: EndpointWithMapper<TRequest, TResponse, TEntityMapper>.Map
-  fullName: FastEndpoints.EndpointWithMapper<TRequest, TResponse, TEntityMapper>.Map
-  nameWithType.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper).Map
-  fullName.vb: FastEndpoints.EndpointWithMapper(Of TRequest, TResponse, TEntityMapper).Map
-- uid: '{TEntityMapper}'
-  commentId: '!:TEntityMapper'
-  definition: TEntityMapper
-  name: TEntityMapper
-  nameWithType: TEntityMapper
-  fullName: TEntityMapper
-- uid: TEntityMapper
-  commentId: '!:TEntityMapper'
-  name: TEntityMapper
-  nameWithType: TEntityMapper
-  fullName: TEntityMapper
+- uid: FastEndpoints.EndpointWithMapping`3.MapToEntity*
+  commentId: Overload:FastEndpoints.EndpointWithMapping`3.MapToEntity
+  name: MapToEntity
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>.MapToEntity
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>.MapToEntity
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity).MapToEntity
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity).MapToEntity
+- uid: '{TRequest}'
+  commentId: '!:TRequest'
+  definition: TRequest
+  name: TRequest
+  nameWithType: TRequest
+  fullName: TRequest
+- uid: '{TEntity}'
+  commentId: '!:TEntity'
+  definition: TEntity
+  name: TEntity
+  nameWithType: TEntity
+  fullName: TEntity
+- uid: TRequest
+  name: TRequest
+  nameWithType: TRequest
+  fullName: TRequest
+- uid: TEntity
+  name: TEntity
+  nameWithType: TEntity
+  fullName: TEntity
+- uid: FastEndpoints.EndpointWithMapping`3.MapToEntityAsync*
+  commentId: Overload:FastEndpoints.EndpointWithMapping`3.MapToEntityAsync
+  name: MapToEntityAsync
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>.MapToEntityAsync
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>.MapToEntityAsync
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity).MapToEntityAsync
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity).MapToEntityAsync
+- uid: Task{{TEntity}}
+  commentId: '!:Task{`2}'
+  definition: Task`1
+  name: Task<TEntity>
+  nameWithType: Task<TEntity>
+  fullName: Task<TEntity>
+  nameWithType.vb: Task(Of TEntity)
+  fullName.vb: Task(Of TEntity)
+  name.vb: Task(Of TEntity)
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TEntity
+    nameWithType: TEntity
+    fullName: TEntity
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TEntity
+    nameWithType: TEntity
+    fullName: TEntity
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: Task`1
+  isExternal: true
+  name: Task<>
+  nameWithType: Task<>
+  fullName: Task<>
+  nameWithType.vb: Task(Of )
+  fullName.vb: Task(Of )
+  name.vb: Task(Of )
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.EndpointWithMapping`3.MapFromEntity*
+  commentId: Overload:FastEndpoints.EndpointWithMapping`3.MapFromEntity
+  name: MapFromEntity
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>.MapFromEntity
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>.MapFromEntity
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity).MapFromEntity
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity).MapFromEntity
+- uid: '{TResponse}'
+  commentId: '!:TResponse'
+  definition: TResponse
+  name: TResponse
+  nameWithType: TResponse
+  fullName: TResponse
+- uid: TResponse
+  name: TResponse
+  nameWithType: TResponse
+  fullName: TResponse
+- uid: FastEndpoints.EndpointWithMapping`3.MapFromEntityAsync*
+  commentId: Overload:FastEndpoints.EndpointWithMapping`3.MapFromEntityAsync
+  name: MapFromEntityAsync
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>.MapFromEntityAsync
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>.MapFromEntityAsync
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity).MapFromEntityAsync
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity).MapFromEntityAsync
+- uid: Task{{TResponse}}
+  commentId: '!:Task{`1}'
+  definition: Task`1
+  name: Task<TResponse>
+  nameWithType: Task<TResponse>
+  fullName: Task<TResponse>
+  nameWithType.vb: Task(Of TResponse)
+  fullName.vb: Task(Of TResponse)
+  name.vb: Task(Of TResponse)
+  spec.csharp:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: Task`1
+    name: Task
+    nameWithType: Task
+    fullName: Task
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: )
+    nameWithType: )
+    fullName: )

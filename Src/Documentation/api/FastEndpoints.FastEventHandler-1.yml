@@ -34,6 +34,7 @@ items:
       description: the type of the event to handle
     content.vb: >-
       Public MustInherit Class FastEventHandler(Of TEvent As {Class, New})
+
           Implements IEventHandler, IServiceResolver
   inheritance:
   - System.Object
@@ -120,6 +121,7 @@ items:
   syntax:
     content: >-
       public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
           where TEventModel : class
     parameters:
     - id: eventModel
@@ -173,13 +175,16 @@ items:
   summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
   example: []
   syntax:
-    content: public TService TryResolve<TService>()
+    content: >-
+      public TService TryResolve<TService>()
+
+          where TService : class
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Public Function TryResolve(Of TService) As TService
+    content.vb: Public Function TryResolve(Of TService As Class) As TService
   overload: FastEndpoints.FastEventHandler`1.TryResolve*
   nameWithType.vb: FastEventHandler(Of TEvent).TryResolve(Of TService)()
   modifiers.csharp:
@@ -245,13 +250,16 @@ items:
   summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
-    content: public TService Resolve<TService>()
+    content: >-
+      public TService Resolve<TService>()
+
+          where TService : class
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Public Function Resolve(Of TService) As TService
+    content.vb: Public Function Resolve(Of TService As Class) As TService
   overload: FastEndpoints.FastEventHandler`1.Resolve*
   nameWithType.vb: FastEventHandler(Of TEvent).Resolve(Of TService)()
   modifiers.csharp:

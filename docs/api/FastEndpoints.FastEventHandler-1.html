@@ -214,6 +214,7 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEventModel&gt;(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
     where TEventModel : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -333,7 +334,9 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()</code></pre>
+    <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
+
+    where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -419,7 +422,9 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()</code></pre>
+    <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
+
+    where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">

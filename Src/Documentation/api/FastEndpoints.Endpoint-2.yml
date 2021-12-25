@@ -86,6 +86,7 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
+
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -94,7 +95,9 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As New, TResponse As New)
+
           Inherits BaseEndpoint
+
           Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object
@@ -102,7 +105,7 @@ items:
   derivedClasses:
   - FastEndpoints.Endpoint`1
   - FastEndpoints.Endpoint`3
-  - FastEndpoints.EndpointWithMapper`3
+  - FastEndpoints.EndpointWithMapping`3
   - FastEndpoints.EndpointWithoutRequest`1
   inheritedMembers:
   - FastEndpoints.BaseEndpoint.HttpContext
@@ -188,13 +191,16 @@ items:
   summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
   example: []
   syntax:
-    content: public TService TryResolve<TService>()
+    content: >-
+      public TService TryResolve<TService>()
+
+          where TService : class
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Public Function TryResolve(Of TService) As TService
+    content.vb: Public Function TryResolve(Of TService As Class) As TService
   overload: FastEndpoints.Endpoint`2.TryResolve*
   nameWithType.vb: Endpoint(Of TRequest, TResponse).TryResolve(Of TService)()
   modifiers.csharp:
@@ -260,13 +266,16 @@ items:
   summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
-    content: public TService Resolve<TService>()
+    content: >-
+      public TService Resolve<TService>()
+
+          where TService : class
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Public Function Resolve(Of TService) As TService
+    content.vb: Public Function Resolve(Of TService As Class) As TService
   overload: FastEndpoints.Endpoint`2.Resolve*
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Resolve(Of TService)()
   modifiers.csharp:
@@ -334,6 +343,7 @@ items:
   syntax:
     content: >-
       public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
           where TEvent : class
     parameters:
     - id: eventModel

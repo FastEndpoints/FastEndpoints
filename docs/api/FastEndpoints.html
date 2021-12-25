@@ -116,20 +116,17 @@
       <h4><a class="xref" href="FastEndpoints.Endpoint-2.html">Endpoint&lt;TRequest, TResponse&gt;</a></h4>
       <section><p>use this base class for defining endpoints that use both request and response dtos.</p>
 </section>
-      <h4><a class="xref" href="FastEndpoints.Endpoint-3.html">Endpoint&lt;TRequest, TResponse, TEntity&gt;</a></h4>
-      <section><p>use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity.</p>
+      <h4><a class="xref" href="FastEndpoints.Endpoint-3.html">Endpoint&lt;TRequest, TResponse, TMapper&gt;</a></h4>
+      <section><p>use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity using a seperate entity mapper.</p>
 </section>
-      <h4><a class="xref" href="FastEndpoints.EndpointWithMapper-3.html">EndpointWithMapper&lt;TRequest, TResponse, TEntityMapper&gt;</a></h4>
-      <section><p>use this base class for defining endpoints that use both request and response dtos as well as an entity mapper.</p>
+      <h4><a class="xref" href="FastEndpoints.EndpointWithMapping-3.html">EndpointWithMapping&lt;TRequest, TResponse, TEntity&gt;</a></h4>
+      <section><p>use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity.</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.EndpointWithoutRequest.html">EndpointWithoutRequest</a></h4>
       <section><p>use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.EndpointWithoutRequest-1.html">EndpointWithoutRequest&lt;TResponse&gt;</a></h4>
       <section><p>use this base class for defining endpoints that doesn't need a request dto but return a response dto.</p>
-</section>
-      <h4><a class="xref" href="FastEndpoints.EntityMapper-3.html">EntityMapper&lt;TRequest, TResponse, TEntity&gt;</a></h4>
-      <section><p>use this base class to define domain entity mappers for your endpoints.</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.ErrorResponse.html">ErrorResponse</a></h4>
       <section><p>the dto used to send an error response to the client</p>
@@ -159,8 +156,15 @@ this is a shorter alias for the [FromClaim] attribute.</p>
       <h4><a class="xref" href="FastEndpoints.MainExtensions.html">MainExtensions</a></h4>
       <section><p>provides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline</p>
 </section>
+      <h4><a class="xref" href="FastEndpoints.Mapper-3.html">Mapper&lt;TRequest, TResponse, TEntity&gt;</a></h4>
+      <section><p>use this base class to define domain entity mappers for your endpoints.</p>
+<p>HINT: entity mappers are used as singletons for performance reasons. do not maintain state in the mappers.</p>
+</section>
     <h3 id="interfaces">Interfaces
   </h3>
+      <h4><a class="xref" href="FastEndpoints.IEntityMapper.html">IEntityMapper</a></h4>
+      <section><p>marker interface for entity mappers</p>
+</section>
       <h4><a class="xref" href="FastEndpoints.IPostProcessor-2.html">IPostProcessor&lt;TRequest, TResponse&gt;</a></h4>
       <section><p>interface for defining post-processors to be executed after the main endpoint handler is done</p>
 </section>

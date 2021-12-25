@@ -32,7 +32,9 @@ items:
       description: the type of the request dto
     content.vb: >-
       Public MustInherit Class Validator(Of TRequest As Class)
+
           Inherits AbstractValidator(Of TRequest)
+
           Implements IValidatorWithState, IValidator, IServiceResolver
   inheritance:
   - System.Object
@@ -70,13 +72,16 @@ items:
   summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
   example: []
   syntax:
-    content: public TService TryResolve<TService>()
+    content: >-
+      public TService TryResolve<TService>()
+
+          where TService : class
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Public Function TryResolve(Of TService) As TService
+    content.vb: Public Function TryResolve(Of TService As Class) As TService
   overload: FastEndpoints.Validation.Validator`1.TryResolve*
   nameWithType.vb: Validator(Of TRequest).TryResolve(Of TService)()
   modifiers.csharp:
@@ -99,7 +104,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 23
+    startLine: 24
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
@@ -135,20 +140,23 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 30
+    startLine: 32
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation
   summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
-    content: public TService Resolve<TService>()
+    content: >-
+      public TService Resolve<TService>()
+
+          where TService : class
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Public Function Resolve(Of TService) As TService
+    content.vb: Public Function Resolve(Of TService As Class) As TService
   overload: FastEndpoints.Validation.Validator`1.Resolve*
   nameWithType.vb: Validator(Of TRequest).Resolve(Of TService)()
   modifiers.csharp:
@@ -171,7 +179,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Validator.cs
-    startLine: 37
+    startLine: 40
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints.Validation

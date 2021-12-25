@@ -1,38 +1,38 @@
 ### YamlMime:ManagedReference
 items:
-- uid: FastEndpoints.EntityMapper`3
-  commentId: T:FastEndpoints.EntityMapper`3
-  id: EntityMapper`3
+- uid: FastEndpoints.Mapper`3
+  commentId: T:FastEndpoints.Mapper`3
+  id: Mapper`3
   parent: FastEndpoints
   children:
-  - FastEndpoints.EntityMapper`3.FromEntity(`2)
-  - FastEndpoints.EntityMapper`3.FromEntityAsync(`2)
-  - FastEndpoints.EntityMapper`3.Resolve(Type)
-  - FastEndpoints.EntityMapper`3.Resolve``1
-  - FastEndpoints.EntityMapper`3.ServiceProvider
-  - FastEndpoints.EntityMapper`3.ToEntity(`0)
-  - FastEndpoints.EntityMapper`3.ToEntityAsync(`0)
-  - FastEndpoints.EntityMapper`3.TryResolve(Type)
-  - FastEndpoints.EntityMapper`3.TryResolve``1
+  - FastEndpoints.Mapper`3.FromEntity(`2)
+  - FastEndpoints.Mapper`3.FromEntityAsync(`2)
+  - FastEndpoints.Mapper`3.Resolve(Type)
+  - FastEndpoints.Mapper`3.Resolve``1
+  - FastEndpoints.Mapper`3.ToEntity(`0)
+  - FastEndpoints.Mapper`3.ToEntityAsync(`0)
+  - FastEndpoints.Mapper`3.TryResolve(Type)
+  - FastEndpoints.Mapper`3.TryResolve``1
   langs:
   - csharp
   - vb
-  name: EntityMapper<TRequest, TResponse, TEntity>
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>
+  name: Mapper<TRequest, TResponse, TEntity>
+  nameWithType: Mapper<TRequest, TResponse, TEntity>
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>
   type: Class
   source:
-    id: EntityMapper
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
+    id: Mapper
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
     startLine: 11
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nuse this base class to define domain entity mappers for your endpoints.\n"
+  summary: "\nuse this base class to define domain entity mappers for your endpoints.\n<p>HINT: entity mappers are used as singletons for performance reasons. do not maintain state in the mappers.</p>\n"
   example: []
   syntax:
     content: >-
-      public abstract class EntityMapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : new()
+      public abstract class Mapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : new()
+
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -42,10 +42,13 @@ items:
     - id: TEntity
       description: the type of domain entity to map to/from
     content.vb: >-
-      Public MustInherit Class EntityMapper(Of TRequest As New, TResponse As New, TEntity)
+      Public MustInherit Class Mapper(Of TRequest As New, TResponse As New, TEntity)
+
           Implements IEntityMapper, IServiceResolver
   inheritance:
   - System.Object
+  implements:
+  - FastEndpoints.IEntityMapper
   inheritedMembers:
   - System.Object.Equals(System.Object)
   - System.Object.Equals(System.Object,System.Object)
@@ -54,7 +57,7 @@ items:
   - System.Object.MemberwiseClone
   - System.Object.ReferenceEquals(System.Object,System.Object)
   - System.Object.ToString
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity)
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity)
   modifiers.csharp:
   - public
   - abstract
@@ -63,56 +66,23 @@ items:
   - Public
   - MustInherit
   - Class
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity)
-  name.vb: EntityMapper(Of TRequest, TResponse, TEntity)
-- uid: FastEndpoints.EntityMapper`3.ServiceProvider
-  commentId: P:FastEndpoints.EntityMapper`3.ServiceProvider
-  id: ServiceProvider
-  parent: FastEndpoints.EntityMapper`3
-  langs:
-  - csharp
-  - vb
-  name: ServiceProvider
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ServiceProvider
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ServiceProvider
-  type: Property
-  source:
-    id: ServiceProvider
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
-    startLine: 13
-  assemblies:
-  - FastEndpoints
-  namespace: FastEndpoints
-  syntax:
-    content: public IServiceProvider ServiceProvider { get; set; }
-    parameters: []
-    return:
-      type: IServiceProvider
-    content.vb: Public Property ServiceProvider As IServiceProvider
-  overload: FastEndpoints.EntityMapper`3.ServiceProvider*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ServiceProvider
-  modifiers.csharp:
-  - public
-  - get
-  - set
-  modifiers.vb:
-  - Public
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ServiceProvider
-- uid: FastEndpoints.EntityMapper`3.ToEntity(`0)
-  commentId: M:FastEndpoints.EntityMapper`3.ToEntity(`0)
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity)
+  name.vb: Mapper(Of TRequest, TResponse, TEntity)
+- uid: FastEndpoints.Mapper`3.ToEntity(`0)
+  commentId: M:FastEndpoints.Mapper`3.ToEntity(`0)
   id: ToEntity(`0)
-  parent: FastEndpoints.EntityMapper`3
+  parent: FastEndpoints.Mapper`3
   langs:
   - csharp
   - vb
   name: ToEntity(TRequest)
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ToEntity(TRequest)
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ToEntity(TRequest)
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.ToEntity(TRequest)
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.ToEntity(TRequest)
   type: Method
   source:
     id: ToEntity
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
-    startLine: 19
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
+    startLine: 17
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -127,30 +97,30 @@ items:
     return:
       type: '{TEntity}'
     content.vb: Public Overridable Function ToEntity(r As TRequest) As TEntity
-  overload: FastEndpoints.EntityMapper`3.ToEntity*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ToEntity(TRequest)
+  overload: FastEndpoints.Mapper`3.ToEntity*
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).ToEntity(TRequest)
   modifiers.csharp:
   - public
   - virtual
   modifiers.vb:
   - Public
   - Overridable
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ToEntity(TRequest)
-- uid: FastEndpoints.EntityMapper`3.ToEntityAsync(`0)
-  commentId: M:FastEndpoints.EntityMapper`3.ToEntityAsync(`0)
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).ToEntity(TRequest)
+- uid: FastEndpoints.Mapper`3.ToEntityAsync(`0)
+  commentId: M:FastEndpoints.Mapper`3.ToEntityAsync(`0)
   id: ToEntityAsync(`0)
-  parent: FastEndpoints.EntityMapper`3
+  parent: FastEndpoints.Mapper`3
   langs:
   - csharp
   - vb
   name: ToEntityAsync(TRequest)
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ToEntityAsync(TRequest)
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ToEntityAsync(TRequest)
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.ToEntityAsync(TRequest)
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.ToEntityAsync(TRequest)
   type: Method
   source:
     id: ToEntityAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
-    startLine: 24
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
+    startLine: 22
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -165,30 +135,30 @@ items:
     return:
       type: Task{{TEntity}}
     content.vb: Public Overridable Function ToEntityAsync(r As TRequest) As Task(Of TEntity)
-  overload: FastEndpoints.EntityMapper`3.ToEntityAsync*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ToEntityAsync(TRequest)
+  overload: FastEndpoints.Mapper`3.ToEntityAsync*
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).ToEntityAsync(TRequest)
   modifiers.csharp:
   - public
   - virtual
   modifiers.vb:
   - Public
   - Overridable
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ToEntityAsync(TRequest)
-- uid: FastEndpoints.EntityMapper`3.FromEntity(`2)
-  commentId: M:FastEndpoints.EntityMapper`3.FromEntity(`2)
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).ToEntityAsync(TRequest)
+- uid: FastEndpoints.Mapper`3.FromEntity(`2)
+  commentId: M:FastEndpoints.Mapper`3.FromEntity(`2)
   id: FromEntity(`2)
-  parent: FastEndpoints.EntityMapper`3
+  parent: FastEndpoints.Mapper`3
   langs:
   - csharp
   - vb
   name: FromEntity(TEntity)
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.FromEntity(TEntity)
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.FromEntity(TEntity)
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.FromEntity(TEntity)
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.FromEntity(TEntity)
   type: Method
   source:
     id: FromEntity
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
-    startLine: 30
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
+    startLine: 28
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -203,30 +173,30 @@ items:
     return:
       type: '{TResponse}'
     content.vb: Public Overridable Function FromEntity(e As TEntity) As TResponse
-  overload: FastEndpoints.EntityMapper`3.FromEntity*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).FromEntity(TEntity)
+  overload: FastEndpoints.Mapper`3.FromEntity*
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).FromEntity(TEntity)
   modifiers.csharp:
   - public
   - virtual
   modifiers.vb:
   - Public
   - Overridable
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).FromEntity(TEntity)
-- uid: FastEndpoints.EntityMapper`3.FromEntityAsync(`2)
-  commentId: M:FastEndpoints.EntityMapper`3.FromEntityAsync(`2)
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).FromEntity(TEntity)
+- uid: FastEndpoints.Mapper`3.FromEntityAsync(`2)
+  commentId: M:FastEndpoints.Mapper`3.FromEntityAsync(`2)
   id: FromEntityAsync(`2)
-  parent: FastEndpoints.EntityMapper`3
+  parent: FastEndpoints.Mapper`3
   langs:
   - csharp
   - vb
   name: FromEntityAsync(TEntity)
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.FromEntityAsync(TEntity)
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.FromEntityAsync(TEntity)
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.FromEntityAsync(TEntity)
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.FromEntityAsync(TEntity)
   type: Method
   source:
     id: FromEntityAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
-    startLine: 35
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
+    startLine: 33
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -241,66 +211,69 @@ items:
     return:
       type: Task{{TResponse}}
     content.vb: Public Overridable Function FromEntityAsync(e As TEntity) As Task(Of TResponse)
-  overload: FastEndpoints.EntityMapper`3.FromEntityAsync*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).FromEntityAsync(TEntity)
+  overload: FastEndpoints.Mapper`3.FromEntityAsync*
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).FromEntityAsync(TEntity)
   modifiers.csharp:
   - public
   - virtual
   modifiers.vb:
   - Public
   - Overridable
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).FromEntityAsync(TEntity)
-- uid: FastEndpoints.EntityMapper`3.TryResolve``1
-  commentId: M:FastEndpoints.EntityMapper`3.TryResolve``1
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).FromEntityAsync(TEntity)
+- uid: FastEndpoints.Mapper`3.TryResolve``1
+  commentId: M:FastEndpoints.Mapper`3.TryResolve``1
   id: TryResolve``1
-  parent: FastEndpoints.EntityMapper`3
+  parent: FastEndpoints.Mapper`3
   langs:
   - csharp
   - vb
   name: TryResolve<TService>()
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.TryResolve<TService>()
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.TryResolve<TService>()
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.TryResolve<TService>()
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.TryResolve<TService>()
   type: Method
   source:
     id: TryResolve
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
-    startLine: 41
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
+    startLine: 39
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\ntry to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.\n"
   example: []
   syntax:
-    content: public TService TryResolve<TService>()
+    content: >-
+      public TService TryResolve<TService>()
+
+          where TService : class
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Public Function TryResolve(Of TService) As TService
-  overload: FastEndpoints.EntityMapper`3.TryResolve*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).TryResolve(Of TService)()
+    content.vb: Public Function TryResolve(Of TService As Class) As TService
+  overload: FastEndpoints.Mapper`3.TryResolve*
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).TryResolve(Of TService)()
   modifiers.csharp:
   - public
   modifiers.vb:
   - Public
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).TryResolve(Of TService)()
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).TryResolve(Of TService)()
   name.vb: TryResolve(Of TService)()
-- uid: FastEndpoints.EntityMapper`3.TryResolve(Type)
-  commentId: M:FastEndpoints.EntityMapper`3.TryResolve(Type)
+- uid: FastEndpoints.Mapper`3.TryResolve(Type)
+  commentId: M:FastEndpoints.Mapper`3.TryResolve(Type)
   id: TryResolve(Type)
-  parent: FastEndpoints.EntityMapper`3
+  parent: FastEndpoints.Mapper`3
   langs:
   - csharp
   - vb
   name: TryResolve(Type)
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.TryResolve(Type)
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.TryResolve(Type)
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.TryResolve(Type)
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.TryResolve(Type)
   type: Method
   source:
     id: TryResolve
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
-    startLine: 46
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
+    startLine: 45
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -315,27 +288,27 @@ items:
     return:
       type: System.Object
     content.vb: Public Function TryResolve(typeOfService As Type) As Object
-  overload: FastEndpoints.EntityMapper`3.TryResolve*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).TryResolve(Type)
+  overload: FastEndpoints.Mapper`3.TryResolve*
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).TryResolve(Type)
   modifiers.csharp:
   - public
   modifiers.vb:
   - Public
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).TryResolve(Type)
-- uid: FastEndpoints.EntityMapper`3.Resolve``1
-  commentId: M:FastEndpoints.EntityMapper`3.Resolve``1
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).TryResolve(Type)
+- uid: FastEndpoints.Mapper`3.Resolve``1
+  commentId: M:FastEndpoints.Mapper`3.Resolve``1
   id: Resolve``1
-  parent: FastEndpoints.EntityMapper`3
+  parent: FastEndpoints.Mapper`3
   langs:
   - csharp
   - vb
   name: Resolve<TService>()
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.Resolve<TService>()
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.Resolve<TService>()
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.Resolve<TService>()
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.Resolve<TService>()
   type: Method
   source:
     id: Resolve
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
     startLine: 52
   assemblies:
   - FastEndpoints
@@ -343,36 +316,39 @@ items:
   summary: "\nresolve an instance for the given type from the dependency injection container. will throw if unresolvable.\n"
   example: []
   syntax:
-    content: public TService Resolve<TService>()
+    content: >-
+      public TService Resolve<TService>()
+
+          where TService : class
     typeParameters:
     - id: TService
       description: the type of the service to resolve
     return:
       type: '{TService}'
-    content.vb: Public Function Resolve(Of TService) As TService
-  overload: FastEndpoints.EntityMapper`3.Resolve*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).Resolve(Of TService)()
+    content.vb: Public Function Resolve(Of TService As Class) As TService
+  overload: FastEndpoints.Mapper`3.Resolve*
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).Resolve(Of TService)()
   modifiers.csharp:
   - public
   modifiers.vb:
   - Public
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).Resolve(Of TService)()
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).Resolve(Of TService)()
   name.vb: Resolve(Of TService)()
-- uid: FastEndpoints.EntityMapper`3.Resolve(Type)
-  commentId: M:FastEndpoints.EntityMapper`3.Resolve(Type)
+- uid: FastEndpoints.Mapper`3.Resolve(Type)
+  commentId: M:FastEndpoints.Mapper`3.Resolve(Type)
   id: Resolve(Type)
-  parent: FastEndpoints.EntityMapper`3
+  parent: FastEndpoints.Mapper`3
   langs:
   - csharp
   - vb
   name: Resolve(Type)
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.Resolve(Type)
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.Resolve(Type)
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.Resolve(Type)
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.Resolve(Type)
   type: Method
   source:
     id: Resolve
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\EntityMapper.cs
-    startLine: 58
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Mapper.cs
+    startLine: 59
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -387,13 +363,13 @@ items:
     return:
       type: System.Object
     content.vb: Public Function Resolve(typeOfService As Type) As Object
-  overload: FastEndpoints.EntityMapper`3.Resolve*
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).Resolve(Type)
+  overload: FastEndpoints.Mapper`3.Resolve*
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).Resolve(Type)
   modifiers.csharp:
   - public
   modifiers.vb:
   - Public
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).Resolve(Type)
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).Resolve(Type)
 references:
 - uid: FastEndpoints
   commentId: N:FastEndpoints
@@ -407,6 +383,12 @@ references:
   name: Object
   nameWithType: Object
   fullName: System.Object
+- uid: FastEndpoints.IEntityMapper
+  commentId: T:FastEndpoints.IEntityMapper
+  parent: FastEndpoints
+  name: IEntityMapper
+  nameWithType: IEntityMapper
+  fullName: FastEndpoints.IEntityMapper
 - uid: System.Object.Equals(System.Object)
   commentId: M:System.Object.Equals(System.Object)
   parent: System.Object
@@ -692,26 +674,13 @@ references:
   name: System
   nameWithType: System
   fullName: System
-- uid: FastEndpoints.EntityMapper`3.ServiceProvider*
-  commentId: Overload:FastEndpoints.EntityMapper`3.ServiceProvider
-  name: ServiceProvider
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ServiceProvider
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ServiceProvider
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ServiceProvider
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ServiceProvider
-- uid: IServiceProvider
-  commentId: '!:IServiceProvider'
-  isExternal: true
-  name: IServiceProvider
-  nameWithType: IServiceProvider
-  fullName: IServiceProvider
-- uid: FastEndpoints.EntityMapper`3.ToEntity*
-  commentId: Overload:FastEndpoints.EntityMapper`3.ToEntity
+- uid: FastEndpoints.Mapper`3.ToEntity*
+  commentId: Overload:FastEndpoints.Mapper`3.ToEntity
   name: ToEntity
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ToEntity
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ToEntity
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ToEntity
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ToEntity
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.ToEntity
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.ToEntity
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).ToEntity
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).ToEntity
 - uid: '{TRequest}'
   commentId: '!:TRequest'
   definition: TRequest
@@ -732,13 +701,13 @@ references:
   name: TEntity
   nameWithType: TEntity
   fullName: TEntity
-- uid: FastEndpoints.EntityMapper`3.ToEntityAsync*
-  commentId: Overload:FastEndpoints.EntityMapper`3.ToEntityAsync
+- uid: FastEndpoints.Mapper`3.ToEntityAsync*
+  commentId: Overload:FastEndpoints.Mapper`3.ToEntityAsync
   name: ToEntityAsync
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.ToEntityAsync
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.ToEntityAsync
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).ToEntityAsync
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).ToEntityAsync
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.ToEntityAsync
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.ToEntityAsync
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).ToEntityAsync
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).ToEntityAsync
 - uid: Task{{TEntity}}
   commentId: '!:Task{`2}'
   definition: Task`1
@@ -816,13 +785,13 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.EntityMapper`3.FromEntity*
-  commentId: Overload:FastEndpoints.EntityMapper`3.FromEntity
+- uid: FastEndpoints.Mapper`3.FromEntity*
+  commentId: Overload:FastEndpoints.Mapper`3.FromEntity
   name: FromEntity
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.FromEntity
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.FromEntity
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).FromEntity
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).FromEntity
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.FromEntity
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.FromEntity
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).FromEntity
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).FromEntity
 - uid: '{TResponse}'
   commentId: '!:TResponse'
   definition: TResponse
@@ -833,13 +802,13 @@ references:
   name: TResponse
   nameWithType: TResponse
   fullName: TResponse
-- uid: FastEndpoints.EntityMapper`3.FromEntityAsync*
-  commentId: Overload:FastEndpoints.EntityMapper`3.FromEntityAsync
+- uid: FastEndpoints.Mapper`3.FromEntityAsync*
+  commentId: Overload:FastEndpoints.Mapper`3.FromEntityAsync
   name: FromEntityAsync
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.FromEntityAsync
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.FromEntityAsync
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).FromEntityAsync
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).FromEntityAsync
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.FromEntityAsync
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.FromEntityAsync
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).FromEntityAsync
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).FromEntityAsync
 - uid: Task{{TResponse}}
   commentId: '!:Task{`1}'
   definition: Task`1
@@ -879,13 +848,13 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.EntityMapper`3.TryResolve*
-  commentId: Overload:FastEndpoints.EntityMapper`3.TryResolve
+- uid: FastEndpoints.Mapper`3.TryResolve*
+  commentId: Overload:FastEndpoints.Mapper`3.TryResolve
   name: TryResolve
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.TryResolve
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.TryResolve
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).TryResolve
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).TryResolve
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.TryResolve
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.TryResolve
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).TryResolve
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).TryResolve
 - uid: '{TService}'
   commentId: '!:TService'
   definition: TService
@@ -901,10 +870,10 @@ references:
   name: Type
   nameWithType: Type
   fullName: Type
-- uid: FastEndpoints.EntityMapper`3.Resolve*
-  commentId: Overload:FastEndpoints.EntityMapper`3.Resolve
+- uid: FastEndpoints.Mapper`3.Resolve*
+  commentId: Overload:FastEndpoints.Mapper`3.Resolve
   name: Resolve
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>.Resolve
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>.Resolve
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity).Resolve
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity).Resolve
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.Resolve
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.Resolve
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).Resolve
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).Resolve

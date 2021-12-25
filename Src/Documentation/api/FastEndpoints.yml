@@ -10,10 +10,9 @@ items:
   - FastEndpoints.Endpoint`1
   - FastEndpoints.Endpoint`2
   - FastEndpoints.Endpoint`3
-  - FastEndpoints.EndpointWithMapper`3
+  - FastEndpoints.EndpointWithMapping`3
   - FastEndpoints.EndpointWithoutRequest
   - FastEndpoints.EndpointWithoutRequest`1
-  - FastEndpoints.EntityMapper`3
   - FastEndpoints.ErrorResponse
   - FastEndpoints.Event`1
   - FastEndpoints.ExceptionHandlerExtensions
@@ -23,9 +22,11 @@ items:
   - FastEndpoints.FromHeaderAttribute
   - FastEndpoints.Http
   - FastEndpoints.HttpClientExtensions
+  - FastEndpoints.IEntityMapper
   - FastEndpoints.IPostProcessor`2
   - FastEndpoints.IPreProcessor`1
   - FastEndpoints.MainExtensions
+  - FastEndpoints.Mapper`3
   - FastEndpoints.Mode
   langs:
   - csharp
@@ -201,12 +202,12 @@ references:
     fullName: )
 - uid: FastEndpoints.Endpoint`3
   commentId: T:FastEndpoints.Endpoint`3
-  name: Endpoint<TRequest, TResponse, TEntity>
-  nameWithType: Endpoint<TRequest, TResponse, TEntity>
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TEntity>
-  nameWithType.vb: Endpoint(Of TRequest, TResponse, TEntity)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TEntity)
-  name.vb: Endpoint(Of TRequest, TResponse, TEntity)
+  name: Endpoint<TRequest, TResponse, TMapper>
+  nameWithType: Endpoint<TRequest, TResponse, TMapper>
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse, TMapper>
+  nameWithType.vb: Endpoint(Of TRequest, TResponse, TMapper)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TMapper)
+  name.vb: Endpoint(Of TRequest, TResponse, TMapper)
   spec.csharp:
   - uid: FastEndpoints.Endpoint`3
     name: Endpoint
@@ -227,9 +228,9 @@ references:
   - name: ', '
     nameWithType: ', '
     fullName: ', '
-  - name: TEntity
-    nameWithType: TEntity
-    fullName: TEntity
+  - name: TMapper
+    nameWithType: TMapper
+    fullName: TMapper
   - name: '>'
     nameWithType: '>'
     fullName: '>'
@@ -253,85 +254,25 @@ references:
   - name: ', '
     nameWithType: ', '
     fullName: ', '
-  - name: TEntity
-    nameWithType: TEntity
-    fullName: TEntity
+  - name: TMapper
+    nameWithType: TMapper
+    fullName: TMapper
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.EndpointWithMapper`3
-  commentId: T:FastEndpoints.EndpointWithMapper`3
-  name: EndpointWithMapper<TRequest, TResponse, TEntityMapper>
-  nameWithType: EndpointWithMapper<TRequest, TResponse, TEntityMapper>
-  fullName: FastEndpoints.EndpointWithMapper<TRequest, TResponse, TEntityMapper>
-  nameWithType.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
-  fullName.vb: FastEndpoints.EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
-  name.vb: EndpointWithMapper(Of TRequest, TResponse, TEntityMapper)
+- uid: FastEndpoints.EndpointWithMapping`3
+  commentId: T:FastEndpoints.EndpointWithMapping`3
+  name: EndpointWithMapping<TRequest, TResponse, TEntity>
+  nameWithType: EndpointWithMapping<TRequest, TResponse, TEntity>
+  fullName: FastEndpoints.EndpointWithMapping<TRequest, TResponse, TEntity>
+  nameWithType.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity)
+  fullName.vb: FastEndpoints.EndpointWithMapping(Of TRequest, TResponse, TEntity)
+  name.vb: EndpointWithMapping(Of TRequest, TResponse, TEntity)
   spec.csharp:
-  - uid: FastEndpoints.EndpointWithMapper`3
-    name: EndpointWithMapper
-    nameWithType: EndpointWithMapper
-    fullName: FastEndpoints.EndpointWithMapper
-  - name: <
-    nameWithType: <
-    fullName: <
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: ', '
-    nameWithType: ', '
-    fullName: ', '
-  - name: TResponse
-    nameWithType: TResponse
-    fullName: TResponse
-  - name: ', '
-    nameWithType: ', '
-    fullName: ', '
-  - name: TEntityMapper
-    nameWithType: TEntityMapper
-    fullName: TEntityMapper
-  - name: '>'
-    nameWithType: '>'
-    fullName: '>'
-  spec.vb:
-  - uid: FastEndpoints.EndpointWithMapper`3
-    name: EndpointWithMapper
-    nameWithType: EndpointWithMapper
-    fullName: FastEndpoints.EndpointWithMapper
-  - name: '(Of '
-    nameWithType: '(Of '
-    fullName: '(Of '
-  - name: TRequest
-    nameWithType: TRequest
-    fullName: TRequest
-  - name: ', '
-    nameWithType: ', '
-    fullName: ', '
-  - name: TResponse
-    nameWithType: TResponse
-    fullName: TResponse
-  - name: ', '
-    nameWithType: ', '
-    fullName: ', '
-  - name: TEntityMapper
-    nameWithType: TEntityMapper
-    fullName: TEntityMapper
-  - name: )
-    nameWithType: )
-    fullName: )
-- uid: FastEndpoints.EntityMapper`3
-  commentId: T:FastEndpoints.EntityMapper`3
-  name: EntityMapper<TRequest, TResponse, TEntity>
-  nameWithType: EntityMapper<TRequest, TResponse, TEntity>
-  fullName: FastEndpoints.EntityMapper<TRequest, TResponse, TEntity>
-  nameWithType.vb: EntityMapper(Of TRequest, TResponse, TEntity)
-  fullName.vb: FastEndpoints.EntityMapper(Of TRequest, TResponse, TEntity)
-  name.vb: EntityMapper(Of TRequest, TResponse, TEntity)
-  spec.csharp:
-  - uid: FastEndpoints.EntityMapper`3
-    name: EntityMapper
-    nameWithType: EntityMapper
-    fullName: FastEndpoints.EntityMapper
+  - uid: FastEndpoints.EndpointWithMapping`3
+    name: EndpointWithMapping
+    nameWithType: EndpointWithMapping
+    fullName: FastEndpoints.EndpointWithMapping
   - name: <
     nameWithType: <
     fullName: <
@@ -354,10 +295,10 @@ references:
     nameWithType: '>'
     fullName: '>'
   spec.vb:
-  - uid: FastEndpoints.EntityMapper`3
-    name: EntityMapper
-    nameWithType: EntityMapper
-    fullName: FastEndpoints.EntityMapper
+  - uid: FastEndpoints.EndpointWithMapping`3
+    name: EndpointWithMapping
+    nameWithType: EndpointWithMapping
+    fullName: FastEndpoints.EndpointWithMapping
   - name: '(Of '
     nameWithType: '(Of '
     fullName: '(Of '
@@ -559,6 +500,72 @@ references:
   - name: TResponse
     nameWithType: TResponse
     fullName: TResponse
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.IEntityMapper
+  commentId: T:FastEndpoints.IEntityMapper
+  parent: FastEndpoints
+  name: IEntityMapper
+  nameWithType: IEntityMapper
+  fullName: FastEndpoints.IEntityMapper
+- uid: FastEndpoints.Mapper`3
+  commentId: T:FastEndpoints.Mapper`3
+  name: Mapper<TRequest, TResponse, TEntity>
+  nameWithType: Mapper<TRequest, TResponse, TEntity>
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity)
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity)
+  name.vb: Mapper(Of TRequest, TResponse, TEntity)
+  spec.csharp:
+  - uid: FastEndpoints.Mapper`3
+    name: Mapper
+    nameWithType: Mapper
+    fullName: FastEndpoints.Mapper
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TEntity
+    nameWithType: TEntity
+    fullName: TEntity
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: FastEndpoints.Mapper`3
+    name: Mapper
+    nameWithType: Mapper
+    fullName: FastEndpoints.Mapper
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: TRequest
+    nameWithType: TRequest
+    fullName: TRequest
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TEntity
+    nameWithType: TEntity
+    fullName: TEntity
   - name: )
     nameWithType: )
     fullName: )

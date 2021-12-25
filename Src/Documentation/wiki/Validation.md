@@ -117,3 +117,6 @@ public class CreateUserEndpoint : Endpoint<CreateUserRequest, CreateUserResponse
 **ThrowIfAnyErrors()** - this method will cause the handler execution to be halted when called and an error response will be sent to the client **if** there are any validation failures in the `ValidationFailures` list. if there's none, execution will proceed to the next line.
 
 **ThrowError()** - this method will abort execution immediately and send an error response to the client.
+
+> [!NOTE]
+> validators are used as singletons for performance reasons. i.e. there will only ever be one instance of a validator. all requests to an endpoint will use that single instance for validating the incoming request. so, you should not maintain state in your validators.

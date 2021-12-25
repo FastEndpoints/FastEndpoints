@@ -29,10 +29,10 @@ public class Person
 ```
 
 ## mapping logic in the endpoint class
-if you prefer to place your mapping logic in the endpoint definition itself, you can simply use the `Endpoint<TRequest,TResponse,TEntity>` generic overload to implement your endpoint and override the `MapToEntity()` and `MapFromEntity()` methods like so:
+if you prefer to place your mapping logic in the endpoint definition itself, you can simply use the `EndpointWithMapping<TRequest,TResponse,TEntity>` generic overload to implement your endpoint and override the `MapToEntity()` and `MapFromEntity()` methods like so:
 
 ```csharp
-public class SavePerson : Endpoint<Request, Response, Person>
+public class SavePerson : EndpointWithMapping<Request, Response, Person>
 {
     public override void Configure()
     {
@@ -65,9 +65,9 @@ public class SavePerson : Endpoint<Request, Response, Person>
 ```
 
 ## mapping logic in a separate class
-if your preference is to keep the mapping logic in a class of it's own, you can create a separate mapper inheriting from `EntityMapper<TRequest, TResponse, TEntity>` like so:
+if your preference is to keep the mapping logic in a class of it's own, you can create a separate mapper inheriting from `Mapper<TRequest, TResponse, TEntity>` like so:
 ```csharp
-public class PersonMapper : EntityMapper<Request, Response, Person>
+public class PersonMapper : Mapper<Request, Response, Person>
 {
     public override Person ToEntity(Request r) => new()
     {
@@ -85,9 +85,9 @@ public class PersonMapper : EntityMapper<Request, Response, Person>
     };
 }
 ```
-in order to use the above mapper you then need to inherit your endpoint from `EndpointWithMapper<TRequest, TResponse, TMapper>` generic overload like so:
+in order to use the above mapper you then need to inherit your endpoint from `Endpoint<TRequest, TResponse, TMapper>` generic overload like so:
 ```csharp
-public class SavePerson : EndpointWithMapper<Request, Response, PersonMapper>
+public class SavePerson : Endpoint<Request, Response, PersonMapper>
 {
     public override void Configure()
     {
@@ -104,3 +104,6 @@ public class SavePerson : EndpointWithMapper<Request, Response, PersonMapper>
 }
 ```
 the mapping logic can be accessed from the `Map` property of the endpoint class. that's all there's to it.
+
+> [!NOTE]
+> mapper classes are used as singletons for performance reasons. you should not maintain state in your mappers.

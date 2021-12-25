@@ -4,6 +4,7 @@ namespace FastEndpoints;
 
 /// <summary>
 /// use this base class to define domain entity mappers for your endpoints.
+/// <para>HINT: entity mappers are used as singletons for performance reasons. do not maintain state in the mappers.</para>
 /// </summary>
 /// <typeparam name="TRequest">the type of request dto</typeparam>
 /// <typeparam name="TResponse">the type of response dto</typeparam>

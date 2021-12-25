@@ -2,13 +2,15 @@
 
     <PropertyGroup>
 
-        <Version>2.16.0-beta1</Version>
+        <Version>2.16.0</Version>
 
         <PackageReleaseNotes>
+            - add EndpointWithMapping overload
             - remove EndpointWithMapper overload
             - optimize endpoint discovery logic
             - improve di property injection logic
             - improve service resolver interface
+            - misc. code refactors
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>
@@ -18,7 +20,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;CS1591;CS1573,CA2254;RCS1079</NoWarn>
         <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
-        <Description>An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.</Description>
+        <Description>A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.</Description>
         <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>

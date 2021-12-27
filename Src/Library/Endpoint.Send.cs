@@ -30,9 +30,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// send an http 200 ok response without any body
     /// </summary>
-    protected Task SendOkAsync()
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendOkAsync(CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendOkAsync();
+        return HttpContext.Response.SendOkAsync(cancellation);
     }
 
     /// <summary>
@@ -47,33 +48,37 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// send a 204 no content response
     /// </summary>
-    protected Task SendNoContentAsync()
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendNoContentAsync(CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendNoContentAsync();
+        return HttpContext.Response.SendNoContentAsync(cancellation);
     }
 
     /// <summary>
     /// send a 404 not found response
     /// </summary>
-    protected Task SendNotFoundAsync()
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendNotFoundAsync(CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendNotFoundAsync();
+        return HttpContext.Response.SendNotFoundAsync(cancellation);
     }
 
     /// <summary>
     /// send a 401 unauthorized response
     /// </summary>
-    protected Task SendUnauthorizedAsync()
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendUnauthorizedAsync(CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendUnauthorizedAsync();
+        return HttpContext.Response.SendUnauthorizedAsync(cancellation);
     }
 
     /// <summary>
     /// send a 403 unauthorized response
     /// </summary>
-    protected Task SendForbiddenAsync()
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendForbiddenAsync(CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendForbiddenAsync();
+        return HttpContext.Response.SendForbiddenAsync(cancellation);
     }
 
     /// <summary>

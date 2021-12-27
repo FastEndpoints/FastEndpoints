@@ -1,0 +1,22 @@
+﻿using FastEndpoints.Validation.Results;
+
+namespace Web.PipelineBehaviors.PreProcessors;
+
+public class SecurityProcessor<TRequest> : IPreProcessor<TRequest>
+{
+    public Task PreProcessAsync(TRequest req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    {
+        var tenantID = ctx.Request.Headers["tenant-id"].FirstOrDefault();
+
+        if (tenantID == null)
+        {
+            failures.Add(new("MissingHeaders", "The [tenant-id] header needs to be set!"));
+            return ctx.Response.SendErrorsAsync(failures);
+        }
+
+        if (tenantID != "qwerty")
+            return ctx.Response.SendForbiddenAsync();
+
+        return Task.CompletedTask;
+    }
+}

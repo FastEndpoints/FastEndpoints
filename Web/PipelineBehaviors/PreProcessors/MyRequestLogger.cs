@@ -13,4 +13,3 @@ public class MyRequestLogger<TRequest> : IPreProcessor<TRequest>
         return Task.CompletedTask;
     }
 }
-

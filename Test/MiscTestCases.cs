@@ -242,16 +242,55 @@ namespace Test
         public async Task OnBeforeOnAfterValidation()
         {
             var (rsp, res) = await AdminClient.POSTAsync<
-            TestCases.OnBeforeAfterValidationTest.Endpoint,
-            TestCases.OnBeforeAfterValidationTest.Request,
-            TestCases.OnBeforeAfterValidationTest.Response>(new()
-            {
-                Host = "blah",
-                Verb = Http.DELETE
-            });
+                TestCases.OnBeforeAfterValidationTest.Endpoint,
+                TestCases.OnBeforeAfterValidationTest.Request,
+                TestCases.OnBeforeAfterValidationTest.Response>(new()
+                {
+                    Host = "blah",
+                    Verb = Http.DELETE
+                });
 
             Assert.AreEqual(HttpStatusCode.OK, rsp.StatusCode);
             Assert.AreEqual("localhost", res.Host);
+        }
+
+        [TestMethod]
+        public async Task PreProcessorShortCircuitMissingHeader()
+        {
+            var (rsp, res) = await GuestClient.POSTAsync<
+                Sales.Orders.Retrieve.Endpoint,
+                Sales.Orders.Retrieve.Request,
+                ErrorResponse>(new() { OrderID = "order1" });
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, rsp.StatusCode);
+            Assert.AreEqual(1, res.Errors.Count);
+            Assert.IsTrue(res.Errors.ContainsKey("MissingHeaders"));
+        }
+
+        [TestMethod]
+        public async Task PreProcessorShortCircuitWrongHeaderValue()
+        {
+
+            await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+            {
+                var (rsp, res) = await AdminClient.POSTAsync<
+                    Sales.Orders.Retrieve.Endpoint,
+                    Sales.Orders.Retrieve.Request,
+                    object>(new() { OrderID = "order1" });
+            });
+
+        }
+
+        [TestMethod]
+        public async Task PreProcessorShortCircuitHandlerExecuted()
+        {
+            var (rsp, res) = await CustomerClient.POSTAsync<
+                Sales.Orders.Retrieve.Endpoint,
+                Sales.Orders.Retrieve.Request,
+                ErrorResponse>(new() { OrderID = "order1" });
+
+            Assert.AreEqual(HttpStatusCode.OK, rsp.StatusCode);
+            Assert.AreEqual("ok!", res.Message);
         }
     }
 }

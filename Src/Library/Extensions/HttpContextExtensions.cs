@@ -4,7 +4,7 @@ using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
 
-internal static class HttpContextExtensions
+public static class HttpContextExtensions
 {
     /// <summary>
     /// send the supplied response dto serialized as json to the client.
@@ -34,10 +34,11 @@ internal static class HttpContextExtensions
     /// <summary>
     /// send an http 200 ok response without any body
     /// </summary>
-    public static Task SendOkAsync(this HttpResponse rsp)
+    /// <param name="cancellation">optional cancellation token</param>
+    public static Task SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 200;
-        return Task.CompletedTask;
+        return rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>
@@ -53,37 +54,41 @@ internal static class HttpContextExtensions
     /// <summary>
     /// send a 204 no content response
     /// </summary>
-    public static Task SendNoContentAsync(this HttpResponse rsp)
+    /// <param name="cancellation">optional cancellation token</param>
+    public static Task SendNoContentAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 204;
-        return Task.CompletedTask;
+        return rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>
     /// send a 404 not found response
     /// </summary>
-    public static Task SendNotFoundAsync(this HttpResponse rsp)
+    /// <param name="cancellation">optional cancellation token</param>
+    public static Task SendNotFoundAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 404;
-        return Task.CompletedTask;
+        return rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>
     /// send a 401 unauthorized response
     /// </summary>
-    public static Task SendUnauthorizedAsync(this HttpResponse rsp)
+    /// <param name="cancellation">optional cancellation token</param>
+    public static Task SendUnauthorizedAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 401;
-        return Task.CompletedTask;
+        return rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>
     /// send a 403 unauthorized response
     /// </summary>
-    public static Task SendForbiddenAsync(this HttpResponse rsp)
+    /// <param name="cancellation">optional cancellation token</param>
+    public static Task SendForbiddenAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 403;
-        return Task.CompletedTask;
+        return rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>

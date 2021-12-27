@@ -32,7 +32,7 @@ public class CreateOrderEndpoint : Endpoint<CreateOrderRequest>
 }
 ```
 
-you can even write a request dto specific pipeline behavior like so:
+you can even write a request dto specific processor like so:
 
 ```csharp
 public class SalesRequestLogger : IPreProcessor<CreateSaleRequest>
@@ -81,5 +81,5 @@ public class CreateOrderEndpoint : Endpoint<CreateSaleRequest, CreateSaleRespons
 }
 ```
 
-# multiple pipeline behaviors
+# multiple processors
 you can attach multiple processors with both `PreProcessors()` and `PostProcessors()` methods. the processors are executed in the order they are supplied to the methods.

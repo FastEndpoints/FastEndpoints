@@ -120,7 +120,7 @@
     }
 }
 </code></pre>
-<p>you can even write a request dto specific pipeline behavior like so:</p>
+<p>you can even write a request dto specific processor like so:</p>
 <pre><code class="lang-csharp">public class SalesRequestLogger : IPreProcessor&lt;CreateSaleRequest&gt;
 {
     public Task PreProcessAsync(CreateSaleRequest req, HttpContext ctx, List&lt;ValidationFailure&gt; failures, CancellationToken ct)
@@ -161,7 +161,7 @@
     }
 }
 </code></pre>
-<h1 id="multiple-pipeline-behaviors">multiple pipeline behaviors</h1>
+<h1 id="multiple-processors">multiple processors</h1>
 <p>you can attach multiple processors with both <code>PreProcessors()</code> and <code>PostProcessors()</code> methods. the processors are executed in the order they are supplied to the methods.</p>
 </article>
           </div>

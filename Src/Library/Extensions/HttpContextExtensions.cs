@@ -38,7 +38,7 @@ public static class HttpContextExtensions
     public static Task SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 200;
-        return rsp.Body.FlushAsync(cancellation);
+        return rsp.StartAsync(cancellation); //rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public static class HttpContextExtensions
     public static Task SendNoContentAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 204;
-        return rsp.Body.FlushAsync(cancellation);
+        return rsp.StartAsync(cancellation); //rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public static class HttpContextExtensions
     public static Task SendNotFoundAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 404;
-        return rsp.Body.FlushAsync(cancellation);
+        return rsp.StartAsync(cancellation); //rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public static class HttpContextExtensions
     public static Task SendUnauthorizedAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 401;
-        return rsp.Body.FlushAsync(cancellation);
+        return rsp.StartAsync(cancellation); //rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public static class HttpContextExtensions
     public static Task SendForbiddenAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 403;
-        return rsp.Body.FlushAsync(cancellation);
+        return rsp.StartAsync(cancellation); //rsp.Body.FlushAsync(cancellation);
     }
 
     /// <summary>

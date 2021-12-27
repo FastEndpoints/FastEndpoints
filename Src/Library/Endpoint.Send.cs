@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
 
@@ -14,8 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
     {
         Response = response;
-        HttpContext.Response.StatusCode = statusCode;
-        return HttpContext.Response.WriteAsJsonAsync(response, SerializerOptions, cancellation);
+        return HttpContext.Response.SendAsync(response, statusCode, cancellation);
     }
 
     /// <summary>
@@ -26,9 +24,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation">optional cancellation token</param>
     protected Task SendStringAsync(string content, int statusCode = 200, CancellationToken cancellation = default)
     {
-        HttpContext.Response.StatusCode = statusCode;
-        HttpContext.Response.ContentType = "text/plain";
-        return HttpContext.Response.WriteAsync(content, cancellation);
+        return HttpContext.Response.SendStringAsync(content, statusCode, cancellation);
     }
 
     /// <summary>
@@ -36,8 +32,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected Task SendOkAsync()
     {
-        HttpContext.Response.StatusCode = 200;
-        return Task.CompletedTask;
+        return HttpContext.Response.SendOkAsync();
     }
 
     /// <summary>
@@ -46,8 +41,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation"></param>
     protected Task SendErrorsAsync(CancellationToken cancellation = default)
     {
-        HttpContext.Response.StatusCode = 400;
-        return HttpContext.Response.WriteAsJsonAsync(new ErrorResponse(ValidationFailures), SerializerOptions, cancellation);
+        return HttpContext.Response.SendErrorsAsync(ValidationFailures, cancellation);
     }
 
     /// <summary>
@@ -55,8 +49,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected Task SendNoContentAsync()
     {
-        HttpContext.Response.StatusCode = 204;
-        return Task.CompletedTask;
+        return HttpContext.Response.SendNoContentAsync();
     }
 
     /// <summary>
@@ -64,8 +57,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected Task SendNotFoundAsync()
     {
-        HttpContext.Response.StatusCode = 404;
-        return Task.CompletedTask;
+        return HttpContext.Response.SendNotFoundAsync();
     }
 
     /// <summary>
@@ -73,8 +65,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected Task SendUnauthorizedAsync()
     {
-        HttpContext.Response.StatusCode = 401;
-        return Task.CompletedTask;
+        return HttpContext.Response.SendUnauthorizedAsync();
     }
 
     /// <summary>
@@ -82,8 +73,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected Task SendForbiddenAsync()
     {
-        HttpContext.Response.StatusCode = 403;
-        return Task.CompletedTask;
+        return HttpContext.Response.SendForbiddenAsync();
     }
 
     /// <summary>
@@ -94,8 +84,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation">optional cancellation token</param>
     protected async Task SendBytesAsync(byte[] bytes, string? fileName = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
     {
-        using var memoryStream = new MemoryStream(bytes);
-        await SendStreamAsync(memoryStream, fileName, bytes.Length, contentType, cancellation).ConfigureAwait(false);
+        await HttpContext.Response.SendBytesAsync(bytes, fileName, contentType, cancellation).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -106,7 +95,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation">optional cancellation token</param>
     protected Task SendFileAsync(FileInfo fileInfo, string contentType = "application/octet-stream", CancellationToken cancellation = default)
     {
-        return SendStreamAsync(fileInfo.OpenRead(), fileInfo.Name, fileInfo.Length, contentType, cancellation);
+        return HttpContext.Response.SendFileAsync(fileInfo, contentType, cancellation);
     }
 
     /// <summary>
@@ -119,14 +108,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation">optional cancellation token</param>
     protected Task SendStreamAsync(Stream stream, string? fileName = null, long? fileLengthBytes = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
     {
-        HttpContext.Response.StatusCode = 200;
-        HttpContext.Response.ContentType = contentType;
-        HttpContext.Response.ContentLength = fileLengthBytes;
-
-        if (fileName is not null)
-            HttpContext.Response.Headers.Add("Content-Disposition", $"attachment; filename={fileName}");
-
-        return HttpContext.WriteToResponseAsync(stream, cancellation == default ? HttpContext.RequestAborted : cancellation);
+        return HttpContext.Response.SendStreamAsync(stream, fileName, fileLengthBytes, contentType, cancellation);
     }
 
     /// <summary>
@@ -135,8 +117,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation">optional cancellation token</param>
     protected Task SendEmptyJsonObject(CancellationToken cancellation = default)
     {
-        HttpContext.Response.StatusCode = 200;
-        return HttpContext.Response.WriteAsJsonAsync(new JsonObject(), SerializerOptions, cancellation);
+        return HttpContext.Response.SendEmptyJsonObject(cancellation);
     }
 }
 

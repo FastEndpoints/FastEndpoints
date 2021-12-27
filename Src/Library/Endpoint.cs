@@ -31,6 +31,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
             await RunPreprocessors(preProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
 
+            if (ctx.Response.HasStarted)
+                return; //response already sent to client (most likely from a preprocessor)
+
             OnBeforeHandle(req); await OnBeforeHandleAsync(req).ConfigureAwait(false);
             await HandleAsync(req, cancellation).ConfigureAwait(false);
             OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response).ConfigureAwait(false);

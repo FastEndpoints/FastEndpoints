@@ -2,15 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.16.0</Version>
+        <Version>2.17.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - add EndpointWithMapping overload
-            - remove EndpointWithMapper overload
-            - optimize endpoint discovery logic
-            - improve di property injection logic
-            - improve service resolver interface
-            - misc. code refactors
+            - ability to send responses from pre-processors
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

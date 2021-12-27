@@ -1,6 +1,6 @@
-# pipeline behaviors
+# pre/post processors
 
-rather than writing a common piece of logic repeatedly that must be executed either before or after each request to your system, you can write it as a pipeline behavior and attach it to endpoints that need them. there are two types of pipeline behaviors. `pre-processors` and `post-processors`.
+rather than writing a common piece of logic repeatedly that must be executed either before or after each request to your system, you can write it as a processor and attach it to endpoints that need them. there are two types of processors. `pre-processors` and `post-processors`.
 
 # pre-processors
 
@@ -50,7 +50,7 @@ public class SalesRequestLogger : IPreProcessor<CreateSaleRequest>
 
 # post-processors
 
-post-processor pipeline behaviors are executed after your endpoint handler has completed it's work. they can be created similarly by implementing the interface **IPostProcessor<TRequest, TResponse>**:
+post-processors are executed after your endpoint handler has completed it's work. they can be created similarly by implementing the interface **IPostProcessor<TRequest, TResponse>**:
 
 ```csharp
 public class MyResponseLogger<TRequest, TResponse> : IPostProcessor<TRequest, TResponse>
@@ -82,4 +82,4 @@ public class CreateOrderEndpoint : Endpoint<CreateSaleRequest, CreateSaleRespons
 ```
 
 # multiple pipeline behaviors
-you can attach multiple pipeline behaviors with both `PreProcessors()` and `PostProcessors()` methods. the processors are executed in the order they are supplied to the methods.
+you can attach multiple processors with both `PreProcessors()` and `PostProcessors()` methods. the processors are executed in the order they are supplied to the methods.

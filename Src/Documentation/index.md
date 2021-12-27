@@ -41,7 +41,6 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 - Convenient business logic validation and error responses
 - Easy access to environment and configuration settings
 - Supports response caching
-- Supports pipeline behaviors like MediatR
 - Supports in-process pub/sub event notifications
 - Auto discovery of event notification handlers
 - Convenient integration testing (route-less and strongly-typed)

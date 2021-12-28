@@ -1,11 +1,11 @@
 ﻿namespace FastEndpoints;
 
-public class PlainTextRequest
+public interface IPlainTextRequest
 {
-    public string Content { get; init; }
+    string Content { get; set; }
+}
 
-    public PlainTextRequest(string content)
-    {
-        Content = content;
-    }
+public class PlainTextRequest : IPlainTextRequest
+{
+    public string Content { get; set; }
 }

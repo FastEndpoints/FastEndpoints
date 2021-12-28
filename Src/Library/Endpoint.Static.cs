@@ -16,7 +16,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             req = await ctx.Request.ReadFromJsonAsync<TRequest>(SerializerOptions, cancellation).ConfigureAwait(false);
         }
-        else if (ctx.Request.ContentLength > 0 && typeof(TRequest) == typeof(PlainTextRequest))
+        else if (ctx.Request.ContentLength > 0 && typeof(PlainTextRequest).IsAssignableFrom(typeof(TRequest)))
         {
             req = await BindFromPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
         }
@@ -69,11 +69,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static async Task<TRequest?> BindFromPlainTextBody(Stream body)
+    private static async Task<TRequest> BindFromPlainTextBody(Stream body)
     {
-        return new PlainTextRequest(
-            await new StreamReader(body).ReadToEndAsync().ConfigureAwait(false)
-            ) as TRequest;
+        IPlainTextRequest req = (IPlainTextRequest)new TRequest();
+        req.Content = await new StreamReader(body).ReadToEndAsync().ConfigureAwait(false);
+        return (TRequest)req;
     }
 
     private static void BindFromFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)

@@ -5,7 +5,7 @@ namespace FastEndpoints;
 /// <summary>
 /// the dto used to send an error response to the client
 /// </summary>
-public class ErrorResponse
+public sealed class ErrorResponse
 {
     /// <summary>
     /// the http status code sent to the client. default is 400.

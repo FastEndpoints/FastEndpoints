@@ -3,5 +3,5 @@
 /// <summary>
 /// a response dto that doesn't have any properties
 /// </summary>
-public class EmptyResponse { }
+public sealed class EmptyResponse { }
 

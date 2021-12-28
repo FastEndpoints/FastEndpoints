@@ -67,7 +67,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Settings.Verbs = methods.Select(m => m.ToString()).ToArray();
         Settings.InternalConfigAction = b =>
         {
-            if (typeof(TRequest) != typeof(EmptyRequest))
+            var tRequest = typeof(TRequest);
+            var tResponse = typeof(TResponse);
+            var tPtRequest = typeof(PlainTextRequest);
+
+            if (tPtRequest.IsAssignableFrom(tRequest))
+            {
+                b.Accepts<TRequest>("text/plain");
+                b.Produces<TResponse>(200, "text/plain", "application/json");
+                return;
+            }
+
+            if (tRequest != typeof(EmptyRequest))
             {
                 if (methods.Contains(Http.GET))
                     b.Accepts<TRequest>("*/*", "application/json");
@@ -75,7 +86,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                     b.Accepts<TRequest>("application/json");
             }
 
-            if (typeof(TResponse) == typeof(object) || typeof(TResponse) == typeof(EmptyResponse))
+            if (tResponse == typeof(object) || tResponse == typeof(EmptyResponse))
                 b.Produces<TResponse>(200, "text/plain", "application/json");
             else
                 b.Produces<TResponse>(200, "application/json");

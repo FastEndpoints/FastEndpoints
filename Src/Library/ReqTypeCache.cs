@@ -13,15 +13,15 @@ internal static class ReqTypeCache<TRequest>
 
     static ReqTypeCache()
     {
-        var reqType = typeof(TRequest);
+        var tRequest = typeof(TRequest);
 
-        foreach (var propInfo in reqType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+        foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
             if (!propInfo.CanRead || !propInfo.CanWrite)
                 continue;
 
             var propName = propInfo.Name;
-            var compiledSetter = reqType.SetterForProp(propName);
+            var compiledSetter = tRequest.SetterForProp(propName);
 
             if (AddFromClaimPropCacheEntry(propInfo, propName, compiledSetter))
                 continue;

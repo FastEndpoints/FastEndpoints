@@ -1,6 +1,4 @@
-﻿#pragma warning disable CS8618
-
-namespace TestCases.RouteBindingTest;
+﻿namespace TestCases.RouteBindingTest;
 
 public class Request
 {

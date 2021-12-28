@@ -29,9 +29,7 @@ public abstract class BaseEndpoint : IEndpoint
     /// <summary>
     /// the http context of the current request
     /// </summary>
-#pragma warning disable CS8618
     public HttpContext HttpContext { get; set; }
-#pragma warning restore CS8618
 
     /// <summary>
     /// use this method to configure how the endpoint should be listening to incoming requests.

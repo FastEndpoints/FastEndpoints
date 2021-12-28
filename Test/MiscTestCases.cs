@@ -270,7 +270,6 @@ namespace Test
         [TestMethod]
         public async Task PreProcessorShortCircuitWrongHeaderValue()
         {
-
             await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
             {
                 var (rsp, res) = await AdminClient.POSTAsync<
@@ -278,7 +277,6 @@ namespace Test
                     Sales.Orders.Retrieve.Request,
                     object>(new() { OrderID = "order1" });
             });
-
         }
 
         [TestMethod]

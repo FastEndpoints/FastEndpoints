@@ -6,16 +6,23 @@ using System.Security.Claims;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
 {
     private static async Task<TRequest> BindToModelAsync(HttpContext ctx, List<ValidationFailure> failures, CancellationToken cancellation)
     {
-        TRequest? req = default;
+        TRequest? req = null;
 
-        if (ctx.Request.HasJsonContentType() && ctx.Request.ContentLength > 0)
+        if (ctx.Request.ContentLength > 0 && ctx.Request.HasJsonContentType())
+        {
             req = await ctx.Request.ReadFromJsonAsync<TRequest>(SerializerOptions, cancellation).ConfigureAwait(false);
+        }
+        else if (ctx.Request.ContentLength > 0 && typeof(TRequest) == typeof(PlainTextRequest))
+        {
+            req = await BindFromPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
+        }
 
-        if (req is null) req = new();
+        if (req is null)
+            req = new();
 
         BindFromFormValues(req, ctx.Request, failures);
         BindFromRouteValues(req, ctx.Request.RouteValues, failures);
@@ -60,6 +67,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             foreach (var p in (IPreProcessor<TRequest>[])preProcessors)
                 await p.PreProcessAsync(req, ctx, validationFailures, cancellation).ConfigureAwait(false);
         }
+    }
+
+    private static async Task<TRequest?> BindFromPlainTextBody(Stream body)
+    {
+        return new PlainTextRequest(
+            await new StreamReader(body).ReadToEndAsync().ConfigureAwait(false)
+            ) as TRequest;
     }
 
     private static void BindFromFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)

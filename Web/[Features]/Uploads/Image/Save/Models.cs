@@ -1,5 +1,4 @@
 ﻿namespace Uploads.Image.Save;
-#pragma warning disable CS8618
 
 public class Request
 {

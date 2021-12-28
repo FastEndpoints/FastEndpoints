@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
 {
     /// <summary>
     /// specify to listen for GET requests on one or more routes.

@@ -124,7 +124,7 @@ public static class HttpContextExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendStreamAsync(this HttpResponse rsp, Stream stream, string? fileName = null, long? fileLengthBytes = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
     {
-        if (stream is null) throw new ArgumentNullException("The supplied stream cannot be null!");
+        if (stream is null) throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 
         if (stream.Position > 0 && !stream.CanSeek)
             throw new ArgumentException("The supplied stream is not seekable and the postition can't be set back to 0.");

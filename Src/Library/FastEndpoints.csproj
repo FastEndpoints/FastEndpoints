@@ -2,10 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>2.17.0-beta1</Version>
+        <Version>2.17.0-beta2</Version>
 
         <PackageReleaseNotes>
-            - ability to send responses from pre-processors
+            - support for sending responses from pre-processors
+            - support for fast binding of request content body
+            - misc. minor refactors
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

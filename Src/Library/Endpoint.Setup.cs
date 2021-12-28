@@ -69,7 +69,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             var tRequest = typeof(TRequest);
             var tResponse = typeof(TResponse);
-            var tPtRequest = typeof(PlainTextRequest);
+            var tPtRequest = typeof(IPlainTextRequest);
 
             if (tPtRequest.IsAssignableFrom(tRequest))
             {

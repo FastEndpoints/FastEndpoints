@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Security.Cryptography;
 using TestCases.EventHandlingTest;
 using static Test.Setup;
@@ -289,6 +290,20 @@ namespace Test
 
             Assert.AreEqual(HttpStatusCode.OK, rsp.StatusCode);
             Assert.AreEqual("ok!", res.Message);
+        }
+
+        [TestMethod]
+        public async Task PlainTextBodyModelBinding()
+        {
+            using var stringContent = new StringContent("this is the body content");
+            stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
+
+            var rsp = await AdminClient.PostAsync("test-cases/plaintext/12345", stringContent);
+
+            var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
+
+            Assert.AreEqual("this is the body content", res.BodyContent);
+            Assert.AreEqual(12345, res.Id);
         }
     }
 }

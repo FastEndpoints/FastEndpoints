@@ -16,7 +16,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             req = await ctx.Request.ReadFromJsonAsync<TRequest>(SerializerOptions, cancellation).ConfigureAwait(false);
         }
-        else if (ctx.Request.ContentLength > 0 && typeof(PlainTextRequest).IsAssignableFrom(typeof(TRequest)))
+        else if (ctx.Request.ContentLength > 0 && typeof(IPlainTextRequest).IsAssignableFrom(typeof(TRequest)))
         {
             req = await BindFromPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
         }

@@ -72,7 +72,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private static async Task<TRequest> BindFromPlainTextBody(Stream body)
     {
         IPlainTextRequest req = (IPlainTextRequest)new TRequest();
-        req.Content = await new StreamReader(body).ReadToEndAsync().ConfigureAwait(false);
+        using var streamReader = new StreamReader(body);
+        req.Content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
         return (TRequest)req;
     }
 

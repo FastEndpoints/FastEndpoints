@@ -93,7 +93,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(httpRequest.Form.Files[y].Name, out var prop))
             {
-                if (prop.PropType == typeof(IFormFile))
+                if (prop.PropType == Types.IFormFile)
                     prop.PropSetter(req, httpRequest.Form.Files[y]);
                 else
                     failures.Add(new(prop.PropName, "Files can only be bound to properties of type IFormFile!"));
@@ -202,38 +202,38 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
                     var prpType = prop.PropType;
 
-                    if (prpType == typeof(IFormFile))
+                    if (prpType == Types.IFormFile)
                         return; //skip if it's a form file field
 
-                    if (prpType == typeof(Guid))
+                    if (prpType == Types.Guid)
                     {
                         propType = "Guid";
                         success = Guid.TryParse((string?)rv.Value, out var resGuid);
                         prop.PropSetter(req, resGuid);
                     }
 
-                    if (prpType == typeof(Enum))
+                    if (prpType == Types.Enum)
                     {
                         propType = "Enum";
                         success = Enum.TryParse(prpType, (string?)rv.Value, out var resEnum);
                         prop.PropSetter(req, resEnum!);
                     }
 
-                    if (prpType == typeof(Uri))
+                    if (prpType == Types.Uri)
                     {
                         propType = "Uri";
                         success = true;
                         prop.PropSetter(req, new Uri((string?)rv.Value!));
                     }
 
-                    if (prpType == typeof(Version))
+                    if (prpType == Types.Version)
                     {
                         propType = "Version";
                         success = Version.TryParse((string?)rv.Value, out var resUri);
                         prop.PropSetter(req, resUri!);
                     }
 
-                    if (prpType == typeof(TimeSpan))
+                    if (prpType == Types.TimeSpan)
                     {
                         propType = "TimeSpan";
                         success = TimeSpan.TryParse((string?)rv.Value, out var resTimeSpan);

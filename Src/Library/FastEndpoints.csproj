@@ -7,6 +7,7 @@
         <PackageReleaseNotes>
             - support for sending responses from pre-processors
             - support for fast binding of request content body
+            - optimize model binding
             - misc. minor refactors
         </PackageReleaseNotes>
 

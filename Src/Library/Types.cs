@@ -5,6 +5,9 @@ namespace FastEndpoints;
 
 internal static class Types
 {
+    //there's no performance benefit gained from this.
+    //it's only there to make code more readable and save a few keystrokes.
+
     internal static readonly Type IEndpoint = typeof(IEndpoint);
     internal static readonly Type IValidator = typeof(IValidator);
     internal static readonly Type IEventHandler = typeof(IEventHandler);

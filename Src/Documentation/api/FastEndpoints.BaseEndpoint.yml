@@ -62,7 +62,7 @@ items:
   source:
     id: HttpContext
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
-    startLine: 32
+    startLine: 31
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -95,7 +95,7 @@ items:
   source:
     id: Configure
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
-    startLine: 39
+    startLine: 37
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -125,7 +125,7 @@ items:
   source:
     id: ValidationFailures
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
-    startLine: 44
+    startLine: 42
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

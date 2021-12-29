@@ -14,9 +14,11 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>pre/post processors | FastEndpoints </title>
+    <title>Class PlainTextRequest
+   | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="pre/post processors | FastEndpoints ">
+    <meta name="title" content="Class PlainTextRequest
+   | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
     <link rel="shortcut icon" href="../images/favicon.ico">
@@ -91,100 +93,85 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="">
-<h1 id="prepost-processors">pre/post processors</h1>
-
-<p>rather than writing a common piece of logic repeatedly that must be executed either before or after each request to your system, you can write it as a processor and attach it to endpoints that need them. there are two types of processors. <code>pre-processors</code> and <code>post-processors</code>.</p>
-<h1 id="pre-processors">pre-processors</h1>
-<p>let's say for example that you'd like to log every request before being executed by your endpoint handlers. you can simply write a pre-processor like below by implementing the interface <strong>IPreProcessor&lt;TRequest&gt;</strong>:</p>
-<pre><code class="lang-csharp">public class MyRequestLogger&lt;TRequest&gt; : IPreProcessor&lt;TRequest&gt;
-{
-    public Task PreProcessAsync(TRequest req, HttpContext ctx, List&lt;ValidationFailure&gt; failures, CancellationToken ct)
-    {
-        var logger = ctx.RequestServices.GetRequiredService&lt;ILogger&lt;TRequest&gt;&gt;();
-
-        logger.LogInformation($&quot;request:{req?.GetType().FullName} path: {ctx.Request.Path}&quot;);
-
-        return Task.CompletedTask;
-    }
-}
-</code></pre>
-<p>and then attach it to the endpoints you need like so:</p>
-<pre><code class="lang-csharp">public class CreateOrderEndpoint : Endpoint&lt;CreateOrderRequest&gt;
-{
-    public override void Configure()
-    {
-        Verbs(Http.POST);
-        Routes(&quot;/sales/orders/create&quot;);
-        PreProcessors(new MyRequestLogger&lt;CreateOrderRequest&gt;());
-    }
-}
-</code></pre>
-<p>you can even write a request dto specific processor like so:</p>
-<pre><code class="lang-csharp">public class SalesRequestLogger : IPreProcessor&lt;CreateSaleRequest&gt;
-{
-    public Task PreProcessAsync(CreateSaleRequest req, HttpContext ctx, List&lt;ValidationFailure&gt; failures, CancellationToken ct)
-    {
-        var logger = ctx.RequestServices.GetRequiredService&lt;ILogger&lt;CreateSaleRequest&gt;&gt;();
-
-        logger.LogInformation($&quot;sale value:{req.SaleValue}&quot;);
-
-        return Task.CompletedTask;
-    }
-}
-</code></pre>
-<h2 id="short-circuiting-execution">short-circuiting execution</h2>
-<p>it is possible to end processing the request by returning a response from within a pre-processor like so:</p>
-<pre><code class="lang-csharp">public class SecurityProcessor&lt;TRequest&gt; : IPreProcessor&lt;TRequest&gt;
-{
-    public Task PreProcessAsync(TRequest req, HttpContext ctx, List&lt;ValidationFailure&gt; failures, CancellationToken ct)
-    {
-        var tenantID = ctx.Request.Headers[&quot;tenant-id&quot;].FirstOrDefault();
-
-        if (tenantID == null)
-        {
-            failures.Add(new(&quot;MissingHeaders&quot;, &quot;The [tenant-id] header needs to be set!&quot;));
-            return ctx.Response.SendErrorsAsync(failures); //sending response here
-        }
-
-        if (tenantID != &quot;qwerty&quot;)
-            return ctx.Response.SendForbiddenAsync(); //sending response here
-
-        return Task.CompletedTask;
-    }
-}
-</code></pre>
-<p>all the <a href="Misc-Conveniences.html#send-methods">Send* methods</a> supported by endpoint handlers are available. the send methods are accessed from the <code>ctx.Response</code> property as shown above. when a response is sent from a pre-processor, the handler method is not executed. however, if there are multiple pre-processors configured, they will be executed. if another pre-processor also wants to send a response, they must check if it's possible to do so by checking the property <code>ctx.Response.HasStarted</code> to see if a previously executed pre-processor has already sent a response to the client.</p>
-<h1 id="post-processors">post-processors</h1>
-<p>post-processors are executed after your endpoint handler has completed it's work. they can be created similarly by implementing the interface <strong>IPostProcessor&lt;TRequest, TResponse&gt;</strong>:</p>
-<pre><code class="lang-csharp">public class MyResponseLogger&lt;TRequest, TResponse&gt; : IPostProcessor&lt;TRequest, TResponse&gt;
-{
-    public Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection&lt;ValidationFailure&gt; failures, CancellationToken ct)
-    {
-        var logger = ctx.RequestServices.GetRequiredService&lt;ILogger&lt;TResponse&gt;&gt;();
-
-        if (res is CreateSaleResponse response)
-        {
-            logger.LogWarning($&quot;sale complete: {response.OrderID}&quot;);
-        }
-
-        return Task.CompletedTask;
-    }
-}
-</code></pre>
-<p>and then attach it to endpoints like so:</p>
-<pre><code class="lang-csharp">public class CreateOrderEndpoint : Endpoint&lt;CreateSaleRequest, CreateSaleResponse&gt;
-{
-    public override void Configure()
-    {
-        Verbs(Http.POST);
-        Routes(&quot;/sales/orders/create&quot;);
-        PostProcessors(new MyResponseLogger&lt;CreateSaleRequest, CreateSaleResponse&gt;());
-    }
-}
-</code></pre>
-<h1 id="multiple-processors">multiple processors</h1>
-<p>you can attach multiple processors with both <code>PreProcessors()</code> and <code>PostProcessors()</code> methods. the processors are executed in the order they are supplied to the methods.</p>
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.PlainTextRequest">
+  
+  
+  <h1 id="FastEndpoints_PlainTextRequest" data-uid="FastEndpoints.PlainTextRequest" class="text-break">Class PlainTextRequest
+  </h1>
+  <div class="markdown level0 summary"><p>use this dto if you need to model bind the raw content body of an incoming http request or you may implement the IPlainTextRequest interface on your own request dto.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">PlainTextRequest</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="FastEndpoints.IPlainTextRequest.html">IPlainTextRequest</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
+  <h5 id="FastEndpoints_PlainTextRequest_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class PlainTextRequest : IPlainTextRequest</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="FastEndpoints_PlainTextRequest_Content_" data-uid="FastEndpoints.PlainTextRequest.Content*"></a>
+  <h4 id="FastEndpoints_PlainTextRequest_Content" data-uid="FastEndpoints.PlainTextRequest.Content">Content</h4>
+  <div class="markdown level1 summary"><p>the body content of the incoming request</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Content { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="FastEndpoints.IPlainTextRequest.html">IPlainTextRequest</a>
+  </div>
 </article>
           </div>
           

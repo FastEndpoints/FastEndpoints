@@ -15,19 +15,19 @@ items:
   source:
     id: Endpoint
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 97
+    startLine: 100
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nuse this base class for defining endpoints that only use a request dto and don&apos;t use a response dto.\n"
   example: []
   syntax:
-    content: 'public abstract class Endpoint<TRequest> : Endpoint<TRequest, object>, IEndpoint, IServiceResolver where TRequest : new()'
+    content: 'public abstract class Endpoint<TRequest> : Endpoint<TRequest, object>, IEndpoint, IServiceResolver where TRequest : class, new()'
     typeParameters:
     - id: TRequest
       description: the type of the request dto
     content.vb: >-
-      Public MustInherit Class Endpoint(Of TRequest As New)
+      Public MustInherit Class Endpoint(Of TRequest As {Class, New})
 
           Inherits Endpoint(Of TRequest, Object)
 
@@ -65,12 +65,12 @@ items:
   - FastEndpoints.Endpoint{{TRequest},System.Object}.Files
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendAsync(System.Object,System.Int32,CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendStringAsync(System.String,System.Int32,CancellationToken)
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendOkAsync
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendOkAsync(CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendErrorsAsync(CancellationToken)
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendNoContentAsync
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendNotFoundAsync
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendUnauthorizedAsync
-  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendForbiddenAsync
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendNoContentAsync(CancellationToken)
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendNotFoundAsync(CancellationToken)
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendUnauthorizedAsync(CancellationToken)
+  - FastEndpoints.Endpoint{{TRequest},System.Object}.SendForbiddenAsync(CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendFileAsync(FileInfo,System.String,CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},System.Object}.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
@@ -1026,34 +1026,44 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendOkAsync
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendOkAsync
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendOkAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendOkAsync(CancellationToken)
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.SendOkAsync
-  name: SendOkAsync()
-  nameWithType: Endpoint<TRequest, Object>.SendOkAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendOkAsync()
-  nameWithType.vb: Endpoint(Of TRequest, Object).SendOkAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendOkAsync()
+  definition: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
+  name: SendOkAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, Object>.SendOkAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendOkAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, Object).SendOkAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendOkAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendOkAsync
+  - uid: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
     name: SendOkAsync
     nameWithType: Endpoint<TRequest, Object>.SendOkAsync
     fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendOkAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendOkAsync
+  - uid: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
     name: SendOkAsync
     nameWithType: Endpoint(Of TRequest, Object).SendOkAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).SendOkAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
@@ -1098,127 +1108,167 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendNoContentAsync
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendNoContentAsync
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendNoContentAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendNoContentAsync(CancellationToken)
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.SendNoContentAsync
-  name: SendNoContentAsync()
-  nameWithType: Endpoint<TRequest, Object>.SendNoContentAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendNoContentAsync()
-  nameWithType.vb: Endpoint(Of TRequest, Object).SendNoContentAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendNoContentAsync()
+  definition: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
+  name: SendNoContentAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, Object>.SendNoContentAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendNoContentAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, Object).SendNoContentAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendNoContentAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendNoContentAsync
+  - uid: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
     name: SendNoContentAsync
     nameWithType: Endpoint<TRequest, Object>.SendNoContentAsync
     fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendNoContentAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendNoContentAsync
+  - uid: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
     name: SendNoContentAsync
     nameWithType: Endpoint(Of TRequest, Object).SendNoContentAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).SendNoContentAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendNotFoundAsync
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendNotFoundAsync
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendNotFoundAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendNotFoundAsync(CancellationToken)
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.SendNotFoundAsync
-  name: SendNotFoundAsync()
-  nameWithType: Endpoint<TRequest, Object>.SendNotFoundAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendNotFoundAsync()
-  nameWithType.vb: Endpoint(Of TRequest, Object).SendNotFoundAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendNotFoundAsync()
+  definition: FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
+  name: SendNotFoundAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, Object>.SendNotFoundAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendNotFoundAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, Object).SendNotFoundAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendNotFoundAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync
+  - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
     name: SendNotFoundAsync
     nameWithType: Endpoint<TRequest, Object>.SendNotFoundAsync
     fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendNotFoundAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync
+  - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
     name: SendNotFoundAsync
     nameWithType: Endpoint(Of TRequest, Object).SendNotFoundAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).SendNotFoundAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendUnauthorizedAsync
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendUnauthorizedAsync
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendUnauthorizedAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendUnauthorizedAsync(CancellationToken)
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
-  name: SendUnauthorizedAsync()
-  nameWithType: Endpoint<TRequest, Object>.SendUnauthorizedAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendUnauthorizedAsync()
-  nameWithType.vb: Endpoint(Of TRequest, Object).SendUnauthorizedAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendUnauthorizedAsync()
+  definition: FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
+  name: SendUnauthorizedAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, Object>.SendUnauthorizedAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendUnauthorizedAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, Object).SendUnauthorizedAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendUnauthorizedAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
+  - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
     name: SendUnauthorizedAsync
     nameWithType: Endpoint<TRequest, Object>.SendUnauthorizedAsync
     fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendUnauthorizedAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
+  - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
     name: SendUnauthorizedAsync
     nameWithType: Endpoint(Of TRequest, Object).SendUnauthorizedAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).SendUnauthorizedAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendForbiddenAsync
-  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendForbiddenAsync
+- uid: FastEndpoints.Endpoint{{TRequest},System.Object}.SendForbiddenAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint{`0,System.Object}.SendForbiddenAsync(CancellationToken)
   parent: FastEndpoints.Endpoint{{TRequest},System.Object}
-  definition: FastEndpoints.Endpoint`2.SendForbiddenAsync
-  name: SendForbiddenAsync()
-  nameWithType: Endpoint<TRequest, Object>.SendForbiddenAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendForbiddenAsync()
-  nameWithType.vb: Endpoint(Of TRequest, Object).SendForbiddenAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendForbiddenAsync()
+  definition: FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
+  name: SendForbiddenAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, Object>.SendForbiddenAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendForbiddenAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, Object).SendForbiddenAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, System.Object).SendForbiddenAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync
+  - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
     name: SendForbiddenAsync
     nameWithType: Endpoint<TRequest, Object>.SendForbiddenAsync
     fullName: FastEndpoints.Endpoint<TRequest, System.Object>.SendForbiddenAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync
+  - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
     name: SendForbiddenAsync
     nameWithType: Endpoint(Of TRequest, Object).SendForbiddenAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, System.Object).SendForbiddenAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
@@ -4128,32 +4178,43 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.SendOkAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendOkAsync
-  name: SendOkAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync()
+- uid: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
+  isExternal: true
+  name: SendOkAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendOkAsync
+  - uid: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
     name: SendOkAsync
     nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync
     fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendOkAsync
+  - uid: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
     name: SendOkAsync
     nameWithType: Endpoint(Of TRequest, TResponse).SendOkAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
@@ -4197,119 +4258,163 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.SendNoContentAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendNoContentAsync
-  name: SendNoContentAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync()
+- uid: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
+  isExternal: true
+  name: SendNoContentAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendNoContentAsync
+  - uid: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
     name: SendNoContentAsync
     nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync
     fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendNoContentAsync
+  - uid: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
     name: SendNoContentAsync
     nameWithType: Endpoint(Of TRequest, TResponse).SendNoContentAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.SendNotFoundAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendNotFoundAsync
-  name: SendNotFoundAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync()
+- uid: FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
+  isExternal: true
+  name: SendNotFoundAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync
+  - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
     name: SendNotFoundAsync
     nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync
     fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync
+  - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
     name: SendNotFoundAsync
     nameWithType: Endpoint(Of TRequest, TResponse).SendNotFoundAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendUnauthorizedAsync
-  name: SendUnauthorizedAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync()
+- uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
+  isExternal: true
+  name: SendUnauthorizedAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
+  - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
     name: SendUnauthorizedAsync
     nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync
     fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
+  - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
     name: SendUnauthorizedAsync
     nameWithType: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.Endpoint`2.SendForbiddenAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendForbiddenAsync
-  name: SendForbiddenAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync()
+- uid: FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
+  isExternal: true
+  name: SendForbiddenAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync(CancellationToken)
   spec.csharp:
-  - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync
+  - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
     name: SendForbiddenAsync
     nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync
     fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )
   spec.vb:
-  - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync
+  - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
     name: SendForbiddenAsync
     nameWithType: Endpoint(Of TRequest, TResponse).SendForbiddenAsync
     fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync
   - name: (
     nameWithType: (
     fullName: (
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
   - name: )
     nameWithType: )
     fullName: )

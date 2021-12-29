@@ -22,8 +22,8 @@ items:
   summary: "\na response dto that doesn&apos;t have any properties\n"
   example: []
   syntax:
-    content: public class EmptyResponse
-    content.vb: Public Class EmptyResponse
+    content: public sealed class EmptyResponse
+    content.vb: Public NotInheritable Class EmptyResponse
   inheritance:
   - System.Object
   inheritedMembers:
@@ -36,9 +36,11 @@ items:
   - System.Object.ToString
   modifiers.csharp:
   - public
+  - sealed
   - class
   modifiers.vb:
   - Public
+  - NotInheritable
   - Class
 references:
 - uid: FastEndpoints

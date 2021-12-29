@@ -83,6 +83,15 @@ sends a 401 unauthorized response
 #### SendForbiddenAsync()
 sends a 403 unauthorized response
 
+#### SendBytesAsync()
+sends a byte array to the client
+
+#### SendFileAsync()
+sends a file to the client
+
+#### SendStreamAsync()
+sends the contents of a stream to the client
+
 # hook methods
 the following 4 hook methods allow you to do something before and after dto validation as well as handler execution.
 

@@ -22,12 +22,15 @@ items:
   - FastEndpoints.FromHeaderAttribute
   - FastEndpoints.Http
   - FastEndpoints.HttpClientExtensions
+  - FastEndpoints.HttpContextExtensions
   - FastEndpoints.IEntityMapper
+  - FastEndpoints.IPlainTextRequest
   - FastEndpoints.IPostProcessor`2
   - FastEndpoints.IPreProcessor`1
   - FastEndpoints.MainExtensions
   - FastEndpoints.Mapper`3
   - FastEndpoints.Mode
+  - FastEndpoints.PlainTextRequest
   langs:
   - csharp
   - vb
@@ -69,6 +72,11 @@ references:
   name: ErrorResponse
   nameWithType: ErrorResponse
   fullName: FastEndpoints.ErrorResponse
+- uid: FastEndpoints.PlainTextRequest
+  commentId: T:FastEndpoints.PlainTextRequest
+  name: PlainTextRequest
+  nameWithType: PlainTextRequest
+  fullName: FastEndpoints.PlainTextRequest
 - uid: FastEndpoints.BaseEndpoint
   commentId: T:FastEndpoints.BaseEndpoint
   parent: FastEndpoints
@@ -414,6 +422,11 @@ references:
   name: HttpClientExtensions
   nameWithType: HttpClientExtensions
   fullName: FastEndpoints.HttpClientExtensions
+- uid: FastEndpoints.HttpContextExtensions
+  commentId: T:FastEndpoints.HttpContextExtensions
+  name: HttpContextExtensions
+  nameWithType: HttpContextExtensions
+  fullName: FastEndpoints.HttpContextExtensions
 - uid: FastEndpoints.MainExtensions
   commentId: T:FastEndpoints.MainExtensions
   name: MainExtensions
@@ -509,6 +522,12 @@ references:
   name: IEntityMapper
   nameWithType: IEntityMapper
   fullName: FastEndpoints.IEntityMapper
+- uid: FastEndpoints.IPlainTextRequest
+  commentId: T:FastEndpoints.IPlainTextRequest
+  parent: FastEndpoints
+  name: IPlainTextRequest
+  nameWithType: IPlainTextRequest
+  fullName: FastEndpoints.IPlainTextRequest
 - uid: FastEndpoints.Mapper`3
   commentId: T:FastEndpoints.Mapper`3
   name: Mapper<TRequest, TResponse, TEntity>

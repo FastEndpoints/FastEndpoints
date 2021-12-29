@@ -148,7 +148,7 @@
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
+    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : class, new()
 
     where TResponse : new()</code></pre>
   </div>
@@ -1826,14 +1826,32 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendForbiddenAsync_" data-uid="FastEndpoints.Endpoint`2.SendForbiddenAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendForbiddenAsync" data-uid="FastEndpoints.Endpoint`2.SendForbiddenAsync">SendForbiddenAsync()</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendForbiddenAsync_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)">SendForbiddenAsync(CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 403 unauthorized response</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendForbiddenAsync()</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendForbiddenAsync(CancellationToken cancellation = null)</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
@@ -1852,14 +1870,32 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendNoContentAsync_" data-uid="FastEndpoints.Endpoint`2.SendNoContentAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendNoContentAsync" data-uid="FastEndpoints.Endpoint`2.SendNoContentAsync">SendNoContentAsync()</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendNoContentAsync_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)">SendNoContentAsync(CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 204 no content response</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendNoContentAsync()</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendNoContentAsync(CancellationToken cancellation = null)</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
@@ -1878,14 +1914,32 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendNotFoundAsync_" data-uid="FastEndpoints.Endpoint`2.SendNotFoundAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendNotFoundAsync" data-uid="FastEndpoints.Endpoint`2.SendNotFoundAsync">SendNotFoundAsync()</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendNotFoundAsync_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)">SendNotFoundAsync(CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 404 not found response</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendNotFoundAsync()</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendNotFoundAsync(CancellationToken cancellation = null)</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
@@ -1904,14 +1958,32 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendOkAsync_" data-uid="FastEndpoints.Endpoint`2.SendOkAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendOkAsync" data-uid="FastEndpoints.Endpoint`2.SendOkAsync">SendOkAsync()</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendOkAsync_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)">SendOkAsync(CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send an http 200 ok response without any body</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendOkAsync()</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendOkAsync(CancellationToken cancellation = null)</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
@@ -2054,14 +2126,32 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendUnauthorizedAsync_" data-uid="FastEndpoints.Endpoint`2.SendUnauthorizedAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendUnauthorizedAsync" data-uid="FastEndpoints.Endpoint`2.SendUnauthorizedAsync">SendUnauthorizedAsync()</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendUnauthorizedAsync_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)">SendUnauthorizedAsync(CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 401 unauthorized response</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendUnauthorizedAsync()</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendUnauthorizedAsync(CancellationToken cancellation = null)</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>

@@ -884,14 +884,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendFileAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendFileAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendFileAsync
-- uid: FastEndpoints.Endpoint`2.SendForbiddenAsync
-  name: SendForbiddenAsync()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendForbiddenAsync
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync()
+- uid: FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
+  name: SendForbiddenAsync(CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendForbiddenAsync*
   name: SendForbiddenAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync_
@@ -901,14 +901,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync
-- uid: FastEndpoints.Endpoint`2.SendNoContentAsync
-  name: SendNoContentAsync()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendNoContentAsync
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync()
+- uid: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
+  name: SendNoContentAsync(CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendNoContentAsync*
   name: SendNoContentAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync_
@@ -918,14 +918,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync
-- uid: FastEndpoints.Endpoint`2.SendNotFoundAsync
-  name: SendNotFoundAsync()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNotFoundAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendNotFoundAsync
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync()
+- uid: FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
+  name: SendNotFoundAsync(CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNotFoundAsync_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendNotFoundAsync*
   name: SendNotFoundAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNotFoundAsync_
@@ -935,14 +935,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync
-- uid: FastEndpoints.Endpoint`2.SendOkAsync
-  name: SendOkAsync()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendOkAsync
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync()
+- uid: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
+  name: SendOkAsync(CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendOkAsync*
   name: SendOkAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync_
@@ -987,14 +987,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStringAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendStringAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStringAsync
-- uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
-  name: SendUnauthorizedAsync()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendUnauthorizedAsync
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync()
+- uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
+  name: SendUnauthorizedAsync(CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync*
   name: SendUnauthorizedAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync_
@@ -1743,12 +1743,205 @@ references:
   fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
   nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
   nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpContextExtensions
+  name: HttpContextExtensions
+  href: api/FastEndpoints.HttpContextExtensions.html
+  commentId: T:FastEndpoints.HttpContextExtensions
+  fullName: FastEndpoints.HttpContextExtensions
+  nameWithType: HttpContextExtensions
+- uid: FastEndpoints.HttpContextExtensions.SendAsync*
+  name: SendAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendAsync
+  nameWithType: HttpContextExtensions.SendAsync
+- uid: FastEndpoints.HttpContextExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
+  name: SendAsync<TResponse>(HttpResponse, TResponse, Int32, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendAsync__1_Microsoft_AspNetCore_Http_HttpResponse___0_System_Int32_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
+  name.vb: SendAsync(Of TResponse)(HttpResponse, TResponse, Int32, CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendAsync<TResponse>(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Int32, CancellationToken)
+  fullName.vb: FastEndpoints.HttpContextExtensions.SendAsync(Of TResponse)(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Int32, CancellationToken)
+  nameWithType: HttpContextExtensions.SendAsync<TResponse>(HttpResponse, TResponse, Int32, CancellationToken)
+  nameWithType.vb: HttpContextExtensions.SendAsync(Of TResponse)(HttpResponse, TResponse, Int32, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
+  name: SendBytesAsync(HttpResponse, Byte[], String, String, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendBytesAsync_Microsoft_AspNetCore_Http_HttpResponse_System_Byte___System_String_System_String_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
+  name.vb: SendBytesAsync(HttpResponse, Byte(), String, String, CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte[], System.String, System.String, CancellationToken)
+  fullName.vb: FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte(), System.String, System.String, CancellationToken)
+  nameWithType: HttpContextExtensions.SendBytesAsync(HttpResponse, Byte[], String, String, CancellationToken)
+  nameWithType.vb: HttpContextExtensions.SendBytesAsync(HttpResponse, Byte(), String, String, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendBytesAsync*
+  name: SendBytesAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendBytesAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendBytesAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendBytesAsync
+  nameWithType: HttpContextExtensions.SendBytesAsync
+- uid: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  name: SendEmptyJsonObject(HttpResponse, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendEmptyJsonObject_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpContextExtensions.SendEmptyJsonObject(HttpResponse, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject*
+  name: SendEmptyJsonObject
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendEmptyJsonObject_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendEmptyJsonObject
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject
+  nameWithType: HttpContextExtensions.SendEmptyJsonObject
+- uid: FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
+  name: SendErrorsAsync(HttpResponse, List<ValidationFailure>, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendErrorsAsync_Microsoft_AspNetCore_Http_HttpResponse_List_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
+  name.vb: SendErrorsAsync(HttpResponse, List(Of ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List<ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List(Of ValidationFailure), CancellationToken)
+  nameWithType: HttpContextExtensions.SendErrorsAsync(HttpResponse, List<ValidationFailure>, CancellationToken)
+  nameWithType.vb: HttpContextExtensions.SendErrorsAsync(HttpResponse, List(Of ValidationFailure), CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendErrorsAsync*
+  name: SendErrorsAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendErrorsAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendErrorsAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendErrorsAsync
+  nameWithType: HttpContextExtensions.SendErrorsAsync
+- uid: FastEndpoints.HttpContextExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
+  name: SendFileAsync(HttpResponse, FileInfo, String, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendFileAsync_Microsoft_AspNetCore_Http_HttpResponse_FileInfo_System_String_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse, FileInfo, System.String, CancellationToken)
+  nameWithType: HttpContextExtensions.SendFileAsync(HttpResponse, FileInfo, String, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendFileAsync*
+  name: SendFileAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendFileAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendFileAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendFileAsync
+  nameWithType: HttpContextExtensions.SendFileAsync
+- uid: FastEndpoints.HttpContextExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  name: SendForbiddenAsync(HttpResponse, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendForbiddenAsync_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpContextExtensions.SendForbiddenAsync(HttpResponse, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendForbiddenAsync*
+  name: SendForbiddenAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendForbiddenAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendForbiddenAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendForbiddenAsync
+  nameWithType: HttpContextExtensions.SendForbiddenAsync
+- uid: FastEndpoints.HttpContextExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  name: SendNoContentAsync(HttpResponse, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendNoContentAsync_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpContextExtensions.SendNoContentAsync(HttpResponse, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendNoContentAsync*
+  name: SendNoContentAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendNoContentAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendNoContentAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendNoContentAsync
+  nameWithType: HttpContextExtensions.SendNoContentAsync
+- uid: FastEndpoints.HttpContextExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  name: SendNotFoundAsync(HttpResponse, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendNotFoundAsync_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpContextExtensions.SendNotFoundAsync(HttpResponse, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendNotFoundAsync*
+  name: SendNotFoundAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendNotFoundAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendNotFoundAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendNotFoundAsync
+  nameWithType: HttpContextExtensions.SendNotFoundAsync
+- uid: FastEndpoints.HttpContextExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  name: SendOkAsync(HttpResponse, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendOkAsync_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpContextExtensions.SendOkAsync(HttpResponse, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendOkAsync*
+  name: SendOkAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendOkAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendOkAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendOkAsync
+  nameWithType: HttpContextExtensions.SendOkAsync
+- uid: FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
+  name: SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendStreamAsync_Microsoft_AspNetCore_Http_HttpResponse_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
+  name.vb: SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable<System.Int64>, System.String, CancellationToken)
+  fullName.vb: FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable(Of System.Int64), System.String, CancellationToken)
+  nameWithType: HttpContextExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, CancellationToken)
+  nameWithType.vb: HttpContextExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendStreamAsync*
+  name: SendStreamAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendStreamAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendStreamAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendStreamAsync
+  nameWithType: HttpContextExtensions.SendStreamAsync
+- uid: FastEndpoints.HttpContextExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
+  name: SendStringAsync(HttpResponse, String, Int32, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendStringAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Int32_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Int32, CancellationToken)
+  nameWithType: HttpContextExtensions.SendStringAsync(HttpResponse, String, Int32, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendStringAsync*
+  name: SendStringAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendStringAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendStringAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendStringAsync
+  nameWithType: HttpContextExtensions.SendStringAsync
+- uid: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  name: SendUnauthorizedAsync(HttpResponse, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendUnauthorizedAsync_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpContextExtensions.SendUnauthorizedAsync(HttpResponse, CancellationToken)
+- uid: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync*
+  name: SendUnauthorizedAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendUnauthorizedAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync
+  nameWithType: HttpContextExtensions.SendUnauthorizedAsync
 - uid: FastEndpoints.IEntityMapper
   name: IEntityMapper
   href: api/FastEndpoints.IEntityMapper.html
   commentId: T:FastEndpoints.IEntityMapper
   fullName: FastEndpoints.IEntityMapper
   nameWithType: IEntityMapper
+- uid: FastEndpoints.IPlainTextRequest
+  name: IPlainTextRequest
+  href: api/FastEndpoints.IPlainTextRequest.html
+  commentId: T:FastEndpoints.IPlainTextRequest
+  fullName: FastEndpoints.IPlainTextRequest
+  nameWithType: IPlainTextRequest
+- uid: FastEndpoints.IPlainTextRequest.Content
+  name: Content
+  href: api/FastEndpoints.IPlainTextRequest.html#FastEndpoints_IPlainTextRequest_Content
+  commentId: P:FastEndpoints.IPlainTextRequest.Content
+  fullName: FastEndpoints.IPlainTextRequest.Content
+  nameWithType: IPlainTextRequest.Content
+- uid: FastEndpoints.IPlainTextRequest.Content*
+  name: Content
+  href: api/FastEndpoints.IPlainTextRequest.html#FastEndpoints_IPlainTextRequest_Content_
+  commentId: Overload:FastEndpoints.IPlainTextRequest.Content
+  isSpec: "True"
+  fullName: FastEndpoints.IPlainTextRequest.Content
+  nameWithType: IPlainTextRequest.Content
 - uid: FastEndpoints.IPostProcessor`2
   name: IPostProcessor<TRequest, TResponse>
   href: api/FastEndpoints.IPostProcessor-2.html
@@ -1988,6 +2181,25 @@ references:
   commentId: F:FastEndpoints.Mode.WaitForNone
   fullName: FastEndpoints.Mode.WaitForNone
   nameWithType: Mode.WaitForNone
+- uid: FastEndpoints.PlainTextRequest
+  name: PlainTextRequest
+  href: api/FastEndpoints.PlainTextRequest.html
+  commentId: T:FastEndpoints.PlainTextRequest
+  fullName: FastEndpoints.PlainTextRequest
+  nameWithType: PlainTextRequest
+- uid: FastEndpoints.PlainTextRequest.Content
+  name: Content
+  href: api/FastEndpoints.PlainTextRequest.html#FastEndpoints_PlainTextRequest_Content
+  commentId: P:FastEndpoints.PlainTextRequest.Content
+  fullName: FastEndpoints.PlainTextRequest.Content
+  nameWithType: PlainTextRequest.Content
+- uid: FastEndpoints.PlainTextRequest.Content*
+  name: Content
+  href: api/FastEndpoints.PlainTextRequest.html#FastEndpoints_PlainTextRequest_Content_
+  commentId: Overload:FastEndpoints.PlainTextRequest.Content
+  isSpec: "True"
+  fullName: FastEndpoints.PlainTextRequest.Content
+  nameWithType: PlainTextRequest.Content
 - uid: FastEndpoints.Security
   name: FastEndpoints.Security
   href: api/FastEndpoints.Security.html

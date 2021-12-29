@@ -52,13 +52,13 @@ items:
   - FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
   - FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)
   - FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)
-  - FastEndpoints.Endpoint`2.SendForbiddenAsync
-  - FastEndpoints.Endpoint`2.SendNoContentAsync
-  - FastEndpoints.Endpoint`2.SendNotFoundAsync
-  - FastEndpoints.Endpoint`2.SendOkAsync
+  - FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
+  - FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
+  - FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
+  - FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
   - FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
   - FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
-  - FastEndpoints.Endpoint`2.SendUnauthorizedAsync
+  - FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
   - FastEndpoints.Endpoint`2.ThrowError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
   - FastEndpoints.Endpoint`2.ThrowError(System.String)
   - FastEndpoints.Endpoint`2.ThrowIfAnyErrors
@@ -85,7 +85,7 @@ items:
   example: []
   syntax:
     content: >-
-      public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
+      public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : class, new()
 
           where TResponse : new()
     typeParameters:
@@ -94,7 +94,7 @@ items:
     - id: TResponse
       description: the type of the response dto
     content.vb: >-
-      Public MustInherit Class Endpoint(Of TRequest As New, TResponse As New)
+      Public MustInherit Class Endpoint(Of TRequest As {Class, New}, TResponse As New)
 
           Inherits BaseEndpoint
 
@@ -184,7 +184,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 49
+    startLine: 52
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -223,7 +223,7 @@ items:
   source:
     id: TryResolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 54
+    startLine: 57
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -259,7 +259,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 60
+    startLine: 63
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -298,7 +298,7 @@ items:
   source:
     id: Resolve
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 66
+    startLine: 69
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -334,7 +334,7 @@ items:
   source:
     id: PublishAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 78
+    startLine: 81
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1042,7 +1042,7 @@ items:
   source:
     id: SendAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 13
+    startLine: 12
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1084,7 +1084,7 @@ items:
   source:
     id: SendStringAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 26
+    startLine: 24
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1112,38 +1112,42 @@ items:
   modifiers.vb:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStringAsync(System.String, System.Int32, CancellationToken)
-- uid: FastEndpoints.Endpoint`2.SendOkAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendOkAsync
-  id: SendOkAsync
+- uid: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
+  id: SendOkAsync(CancellationToken)
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: SendOkAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync()
+  name: SendOkAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync(CancellationToken)
   type: Method
   source:
     id: SendOkAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 36
+    startLine: 33
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nsend an http 200 ok response without any body\n"
   example: []
   syntax:
-    content: protected Task SendOkAsync()
+    content: protected Task SendOkAsync(CancellationToken cancellation = null)
+    parameters:
+    - id: cancellation
+      type: CancellationToken
+      description: optional cancellation token
     return:
       type: Task
-    content.vb: Protected Function SendOkAsync As Task
+    content.vb: Protected Function SendOkAsync(cancellation As CancellationToken = Nothing) As Task
   overload: FastEndpoints.Endpoint`2.SendOkAsync*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync(CancellationToken)
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)
   commentId: M:FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)
   id: SendErrorsAsync(CancellationToken)
@@ -1158,7 +1162,7 @@ items:
   source:
     id: SendErrorsAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 46
+    startLine: 42
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1180,134 +1184,150 @@ items:
   modifiers.vb:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendErrorsAsync(CancellationToken)
-- uid: FastEndpoints.Endpoint`2.SendNoContentAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendNoContentAsync
-  id: SendNoContentAsync
+- uid: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
+  id: SendNoContentAsync(CancellationToken)
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: SendNoContentAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync()
+  name: SendNoContentAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendNoContentAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNoContentAsync(CancellationToken)
   type: Method
   source:
     id: SendNoContentAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 55
+    startLine: 51
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nsend a 204 no content response\n"
   example: []
   syntax:
-    content: protected Task SendNoContentAsync()
+    content: protected Task SendNoContentAsync(CancellationToken cancellation = null)
+    parameters:
+    - id: cancellation
+      type: CancellationToken
+      description: optional cancellation token
     return:
       type: Task
-    content.vb: Protected Function SendNoContentAsync As Task
+    content.vb: Protected Function SendNoContentAsync(cancellation As CancellationToken = Nothing) As Task
   overload: FastEndpoints.Endpoint`2.SendNoContentAsync*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNoContentAsync(CancellationToken)
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync()
-- uid: FastEndpoints.Endpoint`2.SendNotFoundAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendNotFoundAsync
-  id: SendNotFoundAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNoContentAsync(CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendNotFoundAsync(CancellationToken)
+  id: SendNotFoundAsync(CancellationToken)
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: SendNotFoundAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync()
+  name: SendNotFoundAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendNotFoundAsync(CancellationToken)
   type: Method
   source:
     id: SendNotFoundAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 64
+    startLine: 60
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nsend a 404 not found response\n"
   example: []
   syntax:
-    content: protected Task SendNotFoundAsync()
+    content: protected Task SendNotFoundAsync(CancellationToken cancellation = null)
+    parameters:
+    - id: cancellation
+      type: CancellationToken
+      description: optional cancellation token
     return:
       type: Task
-    content.vb: Protected Function SendNotFoundAsync As Task
+    content.vb: Protected Function SendNotFoundAsync(cancellation As CancellationToken = Nothing) As Task
   overload: FastEndpoints.Endpoint`2.SendNotFoundAsync*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync(CancellationToken)
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync()
-- uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendUnauthorizedAsync
-  id: SendUnauthorizedAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync(CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendUnauthorizedAsync(CancellationToken)
+  id: SendUnauthorizedAsync(CancellationToken)
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: SendUnauthorizedAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync()
+  name: SendUnauthorizedAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendUnauthorizedAsync(CancellationToken)
   type: Method
   source:
     id: SendUnauthorizedAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 73
+    startLine: 69
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nsend a 401 unauthorized response\n"
   example: []
   syntax:
-    content: protected Task SendUnauthorizedAsync()
+    content: protected Task SendUnauthorizedAsync(CancellationToken cancellation = null)
+    parameters:
+    - id: cancellation
+      type: CancellationToken
+      description: optional cancellation token
     return:
       type: Task
-    content.vb: Protected Function SendUnauthorizedAsync As Task
+    content.vb: Protected Function SendUnauthorizedAsync(cancellation As CancellationToken = Nothing) As Task
   overload: FastEndpoints.Endpoint`2.SendUnauthorizedAsync*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync(CancellationToken)
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync()
-- uid: FastEndpoints.Endpoint`2.SendForbiddenAsync
-  commentId: M:FastEndpoints.Endpoint`2.SendForbiddenAsync
-  id: SendForbiddenAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync(CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendForbiddenAsync(CancellationToken)
+  id: SendForbiddenAsync(CancellationToken)
   parent: FastEndpoints.Endpoint`2
   langs:
   - csharp
   - vb
-  name: SendForbiddenAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync()
+  name: SendForbiddenAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendForbiddenAsync(CancellationToken)
   type: Method
   source:
     id: SendForbiddenAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 82
+    startLine: 78
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nsend a 403 unauthorized response\n"
   example: []
   syntax:
-    content: protected Task SendForbiddenAsync()
+    content: protected Task SendForbiddenAsync(CancellationToken cancellation = null)
+    parameters:
+    - id: cancellation
+      type: CancellationToken
+      description: optional cancellation token
     return:
       type: Task
-    content.vb: Protected Function SendForbiddenAsync As Task
+    content.vb: Protected Function SendForbiddenAsync(cancellation As CancellationToken = Nothing) As Task
   overload: FastEndpoints.Endpoint`2.SendForbiddenAsync*
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync(CancellationToken)
   modifiers.csharp:
   - protected
   modifiers.vb:
   - Protected
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
   commentId: M:FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
   id: SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
@@ -1322,7 +1342,7 @@ items:
   source:
     id: SendBytesAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 94
+    startLine: 89
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1368,7 +1388,7 @@ items:
   source:
     id: SendFileAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 106
+    startLine: 100
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1410,7 +1430,7 @@ items:
   source:
     id: SendStreamAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 119
+    startLine: 113
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1459,7 +1479,7 @@ items:
   source:
     id: SendEmptyJsonObject
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 135
+    startLine: 122
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1733,7 +1753,7 @@ items:
   source:
     id: DontThrowIfValidationFails
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 87
+    startLine: 97
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1763,7 +1783,7 @@ items:
   source:
     id: AllowAnonymous
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 93
+    startLine: 103
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1797,7 +1817,7 @@ items:
   source:
     id: AllowFileUploads
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 104
+    startLine: 114
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1827,7 +1847,7 @@ items:
   source:
     id: AllowFormData
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 109
+    startLine: 119
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1857,7 +1877,7 @@ items:
   source:
     id: Policies
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 115
+    startLine: 125
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1892,7 +1912,7 @@ items:
   source:
     id: Roles
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 121
+    startLine: 131
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1927,7 +1947,7 @@ items:
   source:
     id: Permissions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 127
+    startLine: 137
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1962,7 +1982,7 @@ items:
   source:
     id: PermissionsAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 137
+    startLine: 147
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1997,7 +2017,7 @@ items:
   source:
     id: Claims
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 147
+    startLine: 157
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2032,7 +2052,7 @@ items:
   source:
     id: ClaimsAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 157
+    startLine: 167
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2067,7 +2087,7 @@ items:
   source:
     id: PreProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 167
+    startLine: 177
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2102,7 +2122,7 @@ items:
   source:
     id: PostProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 173
+    startLine: 183
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2137,7 +2157,7 @@ items:
   source:
     id: ResponseCache
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 183
+    startLine: 193
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2184,7 +2204,7 @@ items:
   source:
     id: Options
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 199
+    startLine: 209
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -3134,7 +3154,6 @@ references:
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendFileAsync
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendFileAsync
 - uid: FileInfo
-  commentId: '!:FileInfo'
   isExternal: true
   name: FileInfo
   nameWithType: FileInfo
@@ -3147,7 +3166,6 @@ references:
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStreamAsync
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStreamAsync
 - uid: Stream
-  commentId: '!:Stream'
   isExternal: true
   name: Stream
   nameWithType: Stream

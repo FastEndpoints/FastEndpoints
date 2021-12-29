@@ -190,22 +190,22 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStringAsync_System_String_System_Int32_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.SendStringAsync(String, Int32, CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync">Endpoint&lt;TRequest, Object&gt;.SendOkAsync()</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.SendOkAsync(CancellationToken)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendErrorsAsync_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.SendErrorsAsync(CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync">Endpoint&lt;TRequest, Object&gt;.SendNoContentAsync()</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.SendNoContentAsync(CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNotFoundAsync">Endpoint&lt;TRequest, Object&gt;.SendNotFoundAsync()</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNotFoundAsync_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.SendNotFoundAsync(CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync">Endpoint&lt;TRequest, Object&gt;.SendUnauthorizedAsync()</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendUnauthorizedAsync_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.SendUnauthorizedAsync(CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync">Endpoint&lt;TRequest, Object&gt;.SendForbiddenAsync()</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.SendForbiddenAsync(CancellationToken)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_CancellationToken_">Endpoint&lt;TRequest, Object&gt;.SendBytesAsync(Byte[], String, String, CancellationToken)</a>
@@ -332,7 +332,7 @@
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
   <h5 id="FastEndpoints_Endpoint_1_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest&gt; : Endpoint&lt;TRequest, object&gt;, IEndpoint, IServiceResolver where TRequest : new()</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest&gt; : Endpoint&lt;TRequest, object&gt;, IEndpoint, IServiceResolver where TRequest : class, new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">

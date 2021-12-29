@@ -48,6 +48,30 @@ public class SalesRequestLogger : IPreProcessor<CreateSaleRequest>
 }
 ```
 
+## short-circuiting execution
+it is possible to end processing the request by returning a response from within a pre-processor like so:
+```csharp
+public class SecurityProcessor<TRequest> : IPreProcessor<TRequest>
+{
+    public Task PreProcessAsync(TRequest req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    {
+        var tenantID = ctx.Request.Headers["tenant-id"].FirstOrDefault();
+
+        if (tenantID == null)
+        {
+            failures.Add(new("MissingHeaders", "The [tenant-id] header needs to be set!"));
+            return ctx.Response.SendErrorsAsync(failures); //sending response here
+        }
+
+        if (tenantID != "qwerty")
+            return ctx.Response.SendForbiddenAsync(); //sending response here
+
+        return Task.CompletedTask;
+    }
+}
+```
+all the [Send* methods](Misc-Conveniences.md#send-methods) supported by endpoint handlers are available. the send methods are accessed from the `ctx.Response` property as shown above. when a response is sent from a pre-processor, the handler method is not executed. however, if there are multiple pre-processors configured, they will be executed. if another pre-processor also wants to send a response, they must check if it's possible to do so by checking the property `ctx.Response.HasStarted` to see if a previously executed pre-processor has already sent a response to the client.
+
 # post-processors
 
 post-processors are executed after your endpoint handler has completed it's work. they can be created similarly by implementing the interface **IPostProcessor<TRequest, TResponse>**:

@@ -27,8 +27,8 @@ items:
   summary: "\nthe dto used to send an error response to the client\n"
   example: []
   syntax:
-    content: public class ErrorResponse
-    content.vb: Public Class ErrorResponse
+    content: public sealed class ErrorResponse
+    content.vb: Public NotInheritable Class ErrorResponse
   inheritance:
   - System.Object
   inheritedMembers:
@@ -41,9 +41,11 @@ items:
   - System.Object.ToString
   modifiers.csharp:
   - public
+  - sealed
   - class
   modifiers.vb:
   - Public
+  - NotInheritable
   - Class
 - uid: FastEndpoints.ErrorResponse.StatusCode
   commentId: P:FastEndpoints.ErrorResponse.StatusCode

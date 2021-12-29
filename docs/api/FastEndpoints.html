@@ -153,6 +153,8 @@ this is a shorter alias for the [FromClaim] attribute.</p>
       <h4><a class="xref" href="FastEndpoints.HttpClientExtensions.html">HttpClientExtensions</a></h4>
       <section><p>a set of extensions to the httpclient in order to facilitate route-less integration testing</p>
 </section>
+      <h4><a class="xref" href="FastEndpoints.HttpContextExtensions.html">HttpContextExtensions</a></h4>
+      <section></section>
       <h4><a class="xref" href="FastEndpoints.MainExtensions.html">MainExtensions</a></h4>
       <section><p>provides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline</p>
 </section>
@@ -160,10 +162,16 @@ this is a shorter alias for the [FromClaim] attribute.</p>
       <section><p>use this base class to define domain entity mappers for your endpoints.</p>
 <p>HINT: entity mappers are used as singletons for performance reasons. do not maintain state in the mappers.</p>
 </section>
+      <h4><a class="xref" href="FastEndpoints.PlainTextRequest.html">PlainTextRequest</a></h4>
+      <section><p>use this dto if you need to model bind the raw content body of an incoming http request or you may implement the IPlainTextRequest interface on your own request dto.</p>
+</section>
     <h3 id="interfaces">Interfaces
   </h3>
       <h4><a class="xref" href="FastEndpoints.IEntityMapper.html">IEntityMapper</a></h4>
       <section><p>marker interface for entity mappers</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.IPlainTextRequest.html">IPlainTextRequest</a></h4>
+      <section><p>implement this interface on your request dto if you need to model bind the raw content body of an incoming http request</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.IPostProcessor-2.html">IPostProcessor&lt;TRequest, TResponse&gt;</a></h4>
       <section><p>interface for defining post-processors to be executed after the main endpoint handler is done</p>

@@ -45,8 +45,12 @@
     name: Http
   - uid: FastEndpoints.HttpClientExtensions
     name: HttpClientExtensions
+  - uid: FastEndpoints.HttpContextExtensions
+    name: HttpContextExtensions
   - uid: FastEndpoints.IEntityMapper
     name: IEntityMapper
+  - uid: FastEndpoints.IPlainTextRequest
+    name: IPlainTextRequest
   - uid: FastEndpoints.IPostProcessor`2
     name: IPostProcessor<TRequest, TResponse>
     name.vb: IPostProcessor(Of TRequest, TResponse)
@@ -60,6 +64,8 @@
     name.vb: Mapper(Of TRequest, TResponse, TEntity)
   - uid: FastEndpoints.Mode
     name: Mode
+  - uid: FastEndpoints.PlainTextRequest
+    name: PlainTextRequest
 - uid: FastEndpoints.Security
   name: FastEndpoints.Security
   items:

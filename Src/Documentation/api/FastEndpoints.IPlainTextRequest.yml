@@ -1,0 +1,87 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.IPlainTextRequest
+  commentId: T:FastEndpoints.IPlainTextRequest
+  id: IPlainTextRequest
+  parent: FastEndpoints
+  children:
+  - FastEndpoints.IPlainTextRequest.Content
+  langs:
+  - csharp
+  - vb
+  name: IPlainTextRequest
+  nameWithType: IPlainTextRequest
+  fullName: FastEndpoints.IPlainTextRequest
+  type: Interface
+  source:
+    id: IPlainTextRequest
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
+    startLine: 42
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nimplement this interface on your request dto if you need to model bind the raw content body of an incoming http request\n"
+  example: []
+  syntax:
+    content: public interface IPlainTextRequest
+    content.vb: Public Interface IPlainTextRequest
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+- uid: FastEndpoints.IPlainTextRequest.Content
+  commentId: P:FastEndpoints.IPlainTextRequest.Content
+  id: Content
+  parent: FastEndpoints.IPlainTextRequest
+  langs:
+  - csharp
+  - vb
+  name: Content
+  nameWithType: IPlainTextRequest.Content
+  fullName: FastEndpoints.IPlainTextRequest.Content
+  type: Property
+  source:
+    id: Content
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
+    startLine: 47
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nthe request body content will be bound to this property\n"
+  example: []
+  syntax:
+    content: string Content { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Property Content As String
+  overload: FastEndpoints.IPlainTextRequest.Content*
+  modifiers.csharp:
+  - get
+  - set
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints
+- uid: FastEndpoints.IPlainTextRequest.Content*
+  commentId: Overload:FastEndpoints.IPlainTextRequest.Content
+  name: Content
+  nameWithType: IPlainTextRequest.Content
+  fullName: FastEndpoints.IPlainTextRequest.Content
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System

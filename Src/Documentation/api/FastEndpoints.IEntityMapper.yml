@@ -15,7 +15,7 @@ items:
   source:
     id: IEntityMapper
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Interfaces.cs
-    startLine: 38
+    startLine: 37
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

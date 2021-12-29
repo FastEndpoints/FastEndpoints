@@ -20,18 +20,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             }
             else if (ReqTypeCache<TRequest>.IsPlainTextRequest)
             {
-                req = await BindFromPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
+                req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
             }
         }
 
         if (req is null)
             req = new();
 
-        BindFromFormValues(req, ctx.Request, failures);
-        BindFromRouteValues(req, ctx.Request.RouteValues, failures);
-        BindFromQueryParams(req, ctx.Request.Query, failures);
-        BindFromUserClaims(req, ctx.User, failures);
-        BindFromHeaders(req, ctx.Request.Headers, failures);
+        BindFormValues(req, ctx.Request, failures);
+        BindRouteValues(req, ctx.Request.RouteValues, failures);
+        BindQueryParams(req, ctx.Request.Query, failures);
+        BindUserClaims(req, ctx.User, failures);
+        BindHeaders(req, ctx.Request.Headers, failures);
 
         if (failures.Count > 0) throw new ValidationFailureException();
 
@@ -72,7 +72,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static async Task<TRequest> BindFromPlainTextBody(Stream body)
+    private static async Task<TRequest> BindPlainTextBody(Stream body)
     {
         IPlainTextRequest req = (IPlainTextRequest)new TRequest();
         using var streamReader = new StreamReader(body);
@@ -80,7 +80,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return (TRequest)req;
     }
 
-    private static void BindFromFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)
+    private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)
     {
         if (!httpRequest.HasFormContentType) return;
 
@@ -101,7 +101,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static void BindFromRouteValues(TRequest req, RouteValueDictionary routeValues, List<ValidationFailure> failures)
+    private static void BindRouteValues(TRequest req, RouteValueDictionary routeValues, List<ValidationFailure> failures)
     {
         var routeKVPs = routeValues.Where(rv => ((string?)rv.Value)?.StartsWith("{") == false).ToArray();
 
@@ -109,7 +109,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             Bind(req, routeKVPs[i], failures);
     }
 
-    private static void BindFromQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures)
+    private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures)
     {
         var queryParams = query.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
 
@@ -117,7 +117,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             Bind(req, queryParams[i], failures);
     }
 
-    private static void BindFromUserClaims(TRequest req, ClaimsPrincipal principal, List<ValidationFailure> failures)
+    private static void BindUserClaims(TRequest req, ClaimsPrincipal principal, List<ValidationFailure> failures)
     {
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromClaimProps.Count; i++)
         {
@@ -132,7 +132,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static void BindFromHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
+    private static void BindHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
     {
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromHeaderProps.Count; i++)
         {

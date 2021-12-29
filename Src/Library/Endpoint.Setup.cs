@@ -69,9 +69,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             var tRequest = typeof(TRequest);
             var tResponse = typeof(TResponse);
-            var tPtRequest = typeof(IPlainTextRequest);
 
-            if (tPtRequest.IsAssignableFrom(tRequest))
+            if (ReqTypeCache<TRequest>.IsPlainTextRequest)
             {
                 b.Accepts<TRequest>("text/plain");
                 b.Produces<TResponse>(200, "text/plain", "application/json");

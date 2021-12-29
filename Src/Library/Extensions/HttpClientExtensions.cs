@@ -21,7 +21,7 @@ public static class HttpClientExtensions
     {
         var res = await client.PostAsJsonAsync(requestUri, request, BaseEndpoint.SerializerOptions).ConfigureAwait(false);
 
-        if (typeof(TResponse) == typeof(EmptyResponse))
+        if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
 
         TResponse? body;
@@ -82,7 +82,7 @@ public static class HttpClientExtensions
     {
         var res = await client.PutAsJsonAsync(requestUri, request, BaseEndpoint.SerializerOptions).ConfigureAwait(false);
 
-        if (typeof(TResponse) == typeof(EmptyResponse))
+        if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
 
         TResponse? body;
@@ -149,7 +149,7 @@ public static class HttpClientExtensions
                 Content = new StringContent(JsonSerializer.Serialize(request, BaseEndpoint.SerializerOptions), Encoding.UTF8, "application/json")
             }).ConfigureAwait(false);
 
-        if (typeof(TResponse) == typeof(EmptyResponse))
+        if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
 
         TResponse? body;

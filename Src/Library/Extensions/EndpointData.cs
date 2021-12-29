@@ -46,9 +46,9 @@ internal sealed class EndpointData
                 !t.IsAbstract &&
                 !t.IsInterface &&
                 t.GetInterfaces().Intersect(new[] {
-                        typeof(IEndpoint),
-                        typeof(IValidator),
-                        typeof(IEventHandler)
+                        Types.IEndpoint,
+                        Types.IValidator,
+                        Types.IEventHandler
                 }).Any());
 
         //Endpoint<TRequest>
@@ -63,9 +63,9 @@ internal sealed class EndpointData
         {
             foreach (var tInterface in tDisc.GetInterfaces())
             {
-                if (tInterface == typeof(IEndpoint))
+                if (tInterface == Types.IEndpoint)
                 {
-                    var tRequest = typeof(EmptyRequest);
+                    var tRequest = Types.EmptyRequest;
 
                     if (tDisc.BaseType?.IsGenericType is true)
                         tRequest = tDisc.BaseType?.GetGenericArguments()?[0] ?? tRequest;
@@ -74,14 +74,14 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface == typeof(IValidator))
+                if (tInterface == Types.IValidator)
                 {
                     Type tRequest = tDisc.BaseType?.GetGenericArguments()[0]!;
                     valDict.Add(tRequest, tDisc);
                     continue;
                 }
 
-                if (tInterface == typeof(IEventHandler))
+                if (tInterface == Types.IEventHandler)
                 {
                     ((IEventHandler?)Activator.CreateInstance(tDisc))?.Subscribe();
                     continue;

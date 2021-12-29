@@ -77,7 +77,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 return;
             }
 
-            if (tRequest != typeof(EmptyRequest))
+            if (tRequest != Types.EmptyRequest)
             {
                 if (methods.Contains(Http.GET))
                     b.Accepts<TRequest>("*/*", "application/json");
@@ -85,7 +85,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                     b.Accepts<TRequest>("application/json");
             }
 
-            if (tResponse == typeof(object) || tResponse == typeof(EmptyResponse))
+            if (tResponse == Types.Object || tResponse == Types.EmptyResponse)
                 b.Produces<TResponse>(200, "text/plain", "application/json");
             else
                 b.Produces<TResponse>(200, "application/json");
@@ -106,7 +106,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Settings.AnonymousVerbs =
             verbs.Length > 0
             ? verbs.Select(v => v.ToString()).ToArray()
-            : Enum.GetNames(typeof(Http));
+            : Enum.GetNames(Types.Http);
     }
 
     /// <summary>

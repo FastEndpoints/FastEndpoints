@@ -20,14 +20,14 @@ internal static class ReflectionExtensions
         if (propertyInfo?.CanRead != true)
             throw new InvalidOperationException($"[{source.FullName}.{propertyName}] is not readable!");
 
-        var sourceObjectParam = Expression.Parameter(typeof(object), "source");
+        var sourceObjectParam = Expression.Parameter(Types.Object, "source");
 
         Expression returnExpression = Expression.Call(
             Expression.Convert(sourceObjectParam, source),
             propertyInfo.GetGetMethod()!);
 
         if (!propertyInfo.PropertyType.IsClass)
-            returnExpression = Expression.Convert(returnExpression, typeof(object));
+            returnExpression = Expression.Convert(returnExpression, Types.Object);
 
         return Expression.Lambda<Func<object, object>>(returnExpression, sourceObjectParam).Compile();
     }
@@ -39,9 +39,9 @@ internal static class ReflectionExtensions
         if (propertyInfo?.CanWrite != true)
             throw new InvalidOperationException($"[{source.FullName}.{propertyName}] is not writable!");
 
-        var sourceObjectParam = Expression.Parameter(typeof(object), "source");
+        var sourceObjectParam = Expression.Parameter(Types.Object, "source");
 
-        var propertyValueParam = Expression.Parameter(typeof(object), "value");
+        var propertyValueParam = Expression.Parameter(Types.Object, "value");
 
         var valueExpression = Expression.Convert(propertyValueParam, propertyInfo.PropertyType);
 

@@ -17,7 +17,7 @@ internal static class ReqTypeCache<TRequest>
     {
         var tRequest = typeof(TRequest);
 
-        IsPlainTextRequest = typeof(IPlainTextRequest).IsAssignableFrom(tRequest);
+        IsPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
 
         foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
@@ -46,7 +46,7 @@ internal static class ReqTypeCache<TRequest>
         var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
         if (attrib is not null)
         {
-            if (propInfo.PropertyType != typeof(string))
+            if (propInfo.PropertyType != Types.String)
                 throw new InvalidOperationException("[FromClaim] attributes are only supported on string properties!");
             //could add claim binding support for other types just like in route binding.
 
@@ -64,7 +64,7 @@ internal static class ReqTypeCache<TRequest>
         var attrib = propInfo.GetCustomAttribute<FromHeaderAttribute>(false);
         if (attrib is not null)
         {
-            if (propInfo.PropertyType != typeof(string))
+            if (propInfo.PropertyType != Types.String)
                 throw new InvalidOperationException("[FromHeader] attributes are only supported on string properties!");
             //could add header binding support for other types just like in route binding.
 

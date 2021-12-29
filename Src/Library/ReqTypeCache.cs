@@ -11,9 +11,13 @@ internal static class ReqTypeCache<TRequest>
 
     internal static List<FromHeaderPropCacheEntry> CachedFromHeaderProps { get; } = new();
 
+    internal static bool IsPlainTextRequest;
+
     static ReqTypeCache()
     {
         var tRequest = typeof(TRequest);
+
+        IsPlainTextRequest = typeof(IPlainTextRequest).IsAssignableFrom(tRequest);
 
         foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
@@ -21,6 +25,10 @@ internal static class ReqTypeCache<TRequest>
                 continue;
 
             var propName = propInfo.Name;
+
+            if (IsPlainTextRequest && propName == nameof(IPlainTextRequest.Content))
+                continue;
+
             var compiledSetter = tRequest.SetterForProp(propName);
 
             if (AddFromClaimPropCacheEntry(propInfo, propName, compiledSetter))

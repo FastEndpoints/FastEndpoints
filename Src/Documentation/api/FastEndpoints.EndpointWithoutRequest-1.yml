@@ -94,6 +94,7 @@ items:
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.PostProcessors(FastEndpoints.IPostProcessor{FastEndpoints.EmptyRequest,{TResponse}}[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.ResponseCache(System.Int32,Microsoft.AspNetCore.Mvc.ResponseCacheLocation,System.Boolean,System.String,System.String[])
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.AddError(System.String)
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.AddError(System.Linq.Expressions.Expression{Func{FastEndpoints.EmptyRequest,System.Object}},System.String)
   - FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.ThrowIfAnyErrors
@@ -2671,6 +2672,70 @@ references:
     name: Options
     nameWithType: Endpoint(Of EmptyRequest, TResponse).Options
     fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, TResponse).Options
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.AspNetCore.Builder.RouteHandlerBuilder
+    name: RouteHandlerBuilder
+    nameWithType: RouteHandlerBuilder
+    fullName: Microsoft.AspNetCore.Builder.RouteHandlerBuilder
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  commentId: M:FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,`0}.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  parent: FastEndpoints.Endpoint{FastEndpoints.EmptyRequest,{TResponse}}
+  definition: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  name: Describe(Action<RouteHandlerBuilder>)
+  nameWithType: Endpoint<EmptyRequest, TResponse>.Describe(Action<RouteHandlerBuilder>)
+  fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, TResponse>.Describe(Action<Microsoft.AspNetCore.Builder.RouteHandlerBuilder>)
+  nameWithType.vb: Endpoint(Of EmptyRequest, TResponse).Describe(Action(Of RouteHandlerBuilder))
+  fullName.vb: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, TResponse).Describe(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder))
+  name.vb: Describe(Action(Of RouteHandlerBuilder))
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+    name: Describe
+    nameWithType: Endpoint<EmptyRequest, TResponse>.Describe
+    fullName: FastEndpoints.Endpoint<FastEndpoints.EmptyRequest, TResponse>.Describe
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.AspNetCore.Builder.RouteHandlerBuilder
+    name: RouteHandlerBuilder
+    nameWithType: RouteHandlerBuilder
+    fullName: Microsoft.AspNetCore.Builder.RouteHandlerBuilder
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+    name: Describe
+    nameWithType: Endpoint(Of EmptyRequest, TResponse).Describe
+    fullName: FastEndpoints.Endpoint(Of FastEndpoints.EmptyRequest, TResponse).Describe
   - name: (
     nameWithType: (
     fullName: (
@@ -5785,6 +5850,69 @@ references:
     name: Options
     nameWithType: Endpoint(Of TRequest, TResponse).Options
     fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).Options
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.AspNetCore.Builder.RouteHandlerBuilder
+    name: RouteHandlerBuilder
+    nameWithType: RouteHandlerBuilder
+    fullName: Microsoft.AspNetCore.Builder.RouteHandlerBuilder
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  commentId: M:FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  isExternal: true
+  name: Describe(Action<RouteHandlerBuilder>)
+  nameWithType: Endpoint<TRequest, TResponse>.Describe(Action<RouteHandlerBuilder>)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Describe(Action<Microsoft.AspNetCore.Builder.RouteHandlerBuilder>)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Describe(Action(Of RouteHandlerBuilder))
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder))
+  name.vb: Describe(Action(Of RouteHandlerBuilder))
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+    name: Describe
+    nameWithType: Endpoint<TRequest, TResponse>.Describe
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Describe
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.AspNetCore.Builder.RouteHandlerBuilder
+    name: RouteHandlerBuilder
+    nameWithType: RouteHandlerBuilder
+    fullName: Microsoft.AspNetCore.Builder.RouteHandlerBuilder
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+    name: Describe
+    nameWithType: Endpoint(Of TRequest, TResponse).Describe
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe
   - name: (
     nameWithType: (
     fullName: (

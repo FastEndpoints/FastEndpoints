@@ -18,6 +18,7 @@
   "FastEndpoints.Endpoint`2.ClaimsAll(System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Config": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Delete(System.String[])": "FastEndpoints.Endpoint-2.yml",
+  "FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.DontThrowIfValidationFails": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Env": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.Files": "FastEndpoints.Endpoint-2.yml",

@@ -65,7 +65,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-1.html",
-          "hash": "xYWx80UK/JIVSaPwY3/efXpjKrnlxe+Rm9qcpPJVRJw="
+          "hash": "tmjaKF0DhHuKiMVMH7Tr4pVFP7fIPGw+YSVFxbCefVE="
         }
       },
       "is_incremental": false,
@@ -77,7 +77,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "l1mo7qPyOs7vEa4lZy3UnRkRaFA5czPqrUWCjemMeaM="
+          "hash": "WEY8JoeKFvSod7H03oB7lAMfNozQrguYoIcc9DxDe6c="
         }
       },
       "is_incremental": false,
@@ -89,7 +89,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-3.html",
-          "hash": "C2aaSul/Ymz3qj5Vzti59zDTyC8ZZgsgzDi65PzpQIM="
+          "hash": "HPO8/ZMYnbc7bL5cqTKlxoGS9AVJFupRdKr6TddApOo="
         }
       },
       "is_incremental": false,
@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithMapping-3.html",
-          "hash": "saPcwP7SQ96eV1kzOZx3VahixOhqiHXB5HHdpawJjpw="
+          "hash": "NHBgc2eVAMmnxqR0i2xxJyUveAsfvZi17NbqK7L7ULY="
         }
       },
       "is_incremental": false,
@@ -113,7 +113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.html",
-          "hash": "P6b1Ykk7I95HWbyrAue3NEZeFc/K+16kgbhzUuB8VlE="
+          "hash": "q1w6My9WvBtxvKFNI9RMWdXDj+z1KGhfp9uGNPQz8yA="
         }
       },
       "is_incremental": false,
@@ -125,7 +125,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest.html",
-          "hash": "0g2WA+qU2USGJTN7dtrWCFfgnm0JAJh38hUFMWUZsKA="
+          "hash": "ZFKGgU2f5dY6Ud9h2Hoqmbm8oFQnldgoqyASMD+o96E="
         }
       },
       "is_incremental": false,
@@ -774,7 +774,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Swagger-Support.html",
-          "hash": "ncn1mG/d2T5e6yk103tPyboyiI7HBP+ckFSGnHgm2/s="
+          "hash": "c/2ex6dsY0sL8y1yiYvs5i450/cXontjV/W9dc7aZ4I="
         }
       },
       "is_incremental": false,

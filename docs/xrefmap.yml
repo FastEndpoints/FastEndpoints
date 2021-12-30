@@ -248,6 +248,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Delete
   nameWithType: Endpoint<TRequest, TResponse>.Delete
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Delete
+- uid: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  name: Describe(Action<RouteHandlerBuilder>)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Describe_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__
+  commentId: M:FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  name.vb: Describe(Action(Of RouteHandlerBuilder))
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Describe(Action<Microsoft.AspNetCore.Builder.RouteHandlerBuilder>)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder))
+  nameWithType: Endpoint<TRequest, TResponse>.Describe(Action<RouteHandlerBuilder>)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Describe(Action(Of RouteHandlerBuilder))
+- uid: FastEndpoints.Endpoint`2.Describe*
+  name: Describe
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Describe_
+  commentId: Overload:FastEndpoints.Endpoint`2.Describe
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Describe
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe
+  nameWithType: Endpoint<TRequest, TResponse>.Describe
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Describe
 - uid: FastEndpoints.Endpoint`2.DontThrowIfValidationFails
   name: DontThrowIfValidationFails()
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontThrowIfValidationFails

@@ -119,6 +119,21 @@ app.Run();
     options.TagActionsBy(x =&gt; new[] { x.RelativePath?.Split('/')[1] });
 });
 </code></pre>
+<h2 id="describe-your-endpoints">describe your endpoints</h2>
+<p>if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the <code>Describe()</code> method in configuration like so:</p>
+<pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest, MyResponse&gt;
+{
+    public override void Configure()
+    {
+        Post(&quot;/admin/login&quot;);
+        AllowAnonymous();
+        Describe(b =&gt; b
+          .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
+          .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
+          .ProducesProblem(500,&quot;text/plain&quot;));
+    }
+}
+</code></pre>
 <h2 id="disable-swagger-auth">disable swagger auth</h2>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwagger(addJWTBearerAuth: false);

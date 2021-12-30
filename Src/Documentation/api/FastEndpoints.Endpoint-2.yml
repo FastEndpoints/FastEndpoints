@@ -15,6 +15,7 @@ items:
   - FastEndpoints.Endpoint`2.ClaimsAll(System.String[])
   - FastEndpoints.Endpoint`2.Config
   - FastEndpoints.Endpoint`2.Delete(System.String[])
+  - FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
   - FastEndpoints.Endpoint`2.DontThrowIfValidationFails
   - FastEndpoints.Endpoint`2.Env
   - FastEndpoints.Endpoint`2.Files
@@ -1753,7 +1754,7 @@ items:
   source:
     id: DontThrowIfValidationFails
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 97
+    startLine: 99
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1783,7 +1784,7 @@ items:
   source:
     id: AllowAnonymous
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 103
+    startLine: 105
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1817,7 +1818,7 @@ items:
   source:
     id: AllowFileUploads
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 114
+    startLine: 116
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1847,7 +1848,7 @@ items:
   source:
     id: AllowFormData
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 119
+    startLine: 121
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1877,7 +1878,7 @@ items:
   source:
     id: Policies
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 125
+    startLine: 127
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1912,7 +1913,7 @@ items:
   source:
     id: Roles
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 131
+    startLine: 133
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1947,7 +1948,7 @@ items:
   source:
     id: Permissions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 137
+    startLine: 139
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1982,7 +1983,7 @@ items:
   source:
     id: PermissionsAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 147
+    startLine: 149
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2017,7 +2018,7 @@ items:
   source:
     id: Claims
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 157
+    startLine: 159
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2052,7 +2053,7 @@ items:
   source:
     id: ClaimsAll
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 167
+    startLine: 169
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2087,7 +2088,7 @@ items:
   source:
     id: PreProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 177
+    startLine: 179
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2122,7 +2123,7 @@ items:
   source:
     id: PostProcessors
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 183
+    startLine: 185
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2157,7 +2158,7 @@ items:
   source:
     id: ResponseCache
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 193
+    startLine: 195
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -2204,11 +2205,11 @@ items:
   source:
     id: Options
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
-    startLine: 209
+    startLine: 211
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nset endpoint configurations options using an endpoint builder action\n"
+  summary: "\nset endpoint configurations options using an endpoint builder action    /// \n"
   example: []
   syntax:
     content: protected void Options(Action<RouteHandlerBuilder> builder)
@@ -2225,6 +2226,41 @@ items:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Options(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder))
   name.vb: Options(Action(Of RouteHandlerBuilder))
+- uid: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  commentId: M:FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  id: Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: Describe(Action<RouteHandlerBuilder>)
+  nameWithType: Endpoint<TRequest, TResponse>.Describe(Action<RouteHandlerBuilder>)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Describe(Action<Microsoft.AspNetCore.Builder.RouteHandlerBuilder>)
+  type: Method
+  source:
+    id: Describe
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Setup.cs
+    startLine: 218
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\ndescribe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.\n<code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>\n"
+  example: []
+  syntax:
+    content: protected void Describe(Action<RouteHandlerBuilder> builder)
+    parameters:
+    - id: builder
+      type: Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder}
+      description: the route handler builder for this endpoint
+    content.vb: Protected Sub Describe(builder As Action(Of RouteHandlerBuilder))
+  overload: FastEndpoints.Endpoint`2.Describe*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Describe(Action(Of RouteHandlerBuilder))
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder))
+  name.vb: Describe(Action(Of RouteHandlerBuilder))
 - uid: FastEndpoints.Endpoint`2.AddError(System.String)
   commentId: M:FastEndpoints.Endpoint`2.AddError(System.String)
   id: AddError(System.String)
@@ -3610,7 +3646,6 @@ references:
     nameWithType: )
     fullName: )
 - uid: Action`1
-  commentId: '!:Action`1'
   isExternal: true
   name: Action<>
   nameWithType: Action<>
@@ -3648,6 +3683,13 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.Endpoint`2.Describe*
+  commentId: Overload:FastEndpoints.Endpoint`2.Describe
+  name: Describe
+  nameWithType: Endpoint<TRequest, TResponse>.Describe
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Describe
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Describe
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe
 - uid: FastEndpoints.Endpoint`2.AddError*
   commentId: Overload:FastEndpoints.Endpoint`2.AddError
   name: AddError

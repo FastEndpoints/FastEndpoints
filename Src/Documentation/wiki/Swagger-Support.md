@@ -31,6 +31,23 @@ builder.Services.AddSwagger(options =>
 });
 ```
 
+## describe your endpoints
+if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the `Describe()` method in configuration like so:
+```csharp
+public class MyEndpoint : Endpoint<MyRequest, MyResponse>
+{
+    public override void Configure()
+    {
+        Post("/admin/login");
+        AllowAnonymous();
+        Describe(b => b
+          .Accepts<MyRequest>("application/json")
+          .Produces<MyResponse>(200,"application/json")
+          .ProducesProblem(500,"text/plain"));
+    }
+}
+```
+
 ## disable swagger auth
 support for jwt bearer auth is automatically added. if you need to disable it, simply pass a `false` value to the following parameter:
 ```csharp

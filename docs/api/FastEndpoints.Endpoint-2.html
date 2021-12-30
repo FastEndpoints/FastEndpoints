@@ -640,6 +640,36 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   </table>
   
   
+  <a id="FastEndpoints_Endpoint_2_Describe_" data-uid="FastEndpoints.Endpoint`2.Describe*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Describe_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__" data-uid="FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})">Describe(Action&lt;RouteHandlerBuilder&gt;)</h4>
+  <div class="markdown level1 summary"><p>describe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.
+<code>b =&gt; b.Accepts&lt;Request&gt;(&quot;text/plain&quot;)</code></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Describe(Action&lt;RouteHandlerBuilder&gt; builder)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Action</span>&lt;<span class="xref">Microsoft.AspNetCore.Builder.RouteHandlerBuilder</span>&gt;</td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>the route handler builder for this endpoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_DontThrowIfValidationFails_" data-uid="FastEndpoints.Endpoint`2.DontThrowIfValidationFails*"></a>
   <h4 id="FastEndpoints_Endpoint_2_DontThrowIfValidationFails" data-uid="FastEndpoints.Endpoint`2.DontThrowIfValidationFails">DontThrowIfValidationFails()</h4>
   <div class="markdown level1 summary"><p>disable auto validation failure responses (400 bad request with error details) for this endpoint</p>
@@ -1035,7 +1065,7 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   
   <a id="FastEndpoints_Endpoint_2_Options_" data-uid="FastEndpoints.Endpoint`2.Options*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__" data-uid="FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})">Options(Action&lt;RouteHandlerBuilder&gt;)</h4>
-  <div class="markdown level1 summary"><p>set endpoint configurations options using an endpoint builder action</p>
+  <div class="markdown level1 summary"><p>set endpoint configurations options using an endpoint builder action    ///</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>

@@ -65,6 +65,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void Verbs(params Http[] methods)
     {
         Settings.Verbs = methods.Select(m => m.ToString()).ToArray();
+
+        //default openapi descriptions
         Settings.InternalConfigAction = b =>
         {
             var tRequest = typeof(TRequest);
@@ -204,8 +206,31 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// set endpoint configurations options using an endpoint builder action
+    /// set endpoint configurations options using an endpoint builder action    /// 
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
     protected void Options(Action<RouteHandlerBuilder> builder) => Settings.UserConfigAction = builder;
+
+    /// <summary>
+    /// describe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.
+    /// <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
+    /// </summary>
+    /// <param name="builder">the route handler builder for this endpoint</param>
+    protected void Describe(Action<RouteHandlerBuilder> builder)
+    {
+        Action<RouteHandlerBuilder> clearDefaultsAction = b =>
+        {
+            b.Add(epBuilder =>
+            {
+                foreach (var m in epBuilder.Metadata.Where(
+                    o => o.GetType().Name is "ProducesResponseTypeMetadata" or "AcceptsMetadata").ToArray())
+                {
+                    epBuilder.Metadata.Remove(m);
+                }
+            });
+
+        };
+
+        Settings.UserConfigAction = clearDefaultsAction + builder;
+    }
 }

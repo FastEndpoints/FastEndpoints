@@ -8,6 +8,7 @@ public class Endpoint : Endpoint<Request, Response>
         Routes("/admin/login");
         AllowAnonymous();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
+        Describe(b => b.Accepts<Request>("application/json"));
     }
 
     public override Task HandleAsync(Request r, CancellationToken ct)

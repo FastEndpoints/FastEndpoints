@@ -2,13 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.17.0</Version>
+        <Version>2.18.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - support for sending responses from pre-processors
-            - support for fast binding of request content body
-            - optimize model binding
-            - misc. minor refactors
+            - add Describe() method for specifying openapi metadata
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

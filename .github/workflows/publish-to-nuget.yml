@@ -17,7 +17,7 @@ jobs:
           dotnet-version: 6.x
 
       - name: Run Tests
-        run: dotnet test Test/Test.csproj --configuration Release --verbosity normal
+        run: dotnet test Test/Test.csproj --configuration Release --verbosity minimal
 
       - name: Make Nuget Packages
         run: dotnet pack -c Release

@@ -17,7 +17,7 @@ jobs:
           dotnet-version: 6.x
 
       - name: Run Tests
-        run: dotnet test -configuration Release --verbosity normal
+        run: dotnet test --configuration Release --verbosity normal
 
       - name: Publish To Nuget
         run: dotnet nuget push */bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json

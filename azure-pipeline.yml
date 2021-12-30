@@ -28,18 +28,18 @@ steps:
       arguments: "--configuration $(BuildConfiguration)"
       workingDirectory: "Test"
 
-  - task: DotNetCoreCLI@2
-    displayName: "Make Nuget Package"
-    inputs:
-      command: "pack"
-      packagesToPack: "Src/**/*.csproj"
-      versioningScheme: "off"
-      verbosityPack: "Minimal"
+  # - task: DotNetCoreCLI@2
+  #   displayName: "Make Nuget Package"
+  #   inputs:
+  #     command: "pack"
+  #     packagesToPack: "Src/**/*.csproj"
+  #     versioningScheme: "off"
+  #     verbosityPack: "Minimal"
 
-  - task: NuGetCommand@2
-    displayName: "Publish To Nuget"
-    inputs:
-      command: "push"
-      packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg"
-      nuGetFeedType: "external"
-      publishFeedCredentials: "nuget-djnitehawk"
+  # - task: NuGetCommand@2
+  #   displayName: "Publish To Nuget"
+  #   inputs:
+  #     command: "push"
+  #     packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg"
+  #     nuGetFeedType: "external"
+  #     publishFeedCredentials: "nuget-djnitehawk"

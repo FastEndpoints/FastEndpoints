@@ -20,9 +20,9 @@ jobs:
         run: dotnet test Test/Test.csproj --configuration Release --verbosity normal
 
       - name: Make Nuget Packages
-        run: dotnet pack Src/**/*.csproj
+        run: dotnet pack -c Release
 
       - name: Publish To Nuget
-        run: dotnet nuget push Src/**/bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}

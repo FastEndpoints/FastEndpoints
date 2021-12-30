@@ -1,35 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <OutputType>Exe</OutputType>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;RCS1090</NoWarn>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <NoWarn>1701;1702;RCS1090</NoWarn>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702;RCS1090</NoWarn>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <NoWarn>1701;1702;RCS1090</NoWarn>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="BenchmarkDotNet.Artifacts\**" />
-    <None Remove="run.cmd" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="BenchmarkDotNet.Artifacts\**" />
+        <None Remove="run.cmd" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.1" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CarterModules\CarterModules.csproj" />
-    <ProjectReference Include="..\FastEndpointsBench\FastEndpointsBench.csproj" />
-    <ProjectReference Include="..\MinimalApi\MinimalApi.csproj" />
-    <ProjectReference Include="..\MvcControllers\MvcControllers.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\CarterModules\CarterModules.csproj" />
+        <ProjectReference Include="..\FastEndpointsBench\FastEndpointsBench.csproj" />
+        <ProjectReference Include="..\MinimalApi\MinimalApi.csproj" />
+        <ProjectReference Include="..\MvcControllers\MvcControllers.csproj" />
+    </ItemGroup>
 
 </Project>

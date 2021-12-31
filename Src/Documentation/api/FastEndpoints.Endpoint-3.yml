@@ -25,9 +25,7 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IEndpoint, IServiceResolver where TRequest : class, new()
-
           where TResponse : new()
-
           where TMapper : IEntityMapper, new()
     typeParameters:
     - id: TRequest
@@ -38,9 +36,7 @@ items:
       description: the type of the entity mapper
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As {Class, New}, TResponse As New, TMapper As {IEntityMapper, New})
-
           Inherits Endpoint(Of TRequest, TResponse)
-
           Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object

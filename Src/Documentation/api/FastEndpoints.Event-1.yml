@@ -25,7 +25,6 @@ items:
   syntax:
     content: >-
       public static class Event<TEvent>
-
           where TEvent : class
     typeParameters:
     - id: TEvent

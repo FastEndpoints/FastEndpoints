@@ -77,7 +77,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "WEY8JoeKFvSod7H03oB7lAMfNozQrguYoIcc9DxDe6c="
+          "hash": "CCwSzvINDKRQjy2zW7I2+6eHiQRdtKx8CDtX9kzPgUk="
         }
       },
       "is_incremental": false,
@@ -89,7 +89,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-3.html",
-          "hash": "HPO8/ZMYnbc7bL5cqTKlxoGS9AVJFupRdKr6TddApOo="
+          "hash": "2vGvwdWdjNr+j4qjcdFmP7yg8j0XpnQtXfdxfK5PVEE="
         }
       },
       "is_incremental": false,
@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithMapping-3.html",
-          "hash": "NHBgc2eVAMmnxqR0i2xxJyUveAsfvZi17NbqK7L7ULY="
+          "hash": "r8lB7Kp38D5L/U1kAWgvdL/jlPWrRrgOaVc0/ajqQ1s="
         }
       },
       "is_incremental": false,
@@ -149,7 +149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Event-1.html",
-          "hash": "/ex1Ehy3pd5jO5Q8n5IJgcFkowHa2U0VI0bg0487YdM="
+          "hash": "PsfbQlreZ4gN53g4j4KTB+bhOTaXM7ND0FFMXtH/ZMw="
         }
       },
       "is_incremental": false,
@@ -173,7 +173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.FastEventHandler-1.html",
-          "hash": "AIWPoKhscwFPunmpYwYUQ3xficbTD5o6isLkq7e+uXw="
+          "hash": "sc4hxl1DbOJymy8X/nZmfQvGTDSFEXKxc3kgdVmOs+4="
         }
       },
       "is_incremental": false,
@@ -233,7 +233,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
-          "hash": "vqBZchAOR0GZNSLSDxkji1u6LnN+d1zZA4E97t1umBY="
+          "hash": "RKiOKG77E8a8bUOSB7be+SfgTwzUwAboytDXiEdh7mY="
         }
       },
       "is_incremental": false,
@@ -317,7 +317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Mapper-3.html",
-          "hash": "qh02MaJ596CaMrmFmyjpcGKmkHK6NRh+hn0BnXJXkpI="
+          "hash": "tbs+5OQzW6KET6WtLy7wJXMhTp3JwwXirl4W0FiMfhQ="
         }
       },
       "is_incremental": false,
@@ -425,7 +425,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Validation.Validator-1.html",
-          "hash": "cqRHErV45SfPBdpf+QT2Jr4E0b6++ZmTitm0J7KJm58="
+          "hash": "DqCtMKgZKBJur6Ag+P8TYmaH7mug42/9mIkPkJCFW0E="
         }
       },
       "is_incremental": false,

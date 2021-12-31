@@ -87,7 +87,6 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : class, new()
-
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -96,9 +95,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As {Class, New}, TResponse As New)
-
           Inherits BaseEndpoint
-
           Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object
@@ -194,7 +191,6 @@ items:
   syntax:
     content: >-
       public TService TryResolve<TService>()
-
           where TService : class
     typeParameters:
     - id: TService
@@ -269,7 +265,6 @@ items:
   syntax:
     content: >-
       public TService Resolve<TService>()
-
           where TService : class
     typeParameters:
     - id: TService
@@ -344,7 +339,6 @@ items:
   syntax:
     content: >-
       public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
           where TEvent : class
     parameters:
     - id: eventModel
@@ -693,7 +687,7 @@ items:
   source:
     id: ValidationFailed
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 14
+    startLine: 20
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -728,7 +722,7 @@ items:
   source:
     id: User
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 19
+    startLine: 25
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -763,7 +757,7 @@ items:
   source:
     id: Response
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 24
+    startLine: 30
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -798,7 +792,7 @@ items:
   source:
     id: Config
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 29
+    startLine: 35
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -833,7 +827,7 @@ items:
   source:
     id: Env
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 34
+    startLine: 40
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -868,7 +862,7 @@ items:
   source:
     id: Logger
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 39
+    startLine: 45
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -903,7 +897,7 @@ items:
   source:
     id: BaseURL
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 44
+    startLine: 50
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -938,7 +932,7 @@ items:
   source:
     id: HttpMethod
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 49
+    startLine: 55
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -973,7 +967,7 @@ items:
   source:
     id: Form
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 54
+    startLine: 60
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1008,7 +1002,7 @@ items:
   source:
     id: Files
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Properties.cs
-    startLine: 59
+    startLine: 65
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

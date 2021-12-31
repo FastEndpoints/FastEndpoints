@@ -29,7 +29,8 @@ namespace Test
                 string>(new()
                 {
                     CreatedBy = "this should be replaced by claim",
-                    CustomerName = "test customer"
+                    CustomerName = "test customer",
+                    PhoneNumbers = new[] { "123", "456" }
                 });
 
             Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);

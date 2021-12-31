@@ -7,6 +7,7 @@
         <PackageReleaseNotes>
             - add Describe() method for specifying openapi metadata
             - optimize endpoint class property accessors
+            - optimize model binding logic
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -15,7 +15,7 @@ public static class EndpointExecutor
     //key: TEndpoint
     internal static Dictionary<Type, ServiceBoundPropCacheEntry[]> CachedServiceBoundProps { get; } = new();
 
-    //note: this handler is called by .net for each http request
+    //this is the main handler registered with asp.net for all mapped endpoints/routes. this will be called for each http request.
     public static Task HandleAsync(HttpContext ctx, CancellationToken cancellation)
     {
         var ep = (RouteEndpoint?)ctx.GetEndpoint();

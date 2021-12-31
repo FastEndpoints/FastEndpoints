@@ -24,7 +24,7 @@ internal static class ReqTypeCache<TRequest>
             if (!propInfo.CanRead || !propInfo.CanWrite)
                 continue;
 
-            if (ReqTypeCache<TRequest>.IsPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
+            if (IsPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
                 continue;
 
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);

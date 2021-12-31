@@ -9,6 +9,12 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
 {
+    private Http? httpMethod;
+    private string baseURL;
+    private ILogger logger;
+    private IWebHostEnvironment env;
+    private IConfiguration config;
+
     /// <summary>
     /// indicates if there are any validation failures for the current request
     /// </summary>
@@ -27,27 +33,27 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// gives access to the configuration
     /// </summary>
-    protected IConfiguration Config => HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+    protected IConfiguration Config => config ??= HttpContext.RequestServices.GetRequiredService<IConfiguration>();
 
     /// <summary>
     /// gives access to the hosting environment
     /// </summary>
-    protected IWebHostEnvironment Env => HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
+    protected IWebHostEnvironment Env => env ??= HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
 
     /// <summary>
     /// the logger for the current endpoint type
     /// </summary>
-    protected ILogger Logger => HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest, TResponse>>>();
+    protected ILogger Logger => logger ??= HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest, TResponse>>>();
 
     /// <summary>
     /// the base url of the current request
     /// </summary>
-    protected string BaseURL => HttpContext.Request?.Scheme + "://" + HttpContext.Request?.Host + "/";
+    protected string BaseURL => baseURL ??= HttpContext.Request?.Scheme + "://" + HttpContext.Request?.Host + "/";
 
     /// <summary>
     /// the http method of the current request
     /// </summary>
-    protected Http HttpMethod => Enum.Parse<Http>(HttpContext.Request.Method);
+    protected Http HttpMethod => httpMethod ??= Enum.Parse<Http>(HttpContext.Request.Method);
 
     /// <summary>
     /// the form sent with the request. only populated if content-type is 'application/x-www-form-urlencoded' or 'multipart/form-data'

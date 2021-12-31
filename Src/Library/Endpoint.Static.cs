@@ -91,12 +91,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         for (int y = 0; y < httpRequest.Form.Files.Count; y++)
         {
-            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(httpRequest.Form.Files[y].Name, out var prop))
+            var formFile = httpRequest.Form.Files[y];
+
+            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(formFile.Name, out var prop))
             {
                 if (prop.PropType == Types.IFormFile)
-                    prop.PropSetter(req, httpRequest.Form.Files[y]);
+                    prop.PropSetter(req, formFile);
                 else
-                    failures.Add(new(prop.PropName, "Files can only be bound to properties of type IFormFile!"));
+                    failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
             }
         }
     }
@@ -147,103 +149,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static void Bind(TRequest req, KeyValuePair<string, object?> rv, List<ValidationFailure> failures)
+    private static void Bind(TRequest req, KeyValuePair<string, object?> kvp, List<ValidationFailure> failures)
     {
-        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(rv.Key, out var prop))
+        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(kvp.Key, out var prop) &&
+            prop.ValueParser is not null)
         {
-            bool success = false;
-            string propType = string.Empty;
-
-            switch (prop.PropTypeCode)
-            {
-                case TypeCode.String:
-                    propType = "String";
-                    success = true;
-                    prop.PropSetter(req, rv.Value!);
-                    break;
-
-                case TypeCode.Boolean:
-                    propType = "Bool";
-                    success = bool.TryParse((string?)rv.Value, out var resBool);
-                    prop.PropSetter(req, resBool);
-                    break;
-
-                case TypeCode.Int32:
-                    propType = "Int";
-                    success = int.TryParse((string?)rv.Value, out var resInt);
-                    prop.PropSetter(req, resInt);
-                    break;
-
-                case TypeCode.Int64:
-                    propType = "Long";
-                    success = long.TryParse((string?)rv.Value, out var resLong);
-                    prop.PropSetter(req, resLong);
-                    break;
-
-                case TypeCode.Double:
-                    propType = "Double";
-                    success = double.TryParse((string?)rv.Value, out var resDbl);
-                    prop.PropSetter(req, resDbl);
-                    break;
-
-                case TypeCode.Decimal:
-                    propType = "Decimal";
-                    success = decimal.TryParse((string?)rv.Value, out var resDec);
-                    prop.PropSetter(req, resDec);
-                    break;
-
-                case TypeCode.DateTime:
-                    propType = "DateTime";
-                    success = DateTime.TryParse((string?)rv.Value, out var resDateTime);
-                    prop.PropSetter(req, resDateTime);
-                    break;
-
-                case TypeCode.Object:
-
-                    var prpType = prop.PropType;
-
-                    if (prpType == Types.IFormFile)
-                        return; //skip if it's a form file field
-
-                    if (prpType == Types.Guid)
-                    {
-                        propType = "Guid";
-                        success = Guid.TryParse((string?)rv.Value, out var resGuid);
-                        prop.PropSetter(req, resGuid);
-                    }
-
-                    if (prpType == Types.Enum)
-                    {
-                        propType = "Enum";
-                        success = Enum.TryParse(prpType, (string?)rv.Value, out var resEnum);
-                        prop.PropSetter(req, resEnum!);
-                    }
-
-                    if (prpType == Types.Uri)
-                    {
-                        propType = "Uri";
-                        success = true;
-                        prop.PropSetter(req, new Uri((string?)rv.Value!));
-                    }
-
-                    if (prpType == Types.Version)
-                    {
-                        propType = "Version";
-                        success = Version.TryParse((string?)rv.Value, out var resUri);
-                        prop.PropSetter(req, resUri!);
-                    }
-
-                    if (prpType == Types.TimeSpan)
-                    {
-                        propType = "TimeSpan";
-                        success = TimeSpan.TryParse((string?)rv.Value, out var resTimeSpan);
-                        prop.PropSetter(req, resTimeSpan);
-                    }
-                    break;
-            }
+            var (success, value) = prop.ValueParser(kvp.Value);
+            prop.PropSetter(req, value);
 
             if (!success)
-                failures.Add(new(prop.PropName, $"Unable to bind [{rv.Value}] to a [{propType}] property!"));
+                failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.Name}] property!"));
         }
     }
 }

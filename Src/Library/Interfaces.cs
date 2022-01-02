@@ -8,7 +8,7 @@ namespace FastEndpoints;
 [HideFromDocs]
 public interface IEndpoint
 {
-    HttpContext HttpContext { get; set; } //this is for writing extension methods by consumers
+    HttpContext HttpContext { get; } //this is for allowing consumers to write extension methods
     List<ValidationFailure> ValidationFailures { get; } //also for extensibility
     void Configure();
 }

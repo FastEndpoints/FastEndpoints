@@ -20,7 +20,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
     internal override async Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
     {
-        HttpContext = ctx;
+        httpContext = ctx;
         try
         {
             var req = await BindToModelAsync(ctx, ValidationFailures, cancellation).ConfigureAwait(false);

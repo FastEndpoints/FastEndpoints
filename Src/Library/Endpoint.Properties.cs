@@ -14,6 +14,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private ILogger logger;
     private IWebHostEnvironment env;
     private IConfiguration config;
+    private TResponse response;
 
     /// <summary>
     /// indicates if there are any validation failures for the current request
@@ -28,7 +29,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// the response that is sent to the client.
     /// </summary>
-    protected TResponse Response { get; set; } = new();
+    protected TResponse Response { get => response ??= new(); set => response = value; }
 
     /// <summary>
     /// gives access to the configuration

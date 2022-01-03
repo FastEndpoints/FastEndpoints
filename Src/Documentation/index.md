@@ -29,7 +29,7 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 - Define your endpoints in multiple class files (even in deeply nested folders)
 - Auto discovery and registration of endpoints
 - Attribute-free endpoint definitions (no attribute argument type restrictions)
-- Secure by default and supports most authentication/authorization providers
+- Secure by default and supports most auth providers
 - Built-in support for JWT Bearer auth scheme
 - Supports policy/permission/role/claim based security
 - Declarative security policy building (inside each endpoint)

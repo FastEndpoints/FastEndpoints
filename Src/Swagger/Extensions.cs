@@ -18,6 +18,7 @@ public static class Extensions
         options.CustomSchemaIds(type => type.FullName);
         options.TagActionsBy(d => new[] { d.RelativePath?.Split('/')[0] });
         options.OperationFilter<DefaultOperationFilter>();
+        //options.SchemaFilter<DefaultSchemaFilter>();
     }
 
     /// <summary>

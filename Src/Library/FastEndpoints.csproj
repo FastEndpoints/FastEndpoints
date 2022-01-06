@@ -6,6 +6,7 @@
 
         <PackageReleaseNotes>
             - auto send response if not already sent from handler
+            - improve swagger integration
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

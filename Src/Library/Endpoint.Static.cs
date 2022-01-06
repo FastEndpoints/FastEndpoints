@@ -8,7 +8,7 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
 {
-    private static async Task<TRequest> BindToModelAsync(HttpContext ctx, List<ValidationFailure> failures, CancellationToken cancellation)
+    private static async Task<TRequest> BindToModel(HttpContext ctx, List<ValidationFailure> failures, CancellationToken cancellation)
     {
         TRequest? req = null;
 
@@ -78,6 +78,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         using var streamReader = new StreamReader(body);
         req.Content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
         return (TRequest)req;
+    }
+
+    private static Task SendReponseIfNotSent(HttpContext ctx, TResponse? responseDto, CancellationToken cancellation)
+    {
+        if (!ctx.Response.HasStarted)
+        {
+            if (responseDto is null)
+                return ctx.Response.SendNoContentAsync(cancellation);
+            else
+                return ctx.Response.SendAsync(responseDto, 200, cancellation);
+        }
+        return Task.CompletedTask;
     }
 
     private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)

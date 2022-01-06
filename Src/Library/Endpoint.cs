@@ -20,10 +20,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
     internal override async Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
     {
-        httpContext = ctx;
+        _httpContext = ctx;
         try
         {
-            var req = await BindToModelAsync(ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            var req = await BindToModel(ctx, ValidationFailures, cancellation).ConfigureAwait(false);
 
             OnBeforeValidate(req); await OnBeforeValidateAsync(req).ConfigureAwait(false);
             await ValidateRequest(req, (IValidator<TRequest>?)validator, ctx, preProcessors, ValidationFailures, cancellation).ConfigureAwait(false);
@@ -36,6 +36,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
             OnBeforeHandle(req); await OnBeforeHandleAsync(req).ConfigureAwait(false);
             await HandleAsync(req, cancellation).ConfigureAwait(false);
+            await SendReponseIfNotSent(ctx, _response, cancellation).ConfigureAwait(false);
             OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response).ConfigureAwait(false);
 
             await RunPostProcessors(postProcessors, req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);

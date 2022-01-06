@@ -12,11 +12,10 @@
 
         public override Task HandleAsync(EmptyRequest req, CancellationToken ct)
         {
-            return SendAsync(new()
-            {
-                ProductID = HttpContext.Request.RouteValues["ProductID"]?.ToString(),
-                LastModified = DateTime.UtcNow.Ticks
-            });
+            Response.ProductID = HttpContext.Request.RouteValues["ProductID"]?.ToString();
+            Response.LastModified = DateTime.UtcNow.Ticks;
+
+            return Task.CompletedTask;
         }
     }
 }

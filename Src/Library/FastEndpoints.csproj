@@ -2,13 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.18.1</Version>
+        <Version>2.19.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - add Describe() method for specifying openapi metadata
-            - optimize endpoint class property accessors
-            - optimize Response property of endpoint class with late init
-            - optimize model binding logic
+            - auto send response if not already sent from handler
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

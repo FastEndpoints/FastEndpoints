@@ -8,7 +8,7 @@ namespace FastEndpoints;
 
 public abstract class BaseEndpoint : IEndpoint
 {
-    protected internal HttpContext httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
+    protected internal HttpContext _httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
 
     internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
 
@@ -31,7 +31,7 @@ public abstract class BaseEndpoint : IEndpoint
     /// <summary>
     /// the http context of the current request
     /// </summary>
-    public HttpContext HttpContext => httpContext;
+    public HttpContext HttpContext => _httpContext;
 
     /// <summary>
     /// use this method to configure how the endpoint should be listening to incoming requests.

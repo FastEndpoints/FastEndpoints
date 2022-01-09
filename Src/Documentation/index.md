@@ -54,7 +54,8 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 ---
 
 <div class="actions-container">
-  <div><a href="wiki/Get-Started.md">Get Started</a></div>
+<div><a href="https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d">Tutorial</a></div>
+  <div><a href="wiki/Get-Started.md">Documentation</a></div>
   <div><a href="wiki/Benchmarks.md">Benchmarks</a></div>
 </div>
 

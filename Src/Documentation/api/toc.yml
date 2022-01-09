@@ -45,8 +45,8 @@
     name: Http
   - uid: FastEndpoints.HttpClientExtensions
     name: HttpClientExtensions
-  - uid: FastEndpoints.HttpContextExtensions
-    name: HttpContextExtensions
+  - uid: FastEndpoints.HttpResponseExtensions
+    name: HttpResponseExtensions
   - uid: FastEndpoints.IEntityMapper
     name: IEntityMapper
   - uid: FastEndpoints.IPlainTextRequest

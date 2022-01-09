@@ -183,7 +183,44 @@ app.Run();
 <p>it is also possible to define endpoints with <code>EmptyRequest</code> and <code>EmptyResponse</code> if needed like so:</p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;EmptyRequest,EmptyResponse&gt; { }
 </code></pre>
-<p>you can mix-n-match depending on your requirement.</p>
+<h1 id="sending-responses">sending responses</h1>
+<p>there are multiple response <strong><a href="Misc-Conveniences.html#send-methods">sending methods</a></strong> you can use. it is also possible to simply populate the <code>Response</code> <a href="Misc-Conveniences.html#response-tresponse">property of the endpoint</a> and get a 200 ok response with the <code>Response</code> property serialized in the body automatically. however for that to work, you need to be using either #2 or #4 generic endpoint type which takes a <code>TResponse</code> generic parameter as described above. for ex:</p>
+<p><strong>response dto:</strong></p>
+<pre><code class="lang-csharp">public class MyResponse
+{
+    public string FullName { get; set; }
+    public int Age { get; set; }
+}
+</code></pre>
+<p><strong>endpoint definition:</strong></p>
+<pre><code class="lang-csharp">public class MyEndpoint : EndpointWithoutRequest&lt;MyResponse&gt;
+{
+    public override void Configure()
+    {
+        Get(&quot;/api/person&quot;);
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(EmptyRequest _, CancellationToken ct)
+    {
+        var person = await dbContext.GetFirstPersonAsync();
+
+        Response.FullName = person.FullName;
+        Response.Age = person.Age;
+    }
+}
+</code></pre>
+<p>assigning a new instance to the <code>Response</code> property also has the same effect:</p>
+<pre><code class="lang-csharp">public override Task HandleAsync(EmptyRequest _, CancellationToken ct)
+{
+    Response = new()
+    {
+        FullName = &quot;john doe&quot;,
+        Age = 124
+    };
+    return Task.CompletedTask;
+}
+</code></pre>
 </article>
           </div>
           

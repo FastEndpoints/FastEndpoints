@@ -17,7 +17,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// send a created at 201 response with location header by specifying the endpoint where the resource can be retrieved from.
+    /// send a 201 created response with a location header containing where the resource can be retrieved from.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>

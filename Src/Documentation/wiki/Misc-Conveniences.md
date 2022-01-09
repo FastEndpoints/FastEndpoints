@@ -57,10 +57,13 @@ indicates the current validation status
 the list of validation failures for the current execution context.
 
 # send methods
-the following response sending methods are available for use from within endpoint handlers:
+the following **[response sending methods](xref:FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken))** are available for use from within endpoint handlers:
 
 #### SendAsync()
 sends a given response dto or any object that can be serialized as json down to the requesting client.
+
+#### SendCreatedAtAsync()
+sends a 201 created response with a location header containing where the resource can be retrieved from.
 
 #### SendStringAsync()
 sends a given string to the client in the response body

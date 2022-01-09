@@ -88,7 +88,6 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : class, new()
-
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -97,9 +96,7 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As {Class, New}, TResponse As New)
-
           Inherits BaseEndpoint
-
           Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object
@@ -196,7 +193,6 @@ items:
   syntax:
     content: >-
       public TService TryResolve<TService>()
-
           where TService : class
     typeParameters:
     - id: TService
@@ -271,7 +267,6 @@ items:
   syntax:
     content: >-
       public TService Resolve<TService>()
-
           where TService : class
     typeParameters:
     - id: TService
@@ -346,7 +341,6 @@ items:
   syntax:
     content: >-
       public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
           where TEvent : class
     parameters:
     - id: eventModel
@@ -1091,12 +1085,11 @@ items:
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nsend a created at 201 response with location header by specifying the endpoint where the resource can be retrieved from.\n"
+  summary: "\nsend a 201 created response with a location header containing where the resource can be retrieved from.\n"
   example: []
   syntax:
     content: >-
       protected Task SendCreatedAtAsync<TEndpoint>(object routeValues, TResponse response, CancellationToken cancellation = null)
-
           where TEndpoint : IEndpoint
     parameters:
     - id: routeValues

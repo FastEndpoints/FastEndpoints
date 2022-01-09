@@ -26,7 +26,6 @@ items:
     content: 'public class PlainTextRequest : IPlainTextRequest'
     content.vb: >-
       Public Class PlainTextRequest
-
           Implements IPlainTextRequest
   inheritance:
   - System.Object

@@ -1,3 +1,4 @@
+# [Tutorial](https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d)
 # [Get Started](Get-Started.md)
 # [Security](Security.md)
 # [Model Binding](Model-Binding.md)

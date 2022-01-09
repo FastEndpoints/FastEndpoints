@@ -22,7 +22,7 @@ items:
   - FastEndpoints.FromHeaderAttribute
   - FastEndpoints.Http
   - FastEndpoints.HttpClientExtensions
-  - FastEndpoints.HttpContextExtensions
+  - FastEndpoints.HttpResponseExtensions
   - FastEndpoints.IEntityMapper
   - FastEndpoints.IPlainTextRequest
   - FastEndpoints.IPostProcessor`2
@@ -422,11 +422,11 @@ references:
   name: HttpClientExtensions
   nameWithType: HttpClientExtensions
   fullName: FastEndpoints.HttpClientExtensions
-- uid: FastEndpoints.HttpContextExtensions
-  commentId: T:FastEndpoints.HttpContextExtensions
-  name: HttpContextExtensions
-  nameWithType: HttpContextExtensions
-  fullName: FastEndpoints.HttpContextExtensions
+- uid: FastEndpoints.HttpResponseExtensions
+  commentId: T:FastEndpoints.HttpResponseExtensions
+  name: HttpResponseExtensions
+  nameWithType: HttpResponseExtensions
+  fullName: FastEndpoints.HttpResponseExtensions
 - uid: FastEndpoints.MainExtensions
   commentId: T:FastEndpoints.MainExtensions
   name: MainExtensions

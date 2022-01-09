@@ -28,7 +28,6 @@ items:
   syntax:
     content: >-
       public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse>, IEndpoint, IServiceResolver where TRequest : class, new()
-
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -39,9 +38,7 @@ items:
       description: the type of domain entity that will be mapped to/from
     content.vb: >-
       Public MustInherit Class EndpointWithMapping(Of TRequest As {Class, New}, TResponse As New, TEntity)
-
           Inherits Endpoint(Of TRequest, TResponse)
-
           Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object

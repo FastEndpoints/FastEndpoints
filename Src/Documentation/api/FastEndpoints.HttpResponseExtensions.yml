@@ -1,40 +1,40 @@
 ### YamlMime:ManagedReference
 items:
-- uid: FastEndpoints.HttpContextExtensions
-  commentId: T:FastEndpoints.HttpContextExtensions
-  id: HttpContextExtensions
+- uid: FastEndpoints.HttpResponseExtensions
+  commentId: T:FastEndpoints.HttpResponseExtensions
+  id: HttpResponseExtensions
   parent: FastEndpoints
   children:
-  - FastEndpoints.HttpContextExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
-  - FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   langs:
   - csharp
   - vb
-  name: HttpContextExtensions
-  nameWithType: HttpContextExtensions
-  fullName: FastEndpoints.HttpContextExtensions
+  name: HttpResponseExtensions
+  nameWithType: HttpResponseExtensions
+  fullName: FastEndpoints.HttpResponseExtensions
   type: Class
   source:
-    id: HttpContextExtensions
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    id: HttpResponseExtensions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 8
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   syntax:
-    content: public static class HttpContextExtensions
-    content.vb: Public Module HttpContextExtensions
+    content: public static class HttpResponseExtensions
+    content.vb: Public Module HttpResponseExtensions
   inheritance:
   - System.Object
   inheritedMembers:
@@ -52,21 +52,21 @@ items:
   modifiers.vb:
   - Public
   - Module
-- uid: FastEndpoints.HttpContextExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
   id: SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendAsync<TResponse>(HttpResponse, TResponse, Int32, CancellationToken)
-  nameWithType: HttpContextExtensions.SendAsync<TResponse>(HttpResponse, TResponse, Int32, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendAsync<TResponse>(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Int32, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendAsync<TResponse>(HttpResponse, TResponse, Int32, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendAsync<TResponse>(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Int32, CancellationToken)
   type: Method
   source:
     id: SendAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 16
   assemblies:
   - FastEndpoints
@@ -95,41 +95,40 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendAsync(Of TResponse)(rsp As HttpResponse, response As TResponse, statusCode As Integer = 200, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendAsync*
-  nameWithType.vb: HttpContextExtensions.SendAsync(Of TResponse)(HttpResponse, TResponse, Int32, CancellationToken)
+  overload: FastEndpoints.HttpResponseExtensions.SendAsync*
+  nameWithType.vb: HttpResponseExtensions.SendAsync(Of TResponse)(HttpResponse, TResponse, Int32, CancellationToken)
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-  fullName.vb: FastEndpoints.HttpContextExtensions.SendAsync(Of TResponse)(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Int32, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendAsync(Of TResponse)(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Int32, CancellationToken)
   name.vb: SendAsync(Of TResponse)(HttpResponse, TResponse, Int32, CancellationToken)
-- uid: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
   id: SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, CancellationToken)
-  nameWithType: HttpContextExtensions.SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync<TEndpoint>(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync<TEndpoint>(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, CancellationToken)
   type: Method
   source:
     id: SendCreatedAtAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 29
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nsend a created at 201 response with location header by specifying the endpoint where the resource can be retrieved from.\n"
+  summary: "\nsend a 201 created response with a location header containing where the resource can be retrieved from.\n"
   example: []
   syntax:
     content: >-
       public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp, object routeValues, object responseBody, CancellationToken cancellation = null)
-
           where TEndpoint : IEndpoint
     parameters:
     - id: rsp
@@ -152,31 +151,31 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendCreatedAtAsync(Of TEndpoint As IEndpoint)(rsp As HttpResponse, routeValues As Object, responseBody As Object, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync*
-  nameWithType.vb: HttpContextExtensions.SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, CancellationToken)
+  overload: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*
+  nameWithType.vb: HttpResponseExtensions.SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, CancellationToken)
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-  fullName.vb: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync(Of TEndpoint)(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Of TEndpoint)(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, CancellationToken)
   name.vb: SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, CancellationToken)
-- uid: FastEndpoints.HttpContextExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
   id: SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendStringAsync(HttpResponse, String, Int32, CancellationToken)
-  nameWithType: HttpContextExtensions.SendStringAsync(HttpResponse, String, Int32, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Int32, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendStringAsync(HttpResponse, String, Int32, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Int32, CancellationToken)
   type: Method
   source:
     id: SendStringAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 46
   assemblies:
   - FastEndpoints
@@ -203,28 +202,28 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendStringAsync(rsp As HttpResponse, content As String, statusCode As Integer = 200, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendStringAsync*
+  overload: FastEndpoints.HttpResponseExtensions.SendStringAsync*
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.HttpContextExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   id: SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendOkAsync(HttpResponse, CancellationToken)
-  nameWithType: HttpContextExtensions.SendOkAsync(HttpResponse, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendOkAsync(HttpResponse, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendOkAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
   type: Method
   source:
     id: SendOkAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 57
   assemblies:
   - FastEndpoints
@@ -245,28 +244,28 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendOkAsync(rsp As HttpResponse, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendOkAsync*
+  overload: FastEndpoints.HttpResponseExtensions.SendOkAsync*
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
   id: SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendErrorsAsync(HttpResponse, List<ValidationFailure>, CancellationToken)
-  nameWithType: HttpContextExtensions.SendErrorsAsync(HttpResponse, List<ValidationFailure>, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List<ValidationFailure>, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendErrorsAsync(HttpResponse, List<ValidationFailure>, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List<ValidationFailure>, CancellationToken)
   type: Method
   source:
     id: SendErrorsAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 67
   assemblies:
   - FastEndpoints
@@ -289,31 +288,31 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendErrorsAsync(rsp As HttpResponse, failures As List(Of ValidationFailure), cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendErrorsAsync*
-  nameWithType.vb: HttpContextExtensions.SendErrorsAsync(HttpResponse, List(Of ValidationFailure), CancellationToken)
+  overload: FastEndpoints.HttpResponseExtensions.SendErrorsAsync*
+  nameWithType.vb: HttpResponseExtensions.SendErrorsAsync(HttpResponse, List(Of ValidationFailure), CancellationToken)
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-  fullName.vb: FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List(Of ValidationFailure), CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List(Of ValidationFailure), CancellationToken)
   name.vb: SendErrorsAsync(HttpResponse, List(Of ValidationFailure), CancellationToken)
-- uid: FastEndpoints.HttpContextExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   id: SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendNoContentAsync(HttpResponse, CancellationToken)
-  nameWithType: HttpContextExtensions.SendNoContentAsync(HttpResponse, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendNoContentAsync(HttpResponse, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
   type: Method
   source:
     id: SendNoContentAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 77
   assemblies:
   - FastEndpoints
@@ -334,28 +333,28 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendNoContentAsync(rsp As HttpResponse, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendNoContentAsync*
+  overload: FastEndpoints.HttpResponseExtensions.SendNoContentAsync*
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.HttpContextExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   id: SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendNotFoundAsync(HttpResponse, CancellationToken)
-  nameWithType: HttpContextExtensions.SendNotFoundAsync(HttpResponse, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendNotFoundAsync(HttpResponse, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendNotFoundAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
   type: Method
   source:
     id: SendNotFoundAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 87
   assemblies:
   - FastEndpoints
@@ -376,28 +375,28 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendNotFoundAsync(rsp As HttpResponse, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendNotFoundAsync*
+  overload: FastEndpoints.HttpResponseExtensions.SendNotFoundAsync*
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   id: SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendUnauthorizedAsync(HttpResponse, CancellationToken)
-  nameWithType: HttpContextExtensions.SendUnauthorizedAsync(HttpResponse, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendUnauthorizedAsync(HttpResponse, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendUnauthorizedAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
   type: Method
   source:
     id: SendUnauthorizedAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 97
   assemblies:
   - FastEndpoints
@@ -418,28 +417,28 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendUnauthorizedAsync(rsp As HttpResponse, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync*
+  overload: FastEndpoints.HttpResponseExtensions.SendUnauthorizedAsync*
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.HttpContextExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   id: SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendForbiddenAsync(HttpResponse, CancellationToken)
-  nameWithType: HttpContextExtensions.SendForbiddenAsync(HttpResponse, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendForbiddenAsync(HttpResponse, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendForbiddenAsync(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
   type: Method
   source:
     id: SendForbiddenAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 107
   assemblies:
   - FastEndpoints
@@ -460,28 +459,28 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendForbiddenAsync(rsp As HttpResponse, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendForbiddenAsync*
+  overload: FastEndpoints.HttpResponseExtensions.SendForbiddenAsync*
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
   id: SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendBytesAsync(HttpResponse, Byte[], String, String, CancellationToken)
-  nameWithType: HttpContextExtensions.SendBytesAsync(HttpResponse, Byte[], String, String, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte[], System.String, System.String, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendBytesAsync(HttpResponse, Byte[], String, String, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte[], System.String, System.String, CancellationToken)
   type: Method
   source:
     id: SendBytesAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 119
   assemblies:
   - FastEndpoints
@@ -510,8 +509,8 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendBytesAsync(rsp As HttpResponse, bytes As Byte(), fileName As String = Nothing, contentType As String = "application/octet-stream", cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendBytesAsync*
-  nameWithType.vb: HttpContextExtensions.SendBytesAsync(HttpResponse, Byte(), String, String, CancellationToken)
+  overload: FastEndpoints.HttpResponseExtensions.SendBytesAsync*
+  nameWithType.vb: HttpResponseExtensions.SendBytesAsync(HttpResponse, Byte(), String, String, CancellationToken)
   modifiers.csharp:
   - public
   - static
@@ -519,23 +518,23 @@ items:
   modifiers.vb:
   - Public
   - Shared
-  fullName.vb: FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte(), System.String, System.String, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte(), System.String, System.String, CancellationToken)
   name.vb: SendBytesAsync(HttpResponse, Byte(), String, String, CancellationToken)
-- uid: FastEndpoints.HttpContextExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
   id: SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendFileAsync(HttpResponse, FileInfo, String, CancellationToken)
-  nameWithType: HttpContextExtensions.SendFileAsync(HttpResponse, FileInfo, String, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse, FileInfo, System.String, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendFileAsync(HttpResponse, FileInfo, String, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse, FileInfo, System.String, CancellationToken)
   type: Method
   source:
     id: SendFileAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 131
   assemblies:
   - FastEndpoints
@@ -562,28 +561,28 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendFileAsync(rsp As HttpResponse, fileInfo As FileInfo, contentType As String = "application/octet-stream", cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendFileAsync*
+  overload: FastEndpoints.HttpResponseExtensions.SendFileAsync*
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
   id: SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, CancellationToken)
-  nameWithType: HttpContextExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable<System.Int64>, System.String, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable<System.Int64>, System.String, CancellationToken)
   type: Method
   source:
     id: SendStreamAsync
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 144
   assemblies:
   - FastEndpoints
@@ -616,31 +615,31 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendStreamAsync(rsp As HttpResponse, stream As Stream, fileName As String = Nothing, fileLengthBytes As Long? = Nothing, contentType As String = "application/octet-stream", cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendStreamAsync*
-  nameWithType.vb: HttpContextExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, CancellationToken)
+  overload: FastEndpoints.HttpResponseExtensions.SendStreamAsync*
+  nameWithType.vb: HttpResponseExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, CancellationToken)
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
-  fullName.vb: FastEndpoints.HttpContextExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable(Of System.Int64), System.String, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable(Of System.Int64), System.String, CancellationToken)
   name.vb: SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, CancellationToken)
-- uid: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
-  commentId: M:FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   id: SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   isExtensionMethod: true
-  parent: FastEndpoints.HttpContextExtensions
+  parent: FastEndpoints.HttpResponseExtensions
   langs:
   - csharp
   - vb
   name: SendEmptyJsonObject(HttpResponse, CancellationToken)
-  nameWithType: HttpContextExtensions.SendEmptyJsonObject(HttpResponse, CancellationToken)
-  fullName: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendEmptyJsonObject(HttpResponse, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse, CancellationToken)
   type: Method
   source:
     id: SendEmptyJsonObject
-    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpContextExtensions.cs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
     startLine: 165
   assemblies:
   - FastEndpoints
@@ -661,7 +660,7 @@ items:
       <ExtensionAttribute>
 
       Public Shared Function SendEmptyJsonObject(rsp As HttpResponse, cancellation As CancellationToken = Nothing) As Task
-  overload: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject*
+  overload: FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject*
   modifiers.csharp:
   - public
   - static
@@ -966,11 +965,11 @@ references:
   name: System
   nameWithType: System
   fullName: System
-- uid: FastEndpoints.HttpContextExtensions.SendAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendAsync
   name: SendAsync
-  nameWithType: HttpContextExtensions.SendAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendAsync
+  nameWithType: HttpResponseExtensions.SendAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendAsync
 - uid: Microsoft.AspNetCore.Http.HttpResponse
   commentId: T:Microsoft.AspNetCore.Http.HttpResponse
   parent: Microsoft.AspNetCore.Http
@@ -1011,16 +1010,16 @@ references:
   name: TResponse
   nameWithType: TResponse
   fullName: TResponse
-- uid: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendCreatedAtAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync
   name: SendCreatedAtAsync
-  nameWithType: HttpContextExtensions.SendCreatedAtAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync
-- uid: FastEndpoints.HttpContextExtensions.SendStringAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendStringAsync
+  nameWithType: HttpResponseExtensions.SendCreatedAtAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendStringAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendStringAsync
   name: SendStringAsync
-  nameWithType: HttpContextExtensions.SendStringAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendStringAsync
+  nameWithType: HttpResponseExtensions.SendStringAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendStringAsync
 - uid: System.String
   commentId: T:System.String
   parent: System
@@ -1028,16 +1027,16 @@ references:
   name: String
   nameWithType: String
   fullName: System.String
-- uid: FastEndpoints.HttpContextExtensions.SendOkAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendOkAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendOkAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendOkAsync
   name: SendOkAsync
-  nameWithType: HttpContextExtensions.SendOkAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendOkAsync
-- uid: FastEndpoints.HttpContextExtensions.SendErrorsAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendErrorsAsync
+  nameWithType: HttpResponseExtensions.SendOkAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendOkAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendErrorsAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendErrorsAsync
   name: SendErrorsAsync
-  nameWithType: HttpContextExtensions.SendErrorsAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendErrorsAsync
+  nameWithType: HttpResponseExtensions.SendErrorsAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendErrorsAsync
 - uid: List{ValidationFailure}
   commentId: '!:List{ValidationFailure}'
   definition: List`1
@@ -1119,31 +1118,31 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.HttpContextExtensions.SendNoContentAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendNoContentAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendNoContentAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendNoContentAsync
   name: SendNoContentAsync
-  nameWithType: HttpContextExtensions.SendNoContentAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendNoContentAsync
-- uid: FastEndpoints.HttpContextExtensions.SendNotFoundAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendNotFoundAsync
+  nameWithType: HttpResponseExtensions.SendNoContentAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendNoContentAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendNotFoundAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendNotFoundAsync
   name: SendNotFoundAsync
-  nameWithType: HttpContextExtensions.SendNotFoundAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendNotFoundAsync
-- uid: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync
+  nameWithType: HttpResponseExtensions.SendNotFoundAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendNotFoundAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendUnauthorizedAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendUnauthorizedAsync
   name: SendUnauthorizedAsync
-  nameWithType: HttpContextExtensions.SendUnauthorizedAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendUnauthorizedAsync
-- uid: FastEndpoints.HttpContextExtensions.SendForbiddenAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendForbiddenAsync
+  nameWithType: HttpResponseExtensions.SendUnauthorizedAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendUnauthorizedAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendForbiddenAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendForbiddenAsync
   name: SendForbiddenAsync
-  nameWithType: HttpContextExtensions.SendForbiddenAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendForbiddenAsync
-- uid: FastEndpoints.HttpContextExtensions.SendBytesAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendBytesAsync
+  nameWithType: HttpResponseExtensions.SendForbiddenAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendForbiddenAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendBytesAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendBytesAsync
   name: SendBytesAsync
-  nameWithType: HttpContextExtensions.SendBytesAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendBytesAsync
+  nameWithType: HttpResponseExtensions.SendBytesAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendBytesAsync
 - uid: System.Byte[]
   isExternal: true
   name: Byte[]
@@ -1170,21 +1169,21 @@ references:
   - name: ()
     nameWithType: ()
     fullName: ()
-- uid: FastEndpoints.HttpContextExtensions.SendFileAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendFileAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendFileAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendFileAsync
   name: SendFileAsync
-  nameWithType: HttpContextExtensions.SendFileAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendFileAsync
+  nameWithType: HttpResponseExtensions.SendFileAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendFileAsync
 - uid: FileInfo
   isExternal: true
   name: FileInfo
   nameWithType: FileInfo
   fullName: FileInfo
-- uid: FastEndpoints.HttpContextExtensions.SendStreamAsync*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendStreamAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendStreamAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendStreamAsync
   name: SendStreamAsync
-  nameWithType: HttpContextExtensions.SendStreamAsync
-  fullName: FastEndpoints.HttpContextExtensions.SendStreamAsync
+  nameWithType: HttpResponseExtensions.SendStreamAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendStreamAsync
 - uid: Stream
   isExternal: true
   name: Stream
@@ -1273,8 +1272,8 @@ references:
   - name: )
     nameWithType: )
     fullName: )
-- uid: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject*
-  commentId: Overload:FastEndpoints.HttpContextExtensions.SendEmptyJsonObject
+- uid: FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject
   name: SendEmptyJsonObject
-  nameWithType: HttpContextExtensions.SendEmptyJsonObject
-  fullName: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject
+  nameWithType: HttpResponseExtensions.SendEmptyJsonObject
+  fullName: FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject

@@ -87,7 +87,7 @@ you should then get a response back such as this:
 }
 ```
 
-that's all there's to it. you simply configure how the endpoint should be listening to incoming requests from clients in the `Configure()` section calling methods such as `Verbs()`, `Routes()`, `AllowAnonymous()`, etc. then you override the `HandleAsync()` method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the `SendAsync()` method with a new response dto to be sent to the requesting client.
+that's all there's to it. you simply configure how the endpoint should be listening to incoming requests from clients in the `Configure()` section calling methods such as `Verbs()`, `Routes()`, `AllowAnonymous()`, etc. then you override the `HandleAsync()` method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the `SendAsync()` method with a new response dto to be sent to the requesting client. 
 
 # endpoint types
 there are 4 different endpoint types you can inherit from.
@@ -102,4 +102,46 @@ it is also possible to define endpoints with `EmptyRequest` and `EmptyResponse` 
 ```csharp
 public class MyEndpoint : Endpoint<EmptyRequest,EmptyResponse> { }
 ```
-you can mix-n-match depending on your requirement.
+
+# sending responses
+there are multiple response **[sending methods](Misc-Conveniences.md#send-methods)** you can use. it is also possible to simply populate the `Response` [property of the endpoint](Misc-Conveniences.md#response-tresponse) and get a 200 ok response with the `Response` property serialized in the body automatically. however for that to work, you need to be using either #2 or #4 generic endpoint type which takes a `TResponse` generic parameter as described above. for ex:
+
+**response dto:**
+```csharp
+public class MyResponse
+{
+    public string FullName { get; set; }
+    public int Age { get; set; }
+}
+```
+**endpoint definition:**
+```csharp
+public class MyEndpoint : EndpointWithoutRequest<MyResponse>
+{
+    public override void Configure()
+    {
+        Get("/api/person");
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(EmptyRequest _, CancellationToken ct)
+    {
+        var person = await dbContext.GetFirstPersonAsync();
+
+        Response.FullName = person.FullName;
+        Response.Age = person.Age;
+    }
+}
+```
+assigning a new instance to the `Response` property also has the same effect:
+```csharp
+public override Task HandleAsync(EmptyRequest _, CancellationToken ct)
+{
+    Response = new()
+    {
+        FullName = "john doe",
+        Age = 124
+    };
+    return Task.CompletedTask;
+}
+```

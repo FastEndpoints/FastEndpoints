@@ -19,7 +19,7 @@ items:
   source:
     id: EndpointWithMapping
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 123
+    startLine: 124
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -28,6 +28,7 @@ items:
   syntax:
     content: >-
       public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse>, IEndpoint, IServiceResolver where TRequest : class, new()
+
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -38,7 +39,9 @@ items:
       description: the type of domain entity that will be mapped to/from
     content.vb: >-
       Public MustInherit Class EndpointWithMapping(Of TRequest As {Class, New}, TResponse As New, TEntity)
+
           Inherits Endpoint(Of TRequest, TResponse)
+
           Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object
@@ -70,6 +73,7 @@ items:
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.Form
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.Files
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.SendAsync({TResponse},System.Int32,CancellationToken)
+  - FastEndpoints.Endpoint{{TRequest},{TResponse}}.SendCreatedAtAsync``1(System.Object,{TResponse},CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.SendStringAsync(System.String,System.Int32,CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.SendOkAsync(CancellationToken)
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.SendErrorsAsync(CancellationToken)
@@ -108,6 +112,7 @@ items:
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.ThrowIfAnyErrors
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.ThrowError(System.String)
   - FastEndpoints.Endpoint{{TRequest},{TResponse}}.ThrowError(System.Linq.Expressions.Expression{Func{{TRequest},System.Object}},System.String)
+  - FastEndpoints.BaseEndpoint._httpContext
   - FastEndpoints.BaseEndpoint.HttpContext
   - FastEndpoints.BaseEndpoint.Configure
   - FastEndpoints.BaseEndpoint.ValidationFailures
@@ -143,7 +148,7 @@ items:
   source:
     id: MapToEntity
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 129
+    startLine: 130
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -181,7 +186,7 @@ items:
   source:
     id: MapToEntityAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 134
+    startLine: 135
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -219,7 +224,7 @@ items:
   source:
     id: MapFromEntity
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 140
+    startLine: 141
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -257,7 +262,7 @@ items:
   source:
     id: MapFromEntityAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.cs
-    startLine: 145
+    startLine: 146
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1085,6 +1090,76 @@ references:
     nameWithType: Int32
     fullName: System.Int32
     isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint{{TRequest},{TResponse}}.SendCreatedAtAsync``1(System.Object,{TResponse},CancellationToken)
+  commentId: M:FastEndpoints.Endpoint{`0,`1}.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+  parent: FastEndpoints.Endpoint{{TRequest},{TResponse}}
+  definition: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+  name: SendCreatedAtAsync<TEndpoint>(Object, TResponse, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(Object, TResponse, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(System.Object, TResponse, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(System.Object, TResponse, CancellationToken)
+  name.vb: SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, CancellationToken)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+    name: SendCreatedAtAsync<TEndpoint>
+    nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+    name: SendCreatedAtAsync(Of TEndpoint)
+    nameWithType: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
   - name: ', '
     nameWithType: ', '
     fullName: ', '
@@ -3235,6 +3310,12 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.BaseEndpoint._httpContext
+  commentId: F:FastEndpoints.BaseEndpoint._httpContext
+  parent: FastEndpoints.BaseEndpoint
+  name: _httpContext
+  nameWithType: BaseEndpoint._httpContext
+  fullName: FastEndpoints.BaseEndpoint._httpContext
 - uid: FastEndpoints.BaseEndpoint.HttpContext
   commentId: P:FastEndpoints.BaseEndpoint.HttpContext
   parent: FastEndpoints.BaseEndpoint
@@ -4298,6 +4379,75 @@ references:
     nameWithType: Int32
     fullName: System.Int32
     isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+  isExternal: true
+  name: SendCreatedAtAsync<TEndpoint>(Object, TResponse, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(Object, TResponse, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(System.Object, TResponse, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(System.Object, TResponse, CancellationToken)
+  name.vb: SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, CancellationToken)
+  spec.csharp:
+  - uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+    name: SendCreatedAtAsync<TEndpoint>
+    nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>
+    fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: CancellationToken
+    name: CancellationToken
+    nameWithType: CancellationToken
+    fullName: CancellationToken
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+    name: SendCreatedAtAsync(Of TEndpoint)
+    nameWithType: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)
+    fullName: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - name: TResponse
+    nameWithType: TResponse
+    fullName: TResponse
   - name: ', '
     nameWithType: ', '
     fullName: ', '

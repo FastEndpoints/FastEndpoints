@@ -5,6 +5,7 @@ items:
   id: BaseEndpoint
   parent: FastEndpoints
   children:
+  - FastEndpoints.BaseEndpoint._httpContext
   - FastEndpoints.BaseEndpoint.Configure
   - FastEndpoints.BaseEndpoint.HttpContext
   - FastEndpoints.BaseEndpoint.ValidationFailures
@@ -26,6 +27,7 @@ items:
     content: 'public abstract class BaseEndpoint : IEndpoint'
     content.vb: >-
       Public MustInherit Class BaseEndpoint
+
           Implements IEndpoint
   inheritance:
   - System.Object
@@ -47,6 +49,33 @@ items:
   - Public
   - MustInherit
   - Class
+- uid: FastEndpoints.BaseEndpoint._httpContext
+  commentId: F:FastEndpoints.BaseEndpoint._httpContext
+  id: _httpContext
+  parent: FastEndpoints.BaseEndpoint
+  langs:
+  - csharp
+  - vb
+  name: _httpContext
+  nameWithType: BaseEndpoint._httpContext
+  fullName: FastEndpoints.BaseEndpoint._httpContext
+  type: Field
+  source:
+    id: _httpContext
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
+    startLine: 10
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: protected HttpContext _httpContext
+    return:
+      type: Microsoft.AspNetCore.Http.HttpContext
+    content.vb: Protected _httpContext As HttpContext
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
 - uid: FastEndpoints.BaseEndpoint.HttpContext
   commentId: P:FastEndpoints.BaseEndpoint.HttpContext
   id: HttpContext
@@ -61,25 +90,25 @@ items:
   source:
     id: HttpContext
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
-    startLine: 31
+    startLine: 33
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nthe http context of the current request\n"
   example: []
   syntax:
-    content: public HttpContext HttpContext { get; set; }
+    content: public HttpContext HttpContext { get; }
     parameters: []
     return:
       type: Microsoft.AspNetCore.Http.HttpContext
-    content.vb: Public Property HttpContext As HttpContext
+    content.vb: Public ReadOnly Property HttpContext As HttpContext
   overload: FastEndpoints.BaseEndpoint.HttpContext*
   modifiers.csharp:
   - public
   - get
-  - set
   modifiers.vb:
   - Public
+  - ReadOnly
 - uid: FastEndpoints.BaseEndpoint.Configure
   commentId: M:FastEndpoints.BaseEndpoint.Configure
   id: Configure
@@ -94,7 +123,7 @@ items:
   source:
     id: Configure
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
-    startLine: 37
+    startLine: 39
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -124,7 +153,7 @@ items:
   source:
     id: ValidationFailures
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Base.cs
-    startLine: 42
+    startLine: 44
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -441,11 +470,6 @@ references:
   name: System
   nameWithType: System
   fullName: System
-- uid: FastEndpoints.BaseEndpoint.HttpContext*
-  commentId: Overload:FastEndpoints.BaseEndpoint.HttpContext
-  name: HttpContext
-  nameWithType: BaseEndpoint.HttpContext
-  fullName: FastEndpoints.BaseEndpoint.HttpContext
 - uid: Microsoft.AspNetCore.Http.HttpContext
   commentId: T:Microsoft.AspNetCore.Http.HttpContext
   parent: Microsoft.AspNetCore.Http
@@ -459,6 +483,11 @@ references:
   name: Microsoft.AspNetCore.Http
   nameWithType: Microsoft.AspNetCore.Http
   fullName: Microsoft.AspNetCore.Http
+- uid: FastEndpoints.BaseEndpoint.HttpContext*
+  commentId: Overload:FastEndpoints.BaseEndpoint.HttpContext
+  name: HttpContext
+  nameWithType: BaseEndpoint.HttpContext
+  fullName: FastEndpoints.BaseEndpoint.HttpContext
 - uid: FastEndpoints.BaseEndpoint.Configure*
   commentId: Overload:FastEndpoints.BaseEndpoint.Configure
   name: Configure

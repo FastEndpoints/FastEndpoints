@@ -32,6 +32,7 @@ items:
   syntax:
     content: >-
       public abstract class Mapper<TRequest, TResponse, TEntity> : IEntityMapper, IServiceResolver where TRequest : new()
+
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -42,6 +43,7 @@ items:
       description: the type of domain entity to map to/from
     content.vb: >-
       Public MustInherit Class Mapper(Of TRequest As New, TResponse As New, TEntity)
+
           Implements IEntityMapper, IServiceResolver
   inheritance:
   - System.Object
@@ -241,6 +243,7 @@ items:
   syntax:
     content: >-
       public TService TryResolve<TService>()
+
           where TService : class
     typeParameters:
     - id: TService
@@ -315,6 +318,7 @@ items:
   syntax:
     content: >-
       public TService Resolve<TService>()
+
           where TService : class
     typeParameters:
     - id: TService

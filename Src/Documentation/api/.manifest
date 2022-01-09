@@ -1,6 +1,7 @@
 {
   "FastEndpoints": "FastEndpoints.yml",
   "FastEndpoints.BaseEndpoint": "FastEndpoints.BaseEndpoint.yml",
+  "FastEndpoints.BaseEndpoint._httpContext": "FastEndpoints.BaseEndpoint.yml",
   "FastEndpoints.BaseEndpoint.Configure": "FastEndpoints.BaseEndpoint.yml",
   "FastEndpoints.BaseEndpoint.HttpContext": "FastEndpoints.BaseEndpoint.yml",
   "FastEndpoints.BaseEndpoint.ValidationFailures": "FastEndpoints.BaseEndpoint.yml",
@@ -53,6 +54,7 @@
   "FastEndpoints.Endpoint`2.Routes(System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)": "FastEndpoints.Endpoint-2.yml",
+  "FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)": "FastEndpoints.Endpoint-2.yml",
@@ -131,6 +133,7 @@
   "FastEndpoints.HttpContextExtensions": "FastEndpoints.HttpContextExtensions.yml",
   "FastEndpoints.HttpContextExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)": "FastEndpoints.HttpContextExtensions.yml",
   "FastEndpoints.HttpContextExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)": "FastEndpoints.HttpContextExtensions.yml",
+  "FastEndpoints.HttpContextExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)": "FastEndpoints.HttpContextExtensions.yml",
   "FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)": "FastEndpoints.HttpContextExtensions.yml",
   "FastEndpoints.HttpContextExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)": "FastEndpoints.HttpContextExtensions.yml",
   "FastEndpoints.HttpContextExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)": "FastEndpoints.HttpContextExtensions.yml",

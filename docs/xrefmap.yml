@@ -13,6 +13,12 @@ references:
   commentId: T:FastEndpoints.BaseEndpoint
   fullName: FastEndpoints.BaseEndpoint
   nameWithType: BaseEndpoint
+- uid: FastEndpoints.BaseEndpoint._httpContext
+  name: _httpContext
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint__httpContext
+  commentId: F:FastEndpoints.BaseEndpoint._httpContext
+  fullName: FastEndpoints.BaseEndpoint._httpContext
+  nameWithType: BaseEndpoint._httpContext
 - uid: FastEndpoints.BaseEndpoint.Configure
   name: Configure()
   href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configure
@@ -851,6 +857,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendBytesAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendBytesAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendBytesAsync
+- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync*
+  name: SendCreatedAtAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendCreatedAtAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync
+- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+  name: SendCreatedAtAsync<TEndpoint>(Object, TResponse, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync__1_System_Object__1_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
+  name.vb: SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(System.Object, TResponse, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(System.Object, TResponse, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(Object, TResponse, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
   name: SendEmptyJsonObject(CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEmptyJsonObject_CancellationToken_
@@ -1799,6 +1823,22 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpContextExtensions.SendBytesAsync
   nameWithType: HttpContextExtensions.SendBytesAsync
+- uid: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync*
+  name: SendCreatedAtAsync
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendCreatedAtAsync_
+  commentId: Overload:FastEndpoints.HttpContextExtensions.SendCreatedAtAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync
+  nameWithType: HttpContextExtensions.SendCreatedAtAsync
+- uid: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
+  name: SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, CancellationToken)
+  href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_CancellationToken_
+  commentId: M:FastEndpoints.HttpContextExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
+  name.vb: SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, CancellationToken)
+  fullName: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync<TEndpoint>(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, CancellationToken)
+  fullName.vb: FastEndpoints.HttpContextExtensions.SendCreatedAtAsync(Of TEndpoint)(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, CancellationToken)
+  nameWithType: HttpContextExtensions.SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, CancellationToken)
+  nameWithType.vb: HttpContextExtensions.SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, CancellationToken)
 - uid: FastEndpoints.HttpContextExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   name: SendEmptyJsonObject(HttpResponse, CancellationToken)
   href: api/FastEndpoints.HttpContextExtensions.html#FastEndpoints_HttpContextExtensions_SendEmptyJsonObject_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_

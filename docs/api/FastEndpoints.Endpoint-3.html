@@ -186,6 +186,9 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendAsync__1_System_Int32_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendAsync(TResponse, Int32, CancellationToken)</a>
     </div>
     <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync__1_System_Object__1_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendCreatedAtAsync&lt;TEndpoint&gt;(Object, TResponse, CancellationToken)</a>
+    </div>
+    <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStringAsync_System_String_System_Int32_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendStringAsync(String, Int32, CancellationToken)</a>
     </div>
     <div>
@@ -300,6 +303,9 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_">Endpoint&lt;TRequest, TResponse&gt;.ThrowError(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String)</a>
     </div>
     <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint__httpContext">BaseEndpoint._httpContext</a>
+    </div>
+    <div>
       <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_HttpContext">BaseEndpoint.HttpContext</a>
     </div>
     <div>
@@ -335,7 +341,9 @@
   <h5 id="FastEndpoints_Endpoint_3_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse, TMapper&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : class, new()
+
     where TResponse : new()
+
     where TMapper : IEntityMapper, new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>

@@ -14,10 +14,8 @@ public class Endpoint : Endpoint<Request>
 
     public override Task HandleAsync(Request req, CancellationToken ct)
     {
-#pragma warning disable CS8603
         if (string.IsNullOrEmpty(req.Description))
-            AddError(x => x.Description, "Please enter a product descriptions!");
-#pragma warning restore CS8603
+            AddError(x => x.Description!, "Please enter a product descriptions!");
 
         if (req.Price > 1000)
             AddError(x => x.Price, "Price is too high!");
@@ -33,6 +31,8 @@ public class Endpoint : Endpoint<Request>
             ProductName = req.Name
         };
 
-        return SendAsync(res);
+        return SendCreatedAtAsync<GetProduct.Endpoint>(
+            new { ProductID = res.ProductId },
+            res);
     }
 }

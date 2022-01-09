@@ -16,7 +16,7 @@ internal class EndpointSettings
     internal string[]? ClaimTypes;
     internal bool AllowAnyClaim;
     internal Type? DtoTypeForFormData;
-    internal Action<RouteHandlerBuilder>? InternalConfigAction;
+    internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal Action<RouteHandlerBuilder>? UserConfigAction;
     internal object? PreProcessors;
     internal object? PostProcessors;

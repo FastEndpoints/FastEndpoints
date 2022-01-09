@@ -17,6 +17,21 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// send a created at 201 response with location header by specifying the endpoint where the resource can be retrieved from.
+    /// </summary>
+    /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="response">the content to be serialized in the response body</param>
+    /// <param name="cancellation">cancellation token</param>
+    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? response, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    {
+        if (response is not null)
+            Response = response;
+
+        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, response, cancellation);
+    }
+
+    /// <summary>
     /// send the supplied string content to the client.
     /// </summary>
     /// <param name="content">the string to write to the response body</param>

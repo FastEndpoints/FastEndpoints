@@ -50,6 +50,8 @@ public static class MainExtensions
             if (epSettings.Verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
             if (epSettings.Routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
+            var shouldSetName = epSettings.Verbs.Length == 1 && epSettings.Routes.Length == 1;
+
             var policiesToAdd = new List<string>();
             if (epSettings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(epSettings.PreBuiltUserPolicies);
             if (epSettings.Permissions?.Any() is true ||
@@ -80,7 +82,10 @@ public static class MainExtensions
                 {
                     var eb = builder.MapMethods(route, new[] { verb }, EndpointExecutor.HandleAsync);
 
-                    if (epSettings.InternalConfigAction is not null) epSettings.InternalConfigAction(eb);//always do this first
+                    if (shouldSetName)
+                        eb.WithName(epName!); //needed for link generation. only supported on single verb/route endpoints.
+
+                    epSettings.InternalConfigAction(eb);//always do this first
 
                     if (epSettings.AnonymousVerbs?.Contains(verb) is true)
                         eb.AllowAnonymous();

@@ -99,7 +99,29 @@ namespace Test
                     Price = 100
                 });
 
-            Assert.AreEqual(HttpStatusCode.OK, res?.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Created, res?.StatusCode);
+            Assert.IsTrue(result?.ProductId > 1);
+            Assert.AreEqual("Grape Juice", result?.ProductName);
+        }
+
+        [TestMethod]
+        public async Task CreatedAtSuccess()
+        {
+            var (res, result) = await AdminClient.POSTAsync<
+                Inventory.Manage.Create.Endpoint,
+                Inventory.Manage.Create.Request,
+                Inventory.Manage.Create.Response>(new()
+                {
+                    Name = "Grape Juice",
+                    Description = "description",
+                    ModifiedBy = "me",
+                    Price = 100
+                });
+
+            var createdAtLocation = res?.Headers.Location?.ToString();
+
+            Assert.AreEqual(HttpStatusCode.Created, res?.StatusCode);
+            Assert.AreEqual($"/inventory/get-product/{result?.ProductId}", createdAtLocation);
             Assert.IsTrue(result?.ProductId > 1);
             Assert.AreEqual("Grape Juice", result?.ProductName);
         }

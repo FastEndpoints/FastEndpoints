@@ -1,5 +1,7 @@
 ﻿using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
@@ -16,6 +18,24 @@ public static class HttpContextExtensions
     {
         rsp.StatusCode = statusCode;
         return rsp.WriteAsJsonAsync(response, BaseEndpoint.SerializerOptions, cancellation);
+    }
+
+    /// <summary>
+    /// send a created at 201 response with location header by specifying the endpoint where the resource can be retrieved from.
+    /// </summary>
+    /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="cancellation">cancellation token</param>
+    public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp, object? routeValues, object? responseBody, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    {
+        rsp.StatusCode = 201;
+        rsp.Headers.Location = rsp.HttpContext.RequestServices
+            .GetRequiredService<LinkGenerator>()
+            .GetPathByName(typeof(TEndpoint).FullName!, routeValues);
+        return responseBody is null
+            ? rsp.StartAsync(cancellation)
+            : rsp.WriteAsJsonAsync(responseBody, cancellation);
     }
 
     /// <summary>

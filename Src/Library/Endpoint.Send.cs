@@ -18,17 +18,34 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
+    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
-    /// <param name="response">the content to be serialized in the response body</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="cancellation">cancellation token</param>
-    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? response, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? responseBody, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
-        if (response is not null)
-            Response = response;
+        if (responseBody is not null)
+            Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, response, cancellation);
+        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, responseBody, cancellation);
+    }
+
+    /// <summary>
+    /// send a 201 created response with a location header containing where the resource can be retrieved from.
+    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
+    /// </summary>
+    /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="cancellation">cancellation token</param>
+    protected Task SendCreatedAtAsync(string endpointName, object? routeValues, TResponse? responseBody, CancellationToken cancellation = default)
+    {
+        if (responseBody is not null)
+            Response = responseBody;
+
+        return HttpContext.Response.SendCreatedAtAsync(endpointName, routeValues, responseBody, cancellation);
     }
 
     /// <summary>

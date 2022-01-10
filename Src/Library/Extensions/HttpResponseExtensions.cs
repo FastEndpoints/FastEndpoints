@@ -22,6 +22,7 @@ public static class HttpResponseExtensions
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
+    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
@@ -29,10 +30,23 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">cancellation token</param>
     public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp, object? routeValues, object? responseBody, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
+        return SendCreatedAtAsync(rsp, typeof(TEndpoint).FullName!, routeValues, responseBody, cancellation);
+    }
+
+    /// <summary>
+    /// send a 201 created response with a location header containing where the resource can be retrieved from.
+    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
+    /// </summary>
+    /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="cancellation">cancellation token</param>
+    public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object? routeValues, object? responseBody, CancellationToken cancellation = default)
+    {
         rsp.StatusCode = 201;
         rsp.Headers.Location = rsp.HttpContext.RequestServices
             .GetRequiredService<LinkGenerator>()
-            .GetPathByName(typeof(TEndpoint).FullName!, routeValues);
+            .GetPathByName(endpointName, routeValues);
         return responseBody is null
             ? rsp.StartAsync(cancellation)
             : rsp.WriteAsJsonAsync(responseBody, cancellation);

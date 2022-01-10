@@ -282,8 +282,77 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*"></a>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Object_System_Object_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)">SendCreatedAtAsync(HttpResponse, String, Object, Object, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
+<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object routeValues, object responseBody, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Http.HttpResponse</span></td>
+        <td><span class="parametername">rsp</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">endpointName</span></td>
+        <td><p>the name of the endpoint to use for link generation (openapi route id)</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">routeValues</span></td>
+        <td><p>a route values object with key/value pairs of route information</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Object</span></td>
+        <td><span class="parametername">responseBody</span></td>
+        <td><p>the content to be serialized in the response body</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*"></a>
   <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(HttpResponse, Object, Object, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
+<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>

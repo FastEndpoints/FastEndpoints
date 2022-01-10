@@ -1823,6 +1823,12 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendBytesAsync
   nameWithType: HttpResponseExtensions.SendBytesAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)
+  name: SendCreatedAtAsync(HttpResponse, String, Object, Object, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Object_System_Object_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Object, System.Object, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendCreatedAtAsync(HttpResponse, String, Object, Object, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*
   name: SendCreatedAtAsync
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_

@@ -133,6 +133,7 @@
   "FastEndpoints.HttpResponseExtensions": "FastEndpoints.HttpResponseExtensions.yml",
   "FastEndpoints.HttpResponseExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)": "FastEndpoints.HttpResponseExtensions.yml",
   "FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)": "FastEndpoints.HttpResponseExtensions.yml",
+  "FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)": "FastEndpoints.HttpResponseExtensions.yml",
   "FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)": "FastEndpoints.HttpResponseExtensions.yml",
   "FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)": "FastEndpoints.HttpResponseExtensions.yml",
   "FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)": "FastEndpoints.HttpResponseExtensions.yml",

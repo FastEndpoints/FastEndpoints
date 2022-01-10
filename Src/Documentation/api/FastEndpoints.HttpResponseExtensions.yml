@@ -7,6 +7,7 @@ items:
   children:
   - FastEndpoints.HttpResponseExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)
   - FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
+  - FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)
   - FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)
   - FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   - FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)
@@ -120,11 +121,11 @@ items:
   source:
     id: SendCreatedAtAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 29
+    startLine: 30
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nsend a 201 created response with a location header containing where the resource can be retrieved from.\n"
+  summary: "\nsend a 201 created response with a location header containing where the resource can be retrieved from.\n<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>\n"
   example: []
   syntax:
     content: >-
@@ -161,6 +162,57 @@ items:
   - Shared
   fullName.vb: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Of TEndpoint)(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, CancellationToken)
   name.vb: SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)
+  id: SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)
+  isExtensionMethod: true
+  parent: FastEndpoints.HttpResponseExtensions
+  langs:
+  - csharp
+  - vb
+  name: SendCreatedAtAsync(HttpResponse, String, Object, Object, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendCreatedAtAsync(HttpResponse, String, Object, Object, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Object, System.Object, CancellationToken)
+  type: Method
+  source:
+    id: SendCreatedAtAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
+    startLine: 43
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nsend a 201 created response with a location header containing where the resource can be retrieved from.\n<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>\n"
+  example: []
+  syntax:
+    content: public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object routeValues, object responseBody, CancellationToken cancellation = null)
+    parameters:
+    - id: rsp
+      type: Microsoft.AspNetCore.Http.HttpResponse
+    - id: endpointName
+      type: System.String
+      description: the name of the endpoint to use for link generation (openapi route id)
+    - id: routeValues
+      type: System.Object
+      description: a route values object with key/value pairs of route information
+    - id: responseBody
+      type: System.Object
+      description: the content to be serialized in the response body
+    - id: cancellation
+      type: CancellationToken
+      description: cancellation token
+    return:
+      type: Task
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function SendCreatedAtAsync(rsp As HttpResponse, endpointName As String, routeValues As Object, responseBody As Object, cancellation As CancellationToken = Nothing) As Task
+  overload: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
 - uid: FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
   commentId: M:FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
   id: SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
@@ -176,7 +228,7 @@ items:
   source:
     id: SendStringAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 46
+    startLine: 60
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -224,7 +276,7 @@ items:
   source:
     id: SendOkAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 57
+    startLine: 71
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -266,7 +318,7 @@ items:
   source:
     id: SendErrorsAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 67
+    startLine: 81
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -313,7 +365,7 @@ items:
   source:
     id: SendNoContentAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 77
+    startLine: 91
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -355,7 +407,7 @@ items:
   source:
     id: SendNotFoundAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 87
+    startLine: 101
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -397,7 +449,7 @@ items:
   source:
     id: SendUnauthorizedAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 97
+    startLine: 111
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -439,7 +491,7 @@ items:
   source:
     id: SendForbiddenAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 107
+    startLine: 121
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -481,7 +533,7 @@ items:
   source:
     id: SendBytesAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 119
+    startLine: 133
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -535,7 +587,7 @@ items:
   source:
     id: SendFileAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 131
+    startLine: 145
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -583,7 +635,7 @@ items:
   source:
     id: SendStreamAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 144
+    startLine: 158
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -640,7 +692,7 @@ items:
   source:
     id: SendEmptyJsonObject
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\HttpResponseExtensions.cs
-    startLine: 165
+    startLine: 179
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1015,11 +1067,6 @@ references:
   name: SendCreatedAtAsync
   nameWithType: HttpResponseExtensions.SendCreatedAtAsync
   fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync
-- uid: FastEndpoints.HttpResponseExtensions.SendStringAsync*
-  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendStringAsync
-  name: SendStringAsync
-  nameWithType: HttpResponseExtensions.SendStringAsync
-  fullName: FastEndpoints.HttpResponseExtensions.SendStringAsync
 - uid: System.String
   commentId: T:System.String
   parent: System
@@ -1027,6 +1074,11 @@ references:
   name: String
   nameWithType: String
   fullName: System.String
+- uid: FastEndpoints.HttpResponseExtensions.SendStringAsync*
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendStringAsync
+  name: SendStringAsync
+  nameWithType: HttpResponseExtensions.SendStringAsync
+  fullName: FastEndpoints.HttpResponseExtensions.SendStringAsync
 - uid: FastEndpoints.HttpResponseExtensions.SendOkAsync*
   commentId: Overload:FastEndpoints.HttpResponseExtensions.SendOkAsync
   name: SendOkAsync

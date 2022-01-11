@@ -54,6 +54,7 @@
   "FastEndpoints.Endpoint`2.Routes(System.String[])": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)": "FastEndpoints.Endpoint-2.yml",
+  "FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)": "FastEndpoints.Endpoint-2.yml",
   "FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)": "FastEndpoints.Endpoint-2.yml",

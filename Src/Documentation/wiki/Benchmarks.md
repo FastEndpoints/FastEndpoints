@@ -52,6 +52,8 @@ Statistics        Avg      Stdev        Max
 
 **parameters used:** `-c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s`
 
+**hardware used:** `AMD Ryzen 7 3700X (8c/16t), 16GB RAM, Windows 11`
+
  <!-- .\bomb.exe -c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/benchmark/ok/123 -->
 
 <!-- ```

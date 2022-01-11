@@ -50,6 +50,7 @@ items:
   - FastEndpoints.Endpoint`2.Routes(System.String[])
   - FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)
   - FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
+  - FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)
   - FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)
   - FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
   - FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)
@@ -88,6 +89,7 @@ items:
   syntax:
     content: >-
       public abstract class Endpoint<TRequest, TResponse> : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : class, new()
+
           where TResponse : new()
     typeParameters:
     - id: TRequest
@@ -96,7 +98,9 @@ items:
       description: the type of the response dto
     content.vb: >-
       Public MustInherit Class Endpoint(Of TRequest As {Class, New}, TResponse As New)
+
           Inherits BaseEndpoint
+
           Implements IEndpoint, IServiceResolver
   inheritance:
   - System.Object
@@ -193,6 +197,7 @@ items:
   syntax:
     content: >-
       public TService TryResolve<TService>()
+
           where TService : class
     typeParameters:
     - id: TService
@@ -267,6 +272,7 @@ items:
   syntax:
     content: >-
       public TService Resolve<TService>()
+
           where TService : class
     typeParameters:
     - id: TService
@@ -341,6 +347,7 @@ items:
   syntax:
     content: >-
       public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
           where TEvent : class
     parameters:
     - id: eventModel
@@ -1081,21 +1088,22 @@ items:
   source:
     id: SendCreatedAtAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 25
+    startLine: 26
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nsend a 201 created response with a location header containing where the resource can be retrieved from.\n"
+  summary: "\nsend a 201 created response with a location header containing where the resource can be retrieved from.\n<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>\n"
   example: []
   syntax:
     content: >-
-      protected Task SendCreatedAtAsync<TEndpoint>(object routeValues, TResponse response, CancellationToken cancellation = null)
+      protected Task SendCreatedAtAsync<TEndpoint>(object routeValues, TResponse responseBody, CancellationToken cancellation = null)
+
           where TEndpoint : IEndpoint
     parameters:
     - id: routeValues
       type: System.Object
       description: a route values object with key/value pairs of route information
-    - id: response
+    - id: responseBody
       type: '{TResponse}'
       description: the content to be serialized in the response body
     - id: cancellation
@@ -1106,7 +1114,7 @@ items:
       description: the type of the endpoint where the resource can be retrieved from
     return:
       type: Task
-    content.vb: Protected Function SendCreatedAtAsync(Of TEndpoint As IEndpoint)(routeValues As Object, response As TResponse, cancellation As CancellationToken = Nothing) As Task
+    content.vb: Protected Function SendCreatedAtAsync(Of TEndpoint As IEndpoint)(routeValues As Object, responseBody As TResponse, cancellation As CancellationToken = Nothing) As Task
   overload: FastEndpoints.Endpoint`2.SendCreatedAtAsync*
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, CancellationToken)
   modifiers.csharp:
@@ -1115,6 +1123,51 @@ items:
   - Protected
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(System.Object, TResponse, CancellationToken)
   name.vb: SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)
+  commentId: M:FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)
+  id: SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)
+  parent: FastEndpoints.Endpoint`2
+  langs:
+  - csharp
+  - vb
+  name: SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync(System.String, System.Object, TResponse, CancellationToken)
+  type: Method
+  source:
+    id: SendCreatedAtAsync
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
+    startLine: 42
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nsend a 201 created response with a location header containing where the resource can be retrieved from.\n<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>\n"
+  example: []
+  syntax:
+    content: protected Task SendCreatedAtAsync(string endpointName, object routeValues, TResponse responseBody, CancellationToken cancellation = null)
+    parameters:
+    - id: endpointName
+      type: System.String
+      description: the name of the endpoint to use for link generation (openapi route id)
+    - id: routeValues
+      type: System.Object
+      description: a route values object with key/value pairs of route information
+    - id: responseBody
+      type: '{TResponse}'
+      description: the content to be serialized in the response body
+    - id: cancellation
+      type: CancellationToken
+      description: cancellation token
+    return:
+      type: Task
+    content.vb: Protected Function SendCreatedAtAsync(endpointName As String, routeValues As Object, responseBody As TResponse, cancellation As CancellationToken = Nothing) As Task
+  overload: FastEndpoints.Endpoint`2.SendCreatedAtAsync*
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
+  modifiers.csharp:
+  - protected
+  modifiers.vb:
+  - Protected
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(System.String, System.Object, TResponse, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
   commentId: M:FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
   id: SendStringAsync(System.String,System.Int32,CancellationToken)
@@ -1129,7 +1182,7 @@ items:
   source:
     id: SendStringAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 39
+    startLine: 56
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1171,7 +1224,7 @@ items:
   source:
     id: SendOkAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 48
+    startLine: 65
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1207,7 +1260,7 @@ items:
   source:
     id: SendErrorsAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 57
+    startLine: 74
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1243,7 +1296,7 @@ items:
   source:
     id: SendNoContentAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 66
+    startLine: 83
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1279,7 +1332,7 @@ items:
   source:
     id: SendNotFoundAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 75
+    startLine: 92
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1315,7 +1368,7 @@ items:
   source:
     id: SendUnauthorizedAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 84
+    startLine: 101
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1351,7 +1404,7 @@ items:
   source:
     id: SendForbiddenAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 93
+    startLine: 110
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1387,7 +1440,7 @@ items:
   source:
     id: SendBytesAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 104
+    startLine: 121
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1433,7 +1486,7 @@ items:
   source:
     id: SendFileAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 115
+    startLine: 132
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1475,7 +1528,7 @@ items:
   source:
     id: SendStreamAsync
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 128
+    startLine: 145
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -1524,7 +1577,7 @@ items:
   source:
     id: SendEmptyJsonObject
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Endpoint.Send.cs
-    startLine: 137
+    startLine: 154
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints

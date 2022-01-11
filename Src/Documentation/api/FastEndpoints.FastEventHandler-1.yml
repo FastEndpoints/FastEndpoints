@@ -34,6 +34,7 @@ items:
       description: the type of the event to handle
     content.vb: >-
       Public MustInherit Class FastEventHandler(Of TEvent As {Class, New})
+
           Implements IEventHandler, IServiceResolver
   inheritance:
   - System.Object
@@ -120,6 +121,7 @@ items:
   syntax:
     content: >-
       public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
           where TEventModel : class
     parameters:
     - id: eventModel
@@ -175,6 +177,7 @@ items:
   syntax:
     content: >-
       public TService TryResolve<TService>()
+
           where TService : class
     typeParameters:
     - id: TService
@@ -249,6 +252,7 @@ items:
   syntax:
     content: >-
       public TService Resolve<TService>()
+
           where TService : class
     typeParameters:
     - id: TService

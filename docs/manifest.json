@@ -65,7 +65,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-1.html",
-          "hash": "BvqtOAFkD/UqbrBuJ/6tX5OqMlIPU3uAHIG7gR3r19c="
+          "hash": "uvOhmT6pAEZSvm9rLSg7rYIgJyIr866ZpbbOH+PFV38="
         }
       },
       "is_incremental": false,
@@ -77,7 +77,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "l3GTiX2+3ikJP8ySTgzFbUhERtAHhHb1N9Kn8kz0lNc="
+          "hash": "cVb52MA+J1WCKFHwLHnwiA5vrbjG7YWtAeq+MRD1X8k="
         }
       },
       "is_incremental": false,
@@ -89,7 +89,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-3.html",
-          "hash": "QXbjyfDhGG+OmQbO+nsWXCKGnVnxRXiHAHinboE+XyE="
+          "hash": "A+wEgfYhoc6MTiLhupoOpGmnyKV79+kPYyiP37cApO0="
         }
       },
       "is_incremental": false,
@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithMapping-3.html",
-          "hash": "a9G5IfIwef0UZO88orwkecmwQobkHFmURc+mEWO0m6U="
+          "hash": "rA+y92FHSUwmAaMdLoRC9Q5Z9HKIqD7H705sfIGYkxc="
         }
       },
       "is_incremental": false,
@@ -113,7 +113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.html",
-          "hash": "pd4ut1TEWdjEobRqXTDrLTyFpwdf5pItYbWdUTclBiE="
+          "hash": "XrqqNsAeVs/RvwcvVh45UmpGNmDmT9oY7480mvBhmH4="
         }
       },
       "is_incremental": false,
@@ -125,7 +125,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest.html",
-          "hash": "C9dSbGwoEnEVw7MduJI9q2f/hM9PnR7K3tQwE4PuxNw="
+          "hash": "oV1SE+ccw5jCKp3tTM0i9D7DjvuT46bbkviRG+MVcrs="
         }
       },
       "is_incremental": false,
@@ -149,7 +149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Event-1.html",
-          "hash": "PsfbQlreZ4gN53g4j4KTB+bhOTaXM7ND0FFMXtH/ZMw="
+          "hash": "/ex1Ehy3pd5jO5Q8n5IJgcFkowHa2U0VI0bg0487YdM="
         }
       },
       "is_incremental": false,
@@ -173,7 +173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.FastEventHandler-1.html",
-          "hash": "sc4hxl1DbOJymy8X/nZmfQvGTDSFEXKxc3kgdVmOs+4="
+          "hash": "AIWPoKhscwFPunmpYwYUQ3xficbTD5o6isLkq7e+uXw="
         }
       },
       "is_incremental": false,
@@ -233,7 +233,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
-          "hash": "RKiOKG77E8a8bUOSB7be+SfgTwzUwAboytDXiEdh7mY="
+          "hash": "vqBZchAOR0GZNSLSDxkji1u6LnN+d1zZA4E97t1umBY="
         }
       },
       "is_incremental": false,
@@ -245,7 +245,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpResponseExtensions.html",
-          "hash": "pGB6XnDvpSJ5naZvgMQMo8ZUfrJI7azFsyy6wNt7lxU="
+          "hash": "Y4UCTX6RkYW9XFCJVc/1/caFfB+JhiacX9zlM2U9RDY="
         }
       },
       "is_incremental": false,
@@ -317,7 +317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Mapper-3.html",
-          "hash": "tbs+5OQzW6KET6WtLy7wJXMhTp3JwwXirl4W0FiMfhQ="
+          "hash": "qh02MaJ596CaMrmFmyjpcGKmkHK6NRh+hn0BnXJXkpI="
         }
       },
       "is_incremental": false,
@@ -425,7 +425,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Validation.Validator-1.html",
-          "hash": "DqCtMKgZKBJur6Ag+P8TYmaH7mug42/9mIkPkJCFW0E="
+          "hash": "cqRHErV45SfPBdpf+QT2Jr4E0b6++ZmTitm0J7KJm58="
         }
       },
       "is_incremental": false,
@@ -618,7 +618,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Benchmarks.html",
-          "hash": "tJQiBboNML273cJ4wSC5h8LRqtv8L5ZztZjBLgO+nYY="
+          "hash": "iF2gBQ2bnsDaSddcM05hdg6QD7cKKIIugEFf1SnSELE="
         }
       },
       "is_incremental": false,
@@ -836,7 +836,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 36,
-          "skipped_file_count": 36
+          "skipped_file_count": 18
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,

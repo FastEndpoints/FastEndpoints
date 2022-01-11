@@ -857,6 +857,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendBytesAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendBytesAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendBytesAsync
+- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)
+  name: SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync_System_String_System_Object__1_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync(System.String, System.Object, TResponse, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(System.String, System.Object, TResponse, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync*
   name: SendCreatedAtAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync_

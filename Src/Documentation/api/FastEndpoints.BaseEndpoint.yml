@@ -27,6 +27,7 @@ items:
     content: 'public abstract class BaseEndpoint : IEndpoint'
     content.vb: >-
       Public MustInherit Class BaseEndpoint
+
           Implements IEndpoint
   inheritance:
   - System.Object

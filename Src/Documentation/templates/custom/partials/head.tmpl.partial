@@ -31,5 +31,5 @@
   <meta property="og:url" content="https://fast-endpoints.com">
   <meta property="og:description" content="An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://fast-endpoints.com/images/social-square.png">  
+  <meta property="og:image" content="https://fast-endpoints.com/images/og-image.png">  
 </head>

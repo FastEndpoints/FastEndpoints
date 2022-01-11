@@ -47,7 +47,7 @@
     "dest": "../../docs",
     "globalMetadata": {
       "_appTitle": "FastEndpoints",
-      "_description": "An alternative for building RESTful Web APIs with ASP.Net 6 which encourages CQRS and Vertical Slice Architecture.",
+      "_description": "A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern",
       "_enableSearch": true,
       "_enableNewTab": true,
       "_appLogoPath": "images/icon.png",

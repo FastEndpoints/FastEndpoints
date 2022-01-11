@@ -49,7 +49,7 @@ public class GetUserRequest
     public int TenantID { get; set; }
 }
 ```
-`FromHeader` attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing `[FromHeader(IsRequired = false)]` just like with the FromHeader attribute. both attributes have the same overloads and behavior.
+`FromHeader` attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing `[FromHeader(IsRequired = false)]` just like with the FromClaim attribute. both attributes have the same overloads and behaves similarly.
 
 it is also possible for both attributes to bind to properties when the names don't match like so:
 ```csharp

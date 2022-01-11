@@ -174,7 +174,7 @@ app.Run();
 }
 </code></pre>
 <h3 id="declarative-security-policies">declarative security policies</h3>
-<p>instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint configuration themselves like so:</p>
+<p>instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint configuration itself like so:</p>
 <pre><code class="lang-csharp">public class RestrictedEndpoint : Endpoint&lt;RestrictedRequest&gt;
 {
     public override void Configure()

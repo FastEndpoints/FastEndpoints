@@ -90,7 +90,7 @@ you should then get a response back such as this:
 that's all there's to it. you simply configure how the endpoint should be listening to incoming requests from clients in the `Configure()` section calling methods such as `Verbs()`, `Routes()`, `AllowAnonymous()`, etc. then you override the `HandleAsync()` method in order to specify your handling logic. the request dto is automatically populated from the json body of your http request and passed in to the handler. when you're done processing, you call the `SendAsync()` method with a new response dto to be sent to the requesting client. 
 
 # endpoint types
-there are 4 different endpoint types you can inherit from.
+there are 4 different endpoint base types you can inherit from.
 
 1. **Endpoint\<TRequest\>** - use this type if there's only a request dto. you can however send any object to the client that can be serialized as a response with this generic overload.
 2. **Endpoint<TRequest,TResponse>** - use this type if you have both request and response dtos. the benefit of this generic overload is that you get strongly-typed access to properties of the dto when doing integration testing and validations.

@@ -90,7 +90,7 @@ public class UpdateUserEndpoint : Endpoint<UpdateUserRequest>
 }
 ```
 ### declarative security policies
-instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint configuration themselves like so:
+instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint configuration itself like so:
 ```csharp
 public class RestrictedEndpoint : Endpoint<RestrictedRequest>
 {

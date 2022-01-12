@@ -16,7 +16,7 @@ public abstract class BaseEndpoint : IEndpoint
 
     internal EndpointSettings Settings { get; set; } = new();
 
-    internal abstract Task ExecAsync(HttpContext ctx, IValidator validator, object preProcessors, object postProcessors, CancellationToken ct);
+    internal abstract Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken ct);
 
     internal string GetTestURL()
     {

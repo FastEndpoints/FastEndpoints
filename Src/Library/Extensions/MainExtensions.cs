@@ -40,41 +40,21 @@ public static class MainExtensions
         IServiceResolver.ServiceProvider = builder.ServiceProvider;
         BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
 
+        //key: {verb}:{route}
         var routeToHandlerCounts = new Dictionary<string, int>();
+        var totalEndpointCount = 0;
 
         foreach (var ep in endpointData.Definitions)
         {
             var epName = ep.EndpointType.FullName;
             var epSettings = ep.Settings;
 
-            if (epSettings.Verbs?.Any() != true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
-            if (epSettings.Routes?.Any() != true) throw new ArgumentException($"No Routes declared on: [{epName}]");
+            if (epSettings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
+            if (epSettings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
             var shouldSetName = epSettings.Verbs.Length == 1 && epSettings.Routes.Length == 1;
-
-            var policiesToAdd = new List<string>();
-            if (epSettings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(epSettings.PreBuiltUserPolicies);
-            if (epSettings.Permissions?.Any() is true ||
-                epSettings.ClaimTypes?.Any() is true ||
-                epSettings.Roles?.Any() is true)
-            {
-                policiesToAdd.Add(SecurityPolicyName(ep.EndpointType));
-            }
-
-            var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
-
-            var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
-            if (validatorInstance is not null)
-                validatorInstance.ThrowIfValidationFails = epSettings.ThrowIfValidationFails;
-
-            EndpointExecutor.CachedServiceBoundProps[ep.EndpointType] =
-                ep.EndpointType
-                  .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                  .Where(p => p.CanRead && p.CanWrite)
-                  .Select(p => new ServiceBoundPropCacheEntry(
-                      p.PropertyType,
-                      ep.EndpointType.SetterForProp(p.Name))
-                  ).ToArray();
+            var epMetaData = BuildEndpointMetaData(ep);
+            var policiesToAdd = BuildPoliciesToAdd(ep);
 
             foreach (var route in epSettings.Routes)
             {
@@ -84,6 +64,8 @@ public static class MainExtensions
 
                     if (shouldSetName)
                         eb.WithName(epName!); //needed for link generation. only supported on single verb/route endpoints.
+
+                    eb.WithMetadata(epMetaData); //used by EndpointExecutor on each request.
 
                     epSettings.InternalConfigAction(eb);//always do this first
 
@@ -96,19 +78,16 @@ public static class MainExtensions
                     if (epSettings.DtoTypeForFormData is not null) eb.Accepts(epSettings.DtoTypeForFormData, "multipart/form-data");
                     if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(eb);//always do this last - allow user to override everything done above
 
-                    var cacheKey = $"{verb}:{route}";
-
-                    EndpointExecutor.CachedEndpointDefinitions[cacheKey]
-                        = new(epFactory, validatorInstance, epSettings.PreProcessors, epSettings.PostProcessors);
-
-                    routeToHandlerCounts.TryGetValue(cacheKey, out var count);
-                    routeToHandlerCounts[cacheKey] = count + 1;
+                    var key = $"{verb}:{route}";
+                    routeToHandlerCounts.TryGetValue(key, out var count);
+                    routeToHandlerCounts[key] = count + 1;
+                    totalEndpointCount++;
                 }
             }
         }
 
         builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
-            $"Registered {EndpointExecutor.CachedEndpointDefinitions.Count} endpoints in " +
+            $"Registered {totalEndpointCount} endpoints in " +
             $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
         EndpointData.Stopwatch.Stop();
@@ -129,6 +108,43 @@ public static class MainExtensions
         });
 
         return builder;
+    }
+
+    private static List<string> BuildPoliciesToAdd(EndpointDefinition ep)
+    {
+        var policiesToAdd = new List<string>();
+        if (ep.Settings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(ep.Settings.PreBuiltUserPolicies);
+        if (ep.Settings.Permissions?.Any() is true ||
+            ep.Settings.ClaimTypes?.Any() is true ||
+            ep.Settings.Roles?.Any() is true)
+        {
+            policiesToAdd.Add(SecurityPolicyName(ep.EndpointType));
+        }
+        return policiesToAdd;
+    }
+
+    private static EndpointMetadata BuildEndpointMetaData(EndpointDefinition ep)
+    {
+        var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
+
+        var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
+        if (validatorInstance is not null)
+            validatorInstance.ThrowIfValidationFails = ep.Settings.ThrowIfValidationFails;
+
+        var serviceBoundReqDtoProps = ep.EndpointType
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            .Where(p => p.CanRead && p.CanWrite)
+            .Select(p => new ServiceBoundReqDtoProp(
+                    p.PropertyType,
+                    ep.EndpointType.SetterForProp(p.Name)))
+            .ToArray();
+
+        return new EndpointMetadata(
+            epFactory,
+            validatorInstance,
+            serviceBoundReqDtoProps,
+            ep.Settings.PreProcessors,
+            ep.Settings.PostProcessors);
     }
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)

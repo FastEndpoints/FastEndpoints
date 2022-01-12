@@ -206,7 +206,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// set endpoint configurations options using an endpoint builder action    /// 
+    /// set endpoint configurations options using an endpoint builder action ///
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
     protected void Options(Action<RouteHandlerBuilder> builder) => Settings.UserConfigAction = builder;
@@ -228,7 +228,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                     epBuilder.Metadata.Remove(m);
                 }
             });
-
         };
 
         Settings.UserConfigAction = clearDefaultsAction + builder;

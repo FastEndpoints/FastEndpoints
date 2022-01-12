@@ -1,7 +1,7 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -9,50 +9,44 @@ namespace FastEndpoints;
 [HideFromDocs]
 public static class EndpointExecutor
 {
-    //key: endpoint route with verb prefixed - {verb}:{path/of/route}
-    internal static Dictionary<string, EndpointDefinitionCacheEntry> CachedEndpointDefinitions { get; } = new();
-
-    //key: TEndpoint
-    internal static Dictionary<Type, ServiceBoundPropCacheEntry[]> CachedServiceBoundProps { get; } = new();
-
     //this is the main handler registered with asp.net for all mapped endpoints/routes. this will be called for each http request.
     public static Task HandleAsync(HttpContext ctx, CancellationToken cancellation)
     {
-        var ep = (RouteEndpoint?)ctx.GetEndpoint();
-        var routePath = ep?.RoutePattern.RawText;
-        var epDef = CachedEndpointDefinitions[$"{ctx.Request.Method}:{routePath}"];
-        var endpointInstance = (BaseEndpoint)epDef.CreateInstance();
+        var metaColl = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!)?.Endpoint?.Metadata;
+        var ep = metaColl?.GetMetadata<EndpointMetadata>();
 
-        var respCacheAttrib = ep?.Metadata.OfType<ResponseCacheAttribute>().FirstOrDefault();
-        if (respCacheAttrib is not null)
-            ResponseCacheExecutor.Execute(ctx, respCacheAttrib);
+        if (ep is null)
+            throw new InvalidOperationException("Critical Error! Endpoint meta data could not be retrieved!");
 
-        ResolveServices(endpointInstance, ctx);
+        var epInstance = (BaseEndpoint)ep.CreateInstance();
 
-        return endpointInstance.ExecAsync(ctx, epDef.Validator!, epDef.PreProcessors!, epDef.PostProcessors!, cancellation);
+        ResolveServices(epInstance, ctx.RequestServices, ep.ServiceBoundReqDtoProps);
+
+        ResponseCacheExecutor.Execute(ctx, metaColl?.GetMetadata<ResponseCacheAttribute>());
+
+        return epInstance.ExecAsync(ctx, ep.Validator, ep.PreProcessors, ep.PostProcessors, cancellation);
     }
 
-    private static void ResolveServices(object endpointInstance, HttpContext ctx)
+    private static void ResolveServices(object epInstance, IServiceProvider services, ServiceBoundReqDtoProp[]? props)
     {
-        if (CachedServiceBoundProps.TryGetValue(endpointInstance.GetType(), out var props))
+        if (props is null) return;
+
+        for (int i = 0; i < props.Length; i++)
         {
-            for (int i = 0; i < props.Length; i++)
-            {
-                var prop = props[i];
-                var serviceInstance = ctx.RequestServices.GetRequiredService(prop.PropType);
-                prop.PropSetter(endpointInstance, serviceInstance!);
-            }
+            ServiceBoundReqDtoProp p = props[i];
+            p.PropSetter(epInstance, services.GetRequiredService(p.PropType));
         }
     }
 }
 
-internal record EndpointDefinitionCacheEntry(
+internal record EndpointMetadata(
     Func<object> CreateInstance,
     IValidator? Validator,
+    ServiceBoundReqDtoProp[]? ServiceBoundReqDtoProps,
     object? PreProcessors,
     object? PostProcessors);
 
-internal record ServiceBoundPropCacheEntry(
+internal record ServiceBoundReqDtoProp(
     Type PropType,
     Action<object, object> PropSetter);
 

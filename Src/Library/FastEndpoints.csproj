@@ -2,12 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>2.19.1</Version>
+        <Version>2.20.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - add SendCreatedAtAsync() method
-            - auto send response if not already sent from handler
-            - improve swagger integration
+            - optimization endpoint metadata retrieval
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

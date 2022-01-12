@@ -163,8 +163,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static void Bind(TRequest req, KeyValuePair<string, object?> kvp, List<ValidationFailure> failures)
     {
-        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(kvp.Key, out var prop) &&
-            prop.ValueParser is not null)
+        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
         {
             var (success, value) = prop.ValueParser(kvp.Value);
             prop.PropSetter(req, value);

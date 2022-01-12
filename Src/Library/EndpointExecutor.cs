@@ -18,7 +18,7 @@ public static class EndpointExecutor
         if (ep is null)
             throw new InvalidOperationException("Critical Error! Endpoint meta data could not be retrieved!");
 
-        var epInstance = (BaseEndpoint)ep.CreateInstance();
+        var epInstance = (BaseEndpoint)ep.InstanceCreator();
 
         ResolveServices(epInstance, ctx.RequestServices, ep.ServiceBoundReqDtoProps);
 
@@ -40,7 +40,7 @@ public static class EndpointExecutor
 }
 
 internal record EndpointMetadata(
-    Func<object> CreateInstance,
+    Func<object> InstanceCreator,
     IValidator? Validator,
     ServiceBoundReqDtoProp[]? ServiceBoundReqDtoProps,
     object? PreProcessors,

@@ -44,39 +44,39 @@ public static class MainExtensions
         var routeToHandlerCounts = new Dictionary<string, int>();
         var totalEndpointCount = 0;
 
-        foreach (var ep in endpointData.Definitions)
+        foreach (var epDef in endpointData.Definitions)
         {
-            var epName = ep.EndpointType.FullName;
-            var epSettings = ep.Settings;
+            var epName = epDef.EndpointType.FullName;
+            var epSettings = epDef.Settings;
 
             if (epSettings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
             if (epSettings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
             var shouldSetName = epSettings.Verbs.Length == 1 && epSettings.Routes.Length == 1;
-            var epMetaData = BuildEndpointMetaData(ep);
-            var policiesToAdd = BuildPoliciesToAdd(ep);
+            var epMetaData = BuildEndpointMetaData(epDef);
+            var policiesToAdd = BuildPoliciesToAdd(epDef);
 
             foreach (var route in epSettings.Routes)
             {
                 foreach (var verb in epSettings.Verbs)
                 {
-                    var eb = builder.MapMethods(route, new[] { verb }, EndpointExecutor.HandleAsync);
+                    var hb = builder.MapMethods(route, new[] { verb }, EndpointExecutor.HandleAsync);
 
                     if (shouldSetName)
-                        eb.WithName(epName!); //needed for link generation. only supported on single verb/route endpoints.
+                        hb.WithName(epName!); //needed for link generation. only supported on single verb/route endpoints.
 
-                    eb.WithMetadata(epMetaData); //used by EndpointExecutor on each request.
+                    hb.WithMetadata(epMetaData); //used by EndpointExecutor on each request.
 
-                    epSettings.InternalConfigAction(eb);//always do this first
+                    epSettings.InternalConfigAction(hb);//always do this first
 
                     if (epSettings.AnonymousVerbs?.Contains(verb) is true)
-                        eb.AllowAnonymous();
+                        hb.AllowAnonymous();
                     else
-                        eb.RequireAuthorization(policiesToAdd.ToArray());
+                        hb.RequireAuthorization(policiesToAdd.ToArray());
 
-                    if (epSettings.ResponseCacheSettings is not null) eb.WithMetadata(epSettings.ResponseCacheSettings);
-                    if (epSettings.DtoTypeForFormData is not null) eb.Accepts(epSettings.DtoTypeForFormData, "multipart/form-data");
-                    if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(eb);//always do this last - allow user to override everything done above
+                    if (epSettings.ResponseCacheSettings is not null) hb.WithMetadata(epSettings.ResponseCacheSettings);
+                    if (epSettings.DtoTypeForFormData is not null) hb.Accepts(epSettings.DtoTypeForFormData, "multipart/form-data");
+                    if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(hb);//always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{route}";
                     routeToHandlerCounts.TryGetValue(key, out var count);

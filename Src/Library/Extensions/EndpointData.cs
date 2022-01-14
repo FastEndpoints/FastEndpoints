@@ -6,21 +6,21 @@ namespace FastEndpoints;
 internal sealed class EndpointData
 {
     //using Lazy<T> to prevent contention when WAF testing (see issue #10)
-    private readonly Lazy<EndpointDefinition[]> _endpoints = new(() =>
+    private readonly Lazy<FoundEndpoint[]> _endpoints = new(() =>
     {
-        var epDefs = GenerateEndpointDefinitions();
+        var endpoints = FindEndpoints();
 
-        if (epDefs.Length == 0)
+        if (endpoints.Length == 0)
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
 
-        return epDefs!;
+        return endpoints!;
     });
 
-    internal EndpointDefinition[] Definitions => _endpoints.Value;
+    internal FoundEndpoint[] Found => _endpoints.Value;
 
     internal static Stopwatch Stopwatch { get; } = new();
 
-    private static EndpointDefinition[] GenerateEndpointDefinitions()
+    private static FoundEndpoint[] FindEndpoints()
     {
         Stopwatch.Start();
 
@@ -94,7 +94,7 @@ internal sealed class EndpointData
             {
                 var instance = (IEndpoint)Activator.CreateInstance(x.tEndpoint)!;
                 instance?.Configure();
-                return new EndpointDefinition(
+                return new FoundEndpoint(
                     x.tEndpoint,
                     valDict.GetValueOrDefault(x.tRequest),
                     (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)!);
@@ -103,7 +103,7 @@ internal sealed class EndpointData
     }
 }
 
-internal record EndpointDefinition(
+internal record FoundEndpoint(
     Type EndpointType,
     Type? ValidatorType,
     EndpointSettings Settings);

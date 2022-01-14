@@ -5,7 +5,7 @@
         <Version>2.20.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - optimization endpoint metadata retrieval
+            - optimization of endpoint metadata retrieval
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

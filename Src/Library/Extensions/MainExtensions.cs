@@ -17,7 +17,7 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    private static EndpointData endpointData = new();
+    private static EndpointData _endpoints = new();
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -44,17 +44,17 @@ public static class MainExtensions
         var routeToHandlerCounts = new Dictionary<string, int>();
         var totalEndpointCount = 0;
 
-        foreach (var epDef in endpointData.Definitions)
+        foreach (var ep in _endpoints.Found)
         {
-            var epName = epDef.EndpointType.FullName;
-            var epSettings = epDef.Settings;
+            var epName = ep.EndpointType.FullName;
+            var epSettings = ep.Settings;
 
             if (epSettings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
             if (epSettings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epName}]");
 
             var shouldSetName = epSettings.Verbs.Length == 1 && epSettings.Routes.Length == 1;
-            var epMetaData = BuildEndpointMetaData(epDef);
-            var policiesToAdd = BuildPoliciesToAdd(epDef);
+            var epMetaData = BuildEndpointMetaData(ep);
+            var policiesToAdd = BuildPoliciesToAdd(ep);
 
             foreach (var route in epSettings.Routes)
             {
@@ -104,13 +104,13 @@ public static class MainExtensions
             //if someone's tests run for more than 10 minutes, we should make this a user configurable setting.
 
             await Task.Delay(TimeSpan.FromMinutes(10)).ConfigureAwait(false);
-            endpointData = null!;
+            _endpoints = null!;
         });
 
         return builder;
     }
 
-    private static List<string> BuildPoliciesToAdd(EndpointDefinition ep)
+    private static List<string> BuildPoliciesToAdd(FoundEndpoint ep)
     {
         var policiesToAdd = new List<string>();
         if (ep.Settings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(ep.Settings.PreBuiltUserPolicies);
@@ -123,9 +123,9 @@ public static class MainExtensions
         return policiesToAdd;
     }
 
-    private static EndpointMetadata BuildEndpointMetaData(EndpointDefinition ep)
+    private static EndpointMetadata BuildEndpointMetaData(FoundEndpoint ep)
     {
-        var epFactory = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
+        var epInstantiator = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
 
         var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
         if (validatorInstance is not null)
@@ -135,12 +135,12 @@ public static class MainExtensions
             .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
             .Where(p => p.CanRead && p.CanWrite)
             .Select(p => new ServiceBoundReqDtoProp(
-                    p.PropertyType,
-                    ep.EndpointType.SetterForProp(p.Name)))
+                p.PropertyType,
+                ep.EndpointType.SetterForProp(p.Name)))
             .ToArray();
 
         return new EndpointMetadata(
-            epFactory,
+            epInstantiator,
             validatorInstance,
             serviceBoundReqDtoProps,
             ep.Settings.PreProcessors,
@@ -149,7 +149,7 @@ public static class MainExtensions
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
-        foreach (var ep in endpointData.Definitions)
+        foreach (var ep in _endpoints.Found)
         {
             var eps = ep.Settings;
 

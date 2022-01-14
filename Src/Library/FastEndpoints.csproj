@@ -2,10 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>2.20.0-beta1</Version>
+        <Version>2.19.2</Version>
 
         <PackageReleaseNotes>
             - optimization of endpoint metadata retrieval
+            - move endpoint metadata to metadata collection
+            - eliminate static vars in metadata discovery
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

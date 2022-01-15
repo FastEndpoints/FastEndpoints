@@ -29,8 +29,8 @@ builder.Services.AddOpenApiDocument(s =>
 {
     s.Title = "this is the title";
     s.Version = new("2.1.1");
-    s.SchemaNameGenerator = new SchemaNameGenerator();
-    s.OperationProcessors.Add(new OperationProcessor());
+    s.SchemaNameGenerator = new DefaultSchemaNameGenerator();
+    s.OperationProcessors.Add(new DefaultOperationProcessor());
 });
 builder.Services.AddMvcCore().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 
@@ -60,7 +60,7 @@ if (!app.Environment.IsProduction())
 }
 app.Run();
 
-internal class OperationProcessor : IOperationProcessor
+internal class DefaultOperationProcessor : IOperationProcessor
 {
     private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> descriptions = new()
@@ -68,6 +68,7 @@ internal class OperationProcessor : IOperationProcessor
         { "200", "Success" },
         { "201", "Created" },
         { "202", "Accepted" },
+        { "204", "No Content" },
         { "400", "Bad Request" },
         { "401", "Unauthorized" },
         { "403", "Forbidden" },
@@ -79,31 +80,41 @@ internal class OperationProcessor : IOperationProcessor
 
     public bool Process(OperationProcessorContext ctx)
     {
+        var op = ctx.OperationDescription.Operation;
+
         //use first part of route as tag by default
-        var tags = ctx.OperationDescription.Operation.Tags;
+        var tags = op.Tags;
         if (tags.Count == 0)
             tags.Add(ctx.OperationDescription.Path.Split('/')[1]);
 
-        var content = ctx.OperationDescription.Operation.Responses.FirstOrDefault().Value.Content;
-        if (content?.Count > 0)
+        var reqContent = op.RequestBody?.Content;
+        if (reqContent?.Count > 0)
         {
-            //fix response content-type not displaying correctly. probably a nswag bug. might be fixed in future.
-            var contentVal = content.FirstOrDefault().Value;
-            content.Clear();
-            content.Add(ctx.OperationDescription.Operation.Produces.FirstOrDefault(), contentVal);
-
-            //set response descriptions
-            ctx.OperationDescription.Operation.Responses
-                .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
-                .ToList()
-                .ForEach(res =>
-                {
-                    if (descriptions.ContainsKey(res.Key))
-                        res.Value.Description = descriptions[res.Key];
-                });
+            //fix request content-type not displaying correctly. probably a nswag bug. might be fixed in future.
+            var contentVal = reqContent.FirstOrDefault().Value;
+            reqContent.Clear();
+            reqContent.Add(op.Consumes.FirstOrDefault(), contentVal);
         }
 
-        var op = ctx.OperationDescription.Operation;
+        var resContent = op.Responses.FirstOrDefault().Value.Content;
+        if (resContent?.Count > 0)
+        {
+            //fix response content-type not displaying correctly. probably a nswag bug. might be fixed in future.
+            var contentVal = resContent.FirstOrDefault().Value;
+            resContent.Clear();
+            resContent.Add(op.Produces.FirstOrDefault(), contentVal);
+        }
+
+        //set response descriptions
+        op.Responses
+          .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
+          .ToList()
+          .ForEach(res =>
+          {
+              if (descriptions.ContainsKey(res.Key))
+                  res.Value.Description = descriptions[res.Key];
+          });
+
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoProps = reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
@@ -168,13 +179,13 @@ internal class OperationProcessor : IOperationProcessor
             }
         }
 
-        //var brk = ctx.OperationDescription.Path == "/customer/new";
+        //var brk = ctx.OperationDescription.Path == "/uploads/image/save-typed";
 
         return true;
     }
 }
 
-internal class SchemaNameGenerator : ISchemaNameGenerator
+internal class DefaultSchemaNameGenerator : ISchemaNameGenerator
 {
     public string? Generate(Type type)
     {

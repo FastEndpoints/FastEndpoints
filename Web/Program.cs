@@ -4,9 +4,13 @@ global using FastEndpoints.Validation;
 global using Web.Auth;
 //using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Http.Json;
+using NJsonSchema;
 using NJsonSchema.Generation;
+using NSwag;
+using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
+using System.Reflection;
 //using Swashbuckle.AspNetCore.SwaggerUI;
 using Web.Services;
 
@@ -46,24 +50,83 @@ if (!app.Environment.IsProduction())
     //});
     app.UseOpenApi(s =>
     {
-        s.Path = "/nswag/{documentName}/swagger.json";
+
     });
     app.UseSwaggerUi3(s =>
     {
-        s.Path = "/nswag";
-        s.SwaggerRoutes.Clear();
-        s.SwaggerRoutes.Add(new("v1", "/nswag/v1/swagger.json"));
+        s.TagsSorter = "alpha";
     });
 }
 app.Run();
 
 internal class OperationProcessor : IOperationProcessor
 {
+    private static readonly Dictionary<string, string> descriptions = new()
+    {
+        { "200", "Success" },
+        { "201", "Created" },
+        { "202", "Accepted" },
+        { "400", "Bad Request" },
+        { "401", "Unauthorized" },
+        { "403", "Forbidden" },
+        { "404", "Not Found" },
+        { "405", "Mehtod Not Allowed" },
+        { "406", "Not Acceptable" },
+        { "500", "Server Error" },
+    };
+
     public bool Process(OperationProcessorContext ctx)
     {
+        //use first part of route as tag by default
         var tags = ctx.OperationDescription.Operation.Tags;
-        if (!tags.Any())
+        if (tags.Count == 0)
             tags.Add(ctx.OperationDescription.Path.Split('/')[1]);
+
+        var content = ctx.OperationDescription.Operation.Responses.FirstOrDefault().Value.Content;
+        if (content?.Count > 0)
+        {
+            //fix response content-type not displaying correctly. probably a nswag bug. might be fixed in future.
+            var contentVal = content.FirstOrDefault().Value;
+            content.Clear();
+            content.Add(ctx.OperationDescription.Operation.Produces.FirstOrDefault(), contentVal);
+
+            //set response descriptions
+            ctx.OperationDescription.Operation.Responses
+                .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
+                .ToList()
+                .ForEach(res =>
+                {
+                    if (descriptions.ContainsKey(res.Key))
+                        res.Value.Description = descriptions[res.Key];
+                });
+        }
+
+        var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
+        var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
+        var reqDtoProps = reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var isGETRequest = apiDescription.HttpMethod == "GET";
+
+        if (reqDtoProps is not null)
+        {
+            //add header params if there are any props marked with [FromHeader] attribute
+            foreach (var prop in reqDtoProps)
+            {
+                var attrib = prop.GetCustomAttribute<FromHeaderAttribute>(true);
+                if (attrib is not null)
+                {
+                    ctx.OperationDescription.Operation.Parameters.Add(new OpenApiParameter
+                    {
+                        Name = attrib?.HeaderName ?? prop.Name,
+                        IsRequired = attrib?.IsRequired ?? false,
+                        Schema = JsonSchema.FromType(prop.PropertyType),
+                        Kind = OpenApiParameterKind.Header
+                    });
+                }
+            }
+        }
+
+        var brk
+            = ctx.OperationDescription.Path == "/customer/update-with-header";
 
         return true;
     }

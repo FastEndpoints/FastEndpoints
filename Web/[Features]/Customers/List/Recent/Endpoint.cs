@@ -14,6 +14,7 @@ public class Endpoint : EndpointWithoutRequest
             Allow.Customers_Retrieve,
             Allow.Customers_Create);
         AllowAnonymous();
+        Options(o => o.Produces<Response>(200));
     }
 
     public override Task HandleAsync(EmptyRequest er, CancellationToken ct)

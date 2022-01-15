@@ -25,16 +25,15 @@ public static class Extensions
     /// </summary>
     public static void EnableJWTBearerAuth(this OpenApiDocumentGeneratorSettings settings)
     {
-        settings.AddSecurity("Bearer", new OpenApiSecurityScheme
+        settings.AddSecurity("JWTBearerAuth", new OpenApiSecurityScheme
         {
             Type = OpenApiSecuritySchemeType.Http,
             Scheme = "bearer",
             BearerFormat = "JWT",
-            In = OpenApiSecurityApiKeyLocation.Header,
             Description = "Enter a JWT token to authorize the requests..."
         });
 
-        settings.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("BearerAuth"));
+        settings.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWTBearerAuth"));
     }
 
     /// <summary>

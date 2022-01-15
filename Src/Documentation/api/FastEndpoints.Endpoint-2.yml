@@ -2306,7 +2306,7 @@ items:
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
-  summary: "\nset endpoint configurations options using an endpoint builder action    /// \n"
+  summary: "\nset endpoint configurations options using an endpoint builder action ///\n"
   example: []
   syntax:
     content: protected void Options(Action<RouteHandlerBuilder> builder)

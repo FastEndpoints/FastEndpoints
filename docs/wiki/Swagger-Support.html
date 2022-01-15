@@ -145,7 +145,23 @@ app.Run();
 </code></pre>
 <h1 id="limitations">limitations</h1>
 <p>swagger/swashbuckle is presently tied closely to the mvc framework and support for .net 6 minimal api is lacking some features. hence, your mileage may vary.
-if you find some rough edges with the swagger support in FastEndponts, please get in touch by creating a github issue or better yet, submit a pull request if you have experience dealing with swagger.</p>
+if you find some rough edges with the swagger support in FastEndpoints, please get in touch by creating a github issue or better yet, submit a pull request if you have experience dealing with swagger.</p>
+<h1 id="nswag-support-currently-in-beta">nswag support (currently in beta)</h1>
+<p>if you prefer <code>NSwag</code> over <code>Swashbuckle</code>, you can install the <code>FastEndpoints.NSwag</code> package instead of above and enable it like so:</p>
+<pre><code class="lang-csharp">global using FastEndpoints;
+using FastEndpoints.NSwag; //add this
+
+var builder = WebApplication.CreateBuilder();
+builder.Services.AddFastEndpoints();
+builder.Services.AddNSwag(); //add this
+
+var app = builder.Build();
+app.UseAuthorization();
+app.UseFastEndpoints();
+app.UseOpenApi(); //add this
+app.UseSwaggerUi3(); //add this
+app.Run();
+</code></pre>
 </article>
           </div>
           

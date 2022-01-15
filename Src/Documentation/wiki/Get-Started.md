@@ -30,7 +30,7 @@ app.Run();
 ## add a request dto
 create a file called `MyRequest.cs` and add the following:
 ```csharp
-public class MyReqeust
+public class MyRequest
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }

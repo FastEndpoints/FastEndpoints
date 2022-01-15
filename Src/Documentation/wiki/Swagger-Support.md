@@ -63,4 +63,22 @@ builder.Services.AddSwagger(serializerOptions:
 
 # limitations
 swagger/swashbuckle is presently tied closely to the mvc framework and support for .net 6 minimal api is lacking some features. hence, your mileage may vary. 
-if you find some rough edges with the swagger support in FastEndponts, please get in touch by creating a github issue or better yet, submit a pull request if you have experience dealing with swagger.
+if you find some rough edges with the swagger support in FastEndpoints, please get in touch by creating a github issue or better yet, submit a pull request if you have experience dealing with swagger.
+
+# nswag support (currently in beta)
+if you prefer `NSwag` over `Swashbuckle`, you can install the `FastEndpoints.NSwag` package instead of above and enable it like so:
+```csharp
+global using FastEndpoints;
+using FastEndpoints.NSwag; //add this
+
+var builder = WebApplication.CreateBuilder();
+builder.Services.AddFastEndpoints();
+builder.Services.AddNSwag(); //add this
+
+var app = builder.Build();
+app.UseAuthorization();
+app.UseFastEndpoints();
+app.UseOpenApi(); //add this
+app.UseSwaggerUi3(); //add this
+app.Run();
+```

@@ -66,6 +66,11 @@
     name: Mode
   - uid: FastEndpoints.PlainTextRequest
     name: PlainTextRequest
+- uid: FastEndpoints.NSwag
+  name: FastEndpoints.NSwag
+  items:
+  - uid: FastEndpoints.NSwag.Extensions
+    name: Extensions
 - uid: FastEndpoints.Security
   name: FastEndpoints.Security
   items:

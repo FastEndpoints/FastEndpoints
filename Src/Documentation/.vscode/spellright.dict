@@ -5,3 +5,5 @@ jwt
 url
 appsettings
 csharp
+swashbuckle
+nswag

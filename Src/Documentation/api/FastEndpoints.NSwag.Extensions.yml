@@ -1,0 +1,688 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.NSwag.Extensions
+  commentId: T:FastEndpoints.NSwag.Extensions
+  id: Extensions
+  parent: FastEndpoints.NSwag
+  children:
+  - FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  - FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  - FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  langs:
+  - csharp
+  - vb
+  name: Extensions
+  nameWithType: Extensions
+  fullName: FastEndpoints.NSwag.Extensions
+  type: Class
+  source:
+    id: Extensions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
+    startLine: 11
+  assemblies:
+  - FastEndpoints.NSwag
+  namespace: FastEndpoints.NSwag
+  summary: "\na set of extension methods for adding swagger support\n"
+  example: []
+  syntax:
+    content: public static class Extensions
+    content.vb: Public Module Extensions
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - static
+  - class
+  modifiers.vb:
+  - Public
+  - Module
+- uid: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  commentId: M:FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  id: EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  isExtensionMethod: true
+  parent: FastEndpoints.NSwag.Extensions
+  langs:
+  - csharp
+  - vb
+  name: EnableFastEndpoints(OpenApiDocumentGeneratorSettings)
+  nameWithType: Extensions.EnableFastEndpoints(OpenApiDocumentGeneratorSettings)
+  fullName: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  type: Method
+  source:
+    id: EnableFastEndpoints
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
+    startLine: 16
+  assemblies:
+  - FastEndpoints.NSwag
+  namespace: FastEndpoints.NSwag
+  summary: "\nenable support for FastEndpoints in swagger\n"
+  example: []
+  syntax:
+    content: public static void EnableFastEndpoints(this OpenApiDocumentGeneratorSettings settings)
+    parameters:
+    - id: settings
+      type: NSwag.Generation.OpenApiDocumentGeneratorSettings
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Sub EnableFastEndpoints(settings As OpenApiDocumentGeneratorSettings)
+  overload: FastEndpoints.NSwag.Extensions.EnableFastEndpoints*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  commentId: M:FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  id: EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  isExtensionMethod: true
+  parent: FastEndpoints.NSwag.Extensions
+  langs:
+  - csharp
+  - vb
+  name: EnableJWTBearerAuth(OpenApiDocumentGeneratorSettings)
+  nameWithType: Extensions.EnableJWTBearerAuth(OpenApiDocumentGeneratorSettings)
+  fullName: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  type: Method
+  source:
+    id: EnableJWTBearerAuth
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
+    startLine: 25
+  assemblies:
+  - FastEndpoints.NSwag
+  namespace: FastEndpoints.NSwag
+  summary: "\nenable jwt bearer authorization support\n"
+  example: []
+  syntax:
+    content: public static void EnableJWTBearerAuth(this OpenApiDocumentGeneratorSettings settings)
+    parameters:
+    - id: settings
+      type: NSwag.Generation.OpenApiDocumentGeneratorSettings
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Sub EnableJWTBearerAuth(settings As OpenApiDocumentGeneratorSettings)
+  overload: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+- uid: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  commentId: M:FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  id: AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  isExtensionMethod: true
+  parent: FastEndpoints.NSwag.Extensions
+  langs:
+  - csharp
+  - vb
+  name: AddNSwag(IServiceCollection, Nullable<Action<OpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonOptions>>, Boolean)
+  nameWithType: Extensions.AddNSwag(IServiceCollection, Nullable<Action<OpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonOptions>>, Boolean)
+  fullName: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<NSwag.Generation.OpenApiDocumentGeneratorSettings>>, System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>, System.Boolean)
+  type: Method
+  source:
+    id: AddNSwag
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
+    startLine: 44
+  assemblies:
+  - FastEndpoints.NSwag
+  namespace: FastEndpoints.NSwag
+  summary: "\nenable swagger support for FastEndpoints with a single call.\n"
+  example: []
+  syntax:
+    content: public static IServiceCollection AddNSwag(this IServiceCollection services, Action<OpenApiDocumentGeneratorSettings>? settings = null, Action<JsonOptions>? serializerOptions = null, bool addJWTBearerAuth = true)
+    parameters:
+    - id: services
+      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
+    - id: settings
+      type: System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}}
+      description: swaggergen config settings
+    - id: serializerOptions
+      type: System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}}
+      description: json serializer options
+    - id: addJWTBearerAuth
+      type: System.Boolean
+      description: set to false to disable auto addition of jwt bearer auth support
+    return:
+      type: Microsoft.Extensions.DependencyInjection.IServiceCollection
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Function AddNSwag(services As IServiceCollection, settings As Action(Of OpenApiDocumentGeneratorSettings)? = Nothing, serializerOptions As Action(Of JsonOptions)? = Nothing, addJWTBearerAuth As Boolean = True) As IServiceCollection
+  overload: FastEndpoints.NSwag.Extensions.AddNSwag*
+  nameWithType.vb: Extensions.AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean)
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
+  fullName.vb: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.OpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean)
+  name.vb: AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean)
+references:
+- uid: FastEndpoints.NSwag
+  commentId: N:FastEndpoints.NSwag
+  name: FastEndpoints.NSwag
+  nameWithType: FastEndpoints.NSwag
+  fullName: FastEndpoints.NSwag
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: FastEndpoints.NSwag.Extensions.EnableFastEndpoints*
+  commentId: Overload:FastEndpoints.NSwag.Extensions.EnableFastEndpoints
+  name: EnableFastEndpoints
+  nameWithType: Extensions.EnableFastEndpoints
+  fullName: FastEndpoints.NSwag.Extensions.EnableFastEndpoints
+- uid: NSwag.Generation.OpenApiDocumentGeneratorSettings
+  commentId: T:NSwag.Generation.OpenApiDocumentGeneratorSettings
+  parent: NSwag.Generation
+  isExternal: true
+  name: OpenApiDocumentGeneratorSettings
+  nameWithType: OpenApiDocumentGeneratorSettings
+  fullName: NSwag.Generation.OpenApiDocumentGeneratorSettings
+- uid: NSwag.Generation
+  commentId: N:NSwag.Generation
+  isExternal: true
+  name: NSwag.Generation
+  nameWithType: NSwag.Generation
+  fullName: NSwag.Generation
+- uid: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth*
+  commentId: Overload:FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth
+  name: EnableJWTBearerAuth
+  nameWithType: Extensions.EnableJWTBearerAuth
+  fullName: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth
+- uid: FastEndpoints.NSwag.Extensions.AddNSwag*
+  commentId: Overload:FastEndpoints.NSwag.Extensions.AddNSwag
+  name: AddNSwag
+  nameWithType: Extensions.AddNSwag
+  fullName: FastEndpoints.NSwag.Extensions.AddNSwag
+- uid: Microsoft.Extensions.DependencyInjection.IServiceCollection
+  commentId: T:Microsoft.Extensions.DependencyInjection.IServiceCollection
+  parent: Microsoft.Extensions.DependencyInjection
+  isExternal: true
+  name: IServiceCollection
+  nameWithType: IServiceCollection
+  fullName: Microsoft.Extensions.DependencyInjection.IServiceCollection
+- uid: System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}}
+  commentId: T:System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<Action<OpenApiDocumentGeneratorSettings>>
+  nameWithType: Nullable<Action<OpenApiDocumentGeneratorSettings>>
+  fullName: System.Nullable<Action<NSwag.Generation.OpenApiDocumentGeneratorSettings>>
+  nameWithType.vb: Nullable(Of Action(Of OpenApiDocumentGeneratorSettings))
+  fullName.vb: System.Nullable(Of Action(Of NSwag.Generation.OpenApiDocumentGeneratorSettings))
+  name.vb: Nullable(Of Action(Of OpenApiDocumentGeneratorSettings))
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: NSwag.Generation.OpenApiDocumentGeneratorSettings
+    name: OpenApiDocumentGeneratorSettings
+    nameWithType: OpenApiDocumentGeneratorSettings
+    fullName: NSwag.Generation.OpenApiDocumentGeneratorSettings
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: NSwag.Generation.OpenApiDocumentGeneratorSettings
+    name: OpenApiDocumentGeneratorSettings
+    nameWithType: OpenApiDocumentGeneratorSettings
+    fullName: NSwag.Generation.OpenApiDocumentGeneratorSettings
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}}
+  commentId: T:System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<Action<JsonOptions>>
+  nameWithType: Nullable<Action<JsonOptions>>
+  fullName: System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>
+  nameWithType.vb: Nullable(Of Action(Of JsonOptions))
+  fullName.vb: System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions))
+  name.vb: Nullable(Of Action(Of JsonOptions))
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Microsoft.AspNetCore.Mvc.JsonOptions
+    name: JsonOptions
+    nameWithType: JsonOptions
+    fullName: Microsoft.AspNetCore.Mvc.JsonOptions
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Microsoft.AspNetCore.Mvc.JsonOptions
+    name: JsonOptions
+    nameWithType: JsonOptions
+    fullName: Microsoft.AspNetCore.Mvc.JsonOptions
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: Microsoft.Extensions.DependencyInjection
+  commentId: N:Microsoft.Extensions.DependencyInjection
+  isExternal: true
+  name: Microsoft.Extensions.DependencyInjection
+  nameWithType: Microsoft.Extensions.DependencyInjection
+  fullName: Microsoft.Extensions.DependencyInjection
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )

@@ -2253,6 +2253,60 @@ references:
   commentId: F:FastEndpoints.Mode.WaitForNone
   fullName: FastEndpoints.Mode.WaitForNone
   nameWithType: Mode.WaitForNone
+- uid: FastEndpoints.NSwag
+  name: FastEndpoints.NSwag
+  href: api/FastEndpoints.NSwag.html
+  commentId: N:FastEndpoints.NSwag
+  fullName: FastEndpoints.NSwag
+  nameWithType: FastEndpoints.NSwag
+- uid: FastEndpoints.NSwag.Extensions
+  name: Extensions
+  href: api/FastEndpoints.NSwag.Extensions.html
+  commentId: T:FastEndpoints.NSwag.Extensions
+  fullName: FastEndpoints.NSwag.Extensions
+  nameWithType: Extensions
+- uid: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  name: AddNSwag(IServiceCollection, Nullable<Action<OpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonOptions>>, Boolean)
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_AddNSwag_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_OpenApiDocumentGeneratorSettings___System_Nullable_Action_Microsoft_AspNetCore_Mvc_JsonOptions___System_Boolean_
+  commentId: M:FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  name.vb: AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean)
+  fullName: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<NSwag.Generation.OpenApiDocumentGeneratorSettings>>, System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>, System.Boolean)
+  fullName.vb: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.OpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean)
+  nameWithType: Extensions.AddNSwag(IServiceCollection, Nullable<Action<OpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonOptions>>, Boolean)
+  nameWithType.vb: Extensions.AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean)
+- uid: FastEndpoints.NSwag.Extensions.AddNSwag*
+  name: AddNSwag
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_AddNSwag_
+  commentId: Overload:FastEndpoints.NSwag.Extensions.AddNSwag
+  isSpec: "True"
+  fullName: FastEndpoints.NSwag.Extensions.AddNSwag
+  nameWithType: Extensions.AddNSwag
+- uid: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  name: EnableFastEndpoints(OpenApiDocumentGeneratorSettings)
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_EnableFastEndpoints_NSwag_Generation_OpenApiDocumentGeneratorSettings_
+  commentId: M:FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  fullName: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  nameWithType: Extensions.EnableFastEndpoints(OpenApiDocumentGeneratorSettings)
+- uid: FastEndpoints.NSwag.Extensions.EnableFastEndpoints*
+  name: EnableFastEndpoints
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_EnableFastEndpoints_
+  commentId: Overload:FastEndpoints.NSwag.Extensions.EnableFastEndpoints
+  isSpec: "True"
+  fullName: FastEndpoints.NSwag.Extensions.EnableFastEndpoints
+  nameWithType: Extensions.EnableFastEndpoints
+- uid: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  name: EnableJWTBearerAuth(OpenApiDocumentGeneratorSettings)
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_EnableJWTBearerAuth_NSwag_Generation_OpenApiDocumentGeneratorSettings_
+  commentId: M:FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  fullName: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
+  nameWithType: Extensions.EnableJWTBearerAuth(OpenApiDocumentGeneratorSettings)
+- uid: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth*
+  name: EnableJWTBearerAuth
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_EnableJWTBearerAuth_
+  commentId: Overload:FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth
+  isSpec: "True"
+  fullName: FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth
+  nameWithType: Extensions.EnableJWTBearerAuth
 - uid: FastEndpoints.PlainTextRequest
   name: PlainTextRequest
   href: api/FastEndpoints.PlainTextRequest.html

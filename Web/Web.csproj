@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
+        <PackageReference Include="NSwag.AspNetCore" Version="13.15.5" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,7 +24,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj" />
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj" />
-        <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj" />
+        <!--<ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj" />-->
     </ItemGroup>
 
     <ItemGroup>

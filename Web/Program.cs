@@ -11,6 +11,7 @@ using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 using System.Reflection;
+using System.Text.RegularExpressions;
 //using Swashbuckle.AspNetCore.SwaggerUI;
 using Web.Services;
 
@@ -61,6 +62,7 @@ app.Run();
 
 internal class OperationProcessor : IOperationProcessor
 {
+    private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> descriptions = new()
     {
         { "200", "Success" },
@@ -101,10 +103,51 @@ internal class OperationProcessor : IOperationProcessor
                 });
         }
 
+        var op = ctx.OperationDescription.Operation;
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoProps = reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
         var isGETRequest = apiDescription.HttpMethod == "GET";
+
+        //fix missing path parameters
+        ctx.OperationDescription.Path = "/" + apiDescription.RelativePath;
+
+        if (isGETRequest && op.RequestBody is not null)
+            op.RequestBody.IsRequired = false;
+
+        //add a param for each url path segment such as /{xxx}/{yyy}
+        var reqParams = regex
+            .Matches(apiDescription?.RelativePath!)
+            .Select(m => new OpenApiParameter
+            {
+                Name = m.Value,
+                Kind = OpenApiParameterKind.Path,
+                IsRequired = true,
+                Schema = JsonSchema.FromType(typeof(string))
+            });
+
+        if (isGETRequest && !reqParams.Any() && reqDtoType is not null)
+        {
+            //it's a GET request with a request dto and no path params
+            //so let's add each dto property as a query param to enable swagger ui to execute GET request with user supplied values
+
+            reqParams = reqDtoProps?
+                .Where(p => !p.IsDefined(typeof(FromClaimAttribute), false)) //ignore props marks with [FromClaim]
+                .Select(p =>
+                    new OpenApiParameter
+                    {
+                        Name = p.Name,
+                        IsRequired = false,
+                        Schema = JsonSchema.FromType(p.PropertyType),
+                        Kind = OpenApiParameterKind.Query
+                    });
+        }
+
+        if (reqParams is not null)
+        {
+            foreach (var p in reqParams)
+                op.Parameters.Add(p);
+        }
 
         if (reqDtoProps is not null)
         {
@@ -114,7 +157,7 @@ internal class OperationProcessor : IOperationProcessor
                 var attrib = prop.GetCustomAttribute<FromHeaderAttribute>(true);
                 if (attrib is not null)
                 {
-                    ctx.OperationDescription.Operation.Parameters.Add(new OpenApiParameter
+                    op.Parameters.Add(new OpenApiParameter
                     {
                         Name = attrib?.HeaderName ?? prop.Name,
                         IsRequired = attrib?.IsRequired ?? false,
@@ -125,8 +168,7 @@ internal class OperationProcessor : IOperationProcessor
             }
         }
 
-        var brk
-            = ctx.OperationDescription.Path == "/customer/update-with-header";
+        //var brk = ctx.OperationDescription.Path == "/customer/new";
 
         return true;
     }

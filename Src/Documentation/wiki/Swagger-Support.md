@@ -4,7 +4,7 @@ you can choose between `NSwag` or `Swashbuckle` based swagger support. however, 
 
 # [NSwag](#tab/nswag)
 
-## nswag library
+## enable nswag
 
 first install the `FastEndpoints.NSwag` package and add 4 lines to your app startup:
 
@@ -26,7 +26,7 @@ app.Run();
 
 you can then visit `/swagger` or `/swagger/v1/swagger.json` to see swagger output.
 
-### swagger configuration
+### configuration
 swagger options can be configured as you'd typically do like follows:
 ```csharp
 builder.Services.AddNSwag(settings =>
@@ -43,7 +43,7 @@ builder.Services.AddNSwag(settings =>
 });
 ```
 
-### describe your endpoints
+### describe endpoints
 if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the `Describe()` method in configuration like so:
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest, MyResponse>
@@ -60,7 +60,7 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
 }
 ```
 
-### disable swagger auth
+### disable auth
 support for jwt bearer auth is automatically added. if you need to disable it, simply pass a `false` value to the following parameter:
 ```csharp
 builder.Services.AddNSwag(addJWTBearerAuth: false);
@@ -75,7 +75,7 @@ builder.Services.AddNSwag(serializerOptions:
 
 # [Swashbuckle](#tab/swashbuckle)
 
-## swashbuckle library
+## enable swashbuckle
 
 first install the `FastEndpoints.Swashbuckle` package and add 4 lines to your app startup:
 
@@ -97,7 +97,7 @@ app.Run();
 
 you can then visit `/swagger` or `/swagger/v1/swagger.json` to see swagger output.
 
-### swagger configuration
+### configuration
 swagger options can be configured as you'd typically do like follows:
 ```csharp
 builder.Services.AddSwashbuckle(options =>
@@ -108,7 +108,7 @@ builder.Services.AddSwashbuckle(options =>
 });
 ```
 
-### describe your endpoints
+### describe endpoints
 if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the `Describe()` method in configuration like so:
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest, MyResponse>
@@ -125,7 +125,7 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
 }
 ```
 
-### disable swagger auth
+### disable auth
 support for jwt bearer auth is automatically added. if you need to disable it, simply pass a `false` value to the following parameter:
 ```csharp
 builder.Services.AddSwashbuckle(addJWTBearerAuth: false);

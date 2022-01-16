@@ -105,7 +105,7 @@
 </li>
 </ul>
 <section id="tabpanel_bHGHmlrG6S_nswag" role="tabpanel" data-tab="nswag">
-<h2 id="nswag-library">nswag library</h2>
+<h2 id="enable-nswag">enable nswag</h2>
 <p>first install the <code>FastEndpoints.NSwag</code> package and add 4 lines to your app startup:</p>
 <pre><code class="lang-csharp">global using FastEndpoints;
 using FastEndpoints.NSwag; //add this
@@ -122,7 +122,7 @@ app.UseSwaggerUi3(); //add this
 app.Run();
 </code></pre>
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
-<h3 id="swagger-configuration">swagger configuration</h3>
+<h3 id="configuration">configuration</h3>
 <p>swagger options can be configured as you'd typically do like follows:</p>
 <pre><code class="lang-csharp">builder.Services.AddNSwag(settings =&gt;
 {
@@ -137,7 +137,7 @@ app.Run();
     });
 });
 </code></pre>
-<h3 id="describe-your-endpoints">describe your endpoints</h3>
+<h3 id="describe-endpoints">describe endpoints</h3>
 <p>if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the <code>Describe()</code> method in configuration like so:</p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest, MyResponse&gt;
 {
@@ -152,7 +152,7 @@ app.Run();
     }
 }
 </code></pre>
-<h3 id="disable-swagger-auth">disable swagger auth</h3>
+<h3 id="disable-auth">disable auth</h3>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
 <pre><code class="lang-csharp">builder.Services.AddNSwag(addJWTBearerAuth: false);
 </code></pre>
@@ -163,7 +163,7 @@ app.Run();
 </code></pre>
 </section>
 <section id="tabpanel_bHGHmlrG6S_swashbuckle" role="tabpanel" data-tab="swashbuckle" aria-hidden="true" hidden="hidden">
-<h2 id="swashbuckle-library">swashbuckle library</h2>
+<h2 id="enable-swashbuckle">enable swashbuckle</h2>
 <p>first install the <code>FastEndpoints.Swashbuckle</code> package and add 4 lines to your app startup:</p>
 <pre><code class="lang-csharp">global using FastEndpoints;
 using FastEndpoints.Swagger; //add this
@@ -180,7 +180,7 @@ app.UseSwaggerUI(); //add this
 app.Run();
 </code></pre>
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
-<h3 id="swagger-configuration-1">swagger configuration</h3>
+<h3 id="configuration-1">configuration</h3>
 <p>swagger options can be configured as you'd typically do like follows:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwashbuckle(options =&gt;
 {
@@ -189,7 +189,7 @@ app.Run();
     options.TagActionsBy(x =&gt; new[] { x.RelativePath?.Split('/')[1] });
 });
 </code></pre>
-<h3 id="describe-your-endpoints-1">describe your endpoints</h3>
+<h3 id="describe-endpoints-1">describe endpoints</h3>
 <p>if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the <code>Describe()</code> method in configuration like so:</p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest, MyResponse&gt;
 {
@@ -204,7 +204,7 @@ app.Run();
     }
 }
 </code></pre>
-<h3 id="disable-swagger-auth-1">disable swagger auth</h3>
+<h3 id="disable-auth-1">disable auth</h3>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwashbuckle(addJWTBearerAuth: false);
 </code></pre>

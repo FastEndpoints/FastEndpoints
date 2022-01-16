@@ -258,7 +258,7 @@ namespace Test
         [TestMethod]
         public async Task PreProcessorShortCircuitMissingHeader()
         {
-            var (rsp, res) = await GuestClient.POSTAsync<
+            var (rsp, res) = await GuestClient.GETAsync<
                 Sales.Orders.Retrieve.Endpoint,
                 Sales.Orders.Retrieve.Request,
                 ErrorResponse>(new() { OrderID = "order1" });
@@ -283,7 +283,7 @@ namespace Test
         [TestMethod]
         public async Task PreProcessorShortCircuitHandlerExecuted()
         {
-            var (rsp, res) = await CustomerClient.POSTAsync<
+            var (rsp, res) = await CustomerClient.GETAsync<
                 Sales.Orders.Retrieve.Endpoint,
                 Sales.Orders.Retrieve.Request,
                 ErrorResponse>(new() { OrderID = "order1" });

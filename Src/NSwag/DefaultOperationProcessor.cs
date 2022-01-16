@@ -72,7 +72,10 @@ internal class DefaultOperationProcessor : IOperationProcessor
         ctx.OperationDescription.Path = "/" + apiDescription.RelativePath;
 
         if (isGETRequest && op.RequestBody is not null)
-            op.RequestBody.IsRequired = false;
+        {
+            op.RequestBody = null;
+            //op.RequestBody.IsRequired = false;
+        }
 
         //add a param for each url path segment such as /{xxx}/{yyy}
         var reqParams = regex
@@ -127,7 +130,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
             }
         }
 
-        //var brk = ctx.OperationDescription.Path == "/uploads/image/save-typed";
+        //var brk = ctx.OperationDescription.Path == "/sales/orders/retrieve/{OrderID}";
 
         return true;
     }

@@ -2,6 +2,9 @@
 
 public class Request
 {
+    [FromHeader("tenant-id")]
+    public string TenantID { get; set; }
+
     public string OrderID { get; set; }
 }
 

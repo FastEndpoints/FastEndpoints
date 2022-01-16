@@ -80,10 +80,10 @@
     name: JWTBearer
   - uid: FastEndpoints.Security.Permissions
     name: Permissions
-- uid: FastEndpoints.Swagger
-  name: FastEndpoints.Swagger
+- uid: FastEndpoints.Swashbuckle
+  name: FastEndpoints.Swashbuckle
   items:
-  - uid: FastEndpoints.Swagger.Extensions
+  - uid: FastEndpoints.Swashbuckle.Extensions
     name: Extensions
 - uid: FastEndpoints.Validation
   name: FastEndpoints.Validation

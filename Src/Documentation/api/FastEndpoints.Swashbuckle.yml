@@ -1,0 +1,22 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.Swashbuckle
+  commentId: N:FastEndpoints.Swashbuckle
+  id: FastEndpoints.Swashbuckle
+  children:
+  - FastEndpoints.Swashbuckle.Extensions
+  langs:
+  - csharp
+  - vb
+  name: FastEndpoints.Swashbuckle
+  nameWithType: FastEndpoints.Swashbuckle
+  fullName: FastEndpoints.Swashbuckle
+  type: Namespace
+  assemblies:
+  - FastEndpoints.Swashbuckle
+references:
+- uid: FastEndpoints.Swashbuckle.Extensions
+  commentId: T:FastEndpoints.Swashbuckle.Extensions
+  name: Extensions
+  nameWithType: Extensions
+  fullName: FastEndpoints.Swashbuckle.Extensions

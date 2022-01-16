@@ -164,13 +164,13 @@ app.Run();
 </section>
 <section id="tabpanel_bHGHmlrG6S_swashbuckle" role="tabpanel" data-tab="swashbuckle" aria-hidden="true" hidden="hidden">
 <h2 id="swashbuckle-library">swashbuckle library</h2>
-<p>first install the <code>FastEndpoints.Swagger</code> package and add 4 lines to your app startup:</p>
+<p>first install the <code>FastEndpoints.Swashbuckle</code> package and add 4 lines to your app startup:</p>
 <pre><code class="lang-csharp">global using FastEndpoints;
 using FastEndpoints.Swagger; //add this
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
-builder.Services.AddSwagger(); //add this
+builder.Services.AddSwashbuckle(); //add this
 
 var app = builder.Build();
 app.UseAuthorization();
@@ -182,7 +182,7 @@ app.Run();
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
 <h3 id="swagger-configuration-1">swagger configuration</h3>
 <p>swagger options can be configured as you'd typically do like follows:</p>
-<pre><code class="lang-csharp">builder.Services.AddSwagger(options =&gt;
+<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(options =&gt;
 {
     options.SwaggerDoc(&quot;v1&quot;, new OpenApiInfo { Title = &quot;My API&quot;, Version = &quot;v1&quot; });
     options.CustomSchemaIds(x =&gt; x.Name);
@@ -206,11 +206,11 @@ app.Run();
 </code></pre>
 <h3 id="disable-swagger-auth-1">disable swagger auth</h3>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
-<pre><code class="lang-csharp">builder.Services.AddSwagger(addJWTBearerAuth: false);
+<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(addJWTBearerAuth: false);
 </code></pre>
 <h3 id="json-serializer-options-1">json serializer options</h3>
 <p>swagger serialization options can be set with the following parameter:</p>
-<pre><code class="lang-csharp">builder.Services.AddSwagger(serializerOptions:
+<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(serializerOptions:
     o =&gt; o.JsonSerializerOptions.PropertyNamingPolicy = null);
 </code></pre>
 </section>

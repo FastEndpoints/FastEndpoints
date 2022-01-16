@@ -421,11 +421,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Swagger.Extensions.yml",
+      "source_relative_path": "api/FastEndpoints.Swashbuckle.Extensions.yml",
       "output": {
         ".html": {
-          "relative_path": "api/FastEndpoints.Swagger.Extensions.html",
-          "hash": "Tr5/pOVZBye/0K7mSsQqjyHuA06Te/caccrmtUy6WRE="
+          "relative_path": "api/FastEndpoints.Swashbuckle.Extensions.html",
+          "hash": "QNcVDQcdp6tZ6MpOYvbIWogjXNhh+c6X1hf3FFpUlMs="
         }
       },
       "is_incremental": false,
@@ -433,11 +433,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Swagger.yml",
+      "source_relative_path": "api/FastEndpoints.Swashbuckle.yml",
       "output": {
         ".html": {
-          "relative_path": "api/FastEndpoints.Swagger.html",
-          "hash": "VQIfOtQNkrPuHjUzTEDk4g0YRHq6kxaZg9KnWiJHcVE="
+          "relative_path": "api/FastEndpoints.Swashbuckle.html",
+          "hash": "HHXRK/N/3uby2jmfPSPopOo/LH4SXYykJm5WU2t4jtI="
         }
       },
       "is_incremental": false,
@@ -485,7 +485,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "iE2kh1seZxCD3+mdqI+F4/niK4MsiARN6ayxKJSQORg="
+          "hash": "MNYV6uWEzL3+S9A3tRoHo6Z8oJ5+0MfEnKYM5bNxxcs="
         }
       },
       "is_incremental": false,
@@ -787,7 +787,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Swagger-Support.html",
-          "hash": "VllvF7V2sreZMEj/LWWDIKA9+hylvth9J9GIW7NJcKs="
+          "hash": "HexprWQ/tGc3/EH0pVyXItbEujiA1aDiQMKH+Y6fnKk="
         }
       },
       "is_incremental": false,
@@ -843,7 +843,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 17,
-          "skipped_file_count": 16
+          "skipped_file_count": 17
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

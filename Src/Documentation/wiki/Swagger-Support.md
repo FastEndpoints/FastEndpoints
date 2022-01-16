@@ -77,7 +77,7 @@ builder.Services.AddNSwag(serializerOptions:
 
 ## swashbuckle library
 
-first install the `FastEndpoints.Swagger` package and add 4 lines to your app startup:
+first install the `FastEndpoints.Swashbuckle` package and add 4 lines to your app startup:
 
 ```csharp
 global using FastEndpoints;
@@ -85,7 +85,7 @@ using FastEndpoints.Swagger; //add this
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
-builder.Services.AddSwagger(); //add this
+builder.Services.AddSwashbuckle(); //add this
 
 var app = builder.Build();
 app.UseAuthorization();
@@ -100,7 +100,7 @@ you can then visit `/swagger` or `/swagger/v1/swagger.json` to see swagger outpu
 ### swagger configuration
 swagger options can be configured as you'd typically do like follows:
 ```csharp
-builder.Services.AddSwagger(options =>
+builder.Services.AddSwashbuckle(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
     options.CustomSchemaIds(x => x.Name);
@@ -128,12 +128,12 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
 ### disable swagger auth
 support for jwt bearer auth is automatically added. if you need to disable it, simply pass a `false` value to the following parameter:
 ```csharp
-builder.Services.AddSwagger(addJWTBearerAuth: false);
+builder.Services.AddSwashbuckle(addJWTBearerAuth: false);
 ```
 
 ### json serializer options
 swagger serialization options can be set with the following parameter:
 ```csharp
-builder.Services.AddSwagger(serializerOptions:
+builder.Services.AddSwashbuckle(serializerOptions:
     o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 ```

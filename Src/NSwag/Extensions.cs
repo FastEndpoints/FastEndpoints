@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using NSwag;
+using NSwag.AspNetCore;
 using NSwag.Generation;
 using NSwag.Generation.Processors.Security;
 
@@ -62,5 +63,19 @@ public static class Extensions
             services.AddMvcCore().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 
         return services;
+    }
+
+    /// <summary>
+    /// configure swagger ui with some sensible defaults for FastEndpoints which can be overridden if needed.
+    /// </summary>
+    public static void ConfigureDefaults(this SwaggerUi3Settings s)
+    {
+        s.CustomInlineStyles = ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0}";
+        s.AdditionalSettings["filter"] = true;
+        s.AdditionalSettings["persistAuthorization"] = true;
+        s.AdditionalSettings["displayRequestDuration"] = true;
+        s.AdditionalSettings["tryItOutEnabled"] = true;
+        s.TagsSorter = "alpha";
+        s.OperationsSorter = "alpha";
     }
 }

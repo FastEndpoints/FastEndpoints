@@ -16,9 +16,12 @@ internal class DefaultOperationFilter : IOperationFilter
         var isGETRequest = ctx.ApiDescription.HttpMethod == "GET";
 
         if (isGETRequest && op.RequestBody is not null)
-            op.RequestBody.Required = false;
+        {
+            //remove request body since this is a get request with a request dto cause swagger ui/fetch client doesn't support GET with body
+            op.RequestBody = null;
+        }
 
-        //add a param for each url path segment such as /{xxx}/{yyy}
+        //add a param for each url path segment such as /{xxx}/{yyy}/{yyy}
         var reqParams = regex
             .Matches(ctx.ApiDescription?.RelativePath!)
             .Select(m => new OpenApiParameter
@@ -71,7 +74,5 @@ internal class DefaultOperationFilter : IOperationFilter
                 }
             }
         }
-
-        //todo: this abomination of a method needs to be refactored!
     }
 }

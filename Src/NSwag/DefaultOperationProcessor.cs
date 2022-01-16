@@ -73,11 +73,11 @@ internal class DefaultOperationProcessor : IOperationProcessor
 
         if (isGETRequest && op.RequestBody is not null)
         {
+            //remove request body since this is a get request with a request dto cause swagger ui/fetch client doesn't support GET with body
             op.RequestBody = null;
-            //op.RequestBody.IsRequired = false;
         }
 
-        //add a param for each url path segment such as /{xxx}/{yyy}
+        //add a param for each url path segment such as /{xxx}/{yyy}/{zzz}
         var reqParams = regex
             .Matches(apiDescription?.RelativePath!)
             .Select(m => new OpenApiParameter

@@ -2281,6 +2281,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.NSwag.Extensions.AddNSwag
   nameWithType: Extensions.AddNSwag
+- uid: FastEndpoints.NSwag.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
+  name: ConfigureDefaults(SwaggerUi3Settings)
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_ConfigureDefaults_NSwag_AspNetCore_SwaggerUi3Settings_
+  commentId: M:FastEndpoints.NSwag.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
+  fullName: FastEndpoints.NSwag.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
+  nameWithType: Extensions.ConfigureDefaults(SwaggerUi3Settings)
+- uid: FastEndpoints.NSwag.Extensions.ConfigureDefaults*
+  name: ConfigureDefaults
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_ConfigureDefaults_
+  commentId: Overload:FastEndpoints.NSwag.Extensions.ConfigureDefaults
+  isSpec: "True"
+  fullName: FastEndpoints.NSwag.Extensions.ConfigureDefaults
+  nameWithType: Extensions.ConfigureDefaults
 - uid: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
   name: EnableFastEndpoints(OpenApiDocumentGeneratorSettings)
   href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_EnableFastEndpoints_NSwag_Generation_OpenApiDocumentGeneratorSettings_
@@ -2582,6 +2595,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle
   nameWithType: Extensions.AddSwashbuckle
+- uid: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)
+  name: ConfigureDefaults(SwaggerUIOptions)
+  href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_ConfigureDefaults_Swashbuckle_AspNetCore_SwaggerUI_SwaggerUIOptions_
+  commentId: M:FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)
+  fullName: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)
+  nameWithType: Extensions.ConfigureDefaults(SwaggerUIOptions)
+- uid: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults*
+  name: ConfigureDefaults
+  href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_ConfigureDefaults_
+  commentId: Overload:FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults
+  isSpec: "True"
+  fullName: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults
+  nameWithType: Extensions.ConfigureDefaults
 - uid: FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
   name: EnableFastEndpoints(SwaggerGenOptions)
   href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_EnableFastEndpoints_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions_

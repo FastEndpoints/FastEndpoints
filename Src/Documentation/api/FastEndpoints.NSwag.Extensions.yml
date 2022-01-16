@@ -6,6 +6,7 @@ items:
   parent: FastEndpoints.NSwag
   children:
   - FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  - FastEndpoints.NSwag.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
   - FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
   - FastEndpoints.NSwag.Extensions.EnableJWTBearerAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings)
   langs:
@@ -18,7 +19,7 @@ items:
   source:
     id: Extensions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
-    startLine: 11
+    startLine: 12
   assemblies:
   - FastEndpoints.NSwag
   namespace: FastEndpoints.NSwag
@@ -59,7 +60,7 @@ items:
   source:
     id: EnableFastEndpoints
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
-    startLine: 16
+    startLine: 17
   assemblies:
   - FastEndpoints.NSwag
   namespace: FastEndpoints.NSwag
@@ -96,7 +97,7 @@ items:
   source:
     id: EnableJWTBearerAuth
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
-    startLine: 25
+    startLine: 27
   assemblies:
   - FastEndpoints.NSwag
   namespace: FastEndpoints.NSwag
@@ -133,7 +134,7 @@ items:
   source:
     id: AddNSwag
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
-    startLine: 44
+    startLine: 46
   assemblies:
   - FastEndpoints.NSwag
   namespace: FastEndpoints.NSwag
@@ -169,6 +170,43 @@ items:
   - Shared
   fullName.vb: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.OpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean)
   name.vb: AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean)
+- uid: FastEndpoints.NSwag.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
+  commentId: M:FastEndpoints.NSwag.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
+  id: ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
+  isExtensionMethod: true
+  parent: FastEndpoints.NSwag.Extensions
+  langs:
+  - csharp
+  - vb
+  name: ConfigureDefaults(SwaggerUi3Settings)
+  nameWithType: Extensions.ConfigureDefaults(SwaggerUi3Settings)
+  fullName: FastEndpoints.NSwag.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
+  type: Method
+  source:
+    id: ConfigureDefaults
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\NSwag\Extensions.cs
+    startLine: 70
+  assemblies:
+  - FastEndpoints.NSwag
+  namespace: FastEndpoints.NSwag
+  summary: "\nconfigure swagger ui with some sensible defaults for FastEndpoints which can be overridden if needed.\n"
+  example: []
+  syntax:
+    content: public static void ConfigureDefaults(this SwaggerUi3Settings s)
+    parameters:
+    - id: s
+      type: NSwag.AspNetCore.SwaggerUi3Settings
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Sub ConfigureDefaults(s As SwaggerUi3Settings)
+  overload: FastEndpoints.NSwag.Extensions.ConfigureDefaults*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
 references:
 - uid: FastEndpoints.NSwag
   commentId: N:FastEndpoints.NSwag
@@ -686,3 +724,21 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.NSwag.Extensions.ConfigureDefaults*
+  commentId: Overload:FastEndpoints.NSwag.Extensions.ConfigureDefaults
+  name: ConfigureDefaults
+  nameWithType: Extensions.ConfigureDefaults
+  fullName: FastEndpoints.NSwag.Extensions.ConfigureDefaults
+- uid: NSwag.AspNetCore.SwaggerUi3Settings
+  commentId: T:NSwag.AspNetCore.SwaggerUi3Settings
+  parent: NSwag.AspNetCore
+  isExternal: true
+  name: SwaggerUi3Settings
+  nameWithType: SwaggerUi3Settings
+  fullName: NSwag.AspNetCore.SwaggerUi3Settings
+- uid: NSwag.AspNetCore
+  commentId: N:NSwag.AspNetCore
+  isExternal: true
+  name: NSwag.AspNetCore
+  nameWithType: NSwag.AspNetCore
+  fullName: NSwag.AspNetCore

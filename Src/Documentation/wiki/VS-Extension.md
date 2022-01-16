@@ -15,4 +15,10 @@ there will be 4 new files created under the namespace you chose.
 
 **Endpoint.cs** - this will be your new endpoint definition.
 
-[see here](https://github.com/dj-nitehawk/MongoWebApiStarter/tree/master/Template/Source/%5BFeatures%5D/Account/Save) for an example feature file set.
+[click here](https://github.com/dj-nitehawk/MiniDevTo/tree/main/Features/Author/Articles/SaveArticle) for an example feature file set.
+
+---
+
+<a target="_blank" href="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/b34139su76mm3toq9dps.gif">
+  <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/b34139su76mm3toq9dps.gif">
+</a>

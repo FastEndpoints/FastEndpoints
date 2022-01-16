@@ -6,6 +6,7 @@ items:
   parent: FastEndpoints.Swashbuckle
   children:
   - FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
+  - FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)
   - FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
   - FastEndpoints.Swashbuckle.Extensions.EnableJWTBearerAuth(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
   langs:
@@ -18,7 +19,7 @@ items:
   source:
     id: Extensions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swashbuckle\Extensions.cs
-    startLine: 10
+    startLine: 11
   assemblies:
   - FastEndpoints.Swashbuckle
   namespace: FastEndpoints.Swashbuckle
@@ -59,7 +60,7 @@ items:
   source:
     id: EnableFastEndpoints
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swashbuckle\Extensions.cs
-    startLine: 15
+    startLine: 16
   assemblies:
   - FastEndpoints.Swashbuckle
   namespace: FastEndpoints.Swashbuckle
@@ -96,7 +97,7 @@ items:
   source:
     id: EnableJWTBearerAuth
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swashbuckle\Extensions.cs
-    startLine: 26
+    startLine: 27
   assemblies:
   - FastEndpoints.Swashbuckle
   namespace: FastEndpoints.Swashbuckle
@@ -133,7 +134,7 @@ items:
   source:
     id: AddSwashbuckle
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swashbuckle\Extensions.cs
-    startLine: 60
+    startLine: 61
   assemblies:
   - FastEndpoints.Swashbuckle
   namespace: FastEndpoints.Swashbuckle
@@ -169,6 +170,41 @@ items:
   - Shared
   fullName.vb: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean)
   name.vb: AddSwashbuckle(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean)
+- uid: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)
+  commentId: M:FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)
+  id: ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)
+  isExtensionMethod: true
+  parent: FastEndpoints.Swashbuckle.Extensions
+  langs:
+  - csharp
+  - vb
+  name: ConfigureDefaults(SwaggerUIOptions)
+  nameWithType: Extensions.ConfigureDefaults(SwaggerUIOptions)
+  fullName: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)
+  type: Method
+  source:
+    id: ConfigureDefaults
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Swashbuckle\Extensions.cs
+    startLine: 82
+  assemblies:
+  - FastEndpoints.Swashbuckle
+  namespace: FastEndpoints.Swashbuckle
+  syntax:
+    content: public static void ConfigureDefaults(this SwaggerUIOptions o)
+    parameters:
+    - id: o
+      type: Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions
+    content.vb: >-
+      <ExtensionAttribute>
+
+      Public Shared Sub ConfigureDefaults(o As SwaggerUIOptions)
+  overload: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults*
+  modifiers.csharp:
+  - public
+  - static
+  modifiers.vb:
+  - Public
+  - Shared
 references:
 - uid: FastEndpoints.Swashbuckle
   commentId: N:FastEndpoints.Swashbuckle
@@ -686,3 +722,21 @@ references:
   - name: )
     nameWithType: )
     fullName: )
+- uid: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults*
+  commentId: Overload:FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults
+  name: ConfigureDefaults
+  nameWithType: Extensions.ConfigureDefaults
+  fullName: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults
+- uid: Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions
+  commentId: T:Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions
+  parent: Swashbuckle.AspNetCore.SwaggerUI
+  isExternal: true
+  name: SwaggerUIOptions
+  nameWithType: SwaggerUIOptions
+  fullName: Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions
+- uid: Swashbuckle.AspNetCore.SwaggerUI
+  commentId: N:Swashbuckle.AspNetCore.SwaggerUI
+  isExternal: true
+  name: Swashbuckle.AspNetCore.SwaggerUI
+  nameWithType: Swashbuckle.AspNetCore.SwaggerUI
+  fullName: Swashbuckle.AspNetCore.SwaggerUI

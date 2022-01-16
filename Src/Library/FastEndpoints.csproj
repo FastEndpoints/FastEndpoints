@@ -2,12 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>2.20.0-beta4</Version>
+        <Version>2.20.0</Version>
 
         <PackageReleaseNotes>
             - add support for NSwag
             - rename FastEndpoints.Swagger pkg to FastEndpoints.Swashbuckle
-            - remove request body for GET requests in swagger
+            - remove request body for GET requests in swashbuckle
             - misc. minor code changes
         </PackageReleaseNotes>
 

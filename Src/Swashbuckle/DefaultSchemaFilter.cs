@@ -2,7 +2,7 @@
 //using Swashbuckle.AspNetCore.SwaggerGen;
 //using System.Reflection;
 
-//namespace FastEndpoints.Swagger;
+//namespace FastEndpoints.Swashbuckle;
 
 //public class DefaultSchemaFilter : ISchemaFilter
 //{

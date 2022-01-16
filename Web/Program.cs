@@ -5,7 +5,7 @@ global using Web.Auth;
 using FastEndpoints.NSwag;
 using Microsoft.AspNetCore.Http.Json;
 using Web.Services;
-//using FastEndpoints.Swagger;
+//using FastEndpoints.Swashbuckle;
 //using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder();
@@ -16,6 +16,7 @@ builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddScoped<IEmailService, EmailService>();
+//builder.Services.AddSwashbuckle();
 builder.Services.AddNSwag();
 
 var app = builder.Build();

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>2.20.0</Version>
+        <Version>2.21.0-beta1</Version>
 
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -17,16 +17,6 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
-
-    <ItemGroup>
-      <None Remove="swagger.css" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="swagger.css">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />

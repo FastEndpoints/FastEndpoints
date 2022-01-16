@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace FastEndpoints.Swashbuckle;
 
@@ -77,5 +78,17 @@ public static class Extensions
             services.AddMvcCore().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 
         return services;
+    }
+
+    public static void ConfigureDefaults(this SwaggerUIOptions o)
+    {
+        o.ConfigObject.DocExpansion = DocExpansion.None;
+        o.ConfigObject.DefaultModelExpandDepth = 0;
+        o.ConfigObject.Filter = "";
+        o.ConfigObject.PersistAuthorization = true;
+        o.ConfigObject.DisplayRequestDuration = true;
+        o.ConfigObject.TryItOutEnabled = true;
+        o.ConfigObject.AdditionalItems["tagsSorter"] = "alpha";
+        o.ConfigObject.AdditionalItems["operationsSorter"] = "alpha";
     }
 }

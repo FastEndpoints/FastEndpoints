@@ -70,12 +70,12 @@ public static class Extensions
     /// </summary>
     public static void ConfigureDefaults(this SwaggerUi3Settings s)
     {
-        s.CustomInlineStyles = ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0}";
         s.AdditionalSettings["filter"] = true;
         s.AdditionalSettings["persistAuthorization"] = true;
         s.AdditionalSettings["displayRequestDuration"] = true;
         s.AdditionalSettings["tryItOutEnabled"] = true;
         s.TagsSorter = "alpha";
         s.OperationsSorter = "alpha";
+        s.CustomInlineStyles = ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0}";
     }
 }

@@ -19,6 +19,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="swagger.css" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="swagger.css">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
         <ProjectReference Include="..\Library\FastEndpoints.csproj" />
     </ItemGroup>

@@ -17,7 +17,7 @@ builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRo
 builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddScoped<IEmailService, EmailService>();
 //builder.Services.AddSwashbuckle();
-builder.Services.AddNSwag();
+builder.Services.AddNSwag(x => x.Title = "FastEndpoints Sandbox");
 
 var app = builder.Build();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
@@ -38,6 +38,11 @@ if (!app.Environment.IsProduction())
     app.UseOpenApi();
     app.UseSwaggerUi3(s =>
     {
+        s.CustomInlineStyles = ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0}";
+        s.AdditionalSettings["filter"] = true;
+        s.AdditionalSettings["persistAuthorization"] = true;
+        s.AdditionalSettings["displayRequestDuration"] = true;
+        s.AdditionalSettings["tryItOutEnabled"] = true;
         s.TagsSorter = "alpha";
     });
 }

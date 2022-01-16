@@ -16,6 +16,7 @@ public static class Extensions
     /// </summary>
     public static void EnableFastEndpoints(this OpenApiDocumentGeneratorSettings settings)
     {
+        settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new DefaultSchemaNameGenerator();
         settings.OperationProcessors.Add(new DefaultOperationProcessor());
     }

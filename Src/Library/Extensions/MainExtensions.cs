@@ -33,9 +33,10 @@ public static class MainExtensions
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
     /// </summary>
+    /// <param name="exclusionFilter">an optional function to exclude an endpoint from registration. return true from the function if you want to exclude an endpoint.</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
+    public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder, Func<DiscoveredEndpoint, bool>? exclusionFilter = null)
     {
         IServiceResolver.ServiceProvider = builder.ServiceProvider;
         BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
@@ -46,8 +47,12 @@ public static class MainExtensions
 
         foreach (var ep in _endpoints.Found)
         {
-            var epName = ep.EndpointType.FullName;
             var epSettings = ep.Settings;
+
+            if (exclusionFilter?.Invoke(new(epSettings.Routes!, epSettings.Verbs!)) is true)
+                continue;
+
+            var epName = ep.EndpointType.FullName;
 
             if (epSettings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
             if (epSettings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epName}]");
@@ -201,6 +206,15 @@ public static class MainExtensions
         return $"epPolicy:{endpointType.FullName}";
     }
 }
+
+/// <summary>
+/// represents an endpoint that has been discovered during startup
+/// </summary>
+/// <param name="Routes">the route urls of the endpoint</param>
+/// <param name="Verbs">the verbs of the endpoint</param>
+public record DiscoveredEndpoint(
+    IEnumerable<string> Routes,
+    IEnumerable<string> Verbs);
 
 internal class StartupTimer { }
 internal class DuplicateHandlerRegistration { }

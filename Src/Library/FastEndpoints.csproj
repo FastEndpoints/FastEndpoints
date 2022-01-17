@@ -2,10 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>2.21.0-beta1</Version>
+        <Version>2.21.0-beta2</Version>
 
         <PackageReleaseNotes>
             - add ConfigureDefaults() for swagger ui settings
+            - add ability to exclude endpoints during startup
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

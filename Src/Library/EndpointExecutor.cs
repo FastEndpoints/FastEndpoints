@@ -49,4 +49,3 @@ internal record EndpointMetadata(
 internal record ServiceBoundReqDtoProp(
     Type PropType,
     Action<object, object> PropSetter);
-

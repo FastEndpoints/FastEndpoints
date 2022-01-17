@@ -134,7 +134,7 @@ json  : { &quot;UserID&quot;: 12345 }
     public int TenantID { get; set; }
 }
 </code></pre>
-<p><code>FromHeader</code> attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing <code>[FromHeader(IsRequired = false)]</code> just like with the FromClaim attribute. both attributes have the same overloads and behaves similarly.</p>
+<p><code>FromHeader</code> attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing <code>[FromHeader(IsRequired = false)]</code> just like with the FromClaim attribute. Both attributes have the same overloads and behaves similarly.</p>
 <p>it is also possible for both attributes to bind to properties when the names don't match like so:</p>
 <pre><code class="lang-csharp">[FromHeader(&quot;tenant-id&quot;)]
 public int TenantID { get; set; }

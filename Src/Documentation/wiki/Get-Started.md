@@ -104,7 +104,7 @@ public class MyEndpoint : Endpoint<EmptyRequest,EmptyResponse> { }
 ```
 
 # sending responses
-there are multiple response **[sending methods](Misc-Conveniences.md#send-methods)** you can use. it is also possible to simply populate the `Response` [property of the endpoint](Misc-Conveniences.md#response-tresponse) and get a 200 ok response with the `Response` property serialized in the body automatically. however for that to work, you need to be using either #2 or #4 generic endpoint type which takes a `TResponse` generic parameter as described above. for ex:
+there are multiple response **[sending methods](Misc-Conveniences.md#send-methods)** you can use. it is also possible to simply populate the `Response` [property of the endpoint](Misc-Conveniences.md#response-tresponse) and get a 200 ok response with the value of the `Response` property serialized in the body automatically. for ex:
 
 **response dto:**
 ```csharp

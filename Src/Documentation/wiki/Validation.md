@@ -1,5 +1,5 @@
 # request dto validation
-request validation is done using [FluentValidation](https://fluentvalidation.net/) rules. `fastendpoints` uses a customized version of the fluentvalidations library but the api for the end user is the same. please refer to the fluentvalidations website if you haven't used it before. the built-in validation is provided by the `FastEndpoints.Validation` package. make sure to import it first *(or add a global using statement in program.cs)* before writing any validators.
+request validation is done using [FluentValidation](https://fluentvalidation.net/) rules. fastendpoints uses a customized version of the fluentvalidations library but the api for the end user is the same. please refer to the fluentvalidations website if you haven't used it before. the built-in validation is provided by the `FastEndpoints.Validation` package. make sure to import it first *(or add a global using statement in program.cs)* before writing any validators.
 
 **request dto**
 ```csharp

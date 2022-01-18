@@ -2,12 +2,13 @@
 
     <PropertyGroup>
 
-        <Version>2.21.0-beta4</Version>
+        <Version>2.21.0-beta5</Version>
 
         <PackageReleaseNotes>
             - ability to specify configuration at startup
             - ability to exclude endpoints during startup
             - ability to specify error response builder func
+            - set error response content type to "application/problem+json"
             - add ConfigureDefaults() for swagger ui settings
             - reduce allocations during endpoint registration
         </PackageReleaseNotes>

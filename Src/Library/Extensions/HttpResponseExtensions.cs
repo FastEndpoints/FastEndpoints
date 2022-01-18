@@ -82,6 +82,7 @@ public static class HttpResponseExtensions
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 400;
+        rsp.ContentType = "application/problem+json";
         return rsp.WriteAsJsonAsync(Config.errorResponseBuilder(failures), Config.serializerOptions, cancellation);
     }
 

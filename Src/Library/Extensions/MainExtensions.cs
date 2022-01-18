@@ -47,52 +47,34 @@ public static class MainExtensions
 
         foreach (var ep in _endpoints.Found)
         {
-            var epSettings = ep.Settings;
+            if (exclusionFilter?.Invoke(CreateDiscoverdEndpoint(ep)) is true) continue;
+            if (ep.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{ep.EndpointType.FullName}]");
+            if (ep.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{ep.EndpointType.FullName}]");
 
-            if (exclusionFilter?.Invoke(new(
-                ep.EndpointType,
-                epSettings.Routes!,
-                epSettings.Verbs!,
-                epSettings.AnonymousVerbs,
-                epSettings.ThrowIfValidationFails,
-                epSettings.PreBuiltUserPolicies,
-                epSettings.Roles,
-                epSettings.Permissions,
-                epSettings.AllowAnyPermission,
-                epSettings.ClaimTypes,
-                epSettings.AllowAnyClaim
-                )) is true) continue;
-
-            var epName = ep.EndpointType.FullName;
-
-            if (epSettings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epName}]");
-            if (epSettings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epName}]");
-
-            var shouldSetName = epSettings.Verbs.Length == 1 && epSettings.Routes.Length == 1;
+            var shouldSetName = ep.Settings.Verbs.Length == 1 && ep.Settings.Routes.Length == 1;
             var epMetaData = BuildEndpointMetaData(ep);
             var policiesToAdd = BuildPoliciesToAdd(ep);
 
-            foreach (var route in epSettings.Routes)
+            foreach (var route in ep.Settings.Routes)
             {
-                foreach (var verb in epSettings.Verbs)
+                foreach (var verb in ep.Settings.Verbs)
                 {
                     var hb = builder.MapMethods(route, new[] { verb }, EndpointExecutor.HandleAsync);
 
                     if (shouldSetName)
-                        hb.WithName(epName!); //needed for link generation. only supported on single verb/route endpoints.
+                        hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
 
-                    hb.WithMetadata(epMetaData); //used by EndpointExecutor on each request.
+                    hb.WithMetadata(epMetaData);
+                    ep.Settings.InternalConfigAction(hb);//always do this first
 
-                    epSettings.InternalConfigAction(hb);//always do this first
-
-                    if (epSettings.AnonymousVerbs?.Contains(verb) is true)
+                    if (ep.Settings.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
                         hb.RequireAuthorization(policiesToAdd.ToArray());
 
-                    if (epSettings.ResponseCacheSettings is not null) hb.WithMetadata(epSettings.ResponseCacheSettings);
-                    if (epSettings.DtoTypeForFormData is not null) hb.Accepts(epSettings.DtoTypeForFormData, "multipart/form-data");
-                    if (epSettings.UserConfigAction is not null) epSettings.UserConfigAction(hb);//always do this last - allow user to override everything done above
+                    if (ep.Settings.ResponseCacheSettings is not null) hb.WithMetadata(ep.Settings.ResponseCacheSettings);
+                    if (ep.Settings.DtoTypeForFormData is not null) hb.Accepts(ep.Settings.DtoTypeForFormData, "multipart/form-data");
+                    if (ep.Settings.UserConfigAction is not null) ep.Settings.UserConfigAction(hb);//always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{route}";
                     routeToHandlerCounts.TryGetValue(key, out var count);
@@ -126,6 +108,19 @@ public static class MainExtensions
         return builder;
     }
 
+    private static DiscoveredEndpoint CreateDiscoverdEndpoint(FoundEndpoint ep) => new(
+        ep.EndpointType,
+        ep.Settings.Routes!,
+        ep.Settings.Verbs!,
+        ep.Settings.AnonymousVerbs,
+        ep.Settings.ThrowIfValidationFails,
+        ep.Settings.PreBuiltUserPolicies,
+        ep.Settings.Roles,
+        ep.Settings.Permissions,
+        ep.Settings.AllowAnyPermission,
+        ep.Settings.ClaimTypes,
+        ep.Settings.AllowAnyClaim);
+
     private static List<string> BuildPoliciesToAdd(FoundEndpoint ep)
     {
         var policiesToAdd = new List<string>();
@@ -141,11 +136,9 @@ public static class MainExtensions
 
     private static EndpointMetadata BuildEndpointMetaData(FoundEndpoint ep)
     {
-        var epInstantiator = Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile();
-
-        var validatorInstance = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
-        if (validatorInstance is not null)
-            validatorInstance.ThrowIfValidationFails = ep.Settings.ThrowIfValidationFails;
+        var validator = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
+        if (validator is not null)
+            validator.ThrowIfValidationFails = ep.Settings.ThrowIfValidationFails;
 
         var serviceBoundReqDtoProps = ep.EndpointType
             .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
@@ -156,8 +149,8 @@ public static class MainExtensions
             .ToArray();
 
         return new EndpointMetadata(
-            epInstantiator,
-            validatorInstance,
+            Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile(),
+            validator,
             serviceBoundReqDtoProps,
             ep.Settings.PreProcessors,
             ep.Settings.PostProcessors);
@@ -218,6 +211,9 @@ public static class MainExtensions
     }
 }
 
+internal class StartupTimer { }
+internal class DuplicateHandlerRegistration { }
+
 /// <summary>
 /// represents an endpoint that has been discovered during startup
 /// </summary>
@@ -232,7 +228,7 @@ public static class MainExtensions
 /// <param name="AllowAnyPermission">whether any or all permissions will be required</param>
 /// <param name="Claims">the user claim types which will allow access</param>
 /// <param name="AllowAnyClaim">whether any or all claim types will be required</param>
-public record struct DiscoveredEndpoint(
+public record DiscoveredEndpoint(
     Type EndpointType,
     IEnumerable<string> Routes,
     IEnumerable<string> Verbs,
@@ -244,6 +240,3 @@ public record struct DiscoveredEndpoint(
     bool AllowAnyPermission,
     IEnumerable<string>? Claims,
     bool AllowAnyClaim);
-
-internal class StartupTimer { }
-internal class DuplicateHandlerRegistration { }

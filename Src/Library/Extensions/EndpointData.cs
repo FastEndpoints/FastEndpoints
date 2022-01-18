@@ -107,4 +107,3 @@ internal record FoundEndpoint(
     Type EndpointType,
     Type? ValidatorType,
     EndpointSettings Settings);
-

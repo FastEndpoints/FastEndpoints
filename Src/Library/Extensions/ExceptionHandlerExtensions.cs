@@ -45,7 +45,7 @@ public static class ExceptionHandlerExtensions
                     logger.LogError(msg);
 
                     ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    ctx.Response.ContentType = "application/json";
+                    ctx.Response.ContentType = "application/problem+json";
                     await ctx.Response.WriteAsJsonAsync(new
                     {
                         Status = "Internal Server Error!",

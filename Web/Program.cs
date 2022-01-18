@@ -25,7 +25,7 @@ app.UseFastEndpoints(config =>
 {
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointExclusionFilter = ep => ep.Routes.Contains("/api/test");
-    config.ErrorResponseBuilder = failures => $"there are {failures.Count()} validation issues!";
+    //config.ErrorResponseBuilder = failures => $"there are {failures.Count()} validation issues!";
 });
 
 if (!app.Environment.IsProduction())

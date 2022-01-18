@@ -1,0 +1,1102 @@
+### YamlMime:ManagedReference
+items:
+- uid: FastEndpoints.DiscoveredEndpoint
+  commentId: T:FastEndpoints.DiscoveredEndpoint
+  id: DiscoveredEndpoint
+  parent: FastEndpoints
+  children:
+  - FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)
+  - FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  - FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  - FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  - FastEndpoints.DiscoveredEndpoint.Claims
+  - FastEndpoints.DiscoveredEndpoint.EndpointType
+  - FastEndpoints.DiscoveredEndpoint.Permissions
+  - FastEndpoints.DiscoveredEndpoint.Policies
+  - FastEndpoints.DiscoveredEndpoint.Roles
+  - FastEndpoints.DiscoveredEndpoint.Routes
+  - FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  - FastEndpoints.DiscoveredEndpoint.Verbs
+  langs:
+  - csharp
+  - vb
+  name: DiscoveredEndpoint
+  nameWithType: DiscoveredEndpoint
+  fullName: FastEndpoints.DiscoveredEndpoint
+  type: Class
+  source:
+    id: DiscoveredEndpoint
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 263
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nrepresents an endpoint that has been discovered during startup\n"
+  example: []
+  syntax:
+    content: 'public class DiscoveredEndpoint : IEquatable<DiscoveredEndpoint>'
+    content.vb: >-
+      Public Class DiscoveredEndpoint
+
+          Implements IEquatable(Of DiscoveredEndpoint)
+  inheritance:
+  - System.Object
+  implements:
+  - System.IEquatable{FastEndpoints.DiscoveredEndpoint}
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)
+  commentId: M:FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)
+  id: '#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)'
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean)
+  nameWithType: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean)
+  fullName: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<System.String>, IEnumerable<System.String>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Boolean)
+  type: Constructor
+  source:
+    id: .ctor
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 263
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  summary: "\nrepresents an endpoint that has been discovered during startup\n"
+  example: []
+  syntax:
+    content: public DiscoveredEndpoint(Type EndpointType, IEnumerable<string> Routes, IEnumerable<string> Verbs, IEnumerable<string>? AnonymousVerbs, bool ThrowIfValidationFails, IEnumerable<string>? Policies, IEnumerable<string>? Roles, IEnumerable<string>? Permissions, bool AllowAnyPermission, IEnumerable<string>? Claims, bool AllowAnyClaim)
+    parameters:
+    - id: EndpointType
+      type: Type
+      description: the type of the discovered endpoint class
+    - id: Routes
+      type: IEnumerable{System.String}
+      description: the routes the endpoint will match
+    - id: Verbs
+      type: IEnumerable{System.String}
+      description: the http verbs the endpoint will be listening for
+    - id: AnonymousVerbs
+      type: System.Nullable{IEnumerable{System.String}}
+      description: the verbs which will be allowed anonymous access to
+    - id: ThrowIfValidationFails
+      type: System.Boolean
+      description: whether automatic validation failure will be sent
+    - id: Policies
+      type: System.Nullable{IEnumerable{System.String}}
+      description: the security policies for the endpoint
+    - id: Roles
+      type: System.Nullable{IEnumerable{System.String}}
+      description: the roles which will be allowed access to
+    - id: Permissions
+      type: System.Nullable{IEnumerable{System.String}}
+      description: the permissions which will allow access
+    - id: AllowAnyPermission
+      type: System.Boolean
+      description: whether any or all permissions will be required
+    - id: Claims
+      type: System.Nullable{IEnumerable{System.String}}
+      description: the user claim types which will allow access
+    - id: AllowAnyClaim
+      type: System.Boolean
+      description: whether any or all claim types will be required
+    content.vb: Public Sub New(EndpointType As Type, Routes As IEnumerable(Of String), Verbs As IEnumerable(Of String), AnonymousVerbs As IEnumerable(Of String)?, ThrowIfValidationFails As Boolean, Policies As IEnumerable(Of String)?, Roles As IEnumerable(Of String)?, Permissions As IEnumerable(Of String)?, AllowAnyPermission As Boolean, Claims As IEnumerable(Of String)?, AllowAnyClaim As Boolean)
+  overload: FastEndpoints.DiscoveredEndpoint.#ctor*
+  nameWithType.vb: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean)
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+  fullName.vb: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of System.String), IEnumerable(Of System.String), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Boolean)
+  name.vb: DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean)
+- uid: FastEndpoints.DiscoveredEndpoint.EndpointType
+  commentId: P:FastEndpoints.DiscoveredEndpoint.EndpointType
+  id: EndpointType
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: EndpointType
+  nameWithType: DiscoveredEndpoint.EndpointType
+  fullName: FastEndpoints.DiscoveredEndpoint.EndpointType
+  type: Property
+  source:
+    id: EndpointType
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 264
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public Type EndpointType { get; set; }
+    parameters: []
+    return:
+      type: Type
+    content.vb: Public Property EndpointType As Type
+  overload: FastEndpoints.DiscoveredEndpoint.EndpointType*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.Routes
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Routes
+  id: Routes
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: Routes
+  nameWithType: DiscoveredEndpoint.Routes
+  fullName: FastEndpoints.DiscoveredEndpoint.Routes
+  type: Property
+  source:
+    id: Routes
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 265
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public IEnumerable<string> Routes { get; set; }
+    parameters: []
+    return:
+      type: IEnumerable{System.String}
+    content.vb: Public Property Routes As IEnumerable(Of String)
+  overload: FastEndpoints.DiscoveredEndpoint.Routes*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.Verbs
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Verbs
+  id: Verbs
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: Verbs
+  nameWithType: DiscoveredEndpoint.Verbs
+  fullName: FastEndpoints.DiscoveredEndpoint.Verbs
+  type: Property
+  source:
+    id: Verbs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 266
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public IEnumerable<string> Verbs { get; set; }
+    parameters: []
+    return:
+      type: IEnumerable{System.String}
+    content.vb: Public Property Verbs As IEnumerable(Of String)
+  overload: FastEndpoints.DiscoveredEndpoint.Verbs*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  commentId: P:FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  id: AnonymousVerbs
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: AnonymousVerbs
+  nameWithType: DiscoveredEndpoint.AnonymousVerbs
+  fullName: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  type: Property
+  source:
+    id: AnonymousVerbs
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 267
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public IEnumerable<string>? AnonymousVerbs { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{IEnumerable{System.String}}
+    content.vb: Public Property AnonymousVerbs As IEnumerable(Of String)?
+  overload: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  commentId: P:FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  id: ThrowIfValidationFails
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: ThrowIfValidationFails
+  nameWithType: DiscoveredEndpoint.ThrowIfValidationFails
+  fullName: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  type: Property
+  source:
+    id: ThrowIfValidationFails
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 268
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public bool ThrowIfValidationFails { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property ThrowIfValidationFails As Boolean
+  overload: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.Policies
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Policies
+  id: Policies
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: Policies
+  nameWithType: DiscoveredEndpoint.Policies
+  fullName: FastEndpoints.DiscoveredEndpoint.Policies
+  type: Property
+  source:
+    id: Policies
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 269
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public IEnumerable<string>? Policies { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{IEnumerable{System.String}}
+    content.vb: Public Property Policies As IEnumerable(Of String)?
+  overload: FastEndpoints.DiscoveredEndpoint.Policies*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.Roles
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Roles
+  id: Roles
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: Roles
+  nameWithType: DiscoveredEndpoint.Roles
+  fullName: FastEndpoints.DiscoveredEndpoint.Roles
+  type: Property
+  source:
+    id: Roles
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 270
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public IEnumerable<string>? Roles { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{IEnumerable{System.String}}
+    content.vb: Public Property Roles As IEnumerable(Of String)?
+  overload: FastEndpoints.DiscoveredEndpoint.Roles*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.Permissions
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Permissions
+  id: Permissions
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: Permissions
+  nameWithType: DiscoveredEndpoint.Permissions
+  fullName: FastEndpoints.DiscoveredEndpoint.Permissions
+  type: Property
+  source:
+    id: Permissions
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 271
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public IEnumerable<string>? Permissions { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{IEnumerable{System.String}}
+    content.vb: Public Property Permissions As IEnumerable(Of String)?
+  overload: FastEndpoints.DiscoveredEndpoint.Permissions*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  commentId: P:FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  id: AllowAnyPermission
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: AllowAnyPermission
+  nameWithType: DiscoveredEndpoint.AllowAnyPermission
+  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  type: Property
+  source:
+    id: AllowAnyPermission
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 272
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public bool AllowAnyPermission { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property AllowAnyPermission As Boolean
+  overload: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.Claims
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Claims
+  id: Claims
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: Claims
+  nameWithType: DiscoveredEndpoint.Claims
+  fullName: FastEndpoints.DiscoveredEndpoint.Claims
+  type: Property
+  source:
+    id: Claims
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 273
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public IEnumerable<string>? Claims { get; set; }
+    parameters: []
+    return:
+      type: System.Nullable{IEnumerable{System.String}}
+    content.vb: Public Property Claims As IEnumerable(Of String)?
+  overload: FastEndpoints.DiscoveredEndpoint.Claims*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  commentId: P:FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  id: AllowAnyClaim
+  parent: FastEndpoints.DiscoveredEndpoint
+  langs:
+  - csharp
+  - vb
+  name: AllowAnyClaim
+  nameWithType: DiscoveredEndpoint.AllowAnyClaim
+  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  type: Property
+  source:
+    id: AllowAnyClaim
+    path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
+    startLine: 274
+  assemblies:
+  - FastEndpoints
+  namespace: FastEndpoints
+  syntax:
+    content: public bool AllowAnyClaim { get; set; }
+    parameters: []
+    return:
+      type: System.Boolean
+    content.vb: Public Property AllowAnyClaim As Boolean
+  overload: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+references:
+- uid: FastEndpoints
+  commentId: N:FastEndpoints
+  name: FastEndpoints
+  nameWithType: FastEndpoints
+  fullName: FastEndpoints
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.IEquatable{FastEndpoints.DiscoveredEndpoint}
+  commentId: T:System.IEquatable{FastEndpoints.DiscoveredEndpoint}
+  parent: System
+  definition: System.IEquatable`1
+  name: IEquatable<DiscoveredEndpoint>
+  nameWithType: IEquatable<DiscoveredEndpoint>
+  fullName: System.IEquatable<FastEndpoints.DiscoveredEndpoint>
+  nameWithType.vb: IEquatable(Of DiscoveredEndpoint)
+  fullName.vb: System.IEquatable(Of FastEndpoints.DiscoveredEndpoint)
+  name.vb: IEquatable(Of DiscoveredEndpoint)
+  spec.csharp:
+  - uid: System.IEquatable`1
+    name: IEquatable
+    nameWithType: IEquatable
+    fullName: System.IEquatable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: FastEndpoints.DiscoveredEndpoint
+    name: DiscoveredEndpoint
+    nameWithType: DiscoveredEndpoint
+    fullName: FastEndpoints.DiscoveredEndpoint
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.IEquatable`1
+    name: IEquatable
+    nameWithType: IEquatable
+    fullName: System.IEquatable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: FastEndpoints.DiscoveredEndpoint
+    name: DiscoveredEndpoint
+    nameWithType: DiscoveredEndpoint
+    fullName: FastEndpoints.DiscoveredEndpoint
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: System.IEquatable`1
+  commentId: T:System.IEquatable`1
+  isExternal: true
+  name: IEquatable<T>
+  nameWithType: IEquatable<T>
+  fullName: System.IEquatable<T>
+  nameWithType.vb: IEquatable(Of T)
+  fullName.vb: System.IEquatable(Of T)
+  name.vb: IEquatable(Of T)
+  spec.csharp:
+  - uid: System.IEquatable`1
+    name: IEquatable
+    nameWithType: IEquatable
+    fullName: System.IEquatable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.IEquatable`1
+    name: IEquatable
+    nameWithType: IEquatable
+    fullName: System.IEquatable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.DiscoveredEndpoint.#ctor*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.#ctor
+  name: DiscoveredEndpoint
+  nameWithType: DiscoveredEndpoint.DiscoveredEndpoint
+  fullName: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint
+- uid: Type
+  isExternal: true
+  name: Type
+  nameWithType: Type
+  fullName: Type
+- uid: IEnumerable{System.String}
+  commentId: '!:IEnumerable{System.String}'
+  definition: IEnumerable`1
+  name: IEnumerable<String>
+  nameWithType: IEnumerable<String>
+  fullName: IEnumerable<System.String>
+  nameWithType.vb: IEnumerable(Of String)
+  fullName.vb: IEnumerable(Of System.String)
+  name.vb: IEnumerable(Of String)
+  spec.csharp:
+  - uid: IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Nullable{IEnumerable{System.String}}
+  commentId: T:System.Nullable{IEnumerable{System.String}}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<IEnumerable<String>>
+  nameWithType: Nullable<IEnumerable<String>>
+  fullName: System.Nullable<IEnumerable<System.String>>
+  nameWithType.vb: Nullable(Of IEnumerable(Of String))
+  fullName.vb: System.Nullable(Of IEnumerable(Of System.String))
+  name.vb: Nullable(Of IEnumerable(Of String))
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: System.String
+    name: String
+    nameWithType: String
+    fullName: System.String
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Boolean
+  commentId: T:System.Boolean
+  parent: System
+  isExternal: true
+  name: Boolean
+  nameWithType: Boolean
+  fullName: System.Boolean
+- uid: IEnumerable`1
+  isExternal: true
+  name: IEnumerable<>
+  nameWithType: IEnumerable<>
+  fullName: IEnumerable<>
+  nameWithType.vb: IEnumerable(Of )
+  fullName.vb: IEnumerable(Of )
+  name.vb: IEnumerable(Of )
+  spec.csharp:
+  - uid: IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: IEnumerable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: IEnumerable`1
+    name: IEnumerable
+    nameWithType: IEnumerable
+    fullName: IEnumerable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: ''
+    nameWithType: ''
+    fullName: ''
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: FastEndpoints.DiscoveredEndpoint.EndpointType*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.EndpointType
+  name: EndpointType
+  nameWithType: DiscoveredEndpoint.EndpointType
+  fullName: FastEndpoints.DiscoveredEndpoint.EndpointType
+- uid: FastEndpoints.DiscoveredEndpoint.Routes*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Routes
+  name: Routes
+  nameWithType: DiscoveredEndpoint.Routes
+  fullName: FastEndpoints.DiscoveredEndpoint.Routes
+- uid: FastEndpoints.DiscoveredEndpoint.Verbs*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Verbs
+  name: Verbs
+  nameWithType: DiscoveredEndpoint.Verbs
+  fullName: FastEndpoints.DiscoveredEndpoint.Verbs
+- uid: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  name: AnonymousVerbs
+  nameWithType: DiscoveredEndpoint.AnonymousVerbs
+  fullName: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+- uid: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  name: ThrowIfValidationFails
+  nameWithType: DiscoveredEndpoint.ThrowIfValidationFails
+  fullName: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+- uid: FastEndpoints.DiscoveredEndpoint.Policies*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Policies
+  name: Policies
+  nameWithType: DiscoveredEndpoint.Policies
+  fullName: FastEndpoints.DiscoveredEndpoint.Policies
+- uid: FastEndpoints.DiscoveredEndpoint.Roles*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Roles
+  name: Roles
+  nameWithType: DiscoveredEndpoint.Roles
+  fullName: FastEndpoints.DiscoveredEndpoint.Roles
+- uid: FastEndpoints.DiscoveredEndpoint.Permissions*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Permissions
+  name: Permissions
+  nameWithType: DiscoveredEndpoint.Permissions
+  fullName: FastEndpoints.DiscoveredEndpoint.Permissions
+- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  name: AllowAnyPermission
+  nameWithType: DiscoveredEndpoint.AllowAnyPermission
+  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+- uid: FastEndpoints.DiscoveredEndpoint.Claims*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Claims
+  name: Claims
+  nameWithType: DiscoveredEndpoint.Claims
+  fullName: FastEndpoints.DiscoveredEndpoint.Claims
+- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim*
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  name: AllowAnyClaim
+  nameWithType: DiscoveredEndpoint.AllowAnyClaim
+  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim

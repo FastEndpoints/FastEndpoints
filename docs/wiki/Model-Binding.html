@@ -107,20 +107,20 @@
 <p><strong>dto</strong></p>
 <pre><code class="lang-csharp">public class GetUserRequest
 {
-    public int UserID { get; set; }
+    public string UserID { get; set; }
 }
 </code></pre>
 <p><strong>http request</strong></p>
 <pre><code>route : /api/user/{UserID}
 url   : /api/user/54321
-json  : { &quot;UserID&quot;: 12345 }
+json  : { &quot;UserID&quot;: &quot;12345&quot; }
 </code></pre>
 <p>when the handler receives the request dto, the value of <code>UserID</code> will be <code>54321</code> because route parameters have higher priority than json body.</p>
 <p>likewise, if you decorate the <code>UserID</code> property with <code>[FromClaim]</code> attribute like so:</p>
 <pre><code class="lang-csharp">public class GetUserRequest
 {
     [FromClaim]
-    public int UserID { get; set; }
+    public string UserID { get; set; }
 }
 </code></pre>
 <p>the value of <code>UserID</code> will be whatever claim value the user has for the claim type <code>UserID</code> in their claims. by default if the user does not have a claim type called <code>UserID</code>, then a validation error will be sent automatically to the client. you can make the claim optional by using the following overload of the attribute:</p>
@@ -131,16 +131,16 @@ json  : { &quot;UserID&quot;: 12345 }
 <pre><code class="lang-csharp">public class GetUserRequest
 {
     [FromHeader]
-    public int TenantID { get; set; }
+    public string TenantID { get; set; }
 }
 </code></pre>
 <p><code>FromHeader</code> attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing <code>[FromHeader(IsRequired = false)]</code> just like with the FromClaim attribute. Both attributes have the same overloads and behaves similarly.</p>
 <p>it is also possible for both attributes to bind to properties when the names don't match like so:</p>
 <pre><code class="lang-csharp">[FromHeader(&quot;tenant-id&quot;)]
-public int TenantID { get; set; }
+public string TenantID { get; set; }
 
 [FromClaim(&quot;user-id&quot;)]
-public int UserID { get; set; }
+public string UserID { get; set; }
 </code></pre>
 <h1 id="route-parameters">route parameters</h1>
 <p>route parameters can be bound to primitive types on the dto using route templates like you'd typically do.</p>

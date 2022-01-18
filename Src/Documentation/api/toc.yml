@@ -4,6 +4,10 @@
   items:
   - uid: FastEndpoints.BaseEndpoint
     name: BaseEndpoint
+  - uid: FastEndpoints.Config
+    name: Config
+  - uid: FastEndpoints.DiscoveredEndpoint
+    name: DiscoveredEndpoint
   - uid: FastEndpoints.EmptyRequest
     name: EmptyRequest
   - uid: FastEndpoints.EmptyResponse

@@ -717,7 +717,6 @@ references:
     nameWithType: )
     fullName: )
 - uid: IEnumerable`1
-  commentId: '!:IEnumerable`1'
   isExternal: true
   name: IEnumerable<>
   nameWithType: IEnumerable<>

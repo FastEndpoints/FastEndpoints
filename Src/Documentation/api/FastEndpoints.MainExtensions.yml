@@ -6,7 +6,7 @@ items:
   parent: FastEndpoints
   children:
   - FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  - FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  - FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
   langs:
   - csharp
   - vb
@@ -17,7 +17,7 @@ items:
   source:
     id: MainExtensions
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 17
+    startLine: 19
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -58,7 +58,7 @@ items:
   source:
     id: AddFastEndpoints
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 25
+    startLine: 27
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
@@ -83,45 +83,51 @@ items:
   modifiers.vb:
   - Public
   - Shared
-- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  id: UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
+  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
+  id: UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
   isExtensionMethod: true
   parent: FastEndpoints.MainExtensions
   langs:
   - csharp
   - vb
-  name: UseFastEndpoints(IEndpointRouteBuilder)
-  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder)
-  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
+  name: UseFastEndpoints(IEndpointRouteBuilder, Nullable<Action<Config>>)
+  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder, Nullable<Action<Config>>)
+  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder, System.Nullable<Action<FastEndpoints.Config>>)
   type: Method
   source:
     id: UseFastEndpoints
     path: D:\SOURCE-CONTROL\FastEndpoints\Src\Documentation\src\Library\Extensions\MainExtensions.cs
-    startLine: 37
+    startLine: 40
   assemblies:
   - FastEndpoints
   namespace: FastEndpoints
   summary: "\nfinalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests\n"
   example: []
   syntax:
-    content: public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder)
+    content: public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder, Action<Config>? configAction = null)
     parameters:
     - id: builder
       type: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
+    - id: configAction
+      type: System.Nullable{Action{FastEndpoints.Config}}
+      description: an optional action to configure FastEndpoints
     return:
       type: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
     content.vb: >-
       <ExtensionAttribute>
 
-      Public Shared Function UseFastEndpoints(builder As IEndpointRouteBuilder) As IEndpointRouteBuilder
+      Public Shared Function UseFastEndpoints(builder As IEndpointRouteBuilder, configAction As Action(Of Config)? = Nothing) As IEndpointRouteBuilder
   overload: FastEndpoints.MainExtensions.UseFastEndpoints*
+  nameWithType.vb: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder, Nullable(Of Action(Of Config)))
   modifiers.csharp:
   - public
   - static
   modifiers.vb:
   - Public
   - Shared
+  fullName.vb: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder, System.Nullable(Of Action(Of FastEndpoints.Config)))
+  name.vb: UseFastEndpoints(IEndpointRouteBuilder, Nullable(Of Action(Of Config)))
 references:
 - uid: FastEndpoints
   commentId: N:FastEndpoints
@@ -450,9 +456,112 @@ references:
   name: IEndpointRouteBuilder
   nameWithType: IEndpointRouteBuilder
   fullName: Microsoft.AspNetCore.Routing.IEndpointRouteBuilder
+- uid: System.Nullable{Action{FastEndpoints.Config}}
+  commentId: T:System.Nullable{Action{FastEndpoints.Config}}
+  parent: System
+  definition: System.Nullable`1
+  name: Nullable<Action<Config>>
+  nameWithType: Nullable<Action<Config>>
+  fullName: System.Nullable<Action<FastEndpoints.Config>>
+  nameWithType.vb: Nullable(Of Action(Of Config))
+  fullName.vb: System.Nullable(Of Action(Of FastEndpoints.Config))
+  name.vb: Nullable(Of Action(Of Config))
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - uid: FastEndpoints.Config
+    name: Config
+    nameWithType: Config
+    fullName: FastEndpoints.Config
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: Action`1
+    name: Action
+    nameWithType: Action
+    fullName: Action
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - uid: FastEndpoints.Config
+    name: Config
+    nameWithType: Config
+    fullName: FastEndpoints.Config
+  - name: )
+    nameWithType: )
+    fullName: )
+  - name: )
+    nameWithType: )
+    fullName: )
 - uid: Microsoft.AspNetCore.Routing
   commentId: N:Microsoft.AspNetCore.Routing
   isExternal: true
   name: Microsoft.AspNetCore.Routing
   nameWithType: Microsoft.AspNetCore.Routing
   fullName: Microsoft.AspNetCore.Routing
+- uid: System.Nullable`1
+  commentId: T:System.Nullable`1
+  isExternal: true
+  name: Nullable<T>
+  nameWithType: Nullable<T>
+  fullName: System.Nullable<T>
+  nameWithType.vb: Nullable(Of T)
+  fullName.vb: System.Nullable(Of T)
+  name.vb: Nullable(Of T)
+  spec.csharp:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: <
+    nameWithType: <
+    fullName: <
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: '>'
+    nameWithType: '>'
+    fullName: '>'
+  spec.vb:
+  - uid: System.Nullable`1
+    name: Nullable
+    nameWithType: Nullable
+    fullName: System.Nullable
+    isExternal: true
+  - name: '(Of '
+    nameWithType: '(Of '
+    fullName: '(Of '
+  - name: T
+    nameWithType: T
+    fullName: T
+  - name: )
+    nameWithType: )
+    fullName: )

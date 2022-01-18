@@ -5,6 +5,8 @@ items:
   id: FastEndpoints
   children:
   - FastEndpoints.BaseEndpoint
+  - FastEndpoints.Config
+  - FastEndpoints.DiscoveredEndpoint
   - FastEndpoints.EmptyRequest
   - FastEndpoints.EmptyResponse
   - FastEndpoints.Endpoint`1
@@ -432,6 +434,16 @@ references:
   name: MainExtensions
   nameWithType: MainExtensions
   fullName: FastEndpoints.MainExtensions
+- uid: FastEndpoints.Config
+  commentId: T:FastEndpoints.Config
+  name: Config
+  nameWithType: Config
+  fullName: FastEndpoints.Config
+- uid: FastEndpoints.DiscoveredEndpoint
+  commentId: T:FastEndpoints.DiscoveredEndpoint
+  name: DiscoveredEndpoint
+  nameWithType: DiscoveredEndpoint
+  fullName: FastEndpoints.DiscoveredEndpoint
 - uid: FastEndpoints.IPreProcessor`1
   commentId: T:FastEndpoints.IPreProcessor`1
   name: IPreProcessor<TRequest>

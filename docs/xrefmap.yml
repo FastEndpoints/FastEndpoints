@@ -58,6 +58,216 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.BaseEndpoint.ValidationFailures
   nameWithType: BaseEndpoint.ValidationFailures
+- uid: FastEndpoints.Config
+  name: Config
+  href: api/FastEndpoints.Config.html
+  commentId: T:FastEndpoints.Config
+  fullName: FastEndpoints.Config
+  nameWithType: Config
+- uid: FastEndpoints.Config.EndpointExclusionFilter
+  name: EndpointExclusionFilter
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_EndpointExclusionFilter
+  commentId: P:FastEndpoints.Config.EndpointExclusionFilter
+  fullName: FastEndpoints.Config.EndpointExclusionFilter
+  nameWithType: Config.EndpointExclusionFilter
+- uid: FastEndpoints.Config.EndpointExclusionFilter*
+  name: EndpointExclusionFilter
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_EndpointExclusionFilter_
+  commentId: Overload:FastEndpoints.Config.EndpointExclusionFilter
+  isSpec: "True"
+  fullName: FastEndpoints.Config.EndpointExclusionFilter
+  nameWithType: Config.EndpointExclusionFilter
+- uid: FastEndpoints.Config.ErrorResponseBuilder
+  name: ErrorResponseBuilder
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_ErrorResponseBuilder
+  commentId: P:FastEndpoints.Config.ErrorResponseBuilder
+  fullName: FastEndpoints.Config.ErrorResponseBuilder
+  nameWithType: Config.ErrorResponseBuilder
+- uid: FastEndpoints.Config.ErrorResponseBuilder*
+  name: ErrorResponseBuilder
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_ErrorResponseBuilder_
+  commentId: Overload:FastEndpoints.Config.ErrorResponseBuilder
+  isSpec: "True"
+  fullName: FastEndpoints.Config.ErrorResponseBuilder
+  nameWithType: Config.ErrorResponseBuilder
+- uid: FastEndpoints.Config.SerializerOptions
+  name: SerializerOptions
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_SerializerOptions
+  commentId: P:FastEndpoints.Config.SerializerOptions
+  fullName: FastEndpoints.Config.SerializerOptions
+  nameWithType: Config.SerializerOptions
+- uid: FastEndpoints.Config.SerializerOptions*
+  name: SerializerOptions
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_SerializerOptions_
+  commentId: Overload:FastEndpoints.Config.SerializerOptions
+  isSpec: "True"
+  fullName: FastEndpoints.Config.SerializerOptions
+  nameWithType: Config.SerializerOptions
+- uid: FastEndpoints.DiscoveredEndpoint
+  name: DiscoveredEndpoint
+  href: api/FastEndpoints.DiscoveredEndpoint.html
+  commentId: T:FastEndpoints.DiscoveredEndpoint
+  fullName: FastEndpoints.DiscoveredEndpoint
+  nameWithType: DiscoveredEndpoint
+- uid: FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)
+  name: DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean)
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint__ctor_Type_IEnumerable_System_String__IEnumerable_System_String__System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Boolean_
+  commentId: M:FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)
+  name.vb: DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean)
+  fullName: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<System.String>, IEnumerable<System.String>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Boolean)
+  fullName.vb: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of System.String), IEnumerable(Of System.String), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Boolean)
+  nameWithType: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean)
+  nameWithType.vb: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean)
+- uid: FastEndpoints.DiscoveredEndpoint.#ctor*
+  name: DiscoveredEndpoint
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint__ctor_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint
+  nameWithType: DiscoveredEndpoint.DiscoveredEndpoint
+- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  name: AllowAnyClaim
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AllowAnyClaim
+  commentId: P:FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  nameWithType: DiscoveredEndpoint.AllowAnyClaim
+- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim*
+  name: AllowAnyClaim
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AllowAnyClaim_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
+  nameWithType: DiscoveredEndpoint.AllowAnyClaim
+- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  name: AllowAnyPermission
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AllowAnyPermission
+  commentId: P:FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  nameWithType: DiscoveredEndpoint.AllowAnyPermission
+- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission*
+  name: AllowAnyPermission
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AllowAnyPermission_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
+  nameWithType: DiscoveredEndpoint.AllowAnyPermission
+- uid: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  name: AnonymousVerbs
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AnonymousVerbs
+  commentId: P:FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  fullName: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  nameWithType: DiscoveredEndpoint.AnonymousVerbs
+- uid: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs*
+  name: AnonymousVerbs
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AnonymousVerbs_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
+  nameWithType: DiscoveredEndpoint.AnonymousVerbs
+- uid: FastEndpoints.DiscoveredEndpoint.Claims
+  name: Claims
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Claims
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Claims
+  fullName: FastEndpoints.DiscoveredEndpoint.Claims
+  nameWithType: DiscoveredEndpoint.Claims
+- uid: FastEndpoints.DiscoveredEndpoint.Claims*
+  name: Claims
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Claims_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Claims
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.Claims
+  nameWithType: DiscoveredEndpoint.Claims
+- uid: FastEndpoints.DiscoveredEndpoint.EndpointType
+  name: EndpointType
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_EndpointType
+  commentId: P:FastEndpoints.DiscoveredEndpoint.EndpointType
+  fullName: FastEndpoints.DiscoveredEndpoint.EndpointType
+  nameWithType: DiscoveredEndpoint.EndpointType
+- uid: FastEndpoints.DiscoveredEndpoint.EndpointType*
+  name: EndpointType
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_EndpointType_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.EndpointType
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.EndpointType
+  nameWithType: DiscoveredEndpoint.EndpointType
+- uid: FastEndpoints.DiscoveredEndpoint.Permissions
+  name: Permissions
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Permissions
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Permissions
+  fullName: FastEndpoints.DiscoveredEndpoint.Permissions
+  nameWithType: DiscoveredEndpoint.Permissions
+- uid: FastEndpoints.DiscoveredEndpoint.Permissions*
+  name: Permissions
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Permissions_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Permissions
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.Permissions
+  nameWithType: DiscoveredEndpoint.Permissions
+- uid: FastEndpoints.DiscoveredEndpoint.Policies
+  name: Policies
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Policies
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Policies
+  fullName: FastEndpoints.DiscoveredEndpoint.Policies
+  nameWithType: DiscoveredEndpoint.Policies
+- uid: FastEndpoints.DiscoveredEndpoint.Policies*
+  name: Policies
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Policies_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Policies
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.Policies
+  nameWithType: DiscoveredEndpoint.Policies
+- uid: FastEndpoints.DiscoveredEndpoint.Roles
+  name: Roles
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Roles
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Roles
+  fullName: FastEndpoints.DiscoveredEndpoint.Roles
+  nameWithType: DiscoveredEndpoint.Roles
+- uid: FastEndpoints.DiscoveredEndpoint.Roles*
+  name: Roles
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Roles_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Roles
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.Roles
+  nameWithType: DiscoveredEndpoint.Roles
+- uid: FastEndpoints.DiscoveredEndpoint.Routes
+  name: Routes
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Routes
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Routes
+  fullName: FastEndpoints.DiscoveredEndpoint.Routes
+  nameWithType: DiscoveredEndpoint.Routes
+- uid: FastEndpoints.DiscoveredEndpoint.Routes*
+  name: Routes
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Routes_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Routes
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.Routes
+  nameWithType: DiscoveredEndpoint.Routes
+- uid: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  name: ThrowIfValidationFails
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_ThrowIfValidationFails
+  commentId: P:FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  fullName: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  nameWithType: DiscoveredEndpoint.ThrowIfValidationFails
+- uid: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails*
+  name: ThrowIfValidationFails
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_ThrowIfValidationFails_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
+  nameWithType: DiscoveredEndpoint.ThrowIfValidationFails
+- uid: FastEndpoints.DiscoveredEndpoint.Verbs
+  name: Verbs
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Verbs
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Verbs
+  fullName: FastEndpoints.DiscoveredEndpoint.Verbs
+  nameWithType: DiscoveredEndpoint.Verbs
+- uid: FastEndpoints.DiscoveredEndpoint.Verbs*
+  name: Verbs
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Verbs_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Verbs
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.Verbs
+  nameWithType: DiscoveredEndpoint.Verbs
 - uid: FastEndpoints.EmptyRequest
   name: EmptyRequest
   href: api/FastEndpoints.EmptyRequest.html
@@ -2087,12 +2297,15 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.MainExtensions.AddFastEndpoints
   nameWithType: MainExtensions.AddFastEndpoints
-- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  name: UseFastEndpoints(IEndpointRouteBuilder)
-  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_Microsoft_AspNetCore_Routing_IEndpointRouteBuilder_
-  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)
-  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder)
+- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
+  name: UseFastEndpoints(IEndpointRouteBuilder, Nullable<Action<Config>>)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_Microsoft_AspNetCore_Routing_IEndpointRouteBuilder_System_Nullable_Action_FastEndpoints_Config___
+  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
+  name.vb: UseFastEndpoints(IEndpointRouteBuilder, Nullable(Of Action(Of Config)))
+  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder, System.Nullable<Action<FastEndpoints.Config>>)
+  fullName.vb: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder, System.Nullable(Of Action(Of FastEndpoints.Config)))
+  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder, Nullable<Action<Config>>)
+  nameWithType.vb: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder, Nullable(Of Action(Of Config)))
 - uid: FastEndpoints.MainExtensions.UseFastEndpoints*
   name: UseFastEndpoints
   href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_

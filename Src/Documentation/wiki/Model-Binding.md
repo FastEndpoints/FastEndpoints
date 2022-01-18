@@ -14,7 +14,7 @@ consider the following request dto and http request:
 ```csharp
 public class GetUserRequest
 {
-    public int UserID { get; set; }
+    public string UserID { get; set; }
 }
 ```
 
@@ -22,7 +22,7 @@ public class GetUserRequest
 ```
 route : /api/user/{UserID}
 url   : /api/user/54321
-json  : { "UserID": 12345 }
+json  : { "UserID": "12345" }
 ```
 
 when the handler receives the request dto, the value of `UserID` will be `54321` because route parameters have higher priority than json body.
@@ -32,7 +32,7 @@ likewise, if you decorate the `UserID` property with `[FromClaim]` attribute lik
 public class GetUserRequest
 {
     [FromClaim]
-    public int UserID { get; set; }
+    public string UserID { get; set; }
 }
 ```
 the value of `UserID` will be whatever claim value the user has for the claim type `UserID` in their claims. by default if the user does not have a claim type called `UserID`, then a validation error will be sent automatically to the client. you can make the claim optional by using the following overload of the attribute:
@@ -46,7 +46,7 @@ it is also possible to model bind automatically from http headers like so:
 public class GetUserRequest
 {
     [FromHeader]
-    public int TenantID { get; set; }
+    public string TenantID { get; set; }
 }
 ```
 `FromHeader` attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing `[FromHeader(IsRequired = false)]` just like with the FromClaim attribute. Both attributes have the same overloads and behaves similarly.
@@ -54,10 +54,10 @@ public class GetUserRequest
 it is also possible for both attributes to bind to properties when the names don't match like so:
 ```csharp
 [FromHeader("tenant-id")]
-public int TenantID { get; set; }
+public string TenantID { get; set; }
 
 [FromClaim("user-id")]
-public int UserID { get; set; }
+public string UserID { get; set; }
 ```
 
 # route parameters

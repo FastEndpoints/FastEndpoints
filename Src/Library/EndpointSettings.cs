@@ -21,5 +21,5 @@ internal class EndpointSettings
     internal object? PreProcessors;
     internal object? PostProcessors;
     internal ResponseCacheAttribute? ResponseCacheSettings;
-    internal IEnumerable<string>? Tags;
+    internal string[]? Tags;
 }

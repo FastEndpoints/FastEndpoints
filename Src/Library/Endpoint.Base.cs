@@ -10,8 +10,6 @@ public abstract class BaseEndpoint : IEndpoint
 {
     protected internal HttpContext _httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
 
-    internal static JsonSerializerOptions? SerializerOptions { get; set; } //set on app startup from .UseFastEndpoints()
-
     internal static PropertyInfo SettingsPropInfo { get; } = typeof(BaseEndpoint).GetProperty(nameof(Settings), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     internal EndpointSettings Settings { get; set; } = new();

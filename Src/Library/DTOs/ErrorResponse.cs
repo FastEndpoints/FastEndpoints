@@ -39,4 +39,3 @@ public sealed class ErrorResponse
                           g => g.Select(e => e.ErrorMessage));
     }
 }
-

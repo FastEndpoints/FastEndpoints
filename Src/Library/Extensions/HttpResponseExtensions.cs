@@ -17,7 +17,7 @@ public static class HttpResponseExtensions
     public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = default)
     {
         rsp.StatusCode = statusCode;
-        return rsp.WriteAsJsonAsync(response, BaseEndpoint.SerializerOptions, cancellation);
+        return rsp.WriteAsJsonAsync(response, Config.serializerOptions, cancellation);
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ public static class HttpResponseExtensions
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 400;
-        return rsp.WriteAsJsonAsync(new ErrorResponse(failures), BaseEndpoint.SerializerOptions, cancellation);
+        return rsp.WriteAsJsonAsync(Config.errorResponseBuilder(failures), Config.serializerOptions, cancellation);
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ public static class HttpResponseExtensions
     public static Task SendEmptyJsonObject(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 200;
-        return rsp.WriteAsJsonAsync(new JsonObject(), BaseEndpoint.SerializerOptions, cancellation);
+        return rsp.WriteAsJsonAsync(new JsonObject(), Config.serializerOptions, cancellation);
     }
 }
 

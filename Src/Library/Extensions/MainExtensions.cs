@@ -1,4 +1,5 @@
 ﻿using FastEndpoints.Validation;
+using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 
 namespace FastEndpoints;
 
@@ -33,13 +35,13 @@ public static class MainExtensions
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
     /// </summary>
-    /// <param name="exclusionFilter">an optional function to exclude an endpoint from registration. return true from the function if you want to exclude an endpoint.</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder, Func<DiscoveredEndpoint, bool>? exclusionFilter = null)
+    public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder, Action<Config>? configAction = null)
     {
         IServiceResolver.ServiceProvider = builder.ServiceProvider;
-        BaseEndpoint.SerializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+        Config.serializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+        configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
         var routeToHandlerCounts = new Dictionary<string, int>();
@@ -47,7 +49,7 @@ public static class MainExtensions
 
         foreach (var ep in _endpoints.Found)
         {
-            if (exclusionFilter?.Invoke(CreateDiscoverdEndpoint(ep)) is true) continue;
+            if (Config.endpointExclusionFilter?.Invoke(CreateDiscoverdEndpoint(ep)) is true) continue;
             if (ep.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{ep.EndpointType.FullName}]");
             if (ep.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{ep.EndpointType.FullName}]");
 
@@ -213,6 +215,33 @@ public static class MainExtensions
 
 internal class StartupTimer { }
 internal class DuplicateHandlerRegistration { }
+
+/// <summary>
+/// global configuration settings for FastEndpoints
+/// </summary>
+public class Config
+{
+    /// <summary>
+    /// settings for configuring the json serializer
+    /// </summary>
+    public JsonSerializerOptions? SerializerOptions { set => serializerOptions = value; }
+    internal static JsonSerializerOptions? serializerOptions { get; set; }
+
+    /// <summary>
+    /// a function for transforming validation errors to an error response dto.
+    /// set it to any func that returns an object that can be serialized to json.
+    /// this function will be run everytime an error response needs to be sent to the client.
+    /// </summary>
+    public Func<IEnumerable<ValidationFailure>, object> ErrorResponseBuilder { set => errorResponseBuilder = value; }
+    internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; } = failures => new ErrorResponse(failures);
+
+    /// <summary>
+    /// an function to exclude an endpoint from registration. return true from the function if you want to exclude an endpoint.
+    /// this function will executed for each endpoint that has been discovered during startup.
+    /// </summary>
+    public Func<DiscoveredEndpoint, bool>? EndpointExclusionFilter { set => endpointExclusionFilter = value; }
+    internal static Func<DiscoveredEndpoint, bool>? endpointExclusionFilter { get; private set; }
+}
 
 /// <summary>
 /// represents an endpoint that has been discovered during startup

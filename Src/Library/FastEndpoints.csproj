@@ -5,8 +5,10 @@
         <Version>2.21.0-beta3</Version>
 
         <PackageReleaseNotes>
+            - ability to specify configuration at startup
+            - ability to exclude endpoints during startup
+            - ability to specify error response builder func
             - add ConfigureDefaults() for swagger ui settings
-            - add ability to exclude endpoints during startup
             - reduce allocations during endpoint registration
         </PackageReleaseNotes>
 

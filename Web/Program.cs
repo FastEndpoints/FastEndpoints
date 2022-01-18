@@ -23,7 +23,10 @@ app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseResponseCaching();
-app.UseFastEndpoints(ep => ep.Routes.Contains("/api/test") ? true : false);
+app.UseFastEndpoints(config =>
+{
+    config.EndpointExclusionFilter = ep => ep.Routes.Contains("/api/test");
+});
 
 if (!app.Environment.IsProduction())
 {

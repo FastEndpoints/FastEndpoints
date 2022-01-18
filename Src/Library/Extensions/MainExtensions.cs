@@ -50,7 +50,7 @@ public static class MainExtensions
 
         foreach (var ep in _endpoints.Found)
         {
-            if (Config.endpointExclusionFilter?.Invoke(CreateDiscoverdEndpoint(ep)) is true) continue;
+            if (Config.endpointRegistrationFilter is not null && !Config.endpointRegistrationFilter(CreateDiscoverdEndpoint(ep))) continue;
             if (ep.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{ep.EndpointType.FullName}]");
             if (ep.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{ep.EndpointType.FullName}]");
 
@@ -122,7 +122,8 @@ public static class MainExtensions
         ep.Settings.Permissions,
         ep.Settings.AllowAnyPermission,
         ep.Settings.ClaimTypes,
-        ep.Settings.AllowAnyClaim);
+        ep.Settings.AllowAnyClaim,
+        ep.Settings.Tags);
 
     private static List<string> BuildPoliciesToAdd(FoundEndpoint ep)
     {
@@ -225,7 +226,7 @@ public class Config
 {
     internal static JsonSerializerOptions serializerOptions { get; set; } = new();
     internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; } = failures => new ErrorResponse(failures);
-    internal static Func<DiscoveredEndpoint, bool>? endpointExclusionFilter { get; private set; }
+    internal static Func<DiscoveredEndpoint, bool>? endpointRegistrationFilter { get; private set; }
 
     /// <summary>
     /// settings for configuring the json serializer
@@ -240,10 +241,12 @@ public class Config
     public Func<IEnumerable<ValidationFailure>, object> ErrorResponseBuilder { set => errorResponseBuilder = value; }
 
     /// <summary>
-    /// an function to exclude an endpoint from registration. return true from the function if you want to exclude an endpoint.
+    /// a function to filter out endpoints from auto registration.
+    /// return 'false' from the function if you want to exclude an endpoint from registration.
+    /// return 'true' to include.
     /// this function will executed for each endpoint that has been discovered during startup.
     /// </summary>
-    public Func<DiscoveredEndpoint, bool> EndpointExclusionFilter { set => endpointExclusionFilter = value; }
+    public Func<DiscoveredEndpoint, bool> EndpointRegistrationFilter { set => endpointRegistrationFilter = value; }
 }
 #pragma warning restore CA1822,IDE1006
 
@@ -261,6 +264,7 @@ public class Config
 /// <param name="AllowAnyPermission">whether any or all permissions will be required</param>
 /// <param name="Claims">the user claim types which will allow access</param>
 /// <param name="AllowAnyClaim">whether any or all claim types will be required</param>
+/// <param name="Tags">the tags associated with the endpoint</param>
 public record DiscoveredEndpoint(
     Type EndpointType,
     IEnumerable<string> Routes,
@@ -272,4 +276,5 @@ public record DiscoveredEndpoint(
     IEnumerable<string>? Permissions,
     bool AllowAnyPermission,
     IEnumerable<string>? Claims,
-    bool AllowAnyClaim);
+    bool AllowAnyClaim,
+    IEnumerable<string>? Tags);

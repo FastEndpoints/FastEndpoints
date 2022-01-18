@@ -232,4 +232,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         Settings.UserConfigAction = clearDefaultsAction + builder;
     }
+
+    /// <summary>
+    /// specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.
+    /// </summary>
+    /// <param name="endpointTags">the tag values to associate with this endpoint</param>
+    protected void Tags(params string[] endpointTags)
+    {
+        Settings.Tags = endpointTags;
+    }
 }

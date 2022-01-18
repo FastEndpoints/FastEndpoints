@@ -4,7 +4,6 @@ global using FastEndpoints.Validation;
 global using Web.Auth;
 //using FastEndpoints.Swashbuckle;
 using FastEndpoints.NSwag;
-using Microsoft.AspNetCore.Http.Json;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
@@ -13,7 +12,6 @@ builder.Services.AddResponseCaching();
 builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
-builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddScoped<IEmailService, EmailService>();
 //builder.Services.AddSwashbuckle();
 builder.Services.AddNSwag(x => x.Title = "FastEndpoints Sandbox");
@@ -25,7 +23,9 @@ app.UseAuthorization();
 app.UseResponseCaching();
 app.UseFastEndpoints(config =>
 {
+    config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointExclusionFilter = ep => ep.Routes.Contains("/api/test");
+    config.ErrorResponseBuilder = failures => $"there are {failures.Count()} validation issues!";
 });
 
 if (!app.Environment.IsProduction())

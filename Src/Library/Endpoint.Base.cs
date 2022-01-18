@@ -2,7 +2,6 @@
 using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Reflection;
-using System.Text.Json;
 
 namespace FastEndpoints;
 

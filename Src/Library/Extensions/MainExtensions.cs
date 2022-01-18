@@ -35,12 +35,13 @@ public static class MainExtensions
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
     /// </summary>
+    /// <param name="configAction">an optional action to configure FastEndpoints</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ArgumentException"></exception>
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder, Action<Config>? configAction = null)
     {
         IServiceResolver.ServiceProvider = builder.ServiceProvider;
-        Config.serializerOptions = builder.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>().Value.SerializerOptions;
+        Config.serializerOptions = builder.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? Config.serializerOptions;
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
@@ -216,16 +217,20 @@ public static class MainExtensions
 internal class StartupTimer { }
 internal class DuplicateHandlerRegistration { }
 
+#pragma warning disable CA1822,IDE1006
 /// <summary>
 /// global configuration settings for FastEndpoints
 /// </summary>
 public class Config
 {
+    internal static JsonSerializerOptions serializerOptions { get; set; } = new();
+    internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; } = failures => new ErrorResponse(failures);
+    internal static Func<DiscoveredEndpoint, bool>? endpointExclusionFilter { get; private set; }
+
     /// <summary>
     /// settings for configuring the json serializer
     /// </summary>
-    public JsonSerializerOptions? SerializerOptions { set => serializerOptions = value; }
-    internal static JsonSerializerOptions? serializerOptions { get; set; }
+    public Action<JsonSerializerOptions>? SerializerOptions { set => value?.Invoke(serializerOptions); }
 
     /// <summary>
     /// a function for transforming validation errors to an error response dto.
@@ -233,15 +238,14 @@ public class Config
     /// this function will be run everytime an error response needs to be sent to the client.
     /// </summary>
     public Func<IEnumerable<ValidationFailure>, object> ErrorResponseBuilder { set => errorResponseBuilder = value; }
-    internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; } = failures => new ErrorResponse(failures);
 
     /// <summary>
     /// an function to exclude an endpoint from registration. return true from the function if you want to exclude an endpoint.
     /// this function will executed for each endpoint that has been discovered during startup.
     /// </summary>
-    public Func<DiscoveredEndpoint, bool>? EndpointExclusionFilter { set => endpointExclusionFilter = value; }
-    internal static Func<DiscoveredEndpoint, bool>? endpointExclusionFilter { get; private set; }
+    public Func<DiscoveredEndpoint, bool> EndpointExclusionFilter { set => endpointExclusionFilter = value; }
 }
+#pragma warning restore CA1822,IDE1006
 
 /// <summary>
 /// represents an endpoint that has been discovered during startup

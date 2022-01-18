@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>2.21.0-beta5</Version>
+        <Version>2.21.0-beta6</Version>
 
         <PackageReleaseNotes>
             - ability to specify configuration at startup

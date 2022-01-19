@@ -241,4 +241,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         Settings.Tags = endpointTags;
     }
+
+    /// <summary>
+    /// if versioning is set up, specify the version value of the endpoint.
+    /// </summary>
+    /// <param name="version">the version value to associate with this endpoint</param>
+    protected void Version(string version)
+    {
+        Settings.Version = version;
+    }
 }

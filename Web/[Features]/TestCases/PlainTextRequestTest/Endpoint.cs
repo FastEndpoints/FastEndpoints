@@ -16,6 +16,7 @@ public class Endpoint : Endpoint<Request, Response>
     public override void Configure()
     {
         Post("test-cases/plaintext/{Id}");
+        AllowAnonymous();
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)
@@ -29,4 +30,3 @@ public class Endpoint : Endpoint<Request, Response>
         return SendAsync(Response);
     }
 }
-

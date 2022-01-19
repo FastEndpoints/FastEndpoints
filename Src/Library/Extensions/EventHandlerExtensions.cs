@@ -13,4 +13,3 @@ internal static class EventHandlerExtensions
     internal static Task InvokeAnyAsync<TEventArgs>(this AsyncEventHandler<TEventArgs> handler, TEventArgs args, CancellationToken cancellation)
         => Task.WhenAny(handler.GetHandlers().Select(h => h(args, cancellation)));
 }
-

@@ -25,6 +25,11 @@ app.UseFastEndpoints(config =>
 {
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
+    config.RequestDeserializer = async (req, tDto, ct) =>
+    {
+        using var reader = new StreamReader(req.Body);
+        return Newtonsoft.Json.JsonConvert.DeserializeObject(await reader.ReadToEndAsync(), tDto);
+    };
     //config.ErrorResponseBuilder = failures => $"there are {failures.Count()} validation issues!";
 });
 

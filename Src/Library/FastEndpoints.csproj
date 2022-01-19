@@ -2,10 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>2.21.0-beta10</Version>
+        <Version>2.21.0-beta11</Version>
 
         <PackageReleaseNotes>
             - ability to specify configuration at startup
+            - ability to do endpoint versioning
+            - ability to configure a global route prefix
             - ability to set tags for an endpoint
             - ability to exclude endpoints during startup
             - ability to specify error response builder func
@@ -16,7 +18,7 @@
             - add ConfigureDefaults() for swagger ui settings
             - fix issue #21 with swagger gen
             - reduce allocations during endpoint registration
-            - optimize endpoint setup
+            - misc. refactors and optimizations
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

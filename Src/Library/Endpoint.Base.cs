@@ -2,6 +2,7 @@
 using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Reflection;
+using System.Text;
 
 namespace FastEndpoints;
 
@@ -22,7 +23,7 @@ public abstract class BaseEndpoint : IEndpoint
         if (Settings.Routes is null)
             throw new ArgumentNullException($"GetTestURL()[{nameof(Settings.Routes)}]");
 
-        return Settings.Routes[0];
+        return new StringBuilder().BuildRoute(Settings.Version, Settings.Routes[0]);
     }
 
     /// <summary>

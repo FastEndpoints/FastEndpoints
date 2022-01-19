@@ -5,8 +5,8 @@ namespace FastEndpoints;
 /// </summary>
 public class RoutingOptions
 {
-	/// <summary>
-	/// prefix for all routes (example 'api').
-	/// </summary>
-	public string Prefix { get; set; }
+    /// <summary>
+    /// prefix for all routes (example 'api').
+    /// </summary>
+    public string? Prefix { get; set; }
 }

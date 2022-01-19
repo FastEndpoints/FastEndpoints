@@ -11,16 +11,13 @@ namespace FastEndpoints;
 public class Config
 {
     internal static JsonSerializerOptions serializerOptions { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
-    internal static VersioningOptions versioningOptions { get; set; } = new();
-    internal static RoutingOptions routingOptions { get; set; } = new();
+    internal static VersioningOptions? versioningOptions { get; private set; }
+    internal static RoutingOptions? routingOptions { get; private set; }
     internal static Func<DiscoveredEndpoint, bool>? endpointRegistrationFilter { get; private set; }
-
     internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; }
         = failures => new ErrorResponse(failures);
-
     internal static Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> requestDeserializer { get; private set; }
         = (req, tReqDto, cancellation) => req.ReadFromJsonAsync(tReqDto, serializerOptions, cancellation);
-
     internal static Func<HttpResponse, object, string, CancellationToken, Task> responseSerializer { get; private set; }
         = (rsp, dto, contentType, cancellation)
             => contentType is null
@@ -30,17 +27,31 @@ public class Config
     /// <summary>
     /// settings for configuring the json serializer
     /// </summary>
-    public Action<JsonSerializerOptions>? SerializerOptions { set => value?.Invoke(serializerOptions); }
-    
+    public Action<JsonSerializerOptions> SerializerOptions { set => value(serializerOptions); }
+
     /// <summary>
-    /// settings to support versioning of the endpoints
+    /// options for enabling endpoint versioning support
     /// </summary>
-    public Action<VersioningOptions>? VersioningOptions { set => value?.Invoke(versioningOptions); }
-    
+    public Action<VersioningOptions> VersioningOptions
+    {
+        set
+        {
+            versioningOptions = new();
+            value(versioningOptions);
+        }
+    }
+
     /// <summary>
     /// routing options for all endpoints
     /// </summary>
-    public Action<RoutingOptions>? RoutingOptions { set => value?.Invoke(routingOptions); }
+    public Action<RoutingOptions> RoutingOptions
+    {
+        set
+        {
+            routingOptions = new();
+            value(routingOptions);
+        }
+    }
 
     /// <summary>
     /// a function to filter out endpoints from auto registration.

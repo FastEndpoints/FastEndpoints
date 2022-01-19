@@ -97,7 +97,7 @@ namespace Test
             var (rsp, res) = await CustomerClient.POSTAsync<
                 Sales.Orders.Create.Request,
                 Sales.Orders.Create.Response>(
-                $"/sales/orders/create/{guid}",
+                $"api/v2/sales/orders/create/{guid}",
                 new()
                 {
                     CustomerID = 12345,

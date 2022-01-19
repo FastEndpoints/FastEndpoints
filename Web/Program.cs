@@ -25,6 +25,12 @@ app.UseFastEndpoints(config =>
 {
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
+    config.VersioningOptions = o =>
+    {
+        o.DefaultVersion = "2";
+        o.Prefix = "v";
+    };
+    config.RoutingOptions = o => o.Prefix = "api";
     //config.RequestDeserializer = async (req, tDto, ct) =>
     //{
     //    using var reader = new StreamReader(req.Body);
@@ -36,12 +42,6 @@ app.UseFastEndpoints(config =>
     //    return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);
     //};
     //config.ErrorResponseBuilder = failures => $"there are {failures.Count()} validation issues!";
-    // config.VersioningOptions = o =>
-    // {
-    //     o.Prefix = "v";
-    //     o.DefaultVersion = "1"; 
-    // };
-    // config.RoutingOptions = o => o.Prefix = "api";
 });
 
 if (!app.Environment.IsProduction())

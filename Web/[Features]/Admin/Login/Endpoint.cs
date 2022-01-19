@@ -4,8 +4,9 @@ public class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
+        Version("1");
         Verbs(Http.POST);
-        Routes("/admin/login");
+        Routes("admin/login");
         AllowAnonymous();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         Describe(b => b.Accepts<Request>("application/json"));
@@ -57,4 +58,3 @@ public class Endpoint : Endpoint<Request, Response>
         return SendErrorsAsync();
     }
 }
-

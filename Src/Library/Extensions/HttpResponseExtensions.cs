@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net.Mime;
 using System.Text.Json.Nodes;
 
 namespace FastEndpoints;

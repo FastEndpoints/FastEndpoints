@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 
 namespace FastEndpoints;
 
@@ -45,6 +46,7 @@ public static class MainExtensions
         //key: {verb}:{route}
         var routeToHandlerCounts = new Dictionary<string, int>();
         var totalEndpointCount = 0;
+        var routeBuilder = new StringBuilder();
 
         foreach (var ep in _endpoints.Found)
         {
@@ -58,26 +60,11 @@ public static class MainExtensions
 
             foreach (var route in ep.Settings.Routes)
             {
+                var finalRoute = routeBuilder.BuildRoute(ep.Settings.Version, route);
+
                 foreach (var verb in ep.Settings.Verbs)
                 {
-                    var targetRoute = route;
-                    if (Config.versioningOptions is not null)
-                    {
-                        var needSlash = !targetRoute.StartsWith("/");
-                        var versionPrefix = $"{Config.versioningOptions.Prefix}{ep.Settings.Version ?? Config.versioningOptions.DefaultVersion}{(needSlash ? "/" : "")}";
-                        targetRoute = $"{versionPrefix}{targetRoute}";
-                    }
-
-                    if (Config.routingOptions is not null)
-                    {
-                        if (!string.IsNullOrEmpty(Config.routingOptions.Prefix))
-                        {
-                            var needSlash = !targetRoute.StartsWith("/");
-                            targetRoute = $"{Config.routingOptions.Prefix}{(needSlash ? "/" : "")}{targetRoute}";
-                        }
-                    }
-                    
-                    var hb = builder.MapMethods(targetRoute, new[] { verb }, EndpointExecutor.HandleAsync);
+                    var hb = builder.MapMethods(finalRoute, new[] { verb }, EndpointExecutor.HandleAsync);
 
                     if (shouldSetName)
                         hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
@@ -94,7 +81,7 @@ public static class MainExtensions
                     if (ep.Settings.DtoTypeForFormData is not null) hb.Accepts(ep.Settings.DtoTypeForFormData, "multipart/form-data");
                     if (ep.Settings.UserConfigAction is not null) ep.Settings.UserConfigAction(hb);//always do this last - allow user to override everything done above
 
-                    var key = $"{verb}:{targetRoute}";
+                    var key = $"{verb}:{finalRoute}";
                     routeToHandlerCounts.TryGetValue(key, out var count);
                     routeToHandlerCounts[key] = count + 1;
                     totalEndpointCount++;
@@ -124,6 +111,37 @@ public static class MainExtensions
         });
 
         return builder;
+    }
+
+    internal static string BuildRoute(this StringBuilder stringBuilder, string? epVersion, string route)
+    {
+        // {rPrfix}/{p}{ver}/{route}
+        // {mobile}/{v}{1.0}/customer/retrieve
+
+        if (Config.routingOptions?.Prefix is not null)
+        {
+            stringBuilder
+                .Append('/')
+                .Append(Config.routingOptions.Prefix)
+                .Append('/');
+        }
+
+        if (Config.versioningOptions is not null)
+        {
+            stringBuilder
+                .Append(Config.versioningOptions.Prefix)
+                .Append(epVersion ?? Config.versioningOptions.DefaultVersion)
+                .Append('/');
+        }
+
+        if (stringBuilder.Length > 0 && route.StartsWith('/'))
+            stringBuilder.Remove(stringBuilder.Length - 1, 1);
+
+        stringBuilder.Append(route);
+
+        var final = stringBuilder.ToString();
+        stringBuilder.Clear();
+        return final;
     }
 
     private static DiscoveredEndpoint CreateDiscoverdEndpoint(FoundEndpoint ep) => new(

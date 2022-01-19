@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Mime;
 using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
@@ -17,7 +18,7 @@ public static class HttpResponseExtensions
     public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = default) where TResponse : notnull
     {
         rsp.StatusCode = statusCode;
-        return Config.responseSerializer(rsp, response, null, cancellation);
+        return Config.responseSerializer(rsp, response, "application/json", cancellation);
     }
 
     /// <summary>
@@ -49,7 +50,7 @@ public static class HttpResponseExtensions
             .GetPathByName(endpointName, routeValues);
         return responseBody is null
             ? rsp.StartAsync(cancellation)
-            : Config.responseSerializer(rsp, responseBody, null, cancellation);
+            : Config.responseSerializer(rsp, responseBody, "application/json", cancellation);
     }
 
     /// <summary>
@@ -180,6 +181,6 @@ public static class HttpResponseExtensions
     public static Task SendEmptyJsonObject(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 200;
-        return Config.responseSerializer(rsp, new JsonObject(), null, cancellation);
+        return Config.responseSerializer(rsp, new JsonObject(), "application/json", cancellation);
     }
 }

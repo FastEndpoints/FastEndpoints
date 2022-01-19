@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>2.21.0-beta8</Version>
+        <Version>2.21.0-beta9</Version>
 
         <PackageReleaseNotes>
             - ability to specify configuration at startup
@@ -12,6 +12,7 @@
             - allow any content-type for plain text requests
             - change error response content type to "application/problem+json"
             - add ConfigureDefaults() for swagger ui settings
+            - fix issue #21 with swagger gen
             - reduce allocations during endpoint registration
             - optimize endpoint setup
         </PackageReleaseNotes>

@@ -63,9 +63,18 @@ public static class MainExtensions
                     var targetRoute = route;
                     if (Config.versioningOptions is not null)
                     {
-                        var needSlash = !route.StartsWith("/");
+                        var needSlash = !targetRoute.StartsWith("/");
                         var versionPrefix = $"{Config.versioningOptions.Prefix}{ep.Settings.Version ?? Config.versioningOptions.DefaultVersion}{(needSlash ? "/" : "")}";
                         targetRoute = $"{versionPrefix}{targetRoute}";
+                    }
+
+                    if (Config.routingOptions is not null)
+                    {
+                        if (!string.IsNullOrEmpty(Config.routingOptions.Prefix))
+                        {
+                            var needSlash = !targetRoute.StartsWith("/");
+                            targetRoute = $"{Config.routingOptions.Prefix}{(needSlash ? "/" : "")}{targetRoute}";
+                        }
                     }
                     
                     var hb = builder.MapMethods(targetRoute, new[] { verb }, EndpointExecutor.HandleAsync);

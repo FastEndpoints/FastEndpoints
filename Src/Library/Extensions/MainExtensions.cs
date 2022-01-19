@@ -1,5 +1,4 @@
 ﻿using FastEndpoints.Validation;
-using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.Json;
 
 namespace FastEndpoints;
 
@@ -217,64 +215,3 @@ public static class MainExtensions
 
 internal class StartupTimer { }
 internal class DuplicateHandlerRegistration { }
-
-#pragma warning disable CA1822,IDE1006
-/// <summary>
-/// global configuration settings for FastEndpoints
-/// </summary>
-public class Config
-{
-    internal static JsonSerializerOptions serializerOptions { get; set; } = new();
-    internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; } = failures => new ErrorResponse(failures);
-    internal static Func<DiscoveredEndpoint, bool>? endpointRegistrationFilter { get; private set; }
-
-    /// <summary>
-    /// settings for configuring the json serializer
-    /// </summary>
-    public Action<JsonSerializerOptions>? SerializerOptions { set => value?.Invoke(serializerOptions); }
-
-    /// <summary>
-    /// a function for transforming validation errors to an error response dto.
-    /// set it to any func that returns an object that can be serialized to json.
-    /// this function will be run everytime an error response needs to be sent to the client.
-    /// </summary>
-    public Func<IEnumerable<ValidationFailure>, object> ErrorResponseBuilder { set => errorResponseBuilder = value; }
-
-    /// <summary>
-    /// a function to filter out endpoints from auto registration.
-    /// return 'false' from the function if you want to exclude an endpoint from registration.
-    /// return 'true' to include.
-    /// this function will executed for each endpoint that has been discovered during startup.
-    /// </summary>
-    public Func<DiscoveredEndpoint, bool> EndpointRegistrationFilter { set => endpointRegistrationFilter = value; }
-}
-#pragma warning restore CA1822,IDE1006
-
-/// <summary>
-/// represents an endpoint that has been discovered during startup
-/// </summary>
-/// <param name="EndpointType">the type of the discovered endpoint class</param>
-/// <param name="Routes">the routes the endpoint will match</param>
-/// <param name="Verbs">the http verbs the endpoint will be listening for</param>
-/// <param name="AnonymousVerbs">the verbs which will be allowed anonymous access to</param>
-/// <param name="ThrowIfValidationFails">whether automatic validation failure will be sent</param>
-/// <param name="Policies">the security policies for the endpoint</param>
-/// <param name="Roles">the roles which will be allowed access to</param>
-/// <param name="Permissions">the permissions which will allow access</param>
-/// <param name="AllowAnyPermission">whether any or all permissions will be required</param>
-/// <param name="Claims">the user claim types which will allow access</param>
-/// <param name="AllowAnyClaim">whether any or all claim types will be required</param>
-/// <param name="Tags">the tags associated with the endpoint</param>
-public record DiscoveredEndpoint(
-    Type EndpointType,
-    IEnumerable<string> Routes,
-    IEnumerable<string> Verbs,
-    IEnumerable<string>? AnonymousVerbs,
-    bool ThrowIfValidationFails,
-    IEnumerable<string>? Policies,
-    IEnumerable<string>? Roles,
-    IEnumerable<string>? Permissions,
-    bool AllowAnyPermission,
-    IEnumerable<string>? Claims,
-    bool AllowAnyClaim,
-    IEnumerable<string>? Tags);

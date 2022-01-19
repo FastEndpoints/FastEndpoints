@@ -77,8 +77,10 @@ internal class DefaultOperationProcessor : IOperationProcessor
             op.RequestBody = null;
         }
 
+        var reqParams = new List<OpenApiParameter>();
+
         //add a param for each url path segment such as /{xxx}/{yyy}/{zzz}
-        var reqParams = regex
+        reqParams = regex
             .Matches(apiDescription?.RelativePath!)
             .Select(m => new OpenApiParameter
             {
@@ -86,15 +88,18 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 Kind = OpenApiParameterKind.Path,
                 IsRequired = true,
                 Schema = JsonSchema.FromType(typeof(string))
-            });
+            })
+            .ToList();
 
-        if (isGETRequest && !reqParams.Any() && reqDtoType is not null)
+        if (isGETRequest && reqDtoType is not null)
         {
-            //it's a GET request with a request dto and no path params
+            //it's a GET request with a request dto
             //so let's add each dto property as a query param to enable swagger ui to execute GET request with user supplied values
 
-            reqParams = reqDtoProps?
-                .Where(p => !p.IsDefined(typeof(FromClaimAttribute), false)) //ignore props marks with [FromClaim]
+            var qParams = reqDtoProps?
+                .Where(p =>
+                      !p.IsDefined(typeof(FromClaimAttribute), false) &&
+                      !p.IsDefined(typeof(FromHeaderAttribute), false)) //ignore props marks with [FromClaim] and [FromHeader]
                 .Select(p =>
                     new OpenApiParameter
                     {
@@ -102,13 +107,11 @@ internal class DefaultOperationProcessor : IOperationProcessor
                         IsRequired = false,
                         Schema = JsonSchema.FromType(p.PropertyType),
                         Kind = OpenApiParameterKind.Query
-                    });
-        }
+                    })
+                .ToList();
 
-        if (reqParams is not null)
-        {
-            foreach (var p in reqParams)
-                op.Parameters.Add(p);
+            if (qParams?.Count > 0)
+                reqParams.AddRange(qParams);
         }
 
         if (reqDtoProps is not null)
@@ -119,7 +122,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 var attrib = prop.GetCustomAttribute<FromHeaderAttribute>(true);
                 if (attrib is not null)
                 {
-                    op.Parameters.Add(new OpenApiParameter
+                    reqParams.Add(new OpenApiParameter
                     {
                         Name = attrib?.HeaderName ?? prop.Name,
                         IsRequired = attrib?.IsRequired ?? false,
@@ -129,6 +132,9 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 }
             }
         }
+
+        foreach (var p in reqParams)
+            op.Parameters.Add(p);
 
         //var brk = ctx.OperationDescription.Path == "/sales/orders/retrieve/{OrderID}";
 

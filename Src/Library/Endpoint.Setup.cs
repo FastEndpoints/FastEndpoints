@@ -6,6 +6,9 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
 {
+    private static readonly Type tRequest = typeof(TRequest);
+    private static readonly Type tResponse = typeof(TResponse);
+
     /// <summary>
     /// specify to listen for GET requests on one or more routes.
     /// </summary>
@@ -69,12 +72,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         //default openapi descriptions
         Settings.InternalConfigAction = b =>
         {
-            var tRequest = typeof(TRequest);
-            var tResponse = typeof(TResponse);
-
             if (ReqTypeCache<TRequest>.IsPlainTextRequest)
             {
-                b.Accepts<TRequest>("text/plain");
+                b.Accepts<TRequest>("text/plain", "application/json");
                 b.Produces<TResponse>(200, "text/plain", "application/json");
                 return;
             }
@@ -114,12 +114,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
-    protected void AllowFileUploads() => Settings.DtoTypeForFormData = typeof(TRequest);
+    protected void AllowFileUploads() => Settings.DtoTypeForFormData = tRequest;
 
     /// <summary>
     /// enable multipart/form-data submissions
     /// </summary>
-    protected void AllowFormData() => Settings.DtoTypeForFormData = typeof(TRequest);
+    protected void AllowFormData() => Settings.DtoTypeForFormData = tRequest;
 
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.

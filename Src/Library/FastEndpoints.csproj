@@ -2,16 +2,19 @@
 
     <PropertyGroup>
 
-        <Version>2.21.0-beta7</Version>
+        <Version>2.21.0-beta9</Version>
 
         <PackageReleaseNotes>
             - ability to specify configuration at startup
             - ability to set tags for an endpoint
             - ability to exclude endpoints during startup
             - ability to specify error response builder func
-            - set error response content type to "application/problem+json"
+            - allow any content-type for plain text requests
+            - change error response content type to "application/problem+json"
             - add ConfigureDefaults() for swagger ui settings
+            - fix issue #21 with swagger gen
             - reduce allocations during endpoint registration
+            - optimize endpoint setup
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

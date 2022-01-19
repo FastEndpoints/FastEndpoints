@@ -21,8 +21,10 @@ internal class DefaultOperationFilter : IOperationFilter
             op.RequestBody = null;
         }
 
+        var reqParams = new List<OpenApiParameter>();
+
         //add a param for each url path segment such as /{xxx}/{yyy}/{yyy}
-        var reqParams = regex
+        reqParams = regex
             .Matches(ctx.ApiDescription?.RelativePath!)
             .Select(m => new OpenApiParameter
             {
@@ -30,15 +32,18 @@ internal class DefaultOperationFilter : IOperationFilter
                 In = ParameterLocation.Path,
                 Required = true,
                 Schema = new() { Type = "string" }
-            });
+            })
+            .ToList();
 
-        if (isGETRequest && !reqParams.Any() && reqDtoType is not null)
+        if (isGETRequest && reqDtoType is not null)
         {
-            //it's a GET request with a request dto and no path params
+            //it's a GET request with a request dto
             //so let's add each dto property as a query param to enable swagger ui to execute GET request with user supplied values
 
-            reqParams = reqDtoProps?
-                .Where(p => !p.IsDefined(typeof(FromClaimAttribute), false)) //ignore props marks with [FromClaim]
+            var qParams = reqDtoProps?
+                .Where(p =>
+                      !p.IsDefined(typeof(FromClaimAttribute), false) &&
+                      !p.IsDefined(typeof(FromHeaderAttribute), false)) //ignore props marks with [FromClaim] and [FromHeader]
                 .Select(p =>
                     new OpenApiParameter
                     {
@@ -46,19 +51,16 @@ internal class DefaultOperationFilter : IOperationFilter
                         Required = false,
                         Schema = new() { Type = p.PropertyType.Name.ToLowerInvariant() },
                         In = ParameterLocation.Query
-                    });
-        }
+                    })
+                .ToList();
 
-        if (reqParams is not null)
-        {
-            foreach (var p in reqParams)
-                op.Parameters.Add(p);
+            if (qParams?.Count > 0)
+                reqParams.AddRange(qParams);
         }
 
         if (reqDtoProps is not null)
         {
             //add header params if there are any props marked with [FromHeader] attribute
-
             foreach (var prop in reqDtoProps)
             {
                 var attrib = prop.GetCustomAttribute<FromHeaderAttribute>(true);
@@ -74,5 +76,8 @@ internal class DefaultOperationFilter : IOperationFilter
                 }
             }
         }
+
+        foreach (var p in reqParams)
+            op.Parameters.Add(p);
     }
 }

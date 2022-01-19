@@ -157,4 +157,3 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return HttpContext.Response.SendEmptyJsonObject(cancellation);
     }
 }
-

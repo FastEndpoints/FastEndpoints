@@ -14,14 +14,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         if (ctx.Request.ContentLength != 0)
         {
-            if (ctx.Request.HasJsonContentType())
-            {
-                req = await ctx.Request.ReadFromJsonAsync<TRequest>(FastEndpoints.Config.serializerOptions, cancellation).ConfigureAwait(false);
-            }
-            else if (ReqTypeCache<TRequest>.IsPlainTextRequest)
-            {
+            if (ReqTypeCache<TRequest>.IsPlainTextRequest)
                 req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
-            }
+            else if (ctx.Request.HasJsonContentType())
+                req = await ctx.Request.ReadFromJsonAsync<TRequest>(FastEndpoints.Config.serializerOptions, cancellation).ConfigureAwait(false);
         }
 
         if (req is null)

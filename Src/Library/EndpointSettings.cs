@@ -22,4 +22,5 @@ internal class EndpointSettings
     internal object? PostProcessors;
     internal ResponseCacheAttribute? ResponseCacheSettings;
     internal string[]? Tags;
+    internal string Version;
 }

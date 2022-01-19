@@ -12,6 +12,7 @@ public class Config
 {
     internal static JsonSerializerOptions serializerOptions { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
     internal static VersioningOptions versioningOptions { get; set; } = new();
+    internal static RoutingOptions routingOptions { get; set; } = new();
     internal static Func<DiscoveredEndpoint, bool>? endpointRegistrationFilter { get; private set; }
 
     internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; }
@@ -35,6 +36,11 @@ public class Config
     /// settings to support versioning of the endpoints
     /// </summary>
     public Action<VersioningOptions>? VersioningOptions { set => value?.Invoke(versioningOptions); }
+    
+    /// <summary>
+    /// routing options for all endpoints
+    /// </summary>
+    public Action<RoutingOptions>? RoutingOptions { set => value?.Invoke(routingOptions); }
 
     /// <summary>
     /// a function to filter out endpoints from auto registration.

@@ -41,6 +41,7 @@ app.UseFastEndpoints(config =>
     //     o.Prefix = "v";
     //     o.DefaultVersion = "1"; 
     // };
+    // config.RoutingOptions = o => o.Prefix = "api";
 });
 
 if (!app.Environment.IsProduction())

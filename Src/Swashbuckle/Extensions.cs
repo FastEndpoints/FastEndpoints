@@ -14,12 +14,12 @@ public static class Extensions
     /// <summary>
     /// enable support for FastEndpoints in swagger
     /// </summary>
-    public static void EnableFastEndpoints(this SwaggerGenOptions options)
+    /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
+    public static void EnableFastEndpoints(this SwaggerGenOptions options, int tagIndex)
     {
         options.CustomSchemaIds(type => type.FullName);
-        options.TagActionsBy(d => new[] { d.RelativePath?.Split('/')[0] });
+        options.TagActionsBy(d => new[] { d.RelativePath?.Split('/')[tagIndex] });
         options.OperationFilter<DefaultOperationFilter>();
-        //options.SchemaFilter<DefaultSchemaFilter>();
     }
 
     /// <summary>
@@ -59,15 +59,17 @@ public static class Extensions
     /// <param name="options">swaggergen config options</param>
     /// <param name="serializerOptions">json serializer options</param>
     /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
+    /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     public static IServiceCollection AddSwashbuckle(this IServiceCollection services,
         Action<SwaggerGenOptions>? options = null,
         Action<JsonOptions>? serializerOptions = null,
-        bool addJWTBearerAuth = true)
+        bool addJWTBearerAuth = true,
+        int tagIndex = 0)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>
         {
-            o.EnableFastEndpoints();
+            o.EnableFastEndpoints(tagIndex);
             if (addJWTBearerAuth) o.EnableJWTBearerAuth();
             options?.Invoke(o);
         });

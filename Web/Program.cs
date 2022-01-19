@@ -36,6 +36,11 @@ app.UseFastEndpoints(config =>
     //    return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);
     //};
     //config.ErrorResponseBuilder = failures => $"there are {failures.Count()} validation issues!";
+    // config.VersioningOptions = o =>
+    // {
+    //     o.Prefix = "v";
+    //     o.DefaultVersion = "1"; 
+    // };
 });
 
 if (!app.Environment.IsProduction())

@@ -11,7 +11,7 @@ namespace FastEndpoints;
 public class Config
 {
     internal static JsonSerializerOptions serializerOptions { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
-
+    internal static VersioningOptions versioningOptions { get; set; } = new();
     internal static Func<DiscoveredEndpoint, bool>? endpointRegistrationFilter { get; private set; }
 
     internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; }
@@ -30,6 +30,11 @@ public class Config
     /// settings for configuring the json serializer
     /// </summary>
     public Action<JsonSerializerOptions>? SerializerOptions { set => value?.Invoke(serializerOptions); }
+    
+    /// <summary>
+    /// settings to support versioning of the endpoints
+    /// </summary>
+    public Action<VersioningOptions>? VersioningOptions { set => value?.Invoke(versioningOptions); }
 
     /// <summary>
     /// a function to filter out endpoints from auto registration.

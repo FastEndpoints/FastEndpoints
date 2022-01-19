@@ -60,7 +60,15 @@ public static class MainExtensions
             {
                 foreach (var verb in ep.Settings.Verbs)
                 {
-                    var hb = builder.MapMethods(route, new[] { verb }, EndpointExecutor.HandleAsync);
+                    var targetRoute = route;
+                    if (Config.versioningOptions is not null)
+                    {
+                        var needSlash = !route.StartsWith("/");
+                        var versionPrefix = $"{Config.versioningOptions.Prefix}{ep.Settings.Version ?? Config.versioningOptions.DefaultVersion}{(needSlash ? "/" : "")}";
+                        targetRoute = $"{versionPrefix}{targetRoute}";
+                    }
+                    
+                    var hb = builder.MapMethods(targetRoute, new[] { verb }, EndpointExecutor.HandleAsync);
 
                     if (shouldSetName)
                         hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
@@ -77,7 +85,7 @@ public static class MainExtensions
                     if (ep.Settings.DtoTypeForFormData is not null) hb.Accepts(ep.Settings.DtoTypeForFormData, "multipart/form-data");
                     if (ep.Settings.UserConfigAction is not null) ep.Settings.UserConfigAction(hb);//always do this last - allow user to override everything done above
 
-                    var key = $"{verb}:{route}";
+                    var key = $"{verb}:{targetRoute}";
                     routeToHandlerCounts.TryGetValue(key, out var count);
                     routeToHandlerCounts[key] = count + 1;
                     totalEndpointCount++;

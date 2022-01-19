@@ -9,6 +9,7 @@
             - ability to set tags for an endpoint
             - ability to exclude endpoints during startup
             - ability to specify error response builder func
+            - allow any content-type for plain text requests
             - change error response content type to "application/problem+json"
             - add ConfigureDefaults() for swagger ui settings
             - reduce allocations during endpoint registration

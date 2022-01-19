@@ -14,7 +14,7 @@ builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
 //builder.Services.AddSwashbuckle();
-builder.Services.AddNSwag(x => x.Title = "FastEndpoints Sandbox");
+builder.Services.AddNSwag(x => x.Title = "FastEndpoints Sandbox", tagIndex: 3);
 
 var app = builder.Build();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());

@@ -15,11 +15,12 @@ public static class Extensions
     /// <summary>
     /// enable support for FastEndpoints in swagger
     /// </summary>
-    public static void EnableFastEndpoints(this OpenApiDocumentGeneratorSettings settings)
+    /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
+    public static void EnableFastEndpoints(this OpenApiDocumentGeneratorSettings settings, int tagIndex)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new DefaultSchemaNameGenerator();
-        settings.OperationProcessors.Add(new DefaultOperationProcessor());
+        settings.OperationProcessors.Add(new DefaultOperationProcessor(tagIndex));
     }
 
     /// <summary>
@@ -44,15 +45,17 @@ public static class Extensions
     /// <param name="settings">swaggergen config settings</param>
     /// <param name="serializerOptions">json serializer options</param>
     /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
+    /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     public static IServiceCollection AddNSwag(this IServiceCollection services,
         Action<OpenApiDocumentGeneratorSettings>? settings = null,
         Action<JsonOptions>? serializerOptions = null,
-        bool addJWTBearerAuth = true)
+        bool addJWTBearerAuth = true,
+        int tagIndex = 1)
     {
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
         {
-            s.EnableFastEndpoints();
+            s.EnableFastEndpoints(tagIndex);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
         });

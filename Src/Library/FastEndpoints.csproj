@@ -16,6 +16,7 @@
             - allow any content-type for plain text requests
             - change error response content type to "application/problem+json"
             - add ConfigureDefaults() for swagger ui settings
+            - add tagIndex parameter for AddSwagger/AddNSwag
             - fix issue #21 with swagger gen
             - reduce allocations during endpoint registration
             - misc. refactors and optimizations

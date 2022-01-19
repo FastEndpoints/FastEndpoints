@@ -26,6 +26,9 @@ internal class DefaultOperationProcessor : IOperationProcessor
         { "500", "Server Error" },
     };
 
+    private readonly int tagIndex;
+    public DefaultOperationProcessor(int tagIndex) => this.tagIndex = tagIndex;
+
     public bool Process(OperationProcessorContext ctx)
     {
         var op = ctx.OperationDescription.Operation;
@@ -33,7 +36,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
         //use first part of route as tag by default
         var tags = op.Tags;
         if (tags.Count == 0)
-            tags.Add(ctx.OperationDescription.Path.Split('/')[1]);
+            tags.Add(ctx.OperationDescription.Path.Split('/')[tagIndex]);
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)

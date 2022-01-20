@@ -94,8 +94,8 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="customizing-functionality">customizing functionality</h1>
 
-<p>there are several areas you can customize and override the default functionality of the library as described below.
-all configuration settings must be specified during app started with the <code>UseFastEndpoints()</code> call.</p>
+<p>there are several areas you can customize/override the default functionality of the library.
+all configuration settings must be specified during app startup with the <code>UseFastEndpoints()</code> call.</p>
 <h2 id="specify-json-serializer-options">specify json serializer options</h2>
 <p>the settings for the default json serializer which is <code>System.Text.Json</code> can be set like so:</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
@@ -107,7 +107,7 @@ all configuration settings must be specified during app started with the <code>U
 });
 </code></pre>
 <h2 id="global-route-prefix">global route prefix</h2>
-<p>you can have a specified string automatically prepended to all route names in your app instead of repeating it in each and every route config method by specifying the prefix at app startup like so:</p>
+<p>you can have a specified string automatically prepended to all route names in your app instead of repeating it in each and every route config method by specifying the prefix at app startup.</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
 {
     c.RoutingOptions = o =&gt; o.Prefix = &quot;api&quot;;
@@ -119,7 +119,7 @@ Put(&quot;inventory/delete&quot;); // &quot;/api/inventory/delete&quot;
 Post(&quot;sales/recent-list&quot;); // &quot;/api/sales/recent-list&quot;
 </code></pre>
 <h2 id="filtering-endpoint-auto-registration">filtering endpoint auto registration</h2>
-<p>if you'd like to prevent some of the endpoints in your project to be not auto registered during startup, you have the option to supply a filtering function which will be run against each discovered endpoint. if your function returns <code>true</code>, that particular endpoint with be registered. if the function returns <code>false</code> that endpoint will be ignored and not be registered.</p>
+<p>if you'd like to prevent some of the endpoints in your project to be not auto registered during startup, you have the option to supply a filtering function which will be run against each discovered endpoint. if your function returns <code>true</code>, that particular endpoint will be registered. if the function returns <code>false</code> that endpoint will be ignored and not registered.</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
 {
     c.EndpointRegistrationFilter = ep =&gt;
@@ -131,7 +131,7 @@ Post(&quot;sales/recent-list&quot;); // &quot;/api/sales/recent-list&quot;
     };
 });
 </code></pre>
-<p>it is also possible to set a <code>Tag</code> for an endpoint and then use that tag to filter out those endpoints during registration as shown below:</p>
+<p>it is also possible to set a <code>Tag</code> for an endpoint and use that tag to filter out endpoints according to tags during registration as shown below:</p>
 <pre><code class="lang-csharp">public override void Configure()
 {
     Get(&quot;client/update&quot;);
@@ -164,8 +164,8 @@ app.UseFastEndpoints(c =&gt;
     };
 });
 </code></pre>
-<h2 id="customizing-de-serialization-of-request-dtos">customizing de-serialization of request dtos</h2>
-<p>if you'd like to take control of how request dtos are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests. it is currently not possible to specify a deserialization function per endpoint.</p>
+<h2 id="customizing-de-serialization-of-json">customizing de-serialization of json</h2>
+<p>if you'd like to take control of how request bodies are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto to be created and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests with a json body. it is currently not possible to specify a deserialization function per endpoint.</p>
 <pre><code class="lang-csharp">config.RequestDeserializer = async (req, tDto, ct) =&gt;
 {
     using var reader = new StreamReader(req.Body);
@@ -173,7 +173,7 @@ app.UseFastEndpoints(c =&gt;
 };
 </code></pre>
 <h2 id="customizing-serialization-of-response-dtos">customizing serialization of response dtos</h2>
-<p>the response serialization process can be overridden by specifying a function that returns a <code>Task</code> object. you should set the content-type on the http response object and write directly to the response body stream. do note that this function will be used to serialize all outgoing responses. it is currently not possible to specify a serialization function per endpoint.</p>
+<p>the response serialization process can be overridden by specifying a function that returns a <code>Task</code> object. you should set the content-type on the http response object and write directly to the response body stream. do note that this function will be used to serialize all outgoing responses where a json body is required. it is currently not possible to specify a serialization function per endpoint.</p>
 <p>the parameters supplied to the function are as follows:</p>
 <pre><code class="lang-yaml">HttpResponse: the http response object
 object: the response dto to be serialized

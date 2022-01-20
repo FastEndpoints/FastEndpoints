@@ -1,6 +1,6 @@
 # customizing functionality
-there are several areas you can customize and override the default functionality of the library as described below. 
-all configuration settings must be specified during app started with the `UseFastEndpoints()` call.
+there are several areas you can customize/override the default functionality of the library. 
+all configuration settings must be specified during app startup with the `UseFastEndpoints()` call.
 
 ## specify json serializer options
 the settings for the default json serializer which is `System.Text.Json` can be set like so:
@@ -15,7 +15,7 @@ app.UseFastEndpoints(c =>
 ```
 
 ## global route prefix
-you can have a specified string automatically prepended to all route names in your app instead of repeating it in each and every route config method by specifying the prefix at app startup like so:
+you can have a specified string automatically prepended to all route names in your app instead of repeating it in each and every route config method by specifying the prefix at app startup.
 ```csharp
 app.UseFastEndpoints(c =>
 {
@@ -30,7 +30,7 @@ Post("sales/recent-list"); // "/api/sales/recent-list"
 ```
 
 ## filtering endpoint auto registration
-if you'd like to prevent some of the endpoints in your project to be not auto registered during startup, you have the option to supply a filtering function which will be run against each discovered endpoint. if your function returns `true`, that particular endpoint with be registered. if the function returns `false` that endpoint will be ignored and not be registered.
+if you'd like to prevent some of the endpoints in your project to be not auto registered during startup, you have the option to supply a filtering function which will be run against each discovered endpoint. if your function returns `true`, that particular endpoint will be registered. if the function returns `false` that endpoint will be ignored and not registered.
 ```csharp
 app.UseFastEndpoints(c =>
 {
@@ -43,7 +43,7 @@ app.UseFastEndpoints(c =>
     };
 });
 ```
-it is also possible to set a `Tag` for an endpoint and then use that tag to filter out those endpoints during registration as shown below:
+it is also possible to set a `Tag` for an endpoint and use that tag to filter out endpoints according to tags during registration as shown below:
 ```csharp
 public override void Configure()
 {
@@ -80,8 +80,8 @@ app.UseFastEndpoints(c =>
 });
 ```
 
-## customizing de-serialization of request dtos
-if you'd like to take control of how request dtos are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests. it is currently not possible to specify a deserialization function per endpoint.
+## customizing de-serialization of json
+if you'd like to take control of how request bodies are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto to be created and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests with a json body. it is currently not possible to specify a deserialization function per endpoint.
 ```csharp
 config.RequestDeserializer = async (req, tDto, ct) =>
 {
@@ -91,7 +91,7 @@ config.RequestDeserializer = async (req, tDto, ct) =>
 ```
 
 ## customizing serialization of response dtos
-the response serialization process can be overridden by specifying a function that returns a `Task` object. you should set the content-type on the http response object and write directly to the response body stream. do note that this function will be used to serialize all outgoing responses. it is currently not possible to specify a serialization function per endpoint.
+the response serialization process can be overridden by specifying a function that returns a `Task` object. you should set the content-type on the http response object and write directly to the response body stream. do note that this function will be used to serialize all outgoing responses where a json body is required. it is currently not possible to specify a serialization function per endpoint.
 
 the parameters supplied to the function are as follows:
 

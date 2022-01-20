@@ -118,7 +118,7 @@ var app = builder.Build();
 app.UseAuthorization();
 app.UseFastEndpoints();
 app.UseOpenApi(); //add this
-app.UseSwaggerUi3(); //add this
+app.UseSwaggerUi3(s =&gt; s.ConfigureDefaults()); //add this
 app.Run();
 </code></pre>
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
@@ -128,13 +128,6 @@ app.Run();
 {
     settings.Title = &quot;My API&quot;;
     settings.Version = &quot;v1&quot;;
-    settings.SchemaNameGenerator = new MySchemaNameGenerator();
-    settings.AddOperationFilter(ctx =&gt;
-    {
-        ctx.OperationDescription.Operation.Tags.Add(
-            ctx.OperationDescription.Path.Split('/')[1]);
-        return true;
-    });
 });
 </code></pre>
 <h3 id="describe-endpoints">describe endpoints</h3>
@@ -161,6 +154,10 @@ app.Run();
 <pre><code class="lang-csharp">builder.Services.AddNSwag(serializerOptions:
     o =&gt; o.JsonSerializerOptions.PropertyNamingPolicy = null);
 </code></pre>
+<h3 id="group-endpoints-by-path-segment">group endpoints by path segment</h3>
+<p>if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping like so:</p>
+<pre><code class="lang-csharp">builder.Services.AddNSwag(tagIndex: 2)
+</code></pre>
 </section>
 <section id="tabpanel_bHGHmlrG6S_swashbuckle" role="tabpanel" data-tab="swashbuckle" aria-hidden="true" hidden="hidden">
 <h2 id="enable-swashbuckle">enable swashbuckle</h2>
@@ -176,7 +173,7 @@ var app = builder.Build();
 app.UseAuthorization();
 app.UseFastEndpoints();
 app.UseSwagger(); //add this
-app.UseSwaggerUI(); //add this
+app.UseSwaggerUI(o =&gt; o.ConfigureDefaults()); //add this
 app.Run();
 </code></pre>
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
@@ -186,7 +183,6 @@ app.Run();
 {
     options.SwaggerDoc(&quot;v1&quot;, new OpenApiInfo { Title = &quot;My API&quot;, Version = &quot;v1&quot; });
     options.CustomSchemaIds(x =&gt; x.Name);
-    options.TagActionsBy(x =&gt; new[] { x.RelativePath?.Split('/')[1] });
 });
 </code></pre>
 <h3 id="describe-endpoints-1">describe endpoints</h3>
@@ -212,6 +208,10 @@ app.Run();
 <p>swagger serialization options can be set with the following parameter:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwashbuckle(serializerOptions:
     o =&gt; o.JsonSerializerOptions.PropertyNamingPolicy = null);
+</code></pre>
+<h3 id="group-endpoints-by-path-segment-1">group endpoints by path segment</h3>
+<p>if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping like so:</p>
+<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(tagIndex: 2)
 </code></pre>
 </section>
 </div>

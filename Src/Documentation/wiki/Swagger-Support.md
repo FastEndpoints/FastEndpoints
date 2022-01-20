@@ -20,7 +20,7 @@ var app = builder.Build();
 app.UseAuthorization();
 app.UseFastEndpoints();
 app.UseOpenApi(); //add this
-app.UseSwaggerUi3(); //add this
+app.UseSwaggerUi3(s => s.ConfigureDefaults()); //add this
 app.Run();
 ```
 
@@ -33,13 +33,6 @@ builder.Services.AddNSwag(settings =>
 {
     settings.Title = "My API";
     settings.Version = "v1";
-    settings.SchemaNameGenerator = new MySchemaNameGenerator();
-    settings.AddOperationFilter(ctx =>
-    {
-        ctx.OperationDescription.Operation.Tags.Add(
-            ctx.OperationDescription.Path.Split('/')[1]);
-        return true;
-    });
 });
 ```
 
@@ -73,6 +66,12 @@ builder.Services.AddNSwag(serializerOptions:
     o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 ```
 
+### group endpoints by path segment
+if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping like so:
+```csharp
+builder.Services.AddNSwag(tagIndex: 2)
+```
+
 # [Swashbuckle](#tab/swashbuckle)
 
 ## enable swashbuckle
@@ -91,7 +90,7 @@ var app = builder.Build();
 app.UseAuthorization();
 app.UseFastEndpoints();
 app.UseSwagger(); //add this
-app.UseSwaggerUI(); //add this
+app.UseSwaggerUI(o => o.ConfigureDefaults()); //add this
 app.Run();
 ```
 
@@ -104,7 +103,6 @@ builder.Services.AddSwashbuckle(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
     options.CustomSchemaIds(x => x.Name);
-    options.TagActionsBy(x => new[] { x.RelativePath?.Split('/')[1] });
 });
 ```
 
@@ -136,4 +134,10 @@ swagger serialization options can be set with the following parameter:
 ```csharp
 builder.Services.AddSwashbuckle(serializerOptions:
     o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
+```
+
+### group endpoints by path segment
+if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping like so:
+```csharp
+builder.Services.AddSwashbuckle(tagIndex: 2)
 ```

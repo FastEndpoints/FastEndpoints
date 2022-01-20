@@ -2,8 +2,8 @@ global using FastEndpoints;
 global using FastEndpoints.Security;
 global using FastEndpoints.Validation;
 global using Web.Auth;
-using FastEndpoints.Swashbuckle;
-//using FastEndpoints.NSwag;
+//using FastEndpoints.Swashbuckle;
+using FastEndpoints.NSwag;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
@@ -13,12 +13,25 @@ builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddSwashbuckle(tagIndex: 2, options: o =>
+//builder.Services.AddSwashbuckle(tagIndex: 2, options: o =>
+//{
+//    o.SwaggerDoc("v1", new() { Title = "Api v1", Version = "v1" });
+//    o.SwaggerDoc("v2", new() { Title = "Api v2", Version = "v2" });
+//});
+builder.Services.AddNSwag(s =>
 {
-    o.SwaggerDoc("v1", new() { Title = "Api v1", Version = "v1" });
-    o.SwaggerDoc("v2", new() { Title = "Api v2", Version = "v2" });
-});
-//builder.Services.AddNSwag(x => x.Title = "FastEndpoints Sandbox", tagIndex: 3);
+    s.Title = "FastEndpoints Sandbox";
+    s.Version = "v1.0";
+    s.DocumentName = "v1";
+    s.ApiGroupNames = new[] { "v1" };
+}, tagIndex: 3);
+builder.Services.AddNSwag(s =>
+{
+    s.Title = "FastEndpoints Sandbox";
+    s.Version = "v2.0";
+    s.DocumentName = "v2";
+    s.ApiGroupNames = new[] { "v2" };
+}, tagIndex: 3);
 
 var app = builder.Build();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
@@ -50,15 +63,15 @@ app.UseFastEndpoints(config =>
 
 if (!app.Environment.IsProduction())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(o =>
-    {
-        o.ConfigureDefaults();
-        o.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
-        o.SwaggerEndpoint("/swagger/v2/swagger.json", "API V2");
-    });
+    //app.UseSwagger();
+    //app.UseSwaggerUI(o =>
+    //{
+    //    o.ConfigureDefaults();
+    //    o.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+    //    o.SwaggerEndpoint("/swagger/v2/swagger.json", "API V2");
+    //});
 
-    //app.UseOpenApi();
-    //app.UseSwaggerUi3(s => s.ConfigureDefaults());
+    app.UseOpenApi();
+    app.UseSwaggerUi3(s => s.ConfigureDefaults());
 }
 app.Run();

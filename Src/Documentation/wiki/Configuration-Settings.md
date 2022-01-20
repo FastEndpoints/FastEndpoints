@@ -63,7 +63,7 @@ app.UseFastEndpoints(c =>
 });
 ```
 
-## customizing error response
+## customizing error responses
 if the default error response is not to your liking, you can specify a function to produce the exact error response you need. whatever object you return from that function will be serialized to json and sent to the client whenever there needs to be an error response sent downstream. the function will be supplied a collection of validation failures you can use to construct your own error response object like so:
 ```csharp
 app.UseFastEndpoints(c =>
@@ -81,5 +81,31 @@ app.UseFastEndpoints(c =>
 ```
 
 ## customizing de-serialization of request dtos
+if you'd like to take control of how request dtos are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests. it is currently not possible to specify a deserialization function per endpoint.
+```csharp
+config.RequestDeserializer = async (req, tDto, ct) =>
+{
+    using var reader = new StreamReader(req.Body);
+    return Newtonsoft.Json.JsonConvert.DeserializeObject(await reader.ReadToEndAsync(), tDto);
+};
+```
 
 ## customizing serialization of response dtos
+the response serialization process can be overridden by specifying a function that returns a `Task` object. you should set the content-type on the http response object and write directly to the response body stream. do note that this function will be used to serialize all outgoing responses. it is currently not possible to specify a serialization function per endpoint.
+
+the parameters supplied to the function are as follows:
+
+```yaml
+HttpResponse: the http response object
+object: the response dto to be serialized
+string: the response content-type
+CancellationToken: a cancellation token
+```
+
+```csharp
+config.ResponseSerializer = (rsp, dto, cType, ct) =>
+{
+    rsp.ContentType = cType;
+    return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);
+};
+```

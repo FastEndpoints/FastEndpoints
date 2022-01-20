@@ -149,7 +149,7 @@ app.UseFastEndpoints(c =&gt;
     };
 });
 </code></pre>
-<h2 id="customizing-error-response">customizing error response</h2>
+<h2 id="customizing-error-responses">customizing error responses</h2>
 <p>if the default error response is not to your liking, you can specify a function to produce the exact error response you need. whatever object you return from that function will be serialized to json and sent to the client whenever there needs to be an error response sent downstream. the function will be supplied a collection of validation failures you can use to construct your own error response object like so:</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
 {
@@ -165,7 +165,27 @@ app.UseFastEndpoints(c =&gt;
 });
 </code></pre>
 <h2 id="customizing-de-serialization-of-request-dtos">customizing de-serialization of request dtos</h2>
+<p>if you'd like to take control of how request dtos are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests. it is currently not possible to specify a deserialization function per endpoint.</p>
+<pre><code class="lang-csharp">config.RequestDeserializer = async (req, tDto, ct) =&gt;
+{
+    using var reader = new StreamReader(req.Body);
+    return Newtonsoft.Json.JsonConvert.DeserializeObject(await reader.ReadToEndAsync(), tDto);
+};
+</code></pre>
 <h2 id="customizing-serialization-of-response-dtos">customizing serialization of response dtos</h2>
+<p>the response serialization process can be overridden by specifying a function that returns a <code>Task</code> object. you should set the content-type on the http response object and write directly to the response body stream. do note that this function will be used to serialize all outgoing responses. it is currently not possible to specify a serialization function per endpoint.</p>
+<p>the parameters supplied to the function are as follows:</p>
+<pre><code class="lang-yaml">HttpResponse: the http response object
+object: the response dto to be serialized
+string: the response content-type
+CancellationToken: a cancellation token
+</code></pre>
+<pre><code class="lang-csharp">config.ResponseSerializer = (rsp, dto, cType, ct) =&gt;
+{
+    rsp.ContentType = cType;
+    return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);
+};
+</code></pre>
 </article>
           </div>
           

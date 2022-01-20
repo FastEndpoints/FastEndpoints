@@ -355,3 +355,6 @@ MigrationBackup/
 !/.idea/.idea.*/.idea
 /.idea/.idea.*/.idea/*
 !/.idea/.idea.*/.idea/runConfigurations
+
+# ignore doc api folder
+Src\Documentation\api

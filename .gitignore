@@ -357,4 +357,4 @@ MigrationBackup/
 !/.idea/.idea.*/.idea/runConfigurations
 
 # ignore doc api folder
-Src\Documentation\api
+Src/Documentation/api/

@@ -2,17 +2,17 @@
 
     <PropertyGroup>
 
-        <Version>2.21.0-beta11</Version>
+        <Version>2.21.0-beta12</Version>
 
         <PackageReleaseNotes>
-            - ability to specify configuration at startup
-            - ability to do endpoint versioning
-            - ability to configure a global route prefix
-            - ability to set tags for an endpoint
-            - ability to exclude endpoints during startup
-            - ability to specify error response builder func
-            - ability to specify request deserializer func
-            - ability to specify response serializer func
+            - specify configuration at startup
+            - endpoint versioning (experimental)
+            - configure global route prefix
+            - set tags for endpoints
+            - exclude endpoints during startup
+            - specify error response builder func
+            - specify request deserializer func
+            - specify response serializer func
             - allow any content-type for plain text requests
             - change error response content type to "application/problem+json"
             - add ConfigureDefaults() for swagger ui settings

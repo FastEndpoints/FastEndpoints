@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation;
+using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
 
 namespace FastEndpoints.NSwag;
@@ -16,7 +17,7 @@ public static class Extensions
     /// enable support for FastEndpoints in swagger
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
-    public static void EnableFastEndpoints(this OpenApiDocumentGeneratorSettings settings, int tagIndex)
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new DefaultSchemaNameGenerator();
@@ -26,7 +27,7 @@ public static class Extensions
     /// <summary>
     /// enable jwt bearer authorization support
     /// </summary>
-    public static void EnableJWTBearerAuth(this OpenApiDocumentGeneratorSettings settings)
+    public static void EnableJWTBearerAuth(this AspNetCoreOpenApiDocumentGeneratorSettings settings)
     {
         settings.AddSecurity("JWTBearerAuth", new OpenApiSecurityScheme
         {
@@ -47,7 +48,7 @@ public static class Extensions
     /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     public static IServiceCollection AddNSwag(this IServiceCollection services,
-        Action<OpenApiDocumentGeneratorSettings>? settings = null,
+        Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
         Action<JsonOptions>? serializerOptions = null,
         bool addJWTBearerAuth = true,
         int tagIndex = 1)

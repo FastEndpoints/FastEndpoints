@@ -69,8 +69,12 @@ public static class MainExtensions
                     if (shouldSetName)
                         hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
 
+                    if (Config.VersioningOpts is not null)
+                        hb.WithGroupName(Config.VersioningOpts.Prefix + (ep.Settings.Version ?? Config.VersioningOpts.DefaultVersion));
+
                     hb.WithMetadata(epMetaData);
-                    ep.Settings.InternalConfigAction(hb);//always do this first
+
+                    ep.Settings.InternalConfigAction(hb);//always do this first                    
 
                     if (ep.Settings.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();

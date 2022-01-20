@@ -10,24 +10,24 @@ namespace FastEndpoints;
 /// </summary>
 public class Config
 {
-    internal static JsonSerializerOptions serializerOptions { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
-    internal static VersioningOptions? versioningOptions { get; private set; }
-    internal static RoutingOptions? routingOptions { get; private set; }
-    internal static Func<DiscoveredEndpoint, bool>? endpointRegistrationFilter { get; private set; }
-    internal static Func<IEnumerable<ValidationFailure>, object> errorResponseBuilder { get; private set; }
+    internal static JsonSerializerOptions SerializerOpts { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
+    internal static VersioningOptions? VersioningOpts { get; private set; }
+    internal static RoutingOptions? RoutingOpts { get; private set; }
+    internal static Func<DiscoveredEndpoint, bool>? EpRegFilterFunc { get; private set; }
+    internal static Func<IEnumerable<ValidationFailure>, object> ErrRespBldrFunc { get; private set; }
         = failures => new ErrorResponse(failures);
-    internal static Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> requestDeserializer { get; private set; }
-        = (req, tReqDto, cancellation) => req.ReadFromJsonAsync(tReqDto, serializerOptions, cancellation);
-    internal static Func<HttpResponse, object, string, CancellationToken, Task> responseSerializer { get; private set; }
+    internal static Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> ReqDeserializerFunc { get; private set; }
+        = (req, tReqDto, cancellation) => req.ReadFromJsonAsync(tReqDto, SerializerOpts, cancellation);
+    internal static Func<HttpResponse, object, string, CancellationToken, Task> RespSerializerFunc { get; private set; }
         = (rsp, dto, contentType, cancellation)
             => contentType is null
                ? rsp.WriteAsJsonAsync(dto, cancellation)
-               : rsp.WriteAsJsonAsync(dto, serializerOptions, contentType, cancellation);
+               : rsp.WriteAsJsonAsync(dto, SerializerOpts, contentType, cancellation);
 
     /// <summary>
     /// settings for configuring the json serializer
     /// </summary>
-    public Action<JsonSerializerOptions> SerializerOptions { set => value(serializerOptions); }
+    public Action<JsonSerializerOptions> SerializerOptions { set => value(SerializerOpts); }
 
     /// <summary>
     /// options for enabling endpoint versioning support
@@ -36,8 +36,8 @@ public class Config
     {
         set
         {
-            versioningOptions = new();
-            value(versioningOptions);
+            VersioningOpts = new();
+            value(VersioningOpts);
         }
     }
 
@@ -48,8 +48,8 @@ public class Config
     {
         set
         {
-            routingOptions = new();
-            value(routingOptions);
+            RoutingOpts = new();
+            value(RoutingOpts);
         }
     }
 
@@ -59,14 +59,14 @@ public class Config
     /// return 'true' to include.
     /// this function will executed for each endpoint that has been discovered during startup.
     /// </summary>
-    public Func<DiscoveredEndpoint, bool> EndpointRegistrationFilter { set => endpointRegistrationFilter = value; }
+    public Func<DiscoveredEndpoint, bool> EndpointRegistrationFilter { set => EpRegFilterFunc = value; }
 
     /// <summary>
     /// a function for transforming validation errors to an error response dto.
     /// set it to any func that returns an object that can be serialized to json.
     /// this function will be run everytime an error response needs to be sent to the client.
     /// </summary>
-    public Func<IEnumerable<ValidationFailure>, object> ErrorResponseBuilder { set => errorResponseBuilder = value; }
+    public Func<IEnumerable<ValidationFailure>, object> ErrorResponseBuilder { set => ErrRespBldrFunc = value; }
 
     /// <summary>
     /// a function for deserializing the incoming http request body. this function will be executed for each request received if it has json request body.
@@ -75,7 +75,7 @@ public class Config
     /// <para>Type: the type of the request dto which the request body will be deserialized into</para>
     /// <para>CancellationToken: a cancellation token</para>
     /// </summary>
-    public Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> RequestDeserializer { set => requestDeserializer = value; }
+    public Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> RequestDeserializer { set => ReqDeserializerFunc = value; }
 
     /// <summary>
     /// a function for writing serialized response dtos to the response body.
@@ -94,5 +94,5 @@ public class Config
     /// };
     /// </code>
     /// </summary>
-    public Func<HttpResponse, object, string, CancellationToken, Task> ResponseSerializer { set => responseSerializer = value; }
+    public Func<HttpResponse, object, string, CancellationToken, Task> ResponseSerializer { set => RespSerializerFunc = value; }
 }

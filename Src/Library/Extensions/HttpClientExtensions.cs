@@ -19,7 +19,7 @@ public static class HttpClientExtensions
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
     public static async Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.PostAsJsonAsync(requestUri, request, Config.serializerOptions).ConfigureAwait(false);
+        var res = await client.PostAsJsonAsync(requestUri, request, Config.SerializerOpts).ConfigureAwait(false);
 
         if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
@@ -28,7 +28,7 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.serializerOptions).ConfigureAwait(false);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts).ConfigureAwait(false);
         }
         catch (JsonException)
         {
@@ -80,7 +80,7 @@ public static class HttpClientExtensions
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
     public static async Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.PutAsJsonAsync(requestUri, request, Config.serializerOptions).ConfigureAwait(false);
+        var res = await client.PutAsJsonAsync(requestUri, request, Config.SerializerOpts).ConfigureAwait(false);
 
         if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
@@ -89,7 +89,7 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.serializerOptions).ConfigureAwait(false);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts).ConfigureAwait(false);
         }
         catch (JsonException)
         {
@@ -146,7 +146,7 @@ public static class HttpClientExtensions
             {
                 Method = HttpMethod.Get,
                 RequestUri = new Uri(client.BaseAddress?.ToString().TrimEnd('/') + requestUri),
-                Content = new StringContent(JsonSerializer.Serialize(request, Config.serializerOptions), Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonSerializer.Serialize(request, Config.SerializerOpts), Encoding.UTF8, "application/json")
             }).ConfigureAwait(false);
 
         if (typeof(TResponse) == Types.EmptyResponse)
@@ -156,7 +156,7 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.serializerOptions).ConfigureAwait(false);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts).ConfigureAwait(false);
         }
         catch (JsonException)
         {

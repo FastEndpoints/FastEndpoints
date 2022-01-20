@@ -17,7 +17,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (ReqTypeCache<TRequest>.IsPlainTextRequest)
                 req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
             else if (ctx.Request.HasJsonContentType())
-                req = (TRequest?)await FastEndpoints.Config.requestDeserializer(ctx.Request, tRequest, cancellation);
+                req = (TRequest?)await FastEndpoints.Config.ReqDeserializerFunc(ctx.Request, tRequest, cancellation);
         }
 
         if (req is null)

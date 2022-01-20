@@ -17,7 +17,7 @@ public static class HttpResponseExtensions
     public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = default) where TResponse : notnull
     {
         rsp.StatusCode = statusCode;
-        return Config.responseSerializer(rsp, response, "application/json", cancellation);
+        return Config.RespSerializerFunc(rsp, response, "application/json", cancellation);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public static class HttpResponseExtensions
             .GetPathByName(endpointName, routeValues);
         return responseBody is null
             ? rsp.StartAsync(cancellation)
-            : Config.responseSerializer(rsp, responseBody, "application/json", cancellation);
+            : Config.RespSerializerFunc(rsp, responseBody, "application/json", cancellation);
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ public static class HttpResponseExtensions
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 400;
-        return Config.responseSerializer(rsp, Config.errorResponseBuilder(failures), "application/problem+json", cancellation);
+        return Config.RespSerializerFunc(rsp, Config.ErrRespBldrFunc(failures), "application/problem+json", cancellation);
     }
 
     /// <summary>
@@ -180,6 +180,6 @@ public static class HttpResponseExtensions
     public static Task SendEmptyJsonObject(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 200;
-        return Config.responseSerializer(rsp, new JsonObject(), "application/json", cancellation);
+        return Config.RespSerializerFunc(rsp, new JsonObject(), "application/json", cancellation);
     }
 }

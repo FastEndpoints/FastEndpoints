@@ -40,7 +40,7 @@ public static class MainExtensions
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder, Action<Config>? configAction = null)
     {
         IServiceResolver.ServiceProvider = builder.ServiceProvider;
-        Config.serializerOptions = builder.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? Config.serializerOptions;
+        Config.SerializerOpts = builder.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? Config.SerializerOpts;
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
@@ -50,7 +50,7 @@ public static class MainExtensions
 
         foreach (var ep in _endpoints.Found)
         {
-            if (Config.endpointRegistrationFilter is not null && !Config.endpointRegistrationFilter(CreateDiscoverdEndpoint(ep))) continue;
+            if (Config.EpRegFilterFunc is not null && !Config.EpRegFilterFunc(CreateDiscoverdEndpoint(ep))) continue;
             if (ep.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{ep.EndpointType.FullName}]");
             if (ep.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{ep.EndpointType.FullName}]");
 
@@ -118,19 +118,19 @@ public static class MainExtensions
         // {rPrfix}/{p}{ver}/{route}
         // {mobile}/{v}{1.0}/customer/retrieve
 
-        if (Config.routingOptions?.Prefix is not null)
+        if (Config.RoutingOpts?.Prefix is not null)
         {
             stringBuilder
                 .Append('/')
-                .Append(Config.routingOptions.Prefix)
+                .Append(Config.RoutingOpts.Prefix)
                 .Append('/');
         }
 
-        if (Config.versioningOptions is not null)
+        if (Config.VersioningOpts is not null)
         {
             stringBuilder
-                .Append(Config.versioningOptions.Prefix)
-                .Append(epVersion ?? Config.versioningOptions.DefaultVersion)
+                .Append(Config.VersioningOpts.Prefix)
+                .Append(epVersion ?? Config.VersioningOpts.DefaultVersion)
                 .Append('/');
         }
 

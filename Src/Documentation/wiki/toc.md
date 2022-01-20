@@ -14,3 +14,4 @@
 # [Misc. Conveniences](Misc-Conveniences.md)
 # [Swagger Support](Swagger-Support.md)
 # [VS Extension](VS-Extension.md)
+# [Configuration Settings](Configuration-Settings.md)

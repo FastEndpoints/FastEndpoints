@@ -15,6 +15,7 @@
 /// <param name="Claims">the user claim types which will allow access</param>
 /// <param name="AllowAnyClaim">whether any or all claim types will be required</param>
 /// <param name="Tags">the tags associated with the endpoint</param>
+/// <param name="Version">the version of the endpoint if specified</param>
 public record DiscoveredEndpoint(
     Type EndpointType,
     IEnumerable<string> Routes,
@@ -27,4 +28,5 @@ public record DiscoveredEndpoint(
     bool AllowAnyPermission,
     IEnumerable<string>? Claims,
     bool AllowAnyClaim,
-    IEnumerable<string>? Tags);
+    IEnumerable<string>? Tags,
+    string? Version);

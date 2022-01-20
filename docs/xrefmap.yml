@@ -64,19 +64,19 @@ references:
   commentId: T:FastEndpoints.Config
   fullName: FastEndpoints.Config
   nameWithType: Config
-- uid: FastEndpoints.Config.EndpointExclusionFilter
-  name: EndpointExclusionFilter
-  href: api/FastEndpoints.Config.html#FastEndpoints_Config_EndpointExclusionFilter
-  commentId: P:FastEndpoints.Config.EndpointExclusionFilter
-  fullName: FastEndpoints.Config.EndpointExclusionFilter
-  nameWithType: Config.EndpointExclusionFilter
-- uid: FastEndpoints.Config.EndpointExclusionFilter*
-  name: EndpointExclusionFilter
-  href: api/FastEndpoints.Config.html#FastEndpoints_Config_EndpointExclusionFilter_
-  commentId: Overload:FastEndpoints.Config.EndpointExclusionFilter
+- uid: FastEndpoints.Config.EndpointRegistrationFilter
+  name: EndpointRegistrationFilter
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_EndpointRegistrationFilter
+  commentId: P:FastEndpoints.Config.EndpointRegistrationFilter
+  fullName: FastEndpoints.Config.EndpointRegistrationFilter
+  nameWithType: Config.EndpointRegistrationFilter
+- uid: FastEndpoints.Config.EndpointRegistrationFilter*
+  name: EndpointRegistrationFilter
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_EndpointRegistrationFilter_
+  commentId: Overload:FastEndpoints.Config.EndpointRegistrationFilter
   isSpec: "True"
-  fullName: FastEndpoints.Config.EndpointExclusionFilter
-  nameWithType: Config.EndpointExclusionFilter
+  fullName: FastEndpoints.Config.EndpointRegistrationFilter
+  nameWithType: Config.EndpointRegistrationFilter
 - uid: FastEndpoints.Config.ErrorResponseBuilder
   name: ErrorResponseBuilder
   href: api/FastEndpoints.Config.html#FastEndpoints_Config_ErrorResponseBuilder
@@ -90,6 +90,45 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Config.ErrorResponseBuilder
   nameWithType: Config.ErrorResponseBuilder
+- uid: FastEndpoints.Config.RequestDeserializer
+  name: RequestDeserializer
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_RequestDeserializer
+  commentId: P:FastEndpoints.Config.RequestDeserializer
+  fullName: FastEndpoints.Config.RequestDeserializer
+  nameWithType: Config.RequestDeserializer
+- uid: FastEndpoints.Config.RequestDeserializer*
+  name: RequestDeserializer
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_RequestDeserializer_
+  commentId: Overload:FastEndpoints.Config.RequestDeserializer
+  isSpec: "True"
+  fullName: FastEndpoints.Config.RequestDeserializer
+  nameWithType: Config.RequestDeserializer
+- uid: FastEndpoints.Config.ResponseSerializer
+  name: ResponseSerializer
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_ResponseSerializer
+  commentId: P:FastEndpoints.Config.ResponseSerializer
+  fullName: FastEndpoints.Config.ResponseSerializer
+  nameWithType: Config.ResponseSerializer
+- uid: FastEndpoints.Config.ResponseSerializer*
+  name: ResponseSerializer
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_ResponseSerializer_
+  commentId: Overload:FastEndpoints.Config.ResponseSerializer
+  isSpec: "True"
+  fullName: FastEndpoints.Config.ResponseSerializer
+  nameWithType: Config.ResponseSerializer
+- uid: FastEndpoints.Config.RoutingOptions
+  name: RoutingOptions
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_RoutingOptions
+  commentId: P:FastEndpoints.Config.RoutingOptions
+  fullName: FastEndpoints.Config.RoutingOptions
+  nameWithType: Config.RoutingOptions
+- uid: FastEndpoints.Config.RoutingOptions*
+  name: RoutingOptions
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_RoutingOptions_
+  commentId: Overload:FastEndpoints.Config.RoutingOptions
+  isSpec: "True"
+  fullName: FastEndpoints.Config.RoutingOptions
+  nameWithType: Config.RoutingOptions
 - uid: FastEndpoints.Config.SerializerOptions
   name: SerializerOptions
   href: api/FastEndpoints.Config.html#FastEndpoints_Config_SerializerOptions
@@ -103,21 +142,34 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Config.SerializerOptions
   nameWithType: Config.SerializerOptions
+- uid: FastEndpoints.Config.VersioningOptions
+  name: VersioningOptions
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_VersioningOptions
+  commentId: P:FastEndpoints.Config.VersioningOptions
+  fullName: FastEndpoints.Config.VersioningOptions
+  nameWithType: Config.VersioningOptions
+- uid: FastEndpoints.Config.VersioningOptions*
+  name: VersioningOptions
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_VersioningOptions_
+  commentId: Overload:FastEndpoints.Config.VersioningOptions
+  isSpec: "True"
+  fullName: FastEndpoints.Config.VersioningOptions
+  nameWithType: Config.VersioningOptions
 - uid: FastEndpoints.DiscoveredEndpoint
   name: DiscoveredEndpoint
   href: api/FastEndpoints.DiscoveredEndpoint.html
   commentId: T:FastEndpoints.DiscoveredEndpoint
   fullName: FastEndpoints.DiscoveredEndpoint
   nameWithType: DiscoveredEndpoint
-- uid: FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)
-  name: DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean)
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint__ctor_Type_IEnumerable_System_String__IEnumerable_System_String__System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Boolean_
-  commentId: M:FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)
-  name.vb: DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean)
-  fullName: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<System.String>, IEnumerable<System.String>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Boolean)
-  fullName.vb: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of System.String), IEnumerable(Of System.String), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Boolean)
-  nameWithType: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean)
-  nameWithType.vb: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean)
+- uid: FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.String)
+  name: DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, String)
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint__ctor_Type_IEnumerable_System_String__IEnumerable_System_String__System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_String_
+  commentId: M:FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.String)
+  name.vb: DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), String)
+  fullName: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<System.String>, IEnumerable<System.String>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.String)
+  fullName.vb: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of System.String), IEnumerable(Of System.String), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.String)
+  nameWithType: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, String)
+  nameWithType.vb: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), String)
 - uid: FastEndpoints.DiscoveredEndpoint.#ctor*
   name: DiscoveredEndpoint
   href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint__ctor_
@@ -242,6 +294,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.DiscoveredEndpoint.Routes
   nameWithType: DiscoveredEndpoint.Routes
+- uid: FastEndpoints.DiscoveredEndpoint.Tags
+  name: Tags
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Tags
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Tags
+  fullName: FastEndpoints.DiscoveredEndpoint.Tags
+  nameWithType: DiscoveredEndpoint.Tags
+- uid: FastEndpoints.DiscoveredEndpoint.Tags*
+  name: Tags
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Tags_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Tags
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.Tags
+  nameWithType: DiscoveredEndpoint.Tags
 - uid: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
   name: ThrowIfValidationFails
   href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_ThrowIfValidationFails
@@ -268,6 +333,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.DiscoveredEndpoint.Verbs
   nameWithType: DiscoveredEndpoint.Verbs
+- uid: FastEndpoints.DiscoveredEndpoint.Version
+  name: Version
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Version
+  commentId: P:FastEndpoints.DiscoveredEndpoint.Version
+  fullName: FastEndpoints.DiscoveredEndpoint.Version
+  nameWithType: DiscoveredEndpoint.Version
+- uid: FastEndpoints.DiscoveredEndpoint.Version*
+  name: Version
+  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Version_
+  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Version
+  isSpec: "True"
+  fullName: FastEndpoints.DiscoveredEndpoint.Version
+  nameWithType: DiscoveredEndpoint.Version
 - uid: FastEndpoints.EmptyRequest
   name: EmptyRequest
   href: api/FastEndpoints.EmptyRequest.html
@@ -1264,6 +1342,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
+- uid: FastEndpoints.Endpoint`2.Tags(System.String[])
+  name: Tags(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Tags_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Tags(System.String[])
+  name.vb: Tags(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Tags(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Tags(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Tags(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Tags(String())
+- uid: FastEndpoints.Endpoint`2.Tags*
+  name: Tags
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Tags_
+  commentId: Overload:FastEndpoints.Endpoint`2.Tags
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Tags
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Tags
+  nameWithType: Endpoint<TRequest, TResponse>.Tags
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Tags
 - uid: FastEndpoints.Endpoint`2.ThrowError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
   name: ThrowError(Expression<Func<TRequest, Object>>, String)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_
@@ -1385,6 +1481,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Verbs
   nameWithType: Endpoint<TRequest, TResponse>.Verbs
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Verbs
+- uid: FastEndpoints.Endpoint`2.Version(System.String)
+  name: Version(String)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Version_System_String_
+  commentId: M:FastEndpoints.Endpoint`2.Version(System.String)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Version(System.String)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Version(System.String)
+  nameWithType: Endpoint<TRequest, TResponse>.Version(String)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Version(String)
+- uid: FastEndpoints.Endpoint`2.Version*
+  name: Version
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Version_
+  commentId: Overload:FastEndpoints.Endpoint`2.Version
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Version
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Version
+  nameWithType: Endpoint<TRequest, TResponse>.Version
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Version
 - uid: FastEndpoints.Endpoint`3
   name: Endpoint<TRequest, TResponse, TMapper>
   href: api/FastEndpoints.Endpoint-3.html
@@ -2478,15 +2591,15 @@ references:
   commentId: T:FastEndpoints.NSwag.Extensions
   fullName: FastEndpoints.NSwag.Extensions
   nameWithType: Extensions
-- uid: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
-  name: AddNSwag(IServiceCollection, Nullable<Action<OpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonOptions>>, Boolean)
-  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_AddNSwag_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_OpenApiDocumentGeneratorSettings___System_Nullable_Action_Microsoft_AspNetCore_Mvc_JsonOptions___System_Boolean_
-  commentId: M:FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
-  name.vb: AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean)
-  fullName: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<NSwag.Generation.OpenApiDocumentGeneratorSettings>>, System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>, System.Boolean)
-  fullName.vb: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.OpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean)
-  nameWithType: Extensions.AddNSwag(IServiceCollection, Nullable<Action<OpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonOptions>>, Boolean)
-  nameWithType.vb: Extensions.AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean)
+- uid: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean,System.Int32)
+  name: AddNSwag(IServiceCollection, Nullable<Action<OpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonOptions>>, Boolean, Int32)
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_AddNSwag_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_OpenApiDocumentGeneratorSettings___System_Nullable_Action_Microsoft_AspNetCore_Mvc_JsonOptions___System_Boolean_System_Int32_
+  commentId: M:FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean,System.Int32)
+  name.vb: AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean, Int32)
+  fullName: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<NSwag.Generation.OpenApiDocumentGeneratorSettings>>, System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>, System.Boolean, System.Int32)
+  fullName.vb: FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.OpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean, System.Int32)
+  nameWithType: Extensions.AddNSwag(IServiceCollection, Nullable<Action<OpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonOptions>>, Boolean, Int32)
+  nameWithType.vb: Extensions.AddNSwag(IServiceCollection, Nullable(Of Action(Of OpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonOptions)), Boolean, Int32)
 - uid: FastEndpoints.NSwag.Extensions.AddNSwag*
   name: AddNSwag
   href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_AddNSwag_
@@ -2507,12 +2620,12 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.NSwag.Extensions.ConfigureDefaults
   nameWithType: Extensions.ConfigureDefaults
-- uid: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
-  name: EnableFastEndpoints(OpenApiDocumentGeneratorSettings)
-  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_EnableFastEndpoints_NSwag_Generation_OpenApiDocumentGeneratorSettings_
-  commentId: M:FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
-  fullName: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)
-  nameWithType: Extensions.EnableFastEndpoints(OpenApiDocumentGeneratorSettings)
+- uid: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings,System.Int32)
+  name: EnableFastEndpoints(OpenApiDocumentGeneratorSettings, Int32)
+  href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_EnableFastEndpoints_NSwag_Generation_OpenApiDocumentGeneratorSettings_System_Int32_
+  commentId: M:FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings,System.Int32)
+  fullName: FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings, System.Int32)
+  nameWithType: Extensions.EnableFastEndpoints(OpenApiDocumentGeneratorSettings, Int32)
 - uid: FastEndpoints.NSwag.Extensions.EnableFastEndpoints*
   name: EnableFastEndpoints
   href: api/FastEndpoints.NSwag.Extensions.html#FastEndpoints_NSwag_Extensions_EnableFastEndpoints_
@@ -2552,6 +2665,25 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.PlainTextRequest.Content
   nameWithType: PlainTextRequest.Content
+- uid: FastEndpoints.RoutingOptions
+  name: RoutingOptions
+  href: api/FastEndpoints.RoutingOptions.html
+  commentId: T:FastEndpoints.RoutingOptions
+  fullName: FastEndpoints.RoutingOptions
+  nameWithType: RoutingOptions
+- uid: FastEndpoints.RoutingOptions.Prefix
+  name: Prefix
+  href: api/FastEndpoints.RoutingOptions.html#FastEndpoints_RoutingOptions_Prefix
+  commentId: P:FastEndpoints.RoutingOptions.Prefix
+  fullName: FastEndpoints.RoutingOptions.Prefix
+  nameWithType: RoutingOptions.Prefix
+- uid: FastEndpoints.RoutingOptions.Prefix*
+  name: Prefix
+  href: api/FastEndpoints.RoutingOptions.html#FastEndpoints_RoutingOptions_Prefix_
+  commentId: Overload:FastEndpoints.RoutingOptions.Prefix
+  isSpec: "True"
+  fullName: FastEndpoints.RoutingOptions.Prefix
+  nameWithType: RoutingOptions.Prefix
 - uid: FastEndpoints.Security
   name: FastEndpoints.Security
   href: api/FastEndpoints.Security.html
@@ -2792,15 +2924,15 @@ references:
   commentId: T:FastEndpoints.Swashbuckle.Extensions
   fullName: FastEndpoints.Swashbuckle.Extensions
   nameWithType: Extensions
-- uid: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
-  name: AddSwashbuckle(IServiceCollection, Nullable<Action<SwaggerGenOptions>>, Nullable<Action<JsonOptions>>, Boolean)
-  href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_AddSwashbuckle_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions___System_Nullable_Action_Microsoft_AspNetCore_Mvc_JsonOptions___System_Boolean_
-  commentId: M:FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)
-  name.vb: AddSwashbuckle(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean)
-  fullName: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions>>, System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>, System.Boolean)
-  fullName.vb: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean)
-  nameWithType: Extensions.AddSwashbuckle(IServiceCollection, Nullable<Action<SwaggerGenOptions>>, Nullable<Action<JsonOptions>>, Boolean)
-  nameWithType.vb: Extensions.AddSwashbuckle(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean)
+- uid: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean,System.Int32)
+  name: AddSwashbuckle(IServiceCollection, Nullable<Action<SwaggerGenOptions>>, Nullable<Action<JsonOptions>>, Boolean, Int32)
+  href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_AddSwashbuckle_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions___System_Nullable_Action_Microsoft_AspNetCore_Mvc_JsonOptions___System_Boolean_System_Int32_
+  commentId: M:FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean,System.Int32)
+  name.vb: AddSwashbuckle(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean, Int32)
+  fullName: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions>>, System.Nullable<Action<Microsoft.AspNetCore.Mvc.JsonOptions>>, System.Boolean, System.Int32)
+  fullName.vb: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)), System.Nullable(Of Action(Of Microsoft.AspNetCore.Mvc.JsonOptions)), System.Boolean, System.Int32)
+  nameWithType: Extensions.AddSwashbuckle(IServiceCollection, Nullable<Action<SwaggerGenOptions>>, Nullable<Action<JsonOptions>>, Boolean, Int32)
+  nameWithType.vb: Extensions.AddSwashbuckle(IServiceCollection, Nullable(Of Action(Of SwaggerGenOptions)), Nullable(Of Action(Of JsonOptions)), Boolean, Int32)
 - uid: FastEndpoints.Swashbuckle.Extensions.AddSwashbuckle*
   name: AddSwashbuckle
   href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_AddSwashbuckle_
@@ -2821,12 +2953,12 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults
   nameWithType: Extensions.ConfigureDefaults
-- uid: FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
-  name: EnableFastEndpoints(SwaggerGenOptions)
-  href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_EnableFastEndpoints_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions_
-  commentId: M:FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
-  fullName: FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)
-  nameWithType: Extensions.EnableFastEndpoints(SwaggerGenOptions)
+- uid: FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions,System.Int32)
+  name: EnableFastEndpoints(SwaggerGenOptions, Int32)
+  href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_EnableFastEndpoints_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions_System_Int32_
+  commentId: M:FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions,System.Int32)
+  fullName: FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions, System.Int32)
+  nameWithType: Extensions.EnableFastEndpoints(SwaggerGenOptions, Int32)
 - uid: FastEndpoints.Swashbuckle.Extensions.EnableFastEndpoints*
   name: EnableFastEndpoints
   href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_EnableFastEndpoints_
@@ -2914,3 +3046,35 @@ references:
   fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve(Of TService)()
   nameWithType: Validator<TRequest>.TryResolve<TService>()
   nameWithType.vb: Validator(Of TRequest).TryResolve(Of TService)()
+- uid: FastEndpoints.VersioningOptions
+  name: VersioningOptions
+  href: api/FastEndpoints.VersioningOptions.html
+  commentId: T:FastEndpoints.VersioningOptions
+  fullName: FastEndpoints.VersioningOptions
+  nameWithType: VersioningOptions
+- uid: FastEndpoints.VersioningOptions.DefaultVersion
+  name: DefaultVersion
+  href: api/FastEndpoints.VersioningOptions.html#FastEndpoints_VersioningOptions_DefaultVersion
+  commentId: P:FastEndpoints.VersioningOptions.DefaultVersion
+  fullName: FastEndpoints.VersioningOptions.DefaultVersion
+  nameWithType: VersioningOptions.DefaultVersion
+- uid: FastEndpoints.VersioningOptions.DefaultVersion*
+  name: DefaultVersion
+  href: api/FastEndpoints.VersioningOptions.html#FastEndpoints_VersioningOptions_DefaultVersion_
+  commentId: Overload:FastEndpoints.VersioningOptions.DefaultVersion
+  isSpec: "True"
+  fullName: FastEndpoints.VersioningOptions.DefaultVersion
+  nameWithType: VersioningOptions.DefaultVersion
+- uid: FastEndpoints.VersioningOptions.Prefix
+  name: Prefix
+  href: api/FastEndpoints.VersioningOptions.html#FastEndpoints_VersioningOptions_Prefix
+  commentId: P:FastEndpoints.VersioningOptions.Prefix
+  fullName: FastEndpoints.VersioningOptions.Prefix
+  nameWithType: VersioningOptions.Prefix
+- uid: FastEndpoints.VersioningOptions.Prefix*
+  name: Prefix
+  href: api/FastEndpoints.VersioningOptions.html#FastEndpoints_VersioningOptions_Prefix_
+  commentId: Overload:FastEndpoints.VersioningOptions.Prefix
+  isSpec: "True"
+  fullName: FastEndpoints.VersioningOptions.Prefix
+  nameWithType: VersioningOptions.Prefix

@@ -156,7 +156,8 @@ public static class MainExtensions
         ep.Settings.AllowAnyPermission,
         ep.Settings.ClaimTypes,
         ep.Settings.AllowAnyClaim,
-        ep.Settings.Tags);
+        ep.Settings.Tags,
+        ep.Settings.Version);
 
     private static List<string> BuildPoliciesToAdd(FoundEndpoint ep)
     {

@@ -145,13 +145,13 @@
   
   
   <a id="FastEndpoints_DiscoveredEndpoint__ctor_" data-uid="FastEndpoints.DiscoveredEndpoint.#ctor*"></a>
-  <h4 id="FastEndpoints_DiscoveredEndpoint__ctor_Type_IEnumerable_System_String__IEnumerable_System_String__System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Boolean_" data-uid="FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean)">DiscoveredEndpoint(Type, IEnumerable&lt;String&gt;, IEnumerable&lt;String&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean)</h4>
+  <h4 id="FastEndpoints_DiscoveredEndpoint__ctor_Type_IEnumerable_System_String__IEnumerable_System_String__System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_String_" data-uid="FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.String)">DiscoveredEndpoint(Type, IEnumerable&lt;String&gt;, IEnumerable&lt;String&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, String)</h4>
   <div class="markdown level1 summary"><p>represents an endpoint that has been discovered during startup</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DiscoveredEndpoint(Type EndpointType, IEnumerable&lt;string&gt; Routes, IEnumerable&lt;string&gt; Verbs, IEnumerable&lt;string&gt;? AnonymousVerbs, bool ThrowIfValidationFails, IEnumerable&lt;string&gt;? Policies, IEnumerable&lt;string&gt;? Roles, IEnumerable&lt;string&gt;? Permissions, bool AllowAnyPermission, IEnumerable&lt;string&gt;? Claims, bool AllowAnyClaim)</code></pre>
+    <pre><code class="lang-csharp hljs">public DiscoveredEndpoint(Type EndpointType, IEnumerable&lt;string&gt; Routes, IEnumerable&lt;string&gt; Verbs, IEnumerable&lt;string&gt;? AnonymousVerbs, bool ThrowIfValidationFails, IEnumerable&lt;string&gt;? Policies, IEnumerable&lt;string&gt;? Roles, IEnumerable&lt;string&gt;? Permissions, bool AllowAnyPermission, IEnumerable&lt;string&gt;? Claims, bool AllowAnyClaim, IEnumerable&lt;string&gt;? Tags, string Version)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -227,6 +227,18 @@
         <td><span class="xref">System.Boolean</span></td>
         <td><span class="parametername">AllowAnyClaim</span></td>
         <td><p>whether any or all claim types will be required</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;&gt;</td>
+        <td><span class="parametername">Tags</span></td>
+        <td><p>the tags associated with the endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">Version</span></td>
+        <td><p>the version of the endpoint if specified</p>
 </td>
       </tr>
     </tbody>
@@ -460,6 +472,31 @@
   </table>
   
   
+  <a id="FastEndpoints_DiscoveredEndpoint_Tags_" data-uid="FastEndpoints.DiscoveredEndpoint.Tags*"></a>
+  <h4 id="FastEndpoints_DiscoveredEndpoint_Tags" data-uid="FastEndpoints.DiscoveredEndpoint.Tags">Tags</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;string&gt;? Tags { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_DiscoveredEndpoint_ThrowIfValidationFails_" data-uid="FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails*"></a>
   <h4 id="FastEndpoints_DiscoveredEndpoint_ThrowIfValidationFails" data-uid="FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails">ThrowIfValidationFails</h4>
   <div class="markdown level1 summary"></div>
@@ -504,6 +541,31 @@
     <tbody>
       <tr>
         <td><span class="xref">IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_DiscoveredEndpoint_Version_" data-uid="FastEndpoints.DiscoveredEndpoint.Version*"></a>
+  <h4 id="FastEndpoints_DiscoveredEndpoint_Version" data-uid="FastEndpoints.DiscoveredEndpoint.Version">Version</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string Version { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
         <td></td>
       </tr>
     </tbody>

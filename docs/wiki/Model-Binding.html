@@ -205,12 +205,7 @@ MyDecimal - 123.4567
 }
 </code></pre>
 <h1 id="json-serialization-casing">json serialization casing</h1>
-<p>by default the serializer uses <strong>camel casing</strong> for serializing/deserializing. you can change the casing in the app startup by configuring <code>JsonOptions</code> like so:</p>
-<pre><code class="lang-java">builder.Services.Configure&lt;JsonOptions&gt;(o =&gt; 
-    o.SerializerOptions.PropertyNamingPolicy = null);
-</code></pre>
-<p>the above will set the casing to <strong>pascal casing</strong> for the serializer.</p>
-<p>you can set other options for the serializer with the above as well.</p>
+<p>by default the serializer uses <strong>camel casing</strong> for serializing/deserializing. you can change the casing as shown in the <a href="Configuration-Settings.html#specify-json-serializer-options">configuration settings</a> section.</p>
 </article>
           </div>
           

@@ -291,6 +291,12 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Describe_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__">Endpoint&lt;TRequest, TResponse&gt;.Describe(Action&lt;RouteHandlerBuilder&gt;)</a>
     </div>
     <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Tags_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Tags(String[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Version_System_String_">Endpoint&lt;TRequest, TResponse&gt;.Version(String)</a>
+    </div>
+    <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_String_">Endpoint&lt;TRequest, TResponse&gt;.AddError(String)</a>
     </div>
     <div>
@@ -344,9 +350,7 @@
   <h5 id="FastEndpoints_Endpoint_3_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse, TMapper&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : class, new()
-
     where TResponse : new()
-
     where TMapper : IEntityMapper, new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>

@@ -141,13 +141,13 @@
   
   
   <a id="FastEndpoints_NSwag_Extensions_AddNSwag_" data-uid="FastEndpoints.NSwag.Extensions.AddNSwag*"></a>
-  <h4 id="FastEndpoints_NSwag_Extensions_AddNSwag_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_OpenApiDocumentGeneratorSettings___System_Nullable_Action_Microsoft_AspNetCore_Mvc_JsonOptions___System_Boolean_" data-uid="FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean)">AddNSwag(IServiceCollection, Nullable&lt;Action&lt;OpenApiDocumentGeneratorSettings&gt;&gt;, Nullable&lt;Action&lt;JsonOptions&gt;&gt;, Boolean)</h4>
+  <h4 id="FastEndpoints_NSwag_Extensions_AddNSwag_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_OpenApiDocumentGeneratorSettings___System_Nullable_Action_Microsoft_AspNetCore_Mvc_JsonOptions___System_Boolean_System_Int32_" data-uid="FastEndpoints.NSwag.Extensions.AddNSwag(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.OpenApiDocumentGeneratorSettings}},System.Nullable{Action{Microsoft.AspNetCore.Mvc.JsonOptions}},System.Boolean,System.Int32)">AddNSwag(IServiceCollection, Nullable&lt;Action&lt;OpenApiDocumentGeneratorSettings&gt;&gt;, Nullable&lt;Action&lt;JsonOptions&gt;&gt;, Boolean, Int32)</h4>
   <div class="markdown level1 summary"><p>enable swagger support for FastEndpoints with a single call.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddNSwag(this IServiceCollection services, Action&lt;OpenApiDocumentGeneratorSettings&gt;? settings = null, Action&lt;JsonOptions&gt;? serializerOptions = null, bool addJWTBearerAuth = true)</code></pre>
+    <pre><code class="lang-csharp hljs">public static IServiceCollection AddNSwag(this IServiceCollection services, Action&lt;OpenApiDocumentGeneratorSettings&gt;? settings = null, Action&lt;JsonOptions&gt;? serializerOptions = null, bool addJWTBearerAuth = true, int tagIndex = 1)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -180,6 +180,12 @@
         <td><span class="xref">System.Boolean</span></td>
         <td><span class="parametername">addJWTBearerAuth</span></td>
         <td><p>set to false to disable auto addition of jwt bearer auth support</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">tagIndex</span></td>
+        <td><p>the index of the route path segment to use for tagging/grouping endpoints</p>
 </td>
       </tr>
     </tbody>
@@ -230,13 +236,13 @@
   
   
   <a id="FastEndpoints_NSwag_Extensions_EnableFastEndpoints_" data-uid="FastEndpoints.NSwag.Extensions.EnableFastEndpoints*"></a>
-  <h4 id="FastEndpoints_NSwag_Extensions_EnableFastEndpoints_NSwag_Generation_OpenApiDocumentGeneratorSettings_" data-uid="FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings)">EnableFastEndpoints(OpenApiDocumentGeneratorSettings)</h4>
+  <h4 id="FastEndpoints_NSwag_Extensions_EnableFastEndpoints_NSwag_Generation_OpenApiDocumentGeneratorSettings_System_Int32_" data-uid="FastEndpoints.NSwag.Extensions.EnableFastEndpoints(NSwag.Generation.OpenApiDocumentGeneratorSettings,System.Int32)">EnableFastEndpoints(OpenApiDocumentGeneratorSettings, Int32)</h4>
   <div class="markdown level1 summary"><p>enable support for FastEndpoints in swagger</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static void EnableFastEndpoints(this OpenApiDocumentGeneratorSettings settings)</code></pre>
+    <pre><code class="lang-csharp hljs">public static void EnableFastEndpoints(this OpenApiDocumentGeneratorSettings settings, int tagIndex)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -252,6 +258,12 @@
         <td><span class="xref">NSwag.Generation.OpenApiDocumentGeneratorSettings</span></td>
         <td><span class="parametername">settings</span></td>
         <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">tagIndex</span></td>
+        <td><p>the index of the route path segment to use for tagging/grouping endpoints</p>
+</td>
       </tr>
     </tbody>
   </table>

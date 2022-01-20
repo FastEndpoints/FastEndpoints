@@ -140,11 +140,4 @@ public class UpdateAddressRequest
 ```
 
 # json serialization casing
-by default the serializer uses **camel casing** for serializing/deserializing. you can change the casing in the app startup by configuring `JsonOptions` like so:
-```java
-builder.Services.Configure<JsonOptions>(o => 
-    o.SerializerOptions.PropertyNamingPolicy = null);
-```
-the above will set the casing to **pascal casing** for the serializer.
-
-you can set other options for the serializer with the above as well.
+by default the serializer uses **camel casing** for serializing/deserializing. you can change the casing as shown in the [configuration settings](Configuration-Settings.md#specify-json-serializer-options) section.

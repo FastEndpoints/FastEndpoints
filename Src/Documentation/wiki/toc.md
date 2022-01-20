@@ -13,5 +13,6 @@
 # [Integration Testing](Integration-Testing.md)
 # [Misc. Conveniences](Misc-Conveniences.md)
 # [Swagger Support](Swagger-Support.md)
-# [VS Extension](VS-Extension.md)
 # [Configuration Settings](Configuration-Settings.md)
+# [API Versioning](Api-Versioning.md)
+# [VS Extension](VS-Extension.md)

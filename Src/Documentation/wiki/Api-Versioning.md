@@ -101,7 +101,7 @@ app.UseSwaggerUI(o =>
     o.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
 });
 ```
-the above will create two swagger docs/definitions each containing only the endpoints that match the respective api version group. the important bit here is the `apiGroupNames` parameter which takes care of filtering the right set of endpoints for that particular swagger definition. if that argument is not correctly set, all endpoints from all version groups will be shown.
+the above will create two swagger docs/definitions each containing only the endpoints that match the respective api version group. the important bit here is the `apiGroupNames` parameter which takes care of filtering the right set of endpoints for that particular swagger definition. if that argument is not correctly set, either all endpoints from all version groups will be shown or none at all.
 
 if the goal is to get swagger to contain all endpoints of a particular version + all common/un-versioned endpoints, simply do the following:
 ```csharp

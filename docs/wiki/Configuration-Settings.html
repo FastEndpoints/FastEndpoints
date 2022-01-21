@@ -114,9 +114,9 @@ all configuration settings must be specified during app startup with the <code>U
 });
 </code></pre>
 <p>for example, the following route config methods would result in the below endpoint routes:</p>
-<pre><code class="lang-csharp">Get(&quot;client/update&quot;); // &quot;/api/client/update&quot;
-Put(&quot;inventory/delete&quot;); // &quot;/api/inventory/delete&quot;
-Post(&quot;sales/recent-list&quot;); // &quot;/api/sales/recent-list&quot;
+<pre><code class="lang-csharp">Get(&quot;client/update&quot;); -&gt; &quot;/api/client/update&quot;
+Put(&quot;inventory/delete&quot;); -&gt; &quot;/api/inventory/delete&quot;
+Post(&quot;sales/recent-list&quot;); -&gt; &quot;/api/sales/recent-list&quot;
 </code></pre>
 <h2 id="filtering-endpoint-auto-registration">filtering endpoint auto registration</h2>
 <p>if you'd like to prevent some of the endpoints in your project to be not auto registered during startup, you have the option to supply a filtering function which will be run against each discovered endpoint. if your function returns <code>true</code>, that particular endpoint will be registered. if the function returns <code>false</code> that endpoint will be ignored and not registered.</p>

@@ -24,9 +24,9 @@ app.UseFastEndpoints(c =>
 ```
 for example, the following route config methods would result in the below endpoint routes:
 ```csharp
-Get("client/update"); // "/api/client/update"
-Put("inventory/delete"); // "/api/inventory/delete"
-Post("sales/recent-list"); // "/api/sales/recent-list"
+Get("client/update"); -> "/api/client/update"
+Put("inventory/delete"); -> "/api/inventory/delete"
+Post("sales/recent-list"); -> "/api/sales/recent-list"
 ```
 
 ## filtering endpoint auto registration

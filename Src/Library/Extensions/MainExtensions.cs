@@ -70,7 +70,7 @@ public static class MainExtensions
                         hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
 
                     if (Config.VersioningOpts is not null)
-                        hb.WithGroupName(Config.VersioningOpts.Prefix + (ep.Settings.Version ?? Config.VersioningOpts.DefaultVersion));
+                        hb.WithGroupName(BuildGroupName(ep.Settings.Version));
 
                     hb.WithMetadata(epMetaData);
 
@@ -81,9 +81,13 @@ public static class MainExtensions
                     else
                         hb.RequireAuthorization(policiesToAdd.ToArray());
 
-                    if (ep.Settings.ResponseCacheSettings is not null) hb.WithMetadata(ep.Settings.ResponseCacheSettings);
-                    if (ep.Settings.DtoTypeForFormData is not null) hb.Accepts(ep.Settings.DtoTypeForFormData, "multipart/form-data");
-                    if (ep.Settings.UserConfigAction is not null) ep.Settings.UserConfigAction(hb);//always do this last - allow user to override everything done above
+                    if (ep.Settings.ResponseCacheSettings is not null)
+                        hb.WithMetadata(ep.Settings.ResponseCacheSettings);
+
+                    if (ep.Settings.DtoTypeForFormData is not null)
+                        hb.Accepts(ep.Settings.DtoTypeForFormData, "multipart/form-data");
+
+                    ep.Settings.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{finalRoute}";
                     routeToHandlerCounts.TryGetValue(key, out var count);
@@ -132,10 +136,21 @@ public static class MainExtensions
 
         if (Config.VersioningOpts is not null)
         {
-            stringBuilder
-                .Append(Config.VersioningOpts.Prefix)
-                .Append(epVersion ?? Config.VersioningOpts.DefaultVersion)
+            if (epVersion is not null)
+            {
+                stringBuilder
+                .Append(Config.VersioningOpts!.Prefix)
+                .Append(epVersion)
                 .Append('/');
+            }
+
+            if (epVersion is null && Config.VersioningOpts.DefaultVersion != VersioningOptions.Common)
+            {
+                stringBuilder
+                    .Append(Config.VersioningOpts!.Prefix)
+                    .Append(Config.VersioningOpts.DefaultVersion)
+                    .Append('/');
+            }
         }
 
         if (stringBuilder.Length > 0 && route.StartsWith('/'))
@@ -146,6 +161,14 @@ public static class MainExtensions
         var final = stringBuilder.ToString();
         stringBuilder.Clear();
         return final;
+    }
+
+    private static string BuildGroupName(string? epVersion)
+    {
+        if (epVersion is null && Config.VersioningOpts?.DefaultVersion == VersioningOptions.Common)
+            return VersioningOptions.Common;
+
+        return Config.VersioningOpts!.Prefix + (epVersion ?? Config.VersioningOpts.DefaultVersion);
     }
 
     private static DiscoveredEndpoint CreateDiscoverdEndpoint(FoundEndpoint ep) => new(

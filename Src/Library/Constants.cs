@@ -7,4 +7,3 @@ public static class Constants
     //also the value should never change from "permissions" or third party auth providers won't work
     public const string PermissionsClaimType = "permissions";
 }
-

@@ -40,7 +40,7 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 - Model validation using FluentValidation rules
 - Convenient business logic validation and error responses
 - Easy access to environment and configuration settings
-- Support api versioning
+- Supports api versioning
 - Supports response caching
 - Supports in-process pub/sub event notifications
 - Auto discovery of event notification handlers

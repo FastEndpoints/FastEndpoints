@@ -24,14 +24,14 @@ builder.Services.AddNSwag(s =>
     s.Version = "v1.0";
     s.DocumentName = "v1";
     s.ApiGroupNames = new[] { "v1", VersioningOptions.Common };
-}, tagIndex: 1);
+});
 builder.Services.AddNSwag(s =>
 {
     s.Title = "FastEndpoints Sandbox";
     s.Version = "v2.0";
     s.DocumentName = "v2";
     s.ApiGroupNames = new[] { "v2", VersioningOptions.Common };
-}, tagIndex: 1);
+});
 
 var app = builder.Build();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
@@ -42,12 +42,12 @@ app.UseFastEndpoints(config =>
 {
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
+    config.RoutingOptions = o => o.Prefix = "api";
     config.VersioningOptions = o =>
     {
         o.DefaultVersion = VersioningOptions.Common;
         o.Prefix = "v";
     };
-    config.RoutingOptions = o => o.Prefix = "api";
     //config.RequestDeserializer = async (req, tDto, ct) =>
     //{
     //    using var reader = new StreamReader(req.Body);

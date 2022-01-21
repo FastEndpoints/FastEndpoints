@@ -1,9 +1,11 @@
 ﻿using FastEndpoints.Validation.Results;
 using Microsoft.AspNetCore.Http;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 #pragma warning disable CA1822, IDE1006
 
+[assembly: InternalsVisibleTo("FastEndpoints.NSwag")]
 namespace FastEndpoints;
 /// <summary>
 /// global configuration settings for FastEndpoints

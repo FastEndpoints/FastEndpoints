@@ -36,7 +36,11 @@ internal class DefaultOperationProcessor : IOperationProcessor
         //use first part of route as tag by default
         var tags = op.Tags;
         if (tags.Count == 0)
-            tags.Add(ctx.OperationDescription.Path.Split('/')[tagIndex]);
+        {
+            var routePrefix = "/" + Config.RoutingOpts?.Prefix ?? "_";
+            var version = "/" + ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.GroupName ?? "_";
+            tags.Add(ctx.OperationDescription.Path.Remove(routePrefix).Remove(version).Split('/')[tagIndex]);
+        }
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)

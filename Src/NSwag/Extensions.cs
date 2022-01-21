@@ -81,4 +81,10 @@ public static class Extensions
         s.OperationsSorter = "alpha";
         s.CustomInlineStyles = ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0} .swagger-ui .info .title{font-size:25px} .swagger-ui textarea{min-height:150px}";
     }
+
+    internal static string Remove(this string value, string removeString)
+    {
+        int index = value.IndexOf(removeString, StringComparison.Ordinal);
+        return index < 0 ? value : value.Remove(index, removeString.Length);
+    }
 }

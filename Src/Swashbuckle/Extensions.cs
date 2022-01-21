@@ -11,6 +11,8 @@ namespace FastEndpoints.Swashbuckle;
 /// </summary>
 public static class Extensions
 {
+    private static readonly Dictionary<string, string[]> docToGroupNamesMap = new();
+
     /// <summary>
     /// enable support for FastEndpoints in swagger
     /// </summary>
@@ -82,6 +84,9 @@ public static class Extensions
         return services;
     }
 
+    /// <summary>
+    /// configure swagger ui with some sensible defaults for FastEndpoints which can be overridden if needed.
+    /// </summary>
     public static void ConfigureDefaults(this SwaggerUIOptions o)
     {
         o.ConfigObject.DocExpansion = DocExpansion.None;
@@ -92,5 +97,16 @@ public static class Extensions
         o.ConfigObject.TryItOutEnabled = true;
         o.ConfigObject.AdditionalItems["tagsSorter"] = "alpha";
         o.ConfigObject.AdditionalItems["operationsSorter"] = "alpha";
+    }
+
+    public static void SwaggerDoc(this SwaggerGenOptions opts, string documentName, OpenApiInfo info, string[] apiGroupNames)
+    {
+        opts.SwaggerGeneratorOptions.SwaggerDocs.Add(documentName, info);
+        docToGroupNamesMap[documentName] = apiGroupNames;
+
+        opts.DocInclusionPredicate((docName, apiDesc) =>
+        {
+            return docToGroupNamesMap[docName].Contains(apiDesc.GroupName);
+        });
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NSwag.AspNetCore;
-using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
 

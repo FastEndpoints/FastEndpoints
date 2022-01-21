@@ -121,45 +121,41 @@ public static class MainExtensions
         return builder;
     }
 
-    internal static string BuildRoute(this StringBuilder stringBuilder, string? epVersion, string route)
+    internal static string BuildRoute(this StringBuilder builder, string? epVersion, string route)
     {
         // {rPrfix}/{p}{ver}/{route}
         // {mobile}/{v}{1.0}/customer/retrieve
 
         if (Config.RoutingOpts?.Prefix is not null)
         {
-            stringBuilder
-                .Append('/')
-                .Append(Config.RoutingOpts.Prefix)
-                .Append('/');
+            builder.Append('/')
+                   .Append(Config.RoutingOpts.Prefix)
+                   .Append('/');
         }
 
         if (Config.VersioningOpts is not null)
         {
             if (epVersion is not null)
             {
-                stringBuilder
-                .Append(Config.VersioningOpts!.Prefix)
-                .Append(epVersion)
-                .Append('/');
+                builder.Append(Config.VersioningOpts!.Prefix)
+                       .Append(epVersion)
+                       .Append('/');
             }
-
-            if (epVersion is null && Config.VersioningOpts.DefaultVersion != VersioningOptions.Common)
+            else if (Config.VersioningOpts.DefaultVersion != VersioningOptions.Common)
             {
-                stringBuilder
-                    .Append(Config.VersioningOpts!.Prefix)
-                    .Append(Config.VersioningOpts.DefaultVersion)
-                    .Append('/');
+                builder.Append(Config.VersioningOpts!.Prefix)
+                       .Append(Config.VersioningOpts.DefaultVersion)
+                       .Append('/');
             }
         }
 
-        if (stringBuilder.Length > 0 && route.StartsWith('/'))
-            stringBuilder.Remove(stringBuilder.Length - 1, 1);
+        if (builder.Length > 0 && route.StartsWith('/'))
+            builder.Remove(builder.Length - 1, 1);
 
-        stringBuilder.Append(route);
+        builder.Append(route);
 
-        var final = stringBuilder.ToString();
-        stringBuilder.Clear();
+        var final = builder.ToString();
+        builder.Clear();
         return final;
     }
 

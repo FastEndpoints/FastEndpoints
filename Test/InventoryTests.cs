@@ -121,7 +121,7 @@ namespace Test
             var createdAtLocation = res?.Headers.Location?.ToString();
 
             Assert.AreEqual(HttpStatusCode.Created, res?.StatusCode);
-            Assert.AreEqual($"/api/v2/inventory/get-product/{result?.ProductId}", createdAtLocation);
+            Assert.AreEqual($"/api/inventory/get-product/{result?.ProductId}", createdAtLocation);
             Assert.IsTrue(result?.ProductId > 1);
             Assert.AreEqual("Grape Juice", result?.ProductName);
         }

@@ -20,7 +20,7 @@ namespace Test
 
             using var form = new MultipartFormDataContent { { imageContent, "File", "test.png" } };
 
-            var res = await GuestClient.PutAsync("/api/v2/uploads/image/save", form);
+            var res = await GuestClient.PutAsync("/api/uploads/image/save", form);
 
             Assert.AreEqual(HttpStatusCode.Unauthorized, res.StatusCode);
         }
@@ -92,7 +92,7 @@ namespace Test
         {
             var (rsp, res) = await GuestClient.POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
 
-                "api/v2/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45",
+                "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45",
 
                 new()
                 {
@@ -120,7 +120,7 @@ namespace Test
         {
             var (rsp, res) = await GuestClient.POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
 
-                "api/v2/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
+                "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                 "?Bool=false&String=everything",
 
                 new()
@@ -180,7 +180,7 @@ namespace Test
                 { new StringContent("500"),"Height" }
             };
 
-            var res = await AdminClient.PostAsync("api/v2/uploads/image/save", form);
+            var res = await AdminClient.PostAsync("api/uploads/image/save", form);
 
             using var md5Instance = MD5.Create();
             using var stream = await res.Content.ReadAsStreamAsync();
@@ -212,7 +212,7 @@ namespace Test
                 { new StringContent("500"),"Height" }
             };
 
-            var res = await AdminClient.PostAsync("/api/v2/uploads/image/save-typed", form);
+            var res = await AdminClient.PostAsync("/api/uploads/image/save-typed", form);
 
             using var md5Instance = MD5.Create();
             using var stream = await res.Content.ReadAsStreamAsync();
@@ -298,7 +298,7 @@ namespace Test
             using var stringContent = new StringContent("this is the body content");
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
 
-            var rsp = await AdminClient.PostAsync("/api/v2/test-cases/plaintext/12345", stringContent);
+            var rsp = await AdminClient.PostAsync("/api/test-cases/plaintext/12345", stringContent);
 
             var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 

@@ -20,7 +20,6 @@ public static class Extensions
     public static void EnableFastEndpoints(this SwaggerGenOptions options, int tagIndex)
     {
         options.CustomSchemaIds(type => type.FullName);
-        //options.TagActionsBy(d => new[] { d.RelativePath?.Split('/')[tagIndex] });
         options.OperationFilter<DefaultOperationFilter>(tagIndex);
     }
 

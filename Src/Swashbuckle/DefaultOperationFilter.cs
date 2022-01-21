@@ -22,9 +22,10 @@ internal class DefaultOperationFilter : IOperationFilter
         op.Tags.Remove(op.Tags.Single(t => t.Name == nameof(EndpointExecutor)));
         if (op.Tags.Count == 0)
         {
-            var routePrefix = "/" + Config.RoutingOpts?.Prefix ?? "_";
-            var version = "/" + ctx.ApiDescription.GroupName ?? "_";
-            op.Tags.Add(new() { Name = ctx.ApiDescription.RelativePath?.Remove(routePrefix).Remove(version).Split('/')[tagIndex] });
+            var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
+            var version = "/" + (ctx.ApiDescription.GroupName ?? "_");
+            var segments = ctx.ApiDescription.RelativePath?.Remove(routePrefix).Remove(version).Split('/');
+            if (segments?.Length >= tagIndex) op.Tags.Add(new() { Name = segments[tagIndex] });
         }
 
         if (isGETRequest && op.RequestBody is not null)

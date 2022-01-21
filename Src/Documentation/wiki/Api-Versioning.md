@@ -56,7 +56,7 @@ builder.Services
         s.Version = "v1.0";
         s.ApiGroupNames = new[] { "v1" };
     })
-    .AddNSwag(settings: s =>
+    .AddNSwag(s =>
     {
         s.DocumentName = "v2";
         s.Title = "my api";

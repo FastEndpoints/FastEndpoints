@@ -1,9 +1,3 @@
-# api versioning support
-
-> [!NOTE]
-> this document is still a work-in-progress.
-> please check back soon...
-
 # enable endpoint versioning
 specify a `Prefix` and `DefaultVersion` for versioning like below. prefix is a string that will be prepended to the version number of an endpoint. default version is used automatically for endpoints that do not specify a version.
 ```csharp

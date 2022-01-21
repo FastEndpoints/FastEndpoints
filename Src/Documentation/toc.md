@@ -3,4 +3,5 @@
 # [Tutorial](https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d)
 # [Api Reference](api/)
 # [GitHub](https://github.com/dj-nitehawk/FastEndpoints)
+# [Discord](https://discord.gg/yQZ4uvfF2E)
 # [Sponsor](https://www.paypal.com/donate?hosted_button_id=AU3SCQX9FXYCS)

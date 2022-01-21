@@ -33,7 +33,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
     {
         var op = ctx.OperationDescription.Operation;
 
-        //use first part of route as tag by default
+        //use tagIndex to determine a tag for the endpoint
         var tags = op.Tags;
         if (tags.Count == 0)
         {

@@ -9,11 +9,23 @@ internal class DefaultOperationFilter : IOperationFilter
 {
     private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
 
+    private readonly int tagIndex;
+    public DefaultOperationFilter(int tagIndex) => this.tagIndex = tagIndex;
+
     public void Apply(OpenApiOperation op, OperationFilterContext ctx)
     {
         var reqDtoType = ctx.ApiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoProps = reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
         var isGETRequest = ctx.ApiDescription.HttpMethod == "GET";
+
+        //use tagIndex to determine a tag for the endpoint
+        op.Tags.Remove(op.Tags.Single(t => t.Name == nameof(EndpointExecutor)));
+        if (op.Tags.Count == 0)
+        {
+            var routePrefix = "/" + Config.RoutingOpts?.Prefix ?? "_";
+            var version = "/" + ctx.ApiDescription.GroupName ?? "_";
+            op.Tags.Add(new() { Name = ctx.ApiDescription.RelativePath?.Remove(routePrefix).Remove(version).Split('/')[tagIndex] });
+        }
 
         if (isGETRequest && op.RequestBody is not null)
         {

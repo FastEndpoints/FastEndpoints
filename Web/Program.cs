@@ -14,7 +14,7 @@ builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-builder.Services.AddSwashbuckle(tagIndex: 2, options: o =>
+builder.Services.AddSwashbuckle(tagIndex: 1, options: o =>
 {
     o.SwaggerDoc(
         documentName: "v1",

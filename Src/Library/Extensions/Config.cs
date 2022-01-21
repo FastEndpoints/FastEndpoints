@@ -6,6 +6,7 @@ using System.Text.Json;
 #pragma warning disable CA1822, IDE1006
 
 [assembly: InternalsVisibleTo("FastEndpoints.NSwag")]
+[assembly: InternalsVisibleTo("FastEndpoints.Swashbuckle")]
 namespace FastEndpoints;
 /// <summary>
 /// global configuration settings for FastEndpoints

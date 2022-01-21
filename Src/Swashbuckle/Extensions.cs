@@ -20,8 +20,8 @@ public static class Extensions
     public static void EnableFastEndpoints(this SwaggerGenOptions options, int tagIndex)
     {
         options.CustomSchemaIds(type => type.FullName);
-        options.TagActionsBy(d => new[] { d.RelativePath?.Split('/')[tagIndex] });
-        options.OperationFilter<DefaultOperationFilter>();
+        //options.TagActionsBy(d => new[] { d.RelativePath?.Split('/')[tagIndex] });
+        options.OperationFilter<DefaultOperationFilter>(tagIndex);
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public static class Extensions
         Action<SwaggerGenOptions>? options = null,
         Action<JsonOptions>? serializerOptions = null,
         bool addJWTBearerAuth = true,
-        int tagIndex = 0)
+        int tagIndex = 1)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(o =>
@@ -108,5 +108,11 @@ public static class Extensions
         {
             return docToGroupNamesMap[docName].Contains(apiDesc.GroupName);
         });
+    }
+
+    internal static string Remove(this string value, string removeString)
+    {
+        int index = value.IndexOf(removeString, StringComparison.Ordinal);
+        return index < 0 ? value : value.Remove(index, removeString.Length);
     }
 }

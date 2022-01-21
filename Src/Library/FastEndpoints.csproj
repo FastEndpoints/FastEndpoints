@@ -37,6 +37,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet6, minimal-api, vertical-slice-architecture, repr-pattern</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>

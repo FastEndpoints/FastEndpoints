@@ -2979,6 +2979,22 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swashbuckle.Extensions.EnableJWTBearerAuth
   nameWithType: Extensions.EnableJWTBearerAuth
+- uid: FastEndpoints.Swashbuckle.Extensions.SwaggerDoc(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions,System.String,Microsoft.OpenApi.Models.OpenApiInfo,System.String[])
+  name: SwaggerDoc(SwaggerGenOptions, String, OpenApiInfo, String[])
+  href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_SwaggerDoc_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions_System_String_Microsoft_OpenApi_Models_OpenApiInfo_System_String___
+  commentId: M:FastEndpoints.Swashbuckle.Extensions.SwaggerDoc(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions,System.String,Microsoft.OpenApi.Models.OpenApiInfo,System.String[])
+  name.vb: SwaggerDoc(SwaggerGenOptions, String, OpenApiInfo, String())
+  fullName: FastEndpoints.Swashbuckle.Extensions.SwaggerDoc(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions, System.String, Microsoft.OpenApi.Models.OpenApiInfo, System.String[])
+  fullName.vb: FastEndpoints.Swashbuckle.Extensions.SwaggerDoc(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions, System.String, Microsoft.OpenApi.Models.OpenApiInfo, System.String())
+  nameWithType: Extensions.SwaggerDoc(SwaggerGenOptions, String, OpenApiInfo, String[])
+  nameWithType.vb: Extensions.SwaggerDoc(SwaggerGenOptions, String, OpenApiInfo, String())
+- uid: FastEndpoints.Swashbuckle.Extensions.SwaggerDoc*
+  name: SwaggerDoc
+  href: api/FastEndpoints.Swashbuckle.Extensions.html#FastEndpoints_Swashbuckle_Extensions_SwaggerDoc_
+  commentId: Overload:FastEndpoints.Swashbuckle.Extensions.SwaggerDoc
+  isSpec: "True"
+  fullName: FastEndpoints.Swashbuckle.Extensions.SwaggerDoc
+  nameWithType: Extensions.SwaggerDoc
 - uid: FastEndpoints.Validation
   name: FastEndpoints.Validation
   href: api/FastEndpoints.Validation.html
@@ -3052,6 +3068,12 @@ references:
   commentId: T:FastEndpoints.VersioningOptions
   fullName: FastEndpoints.VersioningOptions
   nameWithType: VersioningOptions
+- uid: FastEndpoints.VersioningOptions.Common
+  name: Common
+  href: api/FastEndpoints.VersioningOptions.html#FastEndpoints_VersioningOptions_Common
+  commentId: F:FastEndpoints.VersioningOptions.Common
+  fullName: FastEndpoints.VersioningOptions.Common
+  nameWithType: VersioningOptions.Common
 - uid: FastEndpoints.VersioningOptions.DefaultVersion
   name: DefaultVersion
   href: api/FastEndpoints.VersioningOptions.html#FastEndpoints_VersioningOptions_DefaultVersion

@@ -147,7 +147,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddSwashbuckle(this IServiceCollection services, Action&lt;SwaggerGenOptions&gt;? options = null, Action&lt;JsonOptions&gt;? serializerOptions = null, bool addJWTBearerAuth = true, int tagIndex = 0)</code></pre>
+    <pre><code class="lang-csharp hljs">public static IServiceCollection AddSwashbuckle(this IServiceCollection services, Action&lt;SwaggerGenOptions&gt;? options = null, Action&lt;JsonOptions&gt;? serializerOptions = null, bool addJWTBearerAuth = true, int tagIndex = 1)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -209,7 +209,8 @@
   
   <a id="FastEndpoints_Swashbuckle_Extensions_ConfigureDefaults_" data-uid="FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults*"></a>
   <h4 id="FastEndpoints_Swashbuckle_Extensions_ConfigureDefaults_Swashbuckle_AspNetCore_SwaggerUI_SwaggerUIOptions_" data-uid="FastEndpoints.Swashbuckle.Extensions.ConfigureDefaults(Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIOptions)">ConfigureDefaults(SwaggerUIOptions)</h4>
-  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 summary"><p>configure swagger ui with some sensible defaults for FastEndpoints which can be overridden if needed.</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -290,6 +291,48 @@
       <tr>
         <td><span class="xref">Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions</span></td>
         <td><span class="parametername">options</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Swashbuckle_Extensions_SwaggerDoc_" data-uid="FastEndpoints.Swashbuckle.Extensions.SwaggerDoc*"></a>
+  <h4 id="FastEndpoints_Swashbuckle_Extensions_SwaggerDoc_Swashbuckle_AspNetCore_SwaggerGen_SwaggerGenOptions_System_String_Microsoft_OpenApi_Models_OpenApiInfo_System_String___" data-uid="FastEndpoints.Swashbuckle.Extensions.SwaggerDoc(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions,System.String,Microsoft.OpenApi.Models.OpenApiInfo,System.String[])">SwaggerDoc(SwaggerGenOptions, String, OpenApiInfo, String[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static void SwaggerDoc(this SwaggerGenOptions opts, string documentName, OpenApiInfo info, string[] apiGroupNames)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions</span></td>
+        <td><span class="parametername">opts</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">documentName</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">Microsoft.OpenApi.Models.OpenApiInfo</span></td>
+        <td><span class="parametername">info</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td><span class="parametername">apiGroupNames</span></td>
         <td></td>
       </tr>
     </tbody>

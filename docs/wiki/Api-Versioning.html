@@ -99,6 +99,112 @@
 <p>this document is still a work-in-progress.
 please check back soon...</p>
 </div>
+<h1 id="enable-endpoint-versioning">enable endpoint versioning</h1>
+<p>specify a <code>Prefix</code> and <code>DefaultVersion</code> for versioning like below. prefix is a string that will be prepended to the version number of an endpoint. default version is used automatically for endpoints that do not specify a version.</p>
+<pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
+{
+    c.VersioningOptions = o =&gt;
+    {
+        o.Prefix = &quot;v&quot;;
+        o.DefaultVersion = &quot;1&quot;;
+    };
+});
+</code></pre>
+<p>once you enable versioning as above, all of your endpoints will be registered with the default version number automatically prepended to them like so:</p>
+<pre><code class="lang-yaml">/v1/sales/order
+/v1/sales/order/cancel
+/v1/sales/invoice
+</code></pre>
+<p>you can specify the version of a particular endpoint with the <code>Version()</code> method:</p>
+<pre><code class="lang-csharp">public override void Configure()
+{
+    Get(&quot;sales/order&quot;);
+    Version(&quot;2&quot;);
+}
+</code></pre>
+<p>now your endpoints will look like this:</p>
+<pre><code class="lang-yaml">/v2/sales/order
+/v1/sales/order/cancel
+/v1/sales/invoice
+</code></pre>
+<h3 id="disable-auto-versioning">disable auto versioning</h3>
+<p>if you do not want endpoints that do not specify a version to be automatically versioned with the <code>DefaultVersion</code>, simply set the default version to <code>VersioningOptions.Common</code> like so:</p>
+<pre><code class="lang-csharp">c.VersioningOptions = o =&gt;
+{
+    o.Prefix = &quot;v&quot;;
+    o.DefaultVersion = VersioningOptions.Common;
+};
+</code></pre>
+<p>doing so will enable endpoints to remain <code>un-versioned</code> or <code>common</code> to all api version groups which comes in handy with versioning in swagger as well as not break any existing clients if you've been developing your project without versioning and decide to enable it.</p>
+<h1 id="versioning-in-swagger">versioning in swagger</h1>
+<div class="tabGroup" id="tabgroup_bHGHmlrG6S">
+<ul role="tablist">
+<li role="presentation">
+<a href="#tabpanel_bHGHmlrG6S_nswag" role="tab" aria-controls="tabpanel_bHGHmlrG6S_nswag" data-tab="nswag" tabindex="0" aria-selected="true">NSwag</a>
+</li>
+<li role="presentation">
+<a href="#tabpanel_bHGHmlrG6S_swashbuckle" role="tab" aria-controls="tabpanel_bHGHmlrG6S_swashbuckle" data-tab="swashbuckle" tabindex="-1">Swashbuckle</a>
+</li>
+</ul>
+<section id="tabpanel_bHGHmlrG6S_nswag" role="tabpanel" data-tab="nswag">
+
+<p>you can create multiple swagger documents with separate version groups like below:</p>
+<pre><code class="lang-csharp">builder.Services
+    .AddNSwag(s =&gt;
+    {
+        s.DocumentName = &quot;v1&quot;;
+        s.Title = &quot;my api&quot;;
+        s.Version = &quot;v1.0&quot;;
+        s.ApiGroupNames = new[] { &quot;v1&quot; };
+    })
+    .AddNSwag(settings: s =&gt;
+    {
+        s.DocumentName = &quot;v2&quot;;
+        s.Title = &quot;my api&quot;;
+        s.Version = &quot;v2.0&quot;;
+        s.ApiGroupNames = new[] { &quot;v2&quot; };
+    });
+</code></pre>
+<p>the above will create two swagger docs/definitions each containing only the endpoints that match the respective api version group. <a href="https://github.com/dj-nitehawk/FastEndpoints/blob/747b35325510bf6059a73c6825a4d5f9ef97540b/Web/Program.cs#L37-L49">see here</a> for a working example. the important bit here is the <code>ApiGroupNames</code> property which takes care of filtering the right set of endpoints for that particular swagger definition. if that property is not set, all endpoints from all version groups will be shown.</p>
+<p>if the goal is to get swagger to contain all endpoints of a particular version + all common/un-versioned endpoints, simply do the following:</p>
+<pre><code class="lang-csharp">s.ApiGroupNames = new[] { &quot;v2&quot;, VersioningOptions.Common };
+</code></pre>
+</section>
+<section id="tabpanel_bHGHmlrG6S_swashbuckle" role="tabpanel" data-tab="swashbuckle" aria-hidden="true" hidden="hidden">
+
+<p>you can create multiple swagger documents with separate version groups like below:</p>
+<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(o =&gt;
+{
+   o.SwaggerDoc(
+       documentName: &quot;v1&quot;,
+       info: new()
+       {
+           Title = &quot;my api&quot;,
+           Version = &quot;1.0&quot;
+       },
+       apiGroupNames: new[] { &quot;v1&quot; });
+   o.SwaggerDoc(
+       documentName: &quot;v2&quot;,
+       info: new()
+       {
+           Title = &quot;my api&quot;,
+           Version = &quot;2.0&quot;
+       },
+       apiGroupNames: new[] { &quot;v2&quot; });
+});
+
+app.UseSwaggerUI(o =&gt;
+{
+    o.SwaggerEndpoint(&quot;/swagger/v1/swagger.json&quot;, &quot;v1&quot;);
+    o.SwaggerEndpoint(&quot;/swagger/v2/swagger.json&quot;, &quot;v2&quot;);
+});
+</code></pre>
+<p>the above will create two swagger docs/definitions each containing only the endpoints that match the respective api version group. the important bit here is the <code>apiGroupNames</code> parameter which takes care of filtering the right set of endpoints for that particular swagger definition. if that argument is not correctly set, all endpoints from all version groups will be shown.</p>
+<p>if the goal is to get swagger to contain all endpoints of a particular version + all common/un-versioned endpoints, simply do the following:</p>
+<pre><code class="lang-csharp">s.ApiGroupNames = new[] { &quot;v2&quot;, VersioningOptions.Common };
+</code></pre>
+</section>
+</div>
 </article>
           </div>
           

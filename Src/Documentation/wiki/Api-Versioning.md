@@ -105,5 +105,5 @@ the above will create two swagger docs/definitions each containing only the endp
 
 if the goal is to get swagger to contain all endpoints of a particular version + all common/un-versioned endpoints, simply do the following:
 ```csharp
-s.ApiGroupNames = new[] { "v2", VersioningOptions.Common };
+apiGroupNames: new[] { "v2", VersioningOptions.Common };
 ```

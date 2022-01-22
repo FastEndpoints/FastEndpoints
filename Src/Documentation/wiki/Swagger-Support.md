@@ -12,7 +12,7 @@ using FastEndpoints.Swagger; //add this
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
-builder.Services.AddNSwag(); //add this
+builder.Services.AddSwagger(); //add this
 
 var app = builder.Build();
 app.UseAuthorization();

@@ -32,16 +32,17 @@ internal class DefaultOperationProcessor : IOperationProcessor
     public bool Process(OperationProcessorContext ctx)
     {
         var op = ctx.OperationDescription.Operation;
+        var apiVer = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata.OfType<EndpointMetadata>().Single().Version;
 
-        //use tagIndex to determine a tag for the endpoint
-        var tags = op.Tags;
-        if (tags.Count == 0)
+        if (Config.VersioningOpts is not null)
+            op.Tags.Add($"ver:{apiVer}"); //this will be later removed from PostProcess
+
+        if (tagIndex > 0)
         {
             var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
-            var apiVer = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata.OfType<EndpointMetadata>().Single().Version;
             var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
             var segments = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version).Split('/');
-            if (segments.Length >= tagIndex) tags.Add(segments[tagIndex]);
+            if (segments.Length >= tagIndex) op.Tags.Add(segments[tagIndex]);
         }
 
         var reqContent = op.RequestBody?.Content;

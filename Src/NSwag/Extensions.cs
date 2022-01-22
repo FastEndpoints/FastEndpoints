@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation.AspNetCore;
+using NSwag.Generation.Processors;
+using NSwag.Generation.Processors.Contexts;
 using NSwag.Generation.Processors.Security;
 
 namespace FastEndpoints.NSwag;
@@ -12,15 +14,19 @@ namespace FastEndpoints.NSwag;
 /// </summary>
 public static class Extensions
 {
+    //key: stripped route
+    private static readonly Dictionary<string, (int ver, object op)> ops = new();
+
     /// <summary>
     /// enable support for FastEndpoints in swagger
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex)
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new DefaultSchemaNameGenerator();
         settings.OperationProcessors.Add(new DefaultOperationProcessor(tagIndex));
+        settings.DocumentProcessors.Add(new DocProcessor());
         settings.PostProcess = doc =>
         {
             var xxx = doc;
@@ -54,12 +60,13 @@ public static class Extensions
         Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
         Action<JsonOptions>? serializerOptions = null,
         bool addJWTBearerAuth = true,
-        int tagIndex = 1)
+        int tagIndex = 1,
+        int maxEndpointVersion = 0)
     {
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
         {
-            s.EnableFastEndpoints(tagIndex);
+            s.EnableFastEndpoints(tagIndex, maxEndpointVersion);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
         });
@@ -90,5 +97,13 @@ public static class Extensions
     {
         int index = value.IndexOf(removeString, StringComparison.Ordinal);
         return index < 0 ? value : value.Remove(index, removeString.Length);
+    }
+}
+
+internal class DocProcessor : IDocumentProcessor
+{
+    public void Process(DocumentProcessorContext context)
+    {
+        var yyy = context;
     }
 }

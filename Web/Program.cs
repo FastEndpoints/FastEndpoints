@@ -41,19 +41,17 @@ builder.Services
         s.Title = "FastEndpoints Sandbox";
         s.Version = "v0.0";
     })
-    .AddNSwag(s =>
-    {
-        s.DocumentName = "Release 1.0";
-        s.Title = "FastEndpoints Sandbox";
-        s.Version = "v1.0";
-        //s.ApiGroupNames = new[] { "v1", VersioningOptions.Common };
-    })
-    .AddNSwag(s =>
+    .AddNSwag(maxEndpointVersion: 1, settings: s =>
+     {
+         s.DocumentName = "Release 1.0";
+         s.Title = "FastEndpoints Sandbox";
+         s.Version = "v1.0";
+     })
+    .AddNSwag(maxEndpointVersion: 2, settings: s =>
     {
         s.DocumentName = "Release v2.0";
         s.Title = "FastEndpoints Sandbox";
         s.Version = "v2.0";
-        //s.ApiGroupNames = new[] { "v2", VersioningOptions.Common };
     });
 
 var app = builder.Build();

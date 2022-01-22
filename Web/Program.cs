@@ -34,20 +34,27 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 //        apiGroupNames: new[] { "v2", VersioningOptions.Common });
 //});
 
-builder.Services.AddNSwag(s =>
-{
-    s.DocumentName = "v1";
-    s.Title = "FastEndpoints Sandbox";
-    s.Version = "v1.0";
-    s.ApiGroupNames = new[] { "v1", VersioningOptions.Common };
-});
-builder.Services.AddNSwag(s =>
-{
-    s.DocumentName = "v2";
-    s.Title = "FastEndpoints Sandbox";
-    s.Version = "v2.0";
-    s.ApiGroupNames = new[] { "v2", VersioningOptions.Common };
-});
+builder.Services
+    .AddNSwag(s =>
+    {
+        s.DocumentName = "all";
+        s.Title = "FastEndpoints Sandbox";
+        s.Version = "v0.0";
+    })
+    .AddNSwag(s =>
+    {
+        s.DocumentName = "v1";
+        s.Title = "FastEndpoints Sandbox";
+        s.Version = "v1.0";
+        s.ApiGroupNames = new[] { "v1", VersioningOptions.Common };
+    })
+    .AddNSwag(s =>
+    {
+        s.DocumentName = "v2";
+        s.Title = "FastEndpoints Sandbox";
+        s.Version = "v2.0";
+        s.ApiGroupNames = new[] { "v2", VersioningOptions.Common };
+    });
 
 var app = builder.Build();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
@@ -62,7 +69,7 @@ app.UseFastEndpoints(config =>
     config.VersioningOptions = o =>
     {
         o.DefaultVersion = VersioningOptions.Common;
-        o.Prefix = "v";
+        o.SuffixedVersion = true;
     };
 });
 

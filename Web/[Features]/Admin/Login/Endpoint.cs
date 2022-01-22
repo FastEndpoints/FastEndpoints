@@ -4,7 +4,6 @@ public class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Version("1");
         Verbs(Http.POST);
         Routes("admin/login");
         AllowAnonymous();
@@ -56,5 +55,23 @@ public class Endpoint : Endpoint<Request, Response>
         }
 
         return SendErrorsAsync();
+    }
+}
+
+public class Endpoint_V1 : Endpoint
+{
+    public override void Configure()
+    {
+        base.Configure();
+        Version("1");
+    }
+}
+
+public class Endpoint_V2 : Endpoint
+{
+    public override void Configure()
+    {
+        base.Configure();
+        Version("2");
     }
 }

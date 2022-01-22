@@ -19,4 +19,9 @@ public class VersioningOptions
     /// this value will be used on endpoints that does not specify a version
     /// </summary>
     public string DefaultVersion { get; set; } = "1";
+
+    /// <summary>
+    /// appends the version to the route at the end instead being prefixed.
+    /// </summary>
+    public bool SuffixedVersion { get; set; }
 }

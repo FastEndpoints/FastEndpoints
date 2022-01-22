@@ -124,7 +124,10 @@ public static class MainExtensions
     internal static string BuildRoute(this StringBuilder builder, string? epVersion, string route)
     {
         // {rPrfix}/{p}{ver}/{route}
-        // {mobile}/{v}{1.0}/customer/retrieve
+        // mobile/v1.0/customer/retrieve
+
+        // {rPrfix}/{route}/{p}{ver}
+        // mobile/customer/retrieve/v1.0
 
         if (Config.RoutingOpts?.Prefix is not null)
         {
@@ -133,30 +136,44 @@ public static class MainExtensions
                    .Append('/');
         }
 
-        if (Config.VersioningOpts is not null)
-        {
-            if (epVersion is not null)
-            {
-                builder.Append(Config.VersioningOpts!.Prefix)
-                       .Append(epVersion)
-                       .Append('/');
-            }
-            else if (Config.VersioningOpts.DefaultVersion != VersioningOptions.Common)
-            {
-                builder.Append(Config.VersioningOpts!.Prefix)
-                       .Append(Config.VersioningOpts.DefaultVersion)
-                       .Append('/');
-            }
-        }
+        if (Config.VersioningOpts?.SuffixedVersion is false)
+            AppendVersion(builder, epVersion, trailingSlash: true);
 
         if (builder.Length > 0 && route.StartsWith('/'))
             builder.Remove(builder.Length - 1, 1);
 
         builder.Append(route);
 
+        if (Config.VersioningOpts?.SuffixedVersion is true)
+            AppendVersion(builder, epVersion, trailingSlash: false);
+
         var final = builder.ToString();
         builder.Clear();
         return final;
+
+        static void AppendVersion(StringBuilder builder, string? epVersion, bool trailingSlash)
+        {
+            if (epVersion is not null)
+            {
+                if (builder[^1] != '/')
+                    builder.Append('/');
+
+                builder.Append(Config.VersioningOpts!.Prefix)
+                       .Append(epVersion);
+
+                if (trailingSlash) builder.Append('/');
+            }
+            else if (Config.VersioningOpts?.DefaultVersion != VersioningOptions.Common)
+            {
+                if (builder[^1] != '/')
+                    builder.Append('/');
+
+                builder.Append(Config.VersioningOpts!.Prefix)
+                       .Append(Config.VersioningOpts!.DefaultVersion);
+
+                if (trailingSlash) builder.Append('/');
+            }
+        }
     }
 
     private static string BuildGroupName(string? epVersion)

@@ -94,21 +94,11 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="swagger-support">swagger support</h1>
 
-<p>you can choose between <code>NSwag</code> or <code>Swashbuckle</code> based swagger support. however, do note that your mileage may vary since those libraries are presently tied closely to the mvc framework and support for .net 6 minimal api is lacking in some areas. if you find some rough edges with the swagger support in FastEndpoints, please get in touch by creating a github issue or submit a pull request if you have experience dealing with swagger.</p>
-<div class="tabGroup" id="tabgroup_bHGHmlrG6S">
-<ul role="tablist">
-<li role="presentation">
-<a href="#tabpanel_bHGHmlrG6S_nswag" role="tab" aria-controls="tabpanel_bHGHmlrG6S_nswag" data-tab="nswag" tabindex="0" aria-selected="true">NSwag</a>
-</li>
-<li role="presentation">
-<a href="#tabpanel_bHGHmlrG6S_swashbuckle" role="tab" aria-controls="tabpanel_bHGHmlrG6S_swashbuckle" data-tab="swashbuckle" tabindex="-1">Swashbuckle</a>
-</li>
-</ul>
-<section id="tabpanel_bHGHmlrG6S_nswag" role="tabpanel" data-tab="nswag">
-<h2 id="enable-nswag">enable nswag</h2>
-<p>first install the <code>FastEndpoints.NSwag</code> package and add 4 lines to your app startup:</p>
+<p>swagger support is provided via the excellent <code>NSwag</code> library. your mileage may vary since nswag is presently tied closely to the mvc framework and support for .net 6 minimal api is lacking in some areas. if you find some rough edges with the swagger support in FastEndpoints, please get in touch by creating a github issue or submit a pull request if you have experience dealing with swagger.</p>
+<h2 id="enable-swagger">enable swagger</h2>
+<p>first install the <code>FastEndpoints.Swagger</code> package and add 4 lines to your app startup:</p>
 <pre><code class="lang-csharp">global using FastEndpoints;
-using FastEndpoints.NSwag; //add this
+using FastEndpoints.Swagger; //add this
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
@@ -124,7 +114,7 @@ app.Run();
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
 <h3 id="configuration">configuration</h3>
 <p>swagger options can be configured as you'd typically do like follows:</p>
-<pre><code class="lang-csharp">builder.Services.AddNSwag(settings =&gt;
+<pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(settings =&gt;
 {
     settings.Title = &quot;My API&quot;;
     settings.Version = &quot;v1&quot;;
@@ -147,74 +137,17 @@ app.Run();
 </code></pre>
 <h3 id="disable-auth">disable auth</h3>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
-<pre><code class="lang-csharp">builder.Services.AddNSwag(addJWTBearerAuth: false);
+<pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(addJWTBearerAuth: false);
 </code></pre>
 <h3 id="json-serializer-options">json serializer options</h3>
 <p>swagger serialization options can be set with the following parameter:</p>
-<pre><code class="lang-csharp">builder.Services.AddNSwag(serializerOptions:
+<pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(serializerOptions:
     o =&gt; o.JsonSerializerOptions.PropertyNamingPolicy = null);
 </code></pre>
 <h3 id="group-endpoints-by-path-segment">group endpoints by path segment</h3>
 <p>if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping like so:</p>
-<pre><code class="lang-csharp">builder.Services.AddNSwag(tagIndex: 2)
+<pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(tagIndex: 2)
 </code></pre>
-</section>
-<section id="tabpanel_bHGHmlrG6S_swashbuckle" role="tabpanel" data-tab="swashbuckle" aria-hidden="true" hidden="hidden">
-<h2 id="enable-swashbuckle">enable swashbuckle</h2>
-<p>first install the <code>FastEndpoints.Swashbuckle</code> package and add 4 lines to your app startup:</p>
-<pre><code class="lang-csharp">global using FastEndpoints;
-using FastEndpoints.Swagger; //add this
-
-var builder = WebApplication.CreateBuilder();
-builder.Services.AddFastEndpoints();
-builder.Services.AddSwashbuckle(); //add this
-
-var app = builder.Build();
-app.UseAuthorization();
-app.UseFastEndpoints();
-app.UseSwagger(); //add this
-app.UseSwaggerUI(o =&gt; o.ConfigureDefaults()); //add this
-app.Run();
-</code></pre>
-<p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
-<h3 id="configuration-1">configuration</h3>
-<p>swagger options can be configured as you'd typically do like follows:</p>
-<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(options =&gt;
-{
-    options.SwaggerDoc(&quot;v1&quot;, new OpenApiInfo { Title = &quot;My API&quot;, Version = &quot;v1&quot; });
-    options.CustomSchemaIds(x =&gt; x.Name);
-});
-</code></pre>
-<h3 id="describe-endpoints-1">describe endpoints</h3>
-<p>if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the <code>Describe()</code> method in configuration like so:</p>
-<pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest, MyResponse&gt;
-{
-    public override void Configure()
-    {
-        Post(&quot;/admin/login&quot;);
-        AllowAnonymous();
-        Describe(b =&gt; b
-          .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
-          .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
-          .ProducesProblem(500,&quot;text/plain&quot;));
-    }
-}
-</code></pre>
-<h3 id="disable-auth-1">disable auth</h3>
-<p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
-<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(addJWTBearerAuth: false);
-</code></pre>
-<h3 id="json-serializer-options-1">json serializer options</h3>
-<p>swagger serialization options can be set with the following parameter:</p>
-<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(serializerOptions:
-    o =&gt; o.JsonSerializerOptions.PropertyNamingPolicy = null);
-</code></pre>
-<h3 id="group-endpoints-by-path-segment-1">group endpoints by path segment</h3>
-<p>if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping like so:</p>
-<pre><code class="lang-csharp">builder.Services.AddSwashbuckle(tagIndex: 2)
-</code></pre>
-</section>
-</div>
 </article>
           </div>
           

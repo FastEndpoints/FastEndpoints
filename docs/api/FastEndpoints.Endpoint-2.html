@@ -152,6 +152,7 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : class, new()
+
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -1303,6 +1304,7 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1451,6 +1453,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -1785,6 +1788,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -2490,6 +2494,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -2554,13 +2559,13 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_Version_" data-uid="FastEndpoints.Endpoint`2.Version*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_Version_System_String_" data-uid="FastEndpoints.Endpoint`2.Version(System.String)">Version(String)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_Version_System_Int32_" data-uid="FastEndpoints.Endpoint`2.Version(System.Int32)">Version(Int32)</h4>
   <div class="markdown level1 summary"><p>specify the version of the endpoint if versioning is enabled</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Version(string version)</code></pre>
+    <pre><code class="lang-csharp hljs">protected void Version(int version)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2573,9 +2578,9 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.String</span></td>
+        <td><span class="xref">System.Int32</span></td>
         <td><span class="parametername">version</span></td>
-        <td><p>the version value (without prefix) to associate with this endpoint</p>
+        <td><p>the version of this endpoint</p>
 </td>
       </tr>
     </tbody>

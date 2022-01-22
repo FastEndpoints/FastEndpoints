@@ -145,13 +145,13 @@
   
   
   <a id="FastEndpoints_DiscoveredEndpoint__ctor_" data-uid="FastEndpoints.DiscoveredEndpoint.#ctor*"></a>
-  <h4 id="FastEndpoints_DiscoveredEndpoint__ctor_Type_IEnumerable_System_String__IEnumerable_System_String__System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_String_" data-uid="FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.String)">DiscoveredEndpoint(Type, IEnumerable&lt;String&gt;, IEnumerable&lt;String&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, String)</h4>
+  <h4 id="FastEndpoints_DiscoveredEndpoint__ctor_Type_IEnumerable_System_String__IEnumerable_System_String__System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Int32_" data-uid="FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Int32)">DiscoveredEndpoint(Type, IEnumerable&lt;String&gt;, IEnumerable&lt;String&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Boolean, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Int32)</h4>
   <div class="markdown level1 summary"><p>represents an endpoint that has been discovered during startup</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public DiscoveredEndpoint(Type EndpointType, IEnumerable&lt;string&gt; Routes, IEnumerable&lt;string&gt; Verbs, IEnumerable&lt;string&gt;? AnonymousVerbs, bool ThrowIfValidationFails, IEnumerable&lt;string&gt;? Policies, IEnumerable&lt;string&gt;? Roles, IEnumerable&lt;string&gt;? Permissions, bool AllowAnyPermission, IEnumerable&lt;string&gt;? Claims, bool AllowAnyClaim, IEnumerable&lt;string&gt;? Tags, string Version)</code></pre>
+    <pre><code class="lang-csharp hljs">public DiscoveredEndpoint(Type EndpointType, IEnumerable&lt;string&gt; Routes, IEnumerable&lt;string&gt; Verbs, IEnumerable&lt;string&gt;? AnonymousVerbs, bool ThrowIfValidationFails, IEnumerable&lt;string&gt;? Policies, IEnumerable&lt;string&gt;? Roles, IEnumerable&lt;string&gt;? Permissions, bool AllowAnyPermission, IEnumerable&lt;string&gt;? Claims, bool AllowAnyClaim, IEnumerable&lt;string&gt;? Tags, int Version)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -236,9 +236,9 @@
 </td>
       </tr>
       <tr>
-        <td><span class="xref">System.String</span></td>
+        <td><span class="xref">System.Int32</span></td>
         <td><span class="parametername">Version</span></td>
-        <td><p>the version of the endpoint if specified</p>
+        <td><p>the version of the endpoint</p>
 </td>
       </tr>
     </tbody>
@@ -553,7 +553,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public string Version { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public int Version { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -565,7 +565,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.String</span></td>
+        <td><span class="xref">System.Int32</span></td>
         <td></td>
       </tr>
     </tbody>

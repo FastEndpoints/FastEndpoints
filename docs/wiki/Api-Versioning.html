@@ -136,15 +136,15 @@
  |- /admin/login/v2
  |- /inventory/order/{OrderID}/v1
 </code></pre>
-<p>a release group only displays the latest iteration of each endpoint in your project. this is done automatically by default. you can customize this behavior by writing your own <code>IDocumentProcessor</code> for nswag if the default strategy is not satisfactory.</p>
+<p>a release group only contains the latest iteration of each endpoint in your project by default. you can customize this behavior by writing your own <code>IDocumentProcessor</code> for nswag if the default strategy is not satisfactory.</p>
 <h1 id="enable-versioning">enable versioning</h1>
-<p>simply specify one of the <code>VersioningOptions</code> settings in startup config in order to activate versioning like so:</p>
+<p>simply specify one of the <code>VersioningOptions</code> settings in startup config in order to activate versioning.</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
 {
     c.VersioningOptions = o =&gt; o.Prefix = &quot;v&quot;;
 });
 </code></pre>
-<h1 id="define-swagger-docs-release-groups">define swagger docs/ release groups</h1>
+<h1 id="define-swagger-docs-release-groups">define swagger docs (release groups)</h1>
 <pre><code class="lang-csharp">builder.Services
     .AddSwaggerDoc(s =&gt;
     {
@@ -165,7 +165,27 @@
         s.Version = &quot;v2.0&quot;;
     });
 </code></pre>
-<p>the thing to note here is the <code>maxEndpointVersion</code> parameter. this is where you specify the <strong>max version</strong> which a release group should include. if you don't specify this, all of the versions of all endpoints will be listed in that release group.</p>
+<p>the thing to note here is the <code>maxEndpointVersion</code> parameter. this is where you specify the <strong>max version</strong> which a release group should include. if you don't specify this, only the initial version of each endpoint will be listed in the group.</p>
+<h1 id="mark-endpoint-with-a-version">mark endpoint with a version</h1>
+<pre><code class="lang-csharp">public class AdminLoginEndpoint_V2 : Endpoint&lt;Request&gt;
+{
+    public override void Configure()
+    {
+        Get(&quot;admin/login&quot;);
+        Version(2);
+    }
+}
+</code></pre>
+<h1 id="versioning-options">versioning options</h1>
+<p>at least one of the following settings should be set in order to enable versioning support.</p>
+<ul>
+<li><p><strong>Prefix :</strong> a string to be used in front of the version (for example 'v' produces 'v1')</p>
+</li>
+<li><p><strong>DefaultVersion :</strong> this value will be used for endpoints that do not specify a version in it's configuration. the default value is <code>0</code>. when the version of an endpoint is <code>0</code> it does not get added to the route making that version the initial version of that endpoint.</p>
+</li>
+<li><p><strong>SuffixedVersion :</strong> by default the version string is <b><em>appended</em></b> to the endpoint route. by setting this to <code>false</code>, you can have it <b><em>prepended</em></b> to the route.</p>
+</li>
+</ul>
 </article>
           </div>
           

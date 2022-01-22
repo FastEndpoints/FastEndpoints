@@ -52,10 +52,10 @@ your releases can now look like this:
  |- /admin/login/v2
  |- /inventory/order/{OrderID}/v1
 ```
-a release group only displays the latest iteration of each endpoint in your project. this is done automatically by default. you can customize this behavior by writing your own `IDocumentProcessor` for nswag if the default strategy is not satisfactory.
+a release group only contains the latest iteration of each endpoint in your project by default. you can customize this behavior by writing your own `IDocumentProcessor` for nswag if the default strategy is not satisfactory.
 
 # enable versioning
-simply specify one of the `VersioningOptions` settings in startup config in order to activate versioning like so:
+simply specify one of the `VersioningOptions` settings in startup config in order to activate versioning.
 ```csharp
 app.UseFastEndpoints(c =>
 {
@@ -63,7 +63,7 @@ app.UseFastEndpoints(c =>
 });
 ```
 
-# define swagger docs/ release groups
+# define swagger docs (release groups)
 ```csharp 
 builder.Services
     .AddSwaggerDoc(s =>
@@ -85,4 +85,25 @@ builder.Services
         s.Version = "v2.0";
     });
 ```
-the thing to note here is the `maxEndpointVersion` parameter. this is where you specify the **max version** which a release group should include. if you don't specify this, all of the versions of all endpoints will be listed in that release group.
+the thing to note here is the `maxEndpointVersion` parameter. this is where you specify the **max version** which a release group should include. if you don't specify this, only the initial version of each endpoint will be listed in the group.
+
+# mark endpoint with a version
+```csharp
+public class AdminLoginEndpoint_V2 : Endpoint<Request>
+{
+    public override void Configure()
+    {
+        Get("admin/login");
+        Version(2);
+    }
+}
+```
+
+# versioning options
+at least one of the following settings should be set in order to enable versioning support.
+
+- **Prefix :** a string to be used in front of the version (for example 'v' produces 'v1')
+
+- **DefaultVersion :** this value will be used for endpoints that do not specify a version in it's configuration. the default value is `0`. when the version of an endpoint is `0` it does not get added to the route making that version the initial version of that endpoint.
+
+- **SuffixedVersion :** by default the version string is <b>*appended*</b> to the endpoint route. by setting this to `false`, you can have it <b>*prepended*</b> to the route.

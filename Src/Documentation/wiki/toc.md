@@ -14,5 +14,5 @@
 # [Misc. Conveniences](Misc-Conveniences.md)
 # [Swagger Support](Swagger-Support.md)
 # [Configuration Settings](Configuration-Settings.md)
-# [API Versioning](Api-Versioning.md)
+<!-- # [API Versioning](Api-Versioning.md) -->
 # [VS Extension](VS-Extension.md)

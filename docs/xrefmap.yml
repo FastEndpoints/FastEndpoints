@@ -3100,3 +3100,16 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.VersioningOptions.Prefix
   nameWithType: VersioningOptions.Prefix
+- uid: FastEndpoints.VersioningOptions.SuffixedVersion
+  name: SuffixedVersion
+  href: api/FastEndpoints.VersioningOptions.html#FastEndpoints_VersioningOptions_SuffixedVersion
+  commentId: P:FastEndpoints.VersioningOptions.SuffixedVersion
+  fullName: FastEndpoints.VersioningOptions.SuffixedVersion
+  nameWithType: VersioningOptions.SuffixedVersion
+- uid: FastEndpoints.VersioningOptions.SuffixedVersion*
+  name: SuffixedVersion
+  href: api/FastEndpoints.VersioningOptions.html#FastEndpoints_VersioningOptions_SuffixedVersion_
+  commentId: Overload:FastEndpoints.VersioningOptions.SuffixedVersion
+  isSpec: "True"
+  fullName: FastEndpoints.VersioningOptions.SuffixedVersion
+  nameWithType: VersioningOptions.SuffixedVersion

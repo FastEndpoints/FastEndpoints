@@ -6,7 +6,7 @@ using NSwag.Generation.Processors.Contexts;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace FastEndpoints.NSwag;
+namespace FastEndpoints.Swagger;
 
 internal class DefaultOperationProcessor : IOperationProcessor
 {

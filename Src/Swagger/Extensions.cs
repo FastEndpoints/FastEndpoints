@@ -5,7 +5,7 @@ using NSwag.AspNetCore;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
 
-namespace FastEndpoints.NSwag;
+namespace FastEndpoints.Swagger;
 
 /// <summary>
 /// a set of extension methods for adding swagger support

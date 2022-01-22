@@ -2,7 +2,7 @@ global using FastEndpoints;
 global using FastEndpoints.Security;
 global using FastEndpoints.Validation;
 global using Web.Auth;
-using FastEndpoints.NSwag;
+using FastEndpoints.Swagger;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();

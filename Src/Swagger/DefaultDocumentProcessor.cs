@@ -1,7 +1,7 @@
 ﻿using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 
-namespace FastEndpoints.NSwag;
+namespace FastEndpoints.Swagger;
 
 internal class DefaultDocumentProcessor : IDocumentProcessor
 {

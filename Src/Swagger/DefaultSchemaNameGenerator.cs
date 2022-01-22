@@ -1,6 +1,6 @@
 ﻿using NJsonSchema.Generation;
 
-namespace FastEndpoints.NSwag;
+namespace FastEndpoints.Swagger;
 
 internal class DefaultSchemaNameGenerator : ISchemaNameGenerator
 {

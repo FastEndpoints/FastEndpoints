@@ -34,9 +34,6 @@ internal class DefaultOperationProcessor : IOperationProcessor
         var op = ctx.OperationDescription.Operation;
         var apiVer = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata.OfType<EndpointMetadata>().Single().Version;
 
-        if (Config.VersioningOpts is not null)
-            op.Tags.Add($"ver:{apiVer}"); //this will be later removed from PostProcess
-
         if (tagIndex > 0)
         {
             var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
@@ -44,6 +41,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
             var segments = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version).Split('/');
             if (segments.Length >= tagIndex) op.Tags.Add(segments[tagIndex]);
         }
+
+        op.Tags.Add($"ver:{apiVer}"); //this will be later removed from PostProcess
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)

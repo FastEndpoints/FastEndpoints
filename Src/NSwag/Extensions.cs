@@ -3,8 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation.AspNetCore;
-using NSwag.Generation.Processors;
-using NSwag.Generation.Processors.Contexts;
 using NSwag.Generation.Processors.Security;
 
 namespace FastEndpoints.NSwag;
@@ -26,11 +24,7 @@ public static class Extensions
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new DefaultSchemaNameGenerator();
         settings.OperationProcessors.Add(new DefaultOperationProcessor(tagIndex));
-        settings.DocumentProcessors.Add(new DocProcessor());
-        settings.PostProcess = doc =>
-        {
-            var xxx = doc;
-        };
+        settings.DocumentProcessors.Add(new DefaultDocumentProcessor(maxEndpointVersion));
     }
 
     /// <summary>
@@ -97,13 +91,5 @@ public static class Extensions
     {
         int index = value.IndexOf(removeString, StringComparison.Ordinal);
         return index < 0 ? value : value.Remove(index, removeString.Length);
-    }
-}
-
-internal class DocProcessor : IDocumentProcessor
-{
-    public void Process(DocumentProcessorContext context)
-    {
-        var yyy = context;
     }
 }

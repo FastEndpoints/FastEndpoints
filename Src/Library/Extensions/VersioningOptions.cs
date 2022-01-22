@@ -16,7 +16,7 @@ public class VersioningOptions
     public int DefaultVersion { get; set; } = 0;
 
     /// <summary>
-    /// appends the version to the route at the end instead being prefixed.
+    /// set to false if you'd like to prefix the version to the route instead of being suffixed
     /// </summary>
     public bool SuffixedVersion { get; set; } = true;
 }

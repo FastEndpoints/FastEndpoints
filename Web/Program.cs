@@ -28,7 +28,7 @@ builder.Services
      })
     .AddSwaggerDoc(maxEndpointVersion: 2, settings: s =>
     {
-        s.DocumentName = "Release v2.0";
+        s.DocumentName = "Release 2.0";
         s.Title = "FastEndpoints Sandbox";
         s.Version = "v2.0";
     });

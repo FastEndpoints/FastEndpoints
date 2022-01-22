@@ -232,7 +232,6 @@ public static class MainExtensions
         }
     }
 
-
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
         foreach (var ep in _endpoints.Found)

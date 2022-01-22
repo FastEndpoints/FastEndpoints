@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation.AspNetCore;
@@ -48,13 +49,13 @@ public static class Extensions
     /// enable swagger support for FastEndpoints with a single call.
     /// </summary>
     /// <param name="settings">swaggergen config settings</param>
-    /// <param name="serializerOptions">json serializer options</param>
+    /// <param name="serializerSettings">json serializer options</param>
     /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
         Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
-        Action<JsonOptions>? serializerOptions = null,
+        Action<JsonSerializerSettings>? serializerSettings = null,
         bool addJWTBearerAuth = true,
         int tagIndex = 1,
         int maxEndpointVersion = 0)
@@ -62,15 +63,13 @@ public static class Extensions
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
         {
+            var ser = new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver { NamingStrategy = null } };
+            serializerSettings?.Invoke(ser);
+            s.SerializerSettings = ser;
             s.EnableFastEndpoints(tagIndex, maxEndpointVersion);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
         });
-
-        if (serializerOptions is not null)
-            services.AddMvcCore().AddJsonOptions(serializerOptions);
-        else
-            services.AddMvcCore().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
 
         return services;
     }

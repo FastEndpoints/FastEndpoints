@@ -2,34 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.0.0</Version>
+        <Version>3.1.0-beta1</Version>
 
         <PackageReleaseNotes>
-[BREAKING]
-- switched to nswag from swashbuckle
-
-[NEW]
-- endpoint versioning
-- startup configuration
-- global route prefixing
-- exclude/filter endpoints from registration
-- endpoint tagging (for filtering purposes)
-- customize error responses
-- customize request deserialization
-- customize response serialization
-
-[CHANGE]
-- allow any content-type for plain text requests
-- change error response content type to "application/problem+json"
-
-[IMPROVEMENT]
-- ConfigureDefaults() for swagger ui settings
-- versioning support for swagger
-- tagIndex parameter for swagger
-- reduce allocations in endpoint registration
-
-[FIX]
-- issue #21 with swagger gen
+            ### IMPROVEMENT
+            - optimize nswag serializer settings
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

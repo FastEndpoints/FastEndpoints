@@ -38,7 +38,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
         if (tags.Count == 0)
         {
             var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
-            var version = "/" + (((AspNetCoreOperationProcessorContext)ctx).ApiDescription.GroupName ?? "_");
+            var apiVer = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata.OfType<EndpointMetadata>().Single().Version;
+            var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
             var segments = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version).Split('/');
             if (segments.Length >= tagIndex) tags.Add(segments[tagIndex]);
         }

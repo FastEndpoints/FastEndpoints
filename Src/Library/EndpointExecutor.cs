@@ -44,7 +44,8 @@ internal record EndpointMetadata(
     IValidator? Validator,
     ServiceBoundReqDtoProp[]? ServiceBoundReqDtoProps,
     object? PreProcessors,
-    object? PostProcessors);
+    object? PostProcessors,
+    int Version);
 
 internal record ServiceBoundReqDtoProp(
     Type PropType,

@@ -21,6 +21,10 @@ public static class Extensions
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new DefaultSchemaNameGenerator();
         settings.OperationProcessors.Add(new DefaultOperationProcessor(tagIndex));
+        settings.PostProcess = doc =>
+        {
+            var xxx = doc;
+        };
     }
 
     /// <summary>

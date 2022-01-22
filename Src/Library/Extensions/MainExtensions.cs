@@ -69,9 +69,6 @@ public static class MainExtensions
                     if (shouldSetName)
                         hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
 
-                    if (Config.VersioningOpts is not null)
-                        hb.WithGroupName(BuildGroupName(ep.Settings.Version));
-
                     hb.WithMetadata(epMetaData);
 
                     ep.Settings.InternalConfigAction(hb);//always do this first                    
@@ -121,13 +118,13 @@ public static class MainExtensions
         return builder;
     }
 
-    internal static string BuildRoute(this StringBuilder builder, string? epVersion, string route)
+    internal static string BuildRoute(this StringBuilder builder, int epVersion, string route)
     {
         // {rPrfix}/{p}{ver}/{route}
-        // mobile/v1.0/customer/retrieve
+        // mobile/v1/customer/retrieve
 
         // {rPrfix}/{route}/{p}{ver}
-        // mobile/customer/retrieve/v1.0
+        // mobile/customer/retrieve/v1
 
         if (Config.RoutingOpts?.Prefix is not null)
         {
@@ -151,9 +148,9 @@ public static class MainExtensions
         builder.Clear();
         return final;
 
-        static void AppendVersion(StringBuilder builder, string? epVersion, bool trailingSlash)
+        static void AppendVersion(StringBuilder builder, int epVersion, bool trailingSlash)
         {
-            if (epVersion is not null)
+            if (epVersion > 0)
             {
                 if (builder[^1] != '/')
                     builder.Append('/');
@@ -163,7 +160,7 @@ public static class MainExtensions
 
                 if (trailingSlash) builder.Append('/');
             }
-            else if (Config.VersioningOpts?.DefaultVersion != VersioningOptions.Common)
+            else if (Config.VersioningOpts?.DefaultVersion != 0)
             {
                 if (builder[^1] != '/')
                     builder.Append('/');
@@ -174,14 +171,6 @@ public static class MainExtensions
                 if (trailingSlash) builder.Append('/');
             }
         }
-    }
-
-    private static string BuildGroupName(string? epVersion)
-    {
-        if (epVersion is null && Config.VersioningOpts?.DefaultVersion == VersioningOptions.Common)
-            return VersioningOptions.Common;
-
-        return Config.VersioningOpts!.Prefix + (epVersion ?? Config.VersioningOpts.DefaultVersion);
     }
 
     private static DiscoveredEndpoint CreateDiscoverdEndpoint(FoundEndpoint ep) => new(
@@ -231,7 +220,8 @@ public static class MainExtensions
             validator,
             serviceBoundReqDtoProps,
             ep.Settings.PreProcessors,
-            ep.Settings.PostProcessors);
+            ep.Settings.PostProcessors,
+            ep.Settings.Version);
     }
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)

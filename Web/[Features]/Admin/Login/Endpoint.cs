@@ -63,7 +63,7 @@ public class Endpoint_V1 : Endpoint
     public override void Configure()
     {
         base.Configure();
-        Version("1");
+        Version(1);
     }
 }
 
@@ -72,6 +72,6 @@ public class Endpoint_V2 : Endpoint
     public override void Configure()
     {
         base.Configure();
-        Version("2");
+        Version(2);
     }
 }

@@ -245,8 +245,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// specify the version of the endpoint if versioning is enabled
     /// </summary>
-    /// <param name="version">the version value (without prefix) to associate with this endpoint</param>
-    protected void Version(string version)
+    /// <param name="version">the version of this endpoint</param>
+    protected void Version(int version)
     {
         Settings.Version = version;
     }

@@ -37,23 +37,23 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services
     .AddNSwag(s =>
     {
-        s.DocumentName = "all";
+        s.DocumentName = "All Endpoints";
         s.Title = "FastEndpoints Sandbox";
         s.Version = "v0.0";
     })
     .AddNSwag(s =>
     {
-        s.DocumentName = "v1";
+        s.DocumentName = "Release 1.0";
         s.Title = "FastEndpoints Sandbox";
         s.Version = "v1.0";
-        s.ApiGroupNames = new[] { "v1", VersioningOptions.Common };
+        //s.ApiGroupNames = new[] { "v1", VersioningOptions.Common };
     })
     .AddNSwag(s =>
     {
-        s.DocumentName = "v2";
+        s.DocumentName = "Release v2.0";
         s.Title = "FastEndpoints Sandbox";
         s.Version = "v2.0";
-        s.ApiGroupNames = new[] { "v2", VersioningOptions.Common };
+        //s.ApiGroupNames = new[] { "v2", VersioningOptions.Common };
     });
 
 var app = builder.Build();
@@ -68,7 +68,6 @@ app.UseFastEndpoints(config =>
     config.RoutingOptions = o => o.Prefix = "api";
     config.VersioningOptions = o =>
     {
-        o.DefaultVersion = VersioningOptions.Common;
         o.SuffixedVersion = true;
     };
 });

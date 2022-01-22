@@ -34,3 +34,12 @@ public class Response
 {
     public IEnumerable<KeyValuePair<string, int>>? Customers { get; set; }
 }
+
+public class Endpoint_V1 : Endpoint
+{
+    public override void Configure()
+    {
+        base.Configure();
+        Version("1");
+    }
+}

@@ -103,10 +103,8 @@ public static class Extensions
         opts.SwaggerGeneratorOptions.SwaggerDocs.Add(documentName, info);
         docToGroupNamesMap[documentName] = apiGroupNames;
 
-        opts.DocInclusionPredicate((docName, apiDesc) =>
-        {
-            return docToGroupNamesMap[docName].Contains(apiDesc.GroupName);
-        });
+        opts.DocInclusionPredicate((docName, apiDesc)
+            => docToGroupNamesMap[docName].Contains(apiDesc.GroupName));
     }
 
     internal static string Remove(this string value, string removeString)

@@ -19,6 +19,7 @@ public static class Extensions
     /// enable support for FastEndpoints in swagger
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
+    /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
@@ -50,7 +51,8 @@ public static class Extensions
     /// <param name="serializerOptions">json serializer options</param>
     /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
-    public static IServiceCollection AddNSwag(this IServiceCollection services,
+    /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
+    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
         Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
         Action<JsonOptions>? serializerOptions = null,
         bool addJWTBearerAuth = true,

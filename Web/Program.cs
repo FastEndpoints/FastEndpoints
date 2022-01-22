@@ -2,7 +2,6 @@ global using FastEndpoints;
 global using FastEndpoints.Security;
 global using FastEndpoints.Validation;
 global using Web.Auth;
-//using FastEndpoints.Swashbuckle;
 using FastEndpoints.NSwag;
 using Web.Services;
 
@@ -14,40 +13,20 @@ builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-//builder.Services.AddSwashbuckle(tagIndex: 1, options: o =>
-//{
-//    o.SwaggerDoc(
-//        documentName: "v1",
-//        info: new()
-//        {
-//            Title = "FastEndpoints Sandbox",
-//            Version = "1.0"
-//        },
-//        apiGroupNames: new[] { "v1", VersioningOptions.Common });
-//    o.SwaggerDoc(
-//        documentName: "v2",
-//        info: new()
-//        {
-//            Title = "FastEndpoints Sandbox",
-//            Version = "2.0"
-//        },
-//        apiGroupNames: new[] { "v2", VersioningOptions.Common });
-//});
-
 builder.Services
-    .AddNSwag(s =>
+    .AddSwaggerDoc(s =>
     {
-        s.DocumentName = "All Endpoints";
-        s.Title = "FastEndpoints Sandbox";
+        s.DocumentName = "Initial Release";
+        s.Title = "Web API";
         s.Version = "v0.0";
     })
-    .AddNSwag(maxEndpointVersion: 1, settings: s =>
+    .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
      {
          s.DocumentName = "Release 1.0";
-         s.Title = "FastEndpoints Sandbox";
+         s.Title = "Web API";
          s.Version = "v1.0";
      })
-    .AddNSwag(maxEndpointVersion: 2, settings: s =>
+    .AddSwaggerDoc(maxEndpointVersion: 2, settings: s =>
     {
         s.DocumentName = "Release v2.0";
         s.Title = "FastEndpoints Sandbox";
@@ -66,20 +45,14 @@ app.UseFastEndpoints(config =>
     config.RoutingOptions = o => o.Prefix = "api";
     config.VersioningOptions = o =>
     {
-        o.SuffixedVersion = true;
+        o.Prefix = "v";
+        //o.DefaultVersion = 0;
+        //o.SuffixedVersion = true;
     };
 });
 
 if (!app.Environment.IsProduction())
 {
-    //app.UseSwagger();
-    //app.UseSwaggerUI(o =>
-    //{
-    //    o.ConfigureDefaults();
-    //    o.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    //    o.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
-    //});
-
     app.UseOpenApi();
     app.UseSwaggerUi3(s => s.ConfigureDefaults());
 }

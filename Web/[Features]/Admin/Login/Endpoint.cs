@@ -4,7 +4,7 @@ public class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Verbs(Http.POST);
+        Verbs(Http.POST, Http.PUT, Http.PATCH);
         Routes("admin/login");
         AllowAnonymous();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));

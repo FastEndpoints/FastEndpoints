@@ -18,5 +18,5 @@ public class VersioningOptions
     /// <summary>
     /// appends the version to the route at the end instead being prefixed.
     /// </summary>
-    public bool SuffixedVersion { get; set; }
+    public bool SuffixedVersion { get; set; } = true;
 }

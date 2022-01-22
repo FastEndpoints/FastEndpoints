@@ -221,8 +221,17 @@ public static class MainExtensions
             serviceBoundReqDtoProps,
             ep.Settings.PreProcessors,
             ep.Settings.PostProcessors,
-            ep.Settings.Version);
+            BuildVersion(ep.Settings.Version));
+
+        static int BuildVersion(int epVer)
+        {
+            if (epVer == 0 && Config.VersioningOpts != null)
+                return Config.VersioningOpts.DefaultVersion;
+
+            return epVer;
+        }
     }
+
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {

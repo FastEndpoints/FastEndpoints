@@ -44,8 +44,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 op.Tags.Add(segments[tagIndex]);
         }
 
-        op.Tags.Add($"ver:{apiVer}"); //these will be later removed from document processor
-        op.Tags.Add($"route:{route}");
+        op.Tags.Add($"|{ctx.OperationDescription.Method}:{route}|{apiVer}"); //this will be later removed from document processor
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)

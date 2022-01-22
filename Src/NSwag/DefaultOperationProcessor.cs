@@ -33,16 +33,19 @@ internal class DefaultOperationProcessor : IOperationProcessor
     {
         var op = ctx.OperationDescription.Operation;
         var apiVer = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata.OfType<EndpointMetadata>().Single().Version;
+        var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
+        var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
+        var route = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
 
         if (tagIndex > 0)
         {
-            var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
-            var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
-            var segments = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version).Split('/');
-            if (segments.Length >= tagIndex) op.Tags.Add(segments[tagIndex]);
+            var segments = route.Split('/');
+            if (segments.Length >= tagIndex)
+                op.Tags.Add(segments[tagIndex]);
         }
 
-        op.Tags.Add($"ver:{apiVer}"); //this will be later removed from PostProcess
+        op.Tags.Add($"ver:{apiVer}"); //these will be later removed from document processor
+        op.Tags.Add($"route:{route}");
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)

@@ -5,11 +5,13 @@ namespace FastEndpoints.NSwag;
 
 internal class DefaultDocumentProcessor : IDocumentProcessor
 {
-    private readonly int maxEndpointVersion;
-    public DefaultDocumentProcessor(int maxEndpointVersion) => this.maxEndpointVersion = maxEndpointVersion;
+    private readonly int maxEpVer;
+    public DefaultDocumentProcessor(int maxEndpointVersion) => maxEpVer = maxEndpointVersion;
 
-    public void Process(DocumentProcessorContext context)
+    public void Process(DocumentProcessorContext ctx)
     {
-        var yyy = context;
+        var yyy = ctx;
+
+        // ctx.Document.Path
     }
 }

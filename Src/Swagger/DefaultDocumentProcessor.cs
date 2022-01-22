@@ -40,7 +40,7 @@ internal class DefaultDocumentProcessor : IDocumentProcessor
                 ctx.Document.Paths.Remove(p.Key);
 
             foreach (var op in p.Value.Values)
-                op.Tags.Remove(op.Tags.Single<string>(t => t.StartsWith("|")));
+                op.Tags.Remove(op.Tags.Single(t => t.StartsWith("|")));
         }
     }
 }

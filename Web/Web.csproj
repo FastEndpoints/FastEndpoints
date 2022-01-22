@@ -23,8 +23,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj" />
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj" />
-        <ProjectReference Include="..\Src\NSwag\FastEndpoints.Swagger.csproj" />
-        <!--<ProjectReference Include="..\Src\Swashbuckle\FastEndpoints.Swashbuckle.csproj" />-->
+        <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj" />
     </ItemGroup>
 
     <ItemGroup>

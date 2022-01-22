@@ -2,25 +2,34 @@
 
     <PropertyGroup>
 
-        <Version>2.21.0-beta15</Version>
+        <Version>3.0.0-beta1</Version>
 
         <PackageReleaseNotes>
-            - specify configuration at startup
-            - endpoint versioning (experimental)
-            - configure global route prefix
-            - set tags for endpoints
-            - exclude endpoints during startup
-            - specify error response builder func
-            - specify request deserializer func
-            - specify response serializer func
+            [BREAKING]
+            - switched to nswag from swashbuckle
+
+            [NEW]
+            - endpoint versioning
+            - startup configuration
+            - global route prefixing
+            - exclude/filter endpoints from registration
+            - endpoint tagging (for filtering purposes)
+            - customize error responses
+            - customize request deserialization
+            - customize response serialization
+
+            [CHANGE]
             - allow any content-type for plain text requests
             - change error response content type to "application/problem+json"
-            - add ConfigureDefaults() for swagger ui settings
-            - add versioning support for swagger
-            - add tagIndex parameter for swagger
-            - fix issue #21 with swagger gen
-            - reduce allocations during endpoint registration
-            - misc. refactors and optimizations
+
+            [IMPROVEMENT]
+            - ConfigureDefaults() for swagger ui settings
+            - versioning support for swagger
+            - tagIndex parameter for swagger
+            - reduce allocations in endpoint registration
+
+            [FIX]
+            - issue #21 with swagger gen
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -40,7 +41,7 @@ public static class MainExtensions
     public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder, Action<Config>? configAction = null)
     {
         IServiceResolver.ServiceProvider = builder.ServiceProvider;
-        Config.SerializerOpts = builder.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? Config.SerializerOpts;
+        SerializerOpts = builder.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerializerOpts;
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
@@ -50,7 +51,7 @@ public static class MainExtensions
 
         foreach (var ep in _endpoints.Found)
         {
-            if (Config.EpRegFilterFunc is not null && !Config.EpRegFilterFunc(CreateDiscoverdEndpoint(ep))) continue;
+            if (EpRegFilterFunc is not null && !EpRegFilterFunc(CreateDiscoverdEndpoint(ep))) continue;
             if (ep.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{ep.EndpointType.FullName}]");
             if (ep.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{ep.EndpointType.FullName}]");
 
@@ -126,14 +127,14 @@ public static class MainExtensions
         // {rPrfix}/{route}/{p}{ver}
         // mobile/customer/retrieve/v1
 
-        if (Config.RoutingOpts?.Prefix is not null)
+        if (RoutingOpts?.Prefix is not null)
         {
             builder.Append('/')
-                   .Append(Config.RoutingOpts.Prefix)
+                   .Append(RoutingOpts.Prefix)
                    .Append('/');
         }
 
-        if (Config.VersioningOpts?.SuffixedVersion is false)
+        if (VersioningOpts?.SuffixedVersion is false)
             AppendVersion(builder, epVersion, trailingSlash: true);
 
         if (builder.Length > 0 && route.StartsWith('/'))
@@ -141,7 +142,7 @@ public static class MainExtensions
 
         builder.Append(route);
 
-        if (Config.VersioningOpts?.SuffixedVersion is true)
+        if (VersioningOpts?.SuffixedVersion is true)
             AppendVersion(builder, epVersion, trailingSlash: false);
 
         var final = builder.ToString();
@@ -155,18 +156,18 @@ public static class MainExtensions
                 if (builder[^1] != '/')
                     builder.Append('/');
 
-                builder.Append(Config.VersioningOpts!.Prefix)
+                builder.Append(VersioningOpts!.Prefix)
                        .Append(epVersion);
 
                 if (trailingSlash) builder.Append('/');
             }
-            else if (Config.VersioningOpts?.DefaultVersion != 0)
+            else if (VersioningOpts?.DefaultVersion != 0)
             {
                 if (builder[^1] != '/')
                     builder.Append('/');
 
-                builder.Append(Config.VersioningOpts!.Prefix)
-                       .Append(Config.VersioningOpts!.DefaultVersion);
+                builder.Append(VersioningOpts!.Prefix)
+                       .Append(VersioningOpts!.DefaultVersion);
 
                 if (trailingSlash) builder.Append('/');
             }
@@ -225,8 +226,8 @@ public static class MainExtensions
 
         static int BuildVersion(int epVer)
         {
-            if (epVer == 0 && Config.VersioningOpts != null)
-                return Config.VersioningOpts.DefaultVersion;
+            if (epVer == 0 && VersioningOpts != null)
+                return VersioningOpts.DefaultVersion;
 
             return epVer;
         }

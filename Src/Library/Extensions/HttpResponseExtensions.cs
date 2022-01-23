@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Nodes;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -17,7 +18,7 @@ public static class HttpResponseExtensions
     public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = default) where TResponse : notnull
     {
         rsp.StatusCode = statusCode;
-        return Config.RespSerializerFunc(rsp, response, "application/json", cancellation);
+        return RespSerializerFunc(rsp, response, "application/json", cancellation);
     }
 
     /// <summary>
@@ -49,7 +50,7 @@ public static class HttpResponseExtensions
             .GetPathByName(endpointName, routeValues);
         return responseBody is null
             ? rsp.StartAsync(cancellation)
-            : Config.RespSerializerFunc(rsp, responseBody, "application/json", cancellation);
+            : RespSerializerFunc(rsp, responseBody, "application/json", cancellation);
     }
 
     /// <summary>
@@ -82,7 +83,7 @@ public static class HttpResponseExtensions
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 400;
-        return Config.RespSerializerFunc(rsp, Config.ErrRespBldrFunc(failures), "application/problem+json", cancellation);
+        return RespSerializerFunc(rsp, ErrRespBldrFunc(failures), "application/problem+json", cancellation);
     }
 
     /// <summary>
@@ -161,7 +162,7 @@ public static class HttpResponseExtensions
         if (stream is null) throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 
         if (stream.Position > 0 && !stream.CanSeek)
-            throw new ArgumentException("The supplied stream is not seekable and the postition can't be set back to 0.");
+            throw new ArgumentException("The supplied stream is not seekable. So the postition can't be set back to 0.");
 
         rsp.StatusCode = 200;
         rsp.ContentType = contentType;
@@ -180,6 +181,6 @@ public static class HttpResponseExtensions
     public static Task SendEmptyJsonObject(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 200;
-        return Config.RespSerializerFunc(rsp, new JsonObject(), "application/json", cancellation);
+        return RespSerializerFunc(rsp, new JsonObject(), "application/json", cancellation);
     }
 }

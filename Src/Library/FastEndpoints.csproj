@@ -8,6 +8,7 @@
             ### IMPROVEMENT
             - optimize nswag serializer settings
             - optimize default error response
+            - optimize default response serializer
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

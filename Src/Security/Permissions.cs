@@ -92,4 +92,3 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
         return GetEnumerator();
     }
 }
-

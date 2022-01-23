@@ -35,16 +35,16 @@ internal class DefaultOperationProcessor : IOperationProcessor
         var apiVer = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata.OfType<EndpointMetadata>().Single().Version;
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
-        var route = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
+        var bareRoute = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
 
         if (tagIndex > 0)
         {
-            var segments = route.Split('/');
+            var segments = bareRoute.Split('/');
             if (segments.Length >= tagIndex)
                 op.Tags.Add(segments[tagIndex]);
         }
 
-        op.Tags.Add($"|{ctx.OperationDescription.Method}:{route}|{apiVer}"); //this will be later removed from document processor
+        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}"); //this will be later removed from document processor
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)
@@ -84,7 +84,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
 
         if (isGETRequest && op.RequestBody is not null)
         {
-            //remove request body since this is a get request with a request dto cause swagger ui/fetch client doesn't support GET with body
+            //remove request body since this is a get request with a request dto,
+            //cause swagger ui/fetch client doesn't support GET with body
             op.RequestBody = null;
         }
 
@@ -146,8 +147,6 @@ internal class DefaultOperationProcessor : IOperationProcessor
 
         foreach (var p in reqParams)
             op.Parameters.Add(p);
-
-        //var brk = ctx.OperationDescription.Path == "/sales/orders/retrieve/{OrderID}";
 
         return true;
     }

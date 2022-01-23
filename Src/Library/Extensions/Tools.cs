@@ -13,12 +13,12 @@ internal static class MiscExtensions
         {
             TItem item = items[i];
             var key = keySelector(item);
-            if (!dict.TryGetValue(key, out List<TValue>? grouping))
+            if (!dict.TryGetValue(key, out List<TValue>? group))
             {
-                grouping = new List<TValue>(1);
-                dict.Add(key, grouping);
+                group = new List<TValue>(1);
+                dict.Add(key, group);
             }
-            grouping.Add(valueSelector(item));
+            group.Add(valueSelector(item));
         }
 
         return dict;

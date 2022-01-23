@@ -22,9 +22,7 @@ public class Config
         = (req, tReqDto, cancellation) => req.ReadFromJsonAsync(tReqDto, SerializerOpts, cancellation);
     internal static Func<HttpResponse, object, string, CancellationToken, Task> RespSerializerFunc { get; private set; }
         = (rsp, dto, contentType, cancellation)
-            => contentType is null
-               ? rsp.WriteAsJsonAsync(dto, cancellation)
-               : rsp.WriteAsJsonAsync(dto, SerializerOpts, contentType, cancellation);
+            => rsp.WriteAsJsonAsync(dto, SerializerOpts, contentType, cancellation);
 
     /// <summary>
     /// settings for configuring the json serializer

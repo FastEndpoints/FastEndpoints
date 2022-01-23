@@ -44,4 +44,3 @@ public static class Event<TEvent> where TEvent : class
         }
     }
 }
-

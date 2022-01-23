@@ -57,4 +57,3 @@ public abstract class FastEventHandler<TEvent> : IEventHandler, IServiceResolver
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public object Resolve(Type typeOfService) => IServiceResolver.ServiceProvider.GetRequiredService(typeOfService);
 }
-

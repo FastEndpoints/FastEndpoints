@@ -7,11 +7,11 @@ namespace FastEndpoints;
 
 internal static class ResponseCacheExecutor
 {
-    public static void Execute(HttpContext context, ResponseCacheAttribute? rcAttrib)
+    public static void Execute(HttpContext context, ResponseCacheAttribute? attrib)
     {
-        if (rcAttrib is null) return;
+        if (attrib is null) return;
 
-        if (!rcAttrib.NoStore && rcAttrib.Duration == 0)
+        if (!attrib.NoStore && attrib.Duration == 0)
             throw new InvalidOperationException("ResponseCache duration MUST be set unless NoStore is true!");
 
         var headers = context.Response.Headers;
@@ -20,26 +20,26 @@ internal static class ResponseCacheExecutor
         headers.Remove(HeaderNames.CacheControl);
         headers.Remove(HeaderNames.Pragma);
 
-        if (!string.IsNullOrEmpty(rcAttrib.VaryByHeader))
+        if (!string.IsNullOrEmpty(attrib.VaryByHeader))
         {
-            headers.Vary = rcAttrib.VaryByHeader;
+            headers.Vary = attrib.VaryByHeader;
         }
 
-        if (rcAttrib.VaryByQueryKeys != null)
+        if (attrib.VaryByQueryKeys != null)
         {
             var responseCachingFeature = context.Features.Get<IResponseCachingFeature>();
             if (responseCachingFeature == null)
             {
                 throw new InvalidOperationException("Please enable response caching middleware!");
             }
-            responseCachingFeature.VaryByQueryKeys = rcAttrib.VaryByQueryKeys;
+            responseCachingFeature.VaryByQueryKeys = attrib.VaryByQueryKeys;
         }
 
-        if (rcAttrib.NoStore)
+        if (attrib.NoStore)
         {
             headers.CacheControl = "no-store";
 
-            if (rcAttrib.Location == ResponseCacheLocation.None)
+            if (attrib.Location == ResponseCacheLocation.None)
             {
                 headers.AppendCommaSeparatedValues(HeaderNames.CacheControl, "no-cache");
                 headers.Pragma = "no-cache";
@@ -48,7 +48,7 @@ internal static class ResponseCacheExecutor
         else
         {
             string? cacheControlValue;
-            switch (rcAttrib.Location)
+            switch (attrib.Location)
             {
                 case ResponseCacheLocation.Any:
                     cacheControlValue = "public,";
@@ -65,7 +65,7 @@ internal static class ResponseCacheExecutor
                     break;
             }
 
-            cacheControlValue = $"{cacheControlValue}max-age={rcAttrib.Duration}";
+            cacheControlValue = $"{cacheControlValue}max-age={attrib.Duration}";
             headers.CacheControl = cacheControlValue;
         }
     }

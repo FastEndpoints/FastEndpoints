@@ -69,7 +69,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         Settings.Verbs = methods.Select(m => m.ToString()).ToArray();
 
-        //default openapi descriptions
+        //default openapi descriptions (it's here because we need access to TRequest/TResponse)
         Settings.InternalConfigAction = b =>
         {
             if (ReqTypeCache<TRequest>.IsPlainTextRequest)

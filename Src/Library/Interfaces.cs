@@ -70,5 +70,3 @@ internal interface IValidatorWithState : IValidator
 {
     bool ThrowIfValidationFails { get; set; }
 }
-
-

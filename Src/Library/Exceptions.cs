@@ -8,4 +8,3 @@ internal class ValidationFailureException : Exception
 
     public ValidationFailureException(string? message, Exception? innerException) : base(message, innerException) { }
 }
-

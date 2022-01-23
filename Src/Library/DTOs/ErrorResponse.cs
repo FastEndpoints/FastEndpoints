@@ -31,7 +31,7 @@ public sealed class ErrorResponse
     /// instantiate an error response with the given collection validation failures
     /// </summary>
     /// <param name="failures"></param>
-    public ErrorResponse(IEnumerable<ValidationFailure> failures)
+    public ErrorResponse(List<ValidationFailure> failures)
     {
         Errors = failures.GroupToDictionary(f => f.PropertyName, v => v.ErrorMessage);
     }

@@ -2,15 +2,16 @@
 
 internal static class MiscExtensions
 {
-    internal static Dictionary<TKey, List<TValue>> GroupToDictionary<TItem, TKey, TValue>(this IEnumerable<TItem> items,
+    internal static Dictionary<TKey, List<TValue>> GroupToDictionary<TItem, TKey, TValue>(this List<TItem> items,
         Func<TItem, TKey> keySelector,
         Func<TItem, TValue> valueSelector)
         where TKey : notnull
     {
         var dict = new Dictionary<TKey, List<TValue>>();
 
-        foreach (var item in items)
+        for (int i = 0; i < items.Count; i++)
         {
+            TItem item = items[i];
             var key = keySelector(item);
             if (!dict.TryGetValue(key, out List<TValue>? grouping))
             {

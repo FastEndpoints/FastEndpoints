@@ -16,7 +16,7 @@ public class Config
     internal static VersioningOptions? VersioningOpts { get; private set; }
     internal static RoutingOptions? RoutingOpts { get; private set; }
     internal static Func<DiscoveredEndpoint, bool>? EpRegFilterFunc { get; private set; }
-    internal static Func<IEnumerable<ValidationFailure>, object> ErrRespBldrFunc { get; private set; }
+    internal static Func<List<ValidationFailure>, object> ErrRespBldrFunc { get; private set; }
         = failures => new ErrorResponse(failures);
     internal static Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> ReqDeserializerFunc { get; private set; }
         = (req, tReqDto, cancellation) => req.ReadFromJsonAsync(tReqDto, SerializerOpts, cancellation);

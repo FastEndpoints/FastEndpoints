@@ -222,14 +222,14 @@ public static class MainExtensions
             serviceBoundReqDtoProps,
             ep.Settings.PreProcessors,
             ep.Settings.PostProcessors,
-            BuildVersion(ep.Settings.Version));
+            GetVerision(ep.Settings.Version));
 
-        static int BuildVersion(int epVer)
+        static int GetVerision(int epVer)
         {
-            if (epVer == 0 && VersioningOpts != null)
-                return VersioningOpts.DefaultVersion;
-
-            return epVer;
+            return
+                epVer is 0 && VersioningOpts is not null
+                ? VersioningOpts.DefaultVersion
+                : 0;
         }
     }
 

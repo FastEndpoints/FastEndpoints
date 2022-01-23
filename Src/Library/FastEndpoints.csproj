@@ -7,6 +7,7 @@
         <PackageReleaseNotes>
             ### IMPROVEMENT
             - optimize nswag serializer settings
+            - optimize default error response
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -229,7 +229,7 @@ public static class MainExtensions
             return
                 epVer is 0 && VersioningOpts is not null
                 ? VersioningOpts.DefaultVersion
-                : 0;
+                : epVer;
         }
     }
 

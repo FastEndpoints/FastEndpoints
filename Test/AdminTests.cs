@@ -55,5 +55,17 @@ namespace Test
             Assert.AreEqual(8, result?.Permissions?.Count());
             Assert.IsTrue(result?.JWTToken is not null);
         }
+
+        [TestMethod]
+        public async Task AdminLoginV2()
+        {
+            var (resp, result) = await GuestClient.GETAsync<
+                Admin.Login.Endpoint_V2,
+                EmptyRequest,
+                int>(new());
+
+            Assert.AreEqual(HttpStatusCode.OK, resp?.StatusCode);
+            Assert.AreEqual(2, result);
+        }
     }
 }

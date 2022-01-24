@@ -67,11 +67,17 @@ public class Endpoint_V1 : Endpoint
     }
 }
 
-public class Endpoint_V2 : Endpoint
+public class Endpoint_V2 : Endpoint<EmptyRequest, object>
 {
     public override void Configure()
     {
-        base.Configure();
+        Get("admin/login");
         Version(2);
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(EmptyRequest r, CancellationToken ct)
+    {
+        return SendAsync(2);
     }
 }

@@ -4,10 +4,10 @@ namespace Admin.Login;
 
 public class Request
 {
-    public string? UserName { get; set; }
-    public string? Password { get; set; }
+    public string UserName { get; set; }
+    public string Password { get; set; }
 
-    [JsonIgnore]
+    [JsonIgnore, Newtonsoft.Json.JsonIgnore]
     public string GetterOnlyProp => "test";
 }
 
@@ -27,7 +27,7 @@ public class Validator : Validator<Request>
 
 public class Response
 {
-    public string? JWTToken { get; set; }
+    public string JWTToken { get; set; }
     public DateTime ExpiryDate { get; set; }
-    public IEnumerable<string>? Permissions { get; set; }
+    public IEnumerable<string> Permissions { get; set; }
 }

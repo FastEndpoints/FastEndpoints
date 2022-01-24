@@ -113,6 +113,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static void BindRouteValues(TRequest req, RouteValueDictionary routeValues, List<ValidationFailure> failures)
     {
+        if (routeValues.Count == 0) return;
+
         var routeKVPs = routeValues.Where(rv => ((string?)rv.Value)?.StartsWith("{") == false).ToArray();
 
         for (int i = 0; i < routeKVPs.Length; i++)
@@ -121,6 +123,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures)
     {
+        if (query.Count == 0) return;
+
         var queryParams = query.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
 
         for (int i = 0; i < queryParams.Length; i++)

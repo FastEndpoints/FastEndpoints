@@ -9,6 +9,7 @@
             - optimize nswag serializer settings
             - optimize default error response
             - optimize default response serializer
+            - optimize model binding
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

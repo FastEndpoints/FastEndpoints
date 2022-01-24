@@ -32,7 +32,17 @@ internal class DefaultOperationProcessor : IOperationProcessor
     public bool Process(OperationProcessorContext ctx)
     {
         var op = ctx.OperationDescription.Operation;
-        var apiVer = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata.OfType<EndpointMetadata>().Single().Version;
+        var apiVer = ((AspNetCoreOperationProcessorContext)ctx)
+            .ApiDescription
+            .ActionDescriptor
+            .EndpointMetadata
+            .OfType<EndpointMetadata>()
+            .SingleOrDefault()?
+            .Version;
+
+        if (apiVer is null)
+            return true; //this is not a fastendpoint
+
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var bareRoute = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);

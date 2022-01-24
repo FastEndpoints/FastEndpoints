@@ -14,12 +14,12 @@ internal class DefaultDocumentProcessor : IDocumentProcessor
             .SelectMany(p => p.Value.Values)
             .Select(o =>
             {
-                var tag = o.Tags.Single(t => t.StartsWith("|"));
-                var segments = tag.Split("|");
+                var tag = o.Tags.SingleOrDefault(t => t.StartsWith("|"));
+                var segments = tag?.Split("|");
                 return new
                 {
-                    ver = Convert.ToInt32(segments[2]),
-                    route = segments[1],
+                    ver = Convert.ToInt32(segments?[2]),
+                    route = segments?[1],
                     pathItm = o.Parent
                 };
             })
@@ -40,7 +40,7 @@ internal class DefaultDocumentProcessor : IDocumentProcessor
                 ctx.Document.Paths.Remove(p.Key);
 
             foreach (var op in p.Value.Values)
-                op.Tags.Remove(op.Tags.Single(t => t.StartsWith("|")));
+                op.Tags.Remove(op.Tags.SingleOrDefault(t => t.StartsWith("|")));
         }
     }
 }

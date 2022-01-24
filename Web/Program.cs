@@ -51,6 +51,8 @@ app.UseFastEndpoints(config =>
     };
 });
 
+app.MapGet("test", () => "hello...");
+
 if (!app.Environment.IsProduction())
 {
     app.UseOpenApi();

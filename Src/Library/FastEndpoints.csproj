@@ -5,9 +5,9 @@
         <Version>3.1.1</Version>
 
         <PackageReleaseNotes>
-            ### FIX
-            - fix endpoint versioning bug in swagger
-            -
+### HOTFIXES
+- nswag failure if project contains minimal endpoints
+- endpoint version metadata being marked incorrectly
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

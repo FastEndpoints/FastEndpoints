@@ -2,12 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.2.0-beta1</Version>
+        <Version>3.1.2</Version>
 
         <PackageReleaseNotes>
-            ### IMPROVEMENTS
-            - use custom middleware for executing endpoints
-            - misc. code refactors
+### IMPROVEMENTS
+- use custom middleware for executing endpoints
+- misc. code refactors
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -34,6 +34,7 @@ builder.Services
     });
 
 var app = builder.Build();
+app.UseDefaultExceptionHandler();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseAuthentication();
 app.UseAuthorization();
@@ -46,12 +47,9 @@ app.UseFastEndpoints(config =>
     config.VersioningOptions = o =>
     {
         o.Prefix = "v";
-        //o.DefaultVersion = 0;
-        //o.SuffixedVersion = true;
     };
 });
-
-app.MapGet("test", () => "hello...");
+app.MapGet("test", () => "hello world!");
 
 if (!app.Environment.IsProduction())
 {

@@ -38,10 +38,12 @@ public static class MainExtensions
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    public static IEndpointRouteBuilder UseFastEndpoints(this IEndpointRouteBuilder builder, Action<Config>? configAction = null)
+    public static IEndpointRouteBuilder UseFastEndpoints(this WebApplication app, Action<Config>? configAction = null)
     {
-        IServiceResolver.ServiceProvider = builder.ServiceProvider;
-        SerializerOpts = builder.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerializerOpts;
+        app.UseMiddleware<ExecutorMiddleware>();
+
+        IServiceResolver.ServiceProvider = app.Services;
+        SerializerOpts = app.Services.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerializerOpts;
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
@@ -65,7 +67,7 @@ public static class MainExtensions
 
                 foreach (var verb in ep.Settings.Verbs)
                 {
-                    var hb = builder.MapMethods(finalRoute, new[] { verb }, EndpointExecutor.HandleAsync);
+                    var hb = app.MapMethods(finalRoute, new[] { verb }, () => { });
 
                     if (shouldSetName)
                         hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
@@ -95,13 +97,13 @@ public static class MainExtensions
             }
         }
 
-        builder.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
+        app.Services.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
             $"Registered {totalEndpointCount} endpoints in " +
             $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
         EndpointData.Stopwatch.Stop();
 
-        var logger = builder.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
+        var logger = app.Services.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
         foreach (var kvp in routeToHandlerCounts)
             if (kvp.Value > 1) logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
@@ -116,7 +118,7 @@ public static class MainExtensions
             _endpoints = null!;
         });
 
-        return builder;
+        return app;
     }
 
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route)

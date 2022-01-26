@@ -67,7 +67,7 @@ public static class MainExtensions
 
                 foreach (var verb in ep.Settings.Verbs)
                 {
-                    var hb = app.MapMethods(finalRoute, new[] { verb }, () => Constants.MisconfiguredMsg);
+                    var hb = app.MapMethods(finalRoute, new[] { verb }, SendMisconfiguredPipelineMsg());
 
                     if (shouldSetName)
                         hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
@@ -120,6 +120,8 @@ public static class MainExtensions
 
         return app;
     }
+
+    private static Func<string> SendMisconfiguredPipelineMsg() => () => "Please move UseFastEndpoints() above/before any terminating middleware such as UseEndpoints()";
 
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route)
     {

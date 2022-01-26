@@ -2,13 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.1.3-beta1</Version>
+        <Version>3.1.3</Version>
 
         <PackageReleaseNotes>
-            ### FIXES
-            - middleware pipeline misconfiguration situations #32
-
             ### IMPROVEMENTS
+            - middleware pipeline misconfiguration situations #32
             - enforce check for insecure endpoint configurations
         </PackageReleaseNotes>
 

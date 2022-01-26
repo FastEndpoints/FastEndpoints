@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace FastEndpoints;
 
@@ -15,11 +13,8 @@ internal class ExecutorMiddleware
     private const string CorsMiddlewareInvoked = "__CorsMiddlewareWithEndpointInvoked";
     private readonly RequestDelegate _next;
 
-    public ExecutorMiddleware(RequestDelegate next, IOptions<RouteOptions> routeOptions)
-    {
-        _next = next ?? throw new ArgumentNullException(nameof(next));
-        _routeOptions = routeOptions?.Value ?? throw new ArgumentNullException(nameof(routeOptions));
-    }
+    public ExecutorMiddleware(RequestDelegate next)
+        => _next = next ?? throw new ArgumentNullException(nameof(next));
 
     public Task Invoke(HttpContext ctx)
     {

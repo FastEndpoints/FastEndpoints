@@ -67,7 +67,7 @@ public static class MainExtensions
 
                 foreach (var verb in ep.Settings.Verbs)
                 {
-                    var hb = app.MapMethods(finalRoute, new[] { verb }, () => { });
+                    var hb = app.MapMethods(finalRoute, new[] { verb }, () => Constants.MisconfiguredMsg);
 
                     if (shouldSetName)
                         hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.

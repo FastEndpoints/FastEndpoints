@@ -36,9 +36,12 @@ builder.Services
 var app = builder.Build();
 app.UseDefaultExceptionHandler();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+app.UseResponseCaching();
+
+app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseResponseCaching();
 app.UseFastEndpoints(config =>
 {
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
@@ -49,7 +52,8 @@ app.UseFastEndpoints(config =>
         o.Prefix = "v";
     };
 });
-app.MapGet("test", () => "hello world!");
+
+app.UseEndpoints(c => c.MapGet("test", () => "hello world!"));
 
 if (!app.Environment.IsProduction())
 {

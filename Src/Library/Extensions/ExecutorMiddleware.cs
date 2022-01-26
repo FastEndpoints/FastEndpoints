@@ -14,7 +14,6 @@ internal class ExecutorMiddleware
     private const string AuthorizationMiddlewareInvoked = "__AuthorizationMiddlewareWithEndpointInvoked";
     private const string CorsMiddlewareInvoked = "__CorsMiddlewareWithEndpointInvoked";
     private readonly RequestDelegate _next;
-    private readonly RouteOptions _routeOptions;
 
     public ExecutorMiddleware(RequestDelegate next, IOptions<RouteOptions> routeOptions)
     {

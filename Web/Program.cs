@@ -38,10 +38,11 @@ app.UseDefaultExceptionHandler();
 app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseResponseCaching();
 
-app.UseRouting();
+app.UseRouting(); //must go before auth and usefastendpoints (if using only - typically not needed)
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseFastEndpoints(config =>
 {
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
@@ -53,7 +54,7 @@ app.UseFastEndpoints(config =>
     };
 });
 
-app.UseEndpoints(c => c.MapGet("test", () => "hello world!"));
+app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after useendpoints (only if using endpoints)
 
 if (!app.Environment.IsProduction())
 {

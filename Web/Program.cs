@@ -42,7 +42,6 @@ app.UseRouting(); //must go before auth and usefastendpoints (if using only - ty
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after useendpoints (only if using endpoints)
 
 app.UseFastEndpoints(config =>
 {
@@ -55,6 +54,7 @@ app.UseFastEndpoints(config =>
     };
 });
 
+app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after useendpoints (only if using endpoints)
 
 if (!app.Environment.IsProduction())
 {

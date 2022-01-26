@@ -121,7 +121,8 @@ public static class MainExtensions
         return app;
     }
 
-    private static Func<string> SendMisconfiguredPipelineMsg() => () => "Please move UseFastEndpoints() above/before any terminating middleware such as UseEndpoints()";
+    private static Func<string> SendMisconfiguredPipelineMsg()
+        => () => "UseFastEndpoints() must appear after any routing middleware like UseRouting() and before any terminating middleware like UseEndpoints()";
 
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route)
     {

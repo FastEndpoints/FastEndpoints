@@ -158,7 +158,7 @@ public static class MainExtensions
         {
             if (epVersion > 0)
             {
-                if (builder[^1] != '/')
+                if (builder.Length > 0 && builder[^1] != '/')
                     builder.Append('/');
 
                 builder.Append(VersioningOpts!.Prefix)
@@ -168,7 +168,7 @@ public static class MainExtensions
             }
             else if (VersioningOpts?.DefaultVersion != 0)
             {
-                if (builder[^1] != '/')
+                if (builder.Length > 0 && builder[^1] != '/')
                     builder.Append('/');
 
                 builder.Append(VersioningOpts!.Prefix)

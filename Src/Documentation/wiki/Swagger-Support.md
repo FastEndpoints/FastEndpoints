@@ -57,13 +57,6 @@ support for jwt bearer auth is automatically added. if you need to disable it, s
 builder.Services.AddSwaggerDoc(addJWTBearerAuth: false);
 ```
 
-### json serializer options
-swagger serialization options can be set with the following parameter:
-```csharp
-builder.Services.AddSwaggerDoc(serializerOptions:
-    o => o.JsonSerializerOptions.PropertyNamingPolicy = null);
-```
-
 ### group endpoints by path segment
 if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping like so:
 ```csharp

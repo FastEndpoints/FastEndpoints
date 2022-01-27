@@ -1628,15 +1628,15 @@ references:
   commentId: M:FastEndpoints.ErrorResponse.#ctor
   fullName: FastEndpoints.ErrorResponse.ErrorResponse()
   nameWithType: ErrorResponse.ErrorResponse()
-- uid: FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
-  name: ErrorResponse(IEnumerable<ValidationFailure>)
-  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_IEnumerable_ValidationFailure__
-  commentId: M:FastEndpoints.ErrorResponse.#ctor(IEnumerable{ValidationFailure})
-  name.vb: ErrorResponse(IEnumerable(Of ValidationFailure))
-  fullName: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
-  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
-  nameWithType: ErrorResponse.ErrorResponse(IEnumerable<ValidationFailure>)
-  nameWithType.vb: ErrorResponse.ErrorResponse(IEnumerable(Of ValidationFailure))
+- uid: FastEndpoints.ErrorResponse.#ctor(List{ValidationFailure})
+  name: ErrorResponse(List<ValidationFailure>)
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_List_ValidationFailure__
+  commentId: M:FastEndpoints.ErrorResponse.#ctor(List{ValidationFailure})
+  name.vb: ErrorResponse(List(Of ValidationFailure))
+  fullName: FastEndpoints.ErrorResponse.ErrorResponse(List<ValidationFailure>)
+  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(List(Of ValidationFailure))
+  nameWithType: ErrorResponse.ErrorResponse(List<ValidationFailure>)
+  nameWithType.vb: ErrorResponse.ErrorResponse(List(Of ValidationFailure))
 - uid: FastEndpoints.ErrorResponse.#ctor*
   name: ErrorResponse
   href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_
@@ -2410,15 +2410,15 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.MainExtensions.AddFastEndpoints
   nameWithType: MainExtensions.AddFastEndpoints
-- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
-  name: UseFastEndpoints(IEndpointRouteBuilder, Nullable<Action<Config>>)
-  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_Microsoft_AspNetCore_Routing_IEndpointRouteBuilder_System_Nullable_Action_FastEndpoints_Config___
-  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
-  name.vb: UseFastEndpoints(IEndpointRouteBuilder, Nullable(Of Action(Of Config)))
-  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder, System.Nullable<Action<FastEndpoints.Config>>)
-  fullName.vb: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder, System.Nullable(Of Action(Of FastEndpoints.Config)))
-  nameWithType: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder, Nullable<Action<Config>>)
-  nameWithType.vb: MainExtensions.UseFastEndpoints(IEndpointRouteBuilder, Nullable(Of Action(Of Config)))
+- uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Builder.WebApplication,System.Nullable{Action{FastEndpoints.Config}})
+  name: UseFastEndpoints(WebApplication, Nullable<Action<Config>>)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_Microsoft_AspNetCore_Builder_WebApplication_System_Nullable_Action_FastEndpoints_Config___
+  commentId: M:FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Builder.WebApplication,System.Nullable{Action{FastEndpoints.Config}})
+  name.vb: UseFastEndpoints(WebApplication, Nullable(Of Action(Of Config)))
+  fullName: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Builder.WebApplication, System.Nullable<Action<FastEndpoints.Config>>)
+  fullName.vb: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Builder.WebApplication, System.Nullable(Of Action(Of FastEndpoints.Config)))
+  nameWithType: MainExtensions.UseFastEndpoints(WebApplication, Nullable<Action<Config>>)
+  nameWithType.vb: MainExtensions.UseFastEndpoints(WebApplication, Nullable(Of Action(Of Config)))
 - uid: FastEndpoints.MainExtensions.UseFastEndpoints*
   name: UseFastEndpoints
   href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_

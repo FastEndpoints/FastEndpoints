@@ -7,7 +7,9 @@
         <PackageReleaseNotes>
             ### HOTFIXES
             - fix #33 index-oor issue when route prefix not used
-            -
+
+            ### IMPROVEMENTS
+            - throw error if duplicate route handlers are detected #34
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

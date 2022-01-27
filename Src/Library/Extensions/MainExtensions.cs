@@ -105,8 +105,19 @@ public static class MainExtensions
 
         var logger = app.Services.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
+        bool duplicatesDetected = false;
+
         foreach (var kvp in routeToHandlerCounts)
-            if (kvp.Value > 1) logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
+        {
+            if (kvp.Value > 1)
+            {
+                duplicatesDetected = true;
+                logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
+            }
+        }
+
+        if (duplicatesDetected)
+            throw new InvalidOperationException("Duplicate routes detected! See log for more details.");
 
         Task.Run(async () =>
         {

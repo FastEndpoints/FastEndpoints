@@ -51,12 +51,12 @@ app.UseFastEndpoints(config =>
     config.VersioningOptions = o =>
     {
         o.Prefix = "v";
-        o.DefaultVersion = 1;
-        o.SuffixedVersion = false;
+        //o.DefaultVersion = 1;
+        //o.SuffixedVersion = false;
     };
 }); //must go before useendpoints if that call is present.
 
-//app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after useendpoints (only if using endpoints)
+app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after useendpoints (only if using endpoints)
 
 if (!app.Environment.IsProduction())
 {

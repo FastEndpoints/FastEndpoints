@@ -43,7 +43,7 @@ internal class ExecutorMiddleware
                 epMetaData.Validator,
                 epMetaData.PreProcessors,
                 epMetaData.PostProcessors,
-                ctx.RequestAborted); //terminate middleware here we're done executing
+                ctx.RequestAborted); //terminate middleware here. we're done executing
         }
 
         return _next(ctx); //this is not a fastendpoint, let next middleware handle it
@@ -55,7 +55,7 @@ internal class ExecutorMiddleware
 
         for (int i = 0; i < props.Length; i++)
         {
-            ServiceBoundReqDtoProp p = props[i];
+            var p = props[i];
             p.PropSetter(epInstance, services.GetRequiredService(p.PropType));
         }
     }
@@ -65,7 +65,7 @@ internal class ExecutorMiddleware
         throw new InvalidOperationException($"Endpoint {epName} contains authorization metadata, " +
             "but a middleware was not found that supports authorization." +
             Environment.NewLine +
-            "Configure your application startup by adding app.UseAuthorization() in the application startup code. If there are calls to app.UseRouting() and app.UseEndpoints(...), the call to app.UseAuthorization() must go between them.");
+            "Configure your application startup by adding app.UseAuthorization() in the application startup code. If there are calls to app.UseRouting() and app.UseFastEndpoints() the call to app.UseAuthorization() must go between them.");
     }
 
     private static void ThrowMissingCorsMiddlewareException(string epName)
@@ -73,6 +73,6 @@ internal class ExecutorMiddleware
         throw new InvalidOperationException($"Endpoint {epName} contains CORS metadata, " +
             "but a middleware was not found that supports CORS." +
             Environment.NewLine +
-            "Configure your application startup by adding app.UseCors() in the application startup code. If there are calls to app.UseRouting() and app.UseEndpoints(...), the call to app.UseCors() must go between them.");
+            "Configure your application startup by adding app.UseCors() in the application startup code. If there are calls to app.UseRouting() and app.UseFastEndpoints(), the call to app.UseCors() must go between them.");
     }
 }

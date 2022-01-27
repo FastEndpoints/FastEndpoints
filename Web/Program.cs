@@ -35,11 +35,11 @@ builder.Services
 
 var app = builder.Build();
 app.UseDefaultExceptionHandler();
-app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseResponseCaching();
 
-app.UseRouting(); //must go before auth and usefastendpoints (if using only - typically not needed)
+app.UseRouting(); //if using, this call must go before auth/cors/fastendpoints middleware
 
+app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -52,7 +52,7 @@ app.UseFastEndpoints(config =>
     {
         o.Prefix = "v";
     };
-});
+}); //must go before useendpoints if that call is present.
 
 app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after useendpoints (only if using endpoints)
 

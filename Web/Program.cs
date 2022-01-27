@@ -47,11 +47,11 @@ app.UseFastEndpoints(config =>
 {
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
-    //config.RoutingOptions = o => o.Prefix = "api";
+    config.RoutingOptions = o => o.Prefix = "api";
     config.VersioningOptions = o =>
     {
         o.Prefix = "v";
-        //o.DefaultVersion = 1;
+        o.DefaultVersion = 1;
         o.SuffixedVersion = false;
     };
 }); //must go before useendpoints if that call is present.

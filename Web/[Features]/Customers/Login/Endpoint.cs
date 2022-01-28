@@ -9,7 +9,7 @@ public class Endpoint : EndpointWithoutRequest
         AllowAnonymous();
     }
 
-    public override Task HandleAsync(EmptyRequest r, CancellationToken t)
+    public override Task HandleAsync(CancellationToken t)
     {
         var token = JWTBearer.CreateToken(
             signingKey: Config["TokenKey"],

@@ -17,7 +17,7 @@ public class Endpoint : EndpointWithoutRequest
         Options(o => o.Produces<Response>(200));
     }
 
-    public override Task HandleAsync(EmptyRequest er, CancellationToken ct)
+    public override Task HandleAsync(CancellationToken ct)
     {
         return SendAsync(new Response
         {

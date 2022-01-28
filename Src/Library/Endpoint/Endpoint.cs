@@ -87,13 +87,39 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 /// <summary>
 /// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
 /// </summary>
-public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest> { }
+public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest>
+{
+    /// <summary>
+    /// the handler method for the endpoint. this method is called for each request received.
+    /// </summary>
+    /// <param name="ct">a cancellation token</param>
+    public abstract Task HandleAsync(CancellationToken ct);
+
+    /// <summary>
+    /// override the HandleAsync(CancellationToken ct) method instead of using this method!
+    /// </summary>
+    public sealed override Task HandleAsync(EmptyRequest _, CancellationToken ct)
+        => HandleAsync(ct);
+}
 
 /// <summary>
 /// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
 /// </summary>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : class, new() { }
+public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : class, new()
+{
+    /// <summary>
+    /// the handler method for the endpoint. this method is called for each request received.
+    /// </summary>
+    /// <param name="ct">a cancellation token</param>
+    public abstract Task HandleAsync(CancellationToken ct);
+
+    /// <summary>
+    /// override the HandleAsync(CancellationToken ct) method instead of using this method!
+    /// </summary>
+    public sealed override Task HandleAsync(EmptyRequest _, CancellationToken ct)
+        => HandleAsync(ct);
+}
 
 /// <summary>
 /// use this base class for defining endpoints that only use a request dto and don't use a response dto.

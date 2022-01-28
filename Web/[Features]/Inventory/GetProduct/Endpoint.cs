@@ -10,7 +10,7 @@
             ResponseCache(10);
         }
 
-        public override Task HandleAsync(EmptyRequest req, CancellationToken ct)
+        public override Task HandleAsync(CancellationToken ct)
         {
             Response.ProductID = HttpContext.Request.RouteValues["ProductID"]?.ToString();
             Response.LastModified = DateTime.UtcNow.Ticks;

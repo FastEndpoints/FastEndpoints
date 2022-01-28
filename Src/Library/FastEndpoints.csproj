@@ -2,14 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.1.4</Version>
+        <Version>3.2.0-beta2</Version>
 
         <PackageReleaseNotes>
-            ### HOTFIXES
-            - fix #33 index-oor issue when route prefix not used
-
-            ### IMPROVEMENTS
-            - throw error if duplicate route handlers are detected #34
+            ### MINOR BREAKING
+            - EndpointWithoutRequest.HandleAsync() method no longer has the redundant request argument
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

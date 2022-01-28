@@ -41,4 +41,3 @@ public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IValida
     public object Resolve(Type typeOfService)
         => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.GetRequiredService(typeOfService);
 }
-

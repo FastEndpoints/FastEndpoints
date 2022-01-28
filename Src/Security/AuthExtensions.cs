@@ -57,4 +57,3 @@ public static class AuthExtensions
     public static string? ClaimValue(this ClaimsPrincipal principal, string claimType)
         => principal.FindFirstValue(claimType);
 }
-

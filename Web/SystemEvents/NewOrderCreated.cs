@@ -6,4 +6,3 @@ public class NewOrderCreated
     public string? CustomerName { get; set; }
     public decimal OrderTotal { get; set; }
 }
-

@@ -51,4 +51,3 @@ public enum Mode
     /// </summary>
     WaitForAll = 2
 }
-

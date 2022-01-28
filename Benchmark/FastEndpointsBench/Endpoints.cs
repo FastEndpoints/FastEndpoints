@@ -57,4 +57,3 @@ public class Endpoint : Endpoint<Request>
         });
     }
 }
-

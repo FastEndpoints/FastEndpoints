@@ -118,10 +118,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="bytes">the bytes to send</param>
     /// <param name="contentType">optional content type to set on the http response</param>
+    /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+    /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token</param>
-    protected async Task SendBytesAsync(byte[] bytes, string? fileName = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+    protected Task SendBytesAsync(byte[] bytes, string? fileName = null, string contentType = "application/octet-stream",
+        DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = default)
     {
-        await HttpContext.Response.SendBytesAsync(bytes, fileName, contentType, cancellation).ConfigureAwait(false);
+        return HttpContext.Response.SendBytesAsync(bytes, fileName, contentType, lastModified, enableRangeProcessing, cancellation);
     }
 
     /// <summary>
@@ -129,10 +132,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="fileInfo"></param>
     /// <param name="contentType">optional content type to set on the http response</param>
+    /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+    /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token</param>
-    protected Task SendFileAsync(FileInfo fileInfo, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+    protected Task SendFileAsync(FileInfo fileInfo, string contentType = "application/octet-stream", DateTimeOffset? lastModified = null,
+        bool enableRangeProcessing = false, CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendFileAsync(fileInfo, contentType, cancellation);
+        return HttpContext.Response.SendFileAsync(fileInfo, contentType, lastModified, enableRangeProcessing, cancellation);
     }
 
     /// <summary>
@@ -142,10 +148,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="fileName">and optional file name to set in the content-disposition header</param>
     /// <param name="fileLengthBytes">optional total size of the file/stream</param>
     /// <param name="contentType">optional content type to set on the http response</param>
+    /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+    /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token</param>
-    protected Task SendStreamAsync(Stream stream, string? fileName = null, long? fileLengthBytes = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+    protected Task SendStreamAsync(Stream stream, string? fileName = null, long? fileLengthBytes = null,
+        string contentType = "application/octet-stream", DateTimeOffset? lastModified = null, bool enableRangeProcessing = false,
+        CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendStreamAsync(stream, fileName, fileLengthBytes, contentType, cancellation);
+        return HttpContext.Response.SendStreamAsync(stream, fileName, fileLengthBytes, contentType, lastModified, enableRangeProcessing, cancellation);
     }
 
     /// <summary>

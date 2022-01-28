@@ -16,4 +16,3 @@ public class MyResponseLogger<TRequest, TResponse> : IPostProcessor<TRequest, TR
         return Task.CompletedTask;
     }
 }
-

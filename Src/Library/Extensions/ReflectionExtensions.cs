@@ -54,4 +54,3 @@ internal static class ReflectionExtensions
             propertyValueParam).Compile();
     }
 }
-

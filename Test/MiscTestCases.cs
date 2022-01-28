@@ -165,6 +165,13 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task RangeHandling()
+        {
+            var res = await RangeClient.GetStringAsync("api/test-cases/range");
+            Assert.AreEqual("fghij", res);
+        }
+
+        [TestMethod]
         public async Task FileHandling()
         {
             using var imageContent = new ByteArrayContent(

@@ -33,4 +33,3 @@ public class Endpoint : Endpoint<Request>
         return SendAsync(req.TenantID);
     }
 }
-

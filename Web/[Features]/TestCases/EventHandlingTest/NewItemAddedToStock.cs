@@ -24,4 +24,3 @@ public class UpdateInventoryLevel : FastEventHandler<NewItemAddedToStock>
         return Task.CompletedTask;
     }
 }
-

@@ -13,4 +13,3 @@ public class SendOrderConfirmation : FastEventHandler<NewOrderCreated>
         return Task.CompletedTask;
     }
 }
-

@@ -66,4 +66,3 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected IFormFileCollection Files => Form.Files;
 }
-

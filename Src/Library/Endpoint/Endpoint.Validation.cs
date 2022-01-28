@@ -53,4 +53,3 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         ThrowIfAnyErrors();
     }
 }
-

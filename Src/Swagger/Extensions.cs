@@ -13,9 +13,6 @@ namespace FastEndpoints.Swagger;
 /// </summary>
 public static class Extensions
 {
-    //key: stripped route
-    private static readonly Dictionary<string, (int ver, object op)> ops = new();
-
     /// <summary>
     /// enable support for FastEndpoints in swagger
     /// </summary>

@@ -8,4 +8,3 @@ public static class Claim
     public const string UserType = "user-type";
     public const string NullClaim = "null-claim";
 }
-

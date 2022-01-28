@@ -19,6 +19,7 @@ namespace Test
 
         public static HttpClient GuestClient { get; } = factory.CreateClient();
         public static HttpClient CustomerClient { get; } = factory.CreateClient();
+        public static HttpClient RangeClient { get; } = factory.CreateClient();
 
         static Setup()
         {
@@ -42,6 +43,7 @@ namespace Test
             AdminClient.DefaultRequestHeaders.Add("tenant-id", "admin");
             CustomerClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", customerToken);
             CustomerClient.DefaultRequestHeaders.Add("tenant-id", "qwerty");
+            RangeClient.DefaultRequestHeaders.Range = new(5, 9);
         }
     }
 }

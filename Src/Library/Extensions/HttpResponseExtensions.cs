@@ -131,11 +131,15 @@ public static class HttpResponseExtensions
     /// </summary>
     /// <param name="bytes">the bytes to send</param>
     /// <param name="contentType">optional content type to set on the http response</param>
+    /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+    /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token</param>
-    public static async Task SendBytesAsync(this HttpResponse rsp, byte[] bytes, string? fileName = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+    public static async Task SendBytesAsync(this HttpResponse rsp,
+        byte[] bytes, string? fileName = null, string contentType = "application/octet-stream", DateTimeOffset? lastModified = null,
+        bool enableRangeProcessing = false, CancellationToken cancellation = default)
     {
         using var memoryStream = new MemoryStream(bytes);
-        await SendStreamAsync(rsp, memoryStream, fileName, bytes.Length, contentType, cancellation).ConfigureAwait(false);
+        await SendStreamAsync(rsp, memoryStream, fileName, bytes.Length, contentType, lastModified, enableRangeProcessing, cancellation).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -143,10 +147,14 @@ public static class HttpResponseExtensions
     /// </summary>
     /// <param name="fileInfo"></param>
     /// <param name="contentType">optional content type to set on the http response</param>
+    /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+    /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token</param>
-    public static Task SendFileAsync(this HttpResponse rsp, FileInfo fileInfo, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+    public static Task SendFileAsync(this HttpResponse rsp,
+        FileInfo fileInfo, string contentType = "application/octet-stream", DateTimeOffset? lastModified = null,
+        bool enableRangeProcessing = false, CancellationToken cancellation = default)
     {
-        return SendStreamAsync(rsp, fileInfo.OpenRead(), fileInfo.Name, fileInfo.Length, contentType, cancellation);
+        return SendStreamAsync(rsp, fileInfo.OpenRead(), fileInfo.Name, fileInfo.Length, contentType, lastModified, enableRangeProcessing, cancellation);
     }
 
     /// <summary>
@@ -156,22 +164,32 @@ public static class HttpResponseExtensions
     /// <param name="fileName">and optional file name to set in the content-disposition header</param>
     /// <param name="fileLengthBytes">optional total size of the file/stream</param>
     /// <param name="contentType">optional content type to set on the http response</param>
+    /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+    /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token</param>
-    public static Task SendStreamAsync(this HttpResponse rsp, Stream stream, string? fileName = null, long? fileLengthBytes = null, string contentType = "application/octet-stream", CancellationToken cancellation = default)
+    public static async Task SendStreamAsync(this HttpResponse rsp,
+        Stream stream, string? fileName = null, long? fileLengthBytes = null, string contentType = "application/octet-stream",
+        DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = default)
     {
         if (stream is null) throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 
-        if (stream.Position > 0 && !stream.CanSeek)
-            throw new ArgumentException("The supplied stream is not seekable. So the postition can't be set back to 0.");
-
         rsp.StatusCode = 200;
-        rsp.ContentType = contentType;
-        rsp.ContentLength = fileLengthBytes;
 
-        if (fileName is not null)
-            rsp.Headers.Add("Content-Disposition", $"attachment; filename={fileName}");
+        using (stream)
+        {
+            long? fileLength = fileLengthBytes;
 
-        return stream.CopyToAsync(rsp.Body, 64 * 1024, cancellation);
+            if (stream.CanSeek)
+                fileLength = stream.Length;
+
+            var (range, rangeLength, serveBody) = StreamHelper.SetHeaders(
+                rsp.HttpContext, contentType, fileName, fileLength, enableRangeProcessing, lastModified);
+
+            if (!serveBody)
+                return;
+
+            await StreamHelper.WriteFileAsync(rsp.HttpContext, stream, range, rangeLength);
+        }
     }
 
     /// <summary>

@@ -69,4 +69,3 @@ public static class JWTBearer
         return handler.WriteToken(handler.CreateToken(descriptor));
     }
 }
-

@@ -265,7 +265,7 @@ public static class MainExtensions
 
                 if (eps.Permissions?.Any() is true)
                 {
-                    if (eps.AllowAnyPermission is true)
+                    if (eps.AllowAnyPermission)
                     {
                         b.RequireAssertion(x =>
                         {
@@ -287,7 +287,7 @@ public static class MainExtensions
 
                 if (eps.ClaimTypes?.Any() is true)
                 {
-                    if (eps.AllowAnyClaim is true)
+                    if (eps.AllowAnyClaim)
                         b.RequireAssertion(x => x.User.Claims.Select(c => c.Type).Intersect(eps.ClaimTypes).Any());
                     else
                         b.RequireAssertion(x => !eps.ClaimTypes.Except(x.User.Claims.Select(c => c.Type)).Any());

@@ -6,4 +6,3 @@ public static class Role
     public const string Customer = "customer";
     public const string Staff = "staff";
 }
-

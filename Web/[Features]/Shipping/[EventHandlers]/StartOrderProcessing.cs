@@ -13,4 +13,3 @@ public class StartOrderProcessing : FastEventHandler<NewOrderCreated>
         await Task.CompletedTask;
     }
 }
-

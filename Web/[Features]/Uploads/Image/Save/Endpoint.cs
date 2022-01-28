@@ -18,7 +18,7 @@ public class Endpoint : Endpoint<Request>
         if (Files.Count > 0)
         {
             var file = Files[0];
-            return SendStreamAsync(file.OpenReadStream(), "test.png", file.Length, "image/png", ct);
+            return SendStreamAsync(file.OpenReadStream(), "test.png", file.Length, "image/png");
         }
 
         return SendNoContentAsync();

@@ -56,7 +56,7 @@ app.UseFastEndpoints(config =>
     };
 }); //must go before useendpoints if that call is present.
 
-app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after useendpoints (only if using endpoints)
+app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after usefastendpoints (only if using endpoints)
 
 if (!app.Environment.IsProduction())
 {

@@ -80,59 +80,62 @@ internal static class ReqTypeCache<TRequest>
         Func<object?, (bool isSuccess, object value)>? valParser = null;
 
         var tProp = propInfo.PropertyType;
-
-        switch (Type.GetTypeCode(propInfo.PropertyType))
+        
+        if (propInfo.PropertyType.IsEnum)
         {
-            case TypeCode.String:
-                valParser = input => (true, input!);
-                break;
+            valParser = input => (Enum.TryParse(tProp, (string?)input, out var res), res!);
+        }
+        else
+        {
+            switch (Type.GetTypeCode(propInfo.PropertyType))
+            {
+                case TypeCode.String:
+                    valParser = input => (true, input!);
+                    break;
 
-            case TypeCode.Boolean:
-                valParser = input => (bool.TryParse((string?)input, out var res), res);
-                break;
+                case TypeCode.Boolean:
+                    valParser = input => (bool.TryParse((string?)input, out var res), res);
+                    break;
 
-            case TypeCode.Int32:
-                valParser = input => (int.TryParse((string?)input, out var res), res);
-                break;
+                case TypeCode.Int32:
+                    valParser = input => (int.TryParse((string?)input, out var res), res);
+                    break;
 
-            case TypeCode.Int64:
-                valParser = input => (long.TryParse((string?)input, out var res), res);
-                break;
+                case TypeCode.Int64:
+                    valParser = input => (long.TryParse((string?)input, out var res), res);
+                    break;
 
-            case TypeCode.Double:
-                valParser = input => (double.TryParse((string?)input, out var res), res);
-                break;
+                case TypeCode.Double:
+                    valParser = input => (double.TryParse((string?)input, out var res), res);
+                    break;
 
-            case TypeCode.Decimal:
-                valParser = input => (decimal.TryParse((string?)input, out var res), res);
-                break;
+                case TypeCode.Decimal:
+                    valParser = input => (decimal.TryParse((string?)input, out var res), res);
+                    break;
 
-            case TypeCode.DateTime:
-                valParser = input => (DateTime.TryParse((string?)input, out var res), res);
-                break;
+                case TypeCode.DateTime:
+                    valParser = input => (DateTime.TryParse((string?)input, out var res), res);
+                    break;
 
-            case TypeCode.Object:
-                if (tProp == Types.Guid)
-                {
-                    valParser = input => (Guid.TryParse((string?)input, out var res), res);
-                }
-                else if (tProp == Types.Enum)
-                {
-                    valParser = input => (Enum.TryParse(tProp, (string?)input, out var res), res!);
-                }
-                else if (tProp == Types.Uri)
-                {
-                    valParser = input => (true, new Uri((string)input!));
-                }
-                else if (tProp == Types.Version)
-                {
-                    valParser = input => (Version.TryParse((string?)input, out var res), res!);
-                }
-                else if (tProp == Types.TimeSpan)
-                {
-                    valParser = input => (TimeSpan.TryParse((string?)input, out var res), res!);
-                }
-                break;
+                case TypeCode.Object:
+                    if (tProp == Types.Guid)
+                    {
+                        valParser = input => (Guid.TryParse((string?)input, out var res), res);
+                    }
+                    else if (tProp == Types.Uri)
+                    {
+                        valParser = input => (true, new Uri((string)input!));
+                    }
+                    else if (tProp == Types.Version)
+                    {
+                        valParser = input => (Version.TryParse((string?)input, out var res), res!);
+                    }
+                    else if (tProp == Types.TimeSpan)
+                    {
+                        valParser = input => (TimeSpan.TryParse((string?)input, out var res), res!);
+                    }
+                    break;
+            }
         }
 
         CachedProps.Add(propInfo.Name, new(

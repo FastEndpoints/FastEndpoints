@@ -11,7 +11,9 @@ public class Endpoint : Endpoint<Request, Response>
         Describe(b => b.Accepts<Request>("application/json"));
         Summary(
             "this is the endpoint used by admins to login",
+            (200, "all good in the hood"),
             (400, "indicates an error"),
+            (403, "forbidden when login fails"),
             (201, "a new resource was created at a different location"));
     }
 

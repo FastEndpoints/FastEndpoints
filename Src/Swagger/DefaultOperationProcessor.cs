@@ -74,15 +74,21 @@ internal class DefaultOperationProcessor : IOperationProcessor
             resContent.Add(op.Produces.FirstOrDefault(), contentVal);
         }
 
-        //set default response descriptions
+        //set response descriptions
         op.Responses
           .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
           .ToList()
           .ForEach(res =>
           {
               if (descriptions.ContainsKey(res.Key))
-                  res.Value.Description = descriptions[res.Key];
+                  res.Value.Description = descriptions[res.Key]; //first set the default text
+
+              if (epMeta.Summary is not null)
+                  res.Value.Description = epMeta.Summary[Convert.ToInt32(res.Key)]; //then take values from summary object
           });
+
+        //set main endpoint description
+        op.Description = epMeta.Summary?.Description;
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;

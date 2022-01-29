@@ -2,14 +2,16 @@
 
     <PropertyGroup>
 
-        <Version>3.2.0-beta4</Version>
+        <Version>3.2.0-beta5</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - send file/byte/stream methods now support range requests
+            - Summary() method for providing swagger descriptions
 
             ### CHANGES
             - EndpointWithoutRequest.HandleAsync() method no longer has the redundant request argument
+            - swagger schema names are now generated without underscores #38
 
             ### FIXES
             - fix model binding enum values #37

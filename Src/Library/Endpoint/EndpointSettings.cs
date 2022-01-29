@@ -23,4 +23,5 @@ internal class EndpointSettings
     internal ResponseCacheAttribute? ResponseCacheSettings;
     internal string[]? Tags;
     internal int Version;
+    internal EndpointSummary? Summary;
 }

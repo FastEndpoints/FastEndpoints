@@ -9,6 +9,10 @@ public class Endpoint : Endpoint<Request, Response>
         AllowAnonymous();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         Describe(b => b.Accepts<Request>("application/json"));
+        Summary(
+            "this is the endpoint used by admins to login",
+            (400, "indicates an error"),
+            (201, "a new resource was created at a different location"));
     }
 
     public override Task HandleAsync(Request r, CancellationToken ct)

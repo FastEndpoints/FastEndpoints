@@ -8,7 +8,11 @@ public class Endpoint : Endpoint<Request, Response>
         Routes("admin/login");
         AllowAnonymous();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
-        Describe(b => b.Accepts<Request>("application/json"));
+        Describe(b => b
+            .Accepts<Request>("application/json")
+            .Produces<Response>(200)
+            .Produces(400)
+            .Produces(403));
         Summary(
             "this is the endpoint used by admins to login",
             (200, "all good in the hood"),

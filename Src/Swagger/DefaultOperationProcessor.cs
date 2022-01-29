@@ -32,15 +32,15 @@ internal class DefaultOperationProcessor : IOperationProcessor
     public bool Process(OperationProcessorContext ctx)
     {
         var op = ctx.OperationDescription.Operation;
-        var apiVer = ((AspNetCoreOperationProcessorContext)ctx)
+        var epMeta = ((AspNetCoreOperationProcessorContext)ctx)
             .ApiDescription
             .ActionDescriptor
             .EndpointMetadata
             .OfType<EndpointMetadata>()
-            .SingleOrDefault()?
-            .Version;
+            .SingleOrDefault();
+        var apiVer = epMeta?.Version;
 
-        if (apiVer is null)
+        if (epMeta is null)
             return true; //this is not a fastendpoint
 
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
@@ -74,7 +74,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
             resContent.Add(op.Produces.FirstOrDefault(), contentVal);
         }
 
-        //set response descriptions
+        //set default response descriptions
         op.Responses
           .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
           .ToList()

@@ -80,7 +80,7 @@ internal static class ReqTypeCache<TRequest>
         Func<object?, (bool isSuccess, object value)>? valParser = null;
 
         var tProp = propInfo.PropertyType;
-        
+
         if (propInfo.PropertyType.IsEnum)
         {
             valParser = input => (Enum.TryParse(tProp, (string?)input, out var res), res!);

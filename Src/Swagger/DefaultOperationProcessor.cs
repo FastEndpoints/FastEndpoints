@@ -12,7 +12,7 @@ namespace FastEndpoints.Swagger;
 internal class DefaultOperationProcessor : IOperationProcessor
 {
     private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
-    private static readonly Dictionary<string, string> descriptions = new()
+    private static readonly Dictionary<string, string> defaultDescriptions = new()
     {
         { "200", "Success" },
         { "201", "Created" },
@@ -43,10 +43,10 @@ internal class DefaultOperationProcessor : IOperationProcessor
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var bareRoute = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
-        var lastNameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
+        var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
 
-        if (lastNameMetaData is not null)
-            op.OperationId = lastNameMetaData.EndpointName; //set operation id if user has specified
+        if (nameMetaData is not null)
+            op.OperationId = nameMetaData.EndpointName; //set operation id if user has specified
 
         if (tagIndex > 0) //set tag
         {
@@ -81,8 +81,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
           .ToList()
           .ForEach(res =>
           {
-              if (descriptions.ContainsKey(res.Key))
-                  res.Value.Description = descriptions[res.Key]; //first set the default text
+              if (defaultDescriptions.ContainsKey(res.Key))
+                  res.Value.Description = defaultDescriptions[res.Key]; //first set the default text
 
               if (epMeta.Summary is not null)
                   res.Value.Description = epMeta.Summary[Convert.ToInt32(res.Key)]; //then take values from summary object

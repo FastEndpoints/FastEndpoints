@@ -31,7 +31,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">cancellation token</param>
     public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp, object? routeValues, object? responseBody, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
-        return SendCreatedAtAsync(rsp, typeof(TEndpoint).ToSantizedName(), routeValues, responseBody, cancellation);
+        return SendCreatedAtAsync(rsp, typeof(TEndpoint).SantizedName(), routeValues, responseBody, cancellation);
     }
 
     /// <summary>

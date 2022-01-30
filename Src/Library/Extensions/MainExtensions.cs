@@ -70,7 +70,7 @@ public static class MainExtensions
                     var hb = app.MapMethods(finalRoute, new[] { verb }, SendMisconfiguredPipelineMsg());
 
                     if (shouldSetName)
-                        hb.WithName(ep.EndpointType.FullName!); //needed for link generation. only supported on single verb/route endpoints.
+                        hb.WithName(ep.EndpointType.ToSantizedName()); //needed for link generation. only supported on single verb/route endpoints.
 
                     hb.WithMetadata(epMetaData);
 
@@ -189,6 +189,8 @@ public static class MainExtensions
             }
         }
     }
+
+    internal static string ToSantizedName(this Type type) => type.FullName?.Replace(".", string.Empty)!;
 
     private static DiscoveredEndpoint CreateDiscoverdEndpoint(FoundEndpoint ep) => new(
         ep.EndpointType,

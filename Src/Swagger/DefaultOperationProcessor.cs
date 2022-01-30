@@ -1,4 +1,5 @@
-﻿using NJsonSchema;
+﻿using Microsoft.AspNetCore.Routing;
+using NJsonSchema;
 using NSwag;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors;
@@ -32,12 +33,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
     public bool Process(OperationProcessorContext ctx)
     {
         var op = ctx.OperationDescription.Operation;
-        var epMeta = ((AspNetCoreOperationProcessorContext)ctx)
-            .ApiDescription
-            .ActionDescriptor
-            .EndpointMetadata
-            .OfType<EndpointMetadata>()
-            .SingleOrDefault();
+        var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
+        var epMeta = metaData.OfType<EndpointMetadata>().SingleOrDefault();
 
         if (epMeta is null)
             return true; //this is not a fastendpoint
@@ -46,8 +43,12 @@ internal class DefaultOperationProcessor : IOperationProcessor
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var bareRoute = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
+        var lastNameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
 
-        if (tagIndex > 0)
+        if (lastNameMetaData is not null)
+            op.OperationId = lastNameMetaData.EndpointName; //set operation id if user has specified
+
+        if (tagIndex > 0) //set tag
         {
             var segments = bareRoute.Split('/');
             if (segments.Length >= tagIndex)

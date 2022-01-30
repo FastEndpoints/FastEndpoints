@@ -8,14 +8,15 @@
             ### NEW
             - send file/byte/stream methods now support range requests
             - Summary() method for providing swagger descriptions
-            - ability to deprecate an endpoint with Version(2,deprecateAt:4)
+            - ability to deprecate an endpoint with Version(x, deprecateAt:y)
 
             ### CHANGES
             - EndpointWithoutRequest.HandleAsync() method no longer has the redundant request argument
-            - swagger schema names are now generated without underscores #38
+            - swagger schema names &amp; operation ids are now generated without underscores #38
 
             ### FIXES
             - fix model binding enum values #37
+            - Options(x=>x.WithName(...)) is now correctly honored
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

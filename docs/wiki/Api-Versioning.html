@@ -176,6 +176,29 @@
     }
 }
 </code></pre>
+<h1 id="deprecate-an-endpoint">deprecate an endpoint</h1>
+<p>you can specify that an endpoint should not be visible after (and including) a given version group like so:</p>
+<pre><code class="lang-csharp">Version(1, deprecateAt: 4)
+</code></pre>
+<p>an endpoint marked as above will be visible in all swagger docs up until <code>maxEndpointVersion : 4</code>. it will be excluded from docs stating from <code>4</code> and above.
+as an example, take to following two endpoints.</p>
+<p><strong>initial release</strong></p>
+<pre><code class="lang-shell">/user/delete
+/user/profile
+</code></pre>
+<p><strong>release group v1.0</strong></p>
+<pre><code class="lang-shell">/user/delete/v1
+/user/profile/v1
+</code></pre>
+<p><strong>release group v2.0</strong></p>
+<pre><code class="lang-shell">/user/delete/v1
+/user/profile/v2
+</code></pre>
+<p>if you mark the <code>/user/delete/v1</code> endpoint with <code>Version(1, deprecateAt: 2)</code> then release groups <code>v2.0</code> and newer will not have any <code>/user/delete</code> endpoints listed. and the release will look like this:</p>
+<p><strong>release group v2.0</strong></p>
+<pre><code class="lang-shell">/user/profile/v2
+</code></pre>
+<p>it is only necessary to mark the last endpoint version as deprecated. you can leave all previous incarnations alone, if there's any.</p>
 <h1 id="versioning-options">versioning options</h1>
 <p>at least one of the following settings should be set in order to enable versioning support.</p>
 <ul>

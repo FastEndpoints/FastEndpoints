@@ -36,7 +36,7 @@ public class MyEndpoint : EndpointWithoutRequest
         Routes("/api/hello-world");
     }
 
-    public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CancellationToken ct)
     {
         await SendAsync(HelloService.SayHello());
     }
@@ -47,7 +47,7 @@ public class MyEndpoint : EndpointWithoutRequest
 
 services can be resolved manually like so:
 ```csharp
-public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+public override async Task HandleAsync(CancellationToken ct)
 {
     IHelloWorldService? helloSvc = TryResolve<IHelloWorldService>();
 
@@ -80,7 +80,7 @@ service : ILogger
 
 they can be used in the endpoint handlers like so:
 ```csharp
-public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
+public override async Task HandleAsync(CancellationToken ct)
 {
     Logger.LogInformation("this is a log message");
     var isProduction = Env.IsProduction();

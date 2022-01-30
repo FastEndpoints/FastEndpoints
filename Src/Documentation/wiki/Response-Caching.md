@@ -27,7 +27,7 @@ app.Run();
             ResponseCache(60); //cache for 60 seconds
         }
 
-        public override Task HandleAsync(EmptyRequest req, CancellationToken ct)
+        public override Task HandleAsync(CancellationToken ct)
         {
             return SendAsync(new
             {

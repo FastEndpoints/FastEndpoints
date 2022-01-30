@@ -201,7 +201,7 @@ app.Run();
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(EmptyRequest _, CancellationToken ct)
+    public override async Task HandleAsync(CancellationToken ct)
     {
         var person = await dbContext.GetFirstPersonAsync();
 
@@ -211,7 +211,7 @@ app.Run();
 }
 </code></pre>
 <p>assigning a new instance to the <code>Response</code> property also has the same effect:</p>
-<pre><code class="lang-csharp">public override Task HandleAsync(EmptyRequest _, CancellationToken ct)
+<pre><code class="lang-csharp">public override Task HandleAsync(CancellationToken ct)
 {
     Response = new()
     {

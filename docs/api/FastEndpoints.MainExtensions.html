@@ -183,14 +183,64 @@
   </table>
   
   
+  <a id="FastEndpoints_MainExtensions_MapFastEndpoints_" data-uid="FastEndpoints.MainExtensions.MapFastEndpoints*"></a>
+  <h4 id="FastEndpoints_MainExtensions_MapFastEndpoints_Microsoft_AspNetCore_Routing_IEndpointRouteBuilder_System_Nullable_Action_FastEndpoints_Config___" data-uid="FastEndpoints.MainExtensions.MapFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})">MapFastEndpoints(IEndpointRouteBuilder, Nullable&lt;Action&lt;Config&gt;&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action&lt;Config&gt;? configAction = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Routing.IEndpointRouteBuilder</span></td>
+        <td><span class="parametername">app</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">Action</span>&lt;<a class="xref" href="FastEndpoints.Config.html">Config</a>&gt;&gt;</td>
+        <td><span class="parametername">configAction</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Routing.IEndpointRouteBuilder</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_MainExtensions_UseFastEndpoints_" data-uid="FastEndpoints.MainExtensions.UseFastEndpoints*"></a>
   <h4 id="FastEndpoints_MainExtensions_UseFastEndpoints_Microsoft_AspNetCore_Builder_WebApplication_System_Nullable_Action_FastEndpoints_Config___" data-uid="FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Builder.WebApplication,System.Nullable{Action{FastEndpoints.Config}})">UseFastEndpoints(WebApplication, Nullable&lt;Action&lt;Config&gt;&gt;)</h4>
   <div class="markdown level1 summary"><p>finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests</p>
+<p>HINT: this is the combination of <code>app.UseFastEndpointsMiddleware()</code> and <code>app.MapFastEndpoints()</code>.
+you can use those two methods separately if you have some special requirement such as using &quot;Startup.cs&quot;, etc.
+</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IEndpointRouteBuilder UseFastEndpoints(this WebApplication app, Action&lt;Config&gt;? configAction = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static WebApplication UseFastEndpoints(this WebApplication app, Action&lt;Config&gt;? configAction = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -225,7 +275,49 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Microsoft.AspNetCore.Routing.IEndpointRouteBuilder</span></td>
+        <td><span class="xref">Microsoft.AspNetCore.Builder.WebApplication</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_MainExtensions_UseFastEndpointsMiddleware_" data-uid="FastEndpoints.MainExtensions.UseFastEndpointsMiddleware*"></a>
+  <h4 id="FastEndpoints_MainExtensions_UseFastEndpointsMiddleware_Microsoft_AspNetCore_Builder_IApplicationBuilder_" data-uid="FastEndpoints.MainExtensions.UseFastEndpointsMiddleware(Microsoft.AspNetCore.Builder.IApplicationBuilder)">UseFastEndpointsMiddleware(IApplicationBuilder)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static IApplicationBuilder UseFastEndpointsMiddleware(IApplicationBuilder app)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Builder.IApplicationBuilder</span></td>
+        <td><span class="parametername">app</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Builder.IApplicationBuilder</span></td>
         <td></td>
       </tr>
     </tbody>

@@ -99,6 +99,40 @@ public class AdminLoginEndpoint_V2 : Endpoint<Request>
 }
 ```
 
+# deprecate an endpoint
+you can specify that an endpoint should not be visible after (and including) a given version group like so:
+```csharp
+Version(1, deprecateAt: 4)
+```
+an endpoint marked as above will be visible in all swagger docs up until `maxEndpointVersion : 4`. it will be excluded from docs stating from `4` and above.
+as an example, take to following two endpoints.
+
+**initial release**
+```shell
+/user/delete
+/user/profile
+```
+
+**release group v1.0**
+```shell
+/user/delete/v1
+/user/profile/v1
+```
+
+**release group v2.0**
+```shell
+/user/delete/v1
+/user/profile/v2
+```
+if you mark the `/user/delete/v1` endpoint with `Version(1, deprecateAt: 2)` then release groups `v2.0` and newer will not have any `/user/delete` endpoints listed. and the release will look like this:
+
+**release group v2.0**
+```shell
+/user/profile/v2
+```
+
+it is only necessary to mark the last endpoint version as deprecated. you can leave all previous incarnations alone, if there's any.
+
 # versioning options
 at least one of the following settings should be set in order to enable versioning support.
 

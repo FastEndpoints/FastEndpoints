@@ -124,7 +124,7 @@ public class MyEndpoint : EndpointWithoutRequest<MyResponse>
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(EmptyRequest _, CancellationToken ct)
+    public override async Task HandleAsync(CancellationToken ct)
     {
         var person = await dbContext.GetFirstPersonAsync();
 
@@ -135,7 +135,7 @@ public class MyEndpoint : EndpointWithoutRequest<MyResponse>
 ```
 assigning a new instance to the `Response` property also has the same effect:
 ```csharp
-public override Task HandleAsync(EmptyRequest _, CancellationToken ct)
+public override Task HandleAsync(CancellationToken ct)
 {
     Response = new()
     {

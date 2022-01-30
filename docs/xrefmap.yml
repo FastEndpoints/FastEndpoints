@@ -2533,6 +2533,22 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.MainExtensions.AddFastEndpoints
   nameWithType: MainExtensions.AddFastEndpoints
+- uid: FastEndpoints.MainExtensions.MapFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
+  name: MapFastEndpoints(IEndpointRouteBuilder, Nullable<Action<Config>>)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_MapFastEndpoints_Microsoft_AspNetCore_Routing_IEndpointRouteBuilder_System_Nullable_Action_FastEndpoints_Config___
+  commentId: M:FastEndpoints.MainExtensions.MapFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.Nullable{Action{FastEndpoints.Config}})
+  name.vb: MapFastEndpoints(IEndpointRouteBuilder, Nullable(Of Action(Of Config)))
+  fullName: FastEndpoints.MainExtensions.MapFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder, System.Nullable<Action<FastEndpoints.Config>>)
+  fullName.vb: FastEndpoints.MainExtensions.MapFastEndpoints(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder, System.Nullable(Of Action(Of FastEndpoints.Config)))
+  nameWithType: MainExtensions.MapFastEndpoints(IEndpointRouteBuilder, Nullable<Action<Config>>)
+  nameWithType.vb: MainExtensions.MapFastEndpoints(IEndpointRouteBuilder, Nullable(Of Action(Of Config)))
+- uid: FastEndpoints.MainExtensions.MapFastEndpoints*
+  name: MapFastEndpoints
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_MapFastEndpoints_
+  commentId: Overload:FastEndpoints.MainExtensions.MapFastEndpoints
+  isSpec: "True"
+  fullName: FastEndpoints.MainExtensions.MapFastEndpoints
+  nameWithType: MainExtensions.MapFastEndpoints
 - uid: FastEndpoints.MainExtensions.UseFastEndpoints(Microsoft.AspNetCore.Builder.WebApplication,System.Nullable{Action{FastEndpoints.Config}})
   name: UseFastEndpoints(WebApplication, Nullable<Action<Config>>)
   href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpoints_Microsoft_AspNetCore_Builder_WebApplication_System_Nullable_Action_FastEndpoints_Config___
@@ -2549,6 +2565,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.MainExtensions.UseFastEndpoints
   nameWithType: MainExtensions.UseFastEndpoints
+- uid: FastEndpoints.MainExtensions.UseFastEndpointsMiddleware(Microsoft.AspNetCore.Builder.IApplicationBuilder)
+  name: UseFastEndpointsMiddleware(IApplicationBuilder)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpointsMiddleware_Microsoft_AspNetCore_Builder_IApplicationBuilder_
+  commentId: M:FastEndpoints.MainExtensions.UseFastEndpointsMiddleware(Microsoft.AspNetCore.Builder.IApplicationBuilder)
+  fullName: FastEndpoints.MainExtensions.UseFastEndpointsMiddleware(Microsoft.AspNetCore.Builder.IApplicationBuilder)
+  nameWithType: MainExtensions.UseFastEndpointsMiddleware(IApplicationBuilder)
+- uid: FastEndpoints.MainExtensions.UseFastEndpointsMiddleware*
+  name: UseFastEndpointsMiddleware
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_UseFastEndpointsMiddleware_
+  commentId: Overload:FastEndpoints.MainExtensions.UseFastEndpointsMiddleware
+  isSpec: "True"
+  fullName: FastEndpoints.MainExtensions.UseFastEndpointsMiddleware
+  nameWithType: MainExtensions.UseFastEndpointsMiddleware
 - uid: FastEndpoints.Mapper`3
   name: Mapper<TRequest, TResponse, TEntity>
   href: api/FastEndpoints.Mapper-3.html

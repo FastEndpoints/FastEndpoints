@@ -34,16 +34,30 @@ public static class MainExtensions
 
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
+    /// <para>HINT: this is the combination of <c>app.UseFastEndpointsMiddleware()</c> and <c>app.MapFastEndpoints()</c>.
+    /// you can use those two methods separately if you have some special requirement such as using "Startup.cs", etc.
+    /// </para>
     /// </summary>
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    public static IEndpointRouteBuilder UseFastEndpoints(this WebApplication app, Action<Config>? configAction = null)
+    public static WebApplication UseFastEndpoints(this WebApplication app, Action<Config>? configAction = null)
+    {
+        UseFastEndpointsMiddleware(app);
+        MapFastEndpoints(app, configAction);
+        return app;
+    }
+
+    public static IApplicationBuilder UseFastEndpointsMiddleware(IApplicationBuilder app)
     {
         app.UseMiddleware<ExecutorMiddleware>();
+        return app;
+    }
 
-        IServiceResolver.ServiceProvider = app.Services;
-        SerializerOpts = app.Services.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerializerOpts;
+    public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
+    {
+        IServiceResolver.ServiceProvider = app.ServiceProvider;
+        SerializerOpts = IServiceResolver.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerializerOpts;
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
@@ -97,13 +111,13 @@ public static class MainExtensions
             }
         }
 
-        app.Services.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
+        IServiceResolver.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
             $"Registered {totalEndpointCount} endpoints in " +
             $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
         EndpointData.Stopwatch.Stop();
 
-        var logger = app.Services.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
+        var logger = IServiceResolver.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
         bool duplicatesDetected = false;
 

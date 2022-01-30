@@ -131,8 +131,44 @@ app.Run();
         Describe(b =&gt; b
           .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
           .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
-          .ProducesProblem(500,&quot;text/plain&quot;));
+          .ProducesProblem(403));
     }
+}
+</code></pre>
+<p>the text descriptions for the endpoint and the different responses the endpoint returns can be specified with the <code>Summary()</code> method:</p>
+<pre><code class="lang-csharp">    public override void Configure()
+    {
+        Post(&quot;/admin/login&quot;);
+        AllowAnonymous();
+        Describe(b =&gt; b
+          .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
+          .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
+          .ProducesProblem(403));
+        Summary(&quot;the main administrator login endpoint. post the username/password combo to receive a jwt token.&quot;,
+               (200, &quot;returned upon successful validation of the login credentials.&quot;),
+               (403, &quot;a forbidden response is returned in case credentials are invalid.&quot;));        
+    }
+</code></pre>
+<p>if you prefer to move the summary text out of the endpoint class, you can do so by subclassing the <code>EndpointSummary</code> type:</p>
+<pre><code class="lang-csharp">class AdminLoginSummary : EndpointSummary
+{
+    public AdminLoginSummary()
+    {
+        Description = &quot;main endpoint description goes here.&quot;;
+        this[200] = &quot;success response description goes here.&quot;;
+        this[403] = &quot;forbidden response description goes here.&quot;;
+    }
+}
+
+public override void Configure()
+{
+    Post(&quot;/admin/login&quot;);
+    AllowAnonymous();
+    Describe(b =&gt; b
+      .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
+      .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
+      .ProducesProblem(403));
+    Summary(new AdminLoginSummary());        
 }
 </code></pre>
 <h3 id="disable-auth">disable auth</h3>

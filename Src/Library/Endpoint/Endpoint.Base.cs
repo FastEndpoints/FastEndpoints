@@ -23,7 +23,7 @@ public abstract class BaseEndpoint : IEndpoint
         if (Settings.Routes is null)
             throw new ArgumentNullException($"GetTestURL()[{nameof(Settings.Routes)}]");
 
-        return new StringBuilder().BuildRoute(Settings.Version, Settings.Routes[0]);
+        return new StringBuilder().BuildRoute(Settings.Version.Current, Settings.Routes[0]);
     }
 
     /// <summary>

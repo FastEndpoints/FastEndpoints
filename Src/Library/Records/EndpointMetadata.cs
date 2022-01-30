@@ -8,5 +8,5 @@ internal record EndpointMetadata(
     ServiceBoundReqDtoProp[]? ServiceBoundReqDtoProps,
     object? PreProcessors,
     object? PostProcessors,
-    int Version,
+    EpVersion Version,
     EndpointSummary? Summary);

@@ -38,13 +38,13 @@ internal class DefaultOperationProcessor : IOperationProcessor
             .EndpointMetadata
             .OfType<EndpointMetadata>()
             .SingleOrDefault();
-        var apiVer = epMeta?.Version;
 
         if (epMeta is null)
             return true; //this is not a fastendpoint
 
-        var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
+        var apiVer = epMeta.Version.Current;
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
+        var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var bareRoute = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
 
         if (tagIndex > 0)
@@ -54,7 +54,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 op.Tags.Add(segments[tagIndex]);
         }
 
-        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}"); //this will be later removed from document processor
+        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epMeta.Version.DeprecatedAt}"); //this will be later removed from document processor
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)

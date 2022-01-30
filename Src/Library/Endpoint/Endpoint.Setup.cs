@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -267,8 +268,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// specify the version of the endpoint if versioning is enabled
     /// </summary>
     /// <param name="version">the version of this endpoint</param>
-    protected void Version(int version)
+    /// <param name="deprecateAt">the version group number starting at which this endpoint should not be included in swagger</param>
+    protected void Version(int version, int? deprecateAt = null)
     {
-        Settings.Version = version;
+        Settings.Version.Current = GetVersion(version);
+        Settings.Version.DeprecatedAt = deprecateAt ?? 0;
+
+        static int GetVersion(int epVer)
+        {
+            return
+                epVer is 0 && VersioningOpts is not null
+                ? VersioningOpts.DefaultVersion
+                : epVer;
+        }
     }
 }

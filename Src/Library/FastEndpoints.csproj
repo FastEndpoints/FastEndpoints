@@ -2,12 +2,13 @@
 
     <PropertyGroup>
 
-        <Version>3.2.0-beta5</Version>
+        <Version>3.2.0-beta6</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - send file/byte/stream methods now support range requests
             - Summary() method for providing swagger descriptions
+            - ability to deprecate an endpoint with Version(2,deprecateAt:4)
 
             ### CHANGES
             - EndpointWithoutRequest.HandleAsync() method no longer has the redundant request argument

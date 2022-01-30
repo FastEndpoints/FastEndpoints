@@ -18,8 +18,9 @@ internal class DefaultDocumentProcessor : IDocumentProcessor
                 var segments = tag?.Split("|");
                 return new
                 {
-                    ver = Convert.ToInt32(segments?[2]),
                     route = segments?[1],
+                    ver = Convert.ToInt32(segments?[2]),
+                    depVer = Convert.ToInt32(segments?[3]),
                     pathItm = o.Parent
                 };
             })
@@ -29,6 +30,7 @@ internal class DefaultDocumentProcessor : IDocumentProcessor
                 pathItm = g.Where(x => x.ver <= maxEpVer)
                            .OrderByDescending(x => x.ver)
                            .Take(1)
+                           .Where(x => x.depVer == 0 || x.depVer > maxEpVer)
                            .Select(x => x.pathItm)
             })
             .SelectMany(x => x.pathItm)

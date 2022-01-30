@@ -22,6 +22,12 @@ internal class EndpointSettings
     internal object? PostProcessors;
     internal ResponseCacheAttribute? ResponseCacheSettings;
     internal string[]? Tags;
-    internal int Version;
+    internal EpVersion Version = new();
     internal EndpointSummary? Summary;
+}
+
+internal struct EpVersion
+{
+    internal int Current { get; set; }
+    internal int DeprecatedAt { get; set; }
 }

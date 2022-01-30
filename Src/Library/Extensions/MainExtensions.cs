@@ -63,7 +63,7 @@ public static class MainExtensions
 
             foreach (var route in ep.Settings.Routes)
             {
-                var finalRoute = routeBuilder.BuildRoute(ep.Settings.Version, route);
+                var finalRoute = routeBuilder.BuildRoute(ep.Settings.Version.Current, route);
 
                 foreach (var verb in ep.Settings.Verbs)
                 {
@@ -203,7 +203,7 @@ public static class MainExtensions
         ep.Settings.ClaimTypes,
         ep.Settings.AllowAnyClaim,
         ep.Settings.Tags,
-        ep.Settings.Version);
+        ep.Settings.Version.Current);
 
     private static List<string> BuildPoliciesToAdd(FoundEndpoint ep)
     {
@@ -238,16 +238,8 @@ public static class MainExtensions
             serviceBoundReqDtoProps,
             ep.Settings.PreProcessors,
             ep.Settings.PostProcessors,
-            GetVersion(ep.Settings.Version),
+            ep.Settings.Version,
             ep.Settings.Summary);
-
-        static int GetVersion(int epVer)
-        {
-            return
-                epVer is 0 && VersioningOpts is not null
-                ? VersioningOpts.DefaultVersion
-                : epVer;
-        }
     }
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)

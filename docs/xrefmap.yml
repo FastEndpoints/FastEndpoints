@@ -1127,15 +1127,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendAsync
-- uid: FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
-  name: SendBytesAsync(Byte[], String, String, CancellationToken)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_CancellationToken_
-  commentId: M:FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)
-  name.vb: SendBytesAsync(Byte(), String, String, CancellationToken)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendBytesAsync(System.Byte[], System.String, System.String, CancellationToken)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendBytesAsync(System.Byte(), System.String, System.String, CancellationToken)
-  nameWithType: Endpoint<TRequest, TResponse>.SendBytesAsync(Byte[], String, String, CancellationToken)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendBytesAsync(Byte(), String, String, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name: SendBytesAsync(Byte[], String, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name.vb: SendBytesAsync(Byte(), String, String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendBytesAsync(System.Byte[], System.String, System.String, System.Nullable<DateTimeOffset>, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendBytesAsync(System.Byte(), System.String, System.String, System.Nullable(Of DateTimeOffset), System.Boolean, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendBytesAsync(Byte[], String, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendBytesAsync(Byte(), String, String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendBytesAsync*
   name: SendBytesAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_
@@ -1205,14 +1205,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendErrorsAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendErrorsAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendErrorsAsync
-- uid: FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)
-  name: SendFileAsync(FileInfo, String, CancellationToken)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_CancellationToken_
-  commentId: M:FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendFileAsync(FileInfo, System.String, CancellationToken)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendFileAsync(FileInfo, System.String, CancellationToken)
-  nameWithType: Endpoint<TRequest, TResponse>.SendFileAsync(FileInfo, String, CancellationToken)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendFileAsync(FileInfo, String, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name: SendFileAsync(FileInfo, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name.vb: SendFileAsync(FileInfo, String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendFileAsync(FileInfo, System.String, System.Nullable<DateTimeOffset>, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendFileAsync(FileInfo, System.String, System.Nullable(Of DateTimeOffset), System.Boolean, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendFileAsync(FileInfo, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendFileAsync(FileInfo, String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendFileAsync*
   name: SendFileAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_
@@ -1290,15 +1291,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync
-- uid: FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
-  name: SendStreamAsync(Stream, String, Nullable<Int64>, String, CancellationToken)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_
-  commentId: M:FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
-  name.vb: SendStreamAsync(Stream, String, Nullable(Of Int64), String, CancellationToken)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStreamAsync(Stream, System.String, System.Nullable<System.Int64>, System.String, CancellationToken)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStreamAsync(Stream, System.String, System.Nullable(Of System.Int64), System.String, CancellationToken)
-  nameWithType: Endpoint<TRequest, TResponse>.SendStreamAsync(Stream, String, Nullable<Int64>, String, CancellationToken)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStreamAsync(Stream, String, Nullable(Of Int64), String, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name: SendStreamAsync(Stream, String, Nullable<Int64>, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name.vb: SendStreamAsync(Stream, String, Nullable(Of Int64), String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStreamAsync(Stream, System.String, System.Nullable<System.Int64>, System.String, System.Nullable<DateTimeOffset>, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStreamAsync(Stream, System.String, System.Nullable(Of System.Int64), System.String, System.Nullable(Of DateTimeOffset), System.Boolean, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendStreamAsync(Stream, String, Nullable<Int64>, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStreamAsync(Stream, String, Nullable(Of Int64), String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendStreamAsync*
   name: SendStreamAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_
@@ -1342,6 +1343,32 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
+- uid: FastEndpoints.Endpoint`2.Summary(FastEndpoints.EndpointSummary)
+  name: Summary(EndpointSummary)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_FastEndpoints_EndpointSummary_
+  commentId: M:FastEndpoints.Endpoint`2.Summary(FastEndpoints.EndpointSummary)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Summary(FastEndpoints.EndpointSummary)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Summary(FastEndpoints.EndpointSummary)
+  nameWithType: Endpoint<TRequest, TResponse>.Summary(EndpointSummary)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Summary(EndpointSummary)
+- uid: FastEndpoints.Endpoint`2.Summary(System.String,System.ValueTuple{System.Int32,System.String}[])
+  name: Summary(String, (Int32 statusCode, String statusCodeDescription)[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_System_String_System_ValueTuple_System_Int32_System_String____
+  commentId: M:FastEndpoints.Endpoint`2.Summary(System.String,System.ValueTuple{System.Int32,System.String}[])
+  name.vb: Summary(String, (statusCode As Int32, statusCodeDescription As String)(Of Int32, String)())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Summary(System.String, System.ValueTuple<System.Int32, System.String>[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Summary(System.String, System.ValueTuple(Of System.Int32, System.String)())
+  nameWithType: Endpoint<TRequest, TResponse>.Summary(String, (Int32 statusCode, String statusCodeDescription)[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Summary(String, (statusCode As Int32, statusCodeDescription As String)(Of Int32, String)())
+- uid: FastEndpoints.Endpoint`2.Summary*
+  name: Summary
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_
+  commentId: Overload:FastEndpoints.Endpoint`2.Summary
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Summary
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Summary
+  nameWithType: Endpoint<TRequest, TResponse>.Summary
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Summary
 - uid: FastEndpoints.Endpoint`2.Tags(System.String[])
   name: Tags(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Tags_System_String___
@@ -1481,14 +1508,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Verbs
   nameWithType: Endpoint<TRequest, TResponse>.Verbs
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Verbs
-- uid: FastEndpoints.Endpoint`2.Version(System.Int32)
-  name: Version(Int32)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Version_System_Int32_
-  commentId: M:FastEndpoints.Endpoint`2.Version(System.Int32)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Version(System.Int32)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Version(System.Int32)
-  nameWithType: Endpoint<TRequest, TResponse>.Version(Int32)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Version(Int32)
+- uid: FastEndpoints.Endpoint`2.Version(System.Int32,System.Nullable{System.Int32})
+  name: Version(Int32, Nullable<Int32>)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Version_System_Int32_System_Nullable_System_Int32__
+  commentId: M:FastEndpoints.Endpoint`2.Version(System.Int32,System.Nullable{System.Int32})
+  name.vb: Version(Int32, Nullable(Of Int32))
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Version(System.Int32, System.Nullable<System.Int32>)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Version(System.Int32, System.Nullable(Of System.Int32))
+  nameWithType: Endpoint<TRequest, TResponse>.Version(Int32, Nullable<Int32>)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Version(Int32, Nullable(Of Int32))
 - uid: FastEndpoints.Endpoint`2.Version*
   name: Version
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Version_
@@ -1524,6 +1552,54 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TMapper).Map
   nameWithType: Endpoint<TRequest, TResponse, TMapper>.Map
   nameWithType.vb: Endpoint(Of TRequest, TResponse, TMapper).Map
+- uid: FastEndpoints.EndpointSummary
+  name: EndpointSummary
+  href: api/FastEndpoints.EndpointSummary.html
+  commentId: T:FastEndpoints.EndpointSummary
+  fullName: FastEndpoints.EndpointSummary
+  nameWithType: EndpointSummary
+- uid: FastEndpoints.EndpointSummary.Description
+  name: Description
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Description
+  commentId: P:FastEndpoints.EndpointSummary.Description
+  fullName: FastEndpoints.EndpointSummary.Description
+  nameWithType: EndpointSummary.Description
+- uid: FastEndpoints.EndpointSummary.Description*
+  name: Description
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Description_
+  commentId: Overload:FastEndpoints.EndpointSummary.Description
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointSummary.Description
+  nameWithType: EndpointSummary.Description
+- uid: FastEndpoints.EndpointSummary.Item(System.Int32)
+  name: Item[Int32]
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Item_System_Int32_
+  commentId: P:FastEndpoints.EndpointSummary.Item(System.Int32)
+  name.vb: Item(Int32)
+  fullName: FastEndpoints.EndpointSummary.Item[System.Int32]
+  fullName.vb: FastEndpoints.EndpointSummary.Item(System.Int32)
+  nameWithType: EndpointSummary.Item[Int32]
+  nameWithType.vb: EndpointSummary.Item(Int32)
+- uid: FastEndpoints.EndpointSummary.Item*
+  name: Item
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Item_
+  commentId: Overload:FastEndpoints.EndpointSummary.Item
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointSummary.Item
+  nameWithType: EndpointSummary.Item
+- uid: FastEndpoints.EndpointSummary.Responses
+  name: Responses
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Responses
+  commentId: P:FastEndpoints.EndpointSummary.Responses
+  fullName: FastEndpoints.EndpointSummary.Responses
+  nameWithType: EndpointSummary.Responses
+- uid: FastEndpoints.EndpointSummary.Responses*
+  name: Responses
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Responses_
+  commentId: Overload:FastEndpoints.EndpointSummary.Responses
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointSummary.Responses
+  nameWithType: EndpointSummary.Responses
 - uid: FastEndpoints.EndpointWithMapping`3
   name: EndpointWithMapping<TRequest, TResponse, TEntity>
   href: api/FastEndpoints.EndpointWithMapping-3.html
@@ -1607,6 +1683,25 @@ references:
   commentId: T:FastEndpoints.EndpointWithoutRequest
   fullName: FastEndpoints.EndpointWithoutRequest
   nameWithType: EndpointWithoutRequest
+- uid: FastEndpoints.EndpointWithoutRequest.HandleAsync(CancellationToken)
+  name: HandleAsync(CancellationToken)
+  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_HandleAsync_CancellationToken_
+  commentId: M:FastEndpoints.EndpointWithoutRequest.HandleAsync(CancellationToken)
+  fullName: FastEndpoints.EndpointWithoutRequest.HandleAsync(CancellationToken)
+  nameWithType: EndpointWithoutRequest.HandleAsync(CancellationToken)
+- uid: FastEndpoints.EndpointWithoutRequest.HandleAsync(FastEndpoints.EmptyRequest,CancellationToken)
+  name: HandleAsync(EmptyRequest, CancellationToken)
+  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_HandleAsync_FastEndpoints_EmptyRequest_CancellationToken_
+  commentId: M:FastEndpoints.EndpointWithoutRequest.HandleAsync(FastEndpoints.EmptyRequest,CancellationToken)
+  fullName: FastEndpoints.EndpointWithoutRequest.HandleAsync(FastEndpoints.EmptyRequest, CancellationToken)
+  nameWithType: EndpointWithoutRequest.HandleAsync(EmptyRequest, CancellationToken)
+- uid: FastEndpoints.EndpointWithoutRequest.HandleAsync*
+  name: HandleAsync
+  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_HandleAsync_
+  commentId: Overload:FastEndpoints.EndpointWithoutRequest.HandleAsync
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointWithoutRequest.HandleAsync
+  nameWithType: EndpointWithoutRequest.HandleAsync
 - uid: FastEndpoints.EndpointWithoutRequest`1
   name: EndpointWithoutRequest<TResponse>
   href: api/FastEndpoints.EndpointWithoutRequest-1.html
@@ -1616,6 +1711,31 @@ references:
   fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse)
   nameWithType: EndpointWithoutRequest<TResponse>
   nameWithType.vb: EndpointWithoutRequest(Of TResponse)
+- uid: FastEndpoints.EndpointWithoutRequest`1.HandleAsync(CancellationToken)
+  name: HandleAsync(CancellationToken)
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_HandleAsync_CancellationToken_
+  commentId: M:FastEndpoints.EndpointWithoutRequest`1.HandleAsync(CancellationToken)
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.HandleAsync(CancellationToken)
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).HandleAsync(CancellationToken)
+  nameWithType: EndpointWithoutRequest<TResponse>.HandleAsync(CancellationToken)
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse).HandleAsync(CancellationToken)
+- uid: FastEndpoints.EndpointWithoutRequest`1.HandleAsync(FastEndpoints.EmptyRequest,CancellationToken)
+  name: HandleAsync(EmptyRequest, CancellationToken)
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_HandleAsync_FastEndpoints_EmptyRequest_CancellationToken_
+  commentId: M:FastEndpoints.EndpointWithoutRequest`1.HandleAsync(FastEndpoints.EmptyRequest,CancellationToken)
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.HandleAsync(FastEndpoints.EmptyRequest, CancellationToken)
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).HandleAsync(FastEndpoints.EmptyRequest, CancellationToken)
+  nameWithType: EndpointWithoutRequest<TResponse>.HandleAsync(EmptyRequest, CancellationToken)
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse).HandleAsync(EmptyRequest, CancellationToken)
+- uid: FastEndpoints.EndpointWithoutRequest`1.HandleAsync*
+  name: HandleAsync
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_HandleAsync_
+  commentId: Overload:FastEndpoints.EndpointWithoutRequest`1.HandleAsync
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.HandleAsync
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).HandleAsync
+  nameWithType: EndpointWithoutRequest<TResponse>.HandleAsync
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse).HandleAsync
 - uid: FastEndpoints.ErrorResponse
   name: ErrorResponse
   href: api/FastEndpoints.ErrorResponse.html
@@ -2138,15 +2258,15 @@ references:
   fullName.vb: FastEndpoints.HttpResponseExtensions.SendAsync(Of TResponse)(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Int32, CancellationToken)
   nameWithType: HttpResponseExtensions.SendAsync<TResponse>(HttpResponse, TResponse, Int32, CancellationToken)
   nameWithType.vb: HttpResponseExtensions.SendAsync(Of TResponse)(HttpResponse, TResponse, Int32, CancellationToken)
-- uid: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
-  name: SendBytesAsync(HttpResponse, Byte[], String, String, CancellationToken)
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendBytesAsync_Microsoft_AspNetCore_Http_HttpResponse_System_Byte___System_String_System_String_CancellationToken_
-  commentId: M:FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)
-  name.vb: SendBytesAsync(HttpResponse, Byte(), String, String, CancellationToken)
-  fullName: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte[], System.String, System.String, CancellationToken)
-  fullName.vb: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte(), System.String, System.String, CancellationToken)
-  nameWithType: HttpResponseExtensions.SendBytesAsync(HttpResponse, Byte[], String, String, CancellationToken)
-  nameWithType.vb: HttpResponseExtensions.SendBytesAsync(HttpResponse, Byte(), String, String, CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name: SendBytesAsync(HttpResponse, Byte[], String, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendBytesAsync_Microsoft_AspNetCore_Http_HttpResponse_System_Byte___System_String_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name.vb: SendBytesAsync(HttpResponse, Byte(), String, String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte[], System.String, System.String, System.Nullable<DateTimeOffset>, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse, System.Byte(), System.String, System.String, System.Nullable(Of DateTimeOffset), System.Boolean, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendBytesAsync(HttpResponse, Byte[], String, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  nameWithType.vb: HttpResponseExtensions.SendBytesAsync(HttpResponse, Byte(), String, String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendBytesAsync*
   name: SendBytesAsync
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendBytesAsync_
@@ -2205,12 +2325,15 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendErrorsAsync
   nameWithType: HttpResponseExtensions.SendErrorsAsync
-- uid: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
-  name: SendFileAsync(HttpResponse, FileInfo, String, CancellationToken)
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendFileAsync_Microsoft_AspNetCore_Http_HttpResponse_FileInfo_System_String_CancellationToken_
-  commentId: M:FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)
-  fullName: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse, FileInfo, System.String, CancellationToken)
-  nameWithType: HttpResponseExtensions.SendFileAsync(HttpResponse, FileInfo, String, CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name: SendFileAsync(HttpResponse, FileInfo, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendFileAsync_Microsoft_AspNetCore_Http_HttpResponse_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name.vb: SendFileAsync(HttpResponse, FileInfo, String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse, FileInfo, System.String, System.Nullable<DateTimeOffset>, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse, FileInfo, System.String, System.Nullable(Of DateTimeOffset), System.Boolean, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendFileAsync(HttpResponse, FileInfo, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  nameWithType.vb: HttpResponseExtensions.SendFileAsync(HttpResponse, FileInfo, String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendFileAsync*
   name: SendFileAsync
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendFileAsync_
@@ -2270,15 +2393,15 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendOkAsync
   nameWithType: HttpResponseExtensions.SendOkAsync
-- uid: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
-  name: SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, CancellationToken)
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendStreamAsync_Microsoft_AspNetCore_Http_HttpResponse_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_
-  commentId: M:FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)
-  name.vb: SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, CancellationToken)
-  fullName: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable<System.Int64>, System.String, CancellationToken)
-  fullName.vb: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable(Of System.Int64), System.String, CancellationToken)
-  nameWithType: HttpResponseExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, CancellationToken)
-  nameWithType.vb: HttpResponseExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name: SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendStreamAsync_Microsoft_AspNetCore_Http_HttpResponse_Stream_System_String_System_Nullable_System_Int64__System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
+  name.vb: SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable<System.Int64>, System.String, System.Nullable<DateTimeOffset>, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse, Stream, System.String, System.Nullable(Of System.Int64), System.String, System.Nullable(Of DateTimeOffset), System.Boolean, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
+  nameWithType.vb: HttpResponseExtensions.SendStreamAsync(HttpResponse, Stream, String, Nullable(Of Int64), String, Nullable(Of DateTimeOffset), Boolean, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendStreamAsync*
   name: SendStreamAsync
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendStreamAsync_

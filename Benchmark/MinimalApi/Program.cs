@@ -9,16 +9,15 @@ builder.Services
 
 var app = builder.Build();
 app.UseAuthorization();
-app.MapPost("/benchmark/ok/{id}",
-    (
-        [FromRoute] int id,
-        [FromBody] Request req,
-        [FromServices] ILogger<Program> logger,
-        [FromServices] IValidator<Request> validator) =>
+app.MapPost("/benchmark/ok/{id}", async (
+    [FromRoute] int id,
+    [FromBody] Request req,
+    [FromServices] ILogger<Program> logger,
+    [FromServices] IValidator<Request> validator) =>
     {
         // logger.LogInformation("request received!");
 
-        validator.Validate(req);
+        await validator.ValidateAsync(req);
 
         return Results.Ok(new Response()
         {

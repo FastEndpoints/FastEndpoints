@@ -152,7 +152,6 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : class, new()
-
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -1304,7 +1303,6 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1453,7 +1451,6 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
-
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -1656,13 +1653,13 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendBytesAsync_" data-uid="FastEndpoints.Endpoint`2.SendBytesAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,CancellationToken)">SendBytesAsync(Byte[], String, String, CancellationToken)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendBytesAsync(System.Byte[],System.String,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)">SendBytesAsync(Byte[], String, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a byte array to the client</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected async Task SendBytesAsync(byte[] bytes, string fileName = null, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendBytesAsync(byte[] bytes, string fileName = null, string contentType = &quot;application/octet-stream&quot;, DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1689,6 +1686,18 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">contentType</span></td>
         <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">DateTimeOffset</span>&gt;</td>
+        <td><span class="parametername">lastModified</span></td>
+        <td><p>optional last modified date-time-offset for the data stream</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">enableRangeProcessing</span></td>
+        <td><p>optional switch for enabling range processing</p>
 </td>
       </tr>
       <tr>
@@ -1788,7 +1797,6 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, CancellationToken cancellation = null)
-
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1942,13 +1950,13 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendFileAsync_" data-uid="FastEndpoints.Endpoint`2.SendFileAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,CancellationToken)">SendFileAsync(FileInfo, String, CancellationToken)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)">SendFileAsync(FileInfo, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a file to the client</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendFileAsync(FileInfo fileInfo, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendFileAsync(FileInfo fileInfo, string contentType = &quot;application/octet-stream&quot;, DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1969,6 +1977,18 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">contentType</span></td>
         <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">DateTimeOffset</span>&gt;</td>
+        <td><span class="parametername">lastModified</span></td>
+        <td><p>optional last modified date-time-offset for the data stream</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">enableRangeProcessing</span></td>
+        <td><p>optional switch for enabling range processing</p>
 </td>
       </tr>
       <tr>
@@ -2173,13 +2193,13 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendStreamAsync_" data-uid="FastEndpoints.Endpoint`2.SendStreamAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)">SendStreamAsync(Stream, String, Nullable&lt;Int64&gt;, String, CancellationToken)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)">SendStreamAsync(Stream, String, Nullable&lt;Int64&gt;, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send the contents of a stream to the client</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendStreamAsync(Stream stream, string fileName = null, long? fileLengthBytes = null, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendStreamAsync(Stream stream, string fileName = null, long? fileLengthBytes = null, string contentType = &quot;application/octet-stream&quot;, DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2213,6 +2233,18 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">contentType</span></td>
         <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">DateTimeOffset</span>&gt;</td>
+        <td><span class="parametername">lastModified</span></td>
+        <td><p>optional last modified date-time-offset for the data stream</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">enableRangeProcessing</span></td>
+        <td><p>optional switch for enabling range processing</p>
 </td>
       </tr>
       <tr>
@@ -2335,6 +2367,70 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
       <tr>
         <td><span class="xref">Task</span></td>
         <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Summary_FastEndpoints_EndpointSummary_" data-uid="FastEndpoints.Endpoint`2.Summary(FastEndpoints.EndpointSummary)">Summary(EndpointSummary)</h4>
+  <div class="markdown level1 summary"><p>provide a summary/description for this endpoint to be used in swagger/ openapi</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Summary(EndpointSummary endpointDescription)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.EndpointSummary.html">EndpointSummary</a></td>
+        <td><span class="parametername">endpointDescription</span></td>
+        <td><p>an endpoint description instance</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Summary_System_String_System_ValueTuple_System_Int32_System_String____" data-uid="FastEndpoints.Endpoint`2.Summary(System.String,System.ValueTuple{System.Int32,System.String}[])">Summary(String, (Int32 statusCode, String statusCodeDescription)[])</h4>
+  <div class="markdown level1 summary"><p>provide a summary/description for this endpoint to be used in swagger/ openapi</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Summary(string endpointDescription, params (int statusCode, string statusCodeDescription)[] statusCodeDescriptions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">endpointDescription</span></td>
+        <td><p>the main description</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.ValueTuple</span>&lt;<span class="xref">System.Int32</span>, <span class="xref">System.String</span>&gt;[]</td>
+        <td><span class="parametername">statusCodeDescriptions</span></td>
+        <td><p>the descriptions for different response status codes this endpoint can return</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -2494,7 +2590,6 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
-
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -2559,13 +2654,13 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_Version_" data-uid="FastEndpoints.Endpoint`2.Version*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_Version_System_Int32_" data-uid="FastEndpoints.Endpoint`2.Version(System.Int32)">Version(Int32)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_Version_System_Int32_System_Nullable_System_Int32__" data-uid="FastEndpoints.Endpoint`2.Version(System.Int32,System.Nullable{System.Int32})">Version(Int32, Nullable&lt;Int32&gt;)</h4>
   <div class="markdown level1 summary"><p>specify the version of the endpoint if versioning is enabled</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Version(int version)</code></pre>
+    <pre><code class="lang-csharp hljs">protected void Version(int version, int? deprecateAt = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2581,6 +2676,12 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
         <td><span class="xref">System.Int32</span></td>
         <td><span class="parametername">version</span></td>
         <td><p>the version of this endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
+        <td><span class="parametername">deprecateAt</span></td>
+        <td><p>the version group number starting at which this endpoint should not be included in swagger</p>
 </td>
       </tr>
     </tbody>

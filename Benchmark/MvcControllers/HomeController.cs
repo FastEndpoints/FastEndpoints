@@ -36,7 +36,7 @@ public class Response
 public class HomeController : Controller
 {
     [AllowAnonymous]
-    public IActionResult Index(
+    public async Task<IActionResult> Index(
         [FromRoute] int id,
         [FromBody] Request req,
         [FromServices] ILogger<HomeController> logger,
@@ -44,7 +44,7 @@ public class HomeController : Controller
     {
         //logger.LogInformation("request received!");
 
-        validator.Validate(req);
+        await validator.ValidateAsync(req);
 
         return Ok(new Response()
         {

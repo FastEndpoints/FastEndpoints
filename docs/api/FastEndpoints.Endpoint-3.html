@@ -213,13 +213,13 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendForbiddenAsync(CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendBytesAsync(Byte[], String, String, CancellationToken)</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendBytesAsync(Byte[], String, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendFileAsync(FileInfo, String, CancellationToken)</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendFileAsync(FileInfo, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendStreamAsync(Stream, String, Nullable&lt;Int64&gt;, String, CancellationToken)</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendStreamAsync(Stream, String, Nullable&lt;Int64&gt;, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEmptyJsonObject_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendEmptyJsonObject(CancellationToken)</a>
@@ -291,10 +291,16 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Describe_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__">Endpoint&lt;TRequest, TResponse&gt;.Describe(Action&lt;RouteHandlerBuilder&gt;)</a>
     </div>
     <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_System_String_System_ValueTuple_System_Int32_System_String____">Endpoint&lt;TRequest, TResponse&gt;.Summary(String, (T1, T2)&lt;Int32, String&gt;[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_FastEndpoints_EndpointSummary_">Endpoint&lt;TRequest, TResponse&gt;.Summary(EndpointSummary)</a>
+    </div>
+    <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Tags_System_String___">Endpoint&lt;TRequest, TResponse&gt;.Tags(String[])</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Version_System_Int32_">Endpoint&lt;TRequest, TResponse&gt;.Version(Int32)</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Version_System_Int32_System_Nullable_System_Int32__">Endpoint&lt;TRequest, TResponse&gt;.Version(Int32, Nullable&lt;Int32&gt;)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_String_">Endpoint&lt;TRequest, TResponse&gt;.AddError(String)</a>
@@ -350,9 +356,7 @@
   <h5 id="FastEndpoints_Endpoint_3_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse, TMapper&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : class, new()
-
     where TResponse : new()
-
     where TMapper : IEntityMapper, new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>

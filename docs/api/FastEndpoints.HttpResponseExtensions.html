@@ -216,13 +216,13 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendBytesAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendBytesAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendBytesAsync_Microsoft_AspNetCore_Http_HttpResponse_System_Byte___System_String_System_String_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,CancellationToken)">SendBytesAsync(HttpResponse, Byte[], String, String, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendBytesAsync_Microsoft_AspNetCore_Http_HttpResponse_System_Byte___System_String_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendBytesAsync(Microsoft.AspNetCore.Http.HttpResponse,System.Byte[],System.String,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)">SendBytesAsync(HttpResponse, Byte[], String, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a byte array to the client</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static async Task SendBytesAsync(this HttpResponse rsp, byte[] bytes, string fileName = null, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static async Task SendBytesAsync(this HttpResponse rsp, byte[] bytes, string fileName = null, string contentType = &quot;application/octet-stream&quot;, DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -254,6 +254,18 @@
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">contentType</span></td>
         <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">DateTimeOffset</span>&gt;</td>
+        <td><span class="parametername">lastModified</span></td>
+        <td><p>optional last modified date-time-offset for the data stream</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">enableRangeProcessing</span></td>
+        <td><p>optional switch for enabling range processing</p>
 </td>
       </tr>
       <tr>
@@ -358,7 +370,6 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, CancellationToken cancellation = null)
-
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -532,13 +543,13 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendFileAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendFileAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendFileAsync_Microsoft_AspNetCore_Http_HttpResponse_FileInfo_System_String_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,CancellationToken)">SendFileAsync(HttpResponse, FileInfo, String, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendFileAsync_Microsoft_AspNetCore_Http_HttpResponse_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)">SendFileAsync(HttpResponse, FileInfo, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a file to the client</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendFileAsync(this HttpResponse rsp, FileInfo fileInfo, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static Task SendFileAsync(this HttpResponse rsp, FileInfo fileInfo, string contentType = &quot;application/octet-stream&quot;, DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -564,6 +575,18 @@
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">contentType</span></td>
         <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">DateTimeOffset</span>&gt;</td>
+        <td><span class="parametername">lastModified</span></td>
+        <td><p>optional last modified date-time-offset for the data stream</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">enableRangeProcessing</span></td>
+        <td><p>optional switch for enabling range processing</p>
 </td>
       </tr>
       <tr>
@@ -788,13 +811,13 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendStreamAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendStreamAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendStreamAsync_Microsoft_AspNetCore_Http_HttpResponse_Stream_System_String_System_Nullable_System_Int64__System_String_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,CancellationToken)">SendStreamAsync(HttpResponse, Stream, String, Nullable&lt;Int64&gt;, String, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendStreamAsync_Microsoft_AspNetCore_Http_HttpResponse_Stream_System_String_System_Nullable_System_Int64__System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)">SendStreamAsync(HttpResponse, Stream, String, Nullable&lt;Int64&gt;, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send the contents of a stream to the client</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendStreamAsync(this HttpResponse rsp, Stream stream, string fileName = null, long? fileLengthBytes = null, string contentType = &quot;application/octet-stream&quot;, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static async Task SendStreamAsync(this HttpResponse rsp, Stream stream, string fileName = null, long? fileLengthBytes = null, string contentType = &quot;application/octet-stream&quot;, DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -833,6 +856,18 @@
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">contentType</span></td>
         <td><p>optional content type to set on the http response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">DateTimeOffset</span>&gt;</td>
+        <td><span class="parametername">lastModified</span></td>
+        <td><p>optional last modified date-time-offset for the data stream</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">enableRangeProcessing</span></td>
+        <td><p>optional switch for enabling range processing</p>
 </td>
       </tr>
       <tr>

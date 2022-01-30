@@ -1,61 +1,61 @@
 ## Head-To-Head Benchmark
 
-|                Method |      Mean |    Error |   StdDev | Ratio | RatioSD |  Gen 0 |  Gen 1 | Allocated |
-|---------------------- |----------:|---------:|---------:|------:|--------:|-------:|-------:|----------:|
-|    AspNet Minimal Api |  84.06 μs | 3.721 μs | 2.214 μs |  1.00 |    0.00 | 2.6000 |      - |     21 KB |
-|         FastEndpoints |  84.93 μs | 2.539 μs | 1.328 μs |  1.01 |    0.04 | 2.5000 |      - |     21 KB |
-| AspNet MVC Controller | 112.75 μs | 5.053 μs | 3.007 μs |  1.34 |    0.06 | 3.4000 | 0.1000 |     28 KB |
-|         Carter Module | 602.90 μs | 7.663 μs | 5.069 μs |  7.17 |    0.22 | 5.9000 | 2.9000 |     49 KB |
+|        Method |      Mean |    Error |   StdDev | Ratio | RatioSD |  Gen 0 |  Gen 1 | Allocated |
+|-------------- |----------:|---------:|---------:|------:|--------:|-------:|-------:|----------:|
+| FastEndpoints |  77.18 μs | 4.878 μs | 2.903 μs |  0.98 |    0.03 | 2.5000 | 0.1000 |     21 KB |
+|    MinimalApi |  78.86 μs | 4.863 μs | 2.894 μs |  1.00 |    0.00 | 2.6000 | 0.1000 |     21 KB |
+| AspNetCoreMVC | 113.74 μs | 4.761 μs | 2.833 μs |  1.44 |    0.05 | 3.4000 | 0.1000 |     28 KB |
+|  CarterModule | 606.86 μs | 2.482 μs | 1.477 μs |  7.70 |    0.28 | 5.9000 | 2.9000 |     48 KB |
 
 ## Bombardier Load Test
 
-### FastEndpoints *(46,341 more requests per second than mvc controller)*
+### FastEndpoints *(47% more requests per second than mvc controller)*
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    141291.31   16967.65  230746.18
-  Latency        3.50ms   479.73us    95.00ms
+  Reqs/sec    139710.52   14282.62  205535.97
+  Latency        3.62ms   249.06us    62.00ms
   HTTP codes:
-    1xx - 0, 2xx - 1428565, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 4239464, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    71.64MB/s
+  Throughput:    68.86MB/s
 ```
 ### AspNet Minimal Api
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    145044.77   17963.08  250949.81
-  Latency        3.39ms   284.73us    62.00ms
+  Reqs/sec    139055.59   14499.22  256384.63
+  Latency        3.64ms   317.69us    69.61ms
   HTTP codes:
-    1xx - 0, 2xx - 1471745, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 4217185, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    73.78MB/s
+  Throughput:    70.50MB/s
 ```
 ### AspNet MVC Controller
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec     94950.85   11212.91  118144.21
-  Latency        5.22ms     2.46ms   489.99ms
+  Reqs/sec     95202.53   13207.26  136648.45
+  Latency        5.32ms     1.88ms   569.00ms
   HTTP codes:
-    1xx - 0, 2xx - 957021, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 2882790, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    47.82MB/s
+  Throughput:    48.02MB/s
 ```
 ### Carter Module
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec      7655.85    3286.81   25178.10
-  Latency       65.09ms    11.37ms   453.00ms
+  Reqs/sec      5619.10    2911.79   34528.87
+  Latency       91.01ms     9.52ms   481.00ms
   HTTP codes:
-    1xx - 0, 2xx - 77050, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 168989, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:     3.85MB/s
+  Throughput:     2.82MB/s
 ```
 
-**parameters used:** `-c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s`
+**parameters used:** `-c 512 -m POST -f "body.json" -H "Content-Type:application/json"  -d 30s`
 
 **hardware used:** `AMD Ryzen 7 3700X (8c/16t), 16GB RAM, Windows 11`
 
- <!-- .\bomb.exe -c 500 -m POST -f "body.json" -H "Content-Type:application/json"  -d 10s http://localhost:5000/benchmark/ok/123 -->
-
+<!-- .\bomb.exe -c 512 -m POST -f "body.json" -H "Content-Type:application/json"  -d 30s http://localhost:5000/benchmark/ok/123 -->
+<!-- .\bomb.exe -c 512 -m POST -f "body.json" -H "Content-Type:application/json"  -d 30s http://localhost:5000/Home/Index/123 -->
 <!-- ```
 {
   "FirstName": "xxc",

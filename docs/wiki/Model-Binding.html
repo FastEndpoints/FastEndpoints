@@ -204,6 +204,23 @@ MyDecimal - 123.4567
     }
 }
 </code></pre>
+<h1 id="supported-property-types">supported property types</h1>
+<p>the following property types can be bound from route &amp; query parameters as well as form fields:</p>
+<ul>
+<li>string</li>
+<li>bool</li>
+<li>enum</li>
+<li>int</li>
+<li>long</li>
+<li>double</li>
+<li>decimal</li>
+<li>DateTime</li>
+<li>Guid</li>
+<li>Uri</li>
+<li>Version</li>
+<li>TimeSpan</li>
+</ul>
+<p>only strings are currently supported for claims &amp; header binding.</p>
 <h1 id="json-serialization-casing">json serialization casing</h1>
 <p>by default the serializer uses <strong>camel casing</strong> for serializing/deserializing. you can change the casing as shown in the <a href="Configuration-Settings.html#specify-json-serializer-options">configuration settings</a> section.</p>
 </article>

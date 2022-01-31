@@ -139,5 +139,22 @@ public class UpdateAddressRequest
 }
 ```
 
+# supported property types
+the following property types can be bound from route & query parameters as well as form fields:
+- string
+- bool
+- enum
+- int
+- long
+- double
+- decimal
+- DateTime
+- Guid
+- Uri
+- Version
+- TimeSpan
+
+only strings are currently supported for claims & header binding.
+
 # json serialization casing
 by default the serializer uses **camel casing** for serializing/deserializing. you can change the casing as shown in the [configuration settings](Configuration-Settings.md#specify-json-serializer-options) section.

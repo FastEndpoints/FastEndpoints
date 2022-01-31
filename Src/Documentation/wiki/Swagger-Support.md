@@ -52,18 +52,18 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
 ```
 the text descriptions for the endpoint and the different responses the endpoint returns can be specified with the `Summary()` method:
 ```csharp
-    public override void Configure()
-    {
-        Post("/admin/login");
-        AllowAnonymous();
-        Describe(b => b
-          .Accepts<MyRequest>("application/json")
-          .Produces<MyResponse>(200,"application/json")
-          .ProducesProblem(403));
-        Summary("the main administrator login endpoint. post the username/password combo to receive a jwt token.",
-               (200, "returned upon successful validation of the login credentials."),
-               (403, "a forbidden response is returned in case credentials are invalid."));        
-    }
+public override void Configure()
+{
+    Post("/admin/login");
+    AllowAnonymous();
+    Describe(b => b
+      .Accepts<MyRequest>("application/json")
+      .Produces<MyResponse>(200,"application/json")
+      .ProducesProblem(403));
+    Summary("the main administrator login endpoint. post the credentials to receive a jwt token.",
+           (200, "returned upon successful validation of the login credentials."),
+           (403, "a forbidden response is returned in case credentials are invalid."));        
+}
 ```
 if you prefer to move the summary text out of the endpoint class, you can do so by subclassing the `EndpointSummary` type:
 ```csharp

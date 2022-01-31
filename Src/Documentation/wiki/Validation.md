@@ -45,6 +45,7 @@ if a request is received that doesn't meet the above model validation criteria, 
     }
 }
 ```
+the format of the error response is customizable as described in the [configuration settings](Configuration-Settings.md) page.
 
 ## disable automatic failure response
 in cases where you need more control of the validations, you can turn off the default behavior by calling the `DontThrowIfValidationFails()` method in the endpoint configuration like so:

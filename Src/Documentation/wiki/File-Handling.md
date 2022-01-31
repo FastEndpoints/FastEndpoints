@@ -23,6 +23,8 @@ public class MyEndpoint : Endpoint<MyRequest>
                 fileName: "test.png",
                 fileLengthBytes: file.Length,
                 contentType: "image/png");
+
+            return;
         }
         await SendNoContentAsync();
     }
@@ -54,7 +56,7 @@ there are 3 methods you can use to send file data down to the client.
 
 **SendBytesAsync()** - you can supply a byte array as the source of data to be sent to the client.
 
-all three methods allow you to optionally specify the `content-type` and `file name`. if file name is specified, the `Content-Disposition: attachment` response header will be set with the given file name so that a file download will be initiated by the client/browser.
+all three methods allow you to optionally specify the `content-type` and `file name`. if file name is specified, the `Content-Disposition: attachment` response header will be set with the given file name so that a file download will be initiated by the client/browser. range requests/ partial responses are also supported by setting the `enableRangeProcessing` parameter to `true`.
 
 # write to response stream
 

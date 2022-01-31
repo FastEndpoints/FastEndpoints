@@ -135,6 +135,7 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
     }
 }
 </code></pre>
+<p>the format of the error response is customizable as described in the <a href="Configuration-Settings.html">configuration settings</a> page.</p>
 <h2 id="disable-automatic-failure-response">disable automatic failure response</h2>
 <p>in cases where you need more control of the validations, you can turn off the default behavior by calling the <code>DontThrowIfValidationFails()</code> method in the endpoint configuration like so:</p>
 <pre><code class="lang-csharp">public class CreateUserEndpoint : Endpoint&lt;CreateUserRequest&gt;

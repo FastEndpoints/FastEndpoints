@@ -9,8 +9,8 @@ namespace FastEndpoints;
 
 internal class ExecutorMiddleware
 {
-    private const string AuthorizationMiddlewareInvoked = "__AuthorizationMiddlewareWithEndpointInvoked";
-    private const string CorsMiddlewareInvoked = "__CorsMiddlewareWithEndpointInvoked";
+    private const string authInvoked = "__AuthorizationMiddlewareWithEndpointInvoked";
+    private const string corsInvoked = "__CorsMiddlewareWithEndpointInvoked";
     private readonly RequestDelegate _next;
 
     public ExecutorMiddleware(RequestDelegate next)
@@ -26,11 +26,11 @@ internal class ExecutorMiddleware
 
         if (epMetaData is not null)
         {
-            if (endpoint.Metadata.GetMetadata<IAuthorizeData>() != null && !ctx.Items.ContainsKey(AuthorizationMiddlewareInvoked))
-                ThrowMissingAuthMiddlewareException(endpoint.DisplayName!);
+            if (endpoint.Metadata.GetMetadata<IAuthorizeData>() != null && !ctx.Items.ContainsKey(authInvoked))
+                ThrowAuthMiddlewareMissing(endpoint.DisplayName!);
 
-            if (endpoint.Metadata.GetMetadata<ICorsMetadata>() != null && !ctx.Items.ContainsKey(CorsMiddlewareInvoked))
-                ThrowMissingCorsMiddlewareException(endpoint.DisplayName!);
+            if (endpoint.Metadata.GetMetadata<ICorsMetadata>() != null && !ctx.Items.ContainsKey(corsInvoked))
+                ThrowCORSMiddlewareMissing(endpoint.DisplayName!);
 
             var epInstance = (BaseEndpoint)epMetaData.InstanceCreator();
 
@@ -60,7 +60,7 @@ internal class ExecutorMiddleware
         }
     }
 
-    private static void ThrowMissingAuthMiddlewareException(string epName)
+    private static void ThrowAuthMiddlewareMissing(string epName)
     {
         throw new InvalidOperationException($"Endpoint {epName} contains authorization metadata, " +
             "but a middleware was not found that supports authorization." +
@@ -68,7 +68,7 @@ internal class ExecutorMiddleware
             "Configure your application startup by adding app.UseAuthorization() in the application startup code. If there are calls to app.UseRouting() and app.UseFastEndpoints() the call to app.UseAuthorization() must go between them.");
     }
 
-    private static void ThrowMissingCorsMiddlewareException(string epName)
+    private static void ThrowCORSMiddlewareMissing(string epName)
     {
         throw new InvalidOperationException($"Endpoint {epName} contains CORS metadata, " +
             "but a middleware was not found that supports CORS." +

@@ -182,10 +182,10 @@ public static class HttpResponseExtensions
             if (stream.CanSeek)
                 fileLength = stream.Length;
 
-            var (range, rangeLength, serveBody) = StreamHelper.SetHeaders(
+            var (range, rangeLength, shouldSendBody) = StreamHelper.ModifyHeaders(
                 rsp.HttpContext, contentType, fileName, fileLength, enableRangeProcessing, lastModified);
 
-            if (!serveBody)
+            if (!shouldSendBody)
                 return;
 
             await StreamHelper.WriteFileAsync(rsp.HttpContext, stream, range, rangeLength);

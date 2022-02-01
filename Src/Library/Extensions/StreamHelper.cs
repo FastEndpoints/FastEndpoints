@@ -8,109 +8,91 @@ namespace FastEndpoints;
 
 internal static class StreamHelper
 {
-    private const string AcceptRangeHeaderValue = "bytes";
-
-    private enum PreconditionState
+    internal static (RangeItemHeaderValue? range, long rangeLength, bool shouldSendBody)
+    ModifyHeaders(HttpContext ctx, string contentType, string? fileName, long? fileLength, bool processRanges, DateTimeOffset? lastModified)
     {
-        Unspecified,
-        NotModified,
-        ShouldProcess,
-        PreconditionFailed
-    }
+        var request = ctx.Request;
+        var reqHeaders = request.GetTypedHeaders();
 
-    internal static (RangeItemHeaderValue? range, long rangeLength, bool serveBody)
-        SetHeaders(
-            HttpContext httpContext, string contentType, string? fileDownloadName, long? fileLength, bool enableRangeProcessing,
-            DateTimeOffset? lastModified)
-    {
-        var request = httpContext.Request;
-        var httpRequestHeaders = request.GetTypedHeaders();
-
-        if (lastModified.HasValue)
+        if (lastModified is not null)
             lastModified = RoundDownToWholeSeconds(lastModified.Value);
 
-        var preconditionState = GetPreconditionState(httpRequestHeaders, lastModified);
+        var preconditionState = PreconditionState(reqHeaders, lastModified);
 
-        var response = httpContext.Response;
+        var response = ctx.Response;
         SetLastModified(response, lastModified);
 
-        if (preconditionState == PreconditionState.NotModified)
+        if (preconditionState == Precondition.NotModified)
         {
             response.StatusCode = StatusCodes.Status304NotModified;
-            return (range: null, rangeLength: 0, serveBody: false);
+            return (range: null, rangeLength: 0, shouldSendBody: false);
         }
-        else if (preconditionState == PreconditionState.PreconditionFailed)
+        else if (preconditionState == Precondition.PreconditionFailed)
         {
             response.StatusCode = StatusCodes.Status412PreconditionFailed;
-            return (range: null, rangeLength: 0, serveBody: false);
+            return (range: null, rangeLength: 0, shouldSendBody: false);
         }
 
         response.ContentType = contentType;
 
-        if (fileDownloadName is not null)
-            httpContext.Response.Headers.Add("Content-Disposition", $"attachment; filename={fileDownloadName}");
+        if (fileName is not null)
+            ctx.Response.Headers.Add("Content-Disposition", $"attachment; filename={fileName}");
 
-        if (fileLength.HasValue)
+        if (fileLength is not null)
         {
             response.ContentLength = fileLength.Value;
 
-            if (enableRangeProcessing)
+            if (processRanges)
             {
-                SetAcceptRangeHeader(response);
+                response.Headers.AcceptRanges = "bytes";
 
-                if ((HttpMethods.IsHead(request.Method) || HttpMethods.IsGet(request.Method))
-                    && (preconditionState == PreconditionState.Unspecified || preconditionState == PreconditionState.ShouldProcess)
-                    && IfRangeValid(httpRequestHeaders, lastModified))
+                if ((request.Method == HttpMethods.Head) || ((request.Method == HttpMethods.Get)
+                    && (preconditionState == Precondition.Unspecified || preconditionState == Precondition.ShouldProcess)
+                    && IfRangeValid(reqHeaders, lastModified)))
                 {
-                    return SetRangeHeaders(httpContext, httpRequestHeaders, fileLength.Value);
+                    return SetRangeHeaders(ctx, reqHeaders, fileLength.Value);
                 }
             }
         }
 
-        return (range: null, rangeLength: 0, serveBody: !HttpMethods.IsHead(request.Method));
+        return (range: null, rangeLength: 0, shouldSendBody: request.Method != HttpMethods.Head);
     }
 
-    internal static async Task WriteFileAsync(HttpContext context, Stream targetStream, RangeItemHeaderValue? range, long rangeLength)
+    internal static async Task WriteFileAsync(HttpContext ctx, Stream stream, RangeItemHeaderValue? range, long rangeLength)
     {
-        const int BufferSize = 64 * 1024;
-        var outputStream = context.Response.Body;
-        using (targetStream)
+        using (stream)
         {
             try
             {
                 if (range is null)
                 {
-                    await StreamCopyOperation.CopyToAsync(targetStream, outputStream, count: null, bufferSize: 64 * 1024, cancel: context.RequestAborted);
+                    await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, null, 64 * 1024, ctx.RequestAborted);
                 }
                 else
                 {
-                    targetStream.Seek(range.From!.Value, SeekOrigin.Begin);
-                    await StreamCopyOperation.CopyToAsync(targetStream, outputStream, rangeLength, BufferSize, context.RequestAborted);
+                    stream.Seek(range.From!.Value, SeekOrigin.Begin);
+                    await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, rangeLength, 64 * 1024, ctx.RequestAborted);
                 }
             }
             catch (OperationCanceledException)
             {
-                context.Abort();
+                ctx.Abort();
             }
         }
     }
 
-    private static bool IfRangeValid(
-        RequestHeaders httpRequestHeaders,
-        DateTimeOffset? lastModified)
+    private static bool IfRangeValid(RequestHeaders reqHeaders, DateTimeOffset? lastModified)
     {
-        var ifRange = httpRequestHeaders.IfRange;
+        var ifRange = reqHeaders.IfRange;
         return ifRange?.LastModified.HasValue != true || !lastModified.HasValue || lastModified <= ifRange.LastModified;
     }
 
-    private static PreconditionState GetPreconditionState(
-        RequestHeaders httpRequestHeaders,
-        DateTimeOffset? lastModified)
+    private static Precondition PreconditionState(RequestHeaders httpRequestHeaders, DateTimeOffset? lastModified)
     {
-        const PreconditionState ifMatchState = PreconditionState.Unspecified;
-        const PreconditionState ifNoneMatchState = PreconditionState.Unspecified;
-        var ifModifiedSinceState = PreconditionState.Unspecified;
-        var ifUnmodifiedSinceState = PreconditionState.Unspecified;
+        const Precondition ifMatchState = Precondition.Unspecified;
+        const Precondition ifNoneMatchState = Precondition.Unspecified;
+        var ifModifiedSinceState = Precondition.Unspecified;
+        var ifUnmodifiedSinceState = Precondition.Unspecified;
 
         var now = RoundDownToWholeSeconds(DateTimeOffset.UtcNow);
 
@@ -118,52 +100,44 @@ internal static class StreamHelper
         if (lastModified.HasValue && ifModifiedSince.HasValue && ifModifiedSince <= now)
         {
             var modified = ifModifiedSince < lastModified;
-            ifModifiedSinceState = modified ? PreconditionState.ShouldProcess : PreconditionState.NotModified;
+            ifModifiedSinceState = modified ? Precondition.ShouldProcess : Precondition.NotModified;
         }
 
         var ifUnmodifiedSince = httpRequestHeaders.IfUnmodifiedSince;
         if (lastModified.HasValue && ifUnmodifiedSince.HasValue && ifUnmodifiedSince <= now)
         {
             var unmodified = ifUnmodifiedSince >= lastModified;
-            ifUnmodifiedSinceState = unmodified ? PreconditionState.ShouldProcess : PreconditionState.PreconditionFailed;
+            ifUnmodifiedSinceState = unmodified ? Precondition.ShouldProcess : Precondition.PreconditionFailed;
         }
 
-        return GetMaxPreconditionState(ifMatchState, ifNoneMatchState, ifModifiedSinceState, ifUnmodifiedSinceState);
+        return MaxPreconditionState(ifMatchState, ifNoneMatchState, ifModifiedSinceState, ifUnmodifiedSinceState);
     }
 
     private static (RangeItemHeaderValue? range, long rangeLength, bool serveBody)
-        SetRangeHeaders(HttpContext httpContext, RequestHeaders httpRequestHeaders, long fileLength)
+    SetRangeHeaders(HttpContext ctx, RequestHeaders reqHeaders, long fileLength)
     {
-        var response = httpContext.Response;
-        var httpResponseHeaders = response.GetTypedHeaders();
-        var serveBody = !HttpMethods.IsHead(httpContext.Request.Method);
+        var rspHeaders = ctx.Response.GetTypedHeaders();
+        var sendBody = ctx.Request.Method != HttpMethods.Head;
+        var (reqIsRange, range) = Range.Parse(ctx, reqHeaders, fileLength);
 
-        var (isRangeRequest, range) = RangeHelper.ParseRange(
-            httpContext,
-            httpRequestHeaders,
-            fileLength);
-
-        if (!isRangeRequest)
-            return (range: null, rangeLength: 0, serveBody);
+        if (!reqIsRange)
+            return (range: null, rangeLength: 0, sendBody);
 
         if (range == null)
         {
-            response.StatusCode = StatusCodes.Status416RangeNotSatisfiable;
-            httpResponseHeaders.ContentRange = new ContentRangeHeaderValue(fileLength);
-            response.ContentLength = 0;
+            ctx.Response.StatusCode = StatusCodes.Status416RangeNotSatisfiable;
+            rspHeaders.ContentRange = new ContentRangeHeaderValue(fileLength);
+            ctx.Response.ContentLength = 0;
 
             return (range: null, rangeLength: 0, serveBody: false);
         }
 
-        response.StatusCode = StatusCodes.Status206PartialContent;
-        httpResponseHeaders.ContentRange = new ContentRangeHeaderValue(
-            range.From!.Value,
-            range.To!.Value,
-            fileLength);
+        ctx.Response.StatusCode = StatusCodes.Status206PartialContent;
+        rspHeaders.ContentRange = new ContentRangeHeaderValue(range.From!.Value, range.To!.Value, fileLength);
 
-        var rangeLength = SetContentLength(response, range);
+        var rangeLength = SetContentLength(ctx.Response, range);
 
-        return (range, rangeLength, serveBody);
+        return (range, rangeLength, sendBody);
     }
 
     private static long SetContentLength(HttpResponse response, RangeItemHeaderValue range)
@@ -177,28 +151,22 @@ internal static class StreamHelper
 
     private static void SetLastModified(HttpResponse response, DateTimeOffset? lastModified)
     {
-        var httpResponseHeaders = response.GetTypedHeaders();
-        if (lastModified.HasValue)
-        {
-            httpResponseHeaders.LastModified = lastModified;
-        }
+        var rspHeaders = response.GetTypedHeaders();
+
+        if (lastModified is not null)
+            rspHeaders.LastModified = lastModified;
     }
 
-    private static void SetAcceptRangeHeader(HttpResponse response)
+    private static Precondition MaxPreconditionState(params Precondition[] states)
     {
-        response.Headers.AcceptRanges = AcceptRangeHeaderValue;
-    }
+        var max = Precondition.Unspecified;
 
-    private static PreconditionState GetMaxPreconditionState(params PreconditionState[] states)
-    {
-        var max = PreconditionState.Unspecified;
         for (var i = 0; i < states.Length; i++)
         {
             if (states[i] > max)
-            {
                 max = states[i];
-            }
         }
+
         return max;
     }
 
@@ -208,18 +176,19 @@ internal static class StreamHelper
         return dateTimeOffset.Subtract(TimeSpan.FromTicks(ticksToRemove));
     }
 
-    private static class RangeHelper
+    private static class Range
     {
-        public static (bool isRangeRequest, RangeItemHeaderValue? range) ParseRange(HttpContext context, RequestHeaders requestHeaders, long length)
+        public static (bool isRangeRequest, RangeItemHeaderValue? range)
+        Parse(HttpContext ctx, RequestHeaders reqHeaders, long length)
         {
-            var rawRangeHeader = context.Request.Headers.Range;
-            if (StringValues.IsNullOrEmpty(rawRangeHeader))
+            var rangeHdr = ctx.Request.Headers.Range;
+            if (StringValues.IsNullOrEmpty(rangeHdr))
                 return (false, null);
 
-            if (rawRangeHeader.Count > 1 || (rawRangeHeader[0] ?? string.Empty).Contains(','))
+            if (rangeHdr.Count > 1 || (rangeHdr[0] ?? string.Empty).Contains(','))
                 return (false, null);
 
-            var rangeHeader = requestHeaders.Range;
+            var rangeHeader = reqHeaders.Range;
             if (rangeHeader == null)
                 return (false, null);
 
@@ -233,12 +202,12 @@ internal static class StreamHelper
             if (length == 0)
                 return (true, null);
 
-            var range = NormalizeRange(ranges.Single(), length);
+            var range = Normalize(ranges.Single(), length);
 
             return (true, range);
         }
 
-        internal static RangeItemHeaderValue? NormalizeRange(RangeItemHeaderValue range, long length)
+        internal static RangeItemHeaderValue? Normalize(RangeItemHeaderValue range, long length)
         {
             var start = range.From;
             var end = range.To;
@@ -263,5 +232,13 @@ internal static class StreamHelper
 
             return new RangeItemHeaderValue(start, end);
         }
+    }
+
+    private enum Precondition
+    {
+        Unspecified,
+        NotModified,
+        ShouldProcess,
+        PreconditionFailed
     }
 }

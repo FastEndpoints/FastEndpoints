@@ -188,7 +188,12 @@ public static class HttpResponseExtensions
             if (!shouldSendBody)
                 return;
 
-            await StreamHelper.WriteFileAsync(rsp.HttpContext, stream, range, rangeLength);
+            await StreamHelper.WriteFileAsync(
+                rsp.HttpContext,
+                stream,
+                range,
+                rangeLength,
+                cancellation != default ? cancellation : rsp.HttpContext.RequestAborted);
         }
     }
 

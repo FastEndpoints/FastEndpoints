@@ -58,7 +58,7 @@ internal static class StreamHelper
         return (range: null, rangeLength: 0, shouldSendBody: request.Method != HttpMethods.Head);
     }
 
-    internal static async Task WriteFileAsync(HttpContext ctx, Stream stream, RangeItemHeaderValue? range, long rangeLength)
+    internal static async Task WriteFileAsync(HttpContext ctx, Stream stream, RangeItemHeaderValue? range, long rangeLength, CancellationToken cancellation)
     {
         using (stream)
         {
@@ -66,12 +66,12 @@ internal static class StreamHelper
             {
                 if (range is null)
                 {
-                    await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, null, 64 * 1024, ctx.RequestAborted);
+                    await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, null, 64 * 1024, cancellation);
                 }
                 else
                 {
                     stream.Seek(range.From!.Value, SeekOrigin.Begin);
-                    await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, rangeLength, 64 * 1024, ctx.RequestAborted);
+                    await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, rangeLength, 64 * 1024, cancellation);
                 }
             }
             catch (OperationCanceledException)

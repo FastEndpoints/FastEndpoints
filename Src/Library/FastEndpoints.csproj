@@ -2,12 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.2.1</Version>
+        <Version>3.2.2-beta1</Version>
 
         <PackageReleaseNotes>
             ### IMPROVEMENTS
-            - upgrade nswag to latest
-            - support for statup.cs in lambda functions
+            - range processing internals
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

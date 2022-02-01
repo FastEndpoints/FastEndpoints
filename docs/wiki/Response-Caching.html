@@ -109,24 +109,24 @@ app.UseFastEndpoints();
 app.Run();
 </code></pre>
 <p><strong>endpoint</strong></p>
-<pre><code class="lang-csharp">    public class MyEndpoint : EndpointWithoutRequest
+<pre><code class="lang-csharp">public class MyEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
     {
-        public override void Configure()
-        {
-            Verbs(Http.GET);
-            Routes(&quot;/api/cached-ticks&quot;);
-            ResponseCache(60); //cache for 60 seconds
-        }
-
-        public override Task HandleAsync(CancellationToken ct)
-        {
-            return SendAsync(new
-            {
-                Message = &quot;this response is cached&quot;
-                Ticks = DateTime.UtcNow.Ticks
-            });
-        }
+        Verbs(Http.GET);
+        Routes(&quot;/api/cached-ticks&quot;);
+        ResponseCache(60); //cache for 60 seconds
     }
+
+    public override Task HandleAsync(CancellationToken ct)
+    {
+        return SendAsync(new
+        {
+            Message = &quot;this response is cached&quot;
+            Ticks = DateTime.UtcNow.Ticks
+        });
+    }
+}
 </code></pre>
 </article>
           </div>

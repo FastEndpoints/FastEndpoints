@@ -18,22 +18,22 @@ app.Run();
 
 **endpoint**
 ```csharp
-    public class MyEndpoint : EndpointWithoutRequest
+public class MyEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
     {
-        public override void Configure()
-        {
-            Verbs(Http.GET);
-            Routes("/api/cached-ticks");
-            ResponseCache(60); //cache for 60 seconds
-        }
-
-        public override Task HandleAsync(CancellationToken ct)
-        {
-            return SendAsync(new
-            {
-                Message = "this response is cached"
-                Ticks = DateTime.UtcNow.Ticks
-            });
-        }
+        Verbs(Http.GET);
+        Routes("/api/cached-ticks");
+        ResponseCache(60); //cache for 60 seconds
     }
+
+    public override Task HandleAsync(CancellationToken ct)
+    {
+        return SendAsync(new
+        {
+            Message = "this response is cached"
+            Ticks = DateTime.UtcNow.Ticks
+        });
+    }
+}
 ```

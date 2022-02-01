@@ -185,6 +185,37 @@
 </code></pre>
 <h1 id="multiple-processors">multiple processors</h1>
 <p>you can attach multiple processors with both <code>PreProcessors()</code> and <code>PostProcessors()</code> methods. the processors are executed in the order they are supplied to the methods.</p>
+<h1 id="global-processors-filters">global processors/ filters</h1>
+<p>the recommended approach for global filters/ processors is to write that logic as a middleware and register it in the asp.net pipeline like so:</p>
+<pre><code class="lang-csharp">app.UseMiddleware&lt;MyMiddleware&gt;()
+</code></pre>
+<p>as an alternative to that, you can write a base endpoint like below which includes a processor and derive your endpoint classes from that.</p>
+<pre><code class="lang-csharp">public abstract class PublicEndpoint&lt;TRequest, TResponse&gt; : Endpoint&lt;TRequest, TResponse&gt;
+where TRequest : class, new()
+where TResponse : notnull, new()
+{
+    public override void Configure()
+    {
+        PreProcessors(new MyRequestLogger&lt;TRequest&gt;());
+        AllowAnonymous();
+    }
+}
+
+public class MyEndpoint : PublicEndpoint&lt;EmptyRequest, EmptyResponse&gt;
+{
+    public override void Configure()
+    {
+        Get(&quot;test/global-preprocessor&quot;);
+        base.Configure();
+    }
+
+    public override Task HandleAsync(EmptyRequest req, CancellationToken ct)
+    {
+        return SendOkAsync();
+    }
+}
+</code></pre>
+<p>this approach is also helpful if you'd like to configure several endpoints with the same base configuration.</p>
 </article>
           </div>
           

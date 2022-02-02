@@ -52,7 +52,7 @@ internal static class ReqTypeCache<TRequest>
             var forbidIfMissing = attrib?.IsRequired ?? false;
 
             CachedFromClaimProps.Add(new(claimType, forbidIfMissing, compiledSetter));
-            return true;
+            return forbidIfMissing; //if claim is optional, return false so it will be added as a PropCacheEntry
         }
         return false;
     }
@@ -70,7 +70,7 @@ internal static class ReqTypeCache<TRequest>
             var forbidIfMissing = attrib?.IsRequired ?? false;
 
             CachedFromHeaderProps.Add(new(headerName, forbidIfMissing, compiledSetter));
-            return true;
+            return forbidIfMissing; //if header is optional, return false so it will be added as a PropCacheEntry;
         }
         return false;
     }

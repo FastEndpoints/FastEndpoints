@@ -312,5 +312,16 @@ namespace Test
             Assert.AreEqual("this is the body content", res.BodyContent);
             Assert.AreEqual(12345, res.Id);
         }
+
+        [TestMethod]
+        public async Task GETRequestWithRouteParameterAndReqDto()
+        {
+            var (rsp, res) = await CustomerClient.GETAsync<EmptyRequest, ErrorResponse>(
+                "/api/sales/orders/retrieve/54321",
+                new());
+
+            Assert.AreEqual(HttpStatusCode.OK, rsp.StatusCode);
+            Assert.AreEqual("ok!", res.Message);
+        }
     }
 }

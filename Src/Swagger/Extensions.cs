@@ -34,7 +34,7 @@ public static class Extensions
         settings.AddSecurity("JWTBearerAuth", new OpenApiSecurityScheme
         {
             Type = OpenApiSecuritySchemeType.Http,
-            Scheme = "bearer",
+            Scheme = "Bearer",
             BearerFormat = "JWT",
             Description = "Enter a JWT token to authorize the requests..."
         });

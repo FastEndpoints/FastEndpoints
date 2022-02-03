@@ -214,6 +214,28 @@ if the requirement is to allow access only if <code>ALL</code> specified claims 
 <h5>Tip</h5>
 <p>here's an <strong><a href="https://github.com/dj-nitehawk/FastEndpoints-Auth0-Demo">example project</a></strong> using <strong><a href="https://auth0.com/access-management">Auth0</a></strong> with permissions.</p>
 </div>
+<h2 id="multiple-authentication-schemes">multiple authentication schemes</h2>
+<p>it is possible to register multiple auth schemes at startup and specify per endpoint which schemes are to be used for authenticating incoming requests.</p>
+<p><strong>startup</strong></p>
+<pre><code class="lang-csharp">builder.Services.AddAuthentication(o =&gt;
+{
+    o.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(o =&gt; o.SlidingExpiration = true) // cookie auth
+.AddJwtBearer(o =&gt;                          // jwt bearer auth
+{
+    o.Authority = $&quot;https://{builder.Configuration[&quot;Auth0:Domain&quot;]}/&quot;;
+    o.Audience = builder.Configuration[&quot;Auth0:Audience&quot;];
+});
+</code></pre>
+<p><strong>endpoint</strong></p>
+<pre><code class="lang-csharp">public override void Configure()
+{
+    Get(&quot;/account/profile&quot;);
+    AuthSchems(JwtBearerDefaults.AuthenticationScheme);
+}
+</code></pre>
 </article>
           </div>
           

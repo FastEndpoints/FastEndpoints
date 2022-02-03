@@ -140,3 +140,30 @@ all auth providers compatible with the `asp.net` middleware pipeline can be regi
 
 > [!TIP]
 > here's an **[example project](https://github.com/dj-nitehawk/FastEndpoints-Auth0-Demo)** using **[Auth0](https://auth0.com/access-management)** with permissions.
+
+## multiple authentication schemes
+it is possible to register multiple auth schemes at startup and specify per endpoint which schemes are to be used for authenticating incoming requests.
+
+**startup**
+```csharp
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(o => o.SlidingExpiration = true) // cookie auth
+.AddJwtBearer(o =>                          // jwt bearer auth
+{
+    o.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
+    o.Audience = builder.Configuration["Auth0:Audience"];
+});
+```
+
+**endpoint**
+```csharp
+public override void Configure()
+{
+    Get("/account/profile");
+    AuthSchems(JwtBearerDefaults.AuthenticationScheme);
+}
+```

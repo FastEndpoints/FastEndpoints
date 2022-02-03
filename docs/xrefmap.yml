@@ -454,6 +454,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFormData
   nameWithType: Endpoint<TRequest, TResponse>.AllowFormData
   nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFormData
+- uid: FastEndpoints.Endpoint`2.AuthSchems(System.String[])
+  name: AuthSchems(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AuthSchems_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.AuthSchems(System.String[])
+  name.vb: AuthSchems(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AuthSchems(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AuthSchems(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.AuthSchems(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AuthSchems(String())
+- uid: FastEndpoints.Endpoint`2.AuthSchems*
+  name: AuthSchems
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AuthSchems_
+  commentId: Overload:FastEndpoints.Endpoint`2.AuthSchems
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AuthSchems
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AuthSchems
+  nameWithType: Endpoint<TRequest, TResponse>.AuthSchems
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AuthSchems
 - uid: FastEndpoints.Endpoint`2.BaseURL
   name: BaseURL
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_BaseURL

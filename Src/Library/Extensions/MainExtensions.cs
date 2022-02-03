@@ -73,7 +73,7 @@ public static class MainExtensions
 
             var shouldSetName = epDef.Settings.Verbs.Length == 1 && epDef.Settings.Routes.Length == 1;
             var epMetaData = BuildEndpointMetaData(epDef);
-            var policiesToAdd = BuildPoliciesToAdd(epDef);
+            var authorizeAttributes = BuildAuthorizeAttributes(epDef);
 
             foreach (var route in epDef.Settings.Routes)
             {
@@ -93,7 +93,7 @@ public static class MainExtensions
                     if (epDef.Settings.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
-                        hb.RequireAuthorization(policiesToAdd.ToArray());
+                        hb.RequireAuthorization(authorizeAttributes);
 
                     if (epDef.Settings.ResponseCacheSettings is not null)
                         hb.WithMetadata(epDef.Settings.ResponseCacheSettings);
@@ -206,10 +206,12 @@ public static class MainExtensions
 
     internal static string SantizedName(this Type type) => type.FullName?.Replace(".", string.Empty)!;
 
-    private static List<string> BuildPoliciesToAdd(EndpointDefinition ep)
+    private static IAuthorizeData[] BuildAuthorizeAttributes(EndpointDefinition ep)
     {
         var policiesToAdd = new List<string>();
+
         if (ep.Settings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(ep.Settings.PreBuiltUserPolicies);
+
         if (ep.Settings.Permissions?.Any() is true ||
             ep.Settings.ClaimTypes?.Any() is true ||
             ep.Settings.Roles?.Any() is true ||
@@ -217,7 +219,19 @@ public static class MainExtensions
         {
             policiesToAdd.Add(SecurityPolicyName(ep.EndpointType));
         }
-        return policiesToAdd;
+
+        return policiesToAdd.Select(p =>
+        {
+            var attr = new AuthorizeAttribute { Policy = p, };
+
+            if (ep.Settings.AuthSchemes is not null)
+                attr.AuthenticationSchemes = string.Join(',', ep.Settings.AuthSchemes);
+
+            if (ep.Settings.Roles is not null)
+                attr.Roles = string.Join(',', ep.Settings.Roles);
+
+            return attr;
+        }).ToArray();
     }
 
     private static EndpointMetadata BuildEndpointMetaData(EndpointDefinition ep)
@@ -254,9 +268,6 @@ public static class MainExtensions
 
             opts.AddPolicy(secPolName, b =>
             {
-                if (eps.AuthSchemes?.Any() is true)
-                    b.AddAuthenticationSchemes(eps.AuthSchemes);
-
                 b.RequireAuthenticatedUser();
 
                 if (eps.Permissions?.Any() is true)
@@ -289,7 +300,8 @@ public static class MainExtensions
                         b.RequireAssertion(x => !eps.ClaimTypes.Except(x.User.Claims.Select(c => c.Type)).Any());
                 }
 
-                if (eps.Roles?.Any() is true) b.RequireRole(eps.Roles);
+                //note: only claim and permission requirements are added here in the security policy
+                //      roles and auth schemes are specified in the authorizeattribute in BuildAuthorizeAttributes()
             });
         }
     }

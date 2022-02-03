@@ -2,13 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.2.2</Version>
+        <Version>3.3.0-beta1</Version>
 
         <PackageReleaseNotes>
-            ### IMPROVEMENTS
-            - range processing internals
-            - header and claim binding internals
-            - increase test coverage
+            ### NEW
+            - support for multiple authentication schemes
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -21,6 +21,16 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task ListRecentCustomersCookieScheme()
+        {
+            var (rsp, _) = await AdminClient.GETAsync<
+                Customers.List.Recent.Endpoint_V1,
+                Customers.List.Recent.Response>();
+
+            Assert.AreEqual(HttpStatusCode.InternalServerError, rsp!.StatusCode);
+        }
+
+        [TestMethod]
         public async Task CreateNewCustomer()
         {
             var (rsp, res) = await AdminClient.POSTAsync<

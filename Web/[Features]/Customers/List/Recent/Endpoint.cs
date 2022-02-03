@@ -1,4 +1,6 @@
-﻿namespace Customers.List.Recent;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+
+namespace Customers.List.Recent;
 
 public class Endpoint : EndpointWithoutRequest
 {
@@ -13,7 +15,6 @@ public class Endpoint : EndpointWithoutRequest
         Permissions(
             Allow.Customers_Retrieve,
             Allow.Customers_Create);
-        AllowAnonymous();
         Options(o => o.Produces<Response>(200));
     }
 
@@ -41,5 +42,6 @@ public class Endpoint_V1 : Endpoint
     {
         base.Configure();
         Version(1, deprecateAt: 2);
+        AuthSchems(CookieAuthenticationDefaults.AuthenticationScheme);
     }
 }

@@ -10,6 +10,7 @@ internal class EndpointSettings
     internal string[]? AnonymousVerbs;
     internal bool ThrowIfValidationFails = true;
     internal string[]? PreBuiltUserPolicies;
+    internal string[]? AuthSchemes;
     internal string[]? Roles;
     internal string[]? Permissions;
     internal bool AllowAnyPermission;

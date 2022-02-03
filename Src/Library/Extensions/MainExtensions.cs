@@ -227,7 +227,8 @@ public static class MainExtensions
         if (ep.Settings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(ep.Settings.PreBuiltUserPolicies);
         if (ep.Settings.Permissions?.Any() is true ||
             ep.Settings.ClaimTypes?.Any() is true ||
-            ep.Settings.Roles?.Any() is true)
+            ep.Settings.Roles?.Any() is true ||
+            ep.Settings.AuthSchemes?.Any() is true)
         {
             policiesToAdd.Add(SecurityPolicyName(ep.EndpointType));
         }
@@ -264,12 +265,16 @@ public static class MainExtensions
         {
             var eps = ep.Settings;
 
-            if (eps.Roles is null && eps.Permissions is null && eps.ClaimTypes is null) continue;
+            if (eps.Roles is null && eps.Permissions is null && eps.ClaimTypes is null && eps.AuthSchemes is null)
+                continue;
 
             var secPolName = SecurityPolicyName(ep.EndpointType);
 
             opts.AddPolicy(secPolName, b =>
             {
+                if (eps.AuthSchemes?.Any() is true)
+                    b.AddAuthenticationSchemes(eps.AuthSchemes);
+
                 b.RequireAuthenticatedUser();
 
                 if (eps.Permissions?.Any() is true)

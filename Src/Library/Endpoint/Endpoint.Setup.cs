@@ -175,6 +175,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// specify which authentication schemes to use for authenticating requests to this endpoint
+    /// </summary>
+    /// <param name="authSchemeNames">the authentication scheme names</param>
+    protected void AuthSchems(params string[] authSchemeNames)
+    {
+        Settings.AuthSchemes = authSchemeNames;
+    }
+
+    /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>

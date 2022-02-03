@@ -34,22 +34,22 @@ internal class ExecutorMiddleware
 
             var epInstance = (BaseEndpoint)epMetaData.InstanceCreator();
 
-            ResolveServices(epInstance, ctx.RequestServices, epMetaData.ServiceBoundReqDtoProps);
+            ResolveServices(epInstance, ctx.RequestServices, epMetaData.ServiceBoundEpProps);
 
             ResponseCacheExecutor.Execute(ctx, endpoint.Metadata.GetMetadata<ResponseCacheAttribute>());
 
             return epInstance.ExecAsync(
                 ctx,
                 epMetaData.Validator,
-                epMetaData.PreProcessors,
-                epMetaData.PostProcessors,
+                epMetaData.EndpointSettings.PreProcessors,
+                epMetaData.EndpointSettings.PostProcessors,
                 ctx.RequestAborted); //terminate middleware here. we're done executing
         }
 
         return _next(ctx); //this is not a fastendpoint, let next middleware handle it
     }
 
-    private static void ResolveServices(object epInstance, IServiceProvider services, ServiceBoundReqDtoProp[]? props)
+    private static void ResolveServices(object epInstance, IServiceProvider services, ServiceBoundEpProp[]? props)
     {
         if (props is null) return;
 

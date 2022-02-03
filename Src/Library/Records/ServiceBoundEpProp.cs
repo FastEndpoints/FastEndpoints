@@ -1,5 +1,5 @@
 ﻿namespace FastEndpoints;
 
-internal record ServiceBoundReqDtoProp(
+internal record ServiceBoundEpProp(
     Type PropType,
     Action<object, object> PropSetter);

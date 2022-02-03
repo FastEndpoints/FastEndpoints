@@ -65,43 +65,43 @@ public static class MainExtensions
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 
-        foreach (var ep in _endpoints.Found)
+        foreach (var epDef in _endpoints.Found)
         {
-            if (EpRegFilterFunc is not null && !EpRegFilterFunc(ep)) continue;
-            if (ep.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{ep.EndpointType.FullName}]");
-            if (ep.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{ep.EndpointType.FullName}]");
+            if (EpRegFilterFunc is not null && !EpRegFilterFunc(epDef)) continue;
+            if (epDef.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
+            if (epDef.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
 
-            var shouldSetName = ep.Settings.Verbs.Length == 1 && ep.Settings.Routes.Length == 1;
-            var epMetaData = BuildEndpointMetaData(ep);
-            var policiesToAdd = BuildPoliciesToAdd(ep);
+            var shouldSetName = epDef.Settings.Verbs.Length == 1 && epDef.Settings.Routes.Length == 1;
+            var epMetaData = BuildEndpointMetaData(epDef);
+            var policiesToAdd = BuildPoliciesToAdd(epDef);
 
-            foreach (var route in ep.Settings.Routes)
+            foreach (var route in epDef.Settings.Routes)
             {
-                var finalRoute = routeBuilder.BuildRoute(ep.Settings.Version.Current, route);
+                var finalRoute = routeBuilder.BuildRoute(epDef.Settings.Version.Current, route);
 
-                foreach (var verb in ep.Settings.Verbs)
+                foreach (var verb in epDef.Settings.Verbs)
                 {
                     var hb = app.MapMethods(finalRoute, new[] { verb }, SendMisconfiguredPipelineMsg());
 
                     if (shouldSetName)
-                        hb.WithName(ep.EndpointType.SantizedName()); //needed for link generation. only supported on single verb/route endpoints.
+                        hb.WithName(epDef.EndpointType.SantizedName()); //needed for link generation. only supported on single verb/route endpoints.
 
-                    hb.WithMetadata(epMetaData);
+                    hb.WithMetadata(epMetaData, epDef);
 
-                    ep.Settings.InternalConfigAction(hb);//always do this first                    
+                    epDef.Settings.InternalConfigAction(hb);//always do this first                    
 
-                    if (ep.Settings.AnonymousVerbs?.Contains(verb) is true)
+                    if (epDef.Settings.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
                         hb.RequireAuthorization(policiesToAdd.ToArray());
 
-                    if (ep.Settings.ResponseCacheSettings is not null)
-                        hb.WithMetadata(ep.Settings.ResponseCacheSettings);
+                    if (epDef.Settings.ResponseCacheSettings is not null)
+                        hb.WithMetadata(epDef.Settings.ResponseCacheSettings);
 
-                    if (ep.Settings.DtoTypeForFormData is not null)
-                        hb.Accepts(ep.Settings.DtoTypeForFormData, "multipart/form-data");
+                    if (epDef.Settings.DtoTypeForFormData is not null)
+                        hb.Accepts(epDef.Settings.DtoTypeForFormData, "multipart/form-data");
 
-                    ep.Settings.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
+                    epDef.Settings.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{finalRoute}";
                     routeToHandlerCounts.TryGetValue(key, out var count);
@@ -226,10 +226,10 @@ public static class MainExtensions
         if (validator is not null)
             validator.ThrowIfValidationFails = ep.Settings.ThrowIfValidationFails;
 
-        var serviceBoundReqDtoProps = ep.EndpointType
+        var serviceBoundEpProps = ep.EndpointType
             .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
             .Where(p => p.CanRead && p.CanWrite)
-            .Select(p => new ServiceBoundReqDtoProp(
+            .Select(p => new ServiceBoundEpProp(
                 p.PropertyType,
                 ep.EndpointType.SetterForProp(p.Name)))
             .ToArray();
@@ -237,11 +237,8 @@ public static class MainExtensions
         return new EndpointMetadata(
             Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile(),
             validator,
-            serviceBoundReqDtoProps,
-            ep.Settings.PreProcessors,
-            ep.Settings.PostProcessors,
-            ep.Settings.Version,
-            ep.Settings.Summary);
+            serviceBoundEpProps,
+            ep.Settings);
     }
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)

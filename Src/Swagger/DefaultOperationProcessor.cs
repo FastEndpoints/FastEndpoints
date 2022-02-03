@@ -39,7 +39,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
         if (epMeta is null)
             return true; //this is not a fastendpoint
 
-        var apiVer = epMeta.Version.Current;
+        var apiVer = epMeta.EndpointSettings.Version.Current;
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var bareRoute = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
@@ -55,7 +55,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 op.Tags.Add(segments[tagIndex]);
         }
 
-        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epMeta.Version.DeprecatedAt}"); //this will be later removed from document processor
+        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epMeta.EndpointSettings.Version.DeprecatedAt}"); //this will be later removed from document processor
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)
@@ -84,12 +84,12 @@ internal class DefaultOperationProcessor : IOperationProcessor
               if (defaultDescriptions.ContainsKey(res.Key))
                   res.Value.Description = defaultDescriptions[res.Key]; //first set the default text
 
-              if (epMeta.Summary is not null)
-                  res.Value.Description = epMeta.Summary[Convert.ToInt32(res.Key)]; //then take values from summary object
+              if (epMeta.EndpointSettings.Summary is not null)
+                  res.Value.Description = epMeta.EndpointSettings.Summary[Convert.ToInt32(res.Key)]; //then take values from summary object
           });
 
         //set main endpoint description
-        op.Description = epMeta.Summary?.Description;
+        op.Description = epMeta.EndpointSettings.Summary?.Description;
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;

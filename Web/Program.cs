@@ -19,7 +19,7 @@ builder.Services
         s.DocumentName = "Initial Release";
         s.Title = "Web API";
         s.Version = "v0.0";
-    })
+    }, shortSchemaNames: true)
     .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
      {
          s.DocumentName = "Release 1.0";

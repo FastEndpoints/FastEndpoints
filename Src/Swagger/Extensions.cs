@@ -18,10 +18,10 @@ public static class Extensions
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion)
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion, bool shortSchemaNames)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
-        settings.SchemaNameGenerator = new DefaultSchemaNameGenerator();
+        settings.SchemaNameGenerator = new DefaultSchemaNameGenerator(shortSchemaNames);
         settings.OperationProcessors.Add(new DefaultOperationProcessor(tagIndex));
         settings.DocumentProcessors.Add(new DefaultDocumentProcessor(maxEndpointVersion));
     }
@@ -50,12 +50,14 @@ public static class Extensions
     /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
+    /// <param name="shortSchemaNames">set to true if you'd like schema names to be the class name intead of the full name</param>
     public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
         Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
         Action<JsonSerializerSettings>? serializerSettings = null,
         bool addJWTBearerAuth = true,
         int tagIndex = 1,
-        int maxEndpointVersion = 0)
+        int maxEndpointVersion = 0,
+        bool shortSchemaNames = false)
     {
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
@@ -63,7 +65,7 @@ public static class Extensions
             var ser = new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver { NamingStrategy = null } };
             serializerSettings?.Invoke(ser);
             s.SerializerSettings = ser;
-            s.EnableFastEndpoints(tagIndex, maxEndpointVersion);
+            s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
         });

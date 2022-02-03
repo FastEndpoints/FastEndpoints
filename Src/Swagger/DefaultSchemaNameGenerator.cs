@@ -4,5 +4,18 @@ namespace FastEndpoints.Swagger;
 
 internal class DefaultSchemaNameGenerator : ISchemaNameGenerator
 {
-    public string? Generate(Type type) => type.FullName?.Replace(".", string.Empty);
+    private readonly bool shortSchemaNames;
+
+    public DefaultSchemaNameGenerator(bool shortSchemaNames)
+    {
+        this.shortSchemaNames = shortSchemaNames;
+    }
+
+    public string? Generate(Type type)
+    {
+        if (shortSchemaNames)
+            return type.Name;
+
+        return type.FullName?.Replace(".", string.Empty);
+    }
 }

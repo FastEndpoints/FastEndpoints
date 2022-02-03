@@ -167,3 +167,4 @@ public override void Configure()
     AuthSchems(JwtBearerDefaults.AuthenticationScheme);
 }
 ```
+in the above example, we're registering both cookie and jwt bearer auth schemes and in the endpoint we're saying only jwt bearer auth scheme should be used for authenticating incoming requests to the endpoint.

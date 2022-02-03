@@ -236,6 +236,7 @@ if the requirement is to allow access only if <code>ALL</code> specified claims 
     AuthSchems(JwtBearerDefaults.AuthenticationScheme);
 }
 </code></pre>
+<p>in the above example, we're registering both cookie and jwt bearer auth schemes and in the endpoint we're saying only jwt bearer auth scheme should be used for authenticating incoming requests to the endpoint.</p>
 </article>
           </div>
           

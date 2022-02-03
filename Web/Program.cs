@@ -46,7 +46,7 @@ app.UseAuthorization();
 app.UseFastEndpoints(config =>
 {
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
-    config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
+    config.EndpointRegistrationFilter = ep => ep.Settings.Tags?.Contains("exclude") is not true;
     config.RoutingOptions = o => o.Prefix = "api";
     config.VersioningOptions = o =>
     {

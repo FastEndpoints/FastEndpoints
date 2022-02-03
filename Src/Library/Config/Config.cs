@@ -15,7 +15,7 @@ public class Config
     internal static JsonSerializerOptions SerializerOpts { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
     internal static VersioningOptions? VersioningOpts { get; private set; }
     internal static RoutingOptions? RoutingOpts { get; private set; }
-    internal static Func<DiscoveredEndpoint, bool>? EpRegFilterFunc { get; private set; }
+    internal static Func<EndpointDefinition, bool>? EpRegFilterFunc { get; private set; }
     internal static Func<List<ValidationFailure>, object> ErrRespBldrFunc { get; private set; }
         = failures => new ErrorResponse(failures);
     internal static Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> ReqDeserializerFunc { get; private set; }
@@ -59,7 +59,7 @@ public class Config
     /// return 'true' to include.
     /// this function will executed for each endpoint that has been discovered during startup.
     /// </summary>
-    public Func<DiscoveredEndpoint, bool> EndpointRegistrationFilter { set => EpRegFilterFunc = value; }
+    public Func<EndpointDefinition, bool> EndpointRegistrationFilter { set => EpRegFilterFunc = value; }
 
     /// <summary>
     /// a function for transforming validation errors to an error response dto.

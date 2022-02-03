@@ -67,7 +67,7 @@ public static class MainExtensions
 
         foreach (var ep in _endpoints.Found)
         {
-            if (EpRegFilterFunc is not null && !EpRegFilterFunc(CreateDiscoverdEndpoint(ep))) continue;
+            if (EpRegFilterFunc is not null && !EpRegFilterFunc(ep)) continue;
             if (ep.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{ep.EndpointType.FullName}]");
             if (ep.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{ep.EndpointType.FullName}]");
 
@@ -206,22 +206,7 @@ public static class MainExtensions
 
     internal static string SantizedName(this Type type) => type.FullName?.Replace(".", string.Empty)!;
 
-    private static DiscoveredEndpoint CreateDiscoverdEndpoint(FoundEndpoint ep) => new(
-        ep.EndpointType,
-        ep.Settings.Routes!,
-        ep.Settings.Verbs!,
-        ep.Settings.AnonymousVerbs,
-        ep.Settings.ThrowIfValidationFails,
-        ep.Settings.PreBuiltUserPolicies,
-        ep.Settings.Roles,
-        ep.Settings.Permissions,
-        ep.Settings.AllowAnyPermission,
-        ep.Settings.ClaimTypes,
-        ep.Settings.AllowAnyClaim,
-        ep.Settings.Tags,
-        ep.Settings.Version.Current);
-
-    private static List<string> BuildPoliciesToAdd(FoundEndpoint ep)
+    private static List<string> BuildPoliciesToAdd(EndpointDefinition ep)
     {
         var policiesToAdd = new List<string>();
         if (ep.Settings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(ep.Settings.PreBuiltUserPolicies);
@@ -235,7 +220,7 @@ public static class MainExtensions
         return policiesToAdd;
     }
 
-    private static EndpointMetadata BuildEndpointMetaData(FoundEndpoint ep)
+    private static EndpointMetadata BuildEndpointMetaData(EndpointDefinition ep)
     {
         var validator = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
         if (validator is not null)

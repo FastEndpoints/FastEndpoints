@@ -6,13 +6,13 @@
 
         <PackageReleaseNotes>
             ### NEW
-            - support for multiple authentication schemes
+            - support for multiple authentication schemes for endpoints
 
             ### CHANGES (minor breaking)
             - input type of EndpointRegistrationFilter has been changed to EndpointDefinition
 
             ### IMPROVEMENTS
-            - add authorizeattribute to endpoint metadata for better swagger support
+            - add AuthorizeAttribute to endpoint metadata for better swagger support
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

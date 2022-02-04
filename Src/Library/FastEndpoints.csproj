@@ -2,12 +2,13 @@
 
     <PropertyGroup>
 
-        <Version>3.3.0-beta3</Version>
+        <Version>3.3.0-beta4</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - support for multiple authentication schemes for endpoints
             - ability to generate short schema names in swagger
+            - ability to override the defaults of swagger .ConfigureDefaults()
 
             ### CHANGES (minor breaking)
             - input type of EndpointRegistrationFilter has been changed to EndpointDefinition

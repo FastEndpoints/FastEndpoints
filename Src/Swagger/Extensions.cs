@@ -18,6 +18,7 @@ public static class Extensions
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
+    /// <param name="shortSchemaNames">set to true to make schema names just the name of the class instead of full type name</param>
     public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion, bool shortSchemaNames)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
@@ -76,7 +77,8 @@ public static class Extensions
     /// <summary>
     /// configure swagger ui with some sensible defaults for FastEndpoints which can be overridden if needed.
     /// </summary>
-    public static void ConfigureDefaults(this SwaggerUi3Settings s)
+    /// <param name="settings">provide an action that overrides any of the defaults</param>
+    public static void ConfigureDefaults(this SwaggerUi3Settings s, Action<SwaggerUi3Settings>? settings = null)
     {
         s.AdditionalSettings["filter"] = true;
         s.AdditionalSettings["persistAuthorization"] = true;
@@ -85,6 +87,7 @@ public static class Extensions
         s.TagsSorter = "alpha";
         s.OperationsSorter = "alpha";
         s.CustomInlineStyles = ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0} .swagger-ui .info .title{font-size:25px} .swagger-ui textarea{min-height:150px}";
+        settings?.Invoke(s);
     }
 
     internal static string Remove(this string value, string removeString)

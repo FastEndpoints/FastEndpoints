@@ -40,6 +40,6 @@ public class Endpoint_V1 : Endpoint
     {
         base.Configure();
         Version(1, deprecateAt: 2);
-        AuthSchems("ApiKey", "Cookies");
+        AuthSchemes("ApiKey", "Cookies");
     }
 }

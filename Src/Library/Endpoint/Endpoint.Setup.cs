@@ -178,7 +178,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// specify which authentication schemes to use for authenticating requests to this endpoint
     /// </summary>
     /// <param name="authSchemeNames">the authentication scheme names</param>
-    protected void AuthSchems(params string[] authSchemeNames)
+    protected void AuthSchemes(params string[] authSchemeNames)
     {
         Settings.AuthSchemes = authSchemeNames;
     }

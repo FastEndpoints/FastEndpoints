@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-
-namespace Customers.List.Recent;
+﻿namespace Customers.List.Recent;
 
 public class Endpoint : EndpointWithoutRequest
 {
@@ -42,6 +40,6 @@ public class Endpoint_V1 : Endpoint
     {
         base.Configure();
         Version(1, deprecateAt: 2);
-        AuthSchems(CookieAuthenticationDefaults.AuthenticationScheme);
+        AuthSchems("ApiKey", "Cookies");
     }
 }

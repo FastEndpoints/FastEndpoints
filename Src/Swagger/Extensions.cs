@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NSwag;
 using NSwag.AspNetCore;
+using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
 
@@ -32,15 +33,13 @@ public static class Extensions
     /// </summary>
     public static void EnableJWTBearerAuth(this AspNetCoreOpenApiDocumentGeneratorSettings settings)
     {
-        settings.AddSecurity("JWTBearerAuth", new OpenApiSecurityScheme
+        settings.AddAuth("JWTBearerAuth", new OpenApiSecurityScheme
         {
             Type = OpenApiSecuritySchemeType.Http,
             Scheme = "Bearer",
             BearerFormat = "JWT",
             Description = "Enter a JWT token to authorize the requests..."
         });
-
-        settings.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWTBearerAuth"));
     }
 
     /// <summary>
@@ -88,6 +87,25 @@ public static class Extensions
         s.OperationsSorter = "alpha";
         s.CustomInlineStyles = ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0} .swagger-ui .info .title{font-size:25px} .swagger-ui textarea{min-height:150px}";
         settings?.Invoke(s);
+    }
+
+    /// <summary>
+    /// add swagger auth for this open api document
+    /// </summary>
+    /// <param name="schemeName">the authentication scheme</param>
+    /// <param name="securityScheme">an open api security scheme object</param>
+    /// <param name="globalScopeNames">a collection of global scope names</param>
+    /// <returns></returns>
+    public static OpenApiDocumentGeneratorSettings AddAuth(this OpenApiDocumentGeneratorSettings s, string schemeName, OpenApiSecurityScheme securityScheme, IEnumerable<string>? globalScopeNames = null)
+    {
+        if (globalScopeNames is null)
+            s.DocumentProcessors.Add(new SecurityDefinitionAppender(schemeName, securityScheme));
+        else
+            s.DocumentProcessors.Add(new SecurityDefinitionAppender(schemeName, globalScopeNames, securityScheme));
+
+        s.OperationProcessors.Add(new DefaultOpSecurityProcessor(schemeName));
+
+        return s;
     }
 
     internal static string Remove(this string value, string removeString)

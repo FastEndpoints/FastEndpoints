@@ -39,6 +39,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
         if (epMeta is null)
             return true; //this is not a fastendpoint
 
+        var brk = ctx.Document.Security.Any();
+
         var apiVer = epMeta.EndpointSettings.Version.Current;
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");

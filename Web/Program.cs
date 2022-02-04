@@ -3,6 +3,7 @@ global using FastEndpoints.Security;
 global using FastEndpoints.Validation;
 global using Web.Auth;
 using FastEndpoints.Swagger;
+using NSwag;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
@@ -25,6 +26,12 @@ builder.Services
          s.DocumentName = "Release 1.0";
          s.Title = "Web API";
          s.Version = "v1.0";
+         s.AddAuth("ApiKey", new()
+         {
+             Name = "api_key",
+             In = OpenApiSecurityApiKeyLocation.Header,
+             Type = OpenApiSecuritySchemeType.ApiKey,
+         });
      })
     .AddSwaggerDoc(maxEndpointVersion: 2, settings: s =>
     {

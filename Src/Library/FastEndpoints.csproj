@@ -6,7 +6,7 @@
 
         <PackageReleaseNotes>
             ### NEW
-            - support for multiple authentication schemes for endpoints
+            - support for multiple authentication schemes for endpoints via x.AddAuth()
             - ability to generate short schema names in swagger
             - ability to override the defaults of swagger .ConfigureDefaults()
 
@@ -15,6 +15,7 @@
 
             ### IMPROVEMENTS
             - add AuthorizeAttribute to endpoint metadata for better swagger support
+            - swagger operations will only include relevant auth schemes if defined
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

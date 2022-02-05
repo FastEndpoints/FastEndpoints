@@ -2,13 +2,14 @@
 
     <PropertyGroup>
 
-        <Version>3.3.0-beta4</Version>
+        <Version>3.3.0</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - support for multiple authentication schemes for endpoints via x.AddAuth()
-            - ability to generate short schema names in swagger with shortSchemaNames param
-            - ability to override the defaults of swagger .ConfigureDefaults()
+            - specify authentication schemes per endpoint with AuthSchemes() method
+            - specify multiple swagger auth schemes per document with AddAuth()
+            - generation of short schema names in swagger with shortSchemaNames param
+            - override the defaults for swagger set with ConfigureDefaults()
 
             ### CHANGES (minor breaking)
             - input type of EndpointRegistrationFilter has been changed to EndpointDefinition

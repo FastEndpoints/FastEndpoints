@@ -17,6 +17,7 @@
             ### IMPROVEMENTS
             - populate AuthorizeAttribute endpoint metadata with roles/schemes for better swagger support
             - swagger operations will now only include relevant auth schemes if defined via AuthSchemes()
+            - update fluentvalidations to latest version
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

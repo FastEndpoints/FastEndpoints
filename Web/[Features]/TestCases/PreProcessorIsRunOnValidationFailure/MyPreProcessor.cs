@@ -1,6 +1,4 @@
-﻿using FastEndpoints.Validation.Results;
-
-namespace TestCases.PreProcessorIsRunOnValidationFailure
+﻿namespace TestCases.PreProcessorIsRunOnValidationFailure
 {
     public class MyPreProcessor : IPreProcessor<Request>
     {

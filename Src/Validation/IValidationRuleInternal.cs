@@ -18,7 +18,6 @@
 
 namespace FastEndpoints.Validation
 {
-    using Internal;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;

@@ -1,6 +1,4 @@
-﻿using FastEndpoints.Validation.Results;
-
-namespace Web.PipelineBehaviors.PreProcessors;
+﻿namespace Web.PipelineBehaviors.PreProcessors;
 
 public class SecurityProcessor<TRequest> : IPreProcessor<TRequest>
 {

@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -26,9 +26,9 @@ namespace FastEndpoints.Validation.Validators
 
     public class EqualValidator<T, TProperty> : PropertyValidator<T, TProperty>, IEqualValidator
     {
-        private readonly Func<T, TProperty> _func;
+        readonly Func<T, TProperty> _func;
         private readonly string _memberDisplayName;
-        private readonly IEqualityComparer<TProperty> _comparer;
+        readonly IEqualityComparer<TProperty> _comparer;
 
         public override string Name => "EqualValidator";
 

@@ -15,7 +15,7 @@
 //
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
@@ -25,7 +25,7 @@ namespace FastEndpoints.Validation.Internal
     /// </summary>
     public class MessageFormatter
     {
-        private readonly Dictionary<string, object> _placeholderValues = new Dictionary<string, object>(2);
+        readonly Dictionary<string, object> _placeholderValues = new Dictionary<string, object>(2);
 
         private static readonly Regex _keyRegex = new Regex("{([^{}:]+)(?::([^{}]+))?}", RegexOptions.Compiled);
 

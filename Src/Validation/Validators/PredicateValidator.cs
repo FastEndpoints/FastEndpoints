@@ -16,10 +16,8 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
-    using Internal;
-
     public class PredicateValidator<T, TProperty> : PropertyValidator<T, TProperty>, IPredicateValidator
     {
         public delegate bool Predicate(T instanceToValidate, TProperty propertyValue, ValidationContext<T> propertyValidatorContext);
@@ -31,7 +29,7 @@ namespace FastEndpoints.Validation.Validators
         public PredicateValidator(Predicate predicate)
         {
             predicate.Guard("A predicate must be specified.", nameof(predicate));
-            _predicate = predicate;
+            this._predicate = predicate;
         }
 
         public override bool IsValid(ValidationContext<T> context, TProperty value)

@@ -18,16 +18,15 @@
 
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using Validators;
 
     internal class RuleComponentForNullableStruct<T, TProperty> : RuleComponent<T, TProperty?> where TProperty : struct
     {
-        private readonly IPropertyValidator<T, TProperty> _propertyValidator;
-        private readonly IAsyncPropertyValidator<T, TProperty> _asyncPropertyValidator;
+        private IPropertyValidator<T, TProperty> _propertyValidator;
+        private IAsyncPropertyValidator<T, TProperty> _asyncPropertyValidator;
 
         internal RuleComponentForNullableStruct(IPropertyValidator<T, TProperty> propertyValidator)
             : base(null)

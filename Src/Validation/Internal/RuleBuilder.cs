@@ -16,11 +16,10 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections.Generic;
-    using Validators;
 
     /// <summary>
     /// Builds a validation rule and constructs a validator.
@@ -35,6 +34,7 @@ namespace FastEndpoints.Validation.Internal
         /// </summary>
         public IValidationRuleInternal<T, TProperty> Rule { get; }
 
+        //TODO: Remove in FV11 once IValidationRule<T,TProperty> and IValidationRuleConfigurable<T,TProperty> have been combined.
         private IValidationRuleConfigurable<T, TProperty> ConfigurableRule => Rule;
 
         /// <summary>

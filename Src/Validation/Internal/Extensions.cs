@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Linq.Expressions;

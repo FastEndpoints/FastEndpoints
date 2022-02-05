@@ -1,4 +1,4 @@
-﻿using FastEndpoints.Validation.Results;
+﻿using FastEndpoints.Validation;
 
 namespace FastEndpoints;
 

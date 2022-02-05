@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -25,7 +25,7 @@ namespace FastEndpoints.Validation.Internal
 
     internal class ConditionBuilder<T>
     {
-        private readonly TrackingCollection<IValidationRuleInternal<T>> _rules;
+        private TrackingCollection<IValidationRuleInternal<T>> _rules;
 
         public ConditionBuilder(TrackingCollection<IValidationRuleInternal<T>> rules)
         {
@@ -104,7 +104,7 @@ namespace FastEndpoints.Validation.Internal
 
     internal class AsyncConditionBuilder<T>
     {
-        private readonly TrackingCollection<IValidationRuleInternal<T>> _rules;
+        private TrackingCollection<IValidationRuleInternal<T>> _rules;
 
         public AsyncConditionBuilder(TrackingCollection<IValidationRuleInternal<T>> rules)
         {
@@ -182,7 +182,7 @@ namespace FastEndpoints.Validation.Internal
 
     internal class ConditionOtherwiseBuilder<T> : IConditionBuilder
     {
-        private readonly TrackingCollection<IValidationRuleInternal<T>> _rules;
+        private TrackingCollection<IValidationRuleInternal<T>> _rules;
         private readonly Func<IValidationContext, bool> _condition;
 
         public ConditionOtherwiseBuilder(TrackingCollection<IValidationRuleInternal<T>> rules, Func<IValidationContext, bool> condition)
@@ -211,7 +211,7 @@ namespace FastEndpoints.Validation.Internal
 
     internal class AsyncConditionOtherwiseBuilder<T> : IConditionBuilder
     {
-        private readonly TrackingCollection<IValidationRuleInternal<T>> _rules;
+        private TrackingCollection<IValidationRuleInternal<T>> _rules;
         private readonly Func<IValidationContext, CancellationToken, Task<bool>> _condition;
 
         public AsyncConditionOtherwiseBuilder(TrackingCollection<IValidationRuleInternal<T>> rules, Func<IValidationContext, CancellationToken, Task<bool>> condition)

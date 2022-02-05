@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -26,7 +26,8 @@ namespace FastEndpoints.Validation.Validators
     /// </summary>
     public abstract class RangeValidator<T, TProperty> : PropertyValidator<T, TProperty>, IBetweenValidator
     {
-        private readonly IComparer<TProperty> _explicitComparer;
+
+        readonly IComparer<TProperty> _explicitComparer;
 
         public RangeValidator(TProperty from, TProperty to, IComparer<TProperty> comparer)
         {

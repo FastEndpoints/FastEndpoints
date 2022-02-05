@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace FastEndpoints.Validation.Internal
     public class MemberNameValidatorSelector : IValidatorSelector
     {
         internal const string DisableCascadeKey = "_FV_DisableSelectorCascadeForChildRules";
-        private readonly IEnumerable<string> _memberNames;
+        readonly IEnumerable<string> _memberNames;
 
         /// <summary>
         /// Creates a new instance of MemberNameValidatorSelector.

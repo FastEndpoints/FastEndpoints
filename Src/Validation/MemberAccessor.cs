@@ -1,5 +1,5 @@
 ﻿#pragma warning disable 1591
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Linq;
@@ -8,9 +8,9 @@ namespace FastEndpoints.Validation.Internal
 
     public class MemberAccessor<TObject, TValue>
     {
-        private readonly Expression<Func<TObject, TValue>> getExpression;
-        private readonly Func<TObject, TValue> getter;
-        private readonly Action<TObject, TValue> setter;
+        readonly Expression<Func<TObject, TValue>> getExpression;
+        readonly Func<TObject, TValue> getter;
+        readonly Action<TObject, TValue> setter;
 
         public MemberAccessor(Expression<Func<TObject, TValue>> getExpression, bool writeable)
         {
@@ -22,7 +22,7 @@ namespace FastEndpoints.Validation.Internal
             Member = getExpression.GetMember();
         }
 
-        private static Expression<Action<TObject, TValue>> CreateSetExpression(Expression<Func<TObject, TValue>> getExpression)
+        static Expression<Action<TObject, TValue>> CreateSetExpression(Expression<Func<TObject, TValue>> getExpression)
         {
             var valueParameter = Expression.Parameter(getExpression.Body.Type);
             var assignExpression = Expression.Lambda<Action<TObject, TValue>>(
@@ -52,7 +52,7 @@ namespace FastEndpoints.Validation.Internal
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
+            if (obj.GetType() != this.GetType()) return false;
             return Equals((MemberAccessor<TObject, TValue>)obj);
         }
 

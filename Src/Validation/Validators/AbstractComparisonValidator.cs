@@ -16,9 +16,8 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
-    using Internal;
     using System;
     using System.Reflection;
 
@@ -27,7 +26,7 @@ namespace FastEndpoints.Validation.Validators
     /// </summary>
     public abstract class AbstractComparisonValidator<T, TProperty> : PropertyValidator<T, TProperty>, IComparisonValidator where TProperty : IComparable<TProperty>, IComparable
     {
-        private readonly Func<T, (bool HasValue, TProperty Value)> _valueToCompareFuncForNullables;
+        readonly Func<T, (bool HasValue, TProperty Value)> _valueToCompareFuncForNullables;
         private readonly Func<T, TProperty> _valueToCompareFunc;
         private readonly string _comparisonMemberDisplayName;
 
@@ -132,11 +131,11 @@ namespace FastEndpoints.Validation.Validators
         /// Comparison value as non-generic for metadata.
         /// </summary>
         object IComparisonValidator.ValueToCompare =>
-            // For clientside validation to work, we must return null if MemberToCompare is set.
+            // For clientside validation to work, we must return null if MemberToCompare or valueToCompareFunc is set.
             // We can't rely on ValueToCompare being null itself as it's generic, and will be initialized
             // as default(TProperty) which for non-nullable value types will emit the
             // default value for the type rather than null. See https://github.com/FluentValidation/FluentValidation/issues/1721
-            MemberToCompare != null ? null : ValueToCompare;
+            MemberToCompare != null || _valueToCompareFunc != null ? null : ValueToCompare;
     }
 
     /// <summary>

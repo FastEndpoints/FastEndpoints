@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Reflection;
@@ -48,7 +48,7 @@ namespace FastEndpoints.Validation.Validators
             return value.CompareTo(valueToCompare) > 0;
         }
 
-        public override Comparison Comparison => Validators.Comparison.GreaterThan;
+        public override Comparison Comparison => Comparison.GreaterThan;
 
         protected override string GetDefaultMessageTemplate(string errorCode)
         {

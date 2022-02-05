@@ -18,13 +18,10 @@
 
 namespace FastEndpoints.Validation
 {
-    using Internal;
-    using Resources;
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Validators;
 
     /// <summary>
     /// Configuration options for validators.
@@ -107,7 +104,7 @@ namespace FastEndpoints.Validation
             set => _errorCodeResolver = value ?? DefaultErrorCodeResolver;
         }
 
-        private static string DefaultPropertyNameResolver(Type type, MemberInfo memberInfo, LambdaExpression expression)
+        static string DefaultPropertyNameResolver(Type type, MemberInfo memberInfo, LambdaExpression expression)
         {
             if (expression != null)
             {
@@ -118,9 +115,9 @@ namespace FastEndpoints.Validation
             return memberInfo?.Name;
         }
 
-        private static string DefaultDisplayNameResolver(Type type, MemberInfo memberInfo, LambdaExpression expression) => null;
+        static string DefaultDisplayNameResolver(Type type, MemberInfo memberInfo, LambdaExpression expression) => null;
 
-        private static string DefaultErrorCodeResolver(IPropertyValidator validator)
+        static string DefaultErrorCodeResolver(IPropertyValidator validator)
         {
             return validator.Name;
         }

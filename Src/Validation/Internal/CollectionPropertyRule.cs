@@ -18,7 +18,7 @@
 
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -144,7 +144,7 @@ namespace FastEndpoints.Validation.Internal
             }
 
             var cascade = CascadeMode;
-            var collection = PropertyFunc(context.InstanceToValidate);
+            var collection = PropertyFunc(context.InstanceToValidate) as IEnumerable<TElement>;
 
             int count = 0;
             int totalFailures = context.Failures.Count;
@@ -282,7 +282,7 @@ namespace FastEndpoints.Validation.Internal
             }
 
             var cascade = CascadeMode;
-            var collection = PropertyFunc(context.InstanceToValidate);
+            var collection = PropertyFunc(context.InstanceToValidate) as IEnumerable<TElement>;
 
             int count = 0;
             int totalFailures = context.Failures.Count;

@@ -16,9 +16,8 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
-    using Results;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -26,7 +25,6 @@ namespace FastEndpoints.Validation.Internal
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using Validators;
 
     internal abstract class RuleBase<T, TProperty, TValue> : IValidationRule<T, TValue>, IValidationRuleConfigurable<T, TValue>
     {
@@ -211,6 +209,7 @@ namespace FastEndpoints.Validation.Internal
         /// </summary>
         public Func<MessageBuilderContext<T, TValue>, string> MessageBuilder { get; set; }
 
+        //TODO: Make this the default version of MessageBuilder for FV 11.
         Func<IMessageBuilderContext<T, TValue>, string> IValidationRuleConfigurable<T, TValue>.MessageBuilder
         {
             set => MessageBuilder = value;
@@ -356,15 +355,14 @@ namespace FastEndpoints.Validation.Internal
                 ? MessageBuilder(new MessageBuilderContext<T, TValue>(context, value, component))
                 : component.GetErrorMessage(context, value);
 
-            var failure = new ValidationFailure(context.PropertyName, error, value)
-            {
-                FormattedMessagePlaceholderValues = new Dictionary<string, object>(context.MessageFormatter.PlaceholderValues),
-                ErrorCode = component.ErrorCode ?? ValidatorOptions.Global.ErrorCodeResolver(component.Validator),
+            var failure = new ValidationFailure(context.PropertyName, error, value);
 
-                Severity = component.SeverityProvider != null
+            failure.FormattedMessagePlaceholderValues = new Dictionary<string, object>(context.MessageFormatter.PlaceholderValues);
+            failure.ErrorCode = component.ErrorCode ?? ValidatorOptions.Global.ErrorCodeResolver(component.Validator);
+
+            failure.Severity = component.SeverityProvider != null
                 ? component.SeverityProvider(context, value)
-                : ValidatorOptions.Global.Severity
-            };
+                : ValidatorOptions.Global.Severity;
 
             if (component.CustomStateProvider != null)
             {

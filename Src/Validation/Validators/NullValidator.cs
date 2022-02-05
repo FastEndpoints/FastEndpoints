@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
     public class NullValidator<T, TProperty> : PropertyValidator<T, TProperty>, INullValidator
     {

@@ -1,6 +1,4 @@
-﻿using FastEndpoints.Validation.Results;
-
-namespace Web.PipelineBehaviors.PostProcessors;
+﻿namespace Web.PipelineBehaviors.PostProcessors;
 
 public class MyResponseLogger<TRequest, TResponse> : IPostProcessor<TRequest, TResponse>
 {

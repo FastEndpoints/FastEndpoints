@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace FastEndpoints.Validation.Internal
     /// </summary>
     public class PropertyChain
     {
-        private readonly List<string> _memberNames = new List<string>(2);
+        readonly List<string> _memberNames = new List<string>(2);
 
         /// <summary>
         /// Creates a new PropertyChain.
@@ -55,7 +55,7 @@ namespace FastEndpoints.Validation.Internal
         /// <param name="memberNames"></param>
         public PropertyChain(IEnumerable<string> memberNames)
         {
-            _memberNames.AddRange(memberNames);
+            this._memberNames.AddRange(memberNames);
         }
 
         /// <summary>

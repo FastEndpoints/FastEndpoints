@@ -16,9 +16,8 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
-    using FastEndpoints.Validation.Internal;
     using System;
     using System.Threading;
     using System.Threading.Tasks;
@@ -39,7 +38,7 @@ namespace FastEndpoints.Validation.Validators
         public AsyncPredicateValidator(Func<T, TProperty, ValidationContext<T>, CancellationToken, Task<bool>> predicate)
         {
             predicate.Guard("A predicate must be specified.", nameof(predicate));
-            _predicate = predicate;
+            this._predicate = predicate;
         }
 
         public override Task<bool> IsValidAsync(ValidationContext<T> context, TProperty value, CancellationToken cancellation)

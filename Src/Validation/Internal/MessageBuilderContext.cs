@@ -1,7 +1,5 @@
-﻿namespace FastEndpoints.Validation.Internal
+﻿namespace FastEndpoints.Validation
 {
-    using Validators;
-
     public interface IMessageBuilderContext<T, out TProperty>
     {
         IRuleComponent<T, TProperty> Component { get; }
@@ -17,8 +15,8 @@
 
     public class MessageBuilderContext<T, TProperty> : IMessageBuilderContext<T, TProperty>
     {
-        private readonly ValidationContext<T> _innerContext;
-        private readonly TProperty _value;
+        private ValidationContext<T> _innerContext;
+        private TProperty _value;
 
         public MessageBuilderContext(ValidationContext<T> innerContext, TProperty value, RuleComponent<T, TProperty> component)
         {

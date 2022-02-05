@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
     public abstract class NoopPropertyValidator<T, TProperty> : PropertyValidator<T, TProperty>
     {

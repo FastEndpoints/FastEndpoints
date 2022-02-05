@@ -19,7 +19,6 @@
 namespace FastEndpoints.Validation
 {
     using System;
-    using Validators;
 
     /// <summary>
     /// Rule builder that starts the chain

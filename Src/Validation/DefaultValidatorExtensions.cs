@@ -18,7 +18,6 @@
 
 namespace FastEndpoints.Validation
 {
-    using Internal;
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
@@ -26,7 +25,6 @@ namespace FastEndpoints.Validation
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
-    using Validators;
 
     /// <summary>
     /// Extension methods that provide the default set of validators.
@@ -1309,7 +1307,7 @@ namespace FastEndpoints.Validation
             if (validatorConfiguration == null) throw new ArgumentNullException(nameof(validatorConfiguration));
             var validator = new PolymorphicValidator<T, TProperty>();
             validatorConfiguration(validator);
-            return ruleBuilder.SetAsyncValidator(validator);
+            return ruleBuilder.SetAsyncValidator((IAsyncPropertyValidator<T, TProperty>)validator);
         }
 
         private static string GetDisplayName<T, TProperty>(MemberInfo member, Expression<Func<T, TProperty>> expression)

@@ -18,8 +18,6 @@
 
 namespace FastEndpoints.Validation
 {
-    using Internal;
-    using Results;
     using System;
     using System.Collections.Generic;
 
@@ -71,11 +69,17 @@ namespace FastEndpoints.Validation
         List<ValidationFailure> Failures { get; }
     }
 
+    //TODO: Temporary interface to avoid introducing a breaking change. Consolidate with IValidationContext in 11.0
+    internal interface IThrowOnFailures
+    {
+        bool ThrowOnFailures { get; }
+    }
+
     /// <summary>
     /// Validation context
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ValidationContext<T> : IValidationContext, IHasFailures
+    public class ValidationContext<T> : IValidationContext, IHasFailures, IThrowOnFailures
     {
         private IValidationContext _parentContext;
 
@@ -224,6 +228,7 @@ namespace FastEndpoints.Validation
                 {
                     IsChildContext = context.IsChildContext,
                     RootContextData = context.RootContextData,
+                    ThrowOnFailures = context is IThrowOnFailures { ThrowOnFailures: true },
                     _parentContext = context.ParentContext
                 };
             }
@@ -236,6 +241,7 @@ namespace FastEndpoints.Validation
                 {
                     IsChildContext = context.IsChildContext,
                     RootContextData = context.RootContextData,
+                    ThrowOnFailures = context is IThrowOnFailures { ThrowOnFailures: true },
                     _parentContext = context.ParentContext,
                 };
             }

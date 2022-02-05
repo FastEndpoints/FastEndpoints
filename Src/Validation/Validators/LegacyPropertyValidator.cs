@@ -19,9 +19,8 @@
 #endregion
 
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
-    using Internal;
     using System;
     using System.Threading;
     using System.Threading.Tasks;
@@ -36,7 +35,7 @@ namespace FastEndpoints.Validation.Validators
     internal class LegacyValidatorAdaptor<T, TProperty> : IPropertyValidator<T, TProperty>, IAsyncPropertyValidator<T, TProperty>, ILegacyValidatorAdaptor
     {
 
-        private readonly PropertyValidator _inner;
+        private PropertyValidator _inner;
 
         public LegacyValidatorAdaptor(PropertyValidator inner)
         {

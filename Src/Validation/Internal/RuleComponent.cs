@@ -18,12 +18,11 @@
 
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Validators;
 
     /// <summary>
     /// An individual component within a rule.

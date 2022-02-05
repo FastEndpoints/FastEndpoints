@@ -20,7 +20,7 @@
 
 #pragma warning disable 618
 
-namespace FastEndpoints.Validation.Resources
+namespace FastEndpoints.Validation
 {
 
     internal class EnglishLanguage

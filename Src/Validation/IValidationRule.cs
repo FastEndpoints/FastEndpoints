@@ -18,15 +18,14 @@
 
 namespace FastEndpoints.Validation
 {
-    using Internal;
-    using Results;
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using Validators;
+
+    //TODO: For FV 11 merge IValidationRuleConfigurable	and IValidationRule<T,Tproperty>
 
     public interface IValidationRuleConfigurable<T, out TProperty> : IValidationRule<T>
     {

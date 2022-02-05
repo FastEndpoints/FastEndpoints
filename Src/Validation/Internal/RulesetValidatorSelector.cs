@@ -1,4 +1,4 @@
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +9,7 @@ namespace FastEndpoints.Validation.Internal
     /// </summary>
     public class RulesetValidatorSelector : IValidatorSelector
     {
-        private readonly IEnumerable<string> _rulesetsToExecute;
+        readonly IEnumerable<string> _rulesetsToExecute;
         public const string DefaultRuleSetName = "default";
         public const string WildcardRuleSetName = "*";
 

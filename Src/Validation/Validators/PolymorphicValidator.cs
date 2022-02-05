@@ -18,9 +18,8 @@
 
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
-    using Internal;
     using System;
     using System.Collections.Generic;
 
@@ -31,7 +30,7 @@ namespace FastEndpoints.Validation.Validators
     /// <typeparam name="TProperty">Base type of property being validated.</typeparam>
     public class PolymorphicValidator<T, TProperty> : ChildValidatorAdaptor<T, TProperty>
     {
-        private readonly Dictionary<Type, DerivedValidatorFactory> _derivedValidators = new();
+        readonly Dictionary<Type, DerivedValidatorFactory> _derivedValidators = new();
 
         // Need the base constructor call, even though we're just passing null.
         public PolymorphicValidator() : base((IValidator<TProperty>)null, typeof(IValidator<TProperty>))
@@ -127,7 +126,7 @@ namespace FastEndpoints.Validation.Validators
 
         private class DerivedValidatorFactory
         {
-            private readonly IValidator _innerValidator;
+            private IValidator _innerValidator;
             private readonly Func<ValidationContext<T>, TProperty, IValidator> _factory;
             public string[] RuleSets { get; }
 

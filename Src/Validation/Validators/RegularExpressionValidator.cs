@@ -16,14 +16,14 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Validators
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Text.RegularExpressions;
 
     public class RegularExpressionValidator<T> : PropertyValidator<T, string>, IRegularExpressionValidator
     {
-        private readonly Func<T, Regex> _regexFunc;
+        readonly Func<T, Regex> _regexFunc;
 
         public override string Name => "RegularExpressionValidator";
 

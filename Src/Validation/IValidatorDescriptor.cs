@@ -18,10 +18,8 @@
 
 namespace FastEndpoints.Validation
 {
-    using Internal;
     using System.Collections.Generic;
     using System.Linq;
-    using Validators;
 
     /// <summary>
     /// Provides metadata about a validator.

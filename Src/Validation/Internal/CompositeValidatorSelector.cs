@@ -16,14 +16,14 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System.Collections.Generic;
     using System.Linq;
 
     internal class CompositeValidatorSelector : IValidatorSelector
     {
-        private readonly IEnumerable<IValidatorSelector> _selectors;
+        private IEnumerable<IValidatorSelector> _selectors;
 
         public CompositeValidatorSelector(IEnumerable<IValidatorSelector> selectors)
         {

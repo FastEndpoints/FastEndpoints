@@ -1,4 +1,4 @@
-﻿using FastEndpoints.Validation.Results;
+﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;

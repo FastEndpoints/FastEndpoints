@@ -1,5 +1,4 @@
 ﻿using FastEndpoints.Validation;
-using FastEndpoints.Validation.Results;
 using System.Linq.Expressions;
 
 namespace FastEndpoints;

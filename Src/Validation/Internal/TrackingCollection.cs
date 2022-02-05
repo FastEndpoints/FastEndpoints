@@ -16,7 +16,7 @@
 // The latest version of this file can be found at https://github.com/FluentValidation/FluentValidation
 #endregion
 
-namespace FastEndpoints.Validation.Internal
+namespace FastEndpoints.Validation
 {
     using System;
     using System.Collections;
@@ -24,7 +24,7 @@ namespace FastEndpoints.Validation.Internal
 
     internal class TrackingCollection<T> : IEnumerable<T>
     {
-        private readonly List<T> _innerCollection = new List<T>();
+        readonly List<T> _innerCollection = new List<T>();
         public event Action<T> ItemAdded;
         private Action<T> _capture = null;
 
@@ -75,10 +75,10 @@ namespace FastEndpoints.Validation.Internal
             return GetEnumerator();
         }
 
-        private class EventDisposable : IDisposable
+        class EventDisposable : IDisposable
         {
-            private readonly TrackingCollection<T> parent;
-            private readonly Action<T> handler;
+            readonly TrackingCollection<T> parent;
+            readonly Action<T> handler;
 
             public EventDisposable(TrackingCollection<T> parent, Action<T> handler)
             {
@@ -94,13 +94,13 @@ namespace FastEndpoints.Validation.Internal
 
         private class CaptureDisposable : IDisposable
         {
-            private readonly TrackingCollection<T> _parent;
-            private readonly Action<T> _old;
+            readonly TrackingCollection<T> _parent;
+            readonly Action<T> _old;
 
             public CaptureDisposable(TrackingCollection<T> parent, Action<T> handler)
             {
-                _parent = parent;
-                _old = parent._capture;
+                this._parent = parent;
+                this._old = parent._capture;
                 parent._capture = handler;
             }
 

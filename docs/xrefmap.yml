@@ -155,197 +155,6 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Config.VersioningOptions
   nameWithType: Config.VersioningOptions
-- uid: FastEndpoints.DiscoveredEndpoint
-  name: DiscoveredEndpoint
-  href: api/FastEndpoints.DiscoveredEndpoint.html
-  commentId: T:FastEndpoints.DiscoveredEndpoint
-  fullName: FastEndpoints.DiscoveredEndpoint
-  nameWithType: DiscoveredEndpoint
-- uid: FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Int32)
-  name: DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Int32)
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint__ctor_Type_IEnumerable_System_String__IEnumerable_System_String__System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Boolean_System_Nullable_IEnumerable_System_String___System_Int32_
-  commentId: M:FastEndpoints.DiscoveredEndpoint.#ctor(Type,IEnumerable{System.String},IEnumerable{System.String},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Boolean,System.Nullable{IEnumerable{System.String}},System.Int32)
-  name.vb: DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Int32)
-  fullName: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<System.String>, IEnumerable<System.String>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Boolean, System.Nullable<IEnumerable<System.String>>, System.Int32)
-  fullName.vb: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of System.String), IEnumerable(Of System.String), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Boolean, System.Nullable(Of IEnumerable(Of System.String)), System.Int32)
-  nameWithType: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable<String>, IEnumerable<String>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Boolean, Nullable<IEnumerable<String>>, Int32)
-  nameWithType.vb: DiscoveredEndpoint.DiscoveredEndpoint(Type, IEnumerable(Of String), IEnumerable(Of String), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Boolean, Nullable(Of IEnumerable(Of String)), Int32)
-- uid: FastEndpoints.DiscoveredEndpoint.#ctor*
-  name: DiscoveredEndpoint
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint__ctor_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.#ctor
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.DiscoveredEndpoint
-  nameWithType: DiscoveredEndpoint.DiscoveredEndpoint
-- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
-  name: AllowAnyClaim
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AllowAnyClaim
-  commentId: P:FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
-  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
-  nameWithType: DiscoveredEndpoint.AllowAnyClaim
-- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim*
-  name: AllowAnyClaim
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AllowAnyClaim_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyClaim
-  nameWithType: DiscoveredEndpoint.AllowAnyClaim
-- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
-  name: AllowAnyPermission
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AllowAnyPermission
-  commentId: P:FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
-  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
-  nameWithType: DiscoveredEndpoint.AllowAnyPermission
-- uid: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission*
-  name: AllowAnyPermission
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AllowAnyPermission_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.AllowAnyPermission
-  nameWithType: DiscoveredEndpoint.AllowAnyPermission
-- uid: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
-  name: AnonymousVerbs
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AnonymousVerbs
-  commentId: P:FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
-  fullName: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
-  nameWithType: DiscoveredEndpoint.AnonymousVerbs
-- uid: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs*
-  name: AnonymousVerbs
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_AnonymousVerbs_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.AnonymousVerbs
-  nameWithType: DiscoveredEndpoint.AnonymousVerbs
-- uid: FastEndpoints.DiscoveredEndpoint.Claims
-  name: Claims
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Claims
-  commentId: P:FastEndpoints.DiscoveredEndpoint.Claims
-  fullName: FastEndpoints.DiscoveredEndpoint.Claims
-  nameWithType: DiscoveredEndpoint.Claims
-- uid: FastEndpoints.DiscoveredEndpoint.Claims*
-  name: Claims
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Claims_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Claims
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.Claims
-  nameWithType: DiscoveredEndpoint.Claims
-- uid: FastEndpoints.DiscoveredEndpoint.EndpointType
-  name: EndpointType
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_EndpointType
-  commentId: P:FastEndpoints.DiscoveredEndpoint.EndpointType
-  fullName: FastEndpoints.DiscoveredEndpoint.EndpointType
-  nameWithType: DiscoveredEndpoint.EndpointType
-- uid: FastEndpoints.DiscoveredEndpoint.EndpointType*
-  name: EndpointType
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_EndpointType_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.EndpointType
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.EndpointType
-  nameWithType: DiscoveredEndpoint.EndpointType
-- uid: FastEndpoints.DiscoveredEndpoint.Permissions
-  name: Permissions
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Permissions
-  commentId: P:FastEndpoints.DiscoveredEndpoint.Permissions
-  fullName: FastEndpoints.DiscoveredEndpoint.Permissions
-  nameWithType: DiscoveredEndpoint.Permissions
-- uid: FastEndpoints.DiscoveredEndpoint.Permissions*
-  name: Permissions
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Permissions_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Permissions
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.Permissions
-  nameWithType: DiscoveredEndpoint.Permissions
-- uid: FastEndpoints.DiscoveredEndpoint.Policies
-  name: Policies
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Policies
-  commentId: P:FastEndpoints.DiscoveredEndpoint.Policies
-  fullName: FastEndpoints.DiscoveredEndpoint.Policies
-  nameWithType: DiscoveredEndpoint.Policies
-- uid: FastEndpoints.DiscoveredEndpoint.Policies*
-  name: Policies
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Policies_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Policies
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.Policies
-  nameWithType: DiscoveredEndpoint.Policies
-- uid: FastEndpoints.DiscoveredEndpoint.Roles
-  name: Roles
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Roles
-  commentId: P:FastEndpoints.DiscoveredEndpoint.Roles
-  fullName: FastEndpoints.DiscoveredEndpoint.Roles
-  nameWithType: DiscoveredEndpoint.Roles
-- uid: FastEndpoints.DiscoveredEndpoint.Roles*
-  name: Roles
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Roles_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Roles
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.Roles
-  nameWithType: DiscoveredEndpoint.Roles
-- uid: FastEndpoints.DiscoveredEndpoint.Routes
-  name: Routes
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Routes
-  commentId: P:FastEndpoints.DiscoveredEndpoint.Routes
-  fullName: FastEndpoints.DiscoveredEndpoint.Routes
-  nameWithType: DiscoveredEndpoint.Routes
-- uid: FastEndpoints.DiscoveredEndpoint.Routes*
-  name: Routes
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Routes_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Routes
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.Routes
-  nameWithType: DiscoveredEndpoint.Routes
-- uid: FastEndpoints.DiscoveredEndpoint.Tags
-  name: Tags
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Tags
-  commentId: P:FastEndpoints.DiscoveredEndpoint.Tags
-  fullName: FastEndpoints.DiscoveredEndpoint.Tags
-  nameWithType: DiscoveredEndpoint.Tags
-- uid: FastEndpoints.DiscoveredEndpoint.Tags*
-  name: Tags
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Tags_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Tags
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.Tags
-  nameWithType: DiscoveredEndpoint.Tags
-- uid: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
-  name: ThrowIfValidationFails
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_ThrowIfValidationFails
-  commentId: P:FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
-  fullName: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
-  nameWithType: DiscoveredEndpoint.ThrowIfValidationFails
-- uid: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails*
-  name: ThrowIfValidationFails
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_ThrowIfValidationFails_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.ThrowIfValidationFails
-  nameWithType: DiscoveredEndpoint.ThrowIfValidationFails
-- uid: FastEndpoints.DiscoveredEndpoint.Verbs
-  name: Verbs
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Verbs
-  commentId: P:FastEndpoints.DiscoveredEndpoint.Verbs
-  fullName: FastEndpoints.DiscoveredEndpoint.Verbs
-  nameWithType: DiscoveredEndpoint.Verbs
-- uid: FastEndpoints.DiscoveredEndpoint.Verbs*
-  name: Verbs
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Verbs_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Verbs
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.Verbs
-  nameWithType: DiscoveredEndpoint.Verbs
-- uid: FastEndpoints.DiscoveredEndpoint.Version
-  name: Version
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Version
-  commentId: P:FastEndpoints.DiscoveredEndpoint.Version
-  fullName: FastEndpoints.DiscoveredEndpoint.Version
-  nameWithType: DiscoveredEndpoint.Version
-- uid: FastEndpoints.DiscoveredEndpoint.Version*
-  name: Version
-  href: api/FastEndpoints.DiscoveredEndpoint.html#FastEndpoints_DiscoveredEndpoint_Version_
-  commentId: Overload:FastEndpoints.DiscoveredEndpoint.Version
-  isSpec: "True"
-  fullName: FastEndpoints.DiscoveredEndpoint.Version
-  nameWithType: DiscoveredEndpoint.Version
 - uid: FastEndpoints.EmptyRequest
   name: EmptyRequest
   href: api/FastEndpoints.EmptyRequest.html
@@ -454,24 +263,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFormData
   nameWithType: Endpoint<TRequest, TResponse>.AllowFormData
   nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFormData
-- uid: FastEndpoints.Endpoint`2.AuthSchems(System.String[])
-  name: AuthSchems(String[])
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AuthSchems_System_String___
-  commentId: M:FastEndpoints.Endpoint`2.AuthSchems(System.String[])
-  name.vb: AuthSchems(String())
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AuthSchems(System.String[])
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AuthSchems(System.String())
-  nameWithType: Endpoint<TRequest, TResponse>.AuthSchems(String[])
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AuthSchems(String())
-- uid: FastEndpoints.Endpoint`2.AuthSchems*
-  name: AuthSchems
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AuthSchems_
-  commentId: Overload:FastEndpoints.Endpoint`2.AuthSchems
+- uid: FastEndpoints.Endpoint`2.AuthSchemes(System.String[])
+  name: AuthSchemes(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AuthSchemes_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.AuthSchemes(System.String[])
+  name.vb: AuthSchemes(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AuthSchemes(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AuthSchemes(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.AuthSchemes(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AuthSchemes(String())
+- uid: FastEndpoints.Endpoint`2.AuthSchemes*
+  name: AuthSchemes
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AuthSchemes_
+  commentId: Overload:FastEndpoints.Endpoint`2.AuthSchemes
   isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AuthSchems
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AuthSchems
-  nameWithType: Endpoint<TRequest, TResponse>.AuthSchems
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AuthSchems
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AuthSchemes
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AuthSchemes
+  nameWithType: Endpoint<TRequest, TResponse>.AuthSchemes
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AuthSchemes
 - uid: FastEndpoints.Endpoint`2.BaseURL
   name: BaseURL
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_BaseURL
@@ -1570,6 +1379,157 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse, TMapper).Map
   nameWithType: Endpoint<TRequest, TResponse, TMapper>.Map
   nameWithType.vb: Endpoint(Of TRequest, TResponse, TMapper).Map
+- uid: FastEndpoints.EndpointDefinition
+  name: EndpointDefinition
+  href: api/FastEndpoints.EndpointDefinition.html
+  commentId: T:FastEndpoints.EndpointDefinition
+  fullName: FastEndpoints.EndpointDefinition
+  nameWithType: EndpointDefinition
+- uid: FastEndpoints.EndpointDefinition.#ctor(Type,System.Nullable{Type},FastEndpoints.EndpointSettings)
+  name: EndpointDefinition(Type, Nullable<Type>, EndpointSettings)
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition__ctor_Type_System_Nullable_Type__FastEndpoints_EndpointSettings_
+  commentId: M:FastEndpoints.EndpointDefinition.#ctor(Type,System.Nullable{Type},FastEndpoints.EndpointSettings)
+  name.vb: EndpointDefinition(Type, Nullable(Of Type), EndpointSettings)
+  fullName: FastEndpoints.EndpointDefinition.EndpointDefinition(Type, System.Nullable<Type>, FastEndpoints.EndpointSettings)
+  fullName.vb: FastEndpoints.EndpointDefinition.EndpointDefinition(Type, System.Nullable(Of Type), FastEndpoints.EndpointSettings)
+  nameWithType: EndpointDefinition.EndpointDefinition(Type, Nullable<Type>, EndpointSettings)
+  nameWithType.vb: EndpointDefinition.EndpointDefinition(Type, Nullable(Of Type), EndpointSettings)
+- uid: FastEndpoints.EndpointDefinition.#ctor*
+  name: EndpointDefinition
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition__ctor_
+  commentId: Overload:FastEndpoints.EndpointDefinition.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.EndpointDefinition
+  nameWithType: EndpointDefinition.EndpointDefinition
+- uid: FastEndpoints.EndpointDefinition.EndpointType
+  name: EndpointType
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_EndpointType
+  commentId: P:FastEndpoints.EndpointDefinition.EndpointType
+  fullName: FastEndpoints.EndpointDefinition.EndpointType
+  nameWithType: EndpointDefinition.EndpointType
+- uid: FastEndpoints.EndpointDefinition.EndpointType*
+  name: EndpointType
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_EndpointType_
+  commentId: Overload:FastEndpoints.EndpointDefinition.EndpointType
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.EndpointType
+  nameWithType: EndpointDefinition.EndpointType
+- uid: FastEndpoints.EndpointDefinition.Settings
+  name: Settings
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Settings
+  commentId: P:FastEndpoints.EndpointDefinition.Settings
+  fullName: FastEndpoints.EndpointDefinition.Settings
+  nameWithType: EndpointDefinition.Settings
+- uid: FastEndpoints.EndpointDefinition.Settings*
+  name: Settings
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Settings_
+  commentId: Overload:FastEndpoints.EndpointDefinition.Settings
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.Settings
+  nameWithType: EndpointDefinition.Settings
+- uid: FastEndpoints.EndpointDefinition.ValidatorType
+  name: ValidatorType
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_ValidatorType
+  commentId: P:FastEndpoints.EndpointDefinition.ValidatorType
+  fullName: FastEndpoints.EndpointDefinition.ValidatorType
+  nameWithType: EndpointDefinition.ValidatorType
+- uid: FastEndpoints.EndpointDefinition.ValidatorType*
+  name: ValidatorType
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_ValidatorType_
+  commentId: Overload:FastEndpoints.EndpointDefinition.ValidatorType
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.ValidatorType
+  nameWithType: EndpointDefinition.ValidatorType
+- uid: FastEndpoints.EndpointSettings
+  name: EndpointSettings
+  href: api/FastEndpoints.EndpointSettings.html
+  commentId: T:FastEndpoints.EndpointSettings
+  fullName: FastEndpoints.EndpointSettings
+  nameWithType: EndpointSettings
+- uid: FastEndpoints.EndpointSettings.AllowAnyClaim
+  name: AllowAnyClaim
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AllowAnyClaim
+  commentId: F:FastEndpoints.EndpointSettings.AllowAnyClaim
+  fullName: FastEndpoints.EndpointSettings.AllowAnyClaim
+  nameWithType: EndpointSettings.AllowAnyClaim
+- uid: FastEndpoints.EndpointSettings.AllowAnyPermission
+  name: AllowAnyPermission
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AllowAnyPermission
+  commentId: F:FastEndpoints.EndpointSettings.AllowAnyPermission
+  fullName: FastEndpoints.EndpointSettings.AllowAnyPermission
+  nameWithType: EndpointSettings.AllowAnyPermission
+- uid: FastEndpoints.EndpointSettings.AnonymousVerbs
+  name: AnonymousVerbs
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AnonymousVerbs
+  commentId: F:FastEndpoints.EndpointSettings.AnonymousVerbs
+  fullName: FastEndpoints.EndpointSettings.AnonymousVerbs
+  nameWithType: EndpointSettings.AnonymousVerbs
+- uid: FastEndpoints.EndpointSettings.AuthSchemes
+  name: AuthSchemes
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AuthSchemes
+  commentId: F:FastEndpoints.EndpointSettings.AuthSchemes
+  fullName: FastEndpoints.EndpointSettings.AuthSchemes
+  nameWithType: EndpointSettings.AuthSchemes
+- uid: FastEndpoints.EndpointSettings.ClaimTypes
+  name: ClaimTypes
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_ClaimTypes
+  commentId: F:FastEndpoints.EndpointSettings.ClaimTypes
+  fullName: FastEndpoints.EndpointSettings.ClaimTypes
+  nameWithType: EndpointSettings.ClaimTypes
+- uid: FastEndpoints.EndpointSettings.Permissions
+  name: Permissions
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Permissions
+  commentId: F:FastEndpoints.EndpointSettings.Permissions
+  fullName: FastEndpoints.EndpointSettings.Permissions
+  nameWithType: EndpointSettings.Permissions
+- uid: FastEndpoints.EndpointSettings.PreBuiltUserPolicies
+  name: PreBuiltUserPolicies
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_PreBuiltUserPolicies
+  commentId: F:FastEndpoints.EndpointSettings.PreBuiltUserPolicies
+  fullName: FastEndpoints.EndpointSettings.PreBuiltUserPolicies
+  nameWithType: EndpointSettings.PreBuiltUserPolicies
+- uid: FastEndpoints.EndpointSettings.Roles
+  name: Roles
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Roles
+  commentId: F:FastEndpoints.EndpointSettings.Roles
+  fullName: FastEndpoints.EndpointSettings.Roles
+  nameWithType: EndpointSettings.Roles
+- uid: FastEndpoints.EndpointSettings.Routes
+  name: Routes
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Routes
+  commentId: F:FastEndpoints.EndpointSettings.Routes
+  fullName: FastEndpoints.EndpointSettings.Routes
+  nameWithType: EndpointSettings.Routes
+- uid: FastEndpoints.EndpointSettings.Summary
+  name: Summary
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Summary
+  commentId: F:FastEndpoints.EndpointSettings.Summary
+  fullName: FastEndpoints.EndpointSettings.Summary
+  nameWithType: EndpointSettings.Summary
+- uid: FastEndpoints.EndpointSettings.Tags
+  name: Tags
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Tags
+  commentId: F:FastEndpoints.EndpointSettings.Tags
+  fullName: FastEndpoints.EndpointSettings.Tags
+  nameWithType: EndpointSettings.Tags
+- uid: FastEndpoints.EndpointSettings.ThrowIfValidationFails
+  name: ThrowIfValidationFails
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_ThrowIfValidationFails
+  commentId: F:FastEndpoints.EndpointSettings.ThrowIfValidationFails
+  fullName: FastEndpoints.EndpointSettings.ThrowIfValidationFails
+  nameWithType: EndpointSettings.ThrowIfValidationFails
+- uid: FastEndpoints.EndpointSettings.Verbs
+  name: Verbs
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Verbs
+  commentId: F:FastEndpoints.EndpointSettings.Verbs
+  fullName: FastEndpoints.EndpointSettings.Verbs
+  nameWithType: EndpointSettings.Verbs
+- uid: FastEndpoints.EndpointSettings.Version
+  name: Version
+  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Version
+  commentId: F:FastEndpoints.EndpointSettings.Version
+  fullName: FastEndpoints.EndpointSettings.Version
+  nameWithType: EndpointSettings.Version
 - uid: FastEndpoints.EndpointSummary
   name: EndpointSummary
   href: api/FastEndpoints.EndpointSummary.html
@@ -1754,6 +1714,38 @@ references:
   fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).HandleAsync
   nameWithType: EndpointWithoutRequest<TResponse>.HandleAsync
   nameWithType.vb: EndpointWithoutRequest(Of TResponse).HandleAsync
+- uid: FastEndpoints.EpVersion
+  name: EpVersion
+  href: api/FastEndpoints.EpVersion.html
+  commentId: T:FastEndpoints.EpVersion
+  fullName: FastEndpoints.EpVersion
+  nameWithType: EpVersion
+- uid: FastEndpoints.EpVersion.Current
+  name: Current
+  href: api/FastEndpoints.EpVersion.html#FastEndpoints_EpVersion_Current
+  commentId: P:FastEndpoints.EpVersion.Current
+  fullName: FastEndpoints.EpVersion.Current
+  nameWithType: EpVersion.Current
+- uid: FastEndpoints.EpVersion.Current*
+  name: Current
+  href: api/FastEndpoints.EpVersion.html#FastEndpoints_EpVersion_Current_
+  commentId: Overload:FastEndpoints.EpVersion.Current
+  isSpec: "True"
+  fullName: FastEndpoints.EpVersion.Current
+  nameWithType: EpVersion.Current
+- uid: FastEndpoints.EpVersion.DeprecatedAt
+  name: DeprecatedAt
+  href: api/FastEndpoints.EpVersion.html#FastEndpoints_EpVersion_DeprecatedAt
+  commentId: P:FastEndpoints.EpVersion.DeprecatedAt
+  fullName: FastEndpoints.EpVersion.DeprecatedAt
+  nameWithType: EpVersion.DeprecatedAt
+- uid: FastEndpoints.EpVersion.DeprecatedAt*
+  name: DeprecatedAt
+  href: api/FastEndpoints.EpVersion.html#FastEndpoints_EpVersion_DeprecatedAt_
+  commentId: Overload:FastEndpoints.EpVersion.DeprecatedAt
+  isSpec: "True"
+  fullName: FastEndpoints.EpVersion.DeprecatedAt
+  nameWithType: EpVersion.DeprecatedAt
 - uid: FastEndpoints.ErrorResponse
   name: ErrorResponse
   href: api/FastEndpoints.ErrorResponse.html
@@ -3027,15 +3019,31 @@ references:
   commentId: T:FastEndpoints.Swagger.Extensions
   fullName: FastEndpoints.Swagger.Extensions
   nameWithType: Extensions
-- uid: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings}},System.Nullable{Action{Newtonsoft.Json.JsonSerializerSettings}},System.Boolean,System.Int32,System.Int32)
-  name: AddSwaggerDoc(IServiceCollection, Nullable<Action<AspNetCoreOpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonSerializerSettings>>, Boolean, Int32, Int32)
-  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddSwaggerDoc_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_AspNetCore_AspNetCoreOpenApiDocumentGeneratorSettings___System_Nullable_Action_Newtonsoft_Json_JsonSerializerSettings___System_Boolean_System_Int32_System_Int32_
-  commentId: M:FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings}},System.Nullable{Action{Newtonsoft.Json.JsonSerializerSettings}},System.Boolean,System.Int32,System.Int32)
-  name.vb: AddSwaggerDoc(IServiceCollection, Nullable(Of Action(Of AspNetCoreOpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonSerializerSettings)), Boolean, Int32, Int32)
-  fullName: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings>>, System.Nullable<Action<Newtonsoft.Json.JsonSerializerSettings>>, System.Boolean, System.Int32, System.Int32)
-  fullName.vb: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of Newtonsoft.Json.JsonSerializerSettings)), System.Boolean, System.Int32, System.Int32)
-  nameWithType: Extensions.AddSwaggerDoc(IServiceCollection, Nullable<Action<AspNetCoreOpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonSerializerSettings>>, Boolean, Int32, Int32)
-  nameWithType.vb: Extensions.AddSwaggerDoc(IServiceCollection, Nullable(Of Action(Of AspNetCoreOpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonSerializerSettings)), Boolean, Int32, Int32)
+- uid: FastEndpoints.Swagger.Extensions.AddAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings,System.String,NSwag.OpenApiSecurityScheme,System.Nullable{IEnumerable{System.String}})
+  name: AddAuth(OpenApiDocumentGeneratorSettings, String, OpenApiSecurityScheme, Nullable<IEnumerable<String>>)
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddAuth_NSwag_Generation_OpenApiDocumentGeneratorSettings_System_String_NSwag_OpenApiSecurityScheme_System_Nullable_IEnumerable_System_String___
+  commentId: M:FastEndpoints.Swagger.Extensions.AddAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings,System.String,NSwag.OpenApiSecurityScheme,System.Nullable{IEnumerable{System.String}})
+  name.vb: AddAuth(OpenApiDocumentGeneratorSettings, String, OpenApiSecurityScheme, Nullable(Of IEnumerable(Of String)))
+  fullName: FastEndpoints.Swagger.Extensions.AddAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings, System.String, NSwag.OpenApiSecurityScheme, System.Nullable<IEnumerable<System.String>>)
+  fullName.vb: FastEndpoints.Swagger.Extensions.AddAuth(NSwag.Generation.OpenApiDocumentGeneratorSettings, System.String, NSwag.OpenApiSecurityScheme, System.Nullable(Of IEnumerable(Of System.String)))
+  nameWithType: Extensions.AddAuth(OpenApiDocumentGeneratorSettings, String, OpenApiSecurityScheme, Nullable<IEnumerable<String>>)
+  nameWithType.vb: Extensions.AddAuth(OpenApiDocumentGeneratorSettings, String, OpenApiSecurityScheme, Nullable(Of IEnumerable(Of String)))
+- uid: FastEndpoints.Swagger.Extensions.AddAuth*
+  name: AddAuth
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddAuth_
+  commentId: Overload:FastEndpoints.Swagger.Extensions.AddAuth
+  isSpec: "True"
+  fullName: FastEndpoints.Swagger.Extensions.AddAuth
+  nameWithType: Extensions.AddAuth
+- uid: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings}},System.Nullable{Action{Newtonsoft.Json.JsonSerializerSettings}},System.Boolean,System.Int32,System.Int32,System.Boolean)
+  name: AddSwaggerDoc(IServiceCollection, Nullable<Action<AspNetCoreOpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonSerializerSettings>>, Boolean, Int32, Int32, Boolean)
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddSwaggerDoc_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_AspNetCore_AspNetCoreOpenApiDocumentGeneratorSettings___System_Nullable_Action_Newtonsoft_Json_JsonSerializerSettings___System_Boolean_System_Int32_System_Int32_System_Boolean_
+  commentId: M:FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings}},System.Nullable{Action{Newtonsoft.Json.JsonSerializerSettings}},System.Boolean,System.Int32,System.Int32,System.Boolean)
+  name.vb: AddSwaggerDoc(IServiceCollection, Nullable(Of Action(Of AspNetCoreOpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonSerializerSettings)), Boolean, Int32, Int32, Boolean)
+  fullName: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings>>, System.Nullable<Action<Newtonsoft.Json.JsonSerializerSettings>>, System.Boolean, System.Int32, System.Int32, System.Boolean)
+  fullName.vb: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of Newtonsoft.Json.JsonSerializerSettings)), System.Boolean, System.Int32, System.Int32, System.Boolean)
+  nameWithType: Extensions.AddSwaggerDoc(IServiceCollection, Nullable<Action<AspNetCoreOpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonSerializerSettings>>, Boolean, Int32, Int32, Boolean)
+  nameWithType.vb: Extensions.AddSwaggerDoc(IServiceCollection, Nullable(Of Action(Of AspNetCoreOpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonSerializerSettings)), Boolean, Int32, Int32, Boolean)
 - uid: FastEndpoints.Swagger.Extensions.AddSwaggerDoc*
   name: AddSwaggerDoc
   href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddSwaggerDoc_
@@ -3043,12 +3051,15 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swagger.Extensions.AddSwaggerDoc
   nameWithType: Extensions.AddSwaggerDoc
-- uid: FastEndpoints.Swagger.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
-  name: ConfigureDefaults(SwaggerUi3Settings)
-  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_ConfigureDefaults_NSwag_AspNetCore_SwaggerUi3Settings_
-  commentId: M:FastEndpoints.Swagger.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
-  fullName: FastEndpoints.Swagger.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings)
-  nameWithType: Extensions.ConfigureDefaults(SwaggerUi3Settings)
+- uid: FastEndpoints.Swagger.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings,System.Nullable{Action{NSwag.AspNetCore.SwaggerUi3Settings}})
+  name: ConfigureDefaults(SwaggerUi3Settings, Nullable<Action<SwaggerUi3Settings>>)
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_ConfigureDefaults_NSwag_AspNetCore_SwaggerUi3Settings_System_Nullable_Action_NSwag_AspNetCore_SwaggerUi3Settings___
+  commentId: M:FastEndpoints.Swagger.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings,System.Nullable{Action{NSwag.AspNetCore.SwaggerUi3Settings}})
+  name.vb: ConfigureDefaults(SwaggerUi3Settings, Nullable(Of Action(Of SwaggerUi3Settings)))
+  fullName: FastEndpoints.Swagger.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings, System.Nullable<Action<NSwag.AspNetCore.SwaggerUi3Settings>>)
+  fullName.vb: FastEndpoints.Swagger.Extensions.ConfigureDefaults(NSwag.AspNetCore.SwaggerUi3Settings, System.Nullable(Of Action(Of NSwag.AspNetCore.SwaggerUi3Settings)))
+  nameWithType: Extensions.ConfigureDefaults(SwaggerUi3Settings, Nullable<Action<SwaggerUi3Settings>>)
+  nameWithType.vb: Extensions.ConfigureDefaults(SwaggerUi3Settings, Nullable(Of Action(Of SwaggerUi3Settings)))
 - uid: FastEndpoints.Swagger.Extensions.ConfigureDefaults*
   name: ConfigureDefaults
   href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_ConfigureDefaults_
@@ -3056,12 +3067,12 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swagger.Extensions.ConfigureDefaults
   nameWithType: Extensions.ConfigureDefaults
-- uid: FastEndpoints.Swagger.Extensions.EnableFastEndpoints(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings,System.Int32,System.Int32)
-  name: EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings, Int32, Int32)
-  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_EnableFastEndpoints_NSwag_Generation_AspNetCore_AspNetCoreOpenApiDocumentGeneratorSettings_System_Int32_System_Int32_
-  commentId: M:FastEndpoints.Swagger.Extensions.EnableFastEndpoints(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings,System.Int32,System.Int32)
-  fullName: FastEndpoints.Swagger.Extensions.EnableFastEndpoints(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings, System.Int32, System.Int32)
-  nameWithType: Extensions.EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings, Int32, Int32)
+- uid: FastEndpoints.Swagger.Extensions.EnableFastEndpoints(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings,System.Int32,System.Int32,System.Boolean)
+  name: EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings, Int32, Int32, Boolean)
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_EnableFastEndpoints_NSwag_Generation_AspNetCore_AspNetCoreOpenApiDocumentGeneratorSettings_System_Int32_System_Int32_System_Boolean_
+  commentId: M:FastEndpoints.Swagger.Extensions.EnableFastEndpoints(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings,System.Int32,System.Int32,System.Boolean)
+  fullName: FastEndpoints.Swagger.Extensions.EnableFastEndpoints(NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings, System.Int32, System.Int32, System.Boolean)
+  nameWithType: Extensions.EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings, Int32, Int32, Boolean)
 - uid: FastEndpoints.Swagger.Extensions.EnableFastEndpoints*
   name: EnableFastEndpoints
   href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_EnableFastEndpoints_

@@ -112,7 +112,7 @@ app.UseSwaggerUi3(s =&gt; s.ConfigureDefaults()); //add this
 app.Run();
 </code></pre>
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
-<h3 id="configuration">configuration</h3>
+<h2 id="configuration">configuration</h2>
 <p>swagger options can be configured as you'd typically do like follows:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(settings =&gt;
 {
@@ -120,7 +120,7 @@ app.Run();
     settings.Version = &quot;v1&quot;;
 });
 </code></pre>
-<h3 id="describe-endpoints">describe endpoints</h3>
+<h2 id="describe-endpoints">describe endpoints</h2>
 <p>if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the <code>Describe()</code> method in configuration like so:</p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest, MyResponse&gt;
 {
@@ -171,13 +171,53 @@ public override void Configure()
     Summary(new AdminLoginSummary());        
 }
 </code></pre>
-<h3 id="disable-auth">disable auth</h3>
+<h2 id="disable-jwt-auth-scheme">disable jwt auth scheme</h2>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(addJWTBearerAuth: false);
 </code></pre>
-<h3 id="group-endpoints-by-path-segment">group endpoints by path segment</h3>
-<p>if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping like so:</p>
+<h2 id="multiple-authentication-schemes">multiple authentication schemes</h2>
+<p>multiple global auth scheme support can be enabled by using the <code>AddAuth()</code> method like below.</p>
+<pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(s =&gt;
+{
+    s.DocumentName = &quot;Release 1.0&quot;;
+    s.Title = &quot;Web API&quot;;
+    s.Version = &quot;v1.0&quot;;
+    s.AddAuth(&quot;ApiKey&quot;, new()
+    {
+        Name = &quot;api_key&quot;,
+        In = OpenApiSecurityApiKeyLocation.Header,
+        Type = OpenApiSecuritySchemeType.ApiKey,
+    });
+    s.AddAuth(&quot;Bearer&quot;, new()
+    {
+        Type = OpenApiSecuritySchemeType.Http,
+        Scheme = &quot;Bearer&quot;,
+        BearerFormat = &quot;JWT&quot;,
+    });
+});
+</code></pre>
+<p>doing the above will associate each of the auth schemes with all endpoints/ swagger operations. if some of your endpoints are only using a a few, they can be specified per endpoint with the <code>AuthSchemes()</code> <a href="Security.html#multiple-authentication-schemes">endpoint method</a>, in which case only the relevant auth schemes will be associated with each swagger operation. for example, if you have both <code>ApiKey</code> and <code>Bearer</code> schemes enabled in swagger and an endpoint only uses <code>ApiKey</code> scheme, when you hit the <code>Try It Out</code> button in swagger ui, only api key auth prompt will be shown.</p>
+<h2 id="group-endpoints-by-path-segment">group endpoints by path segment</h2>
+<p>if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping.</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(tagIndex: 2)
+</code></pre>
+<h2 id="customize-swagger-schema-names">customize swagger schema names</h2>
+<p>by default, schema names are generated using the full name of dto classes. you can make the schema names be just the class name.</p>
+<pre><code class="lang-cshar">builder.Services.AddSwaggerDoc(shortSchemaNames: true);
+</code></pre>
+<h2 id="customize-endpoint-name-swagger-operation-id">customize endpoint name/ swagger operation id</h2>
+<p>if the default operation ids are not to your liking, you can specify a name for an endpoint using the <code>WithName()</code> method.</p>
+<pre><code class="lang-csharp">public override void Configure()
+{
+    Get(&quot;/sales/invoice/{InvoiceID}&quot;);
+    Options(x =&gt; x.WithName(&quot;GetInvoice&quot;));
+}
+</code></pre>
+<p><strong>note:</strong> when you specify a name for the endpoint like above and you want to point to that endpoint when using <a href="Misc-Conveniences.html#sendcreatedatasync">SendCreatedAtAsync()</a> method, you must use the overload that takes a string argument with which you can specify the name of the target endpoint. i.e. you lose the convenience/type-safety of being able to simply point to another endpoint using the class type like so:</p>
+<pre><code class="lang-csharp">await SendCreatedAtAsync&lt;GetInvoiceEndpoint&gt;(...);
+</code></pre>
+<p>instead you must do this:</p>
+<pre><code class="lang-csharp">await SendCreatedAtAsync(&quot;GetInvoice&quot;, ...);
 </code></pre>
 </article>
           </div>

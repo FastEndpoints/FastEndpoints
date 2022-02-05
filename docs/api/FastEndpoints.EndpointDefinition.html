@@ -14,10 +14,10 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class Config
+    <title>Class EndpointDefinition
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class Config
+    <meta name="title" content="Class EndpointDefinition
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern">
@@ -93,18 +93,22 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.Config">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.EndpointDefinition">
   
   
-  <h1 id="FastEndpoints_Config" data-uid="FastEndpoints.Config" class="text-break">Class Config
+  <h1 id="FastEndpoints_EndpointDefinition" data-uid="FastEndpoints.EndpointDefinition" class="text-break">Class EndpointDefinition
   </h1>
-  <div class="markdown level0 summary"><p>global configuration settings for FastEndpoints</p>
+  <div class="markdown level0 summary"><p>represents an endpoint definition that is auto discovered by assembly scanning</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">Config</span></div>
+    <div class="level1"><span class="xref">EndpointDefinition</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="FastEndpoints.EndpointDefinition.html">EndpointDefinition</a>&gt;</div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -132,25 +136,64 @@
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_Config_syntax">Syntax</h5>
+  <h5 id="FastEndpoints_EndpointDefinition_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class Config</code></pre>
+    <pre><code class="lang-csharp hljs">public class EndpointDefinition : IEquatable&lt;EndpointDefinition&gt;</code></pre>
   </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition__ctor_" data-uid="FastEndpoints.EndpointDefinition.#ctor*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition__ctor_Type_System_Nullable_Type__FastEndpoints_EndpointSettings_" data-uid="FastEndpoints.EndpointDefinition.#ctor(Type,System.Nullable{Type},FastEndpoints.EndpointSettings)">EndpointDefinition(Type, Nullable&lt;Type&gt;, EndpointSettings)</h4>
+  <div class="markdown level1 summary"><p>represents an endpoint definition that is auto discovered by assembly scanning</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public EndpointDefinition(Type EndpointType, Type? ValidatorType, EndpointSettings Settings)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Type</span></td>
+        <td><span class="parametername">EndpointType</span></td>
+        <td><p>the type of the endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">Type</span>&gt;</td>
+        <td><span class="parametername">ValidatorType</span></td>
+        <td><p>the type of the validator used for the endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.EndpointSettings.html">EndpointSettings</a></td>
+        <td><span class="parametername">Settings</span></td>
+        <td><p>the configuration settings of the endpoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   <h3 id="properties">Properties
   </h3>
   
   
-  <a id="FastEndpoints_Config_EndpointRegistrationFilter_" data-uid="FastEndpoints.Config.EndpointRegistrationFilter*"></a>
-  <h4 id="FastEndpoints_Config_EndpointRegistrationFilter" data-uid="FastEndpoints.Config.EndpointRegistrationFilter">EndpointRegistrationFilter</h4>
-  <div class="markdown level1 summary"><p>a function to filter out endpoints from auto registration.
-return 'false' from the function if you want to exclude an endpoint from registration.
-return 'true' to include.
-this function will executed for each endpoint that has been discovered during startup.</p>
-</div>
+  <a id="FastEndpoints_EndpointDefinition_EndpointType_" data-uid="FastEndpoints.EndpointDefinition.EndpointType*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_EndpointType" data-uid="FastEndpoints.EndpointDefinition.EndpointType">EndpointType</h4>
+  <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Func&lt;EndpointDefinition, bool&gt; EndpointRegistrationFilter { set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Type EndpointType { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -162,23 +205,20 @@ this function will executed for each endpoint that has been discovered during st
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Func</span>&lt;<a class="xref" href="FastEndpoints.EndpointDefinition.html">EndpointDefinition</a>, <span class="xref">System.Boolean</span>&gt;</td>
+        <td><span class="xref">Type</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="FastEndpoints_Config_ErrorResponseBuilder_" data-uid="FastEndpoints.Config.ErrorResponseBuilder*"></a>
-  <h4 id="FastEndpoints_Config_ErrorResponseBuilder" data-uid="FastEndpoints.Config.ErrorResponseBuilder">ErrorResponseBuilder</h4>
-  <div class="markdown level1 summary"><p>a function for transforming validation errors to an error response dto.
-set it to any func that returns an object that can be serialized to json.
-this function will be run everytime an error response needs to be sent to the client.</p>
-</div>
+  <a id="FastEndpoints_EndpointDefinition_Settings_" data-uid="FastEndpoints.EndpointDefinition.Settings*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_Settings" data-uid="FastEndpoints.EndpointDefinition.Settings">Settings</h4>
+  <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Func&lt;IEnumerable&lt;ValidationFailure&gt;, object&gt; ErrorResponseBuilder { set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public EndpointSettings Settings { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -190,25 +230,20 @@ this function will be run everytime an error response needs to be sent to the cl
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Func</span>&lt;<span class="xref">IEnumerable</span>&lt;<span class="xref">ValidationFailure</span>&gt;, <span class="xref">System.Object</span>&gt;</td>
+        <td><a class="xref" href="FastEndpoints.EndpointSettings.html">EndpointSettings</a></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="FastEndpoints_Config_RequestDeserializer_" data-uid="FastEndpoints.Config.RequestDeserializer*"></a>
-  <h4 id="FastEndpoints_Config_RequestDeserializer" data-uid="FastEndpoints.Config.RequestDeserializer">RequestDeserializer</h4>
-  <div class="markdown level1 summary"><p>a function for deserializing the incoming http request body. this function will be executed for each request received if it has json request body.
-the parameters of the func are as follows:</p>
-<p>HttpRequest: the incoming request</p>
-<p>Type: the type of the request dto which the request body will be deserialized into</p>
-<p>CancellationToken: a cancellation token</p>
-</div>
+  <a id="FastEndpoints_EndpointDefinition_ValidatorType_" data-uid="FastEndpoints.EndpointDefinition.ValidatorType*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_ValidatorType" data-uid="FastEndpoints.EndpointDefinition.ValidatorType">ValidatorType</h4>
+  <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Func&lt;HttpRequest, Type, CancellationToken, ValueTask&lt;object&gt;&gt; RequestDeserializer { set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Type? ValidatorType { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -220,127 +255,15 @@ the parameters of the func are as follows:</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Func</span>&lt;<span class="xref">Microsoft.AspNetCore.Http.HttpRequest</span>, <span class="xref">Type</span>, <span class="xref">CancellationToken</span>, <span class="xref">ValueTask</span>&lt;<span class="xref">System.Object</span>&gt;&gt;</td>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">Type</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>
   </table>
-  
-  
-  <a id="FastEndpoints_Config_ResponseSerializer_" data-uid="FastEndpoints.Config.ResponseSerializer*"></a>
-  <h4 id="FastEndpoints_Config_ResponseSerializer" data-uid="FastEndpoints.Config.ResponseSerializer">ResponseSerializer</h4>
-  <div class="markdown level1 summary"><p>a function for writing serialized response dtos to the response body.
-this function will be executed whenever a json response is being sent to the client.
-you should set the content-type and write directly to the http response body stream in this function.
-the parameters of the func are as follows:</p>
-<p>HttpResponse: the http response object</p>
-<p>object: the response dto to be serialized</p>
-<p>string: the response content-type</p>
-<p>CancellationToken: a cancellation token</p>
-<pre><code>config.ResponseSerializer = (rsp, dto, cType, ct) =>
-{
-    rsp.ContentType = cType;
-    return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);
-};</code></pre>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Func&lt;HttpResponse, object, string, CancellationToken, Task&gt; ResponseSerializer { set; }</code></pre>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
   </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Func</span>&lt;<span class="xref">Microsoft.AspNetCore.Http.HttpResponse</span>, <span class="xref">System.Object</span>, <span class="xref">System.String</span>, <span class="xref">CancellationToken</span>, <span class="xref">Task</span>&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="FastEndpoints_Config_RoutingOptions_" data-uid="FastEndpoints.Config.RoutingOptions*"></a>
-  <h4 id="FastEndpoints_Config_RoutingOptions" data-uid="FastEndpoints.Config.RoutingOptions">RoutingOptions</h4>
-  <div class="markdown level1 summary"><p>routing options for all endpoints</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Action&lt;RoutingOptions&gt; RoutingOptions { set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Action</span>&lt;<a class="xref" href="FastEndpoints.RoutingOptions.html">RoutingOptions</a>&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="FastEndpoints_Config_SerializerOptions_" data-uid="FastEndpoints.Config.SerializerOptions*"></a>
-  <h4 id="FastEndpoints_Config_SerializerOptions" data-uid="FastEndpoints.Config.SerializerOptions">SerializerOptions</h4>
-  <div class="markdown level1 summary"><p>settings for configuring the json serializer</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Action&lt;JsonSerializerOptions&gt; SerializerOptions { set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Action</span>&lt;<span class="xref">System.Text.Json.JsonSerializerOptions</span>&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="FastEndpoints_Config_VersioningOptions_" data-uid="FastEndpoints.Config.VersioningOptions*"></a>
-  <h4 id="FastEndpoints_Config_VersioningOptions" data-uid="FastEndpoints.Config.VersioningOptions">VersioningOptions</h4>
-  <div class="markdown level1 summary"><p>options for enabling endpoint versioning support</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Action&lt;VersioningOptions&gt; VersioningOptions { set; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Action</span>&lt;<a class="xref" href="FastEndpoints.VersioningOptions.html">VersioningOptions</a>&gt;</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
 </article>
           </div>
           

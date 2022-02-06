@@ -2,22 +2,15 @@
 
     <PropertyGroup>
 
-        <Version>3.3.0</Version>
+        <Version>3.4.0-beta1</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - specify authentication schemes per endpoint with AuthSchemes() method
-            - specify multiple swagger auth schemes per document with AddAuth()
-            - generation of short schema names in swagger with shortSchemaNames param
-            - override the defaults for swagger set with ConfigureDefaults()
+            - generation of short endpoint names/swagger operation ids with ShortEndpointNames setting
+            - multi verb/route endpoint support for SendCreatedAtAsync() method
 
-            ### CHANGES (minor breaking)
-            - input type of EndpointRegistrationFilter has been changed to EndpointDefinition
-
-            ### IMPROVEMENTS
-            - populate AuthorizeAttribute endpoint metadata with roles/schemes for better swagger support
-            - swagger operations will now only include relevant auth schemes if defined via AuthSchemes()
-            - update fluentvalidations to latest version
+            ### CHANGES
+            - auto generated swagger operation ids now use endpoint class names instead of being route based
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

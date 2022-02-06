@@ -6,7 +6,12 @@
 public class EndpointSummary
 {
     /// <summary>
-    /// the main description of the endpoint
+    /// the short summary of the endpoint
+    /// </summary>
+    public string Summary { get; set; }
+
+    /// <summary>
+    /// the long description of the endpoint
     /// </summary>
     public string Description { get; set; }
 

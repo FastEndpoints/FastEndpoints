@@ -246,11 +246,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
-    /// <param name="endpointDescription">the main description</param>
+    /// <param name="endpointSummary">the short summary of the endpoint</param>
+    /// <param name="endpointDescription">the long description of the endpoint</param>
     /// <param name="statusCodeDescriptions">the descriptions for different response status codes this endpoint can return</param>
-    protected void Summary(string endpointDescription, params (int statusCode, string statusCodeDescription)[] statusCodeDescriptions)
+    protected void Summary(string? endpointSummary, string? endpointDescription, params (int statusCode, string statusCodeDescription)[] statusCodeDescriptions)
     {
-        Settings.Summary = new() { Description = endpointDescription };
+        Settings.Summary = new() { Summary = endpointSummary!, Description = endpointDescription! };
         foreach (var (statusCode, statusCodeDescription) in statusCodeDescriptions)
             Settings.Summary[statusCode] = statusCodeDescription;
     }

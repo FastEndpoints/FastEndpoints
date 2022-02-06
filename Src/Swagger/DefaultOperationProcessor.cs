@@ -90,7 +90,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
                   res.Value.Description = epMeta.EndpointSettings.Summary[Convert.ToInt32(res.Key)]; //then take values from summary object
           });
 
-        //set main endpoint description
+        //set endpoint summary & description
+        op.Summary = epMeta.EndpointSettings.Summary?.Summary;
         op.Description = epMeta.EndpointSettings.Summary?.Description;
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;

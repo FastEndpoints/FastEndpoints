@@ -13,12 +13,12 @@ public class Endpoint : Endpoint<Request, Response>
             .Produces<Response>(200)
             .Produces(400)
             .Produces(403));
-        Summary(
-            "this is the endpoint used by admins to login",
-            (200, "all good in the hood"),
-            (400, "indicates an error"),
-            (403, "forbidden when login fails"),
-            (201, "a new resource was created at a different location"));
+        Summary("this is the endpoint used by admins to login",
+                "this is the long description of the endpoint",
+               (200, "all good in the hood"),
+               (400, "indicates an error"),
+               (403, "forbidden when login fails"),
+               (201, "a new resource was created at a different location"));
     }
 
     public override Task HandleAsync(Request r, CancellationToken ct)

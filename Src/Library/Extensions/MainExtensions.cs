@@ -71,24 +71,28 @@ public static class MainExtensions
             if (epDef.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
             if (epDef.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
 
-            var shouldSetName = epDef.Settings.Verbs.Length == 1 && epDef.Settings.Routes.Length == 1;
             var epMetaData = BuildEndpointMetaData(epDef);
             var authorizeAttributes = BuildAuthorizeAttributes(epDef);
+            var routeNum = 0;
 
             foreach (var route in epDef.Settings.Routes)
             {
                 var finalRoute = routeBuilder.BuildRoute(epDef.Settings.Version.Current, route);
 
+                routeNum++;
+
                 foreach (var verb in epDef.Settings.Verbs)
                 {
                     var hb = app.MapMethods(finalRoute, new[] { verb }, SendMisconfiguredPipelineMsg());
 
-                    if (shouldSetName)
-                        hb.WithName(epDef.EndpointType.SantizedName()); //needed for link generation. only supported on single verb/route endpoints.
+                    hb.WithName(
+                        epDef.EndpointType.EndpointName(
+                            epDef.Settings.Verbs.Length > 1 ? verb : null,
+                            epDef.Settings.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
 
                     hb.WithMetadata(epMetaData, epDef);
 
-                    epDef.Settings.InternalConfigAction(hb);//always do this first                    
+                    epDef.Settings.InternalConfigAction(hb); //always do this first here
 
                     if (epDef.Settings.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
@@ -117,9 +121,8 @@ public static class MainExtensions
 
         EndpointData.Stopwatch.Stop();
 
+        var duplicatesDetected = false;
         var logger = IServiceResolver.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
-
-        bool duplicatesDetected = false;
 
         foreach (var kvp in routeToHandlerCounts)
         {
@@ -203,8 +206,6 @@ public static class MainExtensions
             }
         }
     }
-
-    internal static string SantizedName(this Type type) => type.FullName?.Replace(".", string.Empty)!;
 
     private static IAuthorizeData[] BuildAuthorizeAttributes(EndpointDefinition ep)
     {

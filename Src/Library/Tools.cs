@@ -1,10 +1,11 @@
-﻿namespace FastEndpoints;
+﻿using static FastEndpoints.Config;
+
+namespace FastEndpoints;
 
 internal static class MiscExtensions
 {
     internal static Dictionary<TKey, List<TValue>> GroupToDictionary<TItem, TKey, TValue>(this List<TItem> items,
-        Func<TItem, TKey> keySelector,
-        Func<TItem, TValue> valueSelector)
+        Func<TItem, TKey> keySelector, Func<TItem, TValue> valueSelector)
         where TKey : notnull
     {
         var dict = new Dictionary<TKey, List<TValue>>();
@@ -22,5 +23,13 @@ internal static class MiscExtensions
         }
 
         return dict;
+    }
+
+    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
+    {
+        var v = verb?.ToString();
+        var vrb = v != null ? v[0] + v.Substring(1, v.Length - 1).ToLowerInvariant() : null;
+        var ep = ShortEpNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
+        return $"{vrb}{ep}{routeNum}";
     }
 }

@@ -23,15 +23,18 @@ public static class HttpResponseExtensions
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
-    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
+    /// <para>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint, specify the 'routeNumber' argument.</para>
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
-    /// <param name="cancellation">cancellation token</param>
-    public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp, object? routeValues, object? responseBody, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
+    /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
+    /// <param name="cancellation">optional cancellation token</param>
+    public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp,
+        object? routeValues, object? responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
-        return SendCreatedAtAsync(rsp, typeof(TEndpoint).SantizedName(), routeValues, responseBody, cancellation);
+        return SendCreatedAtAsync(rsp, typeof(TEndpoint).EndpointName(verb?.ToString(), routeNumber), routeValues, responseBody, cancellation);
     }
 
     /// <summary>

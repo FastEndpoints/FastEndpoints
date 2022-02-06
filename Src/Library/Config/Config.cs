@@ -13,6 +13,7 @@ namespace FastEndpoints;
 public class Config
 {
     internal static JsonSerializerOptions SerializerOpts { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
+    internal static bool ShortEpNames { get; set; }
     internal static VersioningOptions? VersioningOpts { get; private set; }
     internal static RoutingOptions? RoutingOpts { get; private set; }
     internal static Func<EndpointDefinition, bool>? EpRegFilterFunc { get; private set; }
@@ -23,6 +24,11 @@ public class Config
     internal static Func<HttpResponse, object, string, CancellationToken, Task> RespSerializerFunc { get; private set; }
         = (rsp, dto, contentType, cancellation)
             => rsp.WriteAsJsonAsync(dto, SerializerOpts, contentType, cancellation);
+
+    /// <summary>
+    /// set to true if you'd like the endpoint names/ swagger operation ids to be just the endpoint class names instead of the full names including namespace.
+    /// </summary>
+    public bool ShortEndpointNames { set => ShortEpNames = value; }
 
     /// <summary>
     /// settings for configuring the json serializer

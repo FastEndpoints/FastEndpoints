@@ -18,18 +18,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
-    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
+    /// <para>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint, specify the 'routeNumber' argument.</para>
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
-    /// <param name="cancellation">cancellation token</param>
-    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? responseBody, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
+    /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>   
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
         if (responseBody is not null)
             Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, responseBody, cancellation);
+        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, responseBody, verb, routeNumber, cancellation);
     }
 
     /// <summary>

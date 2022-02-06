@@ -18,9 +18,10 @@ public class Endpoint : Endpoint<Request>
 
     public override void Configure()
     {
-        Verbs(Http.POST);
+        Verbs(Http.POST, Http.GET);
         Routes(
             "/customer/new/{RefererID}",
+            "/customer/{cID}/new/{SourceID}",
             "/customer/save");
         AllowAnonymous();
     }

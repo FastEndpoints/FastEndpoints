@@ -232,37 +232,43 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             b.Add(epBuilder =>
             {
-                foreach (var m in epBuilder.Metadata.Where(
-                    o => o.GetType().Name is "ProducesResponseTypeMetadata" or "AcceptsMetadata").ToArray())
-                {
+                foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is "ProducesResponseTypeMetadata" or "AcceptsMetadata").ToArray())
                     epBuilder.Metadata.Remove(m);
-                }
             });
         };
 
         Settings.UserConfigAction = clearDefaultsAction + builder;
     }
 
-    /// <summary>
-    /// provide a summary/description for this endpoint to be used in swagger/ openapi
-    /// </summary>
-    /// <param name="endpointSummary">the short summary of the endpoint</param>
-    /// <param name="endpointDescription">the long description of the endpoint</param>
-    /// <param name="statusCodeDescriptions">the descriptions for different response status codes this endpoint can return</param>
-    protected void Summary(string? endpointSummary, string? endpointDescription, params (int statusCode, string statusCodeDescription)[] statusCodeDescriptions)
+    //todo: remove in v4.0
+    [Obsolete("Use the one of the other Summary() overloads.", false)]
+    protected void Summary(string endpointDescription, params (int statusCode, string statusCodeDescription)[] statusCodeDescriptions)
     {
-        Settings.Summary = new() { Summary = endpointSummary!, Description = endpointDescription! };
-        foreach (var (statusCode, statusCodeDescription) in statusCodeDescriptions)
-            Settings.Summary[statusCode] = statusCodeDescription;
+        Summary(s =>
+        {
+            s.Description = endpointDescription;
+            foreach (var (code, desc) in statusCodeDescriptions)
+                s[code] = desc;
+        });
     }
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
-    /// <param name="endpointDescription">an endpoint description instance</param>
-    protected void Summary(EndpointSummary endpointDescription)
+    /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
+    protected void Summary(Action<EndpointSummary> endpointSummary)
     {
-        Settings.Summary = endpointDescription;
+        Settings.Summary = new();
+        endpointSummary(Settings.Summary);
+    }
+
+    /// <summary>
+    /// provide a summary/description for this endpoint to be used in swagger/ openapi
+    /// </summary>
+    /// <param name="endpointSummary">an endpoint summary instance</param>
+    protected void Summary(EndpointSummary endpointSummary)
+    {
+        Settings.Summary = endpointSummary;
     }
 
     /// <summary>

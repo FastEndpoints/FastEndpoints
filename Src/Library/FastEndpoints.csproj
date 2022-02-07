@@ -2,17 +2,20 @@
 
     <PropertyGroup>
 
-        <Version>3.4.0-beta2</Version>
+        <Version>3.4.0-beta3</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - generation of short endpoint names/swagger operation ids with ShortEndpointNames setting
             - multi verb/route endpoint support for SendCreatedAtAsync() method
-            - add short summary support for Summary() endpoint method
+            - short summary support for endpoint summaries in addition to long descriptions
 
-            ### CHANGES
+            ### IMPROVEMENTS
+            - add more overloads of the Summary() method
+
+            ### CHANGES (possibly breaking)
             - auto generated swagger operation ids now use endpoint class names instead of being route based
-            - method signature of Summary() method was changed to support short summary
+            - deprecate one of the Summary() method overloads
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

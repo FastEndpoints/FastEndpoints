@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.4.0-beta3</Version>
+        <Version>3.4.0</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -21,7 +21,6 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <OutputType>Library</OutputType>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;CS1591;CS1573,CA2254;RCS1079;CS8618</NoWarn>
         <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
@@ -29,10 +28,11 @@
         <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet6, minimal-api, vertical-slice-architecture, repr-pattern</PackageTags>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>

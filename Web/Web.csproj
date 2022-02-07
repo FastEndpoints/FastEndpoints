@@ -4,10 +4,8 @@
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <NoWarn>1701;1702;CA2016;RCS1090;CA2254;CS8618</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591;1701;1702;CA2016;RCS1090;CA2254;CS8618</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

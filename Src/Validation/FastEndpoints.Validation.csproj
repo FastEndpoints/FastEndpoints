@@ -2,10 +2,10 @@
 
     <PropertyGroup>
 
-        <Version>3.4.0-beta3</Version>
+        <Version>3.4.0</Version>
 
         <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>true</ImplicitUsings>
+        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>

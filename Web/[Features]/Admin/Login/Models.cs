@@ -2,9 +2,19 @@
 
 namespace Admin.Login;
 
+/// <summary>
+/// the admin login request
+/// </summary>
 public class Request
 {
+    /// <summary>
+    /// the admin username
+    /// </summary>
     public string UserName { get; set; }
+
+    /// <summary>
+    /// the admin password
+    /// </summary>
     public string Password { get; set; }
 
     [JsonIgnore, Newtonsoft.Json.JsonIgnore]

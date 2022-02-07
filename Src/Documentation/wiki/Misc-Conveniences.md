@@ -63,7 +63,7 @@ the following **[response sending methods](xref:FastEndpoints.Endpoint`2.SendAsy
 sends a given response dto or any object that can be serialized as json down to the requesting client.
 
 #### SendCreatedAtAsync()
-sends a 201 created response with a `Location` header containing where the resource can be retrieved from. this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.
+sends a 201 created response with a `Location` header containing where the resource can be retrieved from.
 
 #### SendStringAsync()
 sends a given string to the client in the response body

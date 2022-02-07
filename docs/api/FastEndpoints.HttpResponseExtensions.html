@@ -362,14 +362,14 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(HttpResponse, Object, Object, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(HttpResponse, Object, Object, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
-<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>
+<p>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the &apos;verb&apos; argument and if pointing to a multi route endpoint, specify the &apos;routeNumber&apos; argument.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, CancellationToken cancellation = null)
+    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = null)
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -400,9 +400,21 @@
 </td>
       </tr>
       <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<a class="xref" href="FastEndpoints.Http.html">Http</a>&gt;</td>
+        <td><span class="parametername">verb</span></td>
+        <td><p>only useful when pointing to a multi verb endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
+        <td><span class="parametername">routeNumber</span></td>
+        <td><p>only useful when pointing to a multi route endpoint</p>
+</td>
+      </tr>
+      <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>cancellation token</p>
+        <td><p>optional cancellation token</p>
 </td>
       </tr>
     </tbody>

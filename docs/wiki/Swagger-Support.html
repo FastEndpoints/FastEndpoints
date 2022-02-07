@@ -135,6 +135,7 @@ app.Run();
     }
 }
 </code></pre>
+<h3 id="swagger-documentation">swagger documentation</h3>
 <p>the text descriptions for the endpoint and the different responses the endpoint returns can be specified with the <code>Summary()</code> method:</p>
 <pre><code class="lang-csharp">public override void Configure()
 {
@@ -144,9 +145,12 @@ app.Run();
       .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
       .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
       .ProducesProblem(403));
-    Summary(&quot;the main administrator login endpoint. post the credentials to receive a jwt token.&quot;,
-           (200, &quot;returned upon successful validation of the login credentials.&quot;),
-           (403, &quot;a forbidden response is returned in case credentials are invalid.&quot;));        
+    Summary(s =&gt; {
+        s.Summary = &quot;short summary goes here&quot;;
+        s.Description = &quot;long description goes here&quot;;
+        s[200] = &quot;success response description goes here&quot;;
+        s[403] = &quot;forbidden response description goes here&quot;;
+    });      
 }
 </code></pre>
 <p>if you prefer to move the summary text out of the endpoint class, you can do so by subclassing the <code>EndpointSummary</code> type:</p>
@@ -154,9 +158,10 @@ app.Run();
 {
     public AdminLoginSummary()
     {
-        Description = &quot;main endpoint description goes here.&quot;;
-        this[200] = &quot;success response description goes here.&quot;;
-        this[403] = &quot;forbidden response description goes here.&quot;;
+        Summary = &quot;short summary goes here&quot;;
+        Description = &quot;long description goes here&quot;;
+        this[200] = &quot;success response description goes here&quot;;
+        this[403] = &quot;forbidden response description goes here&quot;;
     }
 }
 
@@ -171,6 +176,16 @@ public override void Configure()
     Summary(new AdminLoginSummary());        
 }
 </code></pre>
+<h3 id="xml-documentation">xml documentation</h3>
+<p>xml documentation is only supported for request/response dtos (swagger schemas) which can be enabled by adding the following to the <code>csproj</code> file:</p>
+<pre><code class="lang-xml">&lt;PropertyGroup&gt;
+    &lt;GenerateDocumentationFile&gt;true&lt;/GenerateDocumentationFile&gt;
+    &lt;NoWarn&gt;CS1591&lt;/NoWarn&gt;
+&lt;/PropertyGroup&gt;
+</code></pre>
+<blockquote>
+<p>if you can figure out how to get nswag to read the xml summary/remarks tags from the endpoint classes, please submit a PR on github.</p>
+</blockquote>
 <h2 id="disable-jwt-auth-scheme">disable jwt auth scheme</h2>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(addJWTBearerAuth: false);
@@ -206,14 +221,20 @@ public override void Configure()
 <pre><code class="lang-cshar">builder.Services.AddSwaggerDoc(shortSchemaNames: true);
 </code></pre>
 <h2 id="customize-endpoint-name-swagger-operation-id">customize endpoint name/ swagger operation id</h2>
-<p>if the default operation ids are not to your liking, you can specify a name for an endpoint using the <code>WithName()</code> method.</p>
+<p>the full name (including namespace) of the endpoint classes are used to generate the operation ids. you can change it to use just the class name by doing the following at startup:</p>
+<pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
+{
+    c.ShortEndpointNames = false;
+});
+</code></pre>
+<p>if the auto-generated operation ids are not to your liking, you can specify a name for an endpoint using the <code>WithName()</code> method.</p>
 <pre><code class="lang-csharp">public override void Configure()
 {
     Get(&quot;/sales/invoice/{InvoiceID}&quot;);
     Options(x =&gt; x.WithName(&quot;GetInvoice&quot;));
 }
 </code></pre>
-<p><strong>note:</strong> when you specify a name for the endpoint like above and you want to point to that endpoint when using <a href="Misc-Conveniences.html#sendcreatedatasync">SendCreatedAtAsync()</a> method, you must use the overload that takes a string argument with which you can specify the name of the target endpoint. i.e. you lose the convenience/type-safety of being able to simply point to another endpoint using the class type like so:</p>
+<p><strong>note:</strong> when you manually specify a name for an endpoint like above and you want to point to that endpoint when using <a href="Misc-Conveniences.html#sendcreatedatasync">SendCreatedAtAsync()</a> method, you must use the overload that takes a string argument with which you can specify the name of the target endpoint. i.e. you lose the convenience/type-safety of being able to simply point to another endpoint using the class type like so:</p>
 <pre><code class="lang-csharp">await SendCreatedAtAsync&lt;GetInvoiceEndpoint&gt;(...);
 </code></pre>
 <p>instead you must do this:</p>

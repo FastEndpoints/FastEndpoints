@@ -50,6 +50,9 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
     }
 }
 ```
+
+### swagger documentation
+
 the text descriptions for the endpoint and the different responses the endpoint returns can be specified with the `Summary()` method:
 ```csharp
 public override void Configure()
@@ -60,20 +63,25 @@ public override void Configure()
       .Accepts<MyRequest>("application/json")
       .Produces<MyResponse>(200,"application/json")
       .ProducesProblem(403));
-    Summary("the main administrator login endpoint. post the credentials to receive a jwt token.",
-           (200, "returned upon successful validation of the login credentials."),
-           (403, "a forbidden response is returned in case credentials are invalid."));        
+    Summary(s => {
+        s.Summary = "short summary goes here";
+        s.Description = "long description goes here";
+        s[200] = "success response description goes here";
+        s[403] = "forbidden response description goes here";
+    });      
 }
 ```
+
 if you prefer to move the summary text out of the endpoint class, you can do so by subclassing the `EndpointSummary` type:
 ```csharp
 class AdminLoginSummary : EndpointSummary
 {
     public AdminLoginSummary()
     {
-        Description = "main endpoint description goes here.";
-        this[200] = "success response description goes here.";
-        this[403] = "forbidden response description goes here.";
+        Summary = "short summary goes here";
+        Description = "long description goes here";
+        this[200] = "success response description goes here";
+        this[403] = "forbidden response description goes here";
     }
 }
 
@@ -88,6 +96,16 @@ public override void Configure()
     Summary(new AdminLoginSummary());        
 }
 ```
+
+### xml documentation
+xml documentation is only supported for request/response dtos (swagger schemas) which can be enabled by adding the following to the `csproj` file:
+```xml
+<PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+</PropertyGroup>
+```
+> if you can figure out how to get nswag to read the xml summary/remarks tags from the endpoint classes, please submit a PR on github.
 
 ## disable jwt auth scheme
 support for jwt bearer auth is automatically added. if you need to disable it, simply pass a `false` value to the following parameter:
@@ -132,7 +150,15 @@ builder.Services.AddSwaggerDoc(shortSchemaNames: true);
 ```
 
 ## customize endpoint name/ swagger operation id
-if the default operation ids are not to your liking, you can specify a name for an endpoint using the `WithName()` method.
+the full name (including namespace) of the endpoint classes are used to generate the operation ids. you can change it to use just the class name by doing the following at startup:
+```csharp
+app.UseFastEndpoints(c =>
+{
+    c.ShortEndpointNames = false;
+});
+```
+
+if the auto-generated operation ids are not to your liking, you can specify a name for an endpoint using the `WithName()` method.
 ```csharp
 public override void Configure()
 {
@@ -140,7 +166,7 @@ public override void Configure()
     Options(x => x.WithName("GetInvoice"));
 }
 ```
-**note:** when you specify a name for the endpoint like above and you want to point to that endpoint when using [SendCreatedAtAsync()](Misc-Conveniences.md#sendcreatedatasync) method, you must use the overload that takes a string argument with which you can specify the name of the target endpoint. i.e. you lose the convenience/type-safety of being able to simply point to another endpoint using the class type like so:
+**note:** when you manually specify a name for an endpoint like above and you want to point to that endpoint when using [SendCreatedAtAsync()](Misc-Conveniences.md#sendcreatedatasync) method, you must use the overload that takes a string argument with which you can specify the name of the target endpoint. i.e. you lose the convenience/type-safety of being able to simply point to another endpoint using the class type like so:
 ```csharp
 await SendCreatedAtAsync<GetInvoiceEndpoint>(...);
 ```

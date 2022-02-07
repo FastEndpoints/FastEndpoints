@@ -36,7 +36,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
-    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
     /// </summary>
     /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>

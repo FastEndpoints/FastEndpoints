@@ -1757,7 +1757,6 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <a id="FastEndpoints_Endpoint_2_SendCreatedAtAsync_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync*"></a>
   <h4 id="FastEndpoints_Endpoint_2_SendCreatedAtAsync_System_String_System_Object__1_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)">SendCreatedAtAsync(String, Object, TResponse, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
-<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -1818,14 +1817,14 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_SendCreatedAtAsync_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendCreatedAtAsync__1_System_Object__1_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(Object, TResponse, CancellationToken)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendCreatedAtAsync__1_System_Object__1_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(Object, TResponse, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
-<p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>
+<p>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the &apos;verb&apos; argument and if pointing to a multi route endpoint, specify the &apos;routeNumber&apos; argument.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, CancellationToken cancellation = null)
+    <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = null)
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1851,9 +1850,21 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
 </td>
       </tr>
       <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<a class="xref" href="FastEndpoints.Http.html">Http</a>&gt;</td>
+        <td><span class="parametername">verb</span></td>
+        <td><p>only useful when pointing to a multi verb endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
+        <td><span class="parametername">routeNumber</span></td>
+        <td><p>only useful when pointing to a multi route endpoint</p>
+</td>
+      </tr>
+      <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>cancellation token</p>
+        <td><p>optional cancellation token</p>
 </td>
       </tr>
     </tbody>
@@ -2402,13 +2413,42 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Summary_Action_FastEndpoints_EndpointSummary__" data-uid="FastEndpoints.Endpoint`2.Summary(Action{FastEndpoints.EndpointSummary})">Summary(Action&lt;EndpointSummary&gt;)</h4>
+  <div class="markdown level1 summary"><p>provide a summary/description for this endpoint to be used in swagger/ openapi</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Summary(Action&lt;EndpointSummary&gt; endpointSummary)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Action</span>&lt;<a class="xref" href="FastEndpoints.EndpointSummary.html">EndpointSummary</a>&gt;</td>
+        <td><span class="parametername">endpointSummary</span></td>
+        <td><p>an action that sets values of an endpoint summary object</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Summary_FastEndpoints_EndpointSummary_" data-uid="FastEndpoints.Endpoint`2.Summary(FastEndpoints.EndpointSummary)">Summary(EndpointSummary)</h4>
   <div class="markdown level1 summary"><p>provide a summary/description for this endpoint to be used in swagger/ openapi</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Summary(EndpointSummary endpointDescription)</code></pre>
+    <pre><code class="lang-csharp hljs">protected void Summary(EndpointSummary endpointSummary)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2422,8 +2462,8 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
     <tbody>
       <tr>
         <td><a class="xref" href="FastEndpoints.EndpointSummary.html">EndpointSummary</a></td>
-        <td><span class="parametername">endpointDescription</span></td>
-        <td><p>an endpoint description instance</p>
+        <td><span class="parametername">endpointSummary</span></td>
+        <td><p>an endpoint summary instance</p>
 </td>
       </tr>
     </tbody>
@@ -2432,8 +2472,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Summary_System_String_System_ValueTuple_System_Int32_System_String____" data-uid="FastEndpoints.Endpoint`2.Summary(System.String,System.ValueTuple{System.Int32,System.String}[])">Summary(String, (Int32 statusCode, String statusCodeDescription)[])</h4>
-  <div class="markdown level1 summary"><p>provide a summary/description for this endpoint to be used in swagger/ openapi</p>
-</div>
+  <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
@@ -2452,14 +2491,12 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
       <tr>
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">endpointDescription</span></td>
-        <td><p>the main description</p>
-</td>
+        <td></td>
       </tr>
       <tr>
         <td><span class="xref">System.ValueTuple</span>&lt;<span class="xref">System.Int32</span>, <span class="xref">System.String</span>&gt;[]</td>
         <td><span class="parametername">statusCodeDescriptions</span></td>
-        <td><p>the descriptions for different response status codes this endpoint can return</p>
-</td>
+        <td></td>
       </tr>
     </tbody>
   </table>

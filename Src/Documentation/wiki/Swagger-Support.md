@@ -149,6 +149,19 @@ by default, schema names are generated using the full name of dto classes. you c
 builder.Services.AddSwaggerDoc(shortSchemaNames: true);
 ```
 
+## swagger serializer options
+nswag uses a separate serializer (newtonsoft) and has it's own set of serializer options you can configure like so:
+```csharp
+builder.Services
+    .AddSwaggerDoc(serializerSettings: x =>
+    {
+        x.ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new CamelCaseNamingStrategy() //set to null for pascal case
+        };
+    })
+```
+
 ## customize endpoint name/ swagger operation id
 the full name (including namespace) of the endpoint classes are used to generate the operation ids. you can change it to use just the class name by doing the following at startup:
 ```csharp

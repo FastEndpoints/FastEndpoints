@@ -1715,6 +1715,22 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointWithoutRequest.HandleAsync
   nameWithType: EndpointWithoutRequest.HandleAsync
+- uid: FastEndpoints.EndpointWithoutRequest.Route*
+  name: Route
+  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_Route_
+  commentId: Overload:FastEndpoints.EndpointWithoutRequest.Route
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointWithoutRequest.Route
+  nameWithType: EndpointWithoutRequest.Route
+- uid: FastEndpoints.EndpointWithoutRequest.Route``1(System.String)
+  name: Route<T>(String)
+  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_Route__1_System_String_
+  commentId: M:FastEndpoints.EndpointWithoutRequest.Route``1(System.String)
+  name.vb: Route(Of T)(String)
+  fullName: FastEndpoints.EndpointWithoutRequest.Route<T>(System.String)
+  fullName.vb: FastEndpoints.EndpointWithoutRequest.Route(Of T)(System.String)
+  nameWithType: EndpointWithoutRequest.Route<T>(String)
+  nameWithType.vb: EndpointWithoutRequest.Route(Of T)(String)
 - uid: FastEndpoints.EndpointWithoutRequest`1
   name: EndpointWithoutRequest<TResponse>
   href: api/FastEndpoints.EndpointWithoutRequest-1.html
@@ -1749,6 +1765,24 @@ references:
   fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).HandleAsync
   nameWithType: EndpointWithoutRequest<TResponse>.HandleAsync
   nameWithType.vb: EndpointWithoutRequest(Of TResponse).HandleAsync
+- uid: FastEndpoints.EndpointWithoutRequest`1.Route*
+  name: Route
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_Route_
+  commentId: Overload:FastEndpoints.EndpointWithoutRequest`1.Route
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.Route
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).Route
+  nameWithType: EndpointWithoutRequest<TResponse>.Route
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse).Route
+- uid: FastEndpoints.EndpointWithoutRequest`1.Route``1(System.String)
+  name: Route<T>(String)
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_Route__1_System_String_
+  commentId: M:FastEndpoints.EndpointWithoutRequest`1.Route``1(System.String)
+  name.vb: Route(Of T)(String)
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.Route<T>(System.String)
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).Route(Of T)(System.String)
+  nameWithType: EndpointWithoutRequest<TResponse>.Route<T>(String)
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse).Route(Of T)(String)
 - uid: FastEndpoints.EpVersion
   name: EpVersion
   href: api/FastEndpoints.EpVersion.html

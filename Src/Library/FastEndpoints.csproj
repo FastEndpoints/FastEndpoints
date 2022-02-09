@@ -6,7 +6,9 @@
 
         <PackageReleaseNotes>
             ### IMPROVEMENTS
-            - refactor value parser func for model binding
+            - model binding value parser internals
+            - route value binding internals
+            - query param binding internals
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

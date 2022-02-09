@@ -114,20 +114,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         if (routeValues.Count == 0) return;
 
-        var routeKVPs = routeValues.Where(rv => ((string?)rv.Value)?.StartsWith("{") == false).ToArray();
-
-        for (int i = 0; i < routeKVPs.Length; i++)
-            Bind(req, routeKVPs[i], failures);
+        foreach (var kvp in routeValues)
+        {
+            if ((kvp.Value as string)?.StartsWith("{") is false)
+                Bind(req, kvp, failures);
+        }
     }
 
     private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures)
     {
         if (query.Count == 0) return;
 
-        var queryParams = query.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
-
-        for (int i = 0; i < queryParams.Length; i++)
-            Bind(req, queryParams[i], failures);
+        foreach (var kvp in query)
+            Bind(req, new(kvp.Key, kvp.Value[0]), failures);
     }
 
     private static void BindUserClaims(TRequest req, ClaimsPrincipal principal, List<ValidationFailure> failures)

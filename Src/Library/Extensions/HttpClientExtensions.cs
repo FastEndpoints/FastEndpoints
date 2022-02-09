@@ -145,7 +145,9 @@ public static class HttpClientExtensions
             new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri(client.BaseAddress?.ToString().TrimEnd('/') + requestUri),
+                RequestUri = new Uri(
+                    client.BaseAddress!.ToString().TrimEnd('/') +
+                    (requestUri.StartsWith('/') ? requestUri : "/" + requestUri)),
                 Content = new StringContent(JsonSerializer.Serialize(request, Config.SerializerOpts), Encoding.UTF8, "application/json")
             }).ConfigureAwait(false);
 

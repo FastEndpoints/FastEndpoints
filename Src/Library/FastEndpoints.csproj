@@ -8,11 +8,14 @@
             ### NEW
             - header binding support for non-string type dto properties
             - claim binding support for non-string type dto properties
+            - route param reading for EndpointWithoutRequest endpoints
 
             ### IMPROVEMENTS
             - model binding value parser internals
             - route value binding internals
             - query param binding internals
+            - GETAsync() http client method internals
+            - increase test coverage
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -88,6 +88,19 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task RouteValueReadingInEndpointWithoutRequest()
+        {
+            var (rsp, res) = await GuestClient.GETAsync<
+                EmptyRequest,
+                TestCases.RouteBindingInEpWithoutReq.Response>(
+                "/api/test-cases/ep-witout-req-route-binding-test/09809/lkjhlkjh", new());
+
+            Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);
+            Assert.AreEqual(09809, res!.CustomerID);
+            Assert.AreEqual(0, res!.OtherID);
+        }
+
+        [TestMethod]
         public async Task RouteValueBinding()
         {
             var (rsp, res) = await GuestClient.POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(

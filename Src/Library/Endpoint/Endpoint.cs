@@ -100,6 +100,15 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest>
     /// </summary>
     public sealed override Task HandleAsync(EmptyRequest _, CancellationToken ct)
         => HandleAsync(ct);
+
+    /// <summary>
+    /// get the value of a given route parameter by specifying the resulting type
+    /// </summary>
+    /// <typeparam name="T">the type of the result</typeparam>
+    /// <param name="paramName">the route parameter name</param>
+    /// <returns>the typed value or null if route parameter was not found in the request or if the value was not convertable to the specified type</returns>
+    protected T? Route<T>(string paramName)
+        => (T?)typeof(T).ValueParser()?.Invoke(HttpContext.Request.RouteValues[paramName]).value;
 }
 
 /// <summary>
@@ -119,6 +128,15 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
     /// </summary>
     public sealed override Task HandleAsync(EmptyRequest _, CancellationToken ct)
         => HandleAsync(ct);
+
+    /// <summary>
+    /// get the value of a given route parameter by specifying the resulting type
+    /// </summary>
+    /// <typeparam name="T">the type of the result</typeparam>
+    /// <param name="paramName">the route parameter name</param>
+    /// <returns>the typed value or null if route parameter was not found in the request or if the value was not convertable to the specified type</returns>
+    protected T? Route<T>(string paramName)
+        => (T?)typeof(T).ValueParser()?.Invoke(HttpContext.Request.RouteValues[paramName]).value;
 }
 
 /// <summary>

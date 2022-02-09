@@ -77,70 +77,9 @@ internal static class ReqTypeCache<TRequest>
 
     private static void AddPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        Func<object?, (bool isSuccess, object value)>? valParser = null;
-
-        var tProp = propInfo.PropertyType;
-
-        if (propInfo.PropertyType.IsEnum)
-        {
-            valParser = input => (Enum.TryParse(tProp, (string?)input, out var res), res!);
-        }
-        else
-        {
-            switch (Type.GetTypeCode(propInfo.PropertyType))
-            {
-                case TypeCode.String:
-                    valParser = input => (true, input!);
-                    break;
-
-                case TypeCode.Boolean:
-                    valParser = input => (bool.TryParse((string?)input, out var res), res);
-                    break;
-
-                case TypeCode.Int32:
-                    valParser = input => (int.TryParse((string?)input, out var res), res);
-                    break;
-
-                case TypeCode.Int64:
-                    valParser = input => (long.TryParse((string?)input, out var res), res);
-                    break;
-
-                case TypeCode.Double:
-                    valParser = input => (double.TryParse((string?)input, out var res), res);
-                    break;
-
-                case TypeCode.Decimal:
-                    valParser = input => (decimal.TryParse((string?)input, out var res), res);
-                    break;
-
-                case TypeCode.DateTime:
-                    valParser = input => (DateTime.TryParse((string?)input, out var res), res);
-                    break;
-
-                case TypeCode.Object:
-                    if (tProp == Types.Guid)
-                    {
-                        valParser = input => (Guid.TryParse((string?)input, out var res), res);
-                    }
-                    else if (tProp == Types.Uri)
-                    {
-                        valParser = input => (true, new Uri((string)input!));
-                    }
-                    else if (tProp == Types.Version)
-                    {
-                        valParser = input => (Version.TryParse((string?)input, out var res), res!);
-                    }
-                    else if (tProp == Types.TimeSpan)
-                    {
-                        valParser = input => (TimeSpan.TryParse((string?)input, out var res), res!);
-                    }
-                    break;
-            }
-        }
-
         CachedProps.Add(propInfo.Name, new(
             propInfo.PropertyType,
-            valParser,
+            propInfo.PropertyType.ValueParser(),
             compiledSetter));
     }
 }

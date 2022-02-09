@@ -50,7 +50,19 @@ app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseFastEndpoints(c => { c.ShortEndpointNames = true; });
+app.UseFastEndpoints(config =>
+{
+    config.ShortEndpointNames = false;
+    config.SerializerOptions = o => o.PropertyNamingPolicy = null;
+    config.EndpointRegistrationFilter = ep => ep.Settings.Tags?.Contains("exclude") is not true;
+    config.RoutingOptions = o => o.Prefix = "api";
+    config.VersioningOptions = o =>
+    {
+        o.Prefix = "v";
+        //o.DefaultVersion = 1; 
+        //o.SuffixedVersion = false; 
+    };
+});
 
 app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after usefastendpoints (only if using endpoints)
 

@@ -53,4 +53,63 @@ internal static class ReflectionExtensions
             sourceObjectParam,
             propertyValueParam).Compile();
     }
+
+    internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type)
+    {
+        if (type.IsEnum)
+            return input => (Enum.TryParse(type, ToString(input), out var res), res!);
+
+        switch (Type.GetTypeCode(type))
+        {
+            case TypeCode.String:
+                return input => (true, input!);
+
+            case TypeCode.Boolean:
+                return input => (bool.TryParse(ToString(input), out var res), res);
+
+            case TypeCode.Int32:
+                return input => (int.TryParse(ToString(input), out var res), res);
+
+            case TypeCode.Int64:
+                return input => (long.TryParse(ToString(input), out var res), res);
+
+            case TypeCode.Double:
+                return input => (double.TryParse(ToString(input), out var res), res);
+
+            case TypeCode.Decimal:
+                return input => (decimal.TryParse(ToString(input), out var res), res);
+
+            case TypeCode.DateTime:
+                return input => (DateTime.TryParse(ToString(input), out var res), res);
+
+            case TypeCode.Object:
+                if (type == Types.Guid)
+                {
+                    return input => (Guid.TryParse(ToString(input), out var res), res);
+                }
+                else if (type == Types.Uri)
+                {
+                    return input => (true, new Uri((string)input!));
+                }
+                else if (type == Types.Version)
+                {
+                    return input => (Version.TryParse(ToString(input), out var res), res!);
+                }
+                else if (type == Types.TimeSpan)
+                {
+                    return input => (TimeSpan.TryParse(ToString(input), out var res), res!);
+                }
+                break;
+        }
+
+        return null;
+
+        static string? ToString(object? value)
+        {
+            if (value is string x)
+                return x;
+
+            return value?.ToString();
+        }
+    }
 }

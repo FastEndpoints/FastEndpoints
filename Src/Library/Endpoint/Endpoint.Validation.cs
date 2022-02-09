@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : class, new()
 {
     /// <summary>
     /// adds a "GeneralError" to the current list of validation failures

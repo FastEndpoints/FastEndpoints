@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : class, new()
 {
     private static async Task<TRequest> BindToModel(HttpContext ctx, List<ValidationFailure> failures, CancellationToken cancellation)
     {

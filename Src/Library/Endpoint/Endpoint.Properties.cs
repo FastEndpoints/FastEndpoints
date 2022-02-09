@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : class, new()
 {
     private Http? _httpMethod;
     private string _baseURL;
@@ -49,7 +49,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// the base url of the current request
     /// </summary>
-    protected string BaseURL => _baseURL ??= HttpContext.Request?.Scheme + "://" + HttpContext.Request?.Host + "/";
+    protected string BaseURL => _baseURL ??= $"{HttpContext.Request?.Scheme}://{HttpContext.Request?.Host.ToString()}/";
 
     /// <summary>
     /// the http method of the current request

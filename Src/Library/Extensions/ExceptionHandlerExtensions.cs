@@ -34,12 +34,12 @@ public static class ExceptionHandlerExtensions
                     var type = exHandlerFeature.Error.GetType().Name;
                     var error = exHandlerFeature.Error.Message;
                     var msg =
-                        "=================================" + Environment.NewLine +
-                       $"{exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0]}" + Environment.NewLine +
-                       $"TYPE: {type}" + Environment.NewLine +
-                       $"REASON: {error}" + Environment.NewLine +
-                        "---------------------------------" + Environment.NewLine +
-                        exHandlerFeature.Error.StackTrace;
+$@"=================================
+{exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0]}
+TYPE: {type}
+REASON: {error}
+---------------------------------
+{exHandlerFeature.Error.StackTrace}";
 
                     logger ??= ctx.RequestServices.GetRequiredService<ILogger<ExceptionHandler>>();
                     logger.LogError(msg);

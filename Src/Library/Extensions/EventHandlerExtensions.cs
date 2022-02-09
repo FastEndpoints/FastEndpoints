@@ -8,8 +8,22 @@ internal static class EventHandlerExtensions
         => handler.GetInvocationList().Cast<AsyncEventHandler<TEventArgs>>();
 
     internal static Task InvokeAllAsync<TEventArgs>(this AsyncEventHandler<TEventArgs> handler, TEventArgs args, CancellationToken cancellation)
-        => Task.WhenAll(handler.GetHandlers().Select(h => h(args, cancellation)));
+    {
+        var tasks = new List<Task>();
+        foreach (var h in handler.GetHandlers())
+        {
+            tasks.Add(h(args, cancellation));
+        }
+        return Task.WhenAll(tasks);
+    }
 
     internal static Task InvokeAnyAsync<TEventArgs>(this AsyncEventHandler<TEventArgs> handler, TEventArgs args, CancellationToken cancellation)
-        => Task.WhenAny(handler.GetHandlers().Select(h => h(args, cancellation)));
+    {
+        var tasks = new List<Task>();
+        foreach (var h in handler.GetHandlers())
+        {
+            tasks.Add(h(args, cancellation));
+        }
+        return Task.WhenAny(tasks);
+    }
 }

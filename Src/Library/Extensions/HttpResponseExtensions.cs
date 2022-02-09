@@ -15,7 +15,7 @@ public static class HttpResponseExtensions
     /// <param name="response">the object to serialize to json</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token</param>
-    public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = default) where TResponse : notnull
+    public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = default) where TResponse : class
     {
         rsp.StatusCode = statusCode;
         return RespSerializerFunc(rsp, response, "application/json", cancellation);

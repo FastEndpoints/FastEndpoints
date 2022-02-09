@@ -30,6 +30,6 @@ internal static class MiscExtensions
         var v = verb?.ToString();
         var vrb = v != null ? v[0] + v[1..].ToLowerInvariant() : null;
         var ep = ShortEpNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
-        return $"{vrb}{ep}{routeNum}";
+        return vrb + ep + routeNum.ToString();
     }
 }

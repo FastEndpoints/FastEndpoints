@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : class, new()
 {
     /// <summary>
     /// send the supplied response dto serialized as json to the client.
@@ -24,7 +24,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
-    /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>   
+    /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
     /// <param name="cancellation">optional cancellation token</param>
     protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {

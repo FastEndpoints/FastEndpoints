@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : class, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : class, new() where TResponse : class, new()
 {
     /// <summary>
     /// the handler method for the endpoint. this method is called for each request received.
@@ -151,7 +151,7 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TReq
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse> where TRequest : class, new() where TResponse : notnull, new() where TMapper : IEntityMapper, new()
+public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse> where TRequest : class, new() where TResponse : class, new() where TMapper : IEntityMapper, new()
 {
     /// <summary>
     /// the entity mapper for the endpoint
@@ -166,7 +166,7 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity that will be mapped to/from</typeparam>
-public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : class, new() where TResponse : notnull, new()
+public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : class, new() where TResponse : class, new()
 {
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity

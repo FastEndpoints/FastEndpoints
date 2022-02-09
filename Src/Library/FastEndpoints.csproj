@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.5.0-beta1</Version>
+        <Version>3.5.0-beta2</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -16,6 +16,7 @@
             - query param binding internals
             - GETAsync() http client method internals
             - increase test coverage
+            - micro-optimizations to reduce boxing of value types
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

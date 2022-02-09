@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : class, new()
 {
     /// <summary>
     /// override this method if you'd like to do something to the request dto before it gets validated.

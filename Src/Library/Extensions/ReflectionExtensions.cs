@@ -102,7 +102,7 @@ internal static class ReflectionExtensions
                 break;
         }
 
-        return null;
+        return null; //we cannot handle this property type.
 
         static string? ToString(object? value)
         {

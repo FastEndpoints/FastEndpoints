@@ -133,14 +133,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromClaimProps.Count; i++)
         {
-            var (claimType, forbidIfMissing, propSetter) = ReqTypeCache<TRequest>.CachedFromClaimProps[i];
-            var claimVal = principal.FindFirst(c => c.Type.Equals(claimType, StringComparison.OrdinalIgnoreCase))?.Value;
+            var prop = ReqTypeCache<TRequest>.CachedFromClaimProps[i];
+            var claimVal = principal.FindFirst(c => c.Type.Equals(prop.ClaimType, StringComparison.OrdinalIgnoreCase))?.Value;
 
-            if (claimVal is null && forbidIfMissing)
-                failures.Add(new(claimType, "User doesn't have this claim type!"));
+            if (claimVal is null && prop.ForbidIfMissing)
+                failures.Add(new(prop.ClaimType, "User doesn't have this claim type!"));
 
-            if (claimVal is not null)
-                propSetter(req, claimVal);
+            if (claimVal is not null && prop.ValueParser is not null)
+            {
+                var (success, value) = prop.ValueParser(claimVal);
+                prop.PropSetter(req, value);
+
+                if (!success)
+                    failures.Add(new(prop.ClaimType, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
+            }
         }
     }
 
@@ -148,14 +154,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromHeaderProps.Count; i++)
         {
-            var (headerName, forbidIfMissing, propSetter) = ReqTypeCache<TRequest>.CachedFromHeaderProps[i];
-            var hdrVal = headers[headerName].FirstOrDefault();
+            var prop = ReqTypeCache<TRequest>.CachedFromHeaderProps[i];
+            var hdrVal = headers[prop.HeaderName].FirstOrDefault();
 
-            if (hdrVal is null && forbidIfMissing)
-                failures.Add(new(headerName, "This header is missing from the request!"));
+            if (hdrVal is null && prop.ForbidIfMissing)
+                failures.Add(new(prop.HeaderName, "This header is missing from the request!"));
 
-            if (hdrVal is not null)
-                propSetter(req, hdrVal);
+            if (hdrVal is not null && prop.ValueParser is not null)
+            {
+                var (success, value) = prop.ValueParser(hdrVal);
+                prop.PropSetter(req, value);
+
+                if (!success)
+                    failures.Add(new(prop.HeaderName, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
+            }
         }
     }
 

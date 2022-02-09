@@ -5,6 +5,10 @@
         <Version>3.4.1-beta1</Version>
 
         <PackageReleaseNotes>
+            ### NEW
+            - header binding support for non-string type dto properties
+            - claim binding support for non-string type dto properties
+
             ### IMPROVEMENTS
             - model binding value parser internals
             - route value binding internals

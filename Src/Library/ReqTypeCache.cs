@@ -44,14 +44,16 @@ internal static class ReqTypeCache<TRequest>
         var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
         if (attrib is not null)
         {
-            if (propInfo.PropertyType != Types.String)
-                throw new InvalidOperationException("[FromClaim] attributes are only supported on string properties!");
-            //could add claim binding support for other types just like in route binding.
-
             var claimType = attrib?.ClaimType ?? propInfo.Name;
             var forbidIfMissing = attrib?.IsRequired ?? false;
 
-            CachedFromClaimProps.Add(new(claimType, forbidIfMissing, compiledSetter));
+            CachedFromClaimProps.Add(new(
+                claimType,
+                forbidIfMissing,
+                propInfo.PropertyType,
+                propInfo.PropertyType.ValueParser(),
+                compiledSetter));
+
             return forbidIfMissing; //if claim is optional, return false so it will be added as a PropCacheEntry
         }
         return false;
@@ -62,14 +64,15 @@ internal static class ReqTypeCache<TRequest>
         var attrib = propInfo.GetCustomAttribute<FromHeaderAttribute>(false);
         if (attrib is not null)
         {
-            if (propInfo.PropertyType != Types.String)
-                throw new InvalidOperationException("[FromHeader] attributes are only supported on string properties!");
-            //could add header binding support for other types just like in route binding.
-
             var headerName = attrib?.HeaderName ?? propInfo.Name;
             var forbidIfMissing = attrib?.IsRequired ?? false;
 
-            CachedFromHeaderProps.Add(new(headerName, forbidIfMissing, compiledSetter));
+            CachedFromHeaderProps.Add(new(
+                headerName,
+                forbidIfMissing,
+                propInfo.PropertyType,
+                propInfo.PropertyType?.ValueParser(),
+                compiledSetter));
             return forbidIfMissing; //if header is optional, return false so it will be added as a PropCacheEntry;
         }
         return false;
@@ -92,9 +95,13 @@ internal record PropCacheEntry(
 internal record FromClaimPropCacheEntry(
     string ClaimType,
     bool ForbidIfMissing,
+    Type PropType,
+    Func<object?, (bool isSuccess, object value)>? ValueParser,
     Action<object, object> PropSetter);
 
 internal record FromHeaderPropCacheEntry(
     string HeaderName,
     bool ForbidIfMissing,
+    Type PropType,
+    Func<object?, (bool isSuccess, object value)>? ValueParser,
     Action<object, object> PropSetter);

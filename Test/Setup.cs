@@ -43,6 +43,7 @@ namespace Test
             AdminClient.DefaultRequestHeaders.Add("tenant-id", "admin");
             CustomerClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", customerToken);
             CustomerClient.DefaultRequestHeaders.Add("tenant-id", "qwerty");
+            CustomerClient.DefaultRequestHeaders.Add("CustomerID", "123");
             RangeClient.DefaultRequestHeaders.Range = new(5, 9);
         }
     }

@@ -129,14 +129,16 @@ namespace Test
                 Customers.UpdateWithHeader.Request,
                 string>(new()
                 {
-                    CustomerID = "this will be auto bound from claim",
+                    CustomerID = 0,
                     Address = "address",
                     Age = 123,
                     Name = "test customer",
                     TenantID = "this will be set to qwerty from header"
                 });
 
-            Assert.AreEqual("qwerty", res);
+            var results = res!.Split('|');
+            Assert.AreEqual("qwerty", results[0]);
+            Assert.AreEqual("123", results[1]);
         }
     }
 }

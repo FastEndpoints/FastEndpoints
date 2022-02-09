@@ -2,7 +2,8 @@
 
 public class Request
 {
-    public string CustomerID { get; set; }
+    [FromHeader]
+    public int CustomerID { get; set; }
 
     [FromHeader("tenant-id")]
     public string TenantID { get; set; }
@@ -30,6 +31,6 @@ public class Endpoint : Endpoint<Request>
         if (!User.HasPermission(Allow.Customers_Update))
             ThrowError("no permission!");
 
-        return SendAsync(req.TenantID);
+        return SendAsync(req.TenantID + "|" + req.CustomerID);
     }
 }

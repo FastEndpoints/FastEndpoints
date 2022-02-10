@@ -363,7 +363,7 @@
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse, TMapper&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : class, new()
 
-    where TResponse : new()
+    where TResponse : class, new()
 
     where TMapper : IEntityMapper, new()</code></pre>
   </div>

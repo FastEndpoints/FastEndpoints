@@ -235,7 +235,7 @@ public override void Configure()
 <p>the full name (including namespace) of the endpoint classes are used to generate the operation ids. you can change it to use just the class name by doing the following at startup:</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
 {
-    c.ShortEndpointNames = false;
+    c.ShortEndpointNames = true;
 });
 </code></pre>
 <p>if the auto-generated operation ids are not to your liking, you can specify a name for an endpoint using the <code>WithName()</code> method.</p>

@@ -89,7 +89,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "ZGXHeHvtqZcf1wwgRNtP8JR7RKrMqDElL5Bwu0VEw50="
+          "hash": "sTL5PX2E/3BmQUzpGw4HsfuCqjr6QtgHhsxP571fgRA="
         }
       },
       "is_incremental": false,
@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-3.html",
-          "hash": "9TbEDfKHw2APhoF7hFAugxdpEWBPP3ZAxaIhh9IaYpM="
+          "hash": "q1rI93GxLu056Dgo3T/pEwAzb00xR6r39eTk3iEpenQ="
         }
       },
       "is_incremental": false,
@@ -149,7 +149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithMapping-3.html",
-          "hash": "h2jXRAmAAyGGDKcVoDkE60tf/yXLrwLhKAp0+JjN46g="
+          "hash": "2i9RO7vEYFFsU/RsQxUSsnwaSvU2SQ7Lv0EA+xdZEao="
         }
       },
       "is_incremental": false,
@@ -305,7 +305,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpResponseExtensions.html",
-          "hash": "+zm4OMQJNKEtBFrEwVYmXxn9dGUpJvbzlX1tzRhRbnM="
+          "hash": "dAVfdmUrtpjDgREWzoX8/LlB5LTf8jYZp14wL7sQ/WU="
         }
       },
       "is_incremental": false,
@@ -882,7 +882,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Swagger-Support.html",
-          "hash": "qgMPZqgKRFJLxZcM4EdPJ9Ly38By8WJ4LiyVLxTsiHw="
+          "hash": "EMlmbSf7ZO6l/DRIsaYN5zelQfxwdhzbkAArtgPFxsU="
         }
       },
       "is_incremental": false,

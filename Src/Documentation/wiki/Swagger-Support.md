@@ -167,7 +167,7 @@ the full name (including namespace) of the endpoint classes are used to generate
 ```csharp
 app.UseFastEndpoints(c =>
 {
-    c.ShortEndpointNames = false;
+    c.ShortEndpointNames = true;
 });
 ```
 

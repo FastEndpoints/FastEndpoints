@@ -15,8 +15,8 @@
             - route value binding internals
             - query param binding internals
             - GETAsync() http client method internals
-            - increase test coverage
             - micro-optimizations to reduce boxing of value types
+            - increase test coverage
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

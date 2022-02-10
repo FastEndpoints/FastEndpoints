@@ -42,7 +42,8 @@ public class Endpoint : Endpoint<Request, Response>
             var userClaims = new[] {
                     (Claim.UserName, r.UserName),
                     (Claim.UserType, Role.Admin),
-                    (Claim.AdminID, "USR0001") };
+                    (Claim.AdminID, "USR0001"),
+                    ("test-claim","test claim val")};
 
             var userRoles = new[] {
                     Role.Admin,

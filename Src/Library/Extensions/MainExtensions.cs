@@ -271,34 +271,40 @@ public static class MainExtensions
             {
                 b.RequireAuthenticatedUser();
 
-                if (eps.Permissions?.Any() is true)
+                if (eps.Permissions?.Length > 0)
                 {
                     if (eps.AllowAnyPermission)
                     {
                         b.RequireAssertion(x =>
-                        {
-                            var prmClaimVals = x.User.FindAll(Constants.PermissionsClaimType).Select(c => c.Value);
-                            if (!prmClaimVals.Any()) return false;
-                            return prmClaimVals.Intersect(eps.Permissions).Any();
-                        });
+                            x.User.Claims.Any(c =>
+                                string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                eps.Permissions.Contains(c.Value, StringComparer.Ordinal)));
                     }
                     else
                     {
                         b.RequireAssertion(x =>
-                        {
-                            var prmClaimVals = x.User.FindAll(Constants.PermissionsClaimType).Select(c => c.Value);
-                            if (!prmClaimVals.Any()) return false;
-                            return !eps.Permissions.Except(prmClaimVals).Any();
-                        });
+                            eps.Permissions.All(p =>
+                                x.User.Claims.Any(c =>
+                                    string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                    string.Equals(c.Value, p, StringComparison.Ordinal))));
                     }
                 }
 
-                if (eps.ClaimTypes?.Any() is true)
+                if (eps.ClaimTypes?.Length > 0)
                 {
                     if (eps.AllowAnyClaim)
-                        b.RequireAssertion(x => x.User.Claims.Select(c => c.Type).Intersect(eps.ClaimTypes).Any());
+                    {
+                        b.RequireAssertion(x =>
+                            x.User.Claims.Any(c =>
+                                eps.ClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
+                    }
                     else
-                        b.RequireAssertion(x => !eps.ClaimTypes.Except(x.User.Claims.Select(c => c.Type)).Any());
+                    {
+                        b.RequireAssertion(x =>
+                            eps.ClaimTypes.All(t =>
+                                x.User.Claims.Any(c =>
+                                    string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
+                    }
                 }
 
                 //note: only claim and permission requirements are added here in the security policy

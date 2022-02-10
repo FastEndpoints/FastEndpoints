@@ -21,8 +21,10 @@ public class Endpoint : Endpoint<Request>
         Claims(
             Claim.AdminID,
             Claim.CustomerID);
-        Permissions(
-            Allow.Customers_Update);
+        PermissionsAll(
+            Allow.Customers_Create,
+            Allow.Customers_Update,
+            Allow.Customers_Retrieve);
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)

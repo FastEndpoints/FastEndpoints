@@ -12,11 +12,11 @@ public class Allow : Permissions
     public const string Customers_Retrieve = "200";
     public const string Customers_Create = "201";
     public const string Customers_Update = "202";
-    public const string Customers_Delete = "201";
+    public const string Customers_Delete = "203";
 
     //IMAGE
     public const string Image_Retrieve = "300";
     public const string Image_Create = "301";
     public const string Image_Update = "302";
-    public const string Image_Delete = "301";
+    public const string Image_Delete = "303";
 }

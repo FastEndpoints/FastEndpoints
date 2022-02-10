@@ -10,6 +10,9 @@ public class Endpoint : Endpoint<Request>
         Permissions(
             Allow.Inventory_Create_Item,
             Allow.Inventory_Update_Item);
+        ClaimsAll(
+            Claim.AdminID,
+            "test-claim");
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)

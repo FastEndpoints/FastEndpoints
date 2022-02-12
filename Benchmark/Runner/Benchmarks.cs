@@ -17,12 +17,12 @@ public class Benchmarks
     private static HttpClient CarterClient { get; } = new WebApplicationFactory<CarterModules.Program>().CreateClient();
 
     [Benchmark]
-    public async Task FastEndpointsEndpoint()
+    public async Task FastEndpoints()
     {
         await FastEndpointClient.POSTAsync<FastEndpointsBench.Request, FastEndpointsBench.Response>(
             "/benchmark/ok/123", new()
             {
-                FirstName = "xxc",
+                FirstName = "xxx",
                 LastName = "yyy",
                 Age = 23,
                 PhoneNumbers = new[] {
@@ -36,13 +36,13 @@ public class Benchmarks
     }
 
     [Benchmark(Baseline = true)]
-    public async Task MinimalApiEndpoint()
+    public async Task MinimalApi()
     {
         await MinimalClient.POSTAsync<MinimalApi.Request, MinimalApi.Response>(
 
             "/benchmark/ok/123", new()
             {
-                FirstName = "xxc",
+                FirstName = "xxx",
                 LastName = "yyy",
                 Age = 23,
                 PhoneNumbers = new[] {
@@ -56,13 +56,13 @@ public class Benchmarks
     }
 
     //[Benchmark]
-    public async Task CarterModule()
+    public async Task Carter()
     {
         await CarterClient.POSTAsync<CarterModules.Request, CarterModules.Response>(
 
              "/benchmark/ok/123", new()
              {
-                 FirstName = "xxc",
+                 FirstName = "xxx",
                  LastName = "yyy",
                  Age = 23,
                  PhoneNumbers = new[] {
@@ -80,9 +80,9 @@ public class Benchmarks
     {
         await MvcClient.POSTAsync<MvcControllers.Request, MvcControllers.Response>(
 
-            "/Home/Index/123", new()
+            "/benchmark/ok/123", new()
             {
-                FirstName = "xxc",
+                FirstName = "xxx",
                 LastName = "yyy",
                 Age = 23,
                 PhoneNumbers = new[] {

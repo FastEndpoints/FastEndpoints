@@ -33,13 +33,15 @@ public class Response
 }
 
 [Authorize]
-public class HomeController : Controller
+[ApiController]
+public class Controller : ControllerBase
 {
     [AllowAnonymous]
+    [HttpPost("/benchmark/ok/{id}")]
     public async Task<IActionResult> Index(
         [FromRoute] int id,
         [FromBody] Request req,
-        [FromServices] ILogger<HomeController> logger,
+        [FromServices] ILogger<Controller> logger,
         [FromServices] IValidator<Request> validator)
     {
         //logger.LogInformation("request received!");

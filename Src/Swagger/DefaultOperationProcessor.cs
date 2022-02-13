@@ -131,7 +131,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
             var qParams = reqDtoProps?
                 .Where(p =>
                       !p.IsDefined(typeof(FromClaimAttribute), false) &&
-                      !p.IsDefined(typeof(FromHeaderAttribute), false)) //ignore props marks with [FromClaim] and [FromHeader]
+                      !p.IsDefined(typeof(FromHeaderAttribute), false) &&
+                      !reqParams.Any(rp => rp.Name == p.Name)) //ignore props marksed with [FromClaim],[FromHeader] or has a route param.
                 .Select(p =>
                     new OpenApiParameter
                     {

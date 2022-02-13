@@ -75,7 +75,7 @@ public class Benchmarks
              });
     }
 
-    //[Benchmark]
+    [Benchmark]
     public async Task AspNetCoreMVC()
     {
         await MvcClient.POSTAsync<MvcControllers.Request, MvcControllers.Response>(

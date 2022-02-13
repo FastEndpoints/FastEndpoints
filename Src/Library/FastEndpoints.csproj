@@ -18,6 +18,9 @@
             - optimize security policy claim/permission matching
             - micro-optimizations to reduce boxing of value types
             - increase test coverage
+
+            ### FIXES
+            - swagger parameter duplication issue with GET requests
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

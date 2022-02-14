@@ -4,7 +4,7 @@
 /// event notification hub which uses an in-process pub/sub messaging system based on .net events
 /// </summary>
 /// <typeparam name="TEvent">the type of notification event</typeparam>
-public static class Event<TEvent> where TEvent : class
+public static class Event<TEvent> where TEvent : notnull
 {
     internal static event AsyncEventHandler<TEvent>? OnReceived;
 

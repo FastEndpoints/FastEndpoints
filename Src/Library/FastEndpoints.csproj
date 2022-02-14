@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.5.0-beta4</Version>
+        <Version>3.5.0-beta5</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -11,6 +11,7 @@
             - route param reading for EndpointWithoutRequest endpoints
 
             ### IMPROVEMENTS
+            - relax constraints on event msg type
             - model binding value parser internals
             - route value binding internals
             - query param binding internals

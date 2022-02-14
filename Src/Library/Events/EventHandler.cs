@@ -6,7 +6,7 @@ namespace FastEndpoints;
 /// use this base class to handle events published by the notification system
 /// </summary>
 /// <typeparam name="TEvent">the type of the event to handle</typeparam>
-public abstract class FastEventHandler<TEvent> : IEventHandler, IServiceResolver where TEvent : class, new()
+public abstract class FastEventHandler<TEvent> : IEventHandler, IServiceResolver where TEvent : notnull
 {
     void IEventHandler.Subscribe()
         => Event<TEvent>.OnReceived += (e, c) => HandleAsync(e, c);

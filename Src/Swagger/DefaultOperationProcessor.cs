@@ -57,7 +57,8 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 op.Tags.Add(segments[tagIndex]);
         }
 
-        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epMeta.EndpointSettings.Version.DeprecatedAt}"); //this will be later removed from document processor
+        //this will be later removed from document processor
+        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epMeta.EndpointSettings.Version.DeprecatedAt}");
 
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)

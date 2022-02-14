@@ -7,6 +7,7 @@ public class Endpoint : Endpoint<Request, Response>
         Verbs(Http.POST, Http.PUT, Http.PATCH);
         Routes("admin/login");
         AllowAnonymous();
+        Throttle(5, 5);
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         Describe(b => b
             .Accepts<Request>("application/json")

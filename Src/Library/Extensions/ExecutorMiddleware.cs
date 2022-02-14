@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 namespace FastEndpoints;
 
@@ -31,6 +32,21 @@ internal class ExecutorMiddleware
 
             if (endpoint.Metadata.GetMetadata<ICorsMetadata>() != null && !ctx.Items.ContainsKey(corsInvoked))
                 ThrowCORSMiddlewareMissing(endpoint.DisplayName!);
+
+            if (epMetaData.EndpointSettings.HitCounter is not null)
+            {
+                if (!ctx.Request.Headers.TryGetValue(epMetaData.EndpointSettings.HitCounter.HeaderName, out var hdrVal))
+                {
+                    ctx.Response.StatusCode = 403;
+                    return ctx.Response.WriteAsync($"Header [{epMetaData.EndpointSettings.HitCounter.HeaderName}] is missing!");
+                }
+
+                if (epMetaData.EndpointSettings.HitCounter.LimitReached(hdrVal))
+                {
+                    ctx.Response.StatusCode = 429;
+                    return ctx.Response.WriteAsync("You are requesting this endpoint too frequently!");
+                }
+            }
 
             var epInstance = (BaseEndpoint)epMetaData.InstanceCreator();
 

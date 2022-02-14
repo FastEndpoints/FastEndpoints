@@ -29,6 +29,7 @@ public class EndpointSettings
     internal object? PreProcessors;
     internal object? PostProcessors;
     internal ResponseCacheAttribute? ResponseCacheSettings;
+    internal HitCounter? HitCounter;
 }
 
 /// <summary>

@@ -298,4 +298,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 : epVer;
         }
     }
+
+    /// <summary>
+    /// rate limit requests to this endpoint based on a request http header sent by the client.
+    /// </summary>
+    /// <param name="hitLimit">how many requests are allowed within the given duration</param>
+    /// <param name="durationSeconds">the frequency in seconds where the accrued hit count should be reset</param>
+    /// <param name="headerName">the name of the request header used to uniquely identify clients</param>
+    protected void Throttle(int hitLimit, double durationSeconds, string headerName = "X-Forwarded-For")
+    {
+        Settings.HitCounter = new(headerName, durationSeconds, hitLimit);
+    }
 }

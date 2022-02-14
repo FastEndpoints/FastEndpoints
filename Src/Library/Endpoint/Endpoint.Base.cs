@@ -11,7 +11,7 @@ public abstract class BaseEndpoint : IEndpoint
 
     internal static PropertyInfo SettingsPropInfo { get; } = typeof(BaseEndpoint).GetProperty(nameof(Settings), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-    internal EndpointSettings Settings { get; set; } = new();
+    internal EndpointSettings Settings { get; } = new();
 
     internal abstract Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken ct);
 

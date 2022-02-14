@@ -9,21 +9,25 @@ internal class HitCounter
     private readonly double _duration;
     private readonly int _limit;
 
-    internal HitCounter(double durationSeconds, int hitLimit)
+    internal string HeaderName { get; }
+
+    internal HitCounter(string headerName, double durationSeconds, int hitLimit)
     {
+        HeaderName = headerName;
         _duration = durationSeconds;
         _limit = hitLimit;
     }
 
-    internal void RecordHit(string headerValue)
-        => dic.GetOrAdd(headerValue, new Counter(_limit, _duration, headerValue, dic));
-
     internal bool LimitReached(string headerValue)
-        => dic.GetOrAdd(headerValue, new Counter(_limit, _duration, headerValue, dic)).LimitReached;
+    {
+        var counter = dic.GetOrAdd(headerValue, new Counter(_limit, _duration, headerValue, dic));
+        counter.Increase();
+        return counter.LimitReached;
+    }
 
     private class Counter
     {
-        private int _count = 1;
+        private int _count;
         private readonly string _key;
         private readonly ConcurrentDictionary<string, Counter> _dictionary;
         private readonly int _limit;

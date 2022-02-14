@@ -18,6 +18,7 @@
             - GETAsync() http client method internals
             - optimize security policy claim/permission matching
             - micro-optimizations to reduce boxing of value types
+            - multiple swagger request content type support
             - increase test coverage
 
             ### FIXES

@@ -63,10 +63,14 @@ internal class DefaultOperationProcessor : IOperationProcessor
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)
         {
-            //fix request content-type not displaying correctly. probably a nswag bug. might be fixed in future.
+            //fix request content-type not displaying correctly.
             var contentVal = reqContent.FirstOrDefault().Value;
+            var list = new List<KeyValuePair<string, OpenApiMediaType>>(op.Consumes.Count);
+            for (int i = 0; i < op.Consumes.Count; i++)
+                list.Add(new(op.Consumes[i], contentVal));
             reqContent.Clear();
-            reqContent.Add(op.Consumes.FirstOrDefault(), contentVal);
+            foreach (var c in list)
+                reqContent.Add(c);
         }
 
         var resContent = op.Responses.FirstOrDefault().Value.Content;

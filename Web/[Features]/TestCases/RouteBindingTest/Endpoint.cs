@@ -10,7 +10,9 @@ public class Endpoint : Endpoint<Request, Response>
         Routes("/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}");
         AllowAnonymous();
         DontThrowIfValidationFails();
-        Options(x => x.WithName("RouteBindingTest"));
+        Options(x => x
+            .WithName("RouteBindingTest")
+            .Accepts<Request>("test1/test1", "test2/test2"));
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)

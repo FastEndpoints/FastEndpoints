@@ -23,8 +23,6 @@ namespace Test
 
         static Setup()
         {
-            GuestClient.DefaultRequestHeaders.Add("X-Forwarded-For", "GUESTCLIENT");
-
             var (_, result) = GuestClient.POSTAsync<
                 Admin.Login.Endpoint,
                 Admin.Login.Request,

@@ -7,7 +7,6 @@ public class Endpoint : Endpoint<Request, Response>
         Verbs(Http.POST, Http.PUT, Http.PATCH);
         Routes("admin/login");
         AllowAnonymous();
-        Throttle(5, 5);
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         Describe(b => b
             .Accepts<Request>("application/json")
@@ -78,6 +77,7 @@ public class Endpoint_V1 : Endpoint
     public override void Configure()
     {
         base.Configure();
+        Throttle(5, 5);
         Version(1, deprecateAt: 2);
     }
 }

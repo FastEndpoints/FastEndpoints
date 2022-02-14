@@ -1,4 +1,5 @@
 using FastEndpoints;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
 using static Test.Setup;
@@ -54,6 +55,39 @@ namespace Test
             Assert.AreEqual(HttpStatusCode.OK, resp?.StatusCode);
             Assert.AreEqual(7, result?.Permissions?.Count());
             Assert.IsTrue(result?.JWTToken is not null);
+        }
+
+        [TestMethod]
+        public async Task AdminLoginThrottling()
+        {
+            var guestClient = new WebApplicationFactory<Program>().CreateClient();
+            guestClient.DefaultRequestHeaders.Add("X-Forwarded-For", "TEST");
+
+            int successCount = 0;
+
+            for (int i = 1; i <= 6; i++)
+            {
+                try
+                {
+                    var (rsp, _) = await guestClient.POSTAsync<
+                        Admin.Login.Endpoint_V1,
+                        Admin.Login.Request,
+                        Admin.Login.Response>(new()
+                        {
+                            UserName = "admin",
+                            Password = "pass"
+                        });
+                    Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);
+                    successCount++;
+                }
+                catch (Exception x)
+                {
+                    Assert.AreEqual(6, i);
+                    Assert.IsTrue(x.GetType() == typeof(InvalidOperationException));
+                }
+            }
+
+            Assert.AreEqual(5, successCount);
         }
 
         [TestMethod]

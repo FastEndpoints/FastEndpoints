@@ -33,7 +33,7 @@ internal class HitCounter
         private ConcurrentDictionary<string, Counter>? _dictionary;
         private System.Timers.Timer? _timer;
 
-        internal bool LimitReached => _count >= _limit;
+        internal bool LimitReached => _count > _limit;
 
         internal Counter(int limit, double durationMillis, string key, ConcurrentDictionary<string, Counter> dictionary)
         {

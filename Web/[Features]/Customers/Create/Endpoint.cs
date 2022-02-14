@@ -23,12 +23,11 @@ public class Endpoint : Endpoint<Request>
             "/customer/new/{RefererID}",
             "/customer/{cID}/new/{SourceID}",
             "/customer/save");
-        AllowAnonymous();
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)
     {
-        if (r.PhoneNumbers.Count() < 2)
+        if (r.PhoneNumbers?.Count() < 2)
             ThrowError("Not enough phone numbers!");
 
         var msg = Emailer?.SendEmail() + " " + r.CreatedBy;

@@ -12,7 +12,7 @@ public class Endpoint : Endpoint<Request, Response>
         DontThrowIfValidationFails();
         Options(x => x
             .WithName("RouteBindingTest")
-            .Accepts<Request>("test1/test1", "test2/test2"));
+            .Accepts<Request>("application/json", "test1/test1", "test2/test2"));
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)

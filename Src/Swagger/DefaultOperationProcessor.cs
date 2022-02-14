@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.AspNetCore.Routing;
 using NJsonSchema;
 using NSwag;
 using NSwag.Generation.AspNetCore;
@@ -73,13 +74,25 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 reqContent.Add(c);
         }
 
-        var resContent = op.Responses.FirstOrDefault().Value.Content;
-        if (resContent?.Count > 0)
+        if (op.Responses.Count > 0)
         {
-            //fix response content-type not displaying correctly. probably a nswag bug. might be fixed in future.
-            var contentVal = resContent.FirstOrDefault().Value;
-            resContent.Clear();
-            resContent.Add(op.Produces.FirstOrDefault(), contentVal);
+            //fix response content-type not displaying correctly.
+            var metas = metaData
+                .OfType<IProducesResponseTypeMetadata>()
+                .GroupBy(m => m.StatusCode, (k, g) => new { key = k.ToString(), cTypes = g.Last().ContentTypes })
+                .ToDictionary(x => x.key);
+
+            if (metas.Count > 0)
+            {
+                foreach (var resp in op.Responses)
+                {
+                    var cTypes = metas[resp.Key].cTypes;
+                    var mediaType = resp.Value.Content.FirstOrDefault().Value;
+                    resp.Value.Content.Clear();
+                    foreach (var ct in cTypes)
+                        resp.Value.Content.Add(new(ct, mediaType));
+                }
+            }
         }
 
         //set response descriptions

@@ -19,6 +19,7 @@
             - optimize security policy claim/permission matching
             - micro-optimizations to reduce boxing of value types
             - multiple swagger request content type support
+            - multiple swagger response content type support
             - increase test coverage
 
             ### FIXES

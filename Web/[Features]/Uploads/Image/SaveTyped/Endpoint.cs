@@ -11,8 +11,8 @@ public class Endpoint : Endpoint<Request>
         Claims(Claim.AdminID);
         AllowFileUploads();
         Options(b =>
-            b.Produces(200, contentType: "image/png")
-             .Produces(204, contentType: "text/plain"));
+            b.Produces(200, contentType: "image/png", additionalContentTypes: "test/image")
+             .Produces(204, contentType: "text/plain", additionalContentTypes: "test/notcontent"));
     }
 
     public override async Task HandleAsync(Request r, CancellationToken ct)

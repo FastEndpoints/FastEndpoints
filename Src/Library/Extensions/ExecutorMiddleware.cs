@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-//using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
@@ -77,29 +76,3 @@ internal class ExecutorMiddleware
             "Configure your application startup by adding app.UseCors() in the application startup code. If there are calls to app.UseRouting() and app.UseFastEndpoints(), the call to app.UseCors() must go between them.");
     }
 }
-
-//internal class HitCounter
-//{
-//    private readonly ConcurrentDictionary<string, Counter> dic;
-
-//    public HitCounter()
-//    {
-
-//    }
-
-//    internal class Counter
-//    {
-//        private int _count;
-//        private readonly DateTimeOffset _start;
-//        private readonly int _limit;
-//        private readonly TimeSpan _timeSpan;
-
-//        public Counter(int limit, TimeSpan timeSpan)
-//        {
-//            _limit = limit;
-//            _timeSpan = timeSpan;
-//        }
-
-//        internal void Increase() => Interlocked.Increment(ref _count);
-//    }
-//}

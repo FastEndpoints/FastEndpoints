@@ -40,18 +40,18 @@ internal class DefaultOperationProcessor : IOperationProcessor
         if (epMeta is null)
             return true; //this is not a fastendpoint
 
-        var brk = ctx.Document.Security.Count > 0;
-
         var apiVer = epMeta.EndpointSettings.Version.Current;
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var bareRoute = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
 
+        //set operation id if user has specified
         if (nameMetaData is not null)
-            op.OperationId = nameMetaData.EndpointName; //set operation id if user has specified
+            op.OperationId = nameMetaData.EndpointName;
 
-        if (tagIndex > 0) //set tag
+        //set operation tag
+        if (tagIndex > 0)
         {
             var segments = bareRoute.Split('/');
             if (segments.Length >= tagIndex)
@@ -61,10 +61,10 @@ internal class DefaultOperationProcessor : IOperationProcessor
         //this will be later removed from document processor
         op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epMeta.EndpointSettings.Version.DeprecatedAt}");
 
+        //fix request content-types not displaying correctly
         var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)
         {
-            //fix request content-type not displaying correctly.
             var contentVal = reqContent.FirstOrDefault().Value;
             var list = new List<KeyValuePair<string, OpenApiMediaType>>(op.Consumes.Count);
             for (int i = 0; i < op.Consumes.Count; i++)
@@ -74,13 +74,13 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 reqContent.Add(c);
         }
 
+        //fix response content-types not displaying correctly
         if (op.Responses.Count > 0)
         {
-            //fix response content-type not displaying correctly.
             var metas = metaData
-                .OfType<IProducesResponseTypeMetadata>()
-                .GroupBy(m => m.StatusCode, (k, g) => new { key = k.ToString(), cTypes = g.Last().ContentTypes })
-                .ToDictionary(x => x.key);
+             .OfType<IProducesResponseTypeMetadata>()
+             .GroupBy(m => m.StatusCode, (k, g) => new { key = k.ToString(), cTypes = g.Last().ContentTypes })
+             .ToDictionary(x => x.key);
 
             if (metas.Count > 0)
             {
@@ -129,13 +129,14 @@ internal class DefaultOperationProcessor : IOperationProcessor
 
         var reqParams = new List<OpenApiParameter>();
 
-        //add a param for each url path segment such as /{xxx}/{yyy}/{zzz}
+        //add a param for each route param such as /{xxx}/{yyy}/{zzz}
         reqParams = regex
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
-                if (op.RequestBody is not null) //remove corresponding json field from the request body first
+                if (op.RequestBody is not null)
                 {
+                    //remove corresponding json field from the request body
                     foreach (var c in op.RequestBody.Content)
                     {
                         var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault(kvp =>
@@ -185,9 +186,9 @@ internal class DefaultOperationProcessor : IOperationProcessor
                 reqParams.AddRange(qParams);
         }
 
+        //add header params if there are any props marked with [FromHeader] attribute
         if (reqDtoProps is not null)
         {
-            //add header params if there are any props marked with [FromHeader] attribute
             foreach (var prop in reqDtoProps)
             {
                 var attrib = prop.GetCustomAttribute<FromHeaderAttribute>(true);

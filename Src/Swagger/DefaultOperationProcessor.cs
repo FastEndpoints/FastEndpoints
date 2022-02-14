@@ -114,12 +114,32 @@ internal class DefaultOperationProcessor : IOperationProcessor
         //add a param for each url path segment such as /{xxx}/{yyy}/{zzz}
         reqParams = regex
             .Matches(apiDescription?.RelativePath!)
-            .Select(m => new OpenApiParameter
+            .Select(m =>
             {
-                Name = m.Value,
-                Kind = OpenApiParameterKind.Path,
-                IsRequired = true,
-                Schema = JsonSchema.FromType(typeof(string))
+                if (op.RequestBody is not null) //remove corresponding json field from the request body first
+                {
+                    foreach (var c in op.RequestBody.Content)
+                    {
+                        var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault(kvp =>
+                            string.Equals(kvp.Key, m.Value, StringComparison.OrdinalIgnoreCase));
+
+                        if (prop.Key != null)
+                        {
+                            c.Value.Schema.ActualSchema.Properties.Remove(prop.Key);
+
+                            foreach (var schema in c.Value.Schema.ActualSchema.AllOf)
+                                schema.Properties.Remove(prop.Key);
+                        }
+                    }
+                }
+
+                return new OpenApiParameter
+                {
+                    Name = m.Value,
+                    Kind = OpenApiParameterKind.Path,
+                    IsRequired = true,
+                    Schema = JsonSchema.FromType(typeof(string))
+                };
             })
             .ToList();
 

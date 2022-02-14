@@ -20,7 +20,7 @@
             - increase test coverage
 
             ### FIXES
-            - swagger parameter duplication issue with GET requests
+            - duplication of swagger request params when route/path params are present
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

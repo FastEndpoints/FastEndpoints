@@ -4,10 +4,11 @@ public class Request
 {
     public string String { get; set; }
     public bool Bool { get; set; }
-    public int Int { get; set; }
+    public int? Int { get; set; }
     public long Long { get; set; }
     public double Double { get; set; }
     public decimal Decimal { get; set; }
+    public int? Blank { get; set; }
 
     public string FromBody { get; set; }
 
@@ -30,6 +31,6 @@ public class Response
     public long Long { get; set; }
     public double Double { get; set; }
     public decimal Decimal { get; set; }
-
+    public int? Blank { get; set; }
     public string FromBody { get; set; }
 }

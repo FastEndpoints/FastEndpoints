@@ -144,7 +144,8 @@ namespace Test
                     FromBody = "from body value",
                     Int = 1,
                     Long = 1,
-                    String = "nothing"
+                    String = "nothing",
+                    Blank = 1
                 });
 
             Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);
@@ -155,6 +156,7 @@ namespace Test
             Assert.AreEqual(2232.12, res?.Double);
             Assert.AreEqual("from body value", res?.FromBody);
             Assert.AreEqual(123.45m, res?.Decimal);
+            Assert.AreEqual(null, res?.Blank);
         }
 
         [TestMethod]

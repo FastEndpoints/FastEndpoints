@@ -56,6 +56,8 @@ internal static class ReflectionExtensions
 
     internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type)
     {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
         if (type.IsEnum)
             return input => (Enum.TryParse(type, ToString(input), out var res), res!);
 

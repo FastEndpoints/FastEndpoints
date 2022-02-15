@@ -23,7 +23,7 @@ public class Endpoint : Endpoint<Request, Response>
             Decimal = r.Decimal,
             Double = r.Double,
             FromBody = r.FromBody,
-            Int = r.Int,
+            Int = r.Int!.Value,
             Long = r.Long,
             String = r.String,
         });

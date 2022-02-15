@@ -9,9 +9,9 @@ internal class HitCounter
     private readonly double _durationMillis;
     private readonly int _limit;
 
-    internal string HeaderName { get; }
+    internal string? HeaderName { get; }
 
-    internal HitCounter(string headerName, int durationSeconds, int hitLimit)
+    internal HitCounter(string? headerName, int durationSeconds, int hitLimit)
     {
         HeaderName = headerName;
         _durationMillis = durationSeconds * 1000;

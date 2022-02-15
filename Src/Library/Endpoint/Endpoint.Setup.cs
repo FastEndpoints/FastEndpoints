@@ -304,8 +304,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="hitLimit">how many requests are allowed within the given duration</param>
     /// <param name="durationSeconds">the frequency in seconds where the accrued hit count should be reset</param>
-    /// <param name="headerName">the name of the request header used to uniquely identify clients</param>
-    protected void Throttle(int hitLimit, int durationSeconds, string headerName = "X-Forwarded-For")
+    /// <param name="headerName">
+    /// the name of the request header used to uniquely identify clients.
+    /// specifying null will first look for 'X-Forwarded-For' and if not present, will use `HttpContext.Connection.RemoteIpAddress`
+    /// </param>
+    protected void Throttle(int hitLimit, int durationSeconds, string? headerName = null)
     {
         Settings.HitCounter = new(headerName, durationSeconds, hitLimit);
     }

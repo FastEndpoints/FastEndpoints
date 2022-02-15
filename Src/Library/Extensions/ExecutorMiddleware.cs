@@ -34,13 +34,20 @@ internal class ExecutorMiddleware
 
             if (epMetaData.EndpointSettings.HitCounter is not null)
             {
-                if (!ctx.Request.Headers.TryGetValue(epMetaData.EndpointSettings.HitCounter.HeaderName, out var hdrVal))
+                var hdrName = epMetaData.EndpointSettings.HitCounter.HeaderName ?? "X-Forwarded-For";
+
+                if (!ctx.Request.Headers.TryGetValue(hdrName, out var hdrVal))
                 {
-                    ctx.Response.StatusCode = 403;
-                    return ctx.Response.WriteAsync($"Header [{epMetaData.EndpointSettings.HitCounter.HeaderName}] is missing!");
+                    hdrVal = ctx.Connection.RemoteIpAddress?.ToString();
+
+                    if (hdrVal.Count == 0)
+                    {
+                        ctx.Response.StatusCode = 403;
+                        return ctx.Response.WriteAsync("Forbidden by rate limiting middleware!");
+                    }
                 }
 
-                if (epMetaData.EndpointSettings.HitCounter.LimitReached(hdrVal))
+                if (epMetaData.EndpointSettings.HitCounter.LimitReached(hdrVal[0]))
                 {
                     ctx.Response.StatusCode = 429;
                     return ctx.Response.WriteAsync("You are requesting this endpoint too frequently!");

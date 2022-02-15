@@ -2532,13 +2532,13 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_Throttle_" data-uid="FastEndpoints.Endpoint`2.Throttle*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_Throttle_System_Int32_System_Int32_System_String_" data-uid="FastEndpoints.Endpoint`2.Throttle(System.Int32,System.Int32,System.String)">Throttle(Int32, Int32, String)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_Throttle_System_Int32_System_Double_System_String_" data-uid="FastEndpoints.Endpoint`2.Throttle(System.Int32,System.Double,System.String)">Throttle(Int32, Double, String)</h4>
   <div class="markdown level1 summary"><p>rate limit requests to this endpoint based on a request http header sent by the client.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Throttle(int hitLimit, int durationSeconds, string headerName = null)</code></pre>
+    <pre><code class="lang-csharp hljs">protected void Throttle(int hitLimit, double durationSeconds, string headerName = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2557,7 +2557,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
 </td>
       </tr>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
+        <td><span class="xref">System.Double</span></td>
         <td><span class="parametername">durationSeconds</span></td>
         <td><p>the frequency in seconds where the accrued hit count should be reset</p>
 </td>

@@ -77,7 +77,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-1.html",
-          "hash": "0pAe0RJ/0A3m/4xTtd6rrE1qmaJGL9NOQDkBRaq+qS8="
+          "hash": "eClqYuWIOMXw7qhIPs/Q55eiYX9O1B+bbB44ADkHLeQ="
         }
       },
       "is_incremental": false,
@@ -89,7 +89,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "EFuIp7yQLsVuh6gdDoIDaIkN7IaZgJRuFHg+E8meG/Q="
+          "hash": "A1ht2AfOVFw+D/XFnUHisgd/ITHxpar1g/P4D41cN18="
         }
       },
       "is_incremental": false,
@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-3.html",
-          "hash": "KM5zJjS1UyosX1JIsIarIxv1ADotXmdMWhx1dKHu4mU="
+          "hash": "IgWL89bfPttBtjddvYFzBt/cm2WZgEbZpRiJtOLlaR4="
         }
       },
       "is_incremental": false,
@@ -149,7 +149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithMapping-3.html",
-          "hash": "KX04hTtnA+zRoA1Dm2XONS8v4Ji6TQguqx5g14Ebjx8="
+          "hash": "4BQ92LHhfVf4JQOw424qcN9+gnpuDoX1sWKa7v3vt58="
         }
       },
       "is_incremental": false,
@@ -161,7 +161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.html",
-          "hash": "MmXuTIiBPvYhZHYsmOM2cXYIuZAgeM3bEx4VzD3S8NQ="
+          "hash": "DAu0yBVOunePGdMuYLZHQy+RK04l5w2qAKI7YbEuClU="
         }
       },
       "is_incremental": false,
@@ -173,7 +173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest.html",
-          "hash": "HTZml7TqczWTCF+vAgL28aLRnR7DM+IFen8nGvJ/yeU="
+          "hash": "lXagBnLWC0ZvLVVSEaG+dtqVBTIrLeBNx4BfXXhjzKM="
         }
       },
       "is_incremental": false,
@@ -678,7 +678,7 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "dkIiTTAnHfDs4H+uXj52JlwwqGAx7yLM42FXVEez0ZE="
+          "hash": "RSijMJkHhkFLxy//4LKc+2mAY253t76i5wwnXwMHynk="
         }
       },
       "is_incremental": false,

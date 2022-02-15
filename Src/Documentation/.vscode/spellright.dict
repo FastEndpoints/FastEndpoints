@@ -9,3 +9,5 @@ swashbuckle
 nswag
 dtos
 newtonsoft
+serilog
+vsix

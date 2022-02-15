@@ -17,7 +17,7 @@ _disableAffix: true
 
 A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request-Endpoint-Response) Pattern](https://deviq.com/design-patterns/repr-design-pattern)**.
 
-**FastEndpoints** offers a better alternative than the **Minimal Api** and **MVC Controllers** with the aim of increasing developer productivity. Performance is on par with the Minimal Api and is faster; uses less memory; and does around **[47% more requests per second](https://fast-endpoints.com/wiki/Benchmarks.html)** than a MVC Controller in a head-to-head comparison.
+**FastEndpoints** offers a better alternative than the **Minimal Api** and **MVC Controllers** with the aim of increasing developer productivity. Performance is on par with the Minimal Api and is faster; uses less memory; and does around **[45k more requests per second](https://fast-endpoints.com/wiki/Benchmarks.html)** than a MVC Controller in a head-to-head comparison.
 
 <br/>
 
@@ -26,28 +26,28 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 </span>
 
 # Features
-- Define your endpoints in multiple class files (even in deeply nested folders)
-- Auto discovery and registration of endpoints
+- Define endpoints in multiple class files (even in deeply nested folders)
+- Auto discovery & registration of endpoints
 - Attribute-free endpoint definitions (no attribute argument type restrictions)
-- Secure by default and supports most auth providers
+- Secure by default & supports most auth providers
 - Built-in support for JWT Bearer auth scheme
 - Supports policy/permission/role/claim based security
-- Declarative security policy building (inside each endpoint)
+- Declarative security policy building (in each endpoint)
 - Supports any IOC container compatible with asp.net
-- Dependencies are automatically property injected
-- Model binding support from route/json body/claims/forms/headers
+- Property injection of endpoint dependencies
+- Easy model binding from route/json body/claims/forms/headers
 - Easy file handling (multipart/form-data)
-- Model validation using FluentValidation rules
-- Convenient business logic validation and error responses
-- Easy access to environment and configuration settings
-- Supports api versioning
-- Supports response caching
-- Supports in-process pub/sub event notifications
-- Auto discovery of event notification handlers
-- Convenient integration testing (route-less and strongly-typed)
-- Plays well with the asp.net middleware pipeline
+- Model validation with FluentValidation rules
+- Convenient business logic validation & error responses
+- Easy access to environment & configuration settings
+- API versioning
+- API throttling
+- Response caching
+- In-process pub/sub event notifications (with auto discovery)
+- Convenient integration testing (route-less & strongly-typed)
 - Built-in uncaught exception handler
 - Supports swagger/serilog/etc.
+- Plays well with the asp.net middleware pipeline
 - Visual studio extension (vsix) for easy vertical slice feature scaffolding
 - Plus anything else the `Minimal APIs` can do...
 </div>

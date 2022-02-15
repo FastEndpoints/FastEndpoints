@@ -40,7 +40,7 @@ public class ThrottleEndpoint : Endpoint<ThrottleRequest>
         Verbs(Http.POST);
         Routes("/benchmark/throttle/{id}");
         AllowAnonymous();
-        Throttle(1000000, 60);
+        Throttle(5000000, 300);
     }
 
     public override Task HandleAsync(ThrottleRequest req, CancellationToken ct)

@@ -23,12 +23,12 @@ Statistics        Avg      Stdev        Max
 ### FastEndpoints (With throttling)
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    124985.03   20969.32  181578.21
-  Latency        4.17ms     3.68ms      0.90s
+  Reqs/sec    134116.29   16805.24  171542.89
+  Latency        3.84ms     1.58ms   368.00ms
   HTTP codes:
-    1xx - 0, 2xx - 3669532, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 3992219, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    64.27MB/s
+  Throughput:    69.93MB/s
 ```
 ### AspNet Minimal Api
 ```

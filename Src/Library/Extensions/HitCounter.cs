@@ -4,8 +4,8 @@ namespace FastEndpoints;
 
 internal class HitCounter
 {
-    //key: header value (specified by user in endpoint config)
-    private readonly ConcurrentDictionary<string, Counter> dic = new();
+    //key: header value as a unique client identifier
+    private readonly ConcurrentDictionary<string, Counter> clients = new();
     private readonly double _durationMillis;
     private readonly int _limit;
 
@@ -20,7 +20,7 @@ internal class HitCounter
 
     internal bool LimitReached(string headerValue)
     {
-        var counter = dic.GetOrAdd(headerValue, new Counter(_limit, _durationMillis, headerValue, dic));
+        var counter = clients.GetOrAdd(headerValue, new Counter(_limit, _durationMillis, headerValue, clients));
         counter.Increase();
         return counter.LimitReached;
     }
@@ -31,7 +31,7 @@ internal class HitCounter
         private readonly string _key;
         private readonly int _limit;
         private ConcurrentDictionary<string, Counter>? _dictionary;
-        private System.Timers.Timer? _timer;
+        private Timer? _timer;
 
         internal bool LimitReached => _count > _limit;
 
@@ -40,12 +40,14 @@ internal class HitCounter
             _limit = limit;
             _key = key;
             _dictionary = dictionary;
-            _timer = new(durationMillis) { AutoReset = false };
-            _timer.Elapsed += RemoveCounter;
-            _timer.Start();
+            _timer = new Timer(
+                callback: RemoveCounter,
+                state: null,
+                dueTime: TimeSpan.FromSeconds(durationMillis),
+                period: TimeSpan.FromSeconds(1)); //keep firing every second, in case dictionary removal doesn't work the first time
         }
 
-        private void RemoveCounter(object? _, System.Timers.ElapsedEventArgs __)
+        private void RemoveCounter(object? _)
         {
             if (_dictionary?.TryRemove(_key, out var counter) is true)
                 counter.Dispose();

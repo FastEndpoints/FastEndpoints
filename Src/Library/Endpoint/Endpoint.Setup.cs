@@ -308,7 +308,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// the name of the request header used to uniquely identify clients.
     /// specifying null will first look for 'X-Forwarded-For' and if not present, will use `HttpContext.Connection.RemoteIpAddress`
     /// </param>
-    protected void Throttle(int hitLimit, int durationSeconds, string? headerName = null)
+    protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
     {
         Settings.HitCounter = new(headerName, durationSeconds, hitLimit);
     }

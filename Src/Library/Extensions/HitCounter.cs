@@ -5,52 +5,57 @@ namespace FastEndpoints;
 internal class HitCounter
 {
     //key: header value as a unique client identifier
-    private readonly ConcurrentDictionary<string, Counter> clients = new();
-    private readonly double _durationMillis;
+    private ConcurrentDictionary<string, Counter> clients = new();
+    private readonly double _durationSeconds;
     private readonly int _limit;
 
     internal string? HeaderName { get; }
 
-    internal HitCounter(string? headerName, int durationSeconds, int hitLimit)
+    internal HitCounter(string? headerName, double durationSeconds, int hitLimit)
     {
         HeaderName = headerName;
-        _durationMillis = durationSeconds * 1000;
+        _durationSeconds = durationSeconds;
         _limit = hitLimit;
     }
 
     internal bool LimitReached(string headerValue)
     {
-        var counter = clients.GetOrAdd(headerValue, new Counter(_limit, _durationMillis, headerValue, clients));
-        counter.Increase();
-        return counter.LimitReached;
+        var counter = clients.GetOrAdd(headerValue, new Counter(_durationSeconds, headerValue, ref clients));
+        if (counter.Count < _limit)
+        {
+            counter.Increase();
+            Console.WriteLine("incresed: " + counter.GetHashCode().ToString() + " - " + counter.Count.ToString());
+            return false;
+        }
+        return true;
     }
 
     private class Counter : IDisposable
     {
-        private int _count;
         private readonly string _key;
-        private readonly int _limit;
-        private ConcurrentDictionary<string, Counter>? _dictionary;
-        private Timer? _timer;
+        private readonly ConcurrentDictionary<string, Counter>? _dictionary;
+        private readonly System.Timers.Timer _timer;
+        private int _count;
 
-        internal bool LimitReached => _count > _limit;
+        internal int Count => _count;
 
-        internal Counter(int limit, double durationMillis, string key, ConcurrentDictionary<string, Counter> dictionary)
+        internal Counter(double durationSeconds, string key, ref ConcurrentDictionary<string, Counter> dictionary)
         {
-            _limit = limit;
             _key = key;
             _dictionary = dictionary;
-            _timer = new Timer(
-                callback: RemoveCounter,
-                state: null,
-                dueTime: TimeSpan.FromSeconds(durationMillis),
-                period: TimeSpan.FromSeconds(1)); //keep firing every second, in case dictionary removal doesn't work the first time
+            _timer = new(durationSeconds * 1000);
+            _timer.AutoReset = false;
+            _timer.Elapsed += RemoveCounter;
+            _timer.Start();
         }
 
-        private void RemoveCounter(object? _)
+        private void RemoveCounter(object? _, System.Timers.ElapsedEventArgs __)
         {
             if (_dictionary?.TryRemove(_key, out var counter) is true)
+            {
+                Console.WriteLine("removed: " + counter.GetHashCode().ToString());
                 counter.Dispose();
+            }
         }
 
         internal void Increase()
@@ -65,9 +70,7 @@ internal class HitCounter
             {
                 if (disposing)
                 {
-                    _dictionary = null;
-                    _timer?.Dispose();
-                    _timer = null;
+                    _timer.Dispose();
                 }
                 disposedValue = true;
             }

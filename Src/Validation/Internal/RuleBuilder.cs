@@ -34,7 +34,6 @@ namespace FastEndpoints.Validation
         /// </summary>
         public IValidationRuleInternal<T, TProperty> Rule { get; }
 
-        //TODO: Remove in FV11 once IValidationRule<T,TProperty> and IValidationRuleConfigurable<T,TProperty> have been combined.
         private IValidationRuleConfigurable<T, TProperty> ConfigurableRule => Rule;
 
         /// <summary>

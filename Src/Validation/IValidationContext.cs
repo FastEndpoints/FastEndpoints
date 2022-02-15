@@ -69,7 +69,6 @@ namespace FastEndpoints.Validation
         List<ValidationFailure> Failures { get; }
     }
 
-    //TODO: Temporary interface to avoid introducing a breaking change. Consolidate with IValidationContext in 11.0
     internal interface IThrowOnFailures
     {
         bool ThrowOnFailures { get; }

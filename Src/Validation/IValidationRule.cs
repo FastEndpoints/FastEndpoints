@@ -25,8 +25,6 @@ namespace FastEndpoints.Validation
     using System.Threading;
     using System.Threading.Tasks;
 
-    //TODO: For FV 11 merge IValidationRuleConfigurable	and IValidationRule<T,Tproperty>
-
     public interface IValidationRuleConfigurable<T, out TProperty> : IValidationRule<T>
     {
         /// <summary>

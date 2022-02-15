@@ -94,35 +94,35 @@
 </span>
 <div class="centered-div">
 <p>A light-weight REST Api framework for ASP.Net 6 that implements <strong><a href="https://deviq.com/design-patterns/repr-design-pattern">REPR (Request-Endpoint-Response) Pattern</a></strong>.</p>
-<p><strong>FastEndpoints</strong> offers a better alternative than the <strong>Minimal Api</strong> and <strong>MVC Controllers</strong> with the aim of increasing developer productivity. Performance is on par with the Minimal Api and is faster; uses less memory; and does around <strong><a href="https://fast-endpoints.com/wiki/Benchmarks.html">47% more requests per second</a></strong> than a MVC Controller in a head-to-head comparison.</p>
+<p><strong>FastEndpoints</strong> offers a better alternative than the <strong>Minimal Api</strong> and <strong>MVC Controllers</strong> with the aim of increasing developer productivity. Performance is on par with the Minimal Api and is faster; uses less memory; and does around <strong><a href="https://fast-endpoints.com/wiki/Benchmarks.html">45k more requests per second</a></strong> than a MVC Controller in a head-to-head comparison.</p>
 <br>
 <span class="center-content">
   <img src="images/code-sample.png">
 </span>
 <h1 id="features">Features</h1>
 <ul>
-<li>Define your endpoints in multiple class files (even in deeply nested folders)</li>
-<li>Auto discovery and registration of endpoints</li>
+<li>Define endpoints in multiple class files (even in deeply nested folders)</li>
+<li>Auto discovery &amp; registration of endpoints</li>
 <li>Attribute-free endpoint definitions (no attribute argument type restrictions)</li>
-<li>Secure by default and supports most auth providers</li>
+<li>Secure by default &amp; supports most auth providers</li>
 <li>Built-in support for JWT Bearer auth scheme</li>
 <li>Supports policy/permission/role/claim based security</li>
-<li>Declarative security policy building (inside each endpoint)</li>
+<li>Declarative security policy building (in each endpoint)</li>
 <li>Supports any IOC container compatible with asp.net</li>
-<li>Dependencies are automatically property injected</li>
-<li>Model binding support from route/json body/claims/forms/headers</li>
+<li>Property injection of endpoint dependencies</li>
+<li>Easy model binding from route/json body/claims/forms/headers</li>
 <li>Easy file handling (multipart/form-data)</li>
-<li>Model validation using FluentValidation rules</li>
-<li>Convenient business logic validation and error responses</li>
-<li>Easy access to environment and configuration settings</li>
-<li>Supports api versioning</li>
-<li>Supports response caching</li>
-<li>Supports in-process pub/sub event notifications</li>
-<li>Auto discovery of event notification handlers</li>
-<li>Convenient integration testing (route-less and strongly-typed)</li>
-<li>Plays well with the asp.net middleware pipeline</li>
+<li>Model validation with FluentValidation rules</li>
+<li>Convenient business logic validation &amp; error responses</li>
+<li>Easy access to environment &amp; configuration settings</li>
+<li>API versioning</li>
+<li>API throttling</li>
+<li>Response caching</li>
+<li>In-process pub/sub event notifications (with auto discovery)</li>
+<li>Convenient integration testing (route-less &amp; strongly-typed)</li>
 <li>Built-in uncaught exception handler</li>
 <li>Supports swagger/serilog/etc.</li>
+<li>Plays well with the asp.net middleware pipeline</li>
 <li>Visual studio extension (vsix) for easy vertical slice feature scaffolding</li>
 <li>Plus anything else the <code>Minimal APIs</code> can do...</li>
 </ul>

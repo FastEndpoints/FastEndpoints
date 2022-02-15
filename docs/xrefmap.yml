@@ -1236,6 +1236,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Tags
   nameWithType: Endpoint<TRequest, TResponse>.Tags
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Tags
+- uid: FastEndpoints.Endpoint`2.Throttle(System.Int32,System.Int32,System.String)
+  name: Throttle(Int32, Int32, String)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Throttle_System_Int32_System_Int32_System_String_
+  commentId: M:FastEndpoints.Endpoint`2.Throttle(System.Int32,System.Int32,System.String)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Throttle(System.Int32, System.Int32, System.String)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Throttle(System.Int32, System.Int32, System.String)
+  nameWithType: Endpoint<TRequest, TResponse>.Throttle(Int32, Int32, String)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Throttle(Int32, Int32, String)
+- uid: FastEndpoints.Endpoint`2.Throttle*
+  name: Throttle
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Throttle_
+  commentId: Overload:FastEndpoints.Endpoint`2.Throttle
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Throttle
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Throttle
+  nameWithType: Endpoint<TRequest, TResponse>.Throttle
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Throttle
 - uid: FastEndpoints.Endpoint`2.ThrowError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
   name: ThrowError(Expression<Func<TRequest, Object>>, String)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_

@@ -100,33 +100,6 @@ public class Benchmarks
         return FEThrottleClient.SendAsync(msg);
     }
 
-    //[Benchmark]
-    public Task Carter()
-    {
-        var msg = new HttpRequestMessage()
-        {
-            Method = HttpMethod.Post,
-            RequestUri = new Uri($"{CarterClient.BaseAddress}benchmark/ok/123"),
-            Content = new StringContent(
-                JsonSerializer.Serialize(
-                    new CarterModules.Request()
-                    {
-                        FirstName = "xxx",
-                        LastName = "yyy",
-                        Age = 23,
-                        PhoneNumbers = new[] {
-                            "1111111111",
-                            "2222222222",
-                            "3333333333",
-                            "4444444444",
-                            "5555555555"
-                        }
-                    }), Encoding.UTF8, "application/json")
-        };
-
-        return CarterClient.SendAsync(msg);
-    }
-
     [Benchmark]
     public Task AspNetCoreMVC()
     {
@@ -152,5 +125,32 @@ public class Benchmarks
         };
 
         return MvcClient.SendAsync(msg);
+    }
+
+    [Benchmark]
+    public Task Carter()
+    {
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{CarterClient.BaseAddress}benchmark/ok/123"),
+            Content = new StringContent(
+                JsonSerializer.Serialize(
+                    new CarterModules.Request()
+                    {
+                        FirstName = "xxx",
+                        LastName = "yyy",
+                        Age = 23,
+                        PhoneNumbers = new[] {
+                            "1111111111",
+                            "2222222222",
+                            "3333333333",
+                            "4444444444",
+                            "5555555555"
+                        }
+                    }), Encoding.UTF8, "application/json")
+        };
+
+        return CarterClient.SendAsync(msg);
     }
 }

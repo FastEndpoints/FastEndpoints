@@ -1,7 +1,8 @@
 ﻿#pragma warning disable CA1822
 using BenchmarkDotNet.Attributes;
-using FastEndpoints;
 using Microsoft.AspNetCore.Mvc.Testing;
+using System.Text;
+using System.Text.Json;
 
 namespace Runner;
 
@@ -12,86 +13,144 @@ namespace Runner;
 public class Benchmarks
 {
     private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
+    private static HttpClient FEThrottleClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
     private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
     private static HttpClient CarterClient { get; } = new WebApplicationFactory<CarterModules.Program>().CreateClient();
 
-    [Benchmark]
-    public async Task FastEndpoints()
+    [Benchmark(Baseline = true)]
+    public Task MinimalApi()
     {
-        await FastEndpointClient.POSTAsync<FastEndpointsBench.Request, FastEndpointsBench.Response>(
-            "/benchmark/ok/123", new()
-            {
-                FirstName = "xxx",
-                LastName = "yyy",
-                Age = 23,
-                PhoneNumbers = new[] {
-                        "1111111111",
-                        "2222222222",
-                        "3333333333",
-                        "4444444444",
-                        "5555555555"
-                }
-            });
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{MinimalClient.BaseAddress}benchmark/ok/123"),
+            Content = new StringContent(
+                JsonSerializer.Serialize(
+                    new MinimalApi.Request()
+                    {
+                        FirstName = "xxx",
+                        LastName = "yyy",
+                        Age = 23,
+                        PhoneNumbers = new[] {
+                            "1111111111",
+                            "2222222222",
+                            "3333333333",
+                            "4444444444",
+                            "5555555555"
+                        }
+                    }), Encoding.UTF8, "application/json")
+        };
+
+        return MinimalClient.SendAsync(msg);
     }
 
-    [Benchmark(Baseline = true)]
-    public async Task MinimalApi()
+    [Benchmark]
+    public Task FastEndpoints()
     {
-        await MinimalClient.POSTAsync<MinimalApi.Request, MinimalApi.Response>(
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{FastEndpointClient.BaseAddress}benchmark/ok/123"),
+            Content = new StringContent(
+                JsonSerializer.Serialize(
+                    new FastEndpointsBench.Request()
+                    {
+                        FirstName = "xxx",
+                        LastName = "yyy",
+                        Age = 23,
+                        PhoneNumbers = new[] {
+                            "1111111111",
+                            "2222222222",
+                            "3333333333",
+                            "4444444444",
+                            "5555555555"
+                        }
+                    }), Encoding.UTF8, "application/json")
+        };
 
-            "/benchmark/ok/123", new()
-            {
-                FirstName = "xxx",
-                LastName = "yyy",
-                Age = 23,
-                PhoneNumbers = new[] {
-                        "1111111111",
-                        "2222222222",
-                        "3333333333",
-                        "4444444444",
-                        "5555555555"
-                }
-            });
+        return FastEndpointClient.SendAsync(msg);
+    }
+
+    [Benchmark]
+    public Task FEThrottling()
+    {
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{FEThrottleClient.BaseAddress}benchmark/throttle/123"),
+            Content = new StringContent(
+                JsonSerializer.Serialize(
+                    new FastEndpointsBench.ThrottleRequest()
+                    {
+                        FirstName = "xxx",
+                        LastName = "yyy",
+                        Age = 23,
+                        PhoneNumbers = new[] {
+                            "1111111111",
+                            "2222222222",
+                            "3333333333",
+                            "4444444444",
+                            "5555555555"
+                        }
+                    }), Encoding.UTF8, "application/json")
+        };
+        msg.Headers.Add("X-Forwarded-For", $"000.000.000.{Random.Shared.NextInt64(100, 200)}");
+
+        return FEThrottleClient.SendAsync(msg);
     }
 
     //[Benchmark]
-    public async Task Carter()
+    public Task Carter()
     {
-        await CarterClient.POSTAsync<CarterModules.Request, CarterModules.Response>(
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{CarterClient.BaseAddress}benchmark/ok/123"),
+            Content = new StringContent(
+                JsonSerializer.Serialize(
+                    new CarterModules.Request()
+                    {
+                        FirstName = "xxx",
+                        LastName = "yyy",
+                        Age = 23,
+                        PhoneNumbers = new[] {
+                            "1111111111",
+                            "2222222222",
+                            "3333333333",
+                            "4444444444",
+                            "5555555555"
+                        }
+                    }), Encoding.UTF8, "application/json")
+        };
 
-             "/benchmark/ok/123", new()
-             {
-                 FirstName = "xxx",
-                 LastName = "yyy",
-                 Age = 23,
-                 PhoneNumbers = new[] {
-                        "1111111111",
-                        "2222222222",
-                        "3333333333",
-                        "4444444444",
-                        "5555555555"
-                 }
-             });
+        return CarterClient.SendAsync(msg);
     }
 
     [Benchmark]
-    public async Task AspNetCoreMVC()
+    public Task AspNetCoreMVC()
     {
-        await MvcClient.POSTAsync<MvcControllers.Request, MvcControllers.Response>(
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{MvcClient.BaseAddress}benchmark/ok/123"),
+            Content = new StringContent(
+                JsonSerializer.Serialize(
+                    new MvcControllers.Request()
+                    {
+                        FirstName = "xxx",
+                        LastName = "yyy",
+                        Age = 23,
+                        PhoneNumbers = new[] {
+                            "1111111111",
+                            "2222222222",
+                            "3333333333",
+                            "4444444444",
+                            "5555555555"
+                        }
+                    }), Encoding.UTF8, "application/json")
+        };
 
-            "/benchmark/ok/123", new()
-            {
-                FirstName = "xxx",
-                LastName = "yyy",
-                Age = 23,
-                PhoneNumbers = new[] {
-                        "1111111111",
-                        "2222222222",
-                        "3333333333",
-                        "4444444444",
-                        "5555555555"
-                }
-            });
+        return MvcClient.SendAsync(msg);
     }
 }

@@ -1,6 +1,7 @@
 using Carter;
 
 var builder = WebApplication.CreateBuilder();
+builder.Logging.ClearProviders();
 builder.Services.AddCarter();
 builder.Services.AddAuthorization();
 

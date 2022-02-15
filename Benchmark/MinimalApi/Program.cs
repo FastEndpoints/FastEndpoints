@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MinimalApi;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
 builder.Services
     .AddAuthorization()
     .AddSingleton<IValidator<Request>, Validator>();

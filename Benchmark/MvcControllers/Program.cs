@@ -2,6 +2,7 @@ using FluentValidation;
 using MvcControllers;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IValidator<Request>, Validator>();
 

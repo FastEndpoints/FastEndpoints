@@ -2,11 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.5.0-beta10</Version>
+        <Version>3.5.0</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - endpoint rate limiting capability
+            - endpoint rate limiting with Throttle() method
             - header binding support for non-string type dto properties
             - claim binding support for non-string type dto properties
             - nullable property binding from query/route params

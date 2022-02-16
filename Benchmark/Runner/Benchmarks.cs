@@ -18,7 +18,7 @@ public class Benchmarks
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
     private static HttpClient CarterClient { get; } = new WebApplicationFactory<CarterModules.Program>().CreateClient();
 
-    [Benchmark(Baseline = true)]
+    [Benchmark]
     public Task MinimalApi()
     {
         var msg = new HttpRequestMessage()
@@ -45,7 +45,7 @@ public class Benchmarks
         return MinimalClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public Task FastEndpoints()
     {
         var msg = new HttpRequestMessage()
@@ -73,7 +73,7 @@ public class Benchmarks
     }
 
     [Benchmark]
-    public Task FEThrottling()
+    public Task FastEndpointsThrottling()
     {
         var msg = new HttpRequestMessage()
         {
@@ -128,7 +128,7 @@ public class Benchmarks
     }
 
     [Benchmark]
-    public Task Carter()
+    public Task CarterModule()
     {
         var msg = new HttpRequestMessage()
         {

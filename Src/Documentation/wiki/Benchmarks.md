@@ -1,14 +1,19 @@
 ## Head-To-Head Benchmark
 
-|                   Method |      Mean |    Error |   StdDev | Ratio | RatioSD |  Gen 0 |  Gen 1 | Allocated |
-|------------------------- |----------:|---------:|---------:|------:|--------:|-------:|-------:|----------:|
-|            FastEndpoints |  54.60 μs | 9.956 μs | 5.925 μs |  0.87 |    0.08 | 2.3000 |      - |     19 KB |
-|               MinimalApi |  63.40 μs | 3.017 μs | 1.578 μs |  1.00 |    0.00 | 2.4000 |      - |     20 KB |
-|  FastEndpointsThrottling |  69.63 μs | 6.659 μs | 3.963 μs |  1.10 |    0.07 | 2.5000 |      - |     20 KB |
-|            AspNetCoreMVC |  84.24 μs | 3.029 μs | 1.802 μs |  1.33 |    0.05 | 3.1000 | 0.1000 |     26 KB |
-|                   Carter | 574.28 μs | 3.114 μs | 1.853 μs |  9.06 |    0.21 | 5.7000 | 2.8000 |     47 KB |
+|                        Method |      Mean | Ratio |  Gen 0 |  Gen 1 | Allocated |
+|------------------------------ |----------:|------:|-------:|-------:|----------:|
+|                 FastEndpoints |  66.11 μs |  1.00 | 2.3000 |      - |     19 KB |
+|                   Minimal Api |  67.87 μs |  1.03 | 2.4000 |      - |     20 KB |
+| FastEndpoints With Throttling |  70.78 μs |  1.07 | 2.5000 |      - |     20 KB |
+|     AspNetCore MVC Controller | 104.26 μs |  1.57 | 3.1000 | 0.1000 |     26 KB |
+|                 Carter Module | 591.73 μs |  8.95 | 5.7000 | 2.8000 |     47 KB |
 
 ## Bombardier Load Test
+
+```
+hardware: AMD Ryzen 7 3700X (8c/16t), 16GB RAM, Windows 11
+parameters: -c 512 -m POST -f "body.json" -H "Content-Type:application/json" -d 30s
+```
 
 ### FastEndpoints *(45,526 more requests per second than mvc controller)*
 ```
@@ -20,7 +25,7 @@ Statistics        Avg      Stdev        Max
     others - 0
   Throughput:    74.56MB/s
 ```
-### FastEndpoints (With throttling)
+### FastEndpoints with throttling
 ```
 Statistics        Avg      Stdev        Max
   Reqs/sec    134116.29   16805.24  171542.89
@@ -61,9 +66,10 @@ Statistics        Avg      Stdev        Max
   Throughput:     2.78MB/s
 ```
 
-**parameters used:** `-c 512 -m POST -f "body.json" -H "Content-Type:application/json"  -d 30s`
-
-**hardware used:** `AMD Ryzen 7 3700X (8c/16t), 16GB RAM, Windows 11`
+## TechEmpower Benchmark (Preliminary)
+<a target="_blank" href="https://www.techempower.com/benchmarks/#section=test&runid=fa199ea7-b3db-4cd5-bab8-85ff67217db0&hw=ph&test=json&l=zik0zh-sf&c=8&a=2">
+  <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ksvhrqxeipucnsuakitw.png">
+</a>
 
 <!-- .\bomb.exe -c 512 -m POST -f "body.json" -H "Content-Type:application/json"  -d 30s http://localhost:5000/benchmark/ok/123 -->
 <!-- .\bomb.exe -c 512 -m POST -f "body.json" -H "Content-Type:application/json" -H "X-Forwarded-For:000.000.000.000"  -d 30s http://localhost:5000/benchmark/throttle/123 -->

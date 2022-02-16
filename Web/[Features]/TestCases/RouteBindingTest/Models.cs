@@ -1,4 +1,4 @@
-﻿namespace TestCases.RouteBindingTest;
+namespace TestCases.RouteBindingTest;
 
 public class Request
 {
@@ -9,6 +9,8 @@ public class Request
     public double Double { get; set; }
     public decimal Decimal { get; set; }
     public int? Blank { get; set; }
+
+    //public IEnumerable<int> Integers { get; set; }
 
     public string FromBody { get; set; }
 

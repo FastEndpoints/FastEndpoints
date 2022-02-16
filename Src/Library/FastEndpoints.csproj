@@ -6,11 +6,11 @@
 
         <PackageReleaseNotes>
             ### NEW
+            - endpoint rate limiting capability
             - header binding support for non-string type dto properties
             - claim binding support for non-string type dto properties
-            - route param reading for EndpointWithoutRequest endpoints
             - nullable property binding from query/route params
-            - basic endpoint rate limiting capability [experimental]
+            - route param reading for EndpointWithoutRequest endpoints
 
             ### IMPROVEMENTS
             - relax constraints on event msg type

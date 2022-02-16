@@ -20,47 +20,67 @@ internal class HitCounter
 
     internal bool LimitReached(string headerValue)
     {
-        var counter = clients.GetOrAdd(headerValue, new Counter(_durationSeconds, headerValue, ref clients));
-        if (counter.Count < _limit)
-        {
-            counter.Increase();
-            Console.WriteLine("incresed: " + counter.GetHashCode().ToString() + " - " + counter.Count.ToString());
-            return false;
-        }
-        return true;
+        return clients.GetOrAdd(
+            headerValue,
+            hVal => new Counter(_durationSeconds, hVal, _limit, ref clients)
+            ).LimitReached();
     }
 
     private class Counter : IDisposable
     {
-        private readonly string _key;
-        private readonly ConcurrentDictionary<string, Counter>? _dictionary;
-        private readonly System.Timers.Timer _timer;
+        private readonly string _self;
+        private readonly ConcurrentDictionary<string, Counter> _parent;
+        private Timer? _timer;
+        private long _startTicks;
+        private readonly TimeSpan _duration;
+        private readonly int _limit;
         private int _count;
 
-        internal int Count => _count;
+        private bool Expired => DateTimeOffset.UtcNow.Subtract(_duration).Ticks > _startTicks;
 
-        internal Counter(double durationSeconds, string key, ref ConcurrentDictionary<string, Counter> dictionary)
+        internal Counter(double durationSeconds, string key, int limit, ref ConcurrentDictionary<string, Counter> dictionary)
         {
-            _key = key;
-            _dictionary = dictionary;
-            _timer = new(durationSeconds * 1000);
-            _timer.AutoReset = false;
-            _timer.Elapsed += RemoveCounter;
-            _timer.Start();
+            _startTicks = DateTimeOffset.UtcNow.Ticks;
+            _duration = TimeSpan.FromSeconds(durationSeconds);
+            _self = key;
+            _limit = limit;
+            _parent = dictionary;
+            _timer = new(RemoveFromParentIfExpired, null, 60000, 60000);
         }
 
-        private void RemoveCounter(object? _, System.Timers.ElapsedEventArgs __)
+        internal bool LimitReached()
         {
-            if (_dictionary?.TryRemove(_key, out var counter) is true)
+            if (Expired)
             {
-                Console.WriteLine("removed: " + counter.GetHashCode().ToString());
-                counter.Dispose();
+                Interlocked.Exchange(ref _startTicks, DateTimeOffset.UtcNow.Ticks);
+                Interlocked.Exchange(ref _count, 0);
+                //Console.WriteLine($"reset: {GetHashCode()}");
             }
+
+            if (_count >= _limit)
+            {
+                //Console.WriteLine($"limit reached: {GetHashCode()}");
+                return true;
+            }
+
+            //Console.WriteLine($"hit: {GetHashCode()}");
+            Interlocked.Increment(ref _count);
+            return false;
         }
 
-        internal void Increase()
+        private void RemoveFromParentIfExpired(object? _)
         {
-            Interlocked.Increment(ref _count);
+            //Console.WriteLine($"clean event: {GetHashCode()}");
+
+            if (Expired && _parent.TryRemove(_self, out var counter))
+            {
+                Dispose();
+                //Console.WriteLine($"disposed: {counter.GetHashCode()} / {GetHashCode()}");
+            }
+            //else if (Expired)
+            //{
+            //    Console.WriteLine($"failed cleanup: {GetHashCode()}");
+            //}
         }
 
         private bool disposedValue;
@@ -70,11 +90,13 @@ internal class HitCounter
             {
                 if (disposing)
                 {
-                    _timer.Dispose();
+                    _timer!.Dispose();
+                    _timer = null;
                 }
                 disposedValue = true;
             }
         }
+
         public void Dispose()
         {
             Dispose(disposing: true);

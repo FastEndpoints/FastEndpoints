@@ -205,7 +205,7 @@ MyDecimal - 123.4567
 }
 </code></pre>
 <h1 id="supported-property-types">supported property types</h1>
-<p>the following property types can be bound from route &amp; query parameters as well as form fields:</p>
+<p>in addition to complex model binding from json body, only the following property types are supported for binding from route/query/claim/header/form parameters:</p>
 <ul>
 <li>string</li>
 <li>bool</li>
@@ -220,7 +220,25 @@ MyDecimal - 123.4567
 <li>Version</li>
 <li>TimeSpan</li>
 </ul>
-<p>only strings are currently supported for claims &amp; header binding.</p>
+<p>any clr type with a <code>TryParse()</code> method can be potentially supported. pls open a github issue if you need something added.</p>
+<h3 id="route-parameters-in-endpoints-without-a-request-dto">route parameters in endpoints without a request dto</h3>
+<p>if your endpoint doesn't have/need a request dto, you can easily read route parameters using the <code>Route&lt;T&gt;()</code> method.</p>
+<pre><code class="lang-csharp">public class GetArticle : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get(&quot;/article/{ArticleID}&quot;);
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+    {
+        int id = Route&lt;int&gt;(&quot;ArticleID&quot;);
+        return SendAsync(id);
+    }
+}
+</code></pre>
+<p><strong>note:</strong> the generic parameter of the <code>Route&lt;T&gt;</code> method should only be one of the supported types in the list given above. anything else will return a null.</p>
 <h1 id="json-serialization-casing">json serialization casing</h1>
 <p>by default the serializer uses <strong>camel casing</strong> for serializing/deserializing. you can change the casing as shown in the <a href="Configuration-Settings.html#specify-json-serializer-options">configuration settings</a> section.</p>
 </article>

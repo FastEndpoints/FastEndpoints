@@ -140,7 +140,7 @@ public class UpdateAddressRequest
 ```
 
 # supported property types
-the following property types can be bound from route & query parameters as well as form fields:
+in addition to complex model binding from json body, only the following property types are supported for binding from route/query/claim/header/form parameters:
 - string
 - bool
 - enum
@@ -154,7 +154,27 @@ the following property types can be bound from route & query parameters as well 
 - Version
 - TimeSpan
 
-only strings are currently supported for claims & header binding.
+any clr type with a `TryParse()` method can be potentially supported. pls open a github issue if you need something added.
+
+### route parameters in endpoints without a request dto
+if your endpoint doesn't have/need a request dto, you can easily read route parameters using the `Route<T>()` method.
+```csharp
+public class GetArticle : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("/article/{ArticleID}");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+    {
+        int id = Route<int>("ArticleID");
+        return SendAsync(id);
+    }
+}
+```
+**note:** the generic parameter of the `Route<T>` method should only be one of the supported types in the list given above. anything else will return a null.
 
 # json serialization casing
 by default the serializer uses **camel casing** for serializing/deserializing. you can change the casing as shown in the [configuration settings](Configuration-Settings.md#specify-json-serializer-options) section.

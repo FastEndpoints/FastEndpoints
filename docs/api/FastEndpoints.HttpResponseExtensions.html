@@ -147,6 +147,7 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static Task SendAsync&lt;TResponse&gt;(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = null)
+
     where TResponse : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -371,6 +372,7 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>

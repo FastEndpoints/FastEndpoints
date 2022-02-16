@@ -89,7 +89,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "A1ht2AfOVFw+D/XFnUHisgd/ITHxpar1g/P4D41cN18="
+          "hash": "XmcKnC27hkyLEmwDEBtOVtrN8L2BAOk9Wy2erolRxBs="
         }
       },
       "is_incremental": false,
@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-3.html",
-          "hash": "IgWL89bfPttBtjddvYFzBt/cm2WZgEbZpRiJtOLlaR4="
+          "hash": "fdvUndV5Gu2ye3+Ymb72ir3/6LeigBCWZRqKH2euzA4="
         }
       },
       "is_incremental": false,
@@ -149,7 +149,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithMapping-3.html",
-          "hash": "4BQ92LHhfVf4JQOw424qcN9+gnpuDoX1sWKa7v3vt58="
+          "hash": "01H/IGGp6PF/FX9hxxDb0ssND97cTkT7M9F1UuH9w2Q="
         }
       },
       "is_incremental": false,
@@ -233,7 +233,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.FastEventHandler-1.html",
-          "hash": "IRdX28yQh2tR12P4pmqd1nilTX+57f+GeRg1JqvhOaM="
+          "hash": "WiYSjLgjmdewSx++Ub8gt1Lev/4JmCHVgZTL+gb4Ceg="
         }
       },
       "is_incremental": false,
@@ -293,7 +293,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
-          "hash": "/DBPnMVKcoZcpdFdPfuX7duEZkbKOTeoP1l1UaHe5+4="
+          "hash": "6KmtRCO6c2kbkQbPzJXF+oawgNHxrOIiKR0Q0IYrdT0="
         }
       },
       "is_incremental": false,
@@ -305,7 +305,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpResponseExtensions.html",
-          "hash": "Dv7du0mf065sT/4SCMIWu6iBrqoys4DWQPsIxWN7S9E="
+          "hash": "dAVfdmUrtpjDgREWzoX8/LlB5LTf8jYZp14wL7sQ/WU="
         }
       },
       "is_incremental": false,
@@ -377,7 +377,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Mapper-3.html",
-          "hash": "BK9I58dTQrEY4WNfjqi9mn2HhOTNkSvx+Z2J0pVzU78="
+          "hash": "Sa0IGCi8zU407pKp34YU0K78Rogsr9wjQ2g1IhBJC/g="
         }
       },
       "is_incremental": false,
@@ -497,7 +497,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Validation.Validator-1.html",
-          "hash": "vUWNblDvhCbgRcryRPNuWJG+opq4nouONemo/Y+2Ty0="
+          "hash": "rHcgq8G4l2vIQ71lvJWhDP4r2nT3+XH7vWDoya1A0To="
         }
       },
       "is_incremental": false,
@@ -678,7 +678,7 @@
       "output": {
         ".html": {
           "relative_path": "index.html",
-          "hash": "RSijMJkHhkFLxy//4LKc+2mAY253t76i5wwnXwMHynk="
+          "hash": "dkIiTTAnHfDs4H+uXj52JlwwqGAx7yLM42FXVEez0ZE="
         }
       },
       "is_incremental": false,
@@ -691,6 +691,18 @@
         ".html": {
           "relative_path": "toc.html",
           "hash": "S9uINf0Lu0oeGvQYfAYaNnCryOWlHzOMcvd3og+RLlE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "wiki/Api-Throttling.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Api-Throttling.html",
+          "hash": "eLUEipo1fBA/751efxJX/6apHonA1no6qW1i2az5GZs="
         }
       },
       "is_incremental": false,
@@ -918,7 +930,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "PYqJpMTwdZ6ynmPO8Q6acSrHPLzqLoACaakRNprC3Bw="
+          "hash": "rUG1tV1g3fpVdffIk2+KAqqeFWIK9JeSwhYtJlQfREc="
         }
       },
       "is_incremental": false,
@@ -937,8 +949,8 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 19,
-          "skipped_file_count": 19
+          "total_file_count": 20,
+          "skipped_file_count": 20
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

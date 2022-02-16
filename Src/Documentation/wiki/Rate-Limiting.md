@@ -1,4 +1,4 @@
-# api rate limiting
+# endpoint rate limiting
 it is possible to rate limit individual endpoints based on the presence of an http header in the incoming request like below:
 ```csharp
 public override void Configure()

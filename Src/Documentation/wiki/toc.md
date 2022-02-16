@@ -15,5 +15,5 @@
 # [Swagger Support](Swagger-Support.md)
 # [Configuration Settings](Configuration-Settings.md)
 # [API Versioning](Api-Versioning.md)
-# [API Throttling](Api-Throttling.md)
+# [Rate Limiting](Rate-Limiting.md)
 # [VS Extension](VS-Extension.md)

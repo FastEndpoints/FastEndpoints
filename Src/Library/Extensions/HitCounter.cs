@@ -72,7 +72,7 @@ internal class HitCounter
         {
             //Console.WriteLine($"clean event: {GetHashCode()}");
 
-            if (Expired && _parent.TryRemove(_self, out var counter))
+            if (Expired && _parent.TryRemove(_self, out var _))
             {
                 Dispose();
                 //Console.WriteLine($"disposed: {counter.GetHashCode()} / {GetHashCode()}");

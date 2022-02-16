@@ -53,8 +53,9 @@ internal class HitCounter
             if (Expired)
             {
                 Interlocked.Exchange(ref _startTicks, DateTimeOffset.UtcNow.Ticks);
-                Interlocked.Exchange(ref _count, 0);
+                Interlocked.Exchange(ref _count, 1);
                 //Console.WriteLine($"reset: {GetHashCode()}");
+                return false;
             }
 
             if (_count >= _limit)

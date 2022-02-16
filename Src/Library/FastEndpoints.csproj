@@ -2,30 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.5.0</Version>
+        <Version>3.5.1-beta1</Version>
 
         <PackageReleaseNotes>
-            ### NEW
-            - endpoint rate limiting with Throttle() method
-            - header binding support for non-string type dto properties
-            - claim binding support for non-string type dto properties
-            - nullable property binding from query/route params
-            - route param reading for EndpointWithoutRequest endpoints
-
             ### IMPROVEMENTS
-            - relax constraints on event msg type
-            - model binding value parser internals
-            - route value binding internals
-            - query param binding internals
-            - GETAsync() http client method internals
-            - optimize security policy claim/permission matching
-            - micro-optimizations to reduce boxing of value types
-            - multiple swagger request content type support
-            - multiple swagger response content type support
-            - increase test coverage
-
-            ### FIXES
-            - duplication of swagger request params when route/path params are present
+            - hit counter optimizations
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

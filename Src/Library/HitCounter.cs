@@ -31,28 +31,31 @@ internal class HitCounter
         private readonly string _self;
         private readonly ConcurrentDictionary<string, Counter> _parent;
         private Timer? _timer;
-        private long _startTicks;
-        private readonly TimeSpan _duration;
+        private long _expireAtTicks;
+        private readonly double _durationSecs;
         private readonly int _limit;
         private int _count;
 
-        private bool Expired => DateTimeOffset.UtcNow.Subtract(_duration).Ticks > _startTicks;
+        private bool Expired => DateTime.UtcNow.Ticks > _expireAtTicks;
 
         internal Counter(double durationSeconds, string key, int limit, ref ConcurrentDictionary<string, Counter> dictionary)
         {
-            _startTicks = DateTimeOffset.UtcNow.Ticks;
-            _duration = TimeSpan.FromSeconds(durationSeconds);
             _self = key;
             _limit = limit;
             _parent = dictionary;
-            _timer = new(RemoveFromParentIfExpired, null, 60000, 60000);
+            _durationSecs = durationSeconds;
+            _timer = new(RemoveFromParentIfExpired, null, 5000, 5000);
+            _expireAtTicks = GetNewExpiry();
         }
+
+        private long GetNewExpiry()
+            => DateTime.UtcNow.AddSeconds(_durationSecs).Ticks;
 
         internal bool LimitReached()
         {
             if (Expired)
             {
-                Interlocked.Exchange(ref _startTicks, DateTimeOffset.UtcNow.Ticks);
+                Interlocked.Exchange(ref _expireAtTicks, GetNewExpiry());
                 Interlocked.Exchange(ref _count, 1);
                 //Console.WriteLine($"reset: {GetHashCode()}");
                 return false;

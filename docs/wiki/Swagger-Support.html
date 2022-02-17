@@ -121,7 +121,7 @@ app.Run();
 });
 </code></pre>
 <h2 id="describe-endpoints">describe endpoints</h2>
-<p>if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the <code>Describe()</code> method in configuration like so:</p>
+<p>by default, both <code>Accepts</code> and <code>Produces</code> are inferred from the request/response dto types of your endpoints and added to the swagger description. if the defaults are not satisfactory, you can clear the defaults completely and describe your endpoints with the <code>Describe()</code> method in configuration like so:</p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest, MyResponse&gt;
 {
     public override void Configure()
@@ -133,6 +133,14 @@ app.Run();
           .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
           .ProducesProblem(403));
     }
+}
+</code></pre>
+<p>on the other-hand if the default <code>Accepts</code> &amp; <code>Produces</code> are ok, and you want to just add something else like <code>ProducesProblem</code>, simply use the <code>Options()</code> method to specify the additional descriptions:</p>
+<pre><code class="lang-csharp">public override void Configure()
+{
+    Post(&quot;/admin/login&quot;);
+    AllowAnonymous();
+    Options(x =&gt; x.ProducesProblem(404));
 }
 </code></pre>
 <h3 id="swagger-documentation">swagger documentation</h3>

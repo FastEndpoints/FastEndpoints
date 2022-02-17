@@ -35,7 +35,7 @@ builder.Services.AddSwaggerDoc(settings =>
 ```
 
 ## describe endpoints
-if the defaults are not satisfactory, you can clear the defaults and describe your endpoints with the `Describe()` method in configuration like so:
+by default, both `Accepts` and `Produces` are inferred from the request/response dto types of your endpoints and added to the swagger description. if the defaults are not satisfactory, you can clear the defaults completely and describe your endpoints with the `Describe()` method in configuration like so:
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest, MyResponse>
 {
@@ -48,6 +48,15 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
           .Produces<MyResponse>(200,"application/json")
           .ProducesProblem(403));
     }
+}
+```
+on the other-hand if the default `Accepts` & `Produces` are ok, and you want to just add something else like `ProducesProblem`, simply use the `Options()` method to specify the additional descriptions:
+```csharp
+public override void Configure()
+{
+    Post("/admin/login");
+    AllowAnonymous();
+    Options(x => x.ProducesProblem(404));
 }
 ```
 

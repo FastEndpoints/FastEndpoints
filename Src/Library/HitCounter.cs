@@ -44,7 +44,7 @@ internal class HitCounter
             _limit = limit;
             _parent = dictionary;
             _durationSecs = durationSeconds;
-            _timer = new(RemoveFromParentIfExpired, null, 5000, 5000);
+            _timer = new(RemoveFromParentIfExpired, null, 60000, 60000);//cleanup every 60 secs.
             _expireAtTicks = GetNewExpiry();
         }
 

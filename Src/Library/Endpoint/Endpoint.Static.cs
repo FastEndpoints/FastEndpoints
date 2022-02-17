@@ -134,7 +134,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromClaimProps.Count; i++)
         {
             var prop = ReqTypeCache<TRequest>.CachedFromClaimProps[i];
-            var claimVal = principal.FindFirst(c => c.Type.Equals(prop.ClaimType, StringComparison.OrdinalIgnoreCase))?.Value;
+
+            string? claimVal = null;
+            foreach (var c in principal.Claims)
+            {
+                if (c.Type.Equals(prop.ClaimType, StringComparison.OrdinalIgnoreCase))
+                    claimVal = c.Value;
+            }
 
             if (claimVal is null && prop.ForbidIfMissing)
                 failures.Add(new(prop.ClaimType, "User doesn't have this claim type!"));

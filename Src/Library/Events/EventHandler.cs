@@ -9,7 +9,7 @@ namespace FastEndpoints;
 public abstract class FastEventHandler<TEvent> : IEventHandler, IServiceResolver where TEvent : notnull
 {
     void IEventHandler.Subscribe()
-        => Event<TEvent>.OnReceived += (e, c) => HandleAsync(e, c);
+        => Event<TEvent>.OnReceived += HandleAsync;
 
     /// <summary>
     /// this method will be called when an event of the specified type is published.

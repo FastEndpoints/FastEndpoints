@@ -127,8 +127,10 @@ internal class OperationProcessor : IOperationProcessor
         {
             foreach (var c in op.RequestBody.Content)
             {
-                var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault();
-                reqBodyProps[prop.Key] = prop.Value;
+                foreach (var prop in c.Value.Schema.ActualSchema.ActualProperties)
+                {
+                    reqBodyProps[prop.Key] = prop.Value;
+                }
             }
         }
 
@@ -146,6 +148,8 @@ internal class OperationProcessor : IOperationProcessor
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
+                var xxx = m.Value == "GuidTest";
+
                 if (op.RequestBody is not null)
                 {
                     //remove corresponding json field from the request body

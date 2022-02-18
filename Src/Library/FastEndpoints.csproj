@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.5.1-beta2</Version>
+        <Version>3.5.1-beta3</Version>
 
         <PackageReleaseNotes>
             ### IMPROVEMENTS

@@ -7,6 +7,9 @@ public class Request
     [From(Claim.UserName)]
     public string? CreatedBy { get; set; }
 
+    /// <summary>
+    /// the name of the cutomer goes here
+    /// </summary>
     public string? CustomerName { get; set; }
 
     public IEnumerable<string> PhoneNumbers { get; set; }

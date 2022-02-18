@@ -2,6 +2,9 @@ namespace TestCases.RouteBindingTest;
 
 public class Request
 {
+    /// <summary>
+    /// this is a string prop
+    /// </summary>
     public string String { get; set; }
     public bool Bool { get; set; }
     public int? Int { get; set; }
@@ -12,6 +15,9 @@ public class Request
 
     //public IEnumerable<int> Integers { get; set; }
 
+    /// <summary>
+    /// this prop will be bound from body
+    /// </summary>
     public string FromBody { get; set; }
 
     public int ReadOnly => 100;

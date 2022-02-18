@@ -120,6 +120,17 @@ internal class OperationProcessor : IOperationProcessor
         //fix missing path parameters
         ctx.OperationDescription.Path = "/" + apiDescription.RelativePath;
 
+        //store request body props for later use
+        var _propDescriptions = new Dictionary<string, JsonSchemaProperty>(StringComparer.OrdinalIgnoreCase);
+        if (op.RequestBody is not null)
+        {
+            foreach (var c in op.RequestBody.Content)
+            {
+                var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault();
+                _propDescriptions[prop.Key] = prop.Value;
+            }
+        }
+
         if (isGETRequest && op.RequestBody is not null)
         {
             //remove request body since this is a get request with a request dto,
@@ -157,7 +168,8 @@ internal class OperationProcessor : IOperationProcessor
                     Name = m.Value,
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
-                    Schema = JsonSchema.FromType(typeof(string))
+                    Schema = JsonSchema.FromType(typeof(string)),
+                    Description = _propDescriptions.GetValueOrDefault(m.Value)?.Description
                 };
             })
             .ToList();
@@ -178,7 +190,8 @@ internal class OperationProcessor : IOperationProcessor
                         Name = p.Name,
                         IsRequired = false,
                         Schema = JsonSchema.FromType(p.PropertyType),
-                        Kind = OpenApiParameterKind.Query
+                        Kind = OpenApiParameterKind.Query,
+                        Description = _propDescriptions.GetValueOrDefault(p.Name)?.Description
                     })
                 .ToList();
 
@@ -194,12 +207,14 @@ internal class OperationProcessor : IOperationProcessor
                 var attrib = prop.GetCustomAttribute<FromHeaderAttribute>(true);
                 if (attrib is not null)
                 {
+                    var pName = attrib?.HeaderName ?? prop.Name;
                     reqParams.Add(new OpenApiParameter
                     {
-                        Name = attrib?.HeaderName ?? prop.Name,
+                        Name = pName,
                         IsRequired = attrib?.IsRequired ?? false,
                         Schema = JsonSchema.FromType(prop.PropertyType),
-                        Kind = OpenApiParameterKind.Header
+                        Kind = OpenApiParameterKind.Header,
+                        Description = _propDescriptions.GetValueOrDefault(pName)?.Description
                     });
                 }
             }

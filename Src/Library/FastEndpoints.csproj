@@ -6,6 +6,7 @@
 
         <PackageReleaseNotes>
             ### IMPROVEMENTS
+            - swagger support for generic/deep generic dtos
             - hit counter optimizations
             - redude closures
         </PackageReleaseNotes>

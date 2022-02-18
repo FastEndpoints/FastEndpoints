@@ -25,7 +25,7 @@ internal class SchemaNameGenerator : ISchemaNameGenerator
         if (shortSchemaNames)
         {
             var index = fullNameWithoutGenericArgs.LastIndexOf('.');
-            index = index == -1 ? 0 : index;
+            index = index == -1 ? 0 : index + 1;
             var shortName = fullNameWithoutGenericArgs[index..];
             if (isGeneric)
                 return shortName + GenericArgString(type);
@@ -48,9 +48,9 @@ internal class SchemaNameGenerator : ISchemaNameGenerator
                 for (int i = 0; i < args.Length; i++)
                 {
                     var arg = args[i];
-                    sb.Append("Of")
-                      .Append(TypeNameWithoutGenericArgs(arg))
-                      .Append(GenericArgString(arg));
+                    if (i == 0) sb.Append("Of");
+                    sb.Append(TypeNameWithoutGenericArgs(arg));
+                    sb.Append(GenericArgString(arg));
                     if (i < args.Length - 1) sb.Append("And");
                 }
                 return sb.ToString();

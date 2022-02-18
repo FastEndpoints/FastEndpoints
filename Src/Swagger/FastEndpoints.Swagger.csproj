@@ -27,4 +27,8 @@
         <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Test" />
+    </ItemGroup>
+
 </Project>

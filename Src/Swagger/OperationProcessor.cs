@@ -156,7 +156,7 @@ internal class OperationProcessor : IOperationProcessor
                     foreach (var c in op.RequestBody.Content)
                     {
                         var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault(kvp =>
-                            string.Equals(kvp.Key, m.Value, StringComparison.OrdinalIgnoreCase));
+                            string.Equals(kvp.Key, ActualParamName(m.Value), StringComparison.OrdinalIgnoreCase));
 
                         if (prop.Key != null)
                         {
@@ -170,9 +170,9 @@ internal class OperationProcessor : IOperationProcessor
 
                 return new OpenApiParameter
                 {
-                    Name = m.Value,
+                    Name = ActualParamName(m.Value),
                     Kind = OpenApiParameterKind.Path,
-                    IsRequired = true,
+                    IsRequired = !m.Value.EndsWith('?'),
                     Schema = JsonSchema.FromType(typeof(string)),
                     Description = reqBodyProps.GetValueOrDefault(m.Value)?.Description
                 };
@@ -193,7 +193,7 @@ internal class OperationProcessor : IOperationProcessor
                     new OpenApiParameter
                     {
                         Name = p.Name,
-                        IsRequired = false,
+                        IsRequired = Nullable.GetUnderlyingType(p.PropertyType) == null ? false : true,
                         Schema = JsonSchema.FromType(p.PropertyType),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqBodyProps.GetValueOrDefault(p.Name)?.Description
@@ -229,5 +229,13 @@ internal class OperationProcessor : IOperationProcessor
             op.Parameters.Add(p);
 
         return true;
+
+        static string ActualParamName(string input)
+        {
+            var index = input.IndexOf(':');
+            index = index == -1 ? input.Length : index;
+            var left = input[..index];
+            return left.TrimEnd('?');
+        }
     }
 }

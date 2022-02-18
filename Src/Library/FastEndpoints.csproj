@@ -2,12 +2,14 @@
 
     <PropertyGroup>
 
-        <Version>3.5.1-beta3</Version>
+        <Version>3.5.1-beta4</Version>
 
         <PackageReleaseNotes>
             ### IMPROVEMENTS
             - swagger support for generic/deep generic dtos
             - swagger property descriptions from xml comments
+            - swagger nullable params
+            - swagger route constraints
             - hit counter optimizations
             - redude closures
         </PackageReleaseNotes>

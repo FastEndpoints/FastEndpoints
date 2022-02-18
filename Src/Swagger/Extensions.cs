@@ -23,9 +23,9 @@ public static class Extensions
     public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion, bool shortSchemaNames)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
-        settings.SchemaNameGenerator = new DefaultSchemaNameGenerator(shortSchemaNames);
-        settings.OperationProcessors.Add(new DefaultOperationProcessor(tagIndex));
-        settings.DocumentProcessors.Add(new DefaultDocumentProcessor(maxEndpointVersion));
+        settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
+        settings.OperationProcessors.Add(new OperationProcessor(tagIndex));
+        settings.DocumentProcessors.Add(new DocumentProcessor(maxEndpointVersion));
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public static class Extensions
         else
             s.DocumentProcessors.Add(new SecurityDefinitionAppender(schemeName, globalScopeNames, securityScheme));
 
-        s.OperationProcessors.Add(new DefaultOpSecurityProcessor(schemeName));
+        s.OperationProcessors.Add(new OperationSecurityProcessor(schemeName));
 
         return s;
     }

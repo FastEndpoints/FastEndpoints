@@ -3,10 +3,10 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-internal class DefaultDocumentProcessor : IDocumentProcessor
+internal class DocumentProcessor : IDocumentProcessor
 {
     private readonly int maxEpVer;
-    public DefaultDocumentProcessor(int maxEndpointVersion) => maxEpVer = maxEndpointVersion;
+    public DocumentProcessor(int maxEndpointVersion) => maxEpVer = maxEndpointVersion;
 
     public void Process(DocumentProcessorContext ctx)
     {

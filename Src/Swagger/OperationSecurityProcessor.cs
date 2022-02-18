@@ -6,11 +6,11 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-internal class DefaultOpSecurityProcessor : IOperationProcessor
+internal class OperationSecurityProcessor : IOperationProcessor
 {
     private readonly string schemeName;
 
-    public DefaultOpSecurityProcessor(string schemeName)
+    public OperationSecurityProcessor(string schemeName)
         => this.schemeName = schemeName;
 
     public bool Process(OperationProcessorContext context)

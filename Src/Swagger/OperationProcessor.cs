@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Swagger;
 
-internal class DefaultOperationProcessor : IOperationProcessor
+internal class OperationProcessor : IOperationProcessor
 {
     private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> defaultDescriptions = new()
@@ -29,7 +29,7 @@ internal class DefaultOperationProcessor : IOperationProcessor
     };
 
     private readonly int tagIndex;
-    public DefaultOperationProcessor(int tagIndex) => this.tagIndex = tagIndex;
+    public OperationProcessor(int tagIndex) => this.tagIndex = tagIndex;
 
     public bool Process(OperationProcessorContext ctx)
     {

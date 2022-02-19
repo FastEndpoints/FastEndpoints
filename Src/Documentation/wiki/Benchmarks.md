@@ -1,12 +1,11 @@
 ## Head-To-Head Benchmark
 
-|                        Method |      Mean | Ratio |  Gen 0 |  Gen 1 | Allocated |
-|------------------------------ |----------:|------:|-------:|-------:|----------:|
-|                 FastEndpoints |  66.11 μs |  1.00 | 2.3000 |      - |     19 KB |
-|                   Minimal Api |  67.87 μs |  1.03 | 2.4000 |      - |     20 KB |
-| FastEndpoints With Throttling |  70.78 μs |  1.07 | 2.5000 |      - |     20 KB |
-|     AspNetCore MVC Controller | 104.26 μs |  1.57 | 3.1000 | 0.1000 |     26 KB |
-|                 Carter Module | 591.73 μs |  8.95 | 5.7000 | 2.8000 |     47 KB |
+|                  Method |     Mean | Ratio |  Gen 0 |  Gen 1 | Allocated |
+|------------------------ |---------:|------:|-------:|-------:|----------:|
+|           FastEndpoints | 46.80 μs |  1.00 | 2.1000 |      - |     17 KB |
+|              MinimalApi | 48.06 μs |  1.03 | 2.1000 | 0.1000 |     18 KB |
+| FastEndpointsThrottling | 54.74 μs |  1.17 | 2.2000 |      - |     18 KB |
+|           AspNetCoreMVC | 78.82 μs |  1.68 | 2.9000 | 0.1000 |     24 KB |
 
 ## Bombardier Load Test
 

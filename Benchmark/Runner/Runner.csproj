@@ -27,7 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CarterModules\CarterModules.csproj" />
         <ProjectReference Include="..\FastEndpointsBench\FastEndpointsBench.csproj" />
         <ProjectReference Include="..\MinimalApi\MinimalApi.csproj" />
         <ProjectReference Include="..\MvcControllers\MvcControllers.csproj" />

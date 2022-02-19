@@ -4,8 +4,8 @@ using System.Text.Json.Serialization;
 
 namespace FastEndpointsBench;
 
-[JsonSerializable(typeof(Request))]
-[JsonSerializable(typeof(Response))]
+[JsonSerializable(typeof(CodeGenRequest))]
+[JsonSerializable(typeof(CodeGenResponse))]
 public partial class SerializerCtx : JsonSerializerContext { }
 
 public class CodeGenRequest

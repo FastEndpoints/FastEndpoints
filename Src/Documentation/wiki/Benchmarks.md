@@ -7,62 +7,52 @@
 | FastEndpointsThrottling | 54.74 μs |  1.17 | 2.2000 |      - |     18 KB |
 |           AspNetCoreMVC | 78.82 μs |  1.68 | 2.9000 | 0.1000 |     24 KB |
 
-## Bombardier Load Test
+## Bombardier Load Test *(best out of 5 runs)*
 
 ```
 hardware: AMD Ryzen 7 3700X (8c/16t), 16GB RAM, Windows 11
 parameters: -c 512 -m POST -f "body.json" -H "Content-Type:application/json" -d 30s
 ```
 
-### FastEndpoints *(45,526 more requests per second than mvc controller)*
+### FastEndpoints *(45,000 more requests per second than mvc controller)*
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    151312.88   15386.74  222185.18
-  Latency        3.34ms   219.93us    87.00ms
+  Reqs/sec    152719.41   15319.65  237177.27
+  Latency        3.31ms   233.06us    61.00ms
   HTTP codes:
-    1xx - 0, 2xx - 4591511, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 4635227, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    74.56MB/s
-```
-### FastEndpoints with throttling
-```
-Statistics        Avg      Stdev        Max
-  Reqs/sec    134116.29   16805.24  171542.89
-  Latency        3.84ms     1.58ms   368.00ms
-  HTTP codes:
-    1xx - 0, 2xx - 3992219, 3xx - 0, 4xx - 0, 5xx - 0
-    others - 0
-  Throughput:    69.93MB/s
+  Throughput:    75.30MB/s
 ```
 ### AspNet Minimal Api
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    148957.22   16322.82  207723.19
-  Latency        3.39ms     0.88ms   359.61ms
+  Reqs/sec    149415.35   14544.34  185050.95
+  Latency        3.38ms     0.89ms   431.99ms
   HTTP codes:
-    1xx - 0, 2xx - 4526855, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 4529011, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    75.69MB/s
+  Throughput:    75.73MB/s
+```
+### FastEndpoints with throttling
+```
+Statistics        Avg      Stdev        Max
+  Reqs/sec    137547.83   18167.83  215500.00
+  Latency        3.69ms     2.02ms   568.63ms
+  HTTP codes:
+    1xx - 0, 2xx - 4154347, 3xx - 0, 4xx - 0, 5xx - 0
+    others - 0
+  Throughput:    72.77MB/s
 ```
 ### AspNet MVC Controller
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    105786.47   12016.03  225220.72
-  Latency        4.80ms     1.88ms   565.00ms
+  Reqs/sec    107381.33   13064.54  184073.63
+  Latency        4.73ms     1.25ms   416.00ms
   HTTP codes:
-    1xx - 0, 2xx - 3194131, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 3245222, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    53.41MB/s
-```
-### Carter Module
-```
-Statistics        Avg      Stdev        Max
-  Reqs/sec      5547.30    2723.39   17380.62
-  Latency       92.11ms    12.87ms   580.22ms
-  HTTP codes:
-    1xx - 0, 2xx - 166993, 3xx - 0, 4xx - 0, 5xx - 0
-    others - 0
-  Throughput:     2.78MB/s
+  Throughput:    54.26MB/s
 ```
 
 ## TechEmpower Benchmark (Preliminary)

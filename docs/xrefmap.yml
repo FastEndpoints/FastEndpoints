@@ -1183,6 +1183,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendUnauthorizedAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendUnauthorizedAsync
+- uid: FastEndpoints.Endpoint`2.Summary(Action{FastEndpoints.EndpointSummary{`0}})
+  name: Summary(Action<EndpointSummary<TRequest>>)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_Action_FastEndpoints_EndpointSummary__0___
+  commentId: M:FastEndpoints.Endpoint`2.Summary(Action{FastEndpoints.EndpointSummary{`0}})
+  name.vb: Summary(Action(Of EndpointSummary(Of TRequest)))
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Summary(Action<FastEndpoints.EndpointSummary<TRequest>>)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Summary(Action(Of FastEndpoints.EndpointSummary(Of TRequest)))
+  nameWithType: Endpoint<TRequest, TResponse>.Summary(Action<EndpointSummary<TRequest>>)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Summary(Action(Of EndpointSummary(Of TRequest)))
 - uid: FastEndpoints.Endpoint`2.Summary(Action{FastEndpoints.EndpointSummary})
   name: Summary(Action<EndpointSummary>)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_Action_FastEndpoints_EndpointSummary__
@@ -1604,6 +1613,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointSummary.Item
   nameWithType: EndpointSummary.Item
+- uid: FastEndpoints.EndpointSummary.Params
+  name: Params
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Params
+  commentId: P:FastEndpoints.EndpointSummary.Params
+  fullName: FastEndpoints.EndpointSummary.Params
+  nameWithType: EndpointSummary.Params
+- uid: FastEndpoints.EndpointSummary.Params*
+  name: Params
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Params_
+  commentId: Overload:FastEndpoints.EndpointSummary.Params
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointSummary.Params
+  nameWithType: EndpointSummary.Params
 - uid: FastEndpoints.EndpointSummary.Responses
   name: Responses
   href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Responses
@@ -1630,6 +1652,33 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointSummary.Summary
   nameWithType: EndpointSummary.Summary
+- uid: FastEndpoints.EndpointSummary`1
+  name: EndpointSummary<TRequest>
+  href: api/FastEndpoints.EndpointSummary-1.html
+  commentId: T:FastEndpoints.EndpointSummary`1
+  name.vb: EndpointSummary(Of TRequest)
+  fullName: FastEndpoints.EndpointSummary<TRequest>
+  fullName.vb: FastEndpoints.EndpointSummary(Of TRequest)
+  nameWithType: EndpointSummary<TRequest>
+  nameWithType.vb: EndpointSummary(Of TRequest)
+- uid: FastEndpoints.EndpointSummary`1.RequestParam(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
+  name: RequestParam(Expression<Func<TRequest, Object>>, String)
+  href: api/FastEndpoints.EndpointSummary-1.html#FastEndpoints_EndpointSummary_1_RequestParam_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_
+  commentId: M:FastEndpoints.EndpointSummary`1.RequestParam(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
+  name.vb: RequestParam(Expression(Of Func(Of TRequest, Object)), String)
+  fullName: FastEndpoints.EndpointSummary<TRequest>.RequestParam(System.Linq.Expressions.Expression<Func<TRequest, System.Object>>, System.String)
+  fullName.vb: FastEndpoints.EndpointSummary(Of TRequest).RequestParam(System.Linq.Expressions.Expression(Of Func(Of TRequest, System.Object)), System.String)
+  nameWithType: EndpointSummary<TRequest>.RequestParam(Expression<Func<TRequest, Object>>, String)
+  nameWithType.vb: EndpointSummary(Of TRequest).RequestParam(Expression(Of Func(Of TRequest, Object)), String)
+- uid: FastEndpoints.EndpointSummary`1.RequestParam*
+  name: RequestParam
+  href: api/FastEndpoints.EndpointSummary-1.html#FastEndpoints_EndpointSummary_1_RequestParam_
+  commentId: Overload:FastEndpoints.EndpointSummary`1.RequestParam
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointSummary<TRequest>.RequestParam
+  fullName.vb: FastEndpoints.EndpointSummary(Of TRequest).RequestParam
+  nameWithType: EndpointSummary<TRequest>.RequestParam
+  nameWithType.vb: EndpointSummary(Of TRequest).RequestParam
 - uid: FastEndpoints.EndpointWithMapping`3
   name: EndpointWithMapping<TRequest, TResponse, TEntity>
   href: api/FastEndpoints.EndpointWithMapping-3.html

@@ -106,7 +106,50 @@ public override void Configure()
 }
 ```
 
-### xml documentation
+### describe request params
+route parameters, query parameters and request dto property descriptions can be specified either with xml comments or with the `Summary()` method or `EndpointSummary` subclassing. take the following for example:
+
+**request dto:**
+```csharp
+/// <summary>
+/// the admin login request summary
+/// </summary>
+public class Request
+{
+    /// <summary>
+    /// username field description
+    /// </summary>
+    public string UserName { get; set; }
+
+    /// <summary>
+    /// password field description
+    /// </summary>
+    public string Password { get; set; }
+}
+```
+**endpoint config:**
+```csharp
+public override void Configure()
+{
+    Post("admin/login/{ClientID?}");
+    AllowAnonymous();
+    Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
+    Summary(s =>
+    {
+        s.Summary = "summary";
+        s.Description = "description";
+        s.Params["ClientID"] = "client id description");
+        s.RequestParam(r => r.UserName, "overriden username description");
+    });
+}
+```
+use the `s.Params` dictionary to specify descriptions for params that don't exist on the request dto or when there is no request dto. 
+
+use the `s.RequestParam()` method to specify descriptions for properties of the request dto in a strongly-typed manner.
+
+whatever you specify within the `Summary()` method as above takes higher precedence over xml comments.
+
+### enabling xml documentation
 xml documentation is only supported for request/response dtos (swagger schemas) which can be enabled by adding the following to the `csproj` file:
 ```xml
 <PropertyGroup>

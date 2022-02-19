@@ -464,7 +464,7 @@
       <tr>
         <td><span class="xref">System.Linq.Expressions.Expression</span>&lt;<span class="xref">Func</span>&lt;TRequest, <span class="xref">System.Object</span>&gt;&gt;</td>
         <td><span class="parametername">property</span></td>
-        <td><p>the property to add teh error message for</p>
+        <td><p>the property to add the error message for</p>
 </td>
       </tr>
       <tr>
@@ -2417,6 +2417,35 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   
   
   <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Summary_Action_FastEndpoints_EndpointSummary__0___" data-uid="FastEndpoints.Endpoint`2.Summary(Action{FastEndpoints.EndpointSummary{`0}})">Summary(Action&lt;EndpointSummary&lt;TRequest&gt;&gt;)</h4>
+  <div class="markdown level1 summary"><p>provide a summary/description for this endpoint to be used in swagger/ openapi</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Summary(Action&lt;EndpointSummary&lt;TRequest&gt;&gt; endpointSummary)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Action</span>&lt;<a class="xref" href="FastEndpoints.EndpointSummary-1.html">EndpointSummary</a>&lt;TRequest&gt;&gt;</td>
+        <td><span class="parametername">endpointSummary</span></td>
+        <td><p>an action that sets values of an endpoint summary object</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Summary_Action_FastEndpoints_EndpointSummary__" data-uid="FastEndpoints.Endpoint`2.Summary(Action{FastEndpoints.EndpointSummary})">Summary(Action&lt;EndpointSummary&gt;)</h4>
   <div class="markdown level1 summary"><p>provide a summary/description for this endpoint to be used in swagger/ openapi</p>
 </div>
@@ -2599,12 +2628,14 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
       <tr>
         <td><span class="xref">System.Linq.Expressions.Expression</span>&lt;<span class="xref">Func</span>&lt;TRequest, <span class="xref">System.Object</span>&gt;&gt;</td>
         <td><span class="parametername">property</span></td>
-        <td></td>
+        <td><p>the property to add the error message for</p>
+</td>
       </tr>
       <tr>
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">errorMessage</span></td>
-        <td></td>
+        <td><p>the error message</p>
+</td>
       </tr>
     </tbody>
   </table>

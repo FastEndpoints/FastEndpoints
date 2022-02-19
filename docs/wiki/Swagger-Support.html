@@ -184,7 +184,44 @@ public override void Configure()
     Summary(new AdminLoginSummary());        
 }
 </code></pre>
-<h3 id="xml-documentation">xml documentation</h3>
+<h3 id="describe-request-params">describe request params</h3>
+<p>route parameters, query parameters and request dto property descriptions can be specified either with xml comments or with the <code>Summary()</code> method or <code>EndpointSummary</code> subclassing. take the following for example:</p>
+<p><strong>request dto:</strong></p>
+<pre><code class="lang-csharp">/// &lt;summary&gt;
+/// the admin login request summary
+/// &lt;/summary&gt;
+public class Request
+{
+    /// &lt;summary&gt;
+    /// username field description
+    /// &lt;/summary&gt;
+    public string UserName { get; set; }
+
+    /// &lt;summary&gt;
+    /// password field description
+    /// &lt;/summary&gt;
+    public string Password { get; set; }
+}
+</code></pre>
+<p><strong>endpoint config:</strong></p>
+<pre><code class="lang-csharp">public override void Configure()
+{
+    Post(&quot;admin/login/{ClientID?}&quot;);
+    AllowAnonymous();
+    Options(b =&gt; b.RequireCors(b =&gt; b.AllowAnyOrigin()));
+    Summary(s =&gt;
+    {
+        s.Summary = &quot;summary&quot;;
+        s.Description = &quot;description&quot;;
+        s.Params[&quot;ClientID&quot;] = &quot;client id description&quot;);
+        s.RequestParam(r =&gt; r.UserName, &quot;overriden username description&quot;);
+    });
+}
+</code></pre>
+<p>use the <code>s.Params</code> dictionary to specify descriptions for params that don't exist on the request dto or when there is no request dto.</p>
+<p>use the <code>s.RequestParam()</code> method to specify descriptions for properties of the request dto in a strongly-typed manner.</p>
+<p>whatever you specify within the <code>Summary()</code> method as above takes higher precedence over xml comments.</p>
+<h3 id="enabling-xml-documentation">enabling xml documentation</h3>
 <p>xml documentation is only supported for request/response dtos (swagger schemas) which can be enabled by adding the following to the <code>csproj</code> file:</p>
 <pre><code class="lang-xml">&lt;PropertyGroup&gt;
     &lt;GenerateDocumentationFile&gt;true&lt;/GenerateDocumentationFile&gt;

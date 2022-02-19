@@ -13,6 +13,7 @@ namespace Runner;
 public class Benchmarks
 {
     private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
+    private static HttpClient FECodeGenClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
     private static HttpClient FEThrottleClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
     private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
@@ -42,6 +43,19 @@ public class Benchmarks
         };
 
         return FastEndpointClient.SendAsync(msg);
+    }
+
+    [Benchmark]
+    public Task FastEndpointsCodeGen()
+    {
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{FECodeGenClient.BaseAddress}benchmark/codegen/123"),
+            Content = Payload
+        };
+
+        return FECodeGenClient.SendAsync(msg);
     }
 
     [Benchmark]

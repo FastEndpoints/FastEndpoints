@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -15,10 +16,10 @@ public static class HttpResponseExtensions
     /// <param name="response">the object to serialize to json</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token</param>
-    public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = default) where TResponse : class
+    public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : class
     {
         rsp.StatusCode = statusCode;
-        return RespSerializerFunc(rsp, response, "application/json", cancellation);
+        return RespSerializerFunc(rsp, response, "application/json", jsonSerializerContext, cancellation);
     }
 
     /// <summary>
@@ -32,9 +33,9 @@ public static class HttpResponseExtensions
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp,
-        object? routeValues, object? responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+        object? routeValues, object? responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
-        return SendCreatedAtAsync(rsp, typeof(TEndpoint).EndpointName(verb?.ToString(), routeNumber), routeValues, responseBody, cancellation);
+        return SendCreatedAtAsync(rsp, typeof(TEndpoint).EndpointName(verb?.ToString(), routeNumber), routeValues, responseBody, jsonSerializerContext, cancellation);
     }
 
     /// <summary>
@@ -45,7 +46,7 @@ public static class HttpResponseExtensions
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="cancellation">cancellation token</param>
-    public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object? routeValues, object? responseBody, CancellationToken cancellation = default)
+    public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object? routeValues, object? responseBody, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 201;
         rsp.Headers.Location = rsp.HttpContext.RequestServices
@@ -53,7 +54,7 @@ public static class HttpResponseExtensions
             .GetPathByName(endpointName, routeValues);
         return responseBody is null
             ? rsp.StartAsync(cancellation)
-            : RespSerializerFunc(rsp, responseBody, "application/json", cancellation);
+            : RespSerializerFunc(rsp, responseBody, "application/json", jsonSerializerContext, cancellation);
     }
 
     /// <summary>
@@ -83,10 +84,10 @@ public static class HttpResponseExtensions
     /// send a 400 bad request with error details of the current validation failures
     /// </summary>
     /// <param name="cancellation"></param>
-    public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, CancellationToken cancellation = default)
+    public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 400;
-        return RespSerializerFunc(rsp, ErrRespBldrFunc(failures), "application/problem+json", cancellation);
+        return RespSerializerFunc(rsp, ErrRespBldrFunc(failures), "application/problem+json", jsonSerializerContext, cancellation);
     }
 
     /// <summary>
@@ -204,9 +205,9 @@ public static class HttpResponseExtensions
     /// send an empty json object in the body
     /// </summary>
     /// <param name="cancellation">optional cancellation token</param>
-    public static Task SendEmptyJsonObject(this HttpResponse rsp, CancellationToken cancellation = default)
+    public static Task SendEmptyJsonObject(this HttpResponse rsp, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
         rsp.StatusCode = 200;
-        return RespSerializerFunc(rsp, new JsonObject(), "application/json", cancellation);
+        return RespSerializerFunc(rsp, new JsonObject(), "application/json", jsonSerializerContext, cancellation);
     }
 }

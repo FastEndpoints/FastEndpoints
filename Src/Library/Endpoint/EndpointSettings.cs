@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
 
@@ -30,6 +31,7 @@ public class EndpointSettings
     internal object? PostProcessors;
     internal ResponseCacheAttribute? ResponseCacheSettings;
     internal HitCounter? HitCounter;
+    internal JsonSerializerContext? SerializerContext;
 }
 
 /// <summary>

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -322,5 +324,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
     {
         Settings.HitCounter = new(headerName, durationSeconds, hitLimit);
+    }
+
+    protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
+    {
+        Settings.SerializerContext =
+            (JsonSerializerContext)Activator.CreateInstance(
+                typeof(TContext),
+                new JsonSerializerOptions(SerializerOpts))!;
     }
 }

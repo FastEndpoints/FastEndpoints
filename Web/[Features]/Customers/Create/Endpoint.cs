@@ -1,6 +1,10 @@
-﻿using Web.Services;
+﻿using System.Text.Json.Serialization;
+using Web.Services;
 
 namespace Customers.Create;
+
+[JsonSerializable(typeof(Request))]
+public partial class CustomerCreate : JsonSerializerContext { }
 
 public class Request
 {
@@ -26,6 +30,7 @@ public class Endpoint : Endpoint<Request>
             "/customer/new/{RefererID}",
             "/customer/{cID}/new/{SourceID}",
             "/customer/save");
+        SerializerContext<CustomerCreate>();
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)

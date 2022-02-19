@@ -2,6 +2,10 @@
 
 namespace Admin.Login;
 
+[JsonSerializable(typeof(Request))]
+[JsonSerializable(typeof(Response))]
+public partial class AdminLogin : JsonSerializerContext { }
+
 /// <summary>
 /// the admin login request
 /// </summary>

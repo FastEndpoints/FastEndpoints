@@ -13,7 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
     {
         Response = response;
-        return HttpContext.Response.SendAsync(response, statusCode, cancellation);
+        return HttpContext.Response.SendAsync(response, statusCode, Settings.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -31,7 +31,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (responseBody is not null)
             Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, responseBody, verb, routeNumber, cancellation);
+        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, responseBody, verb, routeNumber, Settings.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (responseBody is not null)
             Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync(endpointName, routeValues, responseBody, cancellation);
+        return HttpContext.Response.SendCreatedAtAsync(endpointName, routeValues, responseBody, Settings.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation"></param>
     protected Task SendErrorsAsync(CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendErrorsAsync(ValidationFailures, cancellation);
+        return HttpContext.Response.SendErrorsAsync(ValidationFailures, Settings.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -165,6 +165,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation">optional cancellation token</param>
     protected Task SendEmptyJsonObject(CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendEmptyJsonObject(cancellation);
+        return HttpContext.Response.SendEmptyJsonObject(null, cancellation);
     }
 }

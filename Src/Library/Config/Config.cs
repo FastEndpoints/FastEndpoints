@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 #pragma warning disable CA1822, IDE1006
 
@@ -19,11 +20,21 @@ public class Config
     internal static Func<EndpointDefinition, bool>? EpRegFilterFunc { get; private set; }
     internal static Func<List<ValidationFailure>, object> ErrRespBldrFunc { get; private set; }
         = failures => new ErrorResponse(failures);
-    internal static Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> ReqDeserializerFunc { get; private set; }
-        = (req, tReqDto, cancellation) => req.ReadFromJsonAsync(tReqDto, SerializerOpts, cancellation);
-    internal static Func<HttpResponse, object, string, CancellationToken, Task> RespSerializerFunc { get; private set; }
-        = (rsp, dto, contentType, cancellation)
-            => rsp.WriteAsJsonAsync(dto, SerializerOpts, contentType, cancellation);
+    internal static Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> ReqDeserializerFunc { get; private set; }
+        = (req, tReqDto, jCtx, cancellation) =>
+        {
+            return jCtx == null
+               ? JsonSerializer.DeserializeAsync(req.Body, tReqDto, SerializerOpts, cancellation)
+               : JsonSerializer.DeserializeAsync(req.Body, tReqDto, jCtx, cancellation);
+        };
+    internal static Func<HttpResponse, object, string, JsonSerializerContext?, CancellationToken, Task> RespSerializerFunc { get; private set; }
+        = (rsp, dto, contentType, jCtx, cancellation) =>
+        {
+            rsp.ContentType = contentType;
+            return jCtx == null
+                   ? JsonSerializer.SerializeAsync(rsp.Body, dto, dto.GetType(), SerializerOpts, cancellation)
+                   : JsonSerializer.SerializeAsync(rsp.Body, dto, dto.GetType(), jCtx, cancellation);
+        };
 
     /// <summary>
     /// set to true if you'd like the endpoint names/ swagger operation ids to be just the endpoint class names instead of the full names including namespace.
@@ -81,7 +92,7 @@ public class Config
     /// <para>Type: the type of the request dto which the request body will be deserialized into</para>
     /// <para>CancellationToken: a cancellation token</para>
     /// </summary>
-    public Func<HttpRequest, Type, CancellationToken, ValueTask<object?>> RequestDeserializer { set => ReqDeserializerFunc = value; }
+    public Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> RequestDeserializer { set => ReqDeserializerFunc = value; }
 
     /// <summary>
     /// a function for writing serialized response dtos to the response body.
@@ -100,5 +111,5 @@ public class Config
     /// };
     /// </code>
     /// </summary>
-    public Func<HttpResponse, object, string, CancellationToken, Task> ResponseSerializer { set => RespSerializerFunc = value; }
+    public Func<HttpResponse, object, string, JsonSerializerContext?, CancellationToken, Task> ResponseSerializer { set => RespSerializerFunc = value; }
 }

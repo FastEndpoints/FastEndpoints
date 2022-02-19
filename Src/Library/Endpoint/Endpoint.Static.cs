@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : class, new()
 {
-    private static async Task<TRequest> BindToModel(HttpContext ctx, List<ValidationFailure> failures, CancellationToken cancellation)
+    private static async Task<TRequest> BindToModel(HttpContext ctx, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
     {
         TRequest? req = null;
 
@@ -16,7 +17,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (ReqTypeCache<TRequest>.IsPlainTextRequest)
                 req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
             else if (ctx.Request.HasJsonContentType())
-                req = (TRequest?)await FastEndpoints.Config.ReqDeserializerFunc(ctx.Request, tRequest, cancellation);
+                req = (TRequest?)await FastEndpoints.Config.ReqDeserializerFunc(ctx.Request, tRequest, serializerCtx, cancellation);
         }
 
         if (req is null)
@@ -75,14 +76,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return (TRequest)req;
     }
 
-    private static Task SendReponseIfNotSent(HttpContext ctx, TResponse? responseDto, CancellationToken cancellation)
+    private static Task SendReponseIfNotSent(HttpContext ctx, TResponse? responseDto, JsonSerializerContext? jsonSerializerContext, CancellationToken cancellation)
     {
         if (!ctx.Response.HasStarted)
         {
             if (responseDto is null)
                 return ctx.Response.SendNoContentAsync(cancellation);
             else
-                return ctx.Response.SendAsync(responseDto, 200, cancellation);
+                return ctx.Response.SendAsync(responseDto, 200, jsonSerializerContext, cancellation);
         }
         return Task.CompletedTask;
     }

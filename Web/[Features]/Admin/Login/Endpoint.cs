@@ -23,6 +23,7 @@ public class Endpoint : Endpoint<Request, Response>
             s[403] = "forbidden when login fails";
             s[201] = "new resource created";
         });
+        SerializerContext<AdminLogin>();
     }
 
     public override Task HandleAsync(Request r, CancellationToken ct)

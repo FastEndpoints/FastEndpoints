@@ -15,6 +15,7 @@ public static class HttpResponseExtensions
     /// </summary>
     /// <param name="response">the object to serialize to json</param>
     /// <param name="statusCode">optional custom http status code</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : class
     {
@@ -31,6 +32,7 @@ public static class HttpResponseExtensions
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp,
         object? routeValues, object? responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TEndpoint : IEndpoint
@@ -45,6 +47,7 @@ public static class HttpResponseExtensions
     /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">cancellation token</param>
     public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object? routeValues, object? responseBody, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
@@ -83,6 +86,7 @@ public static class HttpResponseExtensions
     /// <summary>
     /// send a 400 bad request with error details of the current validation failures
     /// </summary>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation"></param>
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
@@ -204,6 +208,7 @@ public static class HttpResponseExtensions
     /// <summary>
     /// send an empty json object in the body
     /// </summary>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendEmptyJsonObject(this HttpResponse rsp, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {

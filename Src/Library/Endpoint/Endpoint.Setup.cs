@@ -326,6 +326,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Settings.HitCounter = new(headerName, durationSeconds, hitLimit);
     }
 
+    /// <summary>
+    /// specify the json serializer context if code generation for request/response dtos
+    /// </summary>
+    /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
     protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
     {
         Settings.SerializerContext =

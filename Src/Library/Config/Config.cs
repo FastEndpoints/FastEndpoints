@@ -86,10 +86,11 @@ public class Config
     public Func<IEnumerable<ValidationFailure>, object> ErrorResponseBuilder { set => ErrRespBldrFunc = value; }
 
     /// <summary>
-    /// a function for deserializing the incoming http request body. this function will be executed for each request received if it has json request body.
+    /// a function for deserializing the incoming http request body. this function will be executed for each request received if it has a json request body.
     /// the parameters of the func are as follows:
     /// <para>HttpRequest: the incoming request</para>
     /// <para>Type: the type of the request dto which the request body will be deserialized into</para>
+    /// <para>JsonSerializerContext?: json serializer context if code generation is used</para>
     /// <para>CancellationToken: a cancellation token</para>
     /// </summary>
     public Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> RequestDeserializer { set => ReqDeserializerFunc = value; }
@@ -102,9 +103,10 @@ public class Config
     /// <para>HttpResponse: the http response object</para>
     /// <para>object: the response dto to be serialized</para>
     /// <para>string: the response content-type</para>
+    /// <para>JsonSerializerContext?: json serializer context if code generation is used</para>
     /// <para>CancellationToken: a cancellation token</para>
     /// <code>
-    /// config.ResponseSerializer = (rsp, dto, cType, ct) =>
+    /// config.ResponseSerializer = (rsp, dto, cType, jCtx , ct) =>
     /// {
     ///     rsp.ContentType = cType;
     ///     return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);

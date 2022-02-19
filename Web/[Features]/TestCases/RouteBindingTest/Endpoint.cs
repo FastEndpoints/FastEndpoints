@@ -2,7 +2,7 @@
 
 public class Endpoint : Endpoint<Request, Response>
 {
-    public ILogger<Endpoint> MyProperty; //this should be ignored by property binding
+    public ILogger<Endpoint> logger; //this should be ignored by property injection because it doesn't have getter/setter
 
     public override void Configure()
     {
@@ -13,10 +13,20 @@ public class Endpoint : Endpoint<Request, Response>
         Options(x => x
             .WithName("RouteBindingTest")
             .Accepts<Request>("application/json", "test1/test1", "test2/test2"));
+        Summary(s =>
+        {
+            s.Description = "descr";
+            s.Summary = "summary";
+            s.RequestParam(r => r.FromBody, "overriden from body comment");
+        });
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)
     {
+        Logger.LogWarning("ok");
+
+        if (logger != null) ThrowError("property injection failed us!");
+
         return SendAsync(new Response
         {
             Bool = r.Bool,

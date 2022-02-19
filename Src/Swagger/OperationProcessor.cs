@@ -95,7 +95,11 @@ internal class OperationProcessor : IOperationProcessor
             }
         }
 
-        //set response descriptions
+        //set endpoint summary & description
+        op.Summary = epMeta.EndpointSettings.Summary?.Summary;
+        op.Description = epMeta.EndpointSettings.Summary?.Description;
+
+        //set response descriptions (no xml comments support here, yet!)
         op.Responses
           .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
           .ToList()
@@ -105,12 +109,8 @@ internal class OperationProcessor : IOperationProcessor
                   res.Value.Description = defaultDescriptions[res.Key]; //first set the default text
 
               if (epMeta.EndpointSettings.Summary is not null)
-                  res.Value.Description = epMeta.EndpointSettings.Summary[Convert.ToInt32(res.Key)]; //then take values from summary object
+                  res.Value.Description = epMeta.EndpointSettings.Summary.Responses.GetValueOrDefault(Convert.ToInt32(res.Key)); //then take values from summary object
           });
-
-        //set endpoint summary & description
-        op.Summary = epMeta.EndpointSettings.Summary?.Summary;
-        op.Description = epMeta.EndpointSettings.Summary?.Description;
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
@@ -120,16 +120,52 @@ internal class OperationProcessor : IOperationProcessor
         //fix missing path parameters
         ctx.OperationDescription.Path = "/" + apiDescription.RelativePath;
 
-        //store unique request body props (from each consumes/content types) for later use
+        //store unique request param description (from each consumes/content type) for later use.
+        //these are the xml comments from dto classes
         //todo: this is not ideal in case two consumes dtos has a prop with the same name.
-        var reqBodyProps = new Dictionary<string, JsonSchemaProperty>(StringComparer.OrdinalIgnoreCase);
+        var reqParamDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         if (op.RequestBody is not null)
         {
             foreach (var c in op.RequestBody.Content)
             {
                 foreach (var prop in c.Value.Schema.ActualSchema.ActualProperties)
                 {
-                    reqBodyProps[prop.Key] = prop.Value;
+                    reqParamDescriptions[prop.Key] = prop.Value.Description;
+                }
+            }
+        }
+
+        //also add descriptions from user supplied summary request params overriding the above
+        if (epMeta.EndpointSettings.Summary is not null)
+        {
+            foreach (var param in epMeta.EndpointSettings.Summary.Params)
+            {
+                reqParamDescriptions[param.Key] = param.Value;
+            }
+        }
+
+        //override req param descriptions for each consumes/content type from user supplied summary request param descriptions
+        if (op.RequestBody is not null)
+        {
+            foreach (var c in op.RequestBody.Content)
+            {
+                foreach (var prop in c.Value.Schema.ActualSchema.ActualProperties)
+                {
+                    if (reqParamDescriptions.ContainsKey(prop.Key))
+                    {
+                        prop.Value.Description = reqParamDescriptions[prop.Key];
+                    }
+                }
+
+                if (c.Value.Schema.ActualSchema.InheritedSchema is not null)
+                {
+                    foreach (var prop in c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties)
+                    {
+                        if (reqParamDescriptions.ContainsKey(prop.Key))
+                        {
+                            prop.Value.Description = reqParamDescriptions[prop.Key];
+                        }
+                    }
                 }
             }
         }
@@ -148,8 +184,6 @@ internal class OperationProcessor : IOperationProcessor
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
-                var xxx = m.Value == "GuidTest";
-
                 if (op.RequestBody is not null)
                 {
                     //remove corresponding json field from the request body
@@ -174,7 +208,7 @@ internal class OperationProcessor : IOperationProcessor
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = !m.Value.EndsWith('?'),
                     Schema = JsonSchema.FromType(typeof(string)),
-                    Description = reqBodyProps.GetValueOrDefault(m.Value)?.Description
+                    Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value))
                 };
             })
             .ToList();
@@ -196,7 +230,7 @@ internal class OperationProcessor : IOperationProcessor
                         IsRequired = Nullable.GetUnderlyingType(p.PropertyType) == null ? false : true,
                         Schema = JsonSchema.FromType(p.PropertyType),
                         Kind = OpenApiParameterKind.Query,
-                        Description = reqBodyProps.GetValueOrDefault(p.Name)?.Description
+                        Description = reqParamDescriptions.GetValueOrDefault(p.Name)
                     })
                 .ToList();
 
@@ -219,7 +253,7 @@ internal class OperationProcessor : IOperationProcessor
                         IsRequired = attrib?.IsRequired ?? false,
                         Schema = JsonSchema.FromType(prop.PropertyType),
                         Kind = OpenApiParameterKind.Header,
-                        Description = reqBodyProps.GetValueOrDefault(pName)?.Description
+                        Description = reqParamDescriptions.GetValueOrDefault(pName)
                     });
                 }
             }

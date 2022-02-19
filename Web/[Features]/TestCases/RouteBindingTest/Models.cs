@@ -3,7 +3,7 @@ namespace TestCases.RouteBindingTest;
 public class Request
 {
     /// <summary>
-    /// this is a string prop
+    /// this is a string prop xml comment
     /// </summary>
     public string String { get; set; }
     public bool Bool { get; set; }
@@ -13,10 +13,8 @@ public class Request
     public decimal Decimal { get; set; }
     public int? Blank { get; set; }
 
-    //public IEnumerable<int> Integers { get; set; }
-
     /// <summary>
-    /// this prop will be bound from body
+    /// frm body xml comment
     /// </summary>
     public string FromBody { get; set; }
 

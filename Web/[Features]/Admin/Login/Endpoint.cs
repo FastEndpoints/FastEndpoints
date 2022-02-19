@@ -17,6 +17,7 @@ public class Endpoint : Endpoint<Request, Response>
         {
             s.Summary = "this is a short summary";
             s.Description = "this is the long description of the endpoint";
+            s.RequestParam(r => r.UserName, "overriden username text");
             s[200] = "all good";
             s[400] = "indicates an error";
             s[403] = "forbidden when login fails";

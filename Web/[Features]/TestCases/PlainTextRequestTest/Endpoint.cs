@@ -2,6 +2,9 @@
 
 public class Request : PlainTextRequest
 {
+    /// <summary>
+    /// id of the plain text request
+    /// </summary>
     public int Id { get; set; }
 }
 
@@ -17,6 +20,12 @@ public class Endpoint : Endpoint<Request, Response>
     {
         Post("test-cases/plaintext/{Id}");
         AllowAnonymous();
+        Summary(s =>
+        {
+            s.Summary = "plain request endpoint summary";
+            s.RequestParam(r => r.Id, "overriden id text");
+            s.RequestParam(r => r.Content, "overriden content text");
+        });
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)

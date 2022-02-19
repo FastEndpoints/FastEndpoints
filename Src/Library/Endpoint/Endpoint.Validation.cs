@@ -15,7 +15,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// adds an error message for the specified property of the request dto
     /// </summary>
-    /// <param name="property">the property to add teh error message for</param>
+    /// <param name="property">the property to add the error message for</param>
     /// <param name="errorMessage">the error message</param>
     protected void AddError(Expression<Func<TRequest, object>> property, string errorMessage)
     {
@@ -44,8 +44,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// adds an error message for the specified property of the request dto and sends back a 400 bad request with error details immediately interrupting handler execution flow. no execution will continue past this call.
     /// </summary>
-    /// <param name="property"></param>
-    /// <param name="errorMessage"></param>
+    /// <param name="property">the property to add the error message for</param>
+    /// <param name="errorMessage">the error message</param>
     protected void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
     {
         AddError(property, errorMessage);

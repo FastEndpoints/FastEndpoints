@@ -265,6 +265,17 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
+    /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
+    protected void Summary(Action<EndpointSummary<TRequest>> endpointSummary)
+    {
+        var summary = new EndpointSummary<TRequest>();
+        endpointSummary(summary);
+        Settings.Summary = summary;
+    }
+
+    /// <summary>
+    /// provide a summary/description for this endpoint to be used in swagger/ openapi
+    /// </summary>
     /// <param name="endpointSummary">an endpoint summary instance</param>
     protected void Summary(EndpointSummary endpointSummary)
     {

@@ -2,9 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.5.1-beta4</Version>
+        <Version>3.5.1</Version>
 
         <PackageReleaseNotes>
+            ### NEW
+            - request param descriptions via `Summary(x=>x.RequestParams(...))` method
+
             ### IMPROVEMENTS
             - swagger support for generic/deep generic dtos
             - swagger property descriptions from xml comments

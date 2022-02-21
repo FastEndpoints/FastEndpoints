@@ -93,11 +93,23 @@ namespace Test
             var (rsp, res) = await GuestClient.GETAsync<
                 EmptyRequest,
                 TestCases.RouteBindingInEpWithoutReq.Response>(
-                "/api/test-cases/ep-witout-req-route-binding-test/09809/lkjhlkjh", new());
+                "/api/test-cases/ep-witout-req-route-binding-test/09809/12", new());
 
             Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);
             Assert.AreEqual(09809, res!.CustomerID);
-            Assert.AreEqual(0, res!.OtherID);
+            Assert.AreEqual(12, res!.OtherID);
+        }
+
+        [TestMethod]
+        public async Task RouteValueReadingIsRequired()
+        {
+            var (rsp, res) = await GuestClient.GETAsync<
+                EmptyRequest,
+                ErrorResponse>(
+                "/api/test-cases/ep-witout-req-route-binding-test/09809/lkjhlkjh", new());
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, rsp?.StatusCode);
+            Assert.IsTrue(res?.Errors.ContainsKey("OtherID"));
         }
 
         [TestMethod]

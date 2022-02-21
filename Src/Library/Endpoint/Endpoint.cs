@@ -102,13 +102,34 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest>
         => HandleAsync(ct);
 
     /// <summary>
-    /// get the value of a given route parameter by specifying the resulting type
+    /// get the value of a given route parameter by specifying the resulting type.
+    /// NOTE: an automatic validation error is sent to the client when value retrieval is not successful.
     /// </summary>
-    /// <typeparam name="T">the type of the result</typeparam>
-    /// <param name="paramName">the route parameter name</param>
-    /// <returns>the typed value or null if route parameter was not found in the request or if the value was not convertable to the specified type</returns>
-    protected T? Route<T>(string paramName)
-        => (T?)typeof(T).ValueParser()?.Invoke(HttpContext.Request.RouteValues[paramName]).value;
+    /// <typeparam name="T">type of the result</typeparam>
+    /// <param name="paramName">route parameter name</param>
+    /// <param name="isRequired">set to false for disabling the automatic validation error</param>
+    /// <returns>the value if retrieval is successful or null if <paramref name="isRequired"/> is set to false</returns>
+    protected T? Route<T>(string paramName, bool isRequired = true)
+    {
+        if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
+        {
+            var res = typeof(T).ValueParser()?.Invoke(val);
+
+            if (res?.isSuccess is true)
+                return (T?)res?.value;
+
+            if (isRequired)
+                ValidationFailures.Add(new(paramName, "Unable to read value of route parameter!"));
+        }
+        else if (isRequired)
+        {
+            ValidationFailures.Add(new(paramName, "Route parameter was not found!"));
+        }
+
+        ThrowIfAnyErrors();
+
+        return default;// not required and retrieval failed
+    }
 }
 
 /// <summary>
@@ -130,13 +151,34 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
         => HandleAsync(ct);
 
     /// <summary>
-    /// get the value of a given route parameter by specifying the resulting type
+    /// get the value of a given route parameter by specifying the resulting type.
+    /// NOTE: an automatic validation error is sent to the client when value retrieval is not successful.
     /// </summary>
-    /// <typeparam name="T">the type of the result</typeparam>
-    /// <param name="paramName">the route parameter name</param>
-    /// <returns>the typed value or null if route parameter was not found in the request or if the value was not convertable to the specified type</returns>
-    protected T? Route<T>(string paramName)
-        => (T?)typeof(T).ValueParser()?.Invoke(HttpContext.Request.RouteValues[paramName]).value;
+    /// <typeparam name="T">type of the result</typeparam>
+    /// <param name="paramName">route parameter name</param>
+    /// <param name="isRequired">set to false for disabling the automatic validation error</param>
+    /// <returns>the value if retrieval is successful or null if <paramref name="isRequired"/> is set to false</returns>
+    protected T? Route<T>(string paramName, bool isRequired = true)
+    {
+        if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
+        {
+            var res = typeof(T).ValueParser()?.Invoke(val);
+
+            if (res?.isSuccess is true)
+                return (T?)res?.value;
+
+            if (isRequired)
+                ValidationFailures.Add(new(paramName, "Unable to read value of route parameter!"));
+        }
+        else if (isRequired)
+        {
+            ValidationFailures.Add(new(paramName, "Route parameter was not found!"));
+        }
+
+        ThrowIfAnyErrors();
+
+        return default;// not required and retrieval failed
+    }
 }
 
 /// <summary>

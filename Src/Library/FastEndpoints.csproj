@@ -8,6 +8,9 @@
             ### NEW
             - code generator support for request/response dtos
             - [BindFrom] attribute for customizing route/query/form field names
+
+            ### CHANGES
+            - Route&lt;T&gt;() method now throws validation error by default if unsuccessful
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

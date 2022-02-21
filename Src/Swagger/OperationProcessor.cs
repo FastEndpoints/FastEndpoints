@@ -53,9 +53,11 @@ internal class OperationProcessor : IOperationProcessor
         //set operation tag
         if (tagIndex > 0)
         {
-            var segments = bareRoute.Split('/');
+            var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= tagIndex)
-                op.Tags.Add(segments[tagIndex]);
+            {
+                op.Tags.Add(segments[tagIndex - 1]);
+            }
         }
 
         //this will be later removed from document processor
@@ -222,7 +224,7 @@ internal class OperationProcessor : IOperationProcessor
                 .Where(p =>
                       !p.IsDefined(typeof(FromClaimAttribute), false) &&
                       !p.IsDefined(typeof(FromHeaderAttribute), false) &&
-                      !reqParams.Any(rp => rp.Name.Equals(p.Name,StringComparison.OrdinalIgnoreCase))) //ignore props marksed with [FromClaim],[FromHeader] or has a route param.
+                      !reqParams.Any(rp => rp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase))) //ignore props marksed with [FromClaim],[FromHeader] or has a route param.
                 .Select(p =>
                     new OpenApiParameter
                     {

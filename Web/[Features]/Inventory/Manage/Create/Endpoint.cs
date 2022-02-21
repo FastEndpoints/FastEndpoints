@@ -4,8 +4,7 @@ public class Endpoint : Endpoint<Request>
 {
     public override void Configure()
     {
-        Verbs(Http.POST);
-        Routes("/inventory/manage/create");
+        Post("/inventory/manage/create");
         Policies("AdminOnly");
         Permissions(
             Allow.Inventory_Create_Item,
@@ -13,6 +12,12 @@ public class Endpoint : Endpoint<Request>
         ClaimsAll(
             Claim.AdminID,
             "test-claim");
+        Describe(x => x
+            .Accepts<Request>("application/json")
+            .Produces(201)
+            .Produces(500)
+            .WithTags("test")
+            .WithName("CreateInventoryItem"));
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)

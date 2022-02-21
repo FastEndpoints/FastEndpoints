@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.6.0-beta2</Version>
+        <Version>3.6.0-beta3</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -11,6 +11,10 @@
 
             ### CHANGES
             - Route&lt;T&gt;() method now throws validation error by default if unsuccessful
+
+            ### FIXES
+            - swagger empty tag creation when route is root
+            - swagger duplicate param issue when casing mismatched in GET requests
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

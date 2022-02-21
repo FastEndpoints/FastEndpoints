@@ -54,7 +54,7 @@ internal static class ReqTypeCache<TRequest>
                 propInfo.PropertyType.ValueParser(),
                 compiledSetter));
 
-            return forbidIfMissing; //if claim is optional, return false so it will be added as a PropCacheEntry
+            return forbidIfMissing; //if claim is optional, return false so it will also be added as a PropCacheEntry
         }
         return false;
     }
@@ -73,14 +73,17 @@ internal static class ReqTypeCache<TRequest>
                 propInfo.PropertyType,
                 propInfo.PropertyType?.ValueParser(),
                 compiledSetter));
-            return forbidIfMissing; //if header is optional, return false so it will be added as a PropCacheEntry;
+
+            return forbidIfMissing; //if header is optional, return false so it will also be added as a PropCacheEntry;
         }
         return false;
     }
 
     private static void AddPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        CachedProps.Add(propInfo.Name, new(
+        var attrib = propInfo.GetCustomAttribute<BindFromAttribute>(false);
+
+        CachedProps.Add(attrib?.Name ?? propInfo.Name, new(
             propInfo.PropertyType,
             propInfo.PropertyType.ValueParser(),
             compiledSetter));

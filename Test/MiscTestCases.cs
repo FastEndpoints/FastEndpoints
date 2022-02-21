@@ -144,6 +144,36 @@ namespace Test
                     FromBody = "from body value",
                     Int = 1,
                     Long = 1,
+                    String = "nothing"
+                });
+
+            Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);
+            Assert.AreEqual("everything", res?.String);
+            Assert.AreEqual(false, res?.Bool);
+            Assert.AreEqual(99, res?.Int);
+            Assert.AreEqual(483752874564876, res?.Long);
+            Assert.AreEqual(2232.12, res?.Double);
+            Assert.AreEqual("from body value", res?.FromBody);
+            Assert.AreEqual(123.45m, res?.Decimal);
+            Assert.AreEqual(null, res?.Blank);
+        }
+
+        [TestMethod]
+        public async Task BindingFromAttributeUse()
+        {
+            var (rsp, res) = await GuestClient.POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
+
+                "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
+                "?Bool=false&String=everything&XBlank=256",
+
+                new()
+                {
+                    Bool = false,
+                    Decimal = 1,
+                    Double = 1,
+                    FromBody = "from body value",
+                    Int = 1,
+                    Long = 1,
                     String = "nothing",
                     Blank = 1
                 });
@@ -156,7 +186,7 @@ namespace Test
             Assert.AreEqual(2232.12, res?.Double);
             Assert.AreEqual("from body value", res?.FromBody);
             Assert.AreEqual(123.45m, res?.Decimal);
-            Assert.AreEqual(null, res?.Blank);
+            Assert.AreEqual(256, res?.Blank);
         }
 
         [TestMethod]

@@ -11,6 +11,8 @@ public class Request
     public long Long { get; set; }
     public double Double { get; set; }
     public decimal Decimal { get; set; }
+
+    [BindFrom("XBlank")]
     public int? Blank { get; set; }
 
     /// <summary>

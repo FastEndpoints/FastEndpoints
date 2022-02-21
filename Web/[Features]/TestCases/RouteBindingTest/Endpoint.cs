@@ -36,6 +36,7 @@ public class Endpoint : Endpoint<Request, Response>
             Int = r.Int!.Value,
             Long = r.Long,
             String = r.String,
+            Blank = r.Blank,
         });
     }
 }

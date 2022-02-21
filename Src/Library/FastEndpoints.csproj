@@ -2,11 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.6.0-beta1</Version>
+        <Version>3.6.0-beta2</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - code generator support for request/response dtos
+            - [BindFrom] attribute for customizing route/query/form field names
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

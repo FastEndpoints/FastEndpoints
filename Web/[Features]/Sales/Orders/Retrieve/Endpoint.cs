@@ -6,7 +6,7 @@ public class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Get("/sales/orders/retrieve/{OrderID}");
+        Get("/sales/orders/retrieve/{orderID}");
         PreProcessors(new SecurityProcessor<Request>());
         AllowAnonymous();
     }

@@ -2416,6 +2416,35 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   </table>
   
   
+  <a id="FastEndpoints_Endpoint_2_SerializerContext_" data-uid="FastEndpoints.Endpoint`2.SerializerContext*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SerializerContext__1" data-uid="FastEndpoints.Endpoint`2.SerializerContext``1">SerializerContext&lt;TContext&gt;()</h4>
+  <div class="markdown level1 summary"><p>specify the json serializer context if code generation for request/response dtos</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;()
+
+    where TContext : JsonSerializerContext</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TContext</span></td>
+        <td><p>the type of the json serializer context for this endpoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Summary_Action_FastEndpoints_EndpointSummary__0___" data-uid="FastEndpoints.Endpoint`2.Summary(Action{FastEndpoints.EndpointSummary{`0}})">Summary(Action&lt;EndpointSummary&lt;TRequest&gt;&gt;)</h4>
   <div class="markdown level1 summary"><p>provide a summary/description for this endpoint to be used in swagger/ openapi</p>

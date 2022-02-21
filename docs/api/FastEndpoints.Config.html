@@ -199,16 +199,17 @@ this function will be run everytime an error response needs to be sent to the cl
   
   <a id="FastEndpoints_Config_RequestDeserializer_" data-uid="FastEndpoints.Config.RequestDeserializer*"></a>
   <h4 id="FastEndpoints_Config_RequestDeserializer" data-uid="FastEndpoints.Config.RequestDeserializer">RequestDeserializer</h4>
-  <div class="markdown level1 summary"><p>a function for deserializing the incoming http request body. this function will be executed for each request received if it has json request body.
+  <div class="markdown level1 summary"><p>a function for deserializing the incoming http request body. this function will be executed for each request received if it has a json request body.
 the parameters of the func are as follows:</p>
 <p>HttpRequest: the incoming request</p>
 <p>Type: the type of the request dto which the request body will be deserialized into</p>
+<p>JsonSerializerContext?: json serializer context if code generation is used</p>
 <p>CancellationToken: a cancellation token</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Func&lt;HttpRequest, Type, CancellationToken, ValueTask&lt;object&gt;&gt; RequestDeserializer { set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Func&lt;HttpRequest, Type, JsonSerializerContext, CancellationToken, ValueTask&lt;object&gt;&gt; RequestDeserializer { set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -220,7 +221,7 @@ the parameters of the func are as follows:</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Func</span>&lt;<span class="xref">Microsoft.AspNetCore.Http.HttpRequest</span>, <span class="xref">Type</span>, <span class="xref">CancellationToken</span>, <span class="xref">ValueTask</span>&lt;<span class="xref">System.Object</span>&gt;&gt;</td>
+        <td><span class="xref">Func</span>&lt;<span class="xref">Microsoft.AspNetCore.Http.HttpRequest</span>, <span class="xref">Type</span>, <span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span>, <span class="xref">CancellationToken</span>, <span class="xref">ValueTask</span>&lt;<span class="xref">System.Object</span>&gt;&gt;</td>
         <td></td>
       </tr>
     </tbody>
@@ -236,8 +237,9 @@ the parameters of the func are as follows:</p>
 <p>HttpResponse: the http response object</p>
 <p>object: the response dto to be serialized</p>
 <p>string: the response content-type</p>
+<p>JsonSerializerContext?: json serializer context if code generation is used</p>
 <p>CancellationToken: a cancellation token</p>
-<pre><code>config.ResponseSerializer = (rsp, dto, cType, ct) =>
+<pre><code>config.ResponseSerializer = (rsp, dto, cType, jCtx , ct) =>
 {
     rsp.ContentType = cType;
     return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);
@@ -246,7 +248,7 @@ the parameters of the func are as follows:</p>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Func&lt;HttpResponse, object, string, CancellationToken, Task&gt; ResponseSerializer { set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Func&lt;HttpResponse, object, string, JsonSerializerContext, CancellationToken, Task&gt; ResponseSerializer { set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -258,7 +260,7 @@ the parameters of the func are as follows:</p>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Func</span>&lt;<span class="xref">Microsoft.AspNetCore.Http.HttpResponse</span>, <span class="xref">System.Object</span>, <span class="xref">System.String</span>, <span class="xref">CancellationToken</span>, <span class="xref">Task</span>&gt;</td>
+        <td><span class="xref">Func</span>&lt;<span class="xref">Microsoft.AspNetCore.Http.HttpResponse</span>, <span class="xref">System.Object</span>, <span class="xref">System.String</span>, <span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span>, <span class="xref">CancellationToken</span>, <span class="xref">Task</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>

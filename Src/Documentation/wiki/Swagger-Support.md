@@ -204,14 +204,10 @@ builder.Services.AddSwaggerDoc(shortSchemaNames: true);
 ## swagger serializer options
 nswag uses a separate serializer (newtonsoft) and has it's own set of serializer options you can configure like so:
 ```csharp
-builder.Services
-    .AddSwaggerDoc(serializerSettings: x =>
-    {
-        x.ContractResolver = new DefaultContractResolver
-        {
-            NamingStrategy = new CamelCaseNamingStrategy() //set to null for pascal case
-        };
-    })
+builder.Services.AddSwaggerDoc(serializerSettings: x =>
+{
+    x.ContractResolver = new CamelCasePropertyNamesContractResolver();
+});
 ```
 
 ## customize endpoint name/ swagger operation id

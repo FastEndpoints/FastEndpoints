@@ -140,13 +140,13 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendAsync__1_Microsoft_AspNetCore_Http_HttpResponse___0_System_Int32_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,CancellationToken)">SendAsync&lt;TResponse&gt;(HttpResponse, TResponse, Int32, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendAsync__1_Microsoft_AspNetCore_Http_HttpResponse___0_System_Int32_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Int32,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendAsync&lt;TResponse&gt;(HttpResponse, TResponse, Int32, JsonSerializerContext, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send the supplied response dto serialized as json to the client.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendAsync&lt;TResponse&gt;(this HttpResponse rsp, TResponse response, int statusCode = 200, CancellationToken cancellation = null)
+    <pre><code class="lang-csharp hljs">public static Task SendAsync&lt;TResponse&gt;(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)
 
     where TResponse : class</code></pre>
   </div>
@@ -175,6 +175,12 @@
         <td><span class="xref">System.Int32</span></td>
         <td><span class="parametername">statusCode</span></td>
         <td><p>optional custom http status code</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span></td>
+        <td><span class="parametername">jsonSerializerContext</span></td>
+        <td><p>json serializer context if code generation is used</p>
 </td>
       </tr>
       <tr>
@@ -296,14 +302,14 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Object_System_Object_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,CancellationToken)">SendCreatedAtAsync(HttpResponse, String, Object, Object, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Object_System_Object_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendCreatedAtAsync(HttpResponse, String, Object, Object, JsonSerializerContext, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
 <p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object routeValues, object responseBody, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object routeValues, object responseBody, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -339,6 +345,12 @@
 </td>
       </tr>
       <tr>
+        <td><span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span></td>
+        <td><span class="parametername">jsonSerializerContext</span></td>
+        <td><p>json serializer context if code generation is used</p>
+</td>
+      </tr>
+      <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
         <td><p>cancellation token</p>
@@ -364,14 +376,14 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(HttpResponse, Object, Object, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(HttpResponse, Object, Object, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, JsonSerializerContext, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
 <p>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the &apos;verb&apos; argument and if pointing to a multi route endpoint, specify the &apos;routeNumber&apos; argument.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = null)
+    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)
 
     where TEndpoint : IEndpoint</code></pre>
   </div>
@@ -412,6 +424,12 @@
         <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
         <td><span class="parametername">routeNumber</span></td>
         <td><p>only useful when pointing to a multi route endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span></td>
+        <td><span class="parametername">jsonSerializerContext</span></td>
+        <td><p>json serializer context if code generation is used</p>
 </td>
       </tr>
       <tr>
@@ -456,13 +474,13 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendEmptyJsonObject_" data-uid="FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendEmptyJsonObject_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)">SendEmptyJsonObject(HttpResponse, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendEmptyJsonObject_Microsoft_AspNetCore_Http_HttpResponse_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendEmptyJsonObject(HttpResponse, JsonSerializerContext, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send an empty json object in the body</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendEmptyJsonObject(this HttpResponse rsp, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static Task SendEmptyJsonObject(this HttpResponse rsp, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -478,6 +496,12 @@
         <td><span class="xref">Microsoft.AspNetCore.Http.HttpResponse</span></td>
         <td><span class="parametername">rsp</span></td>
         <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span></td>
+        <td><span class="parametername">jsonSerializerContext</span></td>
+        <td><p>json serializer context if code generation is used</p>
+</td>
       </tr>
       <tr>
         <td><span class="xref">CancellationToken</span></td>
@@ -505,13 +529,13 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendErrorsAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendErrorsAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendErrorsAsync_Microsoft_AspNetCore_Http_HttpResponse_List_ValidationFailure__CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},CancellationToken)">SendErrorsAsync(HttpResponse, List&lt;ValidationFailure&gt;, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendErrorsAsync_Microsoft_AspNetCore_Http_HttpResponse_List_ValidationFailure__System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendErrorsAsync(HttpResponse, List&lt;ValidationFailure&gt;, JsonSerializerContext, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 400 bad request with error details of the current validation failures</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendErrorsAsync(this HttpResponse rsp, List&lt;ValidationFailure&gt; failures, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static Task SendErrorsAsync(this HttpResponse rsp, List&lt;ValidationFailure&gt; failures, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -532,6 +556,12 @@
         <td><span class="xref">List</span>&lt;<span class="xref">ValidationFailure</span>&gt;</td>
         <td><span class="parametername">failures</span></td>
         <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span></td>
+        <td><span class="parametername">jsonSerializerContext</span></td>
+        <td><p>json serializer context if code generation is used</p>
+</td>
       </tr>
       <tr>
         <td><span class="xref">CancellationToken</span></td>

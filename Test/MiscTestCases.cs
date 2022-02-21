@@ -110,7 +110,7 @@ namespace Test
                 new()
                 {
                     Bool = false,
-                    Decimal = 1,
+                    DecimalNumber = 1,
                     Double = 1,
                     FromBody = "from body value",
                     Int = 1,
@@ -139,7 +139,7 @@ namespace Test
                 new()
                 {
                     Bool = false,
-                    Decimal = 1,
+                    DecimalNumber = 1,
                     Double = 1,
                     FromBody = "from body value",
                     Int = 1,
@@ -169,7 +169,7 @@ namespace Test
                 new()
                 {
                     Bool = false,
-                    Decimal = 1,
+                    DecimalNumber = 1,
                     Double = 1,
                     FromBody = "from body value",
                     Int = 1,

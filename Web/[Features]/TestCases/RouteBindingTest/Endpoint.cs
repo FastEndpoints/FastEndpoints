@@ -30,7 +30,7 @@ public class Endpoint : Endpoint<Request, Response>
         return SendAsync(new Response
         {
             Bool = r.Bool,
-            Decimal = r.Decimal,
+            Decimal = r.DecimalNumber,
             Double = r.Double,
             FromBody = r.FromBody,
             Int = r.Int!.Value,

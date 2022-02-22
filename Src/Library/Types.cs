@@ -9,6 +9,7 @@ internal static class Types
     //there's no performance benefit gained from this.
     //it's only there to make code more readable and save a few keystrokes.
 
+    internal static readonly Type Bool = typeof(bool);
     internal static readonly Type Enum = typeof(Enum);
     internal static readonly Type EmptyResponse = typeof(EmptyResponse);
     internal static readonly Type EmptyRequest = typeof(EmptyRequest);

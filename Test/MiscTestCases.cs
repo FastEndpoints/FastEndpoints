@@ -117,7 +117,7 @@ namespace Test
         {
             var (rsp, res) = await GuestClient.POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
 
-                "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45",
+                "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12",
 
                 new()
                 {
@@ -138,6 +138,8 @@ namespace Test
             Assert.AreEqual(2232.12, res?.Double);
             Assert.AreEqual("from body value", res?.FromBody);
             Assert.AreEqual(123.45m, res?.Decimal);
+            Assert.AreEqual("https://test.com/", res?.Url);
+            Assert.AreEqual(12, res?.Custom.Value);
         }
 
         [TestMethod]

@@ -1,5 +1,21 @@
 namespace TestCases.RouteBindingTest;
 
+public class Custom //: IParseable<Custom>
+{
+    public int Value { get; set; }
+
+    public static bool TryParse(string? input, out Custom? output)
+    {
+        if (input == null)
+        {
+            output = null;
+            return false;
+        }
+        output = new() { Value = int.Parse(input) };
+        return true;
+    }
+}
+
 public class Request
 {
     /// <summary>
@@ -10,6 +26,8 @@ public class Request
     public int? Int { get; set; }
     public long Long { get; set; }
     public double Double { get; set; }
+    public Uri? Url { get; set; }
+    public Custom Custom { get; set; }
 
     [BindFrom("Decimal"), Newtonsoft.Json.JsonProperty("Decimal")]
     public decimal DecimalNumber { get; set; }
@@ -43,4 +61,6 @@ public class Response
     public decimal Decimal { get; set; }
     public int? Blank { get; set; }
     public string FromBody { get; set; }
+    public string? Url { get; set; }
+    public Custom Custom { get; set; }
 }

@@ -71,7 +71,12 @@ internal static class ReflectionExtensions
         if (type.IsEnum)
             return input => (Enum.TryParse(type, input?.ToString(), out var res), res!);
 
-        var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Static | BindingFlags.Public, new[] { Types.String, type.MakeByRefType() });
+        if (type == Types.Uri)
+            return input => (true, new Uri((string)input!));
+
+        var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, type.MakeByRefType() });
+        var xxx = type.GetMethods();
+        var yyy = type.GetRuntimeMethods();
 
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             return null;

@@ -1,6 +1,7 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.Versioning;
 
 namespace FastEndpoints;
 
@@ -45,6 +46,16 @@ public interface IPlainTextRequest
     /// the request body content will be bound to this property
     /// </summary>
     string Content { get; set; }
+}
+
+/// <summary>
+/// implement this interface on custom types you want to use with request dto model binding for route/query/form fields
+/// </summary>
+/// <typeparam name="TSelf"></typeparam>
+public interface IParseable<TSelf> where TSelf : notnull
+{
+    [RequiresPreviewFeatures]
+    static abstract bool TryParse(string? input, out TSelf? output);
 }
 
 internal interface IServiceResolver

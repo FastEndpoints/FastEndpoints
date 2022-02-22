@@ -127,7 +127,8 @@ namespace Test
                     FromBody = "from body value",
                     Int = 1,
                     Long = 1,
-                    String = "nothing"
+                    String = "nothing",
+                    Custom = new() { Value = 11111 }
                 });
 
             Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);

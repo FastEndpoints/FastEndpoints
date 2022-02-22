@@ -9,20 +9,20 @@ namespace FastEndpoints;
 /// </summary>
 public class EndpointSettings
 {
-    public string[]? Routes;
-    public string[]? Verbs;
-    public string[]? AnonymousVerbs;
-    public bool ThrowIfValidationFails = true;
-    public string[]? PreBuiltUserPolicies;
-    public string[]? AuthSchemes;
-    public string[]? Roles;
-    public string[]? Permissions;
-    public bool AllowAnyPermission;
-    public string[]? ClaimTypes;
-    public bool AllowAnyClaim;
-    public string[]? Tags;
-    public EpVersion Version = new();
-    public EndpointSummary? Summary;
+    public string[]? Routes { get; internal set; }
+    public string[]? Verbs { get; internal set; }
+    public string[]? AnonymousVerbs { get; internal set; }
+    public bool ThrowIfValidationFails { get; internal set; } = true;
+    public string[]? PreBuiltUserPolicies { get; internal set; }
+    public string[]? AuthSchemes { get; internal set; }
+    public string[]? Roles { get; internal set; }
+    public string[]? Permissions { get; internal set; }
+    public bool AllowAnyPermission { get; internal set; }
+    public string[]? ClaimTypes { get; internal set; }
+    public bool AllowAnyClaim { get; internal set; }
+    public string[]? Tags { get; internal set; }
+    public EndpointSummary? Summary { get; internal set; }
+    public EpVersion Version { get; internal set; } = new();
 
     internal Type? DtoTypeForFormData;
     internal Action<RouteHandlerBuilder> InternalConfigAction;
@@ -37,8 +37,8 @@ public class EndpointSettings
 /// <summary>
 /// represents an enpoint version
 /// </summary>
-public struct EpVersion
+public class EpVersion
 {
-    public int Current { get; set; }
-    public int DeprecatedAt { get; set; }
+    public int Current { get; internal set; }
+    public int DeprecatedAt { get; internal set; }
 }

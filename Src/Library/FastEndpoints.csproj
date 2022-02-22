@@ -8,8 +8,8 @@
             ### NEW
             - code generator support for request/response dtos
             - ability to specify global endpoint options with GlobalEndpointOptions setting
-            - [BindFrom] attribute for customizing route/query/form field names
-            - ability to model bind any type that has a TryParse() static method from route/query/form fields
+            - [BindFrom] attribute for customizing form/route/query/claim/header names
+            - ability to model bind any type that has a TryParse() static method from form/route/query/claim/header
 
             ### CHANGES
             - Route&lt;T&gt;() method now throws validation error by default if unsuccessful

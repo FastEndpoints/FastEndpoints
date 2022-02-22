@@ -1,4 +1,5 @@
 ﻿using FastEndpoints.Validation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -18,6 +19,7 @@ public class Config
     internal static VersioningOptions? VersioningOpts { get; private set; }
     internal static RoutingOptions? RoutingOpts { get; private set; }
     internal static Func<EndpointDefinition, bool>? EpRegFilterFunc { get; private set; }
+    internal static Action<EndpointDefinition, RouteHandlerBuilder>? GlobalEpOptsAction { get; private set; }
     internal static Func<List<ValidationFailure>, object> ErrRespBldrFunc { get; private set; }
         = failures => new ErrorResponse(failures);
     internal static Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> ReqDeserializerFunc { get; private set; }
@@ -77,6 +79,15 @@ public class Config
     /// this function will executed for each endpoint that has been discovered during startup.
     /// </summary>
     public Func<EndpointDefinition, bool> EndpointRegistrationFilter { set => EpRegFilterFunc = value; }
+
+    /// <summary>
+    /// an action to be performed on all endpoints during registration.
+    /// the action you set here will be executed for each endpoint during startup.
+    /// you can inspect the EndpointDefinition to check what the current endpoint is, if needed.
+    /// NOTE: this action is executed before Options() and Describr() of each individual endpoint.
+    /// so, whatever you do here may get overridden or compounded by what you do in the Configure() method of each endpoint.
+    /// </summary>
+    public Action<EndpointDefinition, RouteHandlerBuilder> GlobalEndpointOptions { set => GlobalEpOptsAction = value; }
 
     /// <summary>
     /// a function for transforming validation errors to an error response dto.

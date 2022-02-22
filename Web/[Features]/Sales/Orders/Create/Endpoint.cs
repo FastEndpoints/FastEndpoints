@@ -15,6 +15,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
             new MyRequestLogger<Request>());
         PostProcessors(
             new MyResponseLogger<Request, Response>());
+        Tags("orders");
     }
 
     public override async Task HandleAsync(Request r, CancellationToken t)

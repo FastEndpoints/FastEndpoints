@@ -9,6 +9,7 @@ public class Endpoint : Endpoint<Request, Response>
         Get("/sales/orders/retrieve/{orderID}");
         PreProcessors(new SecurityProcessor<Request>());
         AllowAnonymous();
+        Tags("orders");
     }
 
     public override Task HandleAsync(Request r, CancellationToken c)

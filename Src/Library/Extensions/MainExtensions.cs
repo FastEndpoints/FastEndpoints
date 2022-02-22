@@ -105,6 +105,8 @@ public static class MainExtensions
                     if (epDef.Settings.DtoTypeForFormData is not null)
                         hb.Accepts(epDef.Settings.DtoTypeForFormData, "multipart/form-data");
 
+                    GlobalEpOptsAction?.Invoke(epDef, hb);
+
                     epDef.Settings.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{finalRoute}";

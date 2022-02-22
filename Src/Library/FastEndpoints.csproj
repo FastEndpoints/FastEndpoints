@@ -2,11 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.6.0-beta3</Version>
+        <Version>3.6.0-beta4</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - code generator support for request/response dtos
+            - ability to specify global endpoint options with GlobalEndpointOptions setting
             - [BindFrom] attribute for customizing route/query/form field names
 
             ### CHANGES

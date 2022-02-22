@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Concurrent;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FastEndpoints;
@@ -54,10 +55,18 @@ internal static class ReflectionExtensions
             propertyValueParam).Compile();
     }
 
+    private static readonly ConcurrentDictionary<Type, Func<object?, (bool isSuccess, object value)>?> parsers = new();
+    internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type)
+    {
+        //we're only ever compiling a value parser for a given type once.
+        //if a parser is requested for a type a second time, it will be returned from the dictionary instead of paying the compiling cost again.
+        //the parser we return from here is then cached in ReqTypeCache<TRequest> avoiding the need to do an additional dictionary lookup here.
+        return parsers.GetOrAdd(type, GetCompiledValueParser);
+    }
+
     private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
     private static readonly ConstructorInfo valueTupleConstructor = typeof(ValueTuple<bool, object>).GetConstructor(new[] { Types.Bool, Types.Object })!;
-
-    internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type)
+    private static Func<object?, (bool isSuccess, object value)>? GetCompiledValueParser(Type type)
     {
         // this method was contributed by: https://stackoverflow.com/users/1086121/canton7
         // as an answer to a stackoverflow question: https://stackoverflow.com/questions/71220157
@@ -111,65 +120,4 @@ internal static class ReflectionExtensions
             inputParameter
             ).Compile();
     }
-
-    //internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type)
-    //{
-    //    type = Nullable.GetUnderlyingType(type) ?? type;
-
-    //    if (type.IsEnum)
-    //        return input => (Enum.TryParse(type, ToString(input), out var res), res!);
-
-    //    switch (Type.GetTypeCode(type))
-    //    {
-    //        case TypeCode.String:
-    //            return input => (true, input!);
-
-    //        case TypeCode.Boolean:
-    //            return input => (bool.TryParse(ToString(input), out var res), res);
-
-    //        case TypeCode.Int32:
-    //            return input => (int.TryParse(ToString(input), out var res), res);
-
-    //        case TypeCode.Int64:
-    //            return input => (long.TryParse(ToString(input), out var res), res);
-
-    //        case TypeCode.Double:
-    //            return input => (double.TryParse(ToString(input), out var res), res);
-
-    //        case TypeCode.Decimal:
-    //            return input => (decimal.TryParse(ToString(input), out var res), res);
-
-    //        case TypeCode.DateTime:
-    //            return input => (DateTime.TryParse(ToString(input), out var res), res);
-
-    //        case TypeCode.Object:
-    //            if (type == Types.Guid)
-    //            {
-    //                return input => (Guid.TryParse(ToString(input), out var res), res);
-    //            }
-    //            else if (type == Types.Uri)
-    //            {
-    //                return input => (true, new Uri((string)input!));
-    //            }
-    //            else if (type == Types.Version)
-    //            {
-    //                return input => (Version.TryParse(ToString(input), out var res), res!);
-    //            }
-    //            else if (type == Types.TimeSpan)
-    //            {
-    //                return input => (TimeSpan.TryParse(ToString(input), out var res), res!);
-    //            }
-    //            break;
-    //    }
-
-    //    return null; //we cannot handle this property type.
-
-    //    static string? ToString(object? value)
-    //    {
-    //        if (value is string x)
-    //            return x;
-
-    //        return value?.ToString();
-    //    }
-    //}
 }

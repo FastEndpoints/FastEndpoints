@@ -2,13 +2,14 @@
 
     <PropertyGroup>
 
-        <Version>3.6.0-beta4</Version>
+        <Version>3.6.0-beta5</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - code generator support for request/response dtos
             - ability to specify global endpoint options with GlobalEndpointOptions setting
             - [BindFrom] attribute for customizing route/query/form field names
+            - ability to model bind any type that has a TryParse() static method from route/query/form fields
 
             ### CHANGES
             - Route&lt;T&gt;() method now throws validation error by default if unsuccessful

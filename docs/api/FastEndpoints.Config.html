@@ -197,6 +197,36 @@ this function will be run everytime an error response needs to be sent to the cl
   </table>
   
   
+  <a id="FastEndpoints_Config_GlobalEndpointOptions_" data-uid="FastEndpoints.Config.GlobalEndpointOptions*"></a>
+  <h4 id="FastEndpoints_Config_GlobalEndpointOptions" data-uid="FastEndpoints.Config.GlobalEndpointOptions">GlobalEndpointOptions</h4>
+  <div class="markdown level1 summary"><p>an action to be performed on all endpoints during registration.
+the action you set here will be executed for each endpoint during startup.
+you can inspect the EndpointDefinition to check what the current endpoint is, if needed.
+NOTE: this action is executed before Options() and Describr() of each individual endpoint.
+so, whatever you do here may get overridden or compounded by what you do in the Configure() method of each endpoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Action&lt;EndpointDefinition, RouteHandlerBuilder&gt; GlobalEndpointOptions { set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Action</span>&lt;<a class="xref" href="FastEndpoints.EndpointDefinition.html">EndpointDefinition</a>, <span class="xref">Microsoft.AspNetCore.Builder.RouteHandlerBuilder</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Config_RequestDeserializer_" data-uid="FastEndpoints.Config.RequestDeserializer*"></a>
   <h4 id="FastEndpoints_Config_RequestDeserializer" data-uid="FastEndpoints.Config.RequestDeserializer">RequestDeserializer</h4>
   <div class="markdown level1 summary"><p>a function for deserializing the incoming http request body. this function will be executed for each request received if it has a json request body.

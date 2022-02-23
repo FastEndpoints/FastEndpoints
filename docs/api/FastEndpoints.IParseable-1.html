@@ -14,10 +14,10 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class EpVersion
+    <title>Interface IParseable&lt;TSelf&gt;
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class EpVersion
+    <meta name="title" content="Interface IParseable&lt;TSelf&gt;
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern">
@@ -93,87 +93,70 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.EpVersion">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.IParseable`1">
   
   
-  <h1 id="FastEndpoints_EpVersion" data-uid="FastEndpoints.EpVersion" class="text-break">Class EpVersion
+  <h1 id="FastEndpoints_IParseable_1" data-uid="FastEndpoints.IParseable`1" class="text-break">Interface IParseable&lt;TSelf&gt;
   </h1>
-  <div class="markdown level0 summary"><p>represents an enpoint version</p>
+  <div class="markdown level0 summary"><p>implement this interface on custom types you want to use with request dto model binding for route/query/form fields</p>
 </div>
   <div class="markdown level0 conceptual"></div>
-  <div class="inheritance">
-    <h5>Inheritance</h5>
-    <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><span class="xref">EpVersion</span></div>
-  </div>
-  <div class="inheritedMembers">
-    <h5>Inherited Members</h5>
-    <div>
-      <span class="xref">System.Object.Equals(System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.GetHashCode()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.GetType()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.MemberwiseClone()</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
-    </div>
-    <div>
-      <span class="xref">System.Object.ToString()</span>
-    </div>
-  </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_EpVersion_syntax">Syntax</h5>
+  <h5 id="FastEndpoints_IParseable_1_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class EpVersion</code></pre>
+    <pre><code class="lang-csharp hljs">public interface IParseable&lt;TSelf&gt;</code></pre>
   </div>
-  <h3 id="properties">Properties
-  </h3>
-  
-  
-  <a id="FastEndpoints_EpVersion_Current_" data-uid="FastEndpoints.EpVersion.Current*"></a>
-  <h4 id="FastEndpoints_EpVersion_Current" data-uid="FastEndpoints.EpVersion.Current">Current</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int Current { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
+  <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
-        <th>Type</th>
+        <th>Name</th>
         <th>Description</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">TSelf</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
+  <h3 id="methods">Methods
+  </h3>
   
   
-  <a id="FastEndpoints_EpVersion_DeprecatedAt_" data-uid="FastEndpoints.EpVersion.DeprecatedAt*"></a>
-  <h4 id="FastEndpoints_EpVersion_DeprecatedAt" data-uid="FastEndpoints.EpVersion.DeprecatedAt">DeprecatedAt</h4>
+  <a id="FastEndpoints_IParseable_1_TryParse_" data-uid="FastEndpoints.IParseable`1.TryParse*"></a>
+  <h4 id="FastEndpoints_IParseable_1_TryParse_System_String__0__" data-uid="FastEndpoints.IParseable`1.TryParse(System.String,`0@)">TryParse(String, out TSelf)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public int DeprecatedAt { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">static bool TryParse(string input, out TSelf output)</code></pre>
   </div>
-  <h5 class="propertyValue">Property Value</h5>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">input</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">TSelf</span></td>
+        <td><span class="parametername">output</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -183,7 +166,7 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Int32</span></td>
+        <td><span class="xref">System.Boolean</span></td>
         <td></td>
       </tr>
     </tbody>

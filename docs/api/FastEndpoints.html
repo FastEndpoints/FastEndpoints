@@ -145,6 +145,9 @@
       <h4><a class="xref" href="FastEndpoints.EndpointWithoutRequest-1.html">EndpointWithoutRequest&lt;TResponse&gt;</a></h4>
       <section><p>use this base class for defining endpoints that doesn't need a request dto but return a response dto.</p>
 </section>
+      <h4><a class="xref" href="FastEndpoints.EpVersion.html">EpVersion</a></h4>
+      <section><p>represents an enpoint version</p>
+</section>
       <h4><a class="xref" href="FastEndpoints.ErrorResponse.html">ErrorResponse</a></h4>
       <section><p>the dto used to send an error response to the client</p>
 </section>
@@ -188,15 +191,13 @@ this is a shorter alias for the [FromClaim] attribute.</p>
       <h4><a class="xref" href="FastEndpoints.VersioningOptions.html">VersioningOptions</a></h4>
       <section><p>global endpoint versioning options</p>
 </section>
-    <h3 id="structs">Structs
-  </h3>
-      <h4><a class="xref" href="FastEndpoints.EpVersion.html">EpVersion</a></h4>
-      <section><p>represents an enpoint version</p>
-</section>
     <h3 id="interfaces">Interfaces
   </h3>
       <h4><a class="xref" href="FastEndpoints.IEntityMapper.html">IEntityMapper</a></h4>
       <section><p>marker interface for entity mappers</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.IParseable-1.html">IParseable&lt;TSelf&gt;</a></h4>
+      <section><p>implement this interface on custom types you want to use with request dto model binding for route/query/form fields</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.IPlainTextRequest.html">IPlainTextRequest</a></h4>
       <section><p>implement this interface on your request dto if you need to model bind the raw content body of an incoming http request</p>

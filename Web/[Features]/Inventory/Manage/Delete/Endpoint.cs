@@ -4,7 +4,7 @@ public class Endpoint : Endpoint<Request>
 {
     public override void Configure()
     {
-        Delete("inventory/manage/delete/{ItemID}");
+        Delete("inventory/manage/delete/{itemID}");
         AllowAnonymous();
     }
 

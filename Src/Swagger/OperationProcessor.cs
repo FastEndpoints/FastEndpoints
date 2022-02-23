@@ -172,13 +172,6 @@ internal class OperationProcessor : IOperationProcessor
             }
         }
 
-        if (isGETRequest && op.RequestBody is not null)
-        {
-            //remove request body since this is a get request with a request dto,
-            //cause swagger ui/fetch client doesn't support GET with body
-            op.RequestBody = null;
-        }
-
         var reqParams = new List<OpenApiParameter>();
 
         //add a param for each route param such as /{xxx}/{yyy}/{zzz}
@@ -263,6 +256,13 @@ internal class OperationProcessor : IOperationProcessor
 
         foreach (var p in reqParams)
             op.Parameters.Add(p);
+
+        if (isGETRequest)
+        {
+            //remove request body since this is a get request
+            //cause swagger ui/fetch client doesn't support GET with body
+            op.RequestBody = null;
+        }
 
         //remove request body if there are no properties left after above operations
         //otherwise there's gonna be an empty schema added in the swagger doc

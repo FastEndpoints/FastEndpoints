@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.6.0-beta8</Version>
+        <Version>3.6.0</Version>
 
         <PackageReleaseNotes>
             ### NEW

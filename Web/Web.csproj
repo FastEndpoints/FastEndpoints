@@ -15,7 +15,6 @@
     <ItemGroup>
         <Folder Include="[Features]\Customers\List\Search\" />
         <Folder Include="[Features]\Inventory\List\Search\" />
-        <Folder Include="[Features]\Inventory\Manage\Delete\" />
     </ItemGroup>
 
     <ItemGroup>

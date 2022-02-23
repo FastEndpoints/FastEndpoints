@@ -69,7 +69,6 @@ public class Endpoint : Endpoint<Request, Response>
         {
             AddError("Authentication Failed!");
         }
-
         return SendErrorsAsync();
     }
 }

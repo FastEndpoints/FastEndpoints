@@ -264,6 +264,19 @@ internal class OperationProcessor : IOperationProcessor
         foreach (var p in reqParams)
             op.Parameters.Add(p);
 
+        //remove request body if there are no properties left after above operations
+        //otherwise there's gonna be an empty schema added in the swagger doc
+        if (op.RequestBody?.Content.SelectMany(c => c.Value.Schema.ActualSchema.ActualProperties).Any() == false &&
+           !op.RequestBody.Content.SelectMany(c => c.Value.Schema.ActualSchema.AllOf.SelectMany(s => s.Properties)).Any())
+        {
+            op.RequestBody = null;
+
+            //the following still does not remove the empty request schema :-(
+            apiDescription?.ParameterDescriptions.Clear();
+            var bodyParam = op.Parameters.FirstOrDefault(p => p.Kind == OpenApiParameterKind.Body);
+            if (bodyParam != null) op.Parameters.Remove(bodyParam);
+        }
+
         return true;
 
         static string ActualParamName(string input)

@@ -38,6 +38,11 @@ internal class DocumentProcessor : IDocumentProcessor
 
         foreach (var p in ctx.Document.Paths)
         {
+            var isFastEp = p.Value.SelectMany(o => o.Value.Tags).Any(t => t.StartsWith("|"));
+
+            if (!isFastEp)
+                continue; //this isn't a fastendpoint. so don't remove it from the paths
+
             if (!pathItems.Contains(p.Value))
                 ctx.Document.Paths.Remove(p.Key);
 

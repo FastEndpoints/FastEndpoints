@@ -69,7 +69,12 @@ app.UseFastEndpoints(config =>
     };
 });
 
-app.UseEndpoints(c => c.MapGet("test", () => "hello world!")); //must go after usefastendpoints (only if using endpoints)
+//this must go after usefastendpoints (only if using endpoints)
+app.UseEndpoints(c =>
+{
+    c.MapGet("test", () => "hello world!").WithTags("map-get");
+    c.MapGet("test/{testId}", (int testId) => "hello 2").WithTags("map-get");
+});
 
 if (!app.Environment.IsProduction())
 {

@@ -33,18 +33,20 @@ internal class OperationProcessor : IOperationProcessor
 
     public bool Process(OperationProcessorContext ctx)
     {
-        var op = ctx.OperationDescription.Operation;
         var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
         var epMeta = metaData.OfType<EndpointMetadata>().SingleOrDefault();
 
         if (epMeta is null)
             return true; //this is not a fastendpoint
 
+        var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
+        var opPath = ctx.OperationDescription.Path = $"/{apiDescription.RelativePath}";//fix missing path parameters
         var apiVer = epMeta.EndpointSettings.Version.Current;
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
-        var bareRoute = ctx.OperationDescription.Path.Remove(routePrefix).Remove(version);
+        var bareRoute = opPath.Remove(routePrefix).Remove(version);
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
+        var op = ctx.OperationDescription.Operation;
 
         //set operation id if user has specified
         if (nameMetaData is not null)
@@ -114,13 +116,9 @@ internal class OperationProcessor : IOperationProcessor
                   res.Value.Description = epMeta.EndpointSettings.Summary.Responses.GetValueOrDefault(Convert.ToInt32(res.Key)); //then take values from summary object
           });
 
-        var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoProps = reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
         var isGETRequest = apiDescription.HttpMethod == "GET";
-
-        //fix missing path parameters
-        ctx.OperationDescription.Path = "/" + apiDescription.RelativePath;
 
         //store unique request param description (from each consumes/content type) for later use.
         //these are the xml comments from dto classes

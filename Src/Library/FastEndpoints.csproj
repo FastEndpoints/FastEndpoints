@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.6.0-beta7</Version>
+        <Version>3.6.0-beta8</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -14,11 +14,12 @@
             ### CHANGES
             - Route&lt;T&gt;() method now throws validation error by default if unsuccessful
 
-            ### FIXES
-            - swagger empty tag creation when route is root
-            - swagger duplicate param issue when casing mismatched in GET requests
-            - swagger empty request body when dto only contains route/query bound properties
-            - swagger correct handling of route bound request body
+            ### SWAGGER FIXES
+            - empty tag creation when route is root
+            - duplicate param issue when casing mismatched in GET requests
+            - empty request body when dto only contains route/query bound properties
+            - correct handling of route bound request body
+            - missing endpoint op from swagger doc when bare route is the same
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

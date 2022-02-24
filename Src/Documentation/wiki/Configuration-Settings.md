@@ -63,6 +63,25 @@ app.UseFastEndpoints(c =>
 });
 ```
 
+## global endpoint options
+you can have a set of common options applied to each endpoint by specifying an action for the `GlobalEndpointOptions` property of the configuration. 
+the action you set here will be executed for each endpoint during startup. you can inspect the `EndpointDefinition` argument to check what the current endpoint is, if needed.
+options to be applied to endpoints are performed on the `RouteHandlerBuilder` argument. the action you specify here is executed before `Options()` and `Describe()` of each individual endpoint during registration. whatever you do here may get overridden or compounded by what you do in the `Configure()` method of each endpoint.
+```csharp
+app.UseFastEndpoints(c =>
+{
+    c.GlobalEndpointOptions = (endpoint, builder) =>
+    {
+        if (endpoint.Settings?.Routes?[0].StartsWith("/api/admin") is true)
+        {
+            builder
+            .RequireHost("admin.domain.com")
+            .Produces<ErrorResponse>(400, "application/problem+json");
+        }
+    };
+});
+```
+
 ## customizing error responses
 if the default error response is not to your liking, you can specify a function to produce the exact error response you need. whatever object you return from that function will be serialized to json and sent to the client whenever there needs to be an error response sent downstream. the function will be supplied a collection of validation failures you can use to construct your own error response object like so:
 ```csharp

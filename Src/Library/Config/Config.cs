@@ -84,7 +84,7 @@ public class Config
     /// an action to be performed on all endpoints during registration.
     /// the action you set here will be executed for each endpoint during startup.
     /// you can inspect the EndpointDefinition to check what the current endpoint is, if needed.
-    /// NOTE: this action is executed before Options() and Describr() of each individual endpoint.
+    /// NOTE: this action is executed before Options() and Describe() of each individual endpoint.
     /// so, whatever you do here may get overridden or compounded by what you do in the Configure() method of each endpoint.
     /// </summary>
     public Action<EndpointDefinition, RouteHandlerBuilder> GlobalEndpointOptions { set => GlobalEpOptsAction = value; }

@@ -56,8 +56,8 @@ Statistics        Avg      Stdev        Max
 ```
 
 ## TechEmpower Benchmark (Preliminary)
-<a target="_blank" href="https://www.techempower.com/benchmarks/#section=test&runid=fa199ea7-b3db-4cd5-bab8-85ff67217db0&hw=ph&test=json&l=zik0zh-sf&c=8&a=2">
-  <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ksvhrqxeipucnsuakitw.png">
+<a target="_blank" href="https://www.techempower.com/benchmarks/#section=test&runid=79350aca-3138-4f06-9f2a-d9ca470028f6&hw=ph&test=json&l=zik0zh-sf&c=8&a=2">
+  <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ei5kn1xm09b1unokcy54.png">
 </a>
 
 <!-- .\bomb.exe -c 512 -m POST -f "body.json" -H "Content-Type:application/json"  -d 30s http://localhost:5000/benchmark/ok/123 -->

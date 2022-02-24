@@ -35,7 +35,8 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 - Declarative security policy building (in each endpoint)
 - Supports any IOC container compatible with asp.net
 - Property injection of endpoint dependencies
-- Easy model binding from route/json body/claims/forms/headers
+- Easy model binding from route/query/json body/claims/forms/headers
+- Json source generator support for request/response dtos
 - Easy file handling (multipart/form-data)
 - Model validation with FluentValidation rules
 - Convenient business logic validation & error responses

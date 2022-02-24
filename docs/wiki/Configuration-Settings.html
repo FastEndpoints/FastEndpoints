@@ -149,6 +149,23 @@ app.UseFastEndpoints(c =&gt;
     };
 });
 </code></pre>
+<h2 id="global-endpoint-options">global endpoint options</h2>
+<p>you can have a set of common options applied to each endpoint by specifying an action for the <code>GlobalEndpointOptions</code> property of the configuration.
+the action you set here will be executed for each endpoint during startup. you can inspect the <code>EndpointDefinition</code> argument to check what the current endpoint is, if needed.
+options to be applied to endpoints are performed on the <code>RouteHandlerBuilder</code> argument. the action you specify here is executed before <code>Options()</code> and <code>Describe()</code> of each individual endpoint during registration. whatever you do here may get overridden or compounded by what you do in the <code>Configure()</code> method of each endpoint.</p>
+<pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
+{
+    c.GlobalEndpointOptions = (endpoint, builder) =&gt;
+    {
+        if (endpoint.Settings?.Routes?[0].StartsWith(&quot;/api/admin&quot;) is true)
+        {
+            builder
+            .RequireHost(&quot;admin.domain.com&quot;)
+            .Produces&lt;ErrorResponse&gt;(400, &quot;application/problem+json&quot;);
+        }
+    };
+});
+</code></pre>
 <h2 id="customizing-error-responses">customizing error responses</h2>
 <p>if the default error response is not to your liking, you can specify a function to produce the exact error response you need. whatever object you return from that function will be serialized to json and sent to the client whenever there needs to be an error response sent downstream. the function will be supplied a collection of validation failures you can use to construct your own error response object like so:</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;

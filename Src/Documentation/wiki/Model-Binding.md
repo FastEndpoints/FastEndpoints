@@ -51,17 +51,8 @@ public class GetUserRequest
 ```
 `FromHeader` attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing `[FromHeader(IsRequired = false)]` just like with the FromClaim attribute. Both attributes have the same overloads and behaves similarly.
 
-it is also possible for both attributes to bind to properties when the names don't match like so:
-```csharp
-[FromHeader("tenant-id")]
-public string TenantID { get; set; }
-
-[FromClaim("user-id")]
-public string UserID { get; set; }
-```
-
 # route parameters
-route parameters can be bound to primitive types on the dto using route templates like you'd typically do.
+route parameters can be bound to properties on the dto using route templates like you'd typically do.
 
 **request dto**
 
@@ -139,24 +130,87 @@ public class UpdateAddressRequest
 }
 ```
 
+# mismatched property names
+you can bind to dto properties when the incoming parameter name doesn't match with the name of the property being bound to, depending on the type of the parameter source like so:
+
+### json body
+```csharp
+[JsonPropertyName("address")]
+public Address UserAddress { get; set; }
+```
+
+### form fields, route params & query params:
+```csharp
+[BindFrom("customerId")]
+public string CustomerID { get; set; }
+```
+
+### headers & claims:
+```csharp
+[FromHeader("tenant-id")]
+public string TenantID { get; set; }
+
+[FromClaim("user-id")]
+public string UserID { get; set; }
+```
+
 # supported property types
-in addition to complex model binding from json body, only the following property types are supported for binding from route/query/claim/header/form parameters:
-- string
+#### json body:
+any complex type can be bound as long as the `System.Text.Json` serializer can handle it. if it's not supported out of the box, please see the [STJ documentation](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0) on how to implement custom converters for your types.
+
+you can register your custom converts in startup like this:
+```csharp
+app.UseFastEndpoints(c =>
+{
+    c.SerializerOptions = o =>
+    {
+        o.SerializerOptions.Converters.Add(new CustomConverter());
+    };
+});
+```
+
+#### form fields/route/query/claims/headers:
+simple strings can be bound automatically to any of the primitive/clr types such as the following that has a static `TryParse()` method:
 - bool
-- enum
-- int
-- long
 - double
 - decimal
 - DateTime
+- Enum
 - Guid
+- int
+- long
+- string
+- TimeSpan
 - Uri
 - Version
-- TimeSpan
 
-any clr type with a `TryParse()` method can be potentially supported. pls open a github issue if you need something added.
+in order to support binding your custom types from route/query/claims/header/form fields, simply add a static `TryParse()` method to your type like the example below:
+```csharp
+public class Point
+{
+    public double X { get; set; }
+    public double Y { get; set; }
 
-### route parameters in endpoints without a request dto
+    public static bool TryParse(string? input, out Point? output) //adhere to this signature
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            output = null;
+            return false;
+        }
+
+        var parts = input.Split(',');
+        output = new Point
+        {
+            X = double.Parse(parts[0]),
+            Y = double.Parse(parts[1])
+        };
+        return true;
+    }
+}
+```
+
+## route binding when there's no request dto
 if your endpoint doesn't have/need a request dto, you can easily read route parameters using the `Route<T>()` method.
 ```csharp
 public class GetArticle : EndpointWithoutRequest
@@ -174,7 +228,32 @@ public class GetArticle : EndpointWithoutRequest
     }
 }
 ```
-**note:** the generic parameter of the `Route<T>` method should only be one of the supported types in the list given above. anything else will return a null.
+**note:** the `Route<T>()` method is also only able to handle types that has a static `TryParse()` method as mentioned above. if there's no static `TryParse()` method or if parsing fails, an automatic validation failure response is sent to the client. this behavior can be turned off with the following overload:
+```csharp
+Route<Point>("point", isRequired: false);
+```
 
 # json serialization casing
 by default the serializer uses **camel casing** for serializing/deserializing. you can change the casing as shown in the [configuration settings](Configuration-Settings.md#specify-json-serializer-options) section.
+
+# json source generator support
+the `System.Text.Json` source generator support can be easily enabled with a simple 2 step process:
+
+**step 1:** create a serializer context
+```csharp
+[JsonSerializable(typeof(RequestModel))]
+[JsonSerializable(typeof(ResponseModel))]
+public partial class UpdateAddressCtx : JsonSerializerContext { }
+```
+
+**step 2:** specify the serializer context for the endpoint
+```csharp
+public class UpdateAddress : Endpoint<RequestModel, ResponseModel>
+{
+    public override void Configure()
+    {
+        Post("user/address");
+        SerializerContext<UpdateAddressCtx>();
+    }
+}
+```

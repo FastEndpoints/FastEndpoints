@@ -46,6 +46,8 @@ property injection is considered an anti-pattern and constructor injection is th
 
 it can be argued that you need to create instances of endpoint classes for unit testing. counter argument to that would be "just don't". do [integration testing with WAF](Integration-Testing.md) instead. the main reason being; sometimes the handler code may need to access things from the `HttpContext` and having to mock the HttpContext is no small task. one such example would be when your handler needs to retrieve the current user-principal's claims and cross-check something with the database. it's better not to go down the mocking rabbit-hole and [configure your mocked dependencies](https://github.com/dj-nitehawk/FastEndpoints/blob/dcc6233c3031fa253cc7138379d90ad7a1ef5b40/Test/Setup.cs#L17) via the test factory instead. 
 
+if you believe this viewpoint is wrong, please join us on discord or open a github issue so we can discuss this further.
+
 # manual resolving
 
 services can be resolved manually like so:

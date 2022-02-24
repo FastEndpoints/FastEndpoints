@@ -774,7 +774,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Dependency-Injection.html",
-          "hash": "PtNBSE7YUpGhD41XCYmdtHRknZywHk+U/2I7B1/MOnI="
+          "hash": "8cC1HCM1ABEAm4F/ccqbGpgmJRDrtTufKZIqwzvmXc4="
         }
       },
       "is_incremental": false,
@@ -986,7 +986,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 20,
-          "skipped_file_count": 20
+          "skipped_file_count": 19
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

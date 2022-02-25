@@ -2,15 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.7.0.1</Version>
+        <Version>3.7.1-beta1</Version>
 
         <PackageReleaseNotes>
-            ### NEW
-            - constructor injection support for endpoint DI
-
-            ### CHANGES
-            - `EndpointRegistrationFilter` input parameter changed to `EndpointDefinition`
-            - `GlobalEndpointOptions` first argument changed to `EndpointDefinition`
+            ### IMPROVEMENTS
+            - reduce startup time via parallelization
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

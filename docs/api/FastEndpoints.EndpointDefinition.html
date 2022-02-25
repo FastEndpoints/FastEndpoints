@@ -98,17 +98,13 @@
   
   <h1 id="FastEndpoints_EndpointDefinition" data-uid="FastEndpoints.EndpointDefinition" class="text-break">Class EndpointDefinition
   </h1>
-  <div class="markdown level0 summary"><p>represents an endpoint definition that is auto discovered by assembly scanning</p>
+  <div class="markdown level0 summary"><p>represents the configuration settings of an endpoint</p>
 </div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">EndpointDefinition</span></div>
-  </div>
-  <div classs="implements">
-    <h5>Implements</h5>
-    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="FastEndpoints.EndpointDefinition.html">EndpointDefinition</a>&gt;</div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -138,62 +134,19 @@
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
   <h5 id="FastEndpoints_EndpointDefinition_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class EndpointDefinition : IEquatable&lt;EndpointDefinition&gt;</code></pre>
+    <pre><code class="lang-csharp hljs">public class EndpointDefinition</code></pre>
   </div>
-  <h3 id="constructors">Constructors
-  </h3>
-  
-  
-  <a id="FastEndpoints_EndpointDefinition__ctor_" data-uid="FastEndpoints.EndpointDefinition.#ctor*"></a>
-  <h4 id="FastEndpoints_EndpointDefinition__ctor_Type_System_Nullable_Type__FastEndpoints_EndpointSettings_" data-uid="FastEndpoints.EndpointDefinition.#ctor(Type,System.Nullable{Type},FastEndpoints.EndpointSettings)">EndpointDefinition(Type, Nullable&lt;Type&gt;, EndpointSettings)</h4>
-  <div class="markdown level1 summary"><p>represents an endpoint definition that is auto discovered by assembly scanning</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public EndpointDefinition(Type EndpointType, Type? ValidatorType, EndpointSettings Settings)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Type</span></td>
-        <td><span class="parametername">EndpointType</span></td>
-        <td><p>the type of the endpoint</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">Type</span>&gt;</td>
-        <td><span class="parametername">ValidatorType</span></td>
-        <td><p>the type of the validator used for the endpoint</p>
-</td>
-      </tr>
-      <tr>
-        <td><a class="xref" href="FastEndpoints.EndpointSettings.html">EndpointSettings</a></td>
-        <td><span class="parametername">Settings</span></td>
-        <td><p>the configuration settings of the endpoint</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
   <h3 id="properties">Properties
   </h3>
   
   
-  <a id="FastEndpoints_EndpointDefinition_EndpointType_" data-uid="FastEndpoints.EndpointDefinition.EndpointType*"></a>
-  <h4 id="FastEndpoints_EndpointDefinition_EndpointType" data-uid="FastEndpoints.EndpointDefinition.EndpointType">EndpointType</h4>
+  <a id="FastEndpoints_EndpointDefinition_AllowAnyClaim_" data-uid="FastEndpoints.EndpointDefinition.AllowAnyClaim*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_AllowAnyClaim" data-uid="FastEndpoints.EndpointDefinition.AllowAnyClaim">AllowAnyClaim</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Type EndpointType { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public bool AllowAnyClaim { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -205,20 +158,20 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Type</span></td>
+        <td><span class="xref">System.Boolean</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="FastEndpoints_EndpointDefinition_Settings_" data-uid="FastEndpoints.EndpointDefinition.Settings*"></a>
-  <h4 id="FastEndpoints_EndpointDefinition_Settings" data-uid="FastEndpoints.EndpointDefinition.Settings">Settings</h4>
+  <a id="FastEndpoints_EndpointDefinition_AllowAnyPermission_" data-uid="FastEndpoints.EndpointDefinition.AllowAnyPermission*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_AllowAnyPermission" data-uid="FastEndpoints.EndpointDefinition.AllowAnyPermission">AllowAnyPermission</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public EndpointSettings Settings { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public bool AllowAnyPermission { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -230,20 +183,20 @@
     </thead>
     <tbody>
       <tr>
-        <td><a class="xref" href="FastEndpoints.EndpointSettings.html">EndpointSettings</a></td>
+        <td><span class="xref">System.Boolean</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
   
   
-  <a id="FastEndpoints_EndpointDefinition_ValidatorType_" data-uid="FastEndpoints.EndpointDefinition.ValidatorType*"></a>
-  <h4 id="FastEndpoints_EndpointDefinition_ValidatorType" data-uid="FastEndpoints.EndpointDefinition.ValidatorType">ValidatorType</h4>
+  <a id="FastEndpoints_EndpointDefinition_AllowFormData_" data-uid="FastEndpoints.EndpointDefinition.AllowFormData*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_AllowFormData" data-uid="FastEndpoints.EndpointDefinition.AllowFormData">AllowFormData</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Type? ValidatorType { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public bool AllowFormData { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -255,15 +208,311 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">Type</span>&gt;</td>
+        <td><span class="xref">System.Boolean</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
-  <h3 id="implements">Implements</h3>
-  <div>
-      <span class="xref">System.IEquatable&lt;T&gt;</span>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_AnonymousVerbs_" data-uid="FastEndpoints.EndpointDefinition.AnonymousVerbs*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_AnonymousVerbs" data-uid="FastEndpoints.EndpointDefinition.AnonymousVerbs">AnonymousVerbs</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] AnonymousVerbs { get; }</code></pre>
   </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_AuthSchemes_" data-uid="FastEndpoints.EndpointDefinition.AuthSchemes*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_AuthSchemes" data-uid="FastEndpoints.EndpointDefinition.AuthSchemes">AuthSchemes</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] AuthSchemes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_ClaimTypes_" data-uid="FastEndpoints.EndpointDefinition.ClaimTypes*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_ClaimTypes" data-uid="FastEndpoints.EndpointDefinition.ClaimTypes">ClaimTypes</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] ClaimTypes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_Permissions_" data-uid="FastEndpoints.EndpointDefinition.Permissions*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_Permissions" data-uid="FastEndpoints.EndpointDefinition.Permissions">Permissions</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] Permissions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_PreBuiltUserPolicies_" data-uid="FastEndpoints.EndpointDefinition.PreBuiltUserPolicies*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_PreBuiltUserPolicies" data-uid="FastEndpoints.EndpointDefinition.PreBuiltUserPolicies">PreBuiltUserPolicies</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] PreBuiltUserPolicies { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_Roles_" data-uid="FastEndpoints.EndpointDefinition.Roles*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_Roles" data-uid="FastEndpoints.EndpointDefinition.Roles">Roles</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] Roles { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_Routes_" data-uid="FastEndpoints.EndpointDefinition.Routes*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_Routes" data-uid="FastEndpoints.EndpointDefinition.Routes">Routes</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] Routes { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_Summary_" data-uid="FastEndpoints.EndpointDefinition.Summary*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_Summary" data-uid="FastEndpoints.EndpointDefinition.Summary">Summary</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public EndpointSummary Summary { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.EndpointSummary.html">EndpointSummary</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_Tags_" data-uid="FastEndpoints.EndpointDefinition.Tags*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_Tags" data-uid="FastEndpoints.EndpointDefinition.Tags">Tags</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] Tags { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_ThrowIfValidationFails_" data-uid="FastEndpoints.EndpointDefinition.ThrowIfValidationFails*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_ThrowIfValidationFails" data-uid="FastEndpoints.EndpointDefinition.ThrowIfValidationFails">ThrowIfValidationFails</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ThrowIfValidationFails { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_Verbs_" data-uid="FastEndpoints.EndpointDefinition.Verbs*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_Verbs" data-uid="FastEndpoints.EndpointDefinition.Verbs">Verbs</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string[] Verbs { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDefinition_Version_" data-uid="FastEndpoints.EndpointDefinition.Version*"></a>
+  <h4 id="FastEndpoints_EndpointDefinition_Version" data-uid="FastEndpoints.EndpointDefinition.Version">Version</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public EpVersion Version { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.EpVersion.html">EpVersion</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
 </article>
           </div>
           

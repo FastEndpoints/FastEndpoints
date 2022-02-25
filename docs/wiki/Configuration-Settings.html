@@ -142,7 +142,7 @@ app.UseFastEndpoints(c =&gt;
 {
     c.EndpointRegistrationFilter = ep =&gt;
     {
-        if (ep.Tags?.Contains(&quot;Deprecated&quot;) is true)
+        if (ep.Tags.Contains(&quot;Deprecated&quot;) is true)
             return false; // don't register this endpoint
 
         return true;
@@ -157,7 +157,7 @@ options to be applied to endpoints are performed on the <code>RouteHandlerBuilde
 {
     c.GlobalEndpointOptions = (endpoint, builder) =&gt;
     {
-        if (endpoint.Settings?.Routes?[0].StartsWith(&quot;/api/admin&quot;) is true)
+        if (endpoint.Routes[0].StartsWith(&quot;/api/admin&quot;) is true)
         {
             builder
             .RequireHost(&quot;admin.domain.com&quot;)

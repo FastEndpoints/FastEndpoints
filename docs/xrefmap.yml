@@ -19,6 +19,19 @@ references:
   commentId: F:FastEndpoints.BaseEndpoint._httpContext
   fullName: FastEndpoints.BaseEndpoint._httpContext
   nameWithType: BaseEndpoint._httpContext
+- uid: FastEndpoints.BaseEndpoint.Configuration
+  name: Configuration
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configuration
+  commentId: P:FastEndpoints.BaseEndpoint.Configuration
+  fullName: FastEndpoints.BaseEndpoint.Configuration
+  nameWithType: BaseEndpoint.Configuration
+- uid: FastEndpoints.BaseEndpoint.Configuration*
+  name: Configuration
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configuration_
+  commentId: Overload:FastEndpoints.BaseEndpoint.Configuration
+  isSpec: "True"
+  fullName: FastEndpoints.BaseEndpoint.Configuration
+  nameWithType: BaseEndpoint.Configuration
 - uid: FastEndpoints.BaseEndpoint.Configure
   name: Configure()
   href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configure
@@ -1496,249 +1509,201 @@ references:
   commentId: T:FastEndpoints.EndpointDefinition
   fullName: FastEndpoints.EndpointDefinition
   nameWithType: EndpointDefinition
-- uid: FastEndpoints.EndpointDefinition.#ctor(Type,System.Nullable{Type},FastEndpoints.EndpointSettings)
-  name: EndpointDefinition(Type, Nullable<Type>, EndpointSettings)
-  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition__ctor_Type_System_Nullable_Type__FastEndpoints_EndpointSettings_
-  commentId: M:FastEndpoints.EndpointDefinition.#ctor(Type,System.Nullable{Type},FastEndpoints.EndpointSettings)
-  name.vb: EndpointDefinition(Type, Nullable(Of Type), EndpointSettings)
-  fullName: FastEndpoints.EndpointDefinition.EndpointDefinition(Type, System.Nullable<Type>, FastEndpoints.EndpointSettings)
-  fullName.vb: FastEndpoints.EndpointDefinition.EndpointDefinition(Type, System.Nullable(Of Type), FastEndpoints.EndpointSettings)
-  nameWithType: EndpointDefinition.EndpointDefinition(Type, Nullable<Type>, EndpointSettings)
-  nameWithType.vb: EndpointDefinition.EndpointDefinition(Type, Nullable(Of Type), EndpointSettings)
-- uid: FastEndpoints.EndpointDefinition.#ctor*
-  name: EndpointDefinition
-  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition__ctor_
-  commentId: Overload:FastEndpoints.EndpointDefinition.#ctor
-  isSpec: "True"
-  fullName: FastEndpoints.EndpointDefinition.EndpointDefinition
-  nameWithType: EndpointDefinition.EndpointDefinition
-- uid: FastEndpoints.EndpointDefinition.EndpointType
-  name: EndpointType
-  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_EndpointType
-  commentId: P:FastEndpoints.EndpointDefinition.EndpointType
-  fullName: FastEndpoints.EndpointDefinition.EndpointType
-  nameWithType: EndpointDefinition.EndpointType
-- uid: FastEndpoints.EndpointDefinition.EndpointType*
-  name: EndpointType
-  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_EndpointType_
-  commentId: Overload:FastEndpoints.EndpointDefinition.EndpointType
-  isSpec: "True"
-  fullName: FastEndpoints.EndpointDefinition.EndpointType
-  nameWithType: EndpointDefinition.EndpointType
-- uid: FastEndpoints.EndpointDefinition.Settings
-  name: Settings
-  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Settings
-  commentId: P:FastEndpoints.EndpointDefinition.Settings
-  fullName: FastEndpoints.EndpointDefinition.Settings
-  nameWithType: EndpointDefinition.Settings
-- uid: FastEndpoints.EndpointDefinition.Settings*
-  name: Settings
-  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Settings_
-  commentId: Overload:FastEndpoints.EndpointDefinition.Settings
-  isSpec: "True"
-  fullName: FastEndpoints.EndpointDefinition.Settings
-  nameWithType: EndpointDefinition.Settings
-- uid: FastEndpoints.EndpointDefinition.ValidatorType
-  name: ValidatorType
-  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_ValidatorType
-  commentId: P:FastEndpoints.EndpointDefinition.ValidatorType
-  fullName: FastEndpoints.EndpointDefinition.ValidatorType
-  nameWithType: EndpointDefinition.ValidatorType
-- uid: FastEndpoints.EndpointDefinition.ValidatorType*
-  name: ValidatorType
-  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_ValidatorType_
-  commentId: Overload:FastEndpoints.EndpointDefinition.ValidatorType
-  isSpec: "True"
-  fullName: FastEndpoints.EndpointDefinition.ValidatorType
-  nameWithType: EndpointDefinition.ValidatorType
-- uid: FastEndpoints.EndpointSettings
-  name: EndpointSettings
-  href: api/FastEndpoints.EndpointSettings.html
-  commentId: T:FastEndpoints.EndpointSettings
-  fullName: FastEndpoints.EndpointSettings
-  nameWithType: EndpointSettings
-- uid: FastEndpoints.EndpointSettings.AllowAnyClaim
+- uid: FastEndpoints.EndpointDefinition.AllowAnyClaim
   name: AllowAnyClaim
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AllowAnyClaim
-  commentId: P:FastEndpoints.EndpointSettings.AllowAnyClaim
-  fullName: FastEndpoints.EndpointSettings.AllowAnyClaim
-  nameWithType: EndpointSettings.AllowAnyClaim
-- uid: FastEndpoints.EndpointSettings.AllowAnyClaim*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AllowAnyClaim
+  commentId: P:FastEndpoints.EndpointDefinition.AllowAnyClaim
+  fullName: FastEndpoints.EndpointDefinition.AllowAnyClaim
+  nameWithType: EndpointDefinition.AllowAnyClaim
+- uid: FastEndpoints.EndpointDefinition.AllowAnyClaim*
   name: AllowAnyClaim
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AllowAnyClaim_
-  commentId: Overload:FastEndpoints.EndpointSettings.AllowAnyClaim
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AllowAnyClaim_
+  commentId: Overload:FastEndpoints.EndpointDefinition.AllowAnyClaim
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.AllowAnyClaim
-  nameWithType: EndpointSettings.AllowAnyClaim
-- uid: FastEndpoints.EndpointSettings.AllowAnyPermission
+  fullName: FastEndpoints.EndpointDefinition.AllowAnyClaim
+  nameWithType: EndpointDefinition.AllowAnyClaim
+- uid: FastEndpoints.EndpointDefinition.AllowAnyPermission
   name: AllowAnyPermission
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AllowAnyPermission
-  commentId: P:FastEndpoints.EndpointSettings.AllowAnyPermission
-  fullName: FastEndpoints.EndpointSettings.AllowAnyPermission
-  nameWithType: EndpointSettings.AllowAnyPermission
-- uid: FastEndpoints.EndpointSettings.AllowAnyPermission*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AllowAnyPermission
+  commentId: P:FastEndpoints.EndpointDefinition.AllowAnyPermission
+  fullName: FastEndpoints.EndpointDefinition.AllowAnyPermission
+  nameWithType: EndpointDefinition.AllowAnyPermission
+- uid: FastEndpoints.EndpointDefinition.AllowAnyPermission*
   name: AllowAnyPermission
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AllowAnyPermission_
-  commentId: Overload:FastEndpoints.EndpointSettings.AllowAnyPermission
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AllowAnyPermission_
+  commentId: Overload:FastEndpoints.EndpointDefinition.AllowAnyPermission
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.AllowAnyPermission
-  nameWithType: EndpointSettings.AllowAnyPermission
-- uid: FastEndpoints.EndpointSettings.AnonymousVerbs
+  fullName: FastEndpoints.EndpointDefinition.AllowAnyPermission
+  nameWithType: EndpointDefinition.AllowAnyPermission
+- uid: FastEndpoints.EndpointDefinition.AllowFormData
+  name: AllowFormData
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AllowFormData
+  commentId: P:FastEndpoints.EndpointDefinition.AllowFormData
+  fullName: FastEndpoints.EndpointDefinition.AllowFormData
+  nameWithType: EndpointDefinition.AllowFormData
+- uid: FastEndpoints.EndpointDefinition.AllowFormData*
+  name: AllowFormData
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AllowFormData_
+  commentId: Overload:FastEndpoints.EndpointDefinition.AllowFormData
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.AllowFormData
+  nameWithType: EndpointDefinition.AllowFormData
+- uid: FastEndpoints.EndpointDefinition.AnonymousVerbs
   name: AnonymousVerbs
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AnonymousVerbs
-  commentId: P:FastEndpoints.EndpointSettings.AnonymousVerbs
-  fullName: FastEndpoints.EndpointSettings.AnonymousVerbs
-  nameWithType: EndpointSettings.AnonymousVerbs
-- uid: FastEndpoints.EndpointSettings.AnonymousVerbs*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AnonymousVerbs
+  commentId: P:FastEndpoints.EndpointDefinition.AnonymousVerbs
+  fullName: FastEndpoints.EndpointDefinition.AnonymousVerbs
+  nameWithType: EndpointDefinition.AnonymousVerbs
+- uid: FastEndpoints.EndpointDefinition.AnonymousVerbs*
   name: AnonymousVerbs
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AnonymousVerbs_
-  commentId: Overload:FastEndpoints.EndpointSettings.AnonymousVerbs
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AnonymousVerbs_
+  commentId: Overload:FastEndpoints.EndpointDefinition.AnonymousVerbs
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.AnonymousVerbs
-  nameWithType: EndpointSettings.AnonymousVerbs
-- uid: FastEndpoints.EndpointSettings.AuthSchemes
+  fullName: FastEndpoints.EndpointDefinition.AnonymousVerbs
+  nameWithType: EndpointDefinition.AnonymousVerbs
+- uid: FastEndpoints.EndpointDefinition.AuthSchemes
   name: AuthSchemes
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AuthSchemes
-  commentId: P:FastEndpoints.EndpointSettings.AuthSchemes
-  fullName: FastEndpoints.EndpointSettings.AuthSchemes
-  nameWithType: EndpointSettings.AuthSchemes
-- uid: FastEndpoints.EndpointSettings.AuthSchemes*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AuthSchemes
+  commentId: P:FastEndpoints.EndpointDefinition.AuthSchemes
+  fullName: FastEndpoints.EndpointDefinition.AuthSchemes
+  nameWithType: EndpointDefinition.AuthSchemes
+- uid: FastEndpoints.EndpointDefinition.AuthSchemes*
   name: AuthSchemes
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_AuthSchemes_
-  commentId: Overload:FastEndpoints.EndpointSettings.AuthSchemes
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_AuthSchemes_
+  commentId: Overload:FastEndpoints.EndpointDefinition.AuthSchemes
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.AuthSchemes
-  nameWithType: EndpointSettings.AuthSchemes
-- uid: FastEndpoints.EndpointSettings.ClaimTypes
+  fullName: FastEndpoints.EndpointDefinition.AuthSchemes
+  nameWithType: EndpointDefinition.AuthSchemes
+- uid: FastEndpoints.EndpointDefinition.ClaimTypes
   name: ClaimTypes
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_ClaimTypes
-  commentId: P:FastEndpoints.EndpointSettings.ClaimTypes
-  fullName: FastEndpoints.EndpointSettings.ClaimTypes
-  nameWithType: EndpointSettings.ClaimTypes
-- uid: FastEndpoints.EndpointSettings.ClaimTypes*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_ClaimTypes
+  commentId: P:FastEndpoints.EndpointDefinition.ClaimTypes
+  fullName: FastEndpoints.EndpointDefinition.ClaimTypes
+  nameWithType: EndpointDefinition.ClaimTypes
+- uid: FastEndpoints.EndpointDefinition.ClaimTypes*
   name: ClaimTypes
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_ClaimTypes_
-  commentId: Overload:FastEndpoints.EndpointSettings.ClaimTypes
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_ClaimTypes_
+  commentId: Overload:FastEndpoints.EndpointDefinition.ClaimTypes
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.ClaimTypes
-  nameWithType: EndpointSettings.ClaimTypes
-- uid: FastEndpoints.EndpointSettings.Permissions
+  fullName: FastEndpoints.EndpointDefinition.ClaimTypes
+  nameWithType: EndpointDefinition.ClaimTypes
+- uid: FastEndpoints.EndpointDefinition.Permissions
   name: Permissions
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Permissions
-  commentId: P:FastEndpoints.EndpointSettings.Permissions
-  fullName: FastEndpoints.EndpointSettings.Permissions
-  nameWithType: EndpointSettings.Permissions
-- uid: FastEndpoints.EndpointSettings.Permissions*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Permissions
+  commentId: P:FastEndpoints.EndpointDefinition.Permissions
+  fullName: FastEndpoints.EndpointDefinition.Permissions
+  nameWithType: EndpointDefinition.Permissions
+- uid: FastEndpoints.EndpointDefinition.Permissions*
   name: Permissions
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Permissions_
-  commentId: Overload:FastEndpoints.EndpointSettings.Permissions
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Permissions_
+  commentId: Overload:FastEndpoints.EndpointDefinition.Permissions
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.Permissions
-  nameWithType: EndpointSettings.Permissions
-- uid: FastEndpoints.EndpointSettings.PreBuiltUserPolicies
+  fullName: FastEndpoints.EndpointDefinition.Permissions
+  nameWithType: EndpointDefinition.Permissions
+- uid: FastEndpoints.EndpointDefinition.PreBuiltUserPolicies
   name: PreBuiltUserPolicies
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_PreBuiltUserPolicies
-  commentId: P:FastEndpoints.EndpointSettings.PreBuiltUserPolicies
-  fullName: FastEndpoints.EndpointSettings.PreBuiltUserPolicies
-  nameWithType: EndpointSettings.PreBuiltUserPolicies
-- uid: FastEndpoints.EndpointSettings.PreBuiltUserPolicies*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_PreBuiltUserPolicies
+  commentId: P:FastEndpoints.EndpointDefinition.PreBuiltUserPolicies
+  fullName: FastEndpoints.EndpointDefinition.PreBuiltUserPolicies
+  nameWithType: EndpointDefinition.PreBuiltUserPolicies
+- uid: FastEndpoints.EndpointDefinition.PreBuiltUserPolicies*
   name: PreBuiltUserPolicies
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_PreBuiltUserPolicies_
-  commentId: Overload:FastEndpoints.EndpointSettings.PreBuiltUserPolicies
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_PreBuiltUserPolicies_
+  commentId: Overload:FastEndpoints.EndpointDefinition.PreBuiltUserPolicies
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.PreBuiltUserPolicies
-  nameWithType: EndpointSettings.PreBuiltUserPolicies
-- uid: FastEndpoints.EndpointSettings.Roles
+  fullName: FastEndpoints.EndpointDefinition.PreBuiltUserPolicies
+  nameWithType: EndpointDefinition.PreBuiltUserPolicies
+- uid: FastEndpoints.EndpointDefinition.Roles
   name: Roles
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Roles
-  commentId: P:FastEndpoints.EndpointSettings.Roles
-  fullName: FastEndpoints.EndpointSettings.Roles
-  nameWithType: EndpointSettings.Roles
-- uid: FastEndpoints.EndpointSettings.Roles*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Roles
+  commentId: P:FastEndpoints.EndpointDefinition.Roles
+  fullName: FastEndpoints.EndpointDefinition.Roles
+  nameWithType: EndpointDefinition.Roles
+- uid: FastEndpoints.EndpointDefinition.Roles*
   name: Roles
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Roles_
-  commentId: Overload:FastEndpoints.EndpointSettings.Roles
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Roles_
+  commentId: Overload:FastEndpoints.EndpointDefinition.Roles
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.Roles
-  nameWithType: EndpointSettings.Roles
-- uid: FastEndpoints.EndpointSettings.Routes
+  fullName: FastEndpoints.EndpointDefinition.Roles
+  nameWithType: EndpointDefinition.Roles
+- uid: FastEndpoints.EndpointDefinition.Routes
   name: Routes
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Routes
-  commentId: P:FastEndpoints.EndpointSettings.Routes
-  fullName: FastEndpoints.EndpointSettings.Routes
-  nameWithType: EndpointSettings.Routes
-- uid: FastEndpoints.EndpointSettings.Routes*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Routes
+  commentId: P:FastEndpoints.EndpointDefinition.Routes
+  fullName: FastEndpoints.EndpointDefinition.Routes
+  nameWithType: EndpointDefinition.Routes
+- uid: FastEndpoints.EndpointDefinition.Routes*
   name: Routes
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Routes_
-  commentId: Overload:FastEndpoints.EndpointSettings.Routes
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Routes_
+  commentId: Overload:FastEndpoints.EndpointDefinition.Routes
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.Routes
-  nameWithType: EndpointSettings.Routes
-- uid: FastEndpoints.EndpointSettings.Summary
+  fullName: FastEndpoints.EndpointDefinition.Routes
+  nameWithType: EndpointDefinition.Routes
+- uid: FastEndpoints.EndpointDefinition.Summary
   name: Summary
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Summary
-  commentId: P:FastEndpoints.EndpointSettings.Summary
-  fullName: FastEndpoints.EndpointSettings.Summary
-  nameWithType: EndpointSettings.Summary
-- uid: FastEndpoints.EndpointSettings.Summary*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Summary
+  commentId: P:FastEndpoints.EndpointDefinition.Summary
+  fullName: FastEndpoints.EndpointDefinition.Summary
+  nameWithType: EndpointDefinition.Summary
+- uid: FastEndpoints.EndpointDefinition.Summary*
   name: Summary
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Summary_
-  commentId: Overload:FastEndpoints.EndpointSettings.Summary
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Summary_
+  commentId: Overload:FastEndpoints.EndpointDefinition.Summary
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.Summary
-  nameWithType: EndpointSettings.Summary
-- uid: FastEndpoints.EndpointSettings.Tags
+  fullName: FastEndpoints.EndpointDefinition.Summary
+  nameWithType: EndpointDefinition.Summary
+- uid: FastEndpoints.EndpointDefinition.Tags
   name: Tags
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Tags
-  commentId: P:FastEndpoints.EndpointSettings.Tags
-  fullName: FastEndpoints.EndpointSettings.Tags
-  nameWithType: EndpointSettings.Tags
-- uid: FastEndpoints.EndpointSettings.Tags*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Tags
+  commentId: P:FastEndpoints.EndpointDefinition.Tags
+  fullName: FastEndpoints.EndpointDefinition.Tags
+  nameWithType: EndpointDefinition.Tags
+- uid: FastEndpoints.EndpointDefinition.Tags*
   name: Tags
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Tags_
-  commentId: Overload:FastEndpoints.EndpointSettings.Tags
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Tags_
+  commentId: Overload:FastEndpoints.EndpointDefinition.Tags
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.Tags
-  nameWithType: EndpointSettings.Tags
-- uid: FastEndpoints.EndpointSettings.ThrowIfValidationFails
+  fullName: FastEndpoints.EndpointDefinition.Tags
+  nameWithType: EndpointDefinition.Tags
+- uid: FastEndpoints.EndpointDefinition.ThrowIfValidationFails
   name: ThrowIfValidationFails
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_ThrowIfValidationFails
-  commentId: P:FastEndpoints.EndpointSettings.ThrowIfValidationFails
-  fullName: FastEndpoints.EndpointSettings.ThrowIfValidationFails
-  nameWithType: EndpointSettings.ThrowIfValidationFails
-- uid: FastEndpoints.EndpointSettings.ThrowIfValidationFails*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_ThrowIfValidationFails
+  commentId: P:FastEndpoints.EndpointDefinition.ThrowIfValidationFails
+  fullName: FastEndpoints.EndpointDefinition.ThrowIfValidationFails
+  nameWithType: EndpointDefinition.ThrowIfValidationFails
+- uid: FastEndpoints.EndpointDefinition.ThrowIfValidationFails*
   name: ThrowIfValidationFails
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_ThrowIfValidationFails_
-  commentId: Overload:FastEndpoints.EndpointSettings.ThrowIfValidationFails
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_ThrowIfValidationFails_
+  commentId: Overload:FastEndpoints.EndpointDefinition.ThrowIfValidationFails
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.ThrowIfValidationFails
-  nameWithType: EndpointSettings.ThrowIfValidationFails
-- uid: FastEndpoints.EndpointSettings.Verbs
+  fullName: FastEndpoints.EndpointDefinition.ThrowIfValidationFails
+  nameWithType: EndpointDefinition.ThrowIfValidationFails
+- uid: FastEndpoints.EndpointDefinition.Verbs
   name: Verbs
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Verbs
-  commentId: P:FastEndpoints.EndpointSettings.Verbs
-  fullName: FastEndpoints.EndpointSettings.Verbs
-  nameWithType: EndpointSettings.Verbs
-- uid: FastEndpoints.EndpointSettings.Verbs*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Verbs
+  commentId: P:FastEndpoints.EndpointDefinition.Verbs
+  fullName: FastEndpoints.EndpointDefinition.Verbs
+  nameWithType: EndpointDefinition.Verbs
+- uid: FastEndpoints.EndpointDefinition.Verbs*
   name: Verbs
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Verbs_
-  commentId: Overload:FastEndpoints.EndpointSettings.Verbs
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Verbs_
+  commentId: Overload:FastEndpoints.EndpointDefinition.Verbs
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.Verbs
-  nameWithType: EndpointSettings.Verbs
-- uid: FastEndpoints.EndpointSettings.Version
+  fullName: FastEndpoints.EndpointDefinition.Verbs
+  nameWithType: EndpointDefinition.Verbs
+- uid: FastEndpoints.EndpointDefinition.Version
   name: Version
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Version
-  commentId: P:FastEndpoints.EndpointSettings.Version
-  fullName: FastEndpoints.EndpointSettings.Version
-  nameWithType: EndpointSettings.Version
-- uid: FastEndpoints.EndpointSettings.Version*
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Version
+  commentId: P:FastEndpoints.EndpointDefinition.Version
+  fullName: FastEndpoints.EndpointDefinition.Version
+  nameWithType: EndpointDefinition.Version
+- uid: FastEndpoints.EndpointDefinition.Version*
   name: Version
-  href: api/FastEndpoints.EndpointSettings.html#FastEndpoints_EndpointSettings_Version_
-  commentId: Overload:FastEndpoints.EndpointSettings.Version
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Version_
+  commentId: Overload:FastEndpoints.EndpointDefinition.Version
   isSpec: "True"
-  fullName: FastEndpoints.EndpointSettings.Version
-  nameWithType: EndpointSettings.Version
+  fullName: FastEndpoints.EndpointDefinition.Version
+  nameWithType: EndpointDefinition.Version
 - uid: FastEndpoints.EndpointSummary
   name: EndpointSummary
   href: api/FastEndpoints.EndpointSummary.html
@@ -2747,33 +2712,6 @@ references:
   commentId: T:FastEndpoints.IEntityMapper
   fullName: FastEndpoints.IEntityMapper
   nameWithType: IEntityMapper
-- uid: FastEndpoints.IParseable`1
-  name: IParseable<TSelf>
-  href: api/FastEndpoints.IParseable-1.html
-  commentId: T:FastEndpoints.IParseable`1
-  name.vb: IParseable(Of TSelf)
-  fullName: FastEndpoints.IParseable<TSelf>
-  fullName.vb: FastEndpoints.IParseable(Of TSelf)
-  nameWithType: IParseable<TSelf>
-  nameWithType.vb: IParseable(Of TSelf)
-- uid: FastEndpoints.IParseable`1.TryParse(System.String,`0@)
-  name: TryParse(String, out TSelf)
-  href: api/FastEndpoints.IParseable-1.html#FastEndpoints_IParseable_1_TryParse_System_String__0__
-  commentId: M:FastEndpoints.IParseable`1.TryParse(System.String,`0@)
-  name.vb: TryParse(String, ByRef TSelf)
-  fullName: FastEndpoints.IParseable<TSelf>.TryParse(System.String, out TSelf)
-  fullName.vb: FastEndpoints.IParseable(Of TSelf).TryParse(System.String, ByRef TSelf)
-  nameWithType: IParseable<TSelf>.TryParse(String, out TSelf)
-  nameWithType.vb: IParseable(Of TSelf).TryParse(String, ByRef TSelf)
-- uid: FastEndpoints.IParseable`1.TryParse*
-  name: TryParse
-  href: api/FastEndpoints.IParseable-1.html#FastEndpoints_IParseable_1_TryParse_
-  commentId: Overload:FastEndpoints.IParseable`1.TryParse
-  isSpec: "True"
-  fullName: FastEndpoints.IParseable<TSelf>.TryParse
-  fullName.vb: FastEndpoints.IParseable(Of TSelf).TryParse
-  nameWithType: IParseable<TSelf>.TryParse
-  nameWithType.vb: IParseable(Of TSelf).TryParse
 - uid: FastEndpoints.IPlainTextRequest
   name: IPlainTextRequest
   href: api/FastEndpoints.IPlainTextRequest.html

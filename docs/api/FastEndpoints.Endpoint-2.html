@@ -117,6 +117,9 @@
       <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint__httpContext">BaseEndpoint._httpContext</a>
     </div>
     <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configuration">BaseEndpoint.Configuration</a>
+    </div>
+    <div>
       <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_HttpContext">BaseEndpoint.HttpContext</a>
     </div>
     <div>
@@ -152,6 +155,7 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : class, new()
+
     where TResponse : class, new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -1332,6 +1336,7 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1480,6 +1485,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -1825,6 +1831,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -2420,6 +2427,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;()
+
     where TContext : JsonSerializerContext</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -2757,6 +2765,7 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>

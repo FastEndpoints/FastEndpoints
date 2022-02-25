@@ -55,7 +55,7 @@ app.UseFastEndpoints(c =>
 {
     c.EndpointRegistrationFilter = ep =>
     {
-        if (ep.Tags?.Contains("Deprecated") is true)
+        if (ep.Tags.Contains("Deprecated") is true)
             return false; // don't register this endpoint
 
         return true;
@@ -72,7 +72,7 @@ app.UseFastEndpoints(c =>
 {
     c.GlobalEndpointOptions = (endpoint, builder) =>
     {
-        if (endpoint.Settings?.Routes?[0].StartsWith("/api/admin") is true)
+        if (endpoint.Routes[0].StartsWith("/api/admin") is true)
         {
             builder
             .RequireHost("admin.domain.com")

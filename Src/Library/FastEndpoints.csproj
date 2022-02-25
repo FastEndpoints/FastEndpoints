@@ -6,7 +6,7 @@
 
         <PackageReleaseNotes>
             ### NEW
-            - construction injection support for endpoint DI
+            - constructor injection support for endpoint DI
 
             ### CHANGES
             - `EndpointRegistrationFilter` input parameter changed to `EndpointDefinition`

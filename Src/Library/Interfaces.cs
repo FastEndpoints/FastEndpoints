@@ -48,15 +48,15 @@ public interface IPlainTextRequest
     string Content { get; set; }
 }
 
-/// <summary>
-/// implement this interface on custom types you want to use with request dto model binding for route/query/form fields
-/// </summary>
-/// <typeparam name="TSelf"></typeparam>
-public interface IParseable<TSelf> where TSelf : notnull
-{
-    [RequiresPreviewFeatures]
-    static abstract bool TryParse(string? input, out TSelf? output);
-}
+///// <summary>
+///// implement this interface on custom types you want to use with request dto model binding for route/query/form fields
+///// </summary>
+///// <typeparam name="TSelf"></typeparam>
+//public interface IParseable<TSelf> where TSelf : notnull
+//{
+//    [RequiresPreviewFeatures]
+//    static abstract bool TryParse(string? input, out TSelf? output);
+//}
 
 internal interface IServiceResolver
 {

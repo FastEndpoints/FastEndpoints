@@ -18,7 +18,7 @@ internal class SchemaNameGenerator : ISchemaNameGenerator
         string fullNameWithoutGenericArgs;
 
         if (isGeneric)
-            fullNameWithoutGenericArgs = type.FullName![..type.FullName.IndexOf('`')];
+            fullNameWithoutGenericArgs = type.FullName![..type.FullName!.IndexOf('`')];
         else
             fullNameWithoutGenericArgs = type.FullName!;
 

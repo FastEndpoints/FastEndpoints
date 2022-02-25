@@ -1,7 +1,15 @@
-﻿namespace Admin.Login;
+﻿using Web.Services;
+
+namespace Admin.Login;
 
 public class Endpoint : Endpoint<Request, Response>
 {
+    public Endpoint(ILogger<Endpoint> logger, IEmailService emailService)
+    {
+        logger.LogInformation("constructor injection works!");
+        _ = emailService.SendEmail();
+    }
+
     public override void Configure()
     {
         Verbs(Http.POST, Http.PUT, Http.PATCH);
@@ -75,6 +83,8 @@ public class Endpoint : Endpoint<Request, Response>
 
 public class Endpoint_V1 : Endpoint
 {
+    public Endpoint_V1(ILogger<Endpoint_V1> logger, IEmailService emailService) : base(logger, emailService) { }
+
     public override void Configure()
     {
         base.Configure();

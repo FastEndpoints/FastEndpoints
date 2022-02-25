@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 using static FastEndpoints.Config;
 
@@ -19,7 +17,7 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    private static EndpointData _endpoints = new();
+    private static EndpointData _endpoints;
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -27,6 +25,7 @@ public static class MainExtensions
     /// <param name="services"></param>
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
     {
+        _endpoints = new(services);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();
         return services;
@@ -68,46 +67,45 @@ public static class MainExtensions
         foreach (var epDef in _endpoints.Found)
         {
             if (EpRegFilterFunc is not null && !EpRegFilterFunc(epDef)) continue;
-            if (epDef.Settings.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
-            if (epDef.Settings.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
+            if (epDef.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
+            if (epDef.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
 
-            var epMetaData = BuildEndpointMetaData(epDef);
             var authorizeAttributes = BuildAuthorizeAttributes(epDef);
             var routeNum = 0;
 
-            foreach (var route in epDef.Settings.Routes)
+            foreach (var route in epDef.Routes)
             {
-                var finalRoute = routeBuilder.BuildRoute(epDef.Settings.Version.Current, route);
+                var finalRoute = routeBuilder.BuildRoute(epDef.Version.Current, route);
 
                 routeNum++;
 
-                foreach (var verb in epDef.Settings.Verbs)
+                foreach (var verb in epDef.Verbs)
                 {
                     var hb = app.MapMethods(finalRoute, new[] { verb }, SendMisconfiguredPipelineMsg());
 
                     hb.WithName(
                         epDef.EndpointType.EndpointName(
-                            epDef.Settings.Verbs.Length > 1 ? verb : null,
-                            epDef.Settings.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
+                            epDef.Verbs.Length > 1 ? verb : null,
+                            epDef.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
 
-                    hb.WithMetadata(epMetaData, epDef);
+                    hb.WithMetadata(epDef);
 
-                    epDef.Settings.InternalConfigAction(hb); //always do this first here
+                    epDef.InternalConfigAction(hb); //always do this first here
 
-                    if (epDef.Settings.AnonymousVerbs?.Contains(verb) is true)
+                    if (epDef.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
                         hb.RequireAuthorization(authorizeAttributes);
 
-                    if (epDef.Settings.ResponseCacheSettings is not null)
-                        hb.WithMetadata(epDef.Settings.ResponseCacheSettings);
+                    if (epDef.ResponseCacheSettings is not null)
+                        hb.WithMetadata(epDef.ResponseCacheSettings);
 
-                    if (epDef.Settings.DtoTypeForFormData is not null)
-                        hb.Accepts(epDef.Settings.DtoTypeForFormData, "multipart/form-data");
+                    if (epDef.AllowFormData)
+                        hb.Accepts(epDef.ReqDtoType, "multipart/form-data");
 
                     GlobalEpOptsAction?.Invoke(epDef, hb);
 
-                    epDef.Settings.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
+                    epDef.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{finalRoute}";
                     routeToHandlerCounts.TryGetValue(key, out var count);
@@ -213,12 +211,12 @@ public static class MainExtensions
     {
         var policiesToAdd = new List<string>();
 
-        if (ep.Settings.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(ep.Settings.PreBuiltUserPolicies);
+        if (ep.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(ep.PreBuiltUserPolicies);
 
-        if (ep.Settings.Permissions?.Any() is true ||
-            ep.Settings.ClaimTypes?.Any() is true ||
-            ep.Settings.Roles?.Any() is true ||
-            ep.Settings.AuthSchemes?.Any() is true)
+        if (ep.Permissions?.Any() is true ||
+            ep.ClaimTypes?.Any() is true ||
+            ep.Roles?.Any() is true ||
+            ep.AuthSchemes?.Any() is true)
         {
             policiesToAdd.Add(SecurityPolicyName(ep.EndpointType));
         }
@@ -227,44 +225,22 @@ public static class MainExtensions
         {
             var attr = new AuthorizeAttribute { Policy = p, };
 
-            if (ep.Settings.AuthSchemes is not null)
-                attr.AuthenticationSchemes = string.Join(',', ep.Settings.AuthSchemes);
+            if (ep.AuthSchemes is not null)
+                attr.AuthenticationSchemes = string.Join(',', ep.AuthSchemes);
 
-            if (ep.Settings.Roles is not null)
-                attr.Roles = string.Join(',', ep.Settings.Roles);
+            if (ep.Roles is not null)
+                attr.Roles = string.Join(',', ep.Roles);
 
             return attr;
         }).ToArray();
-    }
-
-    private static EndpointMetadata BuildEndpointMetaData(EndpointDefinition ep)
-    {
-        var validator = (IValidatorWithState?)(ep.ValidatorType is null ? null : Activator.CreateInstance(ep.ValidatorType));
-        if (validator is not null)
-            validator.ThrowIfValidationFails = ep.Settings.ThrowIfValidationFails;
-
-        var serviceBoundEpProps = ep.EndpointType
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-            .Where(p => p.CanRead && p.CanWrite)
-            .Select(p => new ServiceBoundEpProp(
-                p.PropertyType,
-                ep.EndpointType.SetterForProp(p.Name)))
-            .ToArray();
-
-        return new EndpointMetadata(
-            Expression.Lambda<Func<object>>(Expression.New(ep.EndpointType)).Compile(),
-            validator,
-            serviceBoundEpProps,
-            ep.Settings);
     }
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
         foreach (var ep in _endpoints.Found)
         {
-            var eps = ep.Settings;
 
-            if (eps.Roles is null && eps.Permissions is null && eps.ClaimTypes is null && eps.AuthSchemes is null)
+            if (ep.Roles is null && ep.Permissions is null && ep.ClaimTypes is null && ep.AuthSchemes is null)
                 continue;
 
             var secPolName = SecurityPolicyName(ep.EndpointType);
@@ -273,37 +249,37 @@ public static class MainExtensions
             {
                 b.RequireAuthenticatedUser();
 
-                if (eps.Permissions?.Length > 0)
+                if (ep.Permissions?.Length > 0)
                 {
-                    if (eps.AllowAnyPermission)
+                    if (ep.AllowAnyPermission)
                     {
                         b.RequireAssertion(x =>
                             x.User.Claims.Any(c =>
                                 string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                                eps.Permissions.Contains(c.Value, StringComparer.Ordinal)));
+                                ep.Permissions.Contains(c.Value, StringComparer.Ordinal)));
                     }
                     else
                     {
                         b.RequireAssertion(x =>
-                            eps.Permissions.All(p =>
+                            ep.Permissions.All(p =>
                                 x.User.Claims.Any(c =>
                                     string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                     string.Equals(c.Value, p, StringComparison.Ordinal))));
                     }
                 }
 
-                if (eps.ClaimTypes?.Length > 0)
+                if (ep.ClaimTypes?.Length > 0)
                 {
-                    if (eps.AllowAnyClaim)
+                    if (ep.AllowAnyClaim)
                     {
                         b.RequireAssertion(x =>
                             x.User.Claims.Any(c =>
-                                eps.ClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
+                                ep.ClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
                     }
                     else
                     {
                         b.RequireAssertion(x =>
-                            eps.ClaimTypes.All(t =>
+                            ep.ClaimTypes.All(t =>
                                 x.User.Claims.Any(c =>
                                     string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
                     }

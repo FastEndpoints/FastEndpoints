@@ -18,28 +18,29 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     /// <param name="ct">a cancellation token</param>
     public abstract Task HandleAsync(TRequest req, CancellationToken ct);
 
-    internal override async Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken cancellation)
+    internal override async Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken cancellation)
     {
         _httpContext = ctx;
+        Configuration = endpoint;
         try
         {
-            var req = await BindToModel(ctx, ValidationFailures, Settings.SerializerContext, cancellation).ConfigureAwait(false);
+            var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
 
             OnBeforeValidate(req); await OnBeforeValidateAsync(req).ConfigureAwait(false);
-            await ValidateRequest(req, (IValidator<TRequest>?)validator, ctx, preProcessors, ValidationFailures, cancellation).ConfigureAwait(false);
+            await ValidateRequest(req, (IValidator<TRequest>?)endpoint.ValidatorInstance, ctx, endpoint.PreProcessors, ValidationFailures, cancellation).ConfigureAwait(false);
             OnAfterValidate(req); await OnAfterValidateAsync(req).ConfigureAwait(false);
 
-            await RunPreprocessors(preProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
 
             if (ctx.Response.HasStarted)
                 return; //response already sent to client (most likely from a preprocessor)
 
             OnBeforeHandle(req); await OnBeforeHandleAsync(req).ConfigureAwait(false);
             await HandleAsync(req, cancellation).ConfigureAwait(false);
-            await SendReponseIfNotSent(ctx, _response, Settings.SerializerContext, cancellation).ConfigureAwait(false);
+            await SendReponseIfNotSent(ctx, _response, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
             OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response).ConfigureAwait(false);
 
-            await RunPostProcessors(postProcessors, req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            await RunPostProcessors(endpoint.PostProcessors, req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
         }
         catch (ValidationFailureException)
         {

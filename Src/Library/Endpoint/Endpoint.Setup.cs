@@ -62,7 +62,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected void Routes(params string[] patterns)
     {
-        Settings.Routes = patterns;
+        Configuration.Routes = patterns;
     }
 
     /// <summary>
@@ -70,10 +70,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected void Verbs(params Http[] methods)
     {
-        Settings.Verbs = methods.Select(m => m.ToString()).ToArray();
+        Configuration.Verbs = methods.Select(m => m.ToString()).ToArray();
 
         //default openapi descriptions (it's here because we need access to TRequest/TResponse)
-        Settings.InternalConfigAction = b =>
+        Configuration.InternalConfigAction = b =>
         {
             if (ReqTypeCache<TRequest>.IsPlainTextRequest)
             {
@@ -100,7 +100,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint
     /// </summary>
-    protected void DontThrowIfValidationFails() => Settings.ThrowIfValidationFails = false;
+    protected void DontThrowIfValidationFails() => Configuration.ThrowIfValidationFails = false;
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
@@ -108,7 +108,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected void AllowAnonymous(params Http[] verbs)
     {
-        Settings.AnonymousVerbs =
+        Configuration.AnonymousVerbs =
             verbs.Length > 0
             ? verbs.Select(v => v.ToString()).ToArray()
             : Enum.GetNames(Types.Http);
@@ -117,24 +117,24 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
-    protected void AllowFileUploads() => Settings.DtoTypeForFormData = tRequest;
+    protected void AllowFileUploads() => Configuration.AllowFormData = true;
 
     /// <summary>
     /// enable multipart/form-data submissions
     /// </summary>
-    protected void AllowFormData() => Settings.DtoTypeForFormData = tRequest;
+    protected void AllowFormData() => Configuration.AllowFormData = true;
 
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
     /// </summary>
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
-    protected void Policies(params string[] policyNames) => Settings.PreBuiltUserPolicies = policyNames;
+    protected void Policies(params string[] policyNames) => Configuration.PreBuiltUserPolicies = policyNames;
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given roles
     /// </summary>
     /// <param name="rolesNames">one or more roles that has access</param>
-    protected void Roles(params string[] rolesNames) => Settings.Roles = rolesNames;
+    protected void Roles(params string[] rolesNames) => Configuration.Roles = rolesNames;
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given permissions
@@ -142,8 +142,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="permissions">the permissions</param>
     protected void Permissions(params string[] permissions)
     {
-        Settings.AllowAnyPermission = true;
-        Settings.Permissions = permissions;
+        Configuration.AllowAnyPermission = true;
+        Configuration.Permissions = permissions;
     }
 
     /// <summary>
@@ -152,8 +152,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="permissions">the permissions</param>
     protected void PermissionsAll(params string[] permissions)
     {
-        Settings.AllowAnyPermission = false;
-        Settings.Permissions = permissions;
+        Configuration.AllowAnyPermission = false;
+        Configuration.Permissions = permissions;
     }
 
     /// <summary>
@@ -162,8 +162,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="claimTypes">the claim types</param>
     protected void Claims(params string[] claimTypes)
     {
-        Settings.AllowAnyClaim = true;
-        Settings.ClaimTypes = claimTypes;
+        Configuration.AllowAnyClaim = true;
+        Configuration.ClaimTypes = claimTypes;
     }
 
     /// <summary>
@@ -172,8 +172,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="claimTypes">the claim types</param>
     protected void ClaimsAll(params string[] claimTypes)
     {
-        Settings.AllowAnyClaim = false;
-        Settings.ClaimTypes = claimTypes;
+        Configuration.AllowAnyClaim = false;
+        Configuration.ClaimTypes = claimTypes;
     }
 
     /// <summary>
@@ -182,20 +182,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="authSchemeNames">the authentication scheme names</param>
     protected void AuthSchemes(params string[] authSchemeNames)
     {
-        Settings.AuthSchemes = authSchemeNames;
+        Configuration.AuthSchemes = authSchemeNames;
     }
 
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>
-    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => Settings.PreProcessors = preProcessors;
+    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => Configuration.PreProcessors = preProcessors;
 
     /// <summary>
     /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
-    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => Settings.PostProcessors = postProcessors;
+    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => Configuration.PostProcessors = postProcessors;
 
     /// <summary>
     /// specify response caching settings for this endpoint
@@ -207,7 +207,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="varyByQueryKeys">the query keys to vary by</param>
     protected void ResponseCache(int durationSeconds, ResponseCacheLocation location = ResponseCacheLocation.Any, bool noStore = false, string? varyByHeader = null, string[]? varyByQueryKeys = null)
     {
-        Settings.ResponseCacheSettings = new()
+        Configuration.ResponseCacheSettings = new()
         {
             Duration = durationSeconds,
             Location = location,
@@ -221,7 +221,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// set endpoint configurations options using an endpoint builder action ///
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
-    protected void Options(Action<RouteHandlerBuilder> builder) => Settings.UserConfigAction = builder;
+    protected void Options(Action<RouteHandlerBuilder> builder) => Configuration.UserConfigAction = builder;
 
     /// <summary>
     /// describe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.
@@ -239,7 +239,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             });
         };
 
-        Settings.UserConfigAction = clearDefaultsAction + builder;
+        Configuration.UserConfigAction = clearDefaultsAction + builder;
     }
 
     //todo: remove in v4.0
@@ -260,8 +260,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
     protected void Summary(Action<EndpointSummary> endpointSummary)
     {
-        Settings.Summary = new();
-        endpointSummary(Settings.Summary);
+        Configuration.Summary = new();
+        endpointSummary(Configuration.Summary);
     }
 
     /// <summary>
@@ -272,7 +272,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         var summary = new EndpointSummary<TRequest>();
         endpointSummary(summary);
-        Settings.Summary = summary;
+        Configuration.Summary = summary;
     }
 
     /// <summary>
@@ -281,7 +281,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="endpointSummary">an endpoint summary instance</param>
     protected void Summary(EndpointSummary endpointSummary)
     {
-        Settings.Summary = endpointSummary;
+        Configuration.Summary = endpointSummary;
     }
 
     /// <summary>
@@ -290,7 +290,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="endpointTags">the tag values to associate with this endpoint</param>
     protected void Tags(params string[] endpointTags)
     {
-        Settings.Tags = endpointTags;
+        Configuration.Tags = endpointTags;
     }
 
     /// <summary>
@@ -300,8 +300,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="deprecateAt">the version group number starting at which this endpoint should not be included in swagger</param>
     protected void Version(int version, int? deprecateAt = null)
     {
-        Settings.Version.Current = GetVersion(version);
-        Settings.Version.DeprecatedAt = deprecateAt ?? 0;
+        Configuration.Version.Current = GetVersion(version);
+        Configuration.Version.DeprecatedAt = deprecateAt ?? 0;
 
         static int GetVersion(int epVer)
         {
@@ -323,7 +323,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </param>
     protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
     {
-        Settings.HitCounter = new(headerName, durationSeconds, hitLimit);
+        Configuration.HitCounter = new(headerName, durationSeconds, hitLimit);
     }
 
     /// <summary>
@@ -332,7 +332,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
     protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
     {
-        Settings.SerializerContext =
+        Configuration.SerializerContext =
             (JsonSerializerContext)Activator.CreateInstance(
                 typeof(TContext),
                 new JsonSerializerOptions(SerializerOpts))!;

@@ -36,9 +36,14 @@ public class CodeGenResponse
     public string? PhoneNumber { get; set; }
 }
 
-public class CodeGenEndpoint : Endpoint<CodeGenRequest>
+public class CodeGenEndpoint : Endpoint<CodeGenRequest, CodeGenResponse>
 {
     public ILogger<Endpoint>? MyProperty { get; set; }
+
+    //public CodeGenEndpoint(ILogger<Endpoint> logger)
+    //{
+
+    //}
 
     public override void Configure()
     {
@@ -54,7 +59,7 @@ public class CodeGenEndpoint : Endpoint<CodeGenRequest>
 
         //validator is automatically being run by FastEndpoints
 
-        return SendAsync(new Response()
+        return SendAsync(new CodeGenResponse()
         {
             Id = req.Id,
             Name = req.FirstName + " " + req.LastName,

@@ -13,7 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
     {
         Response = response;
-        return HttpContext.Response.SendAsync(response, statusCode, Settings.SerializerContext, cancellation);
+        return HttpContext.Response.SendAsync(response, statusCode, Configuration.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -31,7 +31,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (responseBody is not null)
             Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, responseBody, verb, routeNumber, Settings.SerializerContext, cancellation);
+        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, responseBody, verb, routeNumber, Configuration.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (responseBody is not null)
             Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync(endpointName, routeValues, responseBody, Settings.SerializerContext, cancellation);
+        return HttpContext.Response.SendCreatedAtAsync(endpointName, routeValues, responseBody, Configuration.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation"></param>
     protected Task SendErrorsAsync(CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendErrorsAsync(ValidationFailures, Settings.SerializerContext, cancellation);
+        return HttpContext.Response.SendErrorsAsync(ValidationFailures, Configuration.SerializerContext, cancellation);
     }
 
     /// <summary>

@@ -54,10 +54,10 @@ app.UseFastEndpoints(config =>
 {
     config.ShortEndpointNames = false;
     config.SerializerOptions = o => o.PropertyNamingPolicy = null;
-    config.EndpointRegistrationFilter = ep => ep.Settings.Tags?.Contains("exclude") is not true;
+    config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
     config.GlobalEndpointOptions = (epDef, builder) =>
     {
-        if (epDef.Settings.Tags?.Contains("orders") is true)
+        if (epDef.Tags?.Contains("orders") is true)
             builder.Produces<ErrorResponse>(400, "application/problem+json");
     };
     config.RoutingOptions = o => o.Prefix = "api";

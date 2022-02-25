@@ -4,6 +4,7 @@ namespace Admin.Login;
 
 [JsonSerializable(typeof(Request))]
 [JsonSerializable(typeof(Response))]
+[JsonSerializable(typeof(ErrorResponse))]
 public partial class AdminLogin : JsonSerializerContext { }
 
 /// <summary>

@@ -35,6 +35,11 @@ public class Endpoint : Endpoint<Request>
 {
     public ILogger<Endpoint>? MyProperty { get; set; }
 
+    //public Endpoint(ILogger<Endpoint> logger)
+    //{
+
+    //}
+
     public override void Configure()
     {
         Verbs(Http.POST);

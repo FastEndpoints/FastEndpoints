@@ -34,14 +34,14 @@ internal class OperationProcessor : IOperationProcessor
     public bool Process(OperationProcessorContext ctx)
     {
         var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
-        var epMeta = metaData.OfType<EndpointMetadata>().SingleOrDefault();
+        var endpoint = metaData.OfType<EndpointDefinition>().SingleOrDefault();
 
-        if (epMeta is null)
+        if (endpoint is null)
             return true; //this is not a fastendpoint
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var opPath = ctx.OperationDescription.Path = $"/{apiDescription.RelativePath}";//fix missing path parameters
-        var apiVer = epMeta.EndpointSettings.Version.Current;
+        var apiVer = endpoint.Version.Current;
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var bareRoute = opPath.Remove(routePrefix).Remove(version);
@@ -63,7 +63,7 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //this will be later removed from document processor
-        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epMeta.EndpointSettings.Version.DeprecatedAt}");
+        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{endpoint.Version.DeprecatedAt}");
 
         //fix request content-types not displaying correctly
         var reqContent = op.RequestBody?.Content;
@@ -100,8 +100,8 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //set endpoint summary & description
-        op.Summary = epMeta.EndpointSettings.Summary?.Summary;
-        op.Description = epMeta.EndpointSettings.Summary?.Description;
+        op.Summary = endpoint.Summary?.Summary;
+        op.Description = endpoint.Summary?.Description;
 
         //set response descriptions (no xml comments support here, yet!)
         op.Responses
@@ -112,8 +112,8 @@ internal class OperationProcessor : IOperationProcessor
               if (defaultDescriptions.ContainsKey(res.Key))
                   res.Value.Description = defaultDescriptions[res.Key]; //first set the default text
 
-              if (epMeta.EndpointSettings.Summary is not null)
-                  res.Value.Description = epMeta.EndpointSettings.Summary.Responses.GetValueOrDefault(Convert.ToInt32(res.Key)); //then take values from summary object
+              if (endpoint.Summary is not null)
+                  res.Value.Description = endpoint.Summary.Responses.GetValueOrDefault(Convert.ToInt32(res.Key)); //then take values from summary object
           });
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
@@ -136,9 +136,9 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //also add descriptions from user supplied summary request params overriding the above
-        if (epMeta.EndpointSettings.Summary is not null)
+        if (endpoint.Summary is not null)
         {
-            foreach (var param in epMeta.EndpointSettings.Summary.Params)
+            foreach (var param in endpoint.Summary.Params)
             {
                 reqParamDescriptions[param.Key] = param.Value;
             }

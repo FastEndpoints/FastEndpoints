@@ -1,26 +1,38 @@
 ﻿using FastEndpoints.Validation;
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace FastEndpoints;
 
 internal sealed class EndpointData
 {
     //using Lazy<T> to prevent contention when WAF testing (see issue #10)
-    private readonly Lazy<EndpointDefinition[]> _endpoints = new(() =>
-    {
-        var endpoints = FindEndpoints();
-
-        if (endpoints.Length == 0)
-            throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
-
-        return endpoints!;
-    });
+    private readonly Lazy<EndpointDefinition[]> _endpoints;
 
     internal EndpointDefinition[] Found => _endpoints.Value;
 
     internal static Stopwatch Stopwatch { get; } = new();
 
-    private static EndpointDefinition[] FindEndpoints()
+    internal EndpointData(IServiceCollection services)
+    {
+        _endpoints = new(() =>
+        {
+            var endpoints = BuildEndpointDefinitions(services);
+
+            if (endpoints.Length == 0)
+                throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
+
+            return endpoints!;
+        });
+
+        //need this here to cause the lazy factory to run now.
+        //cause the endpoints are being added to DI container within the factory
+        _ = _endpoints.Value;
+    }
+
+    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services)
     {
         Stopwatch.Start();
 
@@ -70,6 +82,7 @@ internal sealed class EndpointData
                     if (tDisc.BaseType?.IsGenericType is true)
                         tRequest = tDisc.BaseType?.GetGenericArguments()?[0] ?? tRequest;
 
+                    services.AddTransient(tDisc);
                     epList.Add((tDisc, tRequest));
                     continue;
                 }
@@ -92,12 +105,39 @@ internal sealed class EndpointData
         return epList
             .Select(x =>
             {
-                var instance = (IEndpoint)Activator.CreateInstance(x.tEndpoint)!;
-                instance?.Configure();
-                return new EndpointDefinition(
-                    x.tEndpoint,
-                    valDict.GetValueOrDefault(x.tRequest),
-                    (EndpointSettings)BaseEndpoint.SettingsPropInfo.GetValue(instance)!);
+                var def = new EndpointDefinition()
+                {
+                    EndpointType = x.tEndpoint,
+                    ValidatorType = valDict.GetValueOrDefault(x.tRequest),
+                    ReqDtoType = x.tRequest,
+                };
+
+                var validator = (IValidatorWithState?)(def.ValidatorType is null ? null : Activator.CreateInstance(def.ValidatorType));
+                if (validator is not null)
+                {
+                    validator.ThrowIfValidationFails = def.ThrowIfValidationFails;
+                    def.ValidatorInstance = validator;
+                }
+
+                var serviceBoundEpProps = def.EndpointType
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                    .Where(p => p.CanRead && p.CanWrite)
+                    .Select(p => new ServiceBoundEpProp()
+                    {
+                        PropSetter = def.EndpointType.SetterForProp(p.Name),
+                        PropType = p.PropertyType,
+                    })
+                    .ToArray();
+
+                if (serviceBoundEpProps.Length > 0)
+                    def.ServiceBoundEpProps = serviceBoundEpProps;
+
+                var instance = (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)!;
+                instance.Configuration = def;
+                instance.Configure();
+                instance.AddTestURLToCache(x.tEndpoint);
+
+                return def;
             })
             .ToArray();
     }

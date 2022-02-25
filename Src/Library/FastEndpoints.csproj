@@ -2,24 +2,15 @@
 
     <PropertyGroup>
 
-        <Version>3.6.0</Version>
+        <Version>3.7.0</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - code generator support for request/response dtos
-            - ability to specify global endpoint options with GlobalEndpointOptions setting
-            - [BindFrom] attribute for customizing form/route/query/claim/header names
-            - ability to model bind any type that has a TryParse() static method from form/route/query/claim/header
+            - construction injection support for endpoint DI
 
             ### CHANGES
-            - Route&lt;T&gt;() method now throws validation error by default if unsuccessful
-
-            ### SWAGGER FIXES
-            - empty tag creation when route is root
-            - duplicate param issue when casing mismatched in GET requests
-            - empty request body when dto only contains route/query bound properties
-            - correct handling of route bound request body
-            - missing endpoint op from swagger doc when bare route is the same
+            - `EndpointRegistrationFilter` input parameter changed to `EndpointDefinition`
+            - `GlobalEndpointOptions` first argument changed to `EndpointDefinition`
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -23,7 +23,7 @@ internal class OperationSecurityProcessor : IOperationProcessor
         if (epMeta.OfType<AllowAnonymousAttribute>().Any() || !epMeta.OfType<AuthorizeAttribute>().Any())
             return true;
 
-        var epSchemes = epMeta.OfType<EndpointDefinition>().Single().Settings.AuthSchemes;
+        var epSchemes = epMeta.OfType<EndpointDefinition>().Single().AuthSchemes;
         if (epSchemes?.Contains(schemeName) == false)
             return true;
 

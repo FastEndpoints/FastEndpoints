@@ -74,6 +74,8 @@ public class Config
 
     /// <summary>
     /// a function to filter out endpoints from auto registration.
+    /// the function you set here will be executed for each endpoint during startup.
+    /// you can inspect the EndpointSettings to check what the current endpoint is, if needed.
     /// return 'false' from the function if you want to exclude an endpoint from registration.
     /// return 'true' to include.
     /// this function will executed for each endpoint that has been discovered during startup.
@@ -83,7 +85,7 @@ public class Config
     /// <summary>
     /// an action to be performed on all endpoints during registration.
     /// the action you set here will be executed for each endpoint during startup.
-    /// you can inspect the EndpointDefinition to check what the current endpoint is, if needed.
+    /// you can inspect the EndpointSettings to check what the current endpoint is, if needed.
     /// NOTE: this action is executed before Options() and Describe() of each individual endpoint.
     /// so, whatever you do here may get overridden or compounded by what you do in the Configure() method of each endpoint.
     /// </summary>

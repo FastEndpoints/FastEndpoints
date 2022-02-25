@@ -22,9 +22,9 @@ internal class ExecutorMiddleware
 
         if (endpoint is null) return _next(ctx);
 
-        var epMetaData = endpoint.Metadata.GetMetadata<EndpointMetadata>();
+        var epDef = endpoint.Metadata.GetMetadata<EndpointDefinition>();
 
-        if (epMetaData is not null)
+        if (epDef is not null)
         {
             if (endpoint.Metadata.GetMetadata<IAuthorizeData>() != null && !ctx.Items.ContainsKey(authInvoked))
                 ThrowAuthMiddlewareMissing(endpoint.DisplayName!);
@@ -32,9 +32,9 @@ internal class ExecutorMiddleware
             if (endpoint.Metadata.GetMetadata<ICorsMetadata>() != null && !ctx.Items.ContainsKey(corsInvoked))
                 ThrowCORSMiddlewareMissing(endpoint.DisplayName!);
 
-            if (epMetaData.EndpointSettings.HitCounter is not null)
+            if (epDef.HitCounter is not null)
             {
-                var hdrName = epMetaData.EndpointSettings.HitCounter.HeaderName ?? "X-Forwarded-For";
+                var hdrName = epDef.HitCounter.HeaderName ?? "X-Forwarded-For";
 
                 if (!ctx.Request.Headers.TryGetValue(hdrName, out var hdrVal))
                 {
@@ -47,25 +47,21 @@ internal class ExecutorMiddleware
                     }
                 }
 
-                if (epMetaData.EndpointSettings.HitCounter.LimitReached(hdrVal[0]))
+                if (epDef.HitCounter.LimitReached(hdrVal[0]))
                 {
                     ctx.Response.StatusCode = 429;
                     return ctx.Response.WriteAsync("You are requesting this endpoint too frequently!");
                 }
             }
 
-            var epInstance = (BaseEndpoint)epMetaData.InstanceCreator();
+            var epInstance = (BaseEndpoint)ctx.RequestServices.GetRequiredService(epDef.EndpointType);
 
-            ResolveServices(epInstance, ctx.RequestServices, epMetaData.ServiceBoundEpProps);
+            ResolveServices(epInstance, ctx.RequestServices, epDef.ServiceBoundEpProps);
 
             ResponseCacheExecutor.Execute(ctx, endpoint.Metadata.GetMetadata<ResponseCacheAttribute>());
 
-            return epInstance.ExecAsync(
-                ctx,
-                epMetaData.Validator,
-                epMetaData.EndpointSettings.PreProcessors,
-                epMetaData.EndpointSettings.PostProcessors,
-                ctx.RequestAborted); //terminate middleware here. we're done executing
+            //terminate middleware here. we're done executing
+            return epInstance.ExecAsync(ctx, epDef, ctx.RequestAborted);
         }
 
         return _next(ctx); //this is not a fastendpoint, let next middleware handle it

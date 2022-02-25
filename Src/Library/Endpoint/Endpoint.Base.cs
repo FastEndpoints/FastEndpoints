@@ -1,6 +1,5 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
-using System.Reflection;
 using System.Text;
 
 namespace FastEndpoints;
@@ -9,20 +8,21 @@ public abstract class BaseEndpoint : IEndpoint
 {
     protected internal HttpContext _httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
 
-    internal static PropertyInfo SettingsPropInfo { get; } = typeof(BaseEndpoint).GetProperty(nameof(Settings), BindingFlags.NonPublic | BindingFlags.Instance)!;
+    //key: the type of the endpoint
+    internal static Dictionary<Type, string> TestURLCache { get; } = new();
 
-    internal EndpointSettings Settings { get; } = new();
+    public EndpointDefinition Configuration { get; set; }
 
-    internal abstract Task ExecAsync(HttpContext ctx, IValidator? validator, object? preProcessors, object? postProcessors, CancellationToken ct);
+    internal abstract Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken ct);
 
-    internal string GetTestURL()
+    internal void AddTestURLToCache(Type epType)
     {
         Configure();
 
-        if (Settings.Routes is null)
-            throw new ArgumentNullException($"GetTestURL()[{nameof(Settings.Routes)}]");
+        if (Configuration.Routes is null)
+            throw new InvalidOperationException($"AddTestURLToCache()[{nameof(Configuration.Routes)}]");
 
-        return new StringBuilder().BuildRoute(Settings.Version.Current, Settings.Routes[0]);
+        TestURLCache[epType] = new StringBuilder().BuildRoute(Configuration.Version.Current, Configuration.Routes[0]);
     }
 
     /// <summary>
@@ -40,4 +40,5 @@ public abstract class BaseEndpoint : IEndpoint
     /// the list of validation failures for the current request dto
     /// </summary>
     public List<ValidationFailure> ValidationFailures { get; } = new();
+
 }

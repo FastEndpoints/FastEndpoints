@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using FastEndpoints.Validation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 
@@ -7,12 +8,13 @@ namespace FastEndpoints;
 /// <summary>
 /// represents the configuration settings of an endpoint
 /// </summary>
-public class EndpointSettings
+public class EndpointDefinition
 {
     public string[]? Routes { get; internal set; }
     public string[]? Verbs { get; internal set; }
     public string[]? AnonymousVerbs { get; internal set; }
     public bool ThrowIfValidationFails { get; internal set; } = true;
+    public bool AllowFormData { get; internal set; }
     public string[]? PreBuiltUserPolicies { get; internal set; }
     public string[]? AuthSchemes { get; internal set; }
     public string[]? Roles { get; internal set; }
@@ -24,7 +26,11 @@ public class EndpointSettings
     public EndpointSummary? Summary { get; internal set; }
     public EpVersion Version { get; internal set; } = new();
 
-    internal Type? DtoTypeForFormData;
+    internal Type EndpointType;
+    internal Type? ValidatorType;
+    internal IValidator? ValidatorInstance;
+    internal Type ReqDtoType;
+    internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal Action<RouteHandlerBuilder>? UserConfigAction;
     internal object? PreProcessors;
@@ -41,4 +47,10 @@ public class EpVersion
 {
     public int Current { get; internal set; }
     public int DeprecatedAt { get; internal set; }
+}
+
+internal class ServiceBoundEpProp
+{
+    public Type PropType { get; set; }
+    public Action<object, object> PropSetter { get; set; }
 }

@@ -27,6 +27,7 @@ public class EndpointDefinition
 
     internal Type EndpointType;
     internal Type? ValidatorType;
+    internal bool ScopedValidator;
     internal Type ReqDtoType;
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal Action<RouteHandlerBuilder> InternalConfigAction;

@@ -28,8 +28,15 @@ public class Request
 
 public class Validator : Validator<Request>
 {
-    public Validator()
+    public Validator(IConfiguration config)
     {
+        if (config is null)
+            throw new ArgumentNullException(nameof(config));
+
+        RuleFor(x => x.UserName)
+            .Must(_ => config["TokenKey"] == "some long secret key to sign jwt tokens with")
+            .WithMessage("config didn't resolve correctly!");
+
         RuleFor(x => x.UserName)
             .NotEmpty().WithMessage("Username is required!")
             .MinimumLength(3).WithMessage("Username too short!");
@@ -37,6 +44,11 @@ public class Validator : Validator<Request>
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Password is required!")
             .MinimumLength(3).WithMessage("Password too short!");
+
+        var logger = Resolve<ILogger<Validator>>();
+        logger.LogError("resolving from validator works!");
+
+
     }
 }
 

@@ -337,4 +337,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 typeof(TContext),
                 new JsonSerializerOptions(SerializerOpts))!;
     }
+
+    /// <summary>
+    /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.
+    /// </summary>
+    protected void ScopedValidator() => Configuration.ScopedValidator = true;
 }

@@ -114,9 +114,6 @@ internal sealed class EndpointData
                 ReqDtoType = x.tRequest,
             };
 
-            if (def.ValidatorType is not null)
-                services.AddSingleton(def.ValidatorType);
-
             var serviceBoundEpProps = def.EndpointType
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(p => p.CanRead && p.CanWrite)
@@ -134,6 +131,14 @@ internal sealed class EndpointData
             instance.Configuration = def;
             instance.Configure();
             instance.AddTestURLToCache(x.tEndpoint);
+
+            if (instance.Configuration.ValidatorType is not null)
+            {
+                if (instance.Configuration.ScopedValidator)
+                    services.AddScoped(instance.Configuration.ValidatorType);
+
+                services.AddSingleton(instance.Configuration.ValidatorType);
+            }
 
             defBag.Add(def);
         });

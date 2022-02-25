@@ -2,9 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.7.1-beta1</Version>
+        <Version>3.7.1-beta2</Version>
 
         <PackageReleaseNotes>
+            ### NEW
+            - constructor injection support for validators via `ScopedValidator()` method
+
             ### IMPROVEMENTS
             - reduce startup time via parallelization
         </PackageReleaseNotes>

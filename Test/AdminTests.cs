@@ -57,7 +57,7 @@ namespace Test
             Assert.IsTrue(result?.JWTToken is not null);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public async Task AdminLoginThrottling()
         {
             var guestClient = new WebApplicationFactory<Program>().CreateClient();

@@ -1,5 +1,6 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -9,9 +10,9 @@ namespace FastEndpoints;
 internal sealed class EndpointData
 {
     //using Lazy<T> to prevent contention when WAF testing (see issue #10)
-    private readonly Lazy<EndpointDefinition[]> _endpoints;
+    private readonly Lazy<IEnumerable<EndpointDefinition>> _endpoints;
 
-    internal EndpointDefinition[] Found => _endpoints.Value;
+    internal IEnumerable<EndpointDefinition> Found => _endpoints.Value;
 
     internal static Stopwatch Stopwatch { get; } = new();
 
@@ -21,7 +22,7 @@ internal sealed class EndpointData
         {
             var endpoints = BuildEndpointDefinitions(services);
 
-            if (endpoints.Length == 0)
+            if (!endpoints.Any())
                 throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
 
             return endpoints!;
@@ -32,7 +33,7 @@ internal sealed class EndpointData
         _ = _endpoints.Value;
     }
 
-    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services)
+    private static IEnumerable<EndpointDefinition> BuildEndpointDefinitions(IServiceCollection services)
     {
         Stopwatch.Start();
 
@@ -102,43 +103,45 @@ internal sealed class EndpointData
             }
         }
 
-        return epList
-            .Select(x =>
+        var defBag = new ConcurrentBag<EndpointDefinition>();
+
+        Parallel.ForEach(epList, new() { MaxDegreeOfParallelism = 4 }, x =>
+        {
+            var def = new EndpointDefinition()
             {
-                var def = new EndpointDefinition()
+                EndpointType = x.tEndpoint,
+                ValidatorType = valDict.GetValueOrDefault(x.tRequest),
+                ReqDtoType = x.tRequest,
+            };
+
+            var validator = (IValidatorWithState?)(def.ValidatorType is null ? null : Activator.CreateInstance(def.ValidatorType));
+            if (validator is not null)
+            {
+                validator.ThrowIfValidationFails = def.ThrowIfValidationFails;
+                def.ValidatorInstance = validator;
+            }
+
+            var serviceBoundEpProps = def.EndpointType
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Where(p => p.CanRead && p.CanWrite)
+                .Select(p => new ServiceBoundEpProp()
                 {
-                    EndpointType = x.tEndpoint,
-                    ValidatorType = valDict.GetValueOrDefault(x.tRequest),
-                    ReqDtoType = x.tRequest,
-                };
+                    PropSetter = def.EndpointType.SetterForProp(p.Name),
+                    PropType = p.PropertyType,
+                })
+                .ToArray();
 
-                var validator = (IValidatorWithState?)(def.ValidatorType is null ? null : Activator.CreateInstance(def.ValidatorType));
-                if (validator is not null)
-                {
-                    validator.ThrowIfValidationFails = def.ThrowIfValidationFails;
-                    def.ValidatorInstance = validator;
-                }
+            if (serviceBoundEpProps.Length > 0)
+                def.ServiceBoundEpProps = serviceBoundEpProps;
 
-                var serviceBoundEpProps = def.EndpointType
-                    .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                    .Where(p => p.CanRead && p.CanWrite)
-                    .Select(p => new ServiceBoundEpProp()
-                    {
-                        PropSetter = def.EndpointType.SetterForProp(p.Name),
-                        PropType = p.PropertyType,
-                    })
-                    .ToArray();
+            var instance = (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)!;
+            instance.Configuration = def;
+            instance.Configure();
+            instance.AddTestURLToCache(x.tEndpoint);
 
-                if (serviceBoundEpProps.Length > 0)
-                    def.ServiceBoundEpProps = serviceBoundEpProps;
+            defBag.Add(def);
+        });
 
-                var instance = (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)!;
-                instance.Configuration = def;
-                instance.Configure();
-                instance.AddTestURLToCache(x.tEndpoint);
-
-                return def;
-            })
-            .ToArray();
+        return defBag;
     }
 }

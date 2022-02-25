@@ -44,7 +44,7 @@ public class MyEndpoint : EndpointWithoutRequest
 ```
 
 # constructor injection
-
+constructor injection is also supported. just make sure not to assign the injected dependencies to public properties if using together with property injection.
 ```csharp
 public class MyEndpoint : EndpointWithoutRequest
 {

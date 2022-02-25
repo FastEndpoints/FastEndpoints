@@ -129,6 +129,7 @@ public class HelloWorldService : IHelloWorldService
 }
 </code></pre>
 <h1 id="constructor-injection">constructor injection</h1>
+<p>constructor injection is also supported. just make sure not to assign the injected dependencies to public properties if using together with property injection.</p>
 <pre><code class="lang-csharp">public class MyEndpoint : EndpointWithoutRequest
 {
     private IHelloWorldService _helloService;

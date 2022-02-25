@@ -1,7 +1,6 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.Versioning;
 
 namespace FastEndpoints;
 
@@ -74,9 +73,4 @@ internal interface IServiceResolver
 internal interface IEventHandler
 {
     void Subscribe();
-}
-
-internal interface IValidatorWithState : IValidator
-{
-    bool ThrowIfValidationFails { get; set; }
 }

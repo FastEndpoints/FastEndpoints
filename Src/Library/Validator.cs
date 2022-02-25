@@ -7,10 +7,8 @@ namespace FastEndpoints.Validation;
 /// <para>HINT: validators are registered as singletons. i.e. the same validator instance is used to validate each request for best performance. hance, do not maintain state in your validators.</para>
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
-public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IValidatorWithState, IServiceResolver where TRequest : class
+public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServiceResolver where TRequest : class
 {
-    bool IValidatorWithState.ThrowIfValidationFails { get; set; }
-
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>

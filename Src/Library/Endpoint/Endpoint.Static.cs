@@ -34,8 +34,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return req;
     }
 
-    private static async Task ValidateRequest(TRequest req, IValidator<TRequest>? validator, HttpContext ctx, object? preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, object? preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
+        var validator = ep.ValidatorType != null
+                        ? (IValidator<TRequest>?)ctx.RequestServices.GetService(ep.ValidatorType)
+                        : null;
+
         if (validator is null) return;
 
         var valResult = await validator.ValidateAsync(req, cancellation).ConfigureAwait(false);
@@ -43,7 +47,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (!valResult.IsValid)
             validationFailures.AddRange(valResult.Errors);
 
-        if (validationFailures.Count > 0 && ((IValidatorWithState)validator).ThrowIfValidationFails)
+        if (validationFailures.Count > 0 && ep.ThrowIfValidationFails)
         {
             await RunPreprocessors(preProcessors, req, ctx, validationFailures, cancellation).ConfigureAwait(false);
             throw new ValidationFailureException();

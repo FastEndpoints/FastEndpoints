@@ -114,12 +114,8 @@ internal sealed class EndpointData
                 ReqDtoType = x.tRequest,
             };
 
-            var validator = (IValidatorWithState?)(def.ValidatorType is null ? null : Activator.CreateInstance(def.ValidatorType));
-            if (validator is not null)
-            {
-                validator.ThrowIfValidationFails = def.ThrowIfValidationFails;
-                def.ValidatorInstance = validator;
-            }
+            if (def.ValidatorType is not null)
+                services.AddSingleton(def.ValidatorType);
 
             var serviceBoundEpProps = def.EndpointType
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)

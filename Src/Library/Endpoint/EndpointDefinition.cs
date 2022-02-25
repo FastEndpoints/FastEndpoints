@@ -1,5 +1,4 @@
-﻿using FastEndpoints.Validation;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 
@@ -28,7 +27,6 @@ public class EndpointDefinition
 
     internal Type EndpointType;
     internal Type? ValidatorType;
-    internal IValidator? ValidatorInstance;
     internal Type ReqDtoType;
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal Action<RouteHandlerBuilder> InternalConfigAction;

@@ -27,7 +27,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
 
             OnBeforeValidate(req); await OnBeforeValidateAsync(req).ConfigureAwait(false);
-            await ValidateRequest(req, (IValidator<TRequest>?)endpoint.ValidatorInstance, ctx, endpoint.PreProcessors, ValidationFailures, cancellation).ConfigureAwait(false);
+            await ValidateRequest(
+                req,
+                ctx,
+                endpoint,
+                endpoint.PreProcessors,
+                ValidationFailures,
+                cancellation).ConfigureAwait(false);
             OnAfterValidate(req); await OnAfterValidateAsync(req).ConfigureAwait(false);
 
             await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);

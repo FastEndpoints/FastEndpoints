@@ -9,3 +9,42 @@ i.e. you don't need to specify the route urls when testing endpoints. follow the
 > please check back soon...
 
 > you can have a look at the [test project here](https://github.com/dj-nitehawk/FastEndpoints/tree/main/Test) in the meantime to get an idea.
+
+# unit testing endpoints
+if you don't mind paying the price of extra work needed for more granular testing with unit tests, you may use the `Factory.Create<TEndpoint>()` method to get an instance of your endpoint which is suitable for unit testing.
+
+```csharp
+[TestMethod]
+public void AdminLoginSuccess()
+{
+    //arrange
+    var fakeConfig = A.Fake<IConfiguration>();
+    A.CallTo(() => fakeConfig["TokenKey"]).Returns("0000000000000000");
+
+    var ep = Factory.Create<AdminLogin>(
+        A.Fake<ILogger<AdminLogin>>(), //mock dependencies for injecting to the constructor
+        A.Fake<IEmailService>(),
+        fakeConfig);
+
+    var req = new AdminLoginRequest
+    {
+        UserName = "admin",
+        Password = "pass"
+    };
+
+    //act
+    ep.HandleAsync(req, default);
+    var rsp = ep.Response;
+
+    //assert
+    Assert.IsNotNull(rsp);
+    Assert.IsFalse(ep.ValidationFailed);
+    Assert.IsTrue(rsp.Permissions.Contains("Inventory_Delete_Item"));
+}
+```
+
+use the `Factory.Create()` method by passing it the mocked dependencies which are needed by the endpoint constructor, if there's any. it has multiple overloads that enables you to instantiate endpoints with or without constructor arguments.
+
+then simply execute the handler by passing in a request dto and a default cancellation token.
+
+finally do your assertions on the `Response` property of the endpoint instance.

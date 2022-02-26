@@ -1008,6 +1008,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Routes
   nameWithType: Endpoint<TRequest, TResponse>.Routes
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Routes
+- uid: FastEndpoints.Endpoint`2.ScopedValidator
+  name: ScopedValidator()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ScopedValidator
+  commentId: M:FastEndpoints.Endpoint`2.ScopedValidator
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ScopedValidator()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ScopedValidator()
+  nameWithType: Endpoint<TRequest, TResponse>.ScopedValidator()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ScopedValidator()
+- uid: FastEndpoints.Endpoint`2.ScopedValidator*
+  name: ScopedValidator
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ScopedValidator_
+  commentId: Overload:FastEndpoints.Endpoint`2.ScopedValidator
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ScopedValidator
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ScopedValidator
+  nameWithType: Endpoint<TRequest, TResponse>.ScopedValidator
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ScopedValidator
 - uid: FastEndpoints.Endpoint`2.SendAsync(`1,System.Int32,CancellationToken)
   name: SendAsync(TResponse, Int32, CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendAsync__1_System_Int32_CancellationToken_
@@ -2119,6 +2136,46 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler
   nameWithType: ExceptionHandlerExtensions.UseDefaultExceptionHandler
+- uid: FastEndpoints.Factory
+  name: Factory
+  href: api/FastEndpoints.Factory.html
+  commentId: T:FastEndpoints.Factory
+  fullName: FastEndpoints.Factory
+  nameWithType: Factory
+- uid: FastEndpoints.Factory.Create*
+  name: Create
+  href: api/FastEndpoints.Factory.html#FastEndpoints_Factory_Create_
+  commentId: Overload:FastEndpoints.Factory.Create
+  isSpec: "True"
+  fullName: FastEndpoints.Factory.Create
+  nameWithType: Factory.Create
+- uid: FastEndpoints.Factory.Create``1(Action{Microsoft.AspNetCore.Http.DefaultHttpContext},System.Object[])
+  name: Create<TEndpoint>(Action<DefaultHttpContext>, Object[])
+  href: api/FastEndpoints.Factory.html#FastEndpoints_Factory_Create__1_Action_Microsoft_AspNetCore_Http_DefaultHttpContext__System_Object___
+  commentId: M:FastEndpoints.Factory.Create``1(Action{Microsoft.AspNetCore.Http.DefaultHttpContext},System.Object[])
+  name.vb: Create(Of TEndpoint)(Action(Of DefaultHttpContext), Object())
+  fullName: FastEndpoints.Factory.Create<TEndpoint>(Action<Microsoft.AspNetCore.Http.DefaultHttpContext>, System.Object[])
+  fullName.vb: FastEndpoints.Factory.Create(Of TEndpoint)(Action(Of Microsoft.AspNetCore.Http.DefaultHttpContext), System.Object())
+  nameWithType: Factory.Create<TEndpoint>(Action<DefaultHttpContext>, Object[])
+  nameWithType.vb: Factory.Create(Of TEndpoint)(Action(Of DefaultHttpContext), Object())
+- uid: FastEndpoints.Factory.Create``1(Microsoft.AspNetCore.Http.DefaultHttpContext,System.Object[])
+  name: Create<TEndpoint>(DefaultHttpContext, Object[])
+  href: api/FastEndpoints.Factory.html#FastEndpoints_Factory_Create__1_Microsoft_AspNetCore_Http_DefaultHttpContext_System_Object___
+  commentId: M:FastEndpoints.Factory.Create``1(Microsoft.AspNetCore.Http.DefaultHttpContext,System.Object[])
+  name.vb: Create(Of TEndpoint)(DefaultHttpContext, Object())
+  fullName: FastEndpoints.Factory.Create<TEndpoint>(Microsoft.AspNetCore.Http.DefaultHttpContext, System.Object[])
+  fullName.vb: FastEndpoints.Factory.Create(Of TEndpoint)(Microsoft.AspNetCore.Http.DefaultHttpContext, System.Object())
+  nameWithType: Factory.Create<TEndpoint>(DefaultHttpContext, Object[])
+  nameWithType.vb: Factory.Create(Of TEndpoint)(DefaultHttpContext, Object())
+- uid: FastEndpoints.Factory.Create``1(System.Object[])
+  name: Create<TEndpoint>(Object[])
+  href: api/FastEndpoints.Factory.html#FastEndpoints_Factory_Create__1_System_Object___
+  commentId: M:FastEndpoints.Factory.Create``1(System.Object[])
+  name.vb: Create(Of TEndpoint)(Object())
+  fullName: FastEndpoints.Factory.Create<TEndpoint>(System.Object[])
+  fullName.vb: FastEndpoints.Factory.Create(Of TEndpoint)(System.Object())
+  nameWithType: Factory.Create<TEndpoint>(Object[])
+  nameWithType.vb: Factory.Create(Of TEndpoint)(Object())
 - uid: FastEndpoints.FastEventHandler`1
   name: FastEventHandler<TEvent>
   href: api/FastEndpoints.FastEventHandler-1.html

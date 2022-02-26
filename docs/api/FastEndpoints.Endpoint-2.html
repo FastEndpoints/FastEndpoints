@@ -190,7 +190,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected string BaseURL { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public string BaseURL { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -216,7 +216,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected IConfiguration Config { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IConfiguration Config { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -242,7 +242,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected IWebHostEnvironment Env { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IWebHostEnvironment Env { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -268,7 +268,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected IFormFileCollection Files { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IFormFileCollection Files { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -294,7 +294,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected IFormCollection Form { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public IFormCollection Form { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -320,7 +320,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Http HttpMethod { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Http HttpMethod { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -346,7 +346,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected ILogger Logger { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public ILogger Logger { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -372,7 +372,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected TResponse Response { get; set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public TResponse Response { get; set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -398,7 +398,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected ClaimsPrincipal User { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public ClaimsPrincipal User { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -424,7 +424,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected bool ValidationFailed { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public bool ValidationFailed { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1629,6 +1629,17 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
       </tr>
     </tbody>
   </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_ScopedValidator_" data-uid="FastEndpoints.Endpoint`2.ScopedValidator*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_ScopedValidator" data-uid="FastEndpoints.Endpoint`2.ScopedValidator">ScopedValidator()</h4>
+  <div class="markdown level1 summary"><p>register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void ScopedValidator()</code></pre>
+  </div>
   
   
   <a id="FastEndpoints_Endpoint_2_SendAsync_" data-uid="FastEndpoints.Endpoint`2.SendAsync*"></a>

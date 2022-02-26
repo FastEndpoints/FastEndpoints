@@ -105,6 +105,39 @@ please check back soon...</p>
 <blockquote>
 <p>you can have a look at the <a href="https://github.com/dj-nitehawk/FastEndpoints/tree/main/Test">test project here</a> in the meantime to get an idea.</p>
 </blockquote>
+<h1 id="unit-testing-endpoints">unit testing endpoints</h1>
+<p>if you don't mind paying the price of extra work needed for more granular testing with unit tests, you may use the <code>Factory.Create&lt;TEndpoint&gt;()</code> method to get an instance of your endpoint which is suitable for unit testing.</p>
+<pre><code class="lang-csharp">[TestMethod]
+public void AdminLoginSuccess()
+{
+    //arrange
+    var fakeConfig = A.Fake&lt;IConfiguration&gt;();
+    A.CallTo(() =&gt; fakeConfig[&quot;TokenKey&quot;]).Returns(&quot;0000000000000000&quot;);
+
+    var ep = Factory.Create&lt;AdminLogin&gt;(
+        A.Fake&lt;ILogger&lt;AdminLogin&gt;&gt;(), //mock dependencies for injecting to the constructor
+        A.Fake&lt;IEmailService&gt;(),
+        fakeConfig);
+
+    var req = new AdminLoginRequest
+    {
+        UserName = &quot;admin&quot;,
+        Password = &quot;pass&quot;
+    };
+
+    //act
+    ep.HandleAsync(req, default);
+    var rsp = ep.Response;
+
+    //assert
+    Assert.IsNotNull(rsp);
+    Assert.IsFalse(ep.ValidationFailed);
+    Assert.IsTrue(rsp.Permissions.Contains(&quot;Inventory_Delete_Item&quot;));
+}
+</code></pre>
+<p>use the <code>Factory.Create()</code> method by passing it the mocked dependencies which are needed by the endpoint constructor, if there's any. it has multiple overloads that enables you to instantiate endpoints with or without constructor arguments.</p>
+<p>then simply execute the handler by passing in a request dto and a default cancellation token.</p>
+<p>finally do your assertions on the <code>Response</code> property of the endpoint instance.</p>
 </article>
           </div>
           

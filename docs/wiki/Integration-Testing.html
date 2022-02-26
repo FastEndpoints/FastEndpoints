@@ -108,7 +108,7 @@ please check back soon...</p>
 <h1 id="unit-testing-endpoints">unit testing endpoints</h1>
 <p>if you don't mind paying the price of extra work needed for more granular testing with unit tests, you may use the <code>Factory.Create&lt;TEndpoint&gt;()</code> method to get an instance of your endpoint which is suitable for unit testing.</p>
 <pre><code class="lang-csharp">[TestMethod]
-public void AdminLoginSuccess()
+public async Task AdminLoginSuccess()
 {
     //arrange
     var fakeConfig = A.Fake&lt;IConfiguration&gt;();
@@ -126,7 +126,7 @@ public void AdminLoginSuccess()
     };
 
     //act
-    ep.HandleAsync(req, default);
+    await ep.HandleAsync(req, default);
     var rsp = ep.Response;
 
     //assert

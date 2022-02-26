@@ -15,7 +15,7 @@ if you don't mind paying the price of extra work needed for more granular testin
 
 ```csharp
 [TestMethod]
-public void AdminLoginSuccess()
+public async Task AdminLoginSuccess()
 {
     //arrange
     var fakeConfig = A.Fake<IConfiguration>();
@@ -33,7 +33,7 @@ public void AdminLoginSuccess()
     };
 
     //act
-    ep.HandleAsync(req, default);
+    await ep.HandleAsync(req, default);
     var rsp = ep.Response;
 
     //assert

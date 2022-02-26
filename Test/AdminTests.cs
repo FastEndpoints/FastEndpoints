@@ -30,7 +30,7 @@ namespace Test
         }
 
         [TestMethod]
-        public void UnitAdminLoginWithBadInput()
+        public async Task UnitAdminLoginWithBadInput()
         {
             //arrange
             var ep = Factory.Create<Admin.Login.Endpoint>(
@@ -45,7 +45,7 @@ namespace Test
             };
 
             //act
-            ep.HandleAsync(req, default);
+            await ep.HandleAsync(req, default);
 
             //assert
             Assert.IsTrue(ep.ValidationFailed);
@@ -70,7 +70,7 @@ namespace Test
         }
 
         [TestMethod]
-        public void UnitAdminLoginSuccess()
+        public async Task UnitAdminLoginSuccess()
         {
             //arrange
             var fakeConfig = A.Fake<IConfiguration>();
@@ -88,7 +88,7 @@ namespace Test
             };
 
             //act
-            ep.HandleAsync(req, default);
+            await ep.HandleAsync(req, default);
             var rsp = ep.Response;
 
             //assert

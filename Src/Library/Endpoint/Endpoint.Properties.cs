@@ -19,50 +19,50 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// indicates if there are any validation failures for the current request
     /// </summary>
-    protected bool ValidationFailed => ValidationFailures.Count > 0;
+    public bool ValidationFailed => ValidationFailures.Count > 0;
 
     /// <summary>
     /// the current user principal
     /// </summary>
-    protected ClaimsPrincipal User => HttpContext.User;
+    public ClaimsPrincipal User => HttpContext.User;
 
     /// <summary>
     /// the response that is sent to the client.
     /// </summary>
-    protected TResponse Response { get => _response ??= new(); set => _response = value; }
+    public TResponse Response { get => _response ??= new(); set => _response = value; }
 
     /// <summary>
     /// gives access to the configuration
     /// </summary>
-    protected IConfiguration Config => _config ??= HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+    public IConfiguration Config => _config ??= HttpContext.RequestServices.GetRequiredService<IConfiguration>();
 
     /// <summary>
     /// gives access to the hosting environment
     /// </summary>
-    protected IWebHostEnvironment Env => _env ??= HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
+    public IWebHostEnvironment Env => _env ??= HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
 
     /// <summary>
     /// the logger for the current endpoint type
     /// </summary>
-    protected ILogger Logger => _logger ??= HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest, TResponse>>>();
+    public ILogger Logger => _logger ??= HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest, TResponse>>>();
 
     /// <summary>
     /// the base url of the current request
     /// </summary>
-    protected string BaseURL => _baseURL ??= $"{HttpContext.Request?.Scheme}://{HttpContext.Request?.Host.ToString()}/";
+    public string BaseURL => _baseURL ??= $"{HttpContext.Request?.Scheme}://{HttpContext.Request?.Host.ToString()}/";
 
     /// <summary>
     /// the http method of the current request
     /// </summary>
-    protected Http HttpMethod => _httpMethod ??= Enum.Parse<Http>(HttpContext.Request.Method);
+    public Http HttpMethod => _httpMethod ??= Enum.Parse<Http>(HttpContext.Request.Method);
 
     /// <summary>
     /// the form sent with the request. only populated if content-type is 'application/x-www-form-urlencoded' or 'multipart/form-data'
     /// </summary>
-    protected IFormCollection Form => HttpContext.Request.Form;
+    public IFormCollection Form => HttpContext.Request.Form;
 
     /// <summary>
     /// the files sent with the request. only populated when content-type is 'multipart/form-data'
     /// </summary>
-    protected IFormFileCollection Files => Form.Files;
+    public IFormFileCollection Files => Form.Files;
 }

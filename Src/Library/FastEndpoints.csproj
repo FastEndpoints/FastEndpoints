@@ -2,11 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.7.1-beta2</Version>
+        <Version>3.8.0</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - constructor injection support for validators via `ScopedValidator()` method
+            - ability to unit test endpoints with `Factory.Create&lt;TEndpoint&gt;()`
+            - constructor injection support for validators with `ScopedValidator()` method
 
             ### IMPROVEMENTS
             - reduce startup time via parallelization

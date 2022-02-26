@@ -4,8 +4,11 @@ namespace Admin.Login;
 
 public class Endpoint : Endpoint<Request, Response>
 {
-    public Endpoint(ILogger<Endpoint> logger, IEmailService emailService)
+    private readonly IConfiguration _config;
+
+    public Endpoint(ILogger<Endpoint> logger, IEmailService emailService, IConfiguration configuration)
     {
+        _config = configuration;
         logger.LogInformation("constructor injection works!");
         _ = emailService.SendEmail();
     }
@@ -61,7 +64,7 @@ public class Endpoint : Endpoint<Request, Response>
                     Role.Staff };
 
             var token = JWTBearer.CreateToken(
-                Config["TokenKey"],
+                _config["TokenKey"],
                 expiryDate,
                 userPermissions,
                 userRoles,
@@ -84,7 +87,7 @@ public class Endpoint : Endpoint<Request, Response>
 
 public class Endpoint_V1 : Endpoint
 {
-    public Endpoint_V1(ILogger<Endpoint_V1> logger, IEmailService emailService) : base(logger, emailService) { }
+    public Endpoint_V1(ILogger<Endpoint_V1> logger, IEmailService emailService, IConfiguration configuration) : base(logger, emailService, configuration) { }
 
     public override void Configure()
     {

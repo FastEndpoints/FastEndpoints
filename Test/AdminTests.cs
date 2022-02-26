@@ -1,7 +1,11 @@
+using FakeItEasy;
 using FastEndpoints;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Net;
+using Web.Services;
 using static Test.Setup;
 
 namespace Test
@@ -26,18 +30,26 @@ namespace Test
         }
 
         [TestMethod]
-        public async Task AdminLoginInvalidCreds()
+        public void UnitAdminLoginWithBadInput()
         {
-            var (res, _) = await GuestClient.POSTAsync<
-                Admin.Login.Endpoint,
-                Admin.Login.Request,
-                Admin.Login.Response>(new()
-                {
-                    UserName = "admin",
-                    Password = "xxxxx"
-                });
+            //arrange
+            var ep = Factory.Create<Admin.Login.Endpoint>(
+                A.Fake<ILogger<Admin.Login.Endpoint>>(),
+                A.Fake<IEmailService>(),
+                A.Fake<IConfiguration>());
 
-            Assert.AreEqual(HttpStatusCode.BadRequest, res?.StatusCode);
+            var req = new Admin.Login.Request
+            {
+                UserName = "x",
+                Password = "y"
+            };
+
+            //act
+            ep.HandleAsync(req, default);
+
+            //assert
+            Assert.IsTrue(ep.ValidationFailed);
+            Assert.IsTrue(ep.ValidationFailures.Any(f => f.ErrorMessage == "Authentication Failed!"));
         }
 
         [TestMethod]
@@ -55,6 +67,49 @@ namespace Test
             Assert.AreEqual(HttpStatusCode.OK, resp?.StatusCode);
             Assert.AreEqual(7, result?.Permissions?.Count());
             Assert.IsTrue(result?.JWTToken is not null);
+        }
+
+        [TestMethod]
+        public void UnitAdminLoginSuccess()
+        {
+            //arrange
+            var fakeConfig = A.Fake<IConfiguration>();
+            A.CallTo(() => fakeConfig["TokenKey"]).Returns("0000000000000000");
+
+            var ep = Factory.Create<Admin.Login.Endpoint>(
+                A.Fake<ILogger<Admin.Login.Endpoint>>(),
+                A.Fake<IEmailService>(),
+                fakeConfig);
+
+            var req = new Admin.Login.Request
+            {
+                UserName = "admin",
+                Password = "pass"
+            };
+
+            //act
+            ep.HandleAsync(req, default);
+            var rsp = ep.Response;
+
+            //assert
+            Assert.IsFalse(ep.ValidationFailed);
+            Assert.IsNotNull(rsp);
+            Assert.IsTrue(rsp.Permissions.Contains("Inventory_Delete_Item"));
+        }
+
+        [TestMethod]
+        public async Task AdminLoginInvalidCreds()
+        {
+            var (res, _) = await GuestClient.POSTAsync<
+                Admin.Login.Endpoint,
+                Admin.Login.Request,
+                Admin.Login.Response>(new()
+                {
+                    UserName = "admin",
+                    Password = "xxxxx"
+                });
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, res?.StatusCode);
         }
 
         [TestMethod]

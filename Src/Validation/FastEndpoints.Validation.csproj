@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.7.1-beta2</Version>
+        <Version>3.8.0</Version>
 
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -20,7 +20,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon"/>
+        <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
     </ItemGroup>
 
 </Project>

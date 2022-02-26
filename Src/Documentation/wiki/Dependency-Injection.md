@@ -113,3 +113,27 @@ public override async Task HandleAsync(CancellationToken ct)
     ...
 }
 ```
+
+# dependency resolving for validators
+by default, validators are registered in the DI container as singletons for performance reasons. both the abovementioned `Resolve()` and `TryResolve()` methods are available for validators to get access to the dependencies it needs. you should also take care not to maintain state in the validator due to it being singleton scope.
+
+if for some reason you don't mind paying the performance penalty and would like to either maintain state in the validator or would like to do constructor injection, you may do so by instructing the endpoint to register the validator as a scoped dependency like so:
+
+```csharp
+public override void Configure()
+{
+    Get("/hello-world");
+    ScopedValidator();
+}
+```
+once you enable the validator to be registered as a `Scoped` dependency, you can use constructor injection on the validator like so:
+```csharp
+public class MyValidator : Validator<MyRequest>
+{
+    public MyValidator(IConfiguration config)
+    {
+        if (config is null)
+            throw new ArgumentNullException(nameof(config));
+    }
+}
+```

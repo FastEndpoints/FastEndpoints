@@ -48,7 +48,7 @@ it is also possible to set a `Tag` for an endpoint and use that tag to filter ou
 public override void Configure()
 {
     Get("client/update");
-    Tags("Deprecated", "ToBeDeleted");
+    Tags("Deprecated", "ToBeDeleted"); //has no relationship with swagger tags
 }
 
 app.UseFastEndpoints(c =>
@@ -100,9 +100,18 @@ app.UseFastEndpoints(c =>
 ```
 
 ## customizing de-serialization of json
-if you'd like to take control of how request bodies are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto to be created and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests with a json body. it is currently not possible to specify a deserialization function per endpoint.
+if you'd like to take control of how request bodies are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto to be created, json serializer context, and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests with a json body. it is currently not possible to specify a deserialization function per endpoint.
+
+input parameters:
+```yaml
+HttpRequest: the http request object
+Type: the type of the request dto
+JsonSerializerContext?: nullable json serializer context
+CancellationToken: a cancellation token
+```
+
 ```csharp
-config.RequestDeserializer = async (req, tDto, ct) =>
+config.RequestDeserializer = async (req, tDto, jCtx, ct) =>
 {
     using var reader = new StreamReader(req.Body);
     return Newtonsoft.Json.JsonConvert.DeserializeObject(await reader.ReadToEndAsync(), tDto);
@@ -118,11 +127,12 @@ the parameters supplied to the function are as follows:
 HttpResponse: the http response object
 object: the response dto to be serialized
 string: the response content-type
+JsonserializerContext?: nullable json serializer context
 CancellationToken: a cancellation token
 ```
 
 ```csharp
-config.ResponseSerializer = (rsp, dto, cType, ct) =>
+config.ResponseSerializer = (rsp, dto, cType, jCtx, ct) =>
 {
     rsp.ContentType = cType;
     return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);

@@ -135,7 +135,7 @@ Post(&quot;sales/recent-list&quot;); -&gt; &quot;/api/sales/recent-list&quot;
 <pre><code class="lang-csharp">public override void Configure()
 {
     Get(&quot;client/update&quot;);
-    Tags(&quot;Deprecated&quot;, &quot;ToBeDeleted&quot;);
+    Tags(&quot;Deprecated&quot;, &quot;ToBeDeleted&quot;); //has no relationship with swagger tags
 }
 
 app.UseFastEndpoints(c =&gt;
@@ -182,8 +182,14 @@ options to be applied to endpoints are performed on the <code>RouteHandlerBuilde
 });
 </code></pre>
 <h2 id="customizing-de-serialization-of-json">customizing de-serialization of json</h2>
-<p>if you'd like to take control of how request bodies are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto to be created and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests with a json body. it is currently not possible to specify a deserialization function per endpoint.</p>
-<pre><code class="lang-csharp">config.RequestDeserializer = async (req, tDto, ct) =&gt;
+<p>if you'd like to take control of how request bodies are deserialized, simply provide a function like the following. the function is supplied with the incoming http request object, the type of the dto to be created, json serializer context, and a cancellation token. deserialize the object how ever you want and return it from the function. do note that this function will be used to deserialize all incoming requests with a json body. it is currently not possible to specify a deserialization function per endpoint.</p>
+<p>input parameters:</p>
+<pre><code class="lang-yaml">HttpRequest: the http request object
+Type: the type of the request dto
+JsonSerializerContext?: nullable json serializer context
+CancellationToken: a cancellation token
+</code></pre>
+<pre><code class="lang-csharp">config.RequestDeserializer = async (req, tDto, jCtx, ct) =&gt;
 {
     using var reader = new StreamReader(req.Body);
     return Newtonsoft.Json.JsonConvert.DeserializeObject(await reader.ReadToEndAsync(), tDto);
@@ -195,9 +201,10 @@ options to be applied to endpoints are performed on the <code>RouteHandlerBuilde
 <pre><code class="lang-yaml">HttpResponse: the http response object
 object: the response dto to be serialized
 string: the response content-type
+JsonserializerContext?: nullable json serializer context
 CancellationToken: a cancellation token
 </code></pre>
-<pre><code class="lang-csharp">config.ResponseSerializer = (rsp, dto, cType, ct) =&gt;
+<pre><code class="lang-csharp">config.ResponseSerializer = (rsp, dto, cType, jCtx, ct) =&gt;
 {
     rsp.ContentType = cType;
     return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);

@@ -37,6 +37,7 @@ public class EndpointDefinition
     internal ResponseCacheAttribute? ResponseCacheSettings;
     internal HitCounter? HitCounter;
     internal JsonSerializerContext? SerializerContext;
+    internal bool ExecuteAsyncImplemented;
 }
 
 /// <summary>

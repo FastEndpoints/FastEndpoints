@@ -11,13 +11,6 @@ namespace FastEndpoints;
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : class, new() where TResponse : class, new()
 {
-    /// <summary>
-    /// the handler method for the endpoint. this method is called for each request received.
-    /// </summary>
-    /// <param name="req">the request dto</param>
-    /// <param name="ct">a cancellation token</param>
-    public abstract Task HandleAsync(TRequest req, CancellationToken ct);
-
     internal override async Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken cancellation)
     {
         _httpContext = ctx;
@@ -26,7 +19,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         {
             var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
 
-            OnBeforeValidate(req); await OnBeforeValidateAsync(req).ConfigureAwait(false);
+            OnBeforeValidate(req);
+            await OnBeforeValidateAsync(req).ConfigureAwait(false);
+
             await ValidateRequest(
                 req,
                 ctx,
@@ -34,6 +29,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 endpoint.PreProcessors,
                 ValidationFailures,
                 cancellation).ConfigureAwait(false);
+
             OnAfterValidate(req); await OnAfterValidateAsync(req).ConfigureAwait(false);
 
             await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
@@ -41,9 +37,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             if (ctx.Response.HasStarted)
                 return; //response already sent to client (most likely from a preprocessor)
 
-            OnBeforeHandle(req); await OnBeforeHandleAsync(req).ConfigureAwait(false);
-            await HandleAsync(req, cancellation).ConfigureAwait(false);
+            OnBeforeHandle(req);
+            await OnBeforeHandleAsync(req).ConfigureAwait(false);
+
+            if (endpoint.ExecuteAsyncImplemented)
+                _response = await ExecuteAsync(req, cancellation).ConfigureAwait(false);
+            else
+                await HandleAsync(req, cancellation).ConfigureAwait(false);
+
             await SendReponseIfNotSent(ctx, _response, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
+
             OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response).ConfigureAwait(false);
 
             await RunPostProcessors(endpoint.PostProcessors, req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
@@ -53,6 +56,22 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             await SendErrorsAsync(cancellation).ConfigureAwait(false);
         }
     }
+
+    /// <summary>
+    /// the handler method for the endpoint. this method is called for each request received.
+    /// </summary>
+    /// <param name="req">the request dto</param>
+    /// <param name="ct">a cancellation token</param>
+    [NotImplemented]
+    public virtual Task HandleAsync(TRequest req, CancellationToken ct) => throw new NotImplementedException();
+
+    /// <summary>
+    /// the handler method for the endpoint that returns the response dto. this method is called for each request received.
+    /// </summary>
+    /// <param name="req">the request dto</param>
+    /// <param name="ct">a cancellation token</param>
+    [NotImplemented]
+    public virtual Task<TResponse> ExecuteAsync(TRequest req, CancellationToken ct) => throw new NotImplementedException();
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
@@ -100,13 +119,27 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest>
     /// the handler method for the endpoint. this method is called for each request received.
     /// </summary>
     /// <param name="ct">a cancellation token</param>
-    public abstract Task HandleAsync(CancellationToken ct);
+    [NotImplemented]
+    public virtual Task HandleAsync(CancellationToken ct) => throw new NotImplementedException();
 
     /// <summary>
     /// override the HandleAsync(CancellationToken ct) method instead of using this method!
     /// </summary>
-    public sealed override Task HandleAsync(EmptyRequest _, CancellationToken ct)
-        => HandleAsync(ct);
+    [NotImplemented]
+    public sealed override Task HandleAsync(EmptyRequest _, CancellationToken ct) => HandleAsync(ct);
+
+    /// <summary>
+    /// the handler method for the endpoint. this method is called for each request received.
+    /// </summary>
+    /// <param name="ct">a cancellation token</param>
+    [NotImplemented]
+    public virtual Task<object> ExecuteAsync(CancellationToken ct) => throw new NotImplementedException();
+
+    /// <summary>
+    /// override the ExecuteAsync(CancellationToken ct) method instead of using this method!
+    /// </summary>
+    [NotImplemented]
+    public sealed override Task<object> ExecuteAsync(EmptyRequest _, CancellationToken ct) => ExecuteAsync(ct);
 
     /// <summary>
     /// get the value of a given route parameter by specifying the resulting type.
@@ -149,13 +182,27 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
     /// the handler method for the endpoint. this method is called for each request received.
     /// </summary>
     /// <param name="ct">a cancellation token</param>
-    public abstract Task HandleAsync(CancellationToken ct);
+    [NotImplemented]
+    public virtual Task HandleAsync(CancellationToken ct) => throw new NotImplementedException();
 
     /// <summary>
     /// override the HandleAsync(CancellationToken ct) method instead of using this method!
     /// </summary>
-    public sealed override Task HandleAsync(EmptyRequest _, CancellationToken ct)
-        => HandleAsync(ct);
+    [NotImplemented]
+    public sealed override Task HandleAsync(EmptyRequest _, CancellationToken ct) => HandleAsync(ct);
+
+    /// <summary>
+    /// the handler method for the endpoint that returns the response dto. this method is called for each request received.
+    /// </summary>
+    /// <param name="ct">a cancellation token</param>
+    [NotImplemented]
+    public virtual Task<TResponse> ExecuteAsync(CancellationToken ct) => throw new NotImplementedException();
+
+    /// <summary>
+    /// override the ExecuteAsync(CancellationToken ct) method instead of using this method!
+    /// </summary>
+    [NotImplemented]
+    public sealed override Task<TResponse> ExecuteAsync(EmptyRequest _, CancellationToken ct) => ExecuteAsync(ct);
 
     /// <summary>
     /// get the value of a given route parameter by specifying the resulting type.

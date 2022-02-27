@@ -1,6 +1,7 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 
@@ -39,7 +40,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (ep.ValidatorType is null)
             return;
 
-        var validator = (IValidator<TRequest>)ctx.RequestServices.GetService(ep.ValidatorType)!;
+        var validator = (IValidator<TRequest>)ctx.RequestServices.GetRequiredService(ep.ValidatorType)!;
 
         var valResult = await validator.ValidateAsync(req, cancellation).ConfigureAwait(false);
 

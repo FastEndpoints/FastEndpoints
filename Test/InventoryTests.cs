@@ -129,11 +129,13 @@ namespace Test
         [TestMethod]
         public async Task ResponseCaching()
         {
-            var (_, res1) = await GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+            var (rsp1, res1) = await GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+            Assert.AreEqual(HttpStatusCode.OK, rsp1?.StatusCode);
 
             await Task.Delay(100);
 
-            var (_, res2) = await GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+            var (rsp2, res2) = await GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+            Assert.AreEqual(HttpStatusCode.OK, rsp2?.StatusCode);
 
             Assert.AreEqual(res1?.LastModified, res2?.LastModified);
         }

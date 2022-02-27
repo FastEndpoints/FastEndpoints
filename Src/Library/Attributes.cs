@@ -118,3 +118,6 @@ public class BindFromAttribute : Attribute
 /// </summary>
 [AttributeUsage(AttributeTargets.All, AllowMultiple = false), HideFromDocs]
 public class HideFromDocsAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
+internal sealed class NotImplementedAttribute : Attribute { }

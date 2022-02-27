@@ -1,6 +1,5 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -10,9 +9,9 @@ namespace FastEndpoints;
 internal sealed class EndpointData
 {
     //using Lazy<T> to prevent contention when WAF testing (see issue #10)
-    private readonly Lazy<IEnumerable<EndpointDefinition>> _endpoints;
+    private readonly Lazy<EndpointDefinition[]> _endpoints;
 
-    internal IEnumerable<EndpointDefinition> Found => _endpoints.Value;
+    internal EndpointDefinition[] Found => _endpoints.Value;
 
     internal static Stopwatch Stopwatch { get; } = new();
 
@@ -22,7 +21,7 @@ internal sealed class EndpointData
         {
             var endpoints = BuildEndpointDefinitions(services);
 
-            if (!endpoints.Any())
+            if (endpoints.Length == 0)
                 throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
 
             return endpoints!;
@@ -33,7 +32,7 @@ internal sealed class EndpointData
         _ = _endpoints.Value;
     }
 
-    private static IEnumerable<EndpointDefinition> BuildEndpointDefinitions(IServiceCollection services)
+    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services)
     {
         Stopwatch.Start();
 
@@ -103,9 +102,7 @@ internal sealed class EndpointData
             }
         }
 
-        var defBag = new ConcurrentBag<EndpointDefinition>();
-
-        Parallel.ForEach(epList, new() { MaxDegreeOfParallelism = 4 }, x =>
+        return epList.Select(x =>
         {
             var def = new EndpointDefinition()
             {
@@ -127,6 +124,30 @@ internal sealed class EndpointData
             if (serviceBoundEpProps.Length > 0)
                 def.ServiceBoundEpProps = serviceBoundEpProps;
 
+            var implementsHandleAsync = false;
+            var implementsExecuteAsync = false;
+
+            foreach (var m in x.tEndpoint.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
+            {
+                if (m.Name == "HandleAsync" && !m.IsDefined(Types.NotImplementedAttribute, false))
+                {
+                    implementsHandleAsync = true;
+                }
+
+                if (m.Name == "ExecuteAsync" && !m.IsDefined(Types.NotImplementedAttribute, false))
+                {
+                    implementsExecuteAsync = true;
+                }
+            }
+
+            if (!implementsHandleAsync && !implementsExecuteAsync)
+                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
+
+            if (implementsHandleAsync && implementsExecuteAsync)
+                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
+
+            def.ExecuteAsyncImplemented = implementsExecuteAsync;
+
             var instance = (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)!;
             instance.Configuration = def;
             instance.Configure();
@@ -134,15 +155,16 @@ internal sealed class EndpointData
 
             if (instance.Configuration.ValidatorType is not null)
             {
+                var xxx = instance.Configuration.ValidatorType.FullName == "TestCases.OnBeforeAfterValidationTest.Validator";
+
                 if (instance.Configuration.ScopedValidator)
                     services.AddScoped(instance.Configuration.ValidatorType);
-
-                services.AddSingleton(instance.Configuration.ValidatorType);
+                else
+                    services.AddSingleton(instance.Configuration.ValidatorType);
             }
 
-            defBag.Add(def);
-        });
+            return def;
 
-        return defBag;
+        }).ToArray();
     }
 }

@@ -2,15 +2,17 @@
 
     <PropertyGroup>
 
-        <Version>3.8.0</Version>
+        <Version>3.8.1</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - ability to unit test endpoints with `Factory.Create&lt;TEndpoint&gt;()`
-            - constructor injection support for validators with `ScopedValidator()` method
+            - allow handlers to return the dto object via `Task[TResponse] ExecuteAsync()` override
+
+            ### CHANGES (non-breaking)
+            - `HandleAsync()` method is no longer marked as abstract. you must now implement either `HandleAsync()` or `ExecuteAsync()`
 
             ### IMPROVEMENTS
-            - reduce startup time via parallelization
+            - remove startup parallelization due to occasional stability issues with di registration
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

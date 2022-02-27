@@ -16,9 +16,9 @@ public class Endpoint : EndpointWithoutRequest
         Options(o => o.Produces<Response>(200));
     }
 
-    public override Task HandleAsync(CancellationToken ct)
+    public override Task<object> ExecuteAsync(CancellationToken ct)
     {
-        return SendAsync(new Response
+        return Task.FromResult((object)new Response
         {
             Customers = new[] {
                     new KeyValuePair<string,int>("ryan gunner", 123),

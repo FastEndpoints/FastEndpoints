@@ -21,6 +21,18 @@ namespace Test
         }
 
         [TestMethod]
+        public async Task UnitListRecentCustomers()
+        {
+            var res = await Factory
+                .Create<Customers.List.Recent.Endpoint>()
+                .ExecuteAsync(default) as Customers.List.Recent.Response;
+
+            Assert.AreEqual(3, res?.Customers?.Count());
+            Assert.AreEqual("ryan gunner", res?.Customers?.First().Key);
+            Assert.AreEqual("ryan reynolds", res?.Customers?.Last().Key);
+        }
+
+        [TestMethod]
         public async Task ListRecentCustomersCookieScheme()
         {
             var (rsp, _) = await AdminClient.GETAsync<

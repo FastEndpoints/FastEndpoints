@@ -10,12 +10,13 @@
             ResponseCache(10);
         }
 
-        public override Task HandleAsync(CancellationToken ct)
+        public override Task<Response> ExecuteAsync(CancellationToken ct)
         {
-            Response.ProductID = HttpContext.Request.RouteValues["ProductID"]?.ToString();
-            Response.LastModified = DateTime.UtcNow.Ticks;
-
-            return Task.CompletedTask;
+            return Task.FromResult(new Response()
+            {
+                LastModified = DateTime.UtcNow.Ticks,
+                ProductID = Route<string>("ProductID")
+            });
         }
     }
 }

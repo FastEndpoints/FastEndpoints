@@ -36,11 +36,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, object? preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        var validator = ep.ValidatorType != null
-                        ? (IValidator<TRequest>?)ctx.RequestServices.GetService(ep.ValidatorType)
-                        : null;
+        if (ep.ValidatorType is null)
+            return;
 
-        if (validator is null) return;
+        var validator = (IValidator<TRequest>)ctx.RequestServices.GetService(ep.ValidatorType)!;
 
         var valResult = await validator.ValidateAsync(req, cancellation).ConfigureAwait(false);
 

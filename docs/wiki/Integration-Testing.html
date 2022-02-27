@@ -138,6 +138,30 @@ public async Task AdminLoginSuccess()
 <p>use the <code>Factory.Create()</code> method by passing it the mocked dependencies which are needed by the endpoint constructor, if there's any. it has multiple overloads that enables you to instantiate endpoints with or without constructor arguments.</p>
 <p>then simply execute the handler by passing in a request dto and a default cancellation token.</p>
 <p>finally do your assertions on the <code>Response</code> property of the endpoint instance.</p>
+<h3 id="handler-method-which-returns-the-response-dto">handler method which returns the response dto</h3>
+<p>if you prefer to return the dto object from your handler, you can implement the <code>ExecuteAsync()</code> method instead of <code>HandleAsync()</code> like so:</p>
+<pre><code class="lang-csharp">public class AdminLogin : Endpoint&lt;Request, Response&gt;
+{
+    public override void Configure()
+    {
+        Post(&quot;/admin/login&quot;);
+        AllowAnonymous();
+    }
+
+    public override Task&lt;Response&gt; ExecuteAsync(Request req, CancellationToken ct)
+    {
+        return Task.FromResult(
+            new Response
+            {
+                JWTToken = &quot;xxx&quot;,
+                ExpiresOn = &quot;yyy&quot;
+            });
+    }
+}
+</code></pre>
+<p>by doing the above, you can simply access the response dto like below instead of through the <code>Response</code> property of the endpoint when unit testing.</p>
+<pre><code class="lang-csharp">var res = await ep.ExecuteAsync(req, default);
+</code></pre>
 </article>
           </div>
           

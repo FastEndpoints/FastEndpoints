@@ -492,6 +492,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Env
   nameWithType: Endpoint<TRequest, TResponse>.Env
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Env
+- uid: FastEndpoints.Endpoint`2.ExecuteAsync(`0,CancellationToken)
+  name: ExecuteAsync(TRequest, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ExecuteAsync__0_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.ExecuteAsync(`0,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ExecuteAsync(TRequest, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ExecuteAsync(TRequest, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.ExecuteAsync(TRequest, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ExecuteAsync(TRequest, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.ExecuteAsync*
+  name: ExecuteAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ExecuteAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.ExecuteAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ExecuteAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ExecuteAsync
+  nameWithType: Endpoint<TRequest, TResponse>.ExecuteAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ExecuteAsync
 - uid: FastEndpoints.Endpoint`2.Files
   name: Files
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Files
@@ -1905,6 +1922,25 @@ references:
   commentId: T:FastEndpoints.EndpointWithoutRequest
   fullName: FastEndpoints.EndpointWithoutRequest
   nameWithType: EndpointWithoutRequest
+- uid: FastEndpoints.EndpointWithoutRequest.ExecuteAsync(CancellationToken)
+  name: ExecuteAsync(CancellationToken)
+  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_ExecuteAsync_CancellationToken_
+  commentId: M:FastEndpoints.EndpointWithoutRequest.ExecuteAsync(CancellationToken)
+  fullName: FastEndpoints.EndpointWithoutRequest.ExecuteAsync(CancellationToken)
+  nameWithType: EndpointWithoutRequest.ExecuteAsync(CancellationToken)
+- uid: FastEndpoints.EndpointWithoutRequest.ExecuteAsync(FastEndpoints.EmptyRequest,CancellationToken)
+  name: ExecuteAsync(EmptyRequest, CancellationToken)
+  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_ExecuteAsync_FastEndpoints_EmptyRequest_CancellationToken_
+  commentId: M:FastEndpoints.EndpointWithoutRequest.ExecuteAsync(FastEndpoints.EmptyRequest,CancellationToken)
+  fullName: FastEndpoints.EndpointWithoutRequest.ExecuteAsync(FastEndpoints.EmptyRequest, CancellationToken)
+  nameWithType: EndpointWithoutRequest.ExecuteAsync(EmptyRequest, CancellationToken)
+- uid: FastEndpoints.EndpointWithoutRequest.ExecuteAsync*
+  name: ExecuteAsync
+  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_ExecuteAsync_
+  commentId: Overload:FastEndpoints.EndpointWithoutRequest.ExecuteAsync
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointWithoutRequest.ExecuteAsync
+  nameWithType: EndpointWithoutRequest.ExecuteAsync
 - uid: FastEndpoints.EndpointWithoutRequest.HandleAsync(CancellationToken)
   name: HandleAsync(CancellationToken)
   href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_HandleAsync_CancellationToken_
@@ -1949,6 +1985,31 @@ references:
   fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse)
   nameWithType: EndpointWithoutRequest<TResponse>
   nameWithType.vb: EndpointWithoutRequest(Of TResponse)
+- uid: FastEndpoints.EndpointWithoutRequest`1.ExecuteAsync(CancellationToken)
+  name: ExecuteAsync(CancellationToken)
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_ExecuteAsync_CancellationToken_
+  commentId: M:FastEndpoints.EndpointWithoutRequest`1.ExecuteAsync(CancellationToken)
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.ExecuteAsync(CancellationToken)
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).ExecuteAsync(CancellationToken)
+  nameWithType: EndpointWithoutRequest<TResponse>.ExecuteAsync(CancellationToken)
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse).ExecuteAsync(CancellationToken)
+- uid: FastEndpoints.EndpointWithoutRequest`1.ExecuteAsync(FastEndpoints.EmptyRequest,CancellationToken)
+  name: ExecuteAsync(EmptyRequest, CancellationToken)
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_ExecuteAsync_FastEndpoints_EmptyRequest_CancellationToken_
+  commentId: M:FastEndpoints.EndpointWithoutRequest`1.ExecuteAsync(FastEndpoints.EmptyRequest,CancellationToken)
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.ExecuteAsync(FastEndpoints.EmptyRequest, CancellationToken)
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).ExecuteAsync(FastEndpoints.EmptyRequest, CancellationToken)
+  nameWithType: EndpointWithoutRequest<TResponse>.ExecuteAsync(EmptyRequest, CancellationToken)
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse).ExecuteAsync(EmptyRequest, CancellationToken)
+- uid: FastEndpoints.EndpointWithoutRequest`1.ExecuteAsync*
+  name: ExecuteAsync
+  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_ExecuteAsync_
+  commentId: Overload:FastEndpoints.EndpointWithoutRequest`1.ExecuteAsync
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.ExecuteAsync
+  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).ExecuteAsync
+  nameWithType: EndpointWithoutRequest<TResponse>.ExecuteAsync
+  nameWithType.vb: EndpointWithoutRequest(Of TResponse).ExecuteAsync
 - uid: FastEndpoints.EndpointWithoutRequest`1.HandleAsync(CancellationToken)
   name: HandleAsync(CancellationToken)
   href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_HandleAsync_CancellationToken_

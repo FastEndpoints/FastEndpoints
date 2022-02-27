@@ -48,3 +48,32 @@ use the `Factory.Create()` method by passing it the mocked dependencies which ar
 then simply execute the handler by passing in a request dto and a default cancellation token.
 
 finally do your assertions on the `Response` property of the endpoint instance.
+
+### handler method which returns the response dto
+if you prefer to return the dto object from your handler, you can implement the `ExecuteAsync()` method instead of `HandleAsync()` like so:
+```csharp
+public class AdminLogin : Endpoint<Request, Response>
+{
+    public override void Configure()
+    {
+        Post("/admin/login");
+        AllowAnonymous();
+    }
+
+    public override Task<Response> ExecuteAsync(Request req, CancellationToken ct)
+    {
+        return Task.FromResult(
+            new Response
+            {
+                JWTToken = "xxx",
+                ExpiresOn = "yyy"
+            });
+    }
+}
+```
+
+by doing the above, you can simply access the response dto like below instead of through the `Response` property of the endpoint when unit testing.
+
+```csharp
+var res = await ep.ExecuteAsync(req, default);
+```

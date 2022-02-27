@@ -138,7 +138,7 @@ public static class MainExtensions
 
         Task.Run(async () =>
         {
-            //release memory held by endpointData after 10 mins as it's not needed after app startup.
+            //release memory held by _endpoints static variable after 10 mins as it's not needed after app startup.
             //we wait for 10 minutes in case WAF might create multiple instances of the web application in some testing scenarios.
             //if someone's tests run for more than 10 minutes, we should make this a user configurable setting.
 

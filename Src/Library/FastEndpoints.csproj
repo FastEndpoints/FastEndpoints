@@ -2,17 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.8.1</Version>
+        <Version>3.9.0-beta1</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - allow handlers to return the dto object via `Task[TResponse] ExecuteAsync()` override
-
-            ### CHANGES (non-breaking)
-            - `HandleAsync()` method is no longer marked as abstract. you must now implement either `HandleAsync()` or `ExecuteAsync()`
-
-            ### IMPROVEMENTS
-            - remove startup parallelization due to occasional stability issues with di registration
+            - endpoint discovery from additional assemblies
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

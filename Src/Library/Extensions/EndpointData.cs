@@ -15,11 +15,11 @@ internal sealed class EndpointData
 
     internal static Stopwatch Stopwatch { get; } = new();
 
-    internal EndpointData(IServiceCollection services)
+    internal EndpointData(IServiceCollection services, IEnumerable<Assembly>? assemblies)
     {
         _endpoints = new(() =>
         {
-            var endpoints = BuildEndpointDefinitions(services);
+            var endpoints = BuildEndpointDefinitions(services, assemblies ?? Enumerable.Empty<Assembly>());
 
             if (endpoints.Length == 0)
                 throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
@@ -32,7 +32,7 @@ internal sealed class EndpointData
         _ = _endpoints.Value;
     }
 
-    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services)
+    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services, IEnumerable<Assembly> assemblies)
     {
         Stopwatch.Start();
 
@@ -50,6 +50,7 @@ internal sealed class EndpointData
 
         var discoveredTypes = AppDomain.CurrentDomain
             .GetAssemblies()
+            .Union(assemblies)
             .Where(a =>
                 !a.IsDynamic &&
                 !excludes.Any(n => a.FullName!.StartsWith(n)))

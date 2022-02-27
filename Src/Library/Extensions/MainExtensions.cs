@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Reflection;
 using System.Text;
 using static FastEndpoints.Config;
 
@@ -23,9 +24,10 @@ public static class MainExtensions
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
     /// </summary>
     /// <param name="services"></param>
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
+    /// <param name="endpointAssmeblies">an optional collection of additional assemblies to discover endpoints from</param>
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, IEnumerable<Assembly>? endpointAssmeblies = null)
     {
-        _endpoints = new(services);
+        _endpoints = new(services, endpointAssmeblies);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();
         return services;

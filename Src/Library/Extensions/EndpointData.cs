@@ -155,8 +155,6 @@ internal sealed class EndpointData
 
             if (instance.Configuration.ValidatorType is not null)
             {
-                var xxx = instance.Configuration.ValidatorType.FullName == "TestCases.OnBeforeAfterValidationTest.Validator";
-
                 if (instance.Configuration.ScopedValidator)
                     services.AddScoped(instance.Configuration.ValidatorType);
                 else

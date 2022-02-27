@@ -1,11 +1,13 @@
 ## Head-To-Head Benchmark
 
-|                  Method |     Mean | Ratio |  Gen 0 |  Gen 1 | Allocated |
-|------------------------ |---------:|------:|-------:|-------:|----------:|
-|           FastEndpoints | 46.80 μs |  1.00 | 2.1000 |      - |     17 KB |
-|              MinimalApi | 48.06 μs |  1.03 | 2.1000 | 0.1000 |     18 KB |
-| FastEndpointsThrottling | 54.74 μs |  1.17 | 2.2000 |      - |     18 KB |
-|           AspNetCoreMVC | 78.82 μs |  1.68 | 2.9000 | 0.1000 |     24 KB |
+|                           Method |     Mean | Ratio |  Gen 0 |  Gen 1 | Allocated |
+|--------------------------------- |---------:|------:|-------:|-------:|----------:|
+|                    FastEndpoints | 45.99 μs |  1.00 | 2.0000 |      - |     17 KB |
+|          FastEndpoints (CodeGen) | 46.27 μs |  1.01 | 2.0000 |      - |     17 KB |
+|             AspNet 6 Minimal Api | 47.22 μs |  1.03 | 2.1000 |      - |     18 KB |
+|       FastEndpoints (Throttling) | 48.14 μs |  1.05 | 2.2000 |      - |     18 KB |
+| FastEndpoints (Scoped Validator) | 66.50 μs |  1.45 | 3.2000 | 0.1000 |     26 KB |
+|          AspNet 6 MVC Controller | 80.51 μs |  1.75 | 2.9000 |      - |     24 KB |
 
 ## Bombardier Load Test *(best out of 5 runs)*
 

@@ -6,15 +6,13 @@ using System.Text.Json;
 
 namespace Runner;
 
-[
-    SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 10, invocationCount: 10000),
-    MemoryDiagnoser
-]
+[MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 10, invocationCount: 10000)]
 public class Benchmarks
 {
     private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
     private static HttpClient FECodeGenClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
     private static HttpClient FEThrottleClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
+    private static HttpClient FEScopedValidatorClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
     private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
     private static readonly StringContent Payload = new(
@@ -56,6 +54,19 @@ public class Benchmarks
         };
 
         return FECodeGenClient.SendAsync(msg);
+    }
+
+    [Benchmark]
+    public Task FastEndpointsScopedValidator()
+    {
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{FEScopedValidatorClient.BaseAddress}benchmark/scoped-validator/123"),
+            Content = Payload
+        };
+
+        return FEScopedValidatorClient.SendAsync(msg);
     }
 
     [Benchmark]

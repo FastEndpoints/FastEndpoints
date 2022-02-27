@@ -115,7 +115,7 @@ public override async Task HandleAsync(CancellationToken ct)
 ```
 
 # dependency resolving for validators
-by default, validators are registered in the DI container as singletons for performance reasons. both the abovementioned `Resolve()` and `TryResolve()` methods are available for validators to get access to the dependencies it needs. you should also take care not to maintain state in the validator due to it being singleton scope.
+by default, validators are registered in the DI container as singletons for [performance reasons](Benchmarks.md). both the above-mentioned `Resolve()` and `TryResolve()` methods are available for validators to get access to the dependencies it needs. you should also take care not to maintain state in the validator due to it being singleton scope.
 
 if for some reason you don't mind paying the performance penalty and would like to either maintain state in the validator or would like to do constructor injection, you may do so by instructing the endpoint to register the validator as a scoped dependency like so:
 

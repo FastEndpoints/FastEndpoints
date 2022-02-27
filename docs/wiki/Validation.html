@@ -201,7 +201,7 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
 <p><strong>ThrowError()</strong> - this method will abort execution immediately and send an error response to the client.</p>
 <div class="NOTE">
 <h5>Note</h5>
-<p>by default, validators are used as singletons for performance reasons. i.e. there will only ever be one instance of a validator. all requests to an endpoint will use that single instance for validating the incoming request. so, you should not maintain state in your validators. if you must have state in the validator or would like to do constructor dependency injection by paying the performance penalty, you may do so as shown <a href="Dependency-Injection.html#dependency-resolving-for-validators">here</a>.</p>
+<p>by default, validators are used as singletons for <a href="Benchmarks.html">performance reasons</a>. i.e. there will only ever be one instance of a validator. all requests to an endpoint will use that single instance for validating the incoming request. so, you should not maintain state in your validators. if you must have state in the validator or would like to do constructor dependency injection by paying the performance penalty, you may do so as shown <a href="Dependency-Injection.html#dependency-resolving-for-validators">here</a>.</p>
 </div>
 </article>
           </div>

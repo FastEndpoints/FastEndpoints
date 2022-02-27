@@ -190,7 +190,7 @@ service : ILogger
 }
 </code></pre>
 <h1 id="dependency-resolving-for-validators">dependency resolving for validators</h1>
-<p>by default, validators are registered in the DI container as singletons for performance reasons. both the abovementioned <code>Resolve()</code> and <code>TryResolve()</code> methods are available for validators to get access to the dependencies it needs. you should also take care not to maintain state in the validator due to it being singleton scope.</p>
+<p>by default, validators are registered in the DI container as singletons for <a href="Benchmarks.html">performance reasons</a>. both the above-mentioned <code>Resolve()</code> and <code>TryResolve()</code> methods are available for validators to get access to the dependencies it needs. you should also take care not to maintain state in the validator due to it being singleton scope.</p>
 <p>if for some reason you don't mind paying the performance penalty and would like to either maintain state in the validator or would like to do constructor injection, you may do so by instructing the endpoint to register the validator as a scoped dependency like so:</p>
 <pre><code class="lang-csharp">public override void Configure()
 {

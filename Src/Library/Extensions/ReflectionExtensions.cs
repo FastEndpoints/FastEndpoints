@@ -16,21 +16,13 @@ internal static class ReflectionExtensions
 
     internal static Func<object, object> GetterForProp(this Type source, string propertyName)
     {
-        var propertyInfo = source.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        //(object parent, object returnVal) => ((object)((TParent)parent).property);
 
-        if (propertyInfo?.CanRead != true)
-            throw new InvalidOperationException($"[{source.FullName}.{propertyName}] is not readable!");
+        var parent = Expression.Parameter(Types.Object);
+        var property = Expression.Property(Expression.Convert(parent, source), propertyName);
+        var convertProp = Expression.Convert(property, Types.Object);
 
-        var sourceObjectParam = Expression.Parameter(Types.Object, "source");
-
-        Expression returnExpression = Expression.Call(
-            Expression.Convert(sourceObjectParam, source),
-            propertyInfo.GetGetMethod()!);
-
-        if (!propertyInfo.PropertyType.IsClass)
-            returnExpression = Expression.Convert(returnExpression, Types.Object);
-
-        return Expression.Lambda<Func<object, object>>(returnExpression, sourceObjectParam).Compile();
+        return Expression.Lambda<Func<object, object>>(convertProp, parent).Compile();
     }
 
     internal static Action<object, object> SetterForProp(this Type source, string propertyName)
@@ -74,14 +66,11 @@ internal static class ReflectionExtensions
             return input => (true, new Uri((string)input!));
 
         var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, type.MakeByRefType() });
-        var xxx = type.GetMethods();
-        var yyy = type.GetRuntimeMethods();
-
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             return null;
 
         // The 'object' parameter passed into our delegate
-        var inputParameter = Expression.Parameter(typeof(object), "input");
+        var inputParameter = Expression.Parameter(Types.Object, "input");
 
         // 'input == null ? (string)null : input.ToString()'
         var toStringConversion = Expression.Condition(

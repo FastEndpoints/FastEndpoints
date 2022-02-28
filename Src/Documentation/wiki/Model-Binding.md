@@ -233,6 +233,21 @@ public class GetArticle : EndpointWithoutRequest
 Route<Point>("point", isRequired: false);
 ```
 
+## binding to raw request content
+if you need to access the raw request content as a string (i.e. you wan't to enqueue whathever was posted to your endpoint for later processing), your request dto must implement the interface `IPlainTextRequest`:
+
+```csharp
+public class Request : IPlainTextRequest
+{
+    /// <summary>
+    /// Request content.
+    /// </summary>
+    public string Content { get; set; }
+
+    // add other properties in case you need to access other values from route/query/etc.
+}
+```
+
 # json serialization casing
 by default the serializer uses **camel casing** for serializing/deserializing. you can change the casing as shown in the [configuration settings](Configuration-Settings.md#specify-json-serializer-options) section.
 

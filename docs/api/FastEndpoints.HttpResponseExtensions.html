@@ -146,8 +146,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendAsync&lt;TResponse&gt;(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)
-    where TResponse : class</code></pre>
+    <pre><code class="lang-csharp hljs">public static Task SendAsync&lt;TResponse&gt;(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -383,6 +382,7 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>

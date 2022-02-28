@@ -234,19 +234,15 @@ Route<Point>("point", isRequired: false);
 ```
 
 ## binding to raw request content
-if you need to access the raw request content as a string (i.e. you wan't to enqueue whathever was posted to your endpoint for later processing), your request dto must implement the interface `IPlainTextRequest`:
-
+if you need to access the raw request content as a string, you can achieve that by implementing the interface `IPlainTextRequest` like so:
 ```csharp
 public class Request : IPlainTextRequest
 {
-    /// <summary>
-    /// Request content.
-    /// </summary>
     public string Content { get; set; }
-
-    // add other properties in case you need to access other values from route/query/etc.
 }
 ```
+when your dto implements `IPlainTextRequest`, json model binding won't occur. instead, the `Content` property is populated with the content of the request body.
+other properties can also be added to your dto in case you need to access some other values like route/query/form field/header/claim values.
 
 # json serialization casing
 by default the serializer uses **camel casing** for serializing/deserializing. you can change the casing as shown in the [configuration settings](Configuration-Settings.md#specify-json-serializer-options) section.

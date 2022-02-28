@@ -286,6 +286,15 @@ public string UserID { get; set; }
 <p><strong>note:</strong> the <code>Route&lt;T&gt;()</code> method is also only able to handle types that has a static <code>TryParse()</code> method as mentioned above. if there's no static <code>TryParse()</code> method or if parsing fails, an automatic validation failure response is sent to the client. this behavior can be turned off with the following overload:</p>
 <pre><code class="lang-csharp">Route&lt;Point&gt;(&quot;point&quot;, isRequired: false);
 </code></pre>
+<h2 id="binding-to-raw-request-content">binding to raw request content</h2>
+<p>if you need to access the raw request content as a string, you can achieve that by implementing the interface <code>IPlainTextRequest</code> like so:</p>
+<pre><code class="lang-csharp">public class Request : IPlainTextRequest
+{
+    public string Content { get; set; }
+}
+</code></pre>
+<p>when your dto implements <code>IPlainTextRequest</code>, json model binding won't occur. instead, the <code>Content</code> property is populated with the content of the request body.
+other properties can also be added to your dto in case you need to access some other values like route/query/form field/header/claim values.</p>
 <h1 id="json-serialization-casing">json serialization casing</h1>
 <p>by default the serializer uses <strong>camel casing</strong> for serializing/deserializing. you can change the casing as shown in the <a href="Configuration-Settings.html#specify-json-serializer-options">configuration settings</a> section.</p>
 <h1 id="json-source-generator-support">json source generator support</h1>

@@ -2909,12 +2909,15 @@ references:
   commentId: T:FastEndpoints.MainExtensions
   fullName: FastEndpoints.MainExtensions
   nameWithType: MainExtensions
-- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  name: AddFastEndpoints(IServiceCollection)
-  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_
-  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection)
-  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection)
+- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{IEnumerable{System.Reflection.Assembly}})
+  name: AddFastEndpoints(IServiceCollection, Nullable<IEnumerable<Assembly>>)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_IEnumerable_System_Reflection_Assembly___
+  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{IEnumerable{System.Reflection.Assembly}})
+  name.vb: AddFastEndpoints(IServiceCollection, Nullable(Of IEnumerable(Of Assembly)))
+  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<IEnumerable<System.Reflection.Assembly>>)
+  fullName.vb: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of IEnumerable(Of System.Reflection.Assembly)))
+  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable<IEnumerable<Assembly>>)
+  nameWithType.vb: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable(Of IEnumerable(Of Assembly)))
 - uid: FastEndpoints.MainExtensions.AddFastEndpoints*
   name: AddFastEndpoints
   href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_

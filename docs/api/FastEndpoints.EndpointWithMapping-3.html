@@ -379,8 +379,9 @@
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
   <h5 id="FastEndpoints_EndpointWithMapping_3_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class EndpointWithMapping&lt;TRequest, TResponse, TEntity&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : class, new()
-    where TResponse : class, new()</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class EndpointWithMapping&lt;TRequest, TResponse, TEntity&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : new()
+
+    where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">

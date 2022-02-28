@@ -65,7 +65,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EmptyRequest.html",
-          "hash": "kDwg5GWX/nbgI2c1m/ffJqgOKHxMp3+KixUeklnzA70="
+          "hash": "ba2D6F9Jk7CbrnplGf8qCnl0mLvDLqakcQRjN+giSSA="
         }
       },
       "is_incremental": false,
@@ -77,7 +77,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EmptyResponse.html",
-          "hash": "QctjUNeflZkWVFW1dwDOtrsKVnfBncPK/BDdpuMSobw="
+          "hash": "TWsv7xsevJhhEsMgMPV0g531WFgMFKWXvLbRruLMm8w="
         }
       },
       "is_incremental": false,
@@ -89,7 +89,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-1.html",
-          "hash": "+rjA0W2DTq0ocfxzyveXgp7IWZA83UOq1PH2ChczEco="
+          "hash": "BzhEIUyU25KdJgHJEJCdloSSidrwX5OcON8tg22NinM="
         }
       },
       "is_incremental": false,
@@ -101,7 +101,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-2.html",
-          "hash": "YMhbqjhenq8vxez0PhW6vIVYMSGGV8RKMGt5kcK7TDY="
+          "hash": "K8pIdtPmFoDxlUeaa0VPjgy2sCcpuJimfRG6oshzBGA="
         }
       },
       "is_incremental": false,
@@ -113,7 +113,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Endpoint-3.html",
-          "hash": "z4pmWhuQq/YxjKm6hLk54ZDjnLQJutV4A1KNfUGIRj4="
+          "hash": "Le/gpeVGyPg3Na3Gd/qms2kTvqpqdvfUZxfh9UIM5g0="
         }
       },
       "is_incremental": false,
@@ -125,7 +125,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointDefinition.html",
-          "hash": "FzPlDU7CUw5dpqVpwEPr2AzKTBsHfKm/xVAkLUe+Yew="
+          "hash": "RijF6P/6t1/ZGQRtjGPOHJnbMzm7Ysu5CwCxKl2oxkA="
         }
       },
       "is_incremental": false,
@@ -137,7 +137,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointSummary-1.html",
-          "hash": "dvAyJra+hDbTVQ2vyei7rs1hIaQ/2K4Sz6cUf2otQKA="
+          "hash": "ImW0rnCvg92GD7utYPkYgFlxmN84VbE0jQ6TeCaEQHE="
         }
       },
       "is_incremental": false,
@@ -161,7 +161,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithMapping-3.html",
-          "hash": "fquA77mL+0Dv5WKnH7Muxti1XcFcPi/sJV2Ex84jXW0="
+          "hash": "SkvQIIH6Mw1d+fZx9D6qLyWwNrMn0awkGcOeN0bn6Iw="
         }
       },
       "is_incremental": false,
@@ -173,7 +173,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EndpointWithoutRequest-1.html",
-          "hash": "no3lEmigykMbRbGuQMuAeByaPYQaGjE8+W5OQlLf+8Y="
+          "hash": "eEumaEtVAZlsiflD7CyRZqlJrk7PtHpU137E6EH86ws="
         }
       },
       "is_incremental": false,
@@ -197,7 +197,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.EpVersion.html",
-          "hash": "cwxMV1fZJ+TlSdsZrkgyXwuDqSd+4C7JPYSt880a/D8="
+          "hash": "b7+vFOOeG7N/YhU/Fuv+7B6/fTcgfMa5mmPQ49IlpKc="
         }
       },
       "is_incremental": false,
@@ -245,7 +245,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Factory.html",
-          "hash": "mMefvsINQXSTKEEmY5LPLA3e3EHTg39EbPzG6NaPW+w="
+          "hash": "W3X5FIhuBoUBB/I0C3VZA18RfDuKqMwojSI3dJNEmJA="
         }
       },
       "is_incremental": false,
@@ -257,7 +257,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.FastEventHandler-1.html",
-          "hash": "IRdX28yQh2tR12P4pmqd1nilTX+57f+GeRg1JqvhOaM="
+          "hash": "WiYSjLgjmdewSx++Ub8gt1Lev/4JmCHVgZTL+gb4Ceg="
         }
       },
       "is_incremental": false,
@@ -317,7 +317,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpClientExtensions.html",
-          "hash": "F6ZMZ3A7GoXy2s6+saknsX0tz9Yoov3ykfNBlOSYqRg="
+          "hash": "CydBR9LTlK6B8WGVF9748IVy1j4Ddf1Z4Dnq8vBVBRQ="
         }
       },
       "is_incremental": false,
@@ -329,7 +329,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.HttpResponseExtensions.html",
-          "hash": "GrTdxTRk191EtcrGMeEnUpCObHUAW8CdLZS2pc+p0oE="
+          "hash": "45mosPkvWA/PDJFi9gOZhPqjl9bTWzGE/PMzREGmsjE="
         }
       },
       "is_incremental": false,
@@ -389,7 +389,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.MainExtensions.html",
-          "hash": "l5Z8zWhPbbrfUQ7xjTLpJ8iPqW5NM5Lt28AN9Bd4Sgo="
+          "hash": "IpJgkks1xN56iy5j/Iq+NFz1nkl+F+yf+d8+YVn+rfY="
         }
       },
       "is_incremental": false,
@@ -401,7 +401,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Mapper-3.html",
-          "hash": "BK9I58dTQrEY4WNfjqi9mn2HhOTNkSvx+Z2J0pVzU78="
+          "hash": "Sa0IGCi8zU407pKp34YU0K78Rogsr9wjQ2g1IhBJC/g="
         }
       },
       "is_incremental": false,
@@ -521,7 +521,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.Validation.Validator-1.html",
-          "hash": "4XpCQnLS2vw+abdGF/Tnbc1BatKiQdF5xvXD+2U9HkQ="
+          "hash": "9ztRLyRIgy8FMllIy31Ckf7OnGCYvdgMWDSPBK/Zt4w="
         }
       },
       "is_incremental": false,
@@ -557,7 +557,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.html",
-          "hash": "wfzdz7ewVpyE2rpO64EVWEsGjJxD7NESFwM5CrY9VNE="
+          "hash": "94NSQo0cS42ESBcWvUmXKzrEged9n+NOZY/W0qYdKIY="
         }
       },
       "is_incremental": false,
@@ -858,7 +858,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Model-Binding.html",
-          "hash": "z408TDelmG4os2DUgg6b0Q1HHymQCWleaUPIgS2DGLE="
+          "hash": "ryGMzmoDTwCw8/AgSUtf0y5vMoXeexuzFzOA8xHa/sM="
         }
       },
       "is_incremental": false,
@@ -974,7 +974,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 20,
-          "skipped_file_count": 19
+          "skipped_file_count": 20
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

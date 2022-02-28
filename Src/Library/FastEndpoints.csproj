@@ -11,6 +11,7 @@
 
             ### IMPROVEMENTS
             - reduce gc pressure by converting some reference types to structs
+            - optimize property setter expression tree
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

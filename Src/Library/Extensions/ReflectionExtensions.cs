@@ -35,24 +35,14 @@ internal static class ReflectionExtensions
 
     internal static Action<object, object> SetterForProp(this Type source, string propertyName)
     {
-        var propertyInfo = source.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        //(object parent, object value) => ((TParent)parent).property = (TProp)value;
 
-        if (propertyInfo?.CanWrite != true)
-            throw new InvalidOperationException($"[{source.FullName}.{propertyName}] is not writable!");
+        var parent = Expression.Parameter(Types.Object);
+        var value = Expression.Parameter(Types.Object);
+        var property = Expression.Property(Expression.Convert(parent, source), propertyName);
+        var body = Expression.Assign(property, Expression.Convert(value, property.Type));
 
-        var sourceObjectParam = Expression.Parameter(Types.Object, "source");
-
-        var propertyValueParam = Expression.Parameter(Types.Object, "value");
-
-        var valueExpression = Expression.Convert(propertyValueParam, propertyInfo.PropertyType);
-
-        return Expression.Lambda<Action<object, object>>(
-            Expression.Call(
-                Expression.Convert(sourceObjectParam, source),
-                propertyInfo.GetSetMethod()!,
-                valueExpression),
-            sourceObjectParam,
-            propertyValueParam).Compile();
+        return Expression.Lambda<Action<object, object>>(body, parent, value).Compile();
     }
 
     private static readonly ConcurrentDictionary<Type, Func<object?, (bool isSuccess, object value)>?> parsers = new();

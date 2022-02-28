@@ -7,7 +7,7 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : class, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
 {
     private static readonly Type tRequest = typeof(TRequest);
     private static readonly Type tResponse = typeof(TResponse);

@@ -163,7 +163,6 @@ internal sealed class EndpointData
             }
 
             return def;
-
         }).ToArray();
     }
 }

@@ -7,11 +7,11 @@ using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : class, new() where TResponse : class, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
 {
     private static async Task<TRequest> BindToModel(HttpContext ctx, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
     {
-        TRequest? req = null;
+        TRequest? req = default;
 
         if (ctx.Request.ContentLength != 0)
         {

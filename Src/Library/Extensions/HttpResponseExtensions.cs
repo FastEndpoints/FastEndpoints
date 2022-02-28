@@ -17,7 +17,7 @@ public static class HttpResponseExtensions
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token</param>
-    public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : class
+    public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : notnull
     {
         rsp.StatusCode = statusCode;
         return RespSerializerFunc(rsp, response, "application/json", jsonSerializerContext, cancellation);
@@ -175,9 +175,9 @@ public static class HttpResponseExtensions
     /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token</param>
-    public static async Task SendStreamAsync(this HttpResponse rsp,
-        Stream stream, string? fileName = null, long? fileLengthBytes = null, string contentType = "application/octet-stream",
-        DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = default)
+    public static async Task SendStreamAsync(this HttpResponse rsp, Stream stream, string? fileName = null, long? fileLengthBytes = null,
+        string contentType = "application/octet-stream", DateTimeOffset? lastModified = null, bool enableRangeProcessing = false,
+        CancellationToken cancellation = default)
     {
         if (stream is null) throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 

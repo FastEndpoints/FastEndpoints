@@ -42,7 +42,7 @@ public class EndpointSummary
 
 ///<inheritdoc/>
 ///<typeparam name="TRequest">the type of the request dto</typeparam>
-public class EndpointSummary<TRequest> : EndpointSummary where TRequest : class, new()
+public class EndpointSummary<TRequest> : EndpointSummary where TRequest : new()
 {
     /// <summary>
     /// add a description for a request param for a given property of the request dto

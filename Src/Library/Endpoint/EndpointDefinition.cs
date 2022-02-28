@@ -7,7 +7,7 @@ namespace FastEndpoints;
 /// <summary>
 /// represents the configuration settings of an endpoint
 /// </summary>
-public class EndpointDefinition
+public sealed class EndpointDefinition
 {
     public string[]? Routes { get; internal set; }
     public string[]? Verbs { get; internal set; }
@@ -43,13 +43,13 @@ public class EndpointDefinition
 /// <summary>
 /// represents an enpoint version
 /// </summary>
-public class EpVersion
+public sealed class EpVersion
 {
     public int Current { get; internal set; }
     public int DeprecatedAt { get; internal set; }
 }
 
-internal class ServiceBoundEpProp
+internal sealed class ServiceBoundEpProp
 {
     public Type PropType { get; set; }
     public Action<object, object> PropSetter { get; set; }

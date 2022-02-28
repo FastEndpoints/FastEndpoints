@@ -47,8 +47,6 @@ public class Validator : Validator<Request>
 
         var logger = Resolve<ILogger<Validator>>();
         logger.LogError("resolving from validator works!");
-
-
     }
 }
 

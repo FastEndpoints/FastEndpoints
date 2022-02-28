@@ -241,7 +241,6 @@ public static class MainExtensions
     {
         foreach (var ep in _endpoints.Found)
         {
-
             if (ep.Roles is null && ep.Permissions is null && ep.ClaimTypes is null && ep.AuthSchemes is null)
                 continue;
 

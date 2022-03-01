@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta5</Version>
+        <Version>3.9.0-beta6</Version>
 
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -16,8 +16,10 @@
         <RepositoryType>git</RepositoryType>
         <PackageIcon>icon.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!--<IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
     </PropertyGroup>
 
     <ItemGroup>

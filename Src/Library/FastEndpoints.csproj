@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta5</Version>
+        <Version>3.9.0-beta6</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -30,8 +30,10 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet6, minimal-api, vertical-slice-architecture, repr-pattern</PackageTags>
         <OutputType>Library</OutputType>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!--<IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
     </PropertyGroup>
 
     <ItemGroup>

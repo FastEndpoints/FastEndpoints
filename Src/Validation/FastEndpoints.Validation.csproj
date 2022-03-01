@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta5</Version>
+        <Version>3.9.0-beta6</Version>
 
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -17,8 +17,10 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <!--<IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
     </PropertyGroup>
 
     <ItemGroup>

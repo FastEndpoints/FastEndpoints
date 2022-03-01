@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta4</Version>
+        <Version>3.9.0-beta5</Version>
 
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -20,6 +20,10 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+    </ItemGroup>
 
     <ItemGroup>
         <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />

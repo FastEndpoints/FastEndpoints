@@ -2,12 +2,15 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta7</Version>
+        <Version>3.9.0-beta8</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - endpoint discovery from additional assemblies
             - relax type constraints on request/response dtos. anything with a parameterless ctor is now supported.
+
+            ### CHANGES
+            - make `ValidationFailureException` public to aid in unit testing endpoints
 
             ### IMPROVEMENTS
             - reduce gc pressure by converting some reference types to structs

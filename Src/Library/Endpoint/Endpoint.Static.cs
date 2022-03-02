@@ -143,12 +143,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             string? claimVal = null;
             foreach (var c in principal.Claims)
             {
-                if (c.Type.Equals(prop.ClaimType, StringComparison.OrdinalIgnoreCase))
+                if (c.Type.Equals(prop.Name, StringComparison.OrdinalIgnoreCase))
                     claimVal = c.Value;
             }
 
             if (claimVal is null && prop.ForbidIfMissing)
-                failures.Add(new(prop.ClaimType, "User doesn't have this claim type!"));
+                failures.Add(new(prop.Name, "User doesn't have this claim type!"));
 
             if (claimVal is not null && prop.ValueParser is not null)
             {
@@ -156,7 +156,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 prop.PropSetter(req, value);
 
                 if (!success)
-                    failures.Add(new(prop.ClaimType, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
+                    failures.Add(new(prop.Name, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
             }
         }
     }
@@ -166,10 +166,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromHeaderProps.Count; i++)
         {
             var prop = ReqTypeCache<TRequest>.CachedFromHeaderProps[i];
-            var hdrVal = headers[prop.HeaderName].FirstOrDefault();
+            var hdrVal = headers[prop.Name].FirstOrDefault();
 
             if (hdrVal is null && prop.ForbidIfMissing)
-                failures.Add(new(prop.HeaderName, "This header is missing from the request!"));
+                failures.Add(new(prop.Name, "This header is missing from the request!"));
 
             if (hdrVal is not null && prop.ValueParser is not null)
             {
@@ -177,7 +177,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 prop.PropSetter(req, value);
 
                 if (!success)
-                    failures.Add(new(prop.HeaderName, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
+                    failures.Add(new(prop.Name, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
             }
         }
     }

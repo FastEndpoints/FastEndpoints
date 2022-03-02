@@ -5,11 +5,11 @@ namespace FastEndpoints;
 internal static class ReqTypeCache<TRequest>
 {
     //key: property name
-    internal static Dictionary<string, PropCacheEntry> CachedProps { get; } = new(StringComparer.OrdinalIgnoreCase);
+    internal static Dictionary<string, PrimaryPropCacheEntry> CachedProps { get; } = new(StringComparer.OrdinalIgnoreCase);
 
-    internal static List<FromClaimPropCacheEntry> CachedFromClaimProps { get; } = new();
+    internal static List<SecondaryPropCacheEntry> CachedFromClaimProps { get; } = new();
 
-    internal static List<FromHeaderPropCacheEntry> CachedFromHeaderProps { get; } = new();
+    internal static List<SecondaryPropCacheEntry> CachedFromHeaderProps { get; } = new();
 
     internal static bool IsPlainTextRequest;
 
@@ -47,12 +47,14 @@ internal static class ReqTypeCache<TRequest>
             var claimType = attrib?.ClaimType ?? propInfo.Name;
             var forbidIfMissing = attrib?.IsRequired ?? false;
 
-            CachedFromClaimProps.Add(new(
-                claimType,
-                forbidIfMissing,
-                propInfo.PropertyType,
-                propInfo.PropertyType.ValueParser(),
-                compiledSetter));
+            CachedFromClaimProps.Add(new()
+            {
+                Name = claimType,
+                ForbidIfMissing = forbidIfMissing,
+                PropType = propInfo.PropertyType,
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter,
+            });
 
             return forbidIfMissing; //if claim is optional, return false so it will also be added as a PropCacheEntry
         }
@@ -67,12 +69,14 @@ internal static class ReqTypeCache<TRequest>
             var headerName = attrib?.HeaderName ?? propInfo.Name;
             var forbidIfMissing = attrib?.IsRequired ?? false;
 
-            CachedFromHeaderProps.Add(new(
-                headerName,
-                forbidIfMissing,
-                propInfo.PropertyType,
-                propInfo.PropertyType?.ValueParser(),
-                compiledSetter));
+            CachedFromHeaderProps.Add(new()
+            {
+                Name = headerName,
+                ForbidIfMissing = forbidIfMissing,
+                PropType = propInfo.PropertyType,
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter
+            });
 
             return forbidIfMissing; //if header is optional, return false so it will also be added as a PropCacheEntry;
         }
@@ -83,28 +87,27 @@ internal static class ReqTypeCache<TRequest>
     {
         var attrib = propInfo.GetCustomAttribute<BindFromAttribute>(false);
 
-        CachedProps.Add(attrib?.Name ?? propInfo.Name, new(
-            propInfo.PropertyType,
-            propInfo.PropertyType.ValueParser(),
-            compiledSetter));
+        CachedProps.Add(attrib?.Name ?? propInfo.Name, new()
+        {
+            PropType = propInfo.PropertyType,
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter
+        });
     }
 }
 
-internal record PropCacheEntry(
-    Type PropType,
-    Func<object?, (bool isSuccess, object value)>? ValueParser,
-    Action<object, object> PropSetter);
+internal class PrimaryPropCacheEntry
+{
+    public Type PropType { get; init; }
+    public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }
+    public Action<object, object> PropSetter { get; init; }
+}
 
-internal record FromClaimPropCacheEntry(
-    string ClaimType,
-    bool ForbidIfMissing,
-    Type PropType,
-    Func<object?, (bool isSuccess, object value)>? ValueParser,
-    Action<object, object> PropSetter);
-
-internal record FromHeaderPropCacheEntry(
-    string HeaderName,
-    bool ForbidIfMissing,
-    Type PropType,
-    Func<object?, (bool isSuccess, object value)>? ValueParser,
-    Action<object, object> PropSetter);
+internal class SecondaryPropCacheEntry
+{
+    public string Name { get; init; }
+    public bool ForbidIfMissing { get; init; }
+    public Type PropType { get; init; }
+    public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }
+    public Action<object, object> PropSetter { get; set; }
+}

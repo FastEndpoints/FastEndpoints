@@ -92,6 +92,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return Task.CompletedTask;
     }
 
+    private static Dictionary<string, PrimaryPropCacheEntry> cachedProps = ReqTypeCache<TRequest>.CachedProps;
+    private static List<SecondaryPropCacheEntry> cachedFromClaimProps = ReqTypeCache<TRequest>.CachedFromClaimProps;
+    private static List<SecondaryPropCacheEntry> cachedFromHeaderProps = ReqTypeCache<TRequest>.CachedFromHeaderProps;
+
     private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)
     {
         if (!httpRequest.HasFormContentType) return;
@@ -105,7 +109,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             var formFile = httpRequest.Form.Files[y];
 
-            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(formFile.Name, out var prop))
+            if (cachedProps.TryGetValue(formFile.Name, out var prop))
             {
                 if (prop.PropType == Types.IFormFile)
                     prop.PropSetter(req, formFile);
@@ -136,9 +140,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static void BindUserClaims(TRequest req, ClaimsPrincipal principal, List<ValidationFailure> failures)
     {
-        for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromClaimProps.Count; i++)
+        for (int i = 0; i < cachedFromClaimProps.Count; i++)
         {
-            var prop = ReqTypeCache<TRequest>.CachedFromClaimProps[i];
+            var prop = cachedFromClaimProps[i];
 
             string? claimVal = null;
             foreach (var c in principal.Claims)
@@ -163,9 +167,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static void BindHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
     {
-        for (int i = 0; i < ReqTypeCache<TRequest>.CachedFromHeaderProps.Count; i++)
+        for (int i = 0; i < cachedFromHeaderProps.Count; i++)
         {
-            var prop = ReqTypeCache<TRequest>.CachedFromHeaderProps[i];
+            var prop = cachedFromHeaderProps[i];
             var hdrVal = headers[prop.Name].FirstOrDefault();
 
             if (hdrVal is null && prop.ForbidIfMissing)
@@ -184,7 +188,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static void Bind(TRequest req, KeyValuePair<string, object?> kvp, List<ValidationFailure> failures)
     {
-        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
+        if (cachedProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
         {
             var (success, value) = prop.ValueParser(kvp.Value);
             prop.PropSetter(req, value);

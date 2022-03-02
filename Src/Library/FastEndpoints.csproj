@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta8</Version>
+        <Version>3.9.0-beta9</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -16,6 +16,7 @@
             - reduce gc pressure by converting some reference types to structs
             - optimize property setter expression tree
             - optimize property getter expression tree
+            - optimize ReqTypeCache class
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

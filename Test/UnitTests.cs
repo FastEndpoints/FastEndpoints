@@ -27,8 +27,6 @@ public class UnitTests
             var logger = A.Fake<ILogger<Endpoint<Customers.Create.Request, object>>>();
             services.AddSingleton(logger);
 
-            services.AddSingleton(emailer);
-
             ctx.RequestServices = services.BuildServiceProvider();
 
         }, emailer);

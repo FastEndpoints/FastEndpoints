@@ -215,7 +215,8 @@ internal class OperationProcessor : IOperationProcessor
                 .Where(p =>
                       !p.IsDefined(typeof(FromClaimAttribute), false) &&
                       !p.IsDefined(typeof(FromHeaderAttribute), false) &&
-                      !reqParams.Any(rp => rp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase))) //ignore props marksed with [FromClaim],[FromHeader] or has a route param.
+                      !p.IsDefined(typeof(HasPermissionAttribute), false) &&
+                      !reqParams.Any(rp => rp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase))) //ignore props marksed with [FromClaim],[FromHeader],[HasPermission] or has a route param.
                 .Select(p =>
                     new OpenApiParameter
                     {

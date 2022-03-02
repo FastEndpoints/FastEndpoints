@@ -87,9 +87,6 @@ internal static class ReqTypeCache<TRequest>
         var attrib = propInfo.GetCustomAttribute<HasPermissionAttribute>(false);
         if (attrib is not null)
         {
-            if (propInfo.PropertyType != Types.Bool)
-                throw new NotSupportedException("The [HasPermission] attribute is only valid on boolean properties!");
-
             var permission = attrib.Permission ?? propInfo.Name;
             var forbidIfMissing = attrib.IsRequired;
 
@@ -98,6 +95,7 @@ internal static class ReqTypeCache<TRequest>
                 Identifier = permission,
                 ForbidIfMissing = forbidIfMissing,
                 PropType = propInfo.PropertyType,
+                PropName = propInfo.Name,
                 ValueParser = propInfo.PropertyType.ValueParser(),
                 PropSetter = compiledSetter
             });
@@ -131,6 +129,7 @@ internal class SecondaryPropCacheEntry
 {
     public string Identifier { get; init; }
     public bool ForbidIfMissing { get; init; }
+    public string? PropName { get; set; }
     public Type PropType { get; init; }
     public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }
     public Action<object, object> PropSetter { get; set; }

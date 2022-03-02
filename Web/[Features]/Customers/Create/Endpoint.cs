@@ -13,6 +13,9 @@ public class Request
     public string? CustomerName { get; set; }
 
     public IEnumerable<string> PhoneNumbers { get; set; }
+
+    [HasPermission(Allow.Customers_Create, IsRequired = true)]
+    public bool HasCreatePermission { get; set; }
 }
 
 public class Endpoint : Endpoint<Request>

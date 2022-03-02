@@ -211,7 +211,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 prop.PropSetter(req, value);
 
                 if (!success)
-                    failures.Add(new(prop.Identifier, $"Unable to bind [true] to [{prop.PropType.Name}] property!"));
+                    failures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
             }
         }
     }

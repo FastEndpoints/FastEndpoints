@@ -17,7 +17,12 @@ public class Request
 
 public class Endpoint : Endpoint<Request>
 {
-    public IEmailService? Emailer { get; set; }
+    private IEmailService? _emailer;
+
+    public Endpoint(IEmailService emailer)
+    {
+        _emailer = emailer;
+    }
 
     public override void Configure()
     {
@@ -30,10 +35,12 @@ public class Endpoint : Endpoint<Request>
 
     public override Task HandleAsync(Request r, CancellationToken t)
     {
+        Logger.LogInformation("customer creation has begun!");
+
         if (r.PhoneNumbers?.Count() < 2)
             ThrowError("Not enough phone numbers!");
 
-        var msg = Emailer?.SendEmail() + " " + r.CreatedBy;
+        var msg = _emailer?.SendEmail() + " " + r.CreatedBy;
 
         return SendAsync(msg ?? "emailer not resolved!");
     }

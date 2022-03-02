@@ -213,6 +213,7 @@ internal class OperationProcessor : IOperationProcessor
 
             var qParams = reqDtoProps?
                 .Where(p =>
+                       p.CanWrite &&
                       !p.IsDefined(typeof(FromClaimAttribute), false) &&
                       !p.IsDefined(typeof(FromHeaderAttribute), false) &&
                       !p.IsDefined(typeof(HasPermissionAttribute), false) &&

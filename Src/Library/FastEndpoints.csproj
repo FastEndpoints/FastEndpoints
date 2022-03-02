@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta9</Version>
+        <Version>3.9.0-beta10</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -19,6 +19,9 @@
             - optimize property setter expression tree
             - optimize property getter expression tree
             - optimize ReqTypeCache class
+
+            ### FIXES
+            - swagger adding request param for non-writable dto properties
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

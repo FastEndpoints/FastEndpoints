@@ -92,9 +92,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return Task.CompletedTask;
     }
 
-    private static Dictionary<string, PrimaryPropCacheEntry> cachedProps = ReqTypeCache<TRequest>.CachedProps;
-    private static List<SecondaryPropCacheEntry> cachedFromClaimProps = ReqTypeCache<TRequest>.CachedFromClaimProps;
-    private static List<SecondaryPropCacheEntry> cachedFromHeaderProps = ReqTypeCache<TRequest>.CachedFromHeaderProps;
+    private static readonly Dictionary<string, PrimaryPropCacheEntry> cachedProps = ReqTypeCache<TRequest>.CachedProps;
+    private static readonly List<SecondaryPropCacheEntry> cachedFromClaimProps = ReqTypeCache<TRequest>.CachedFromClaimProps;
+    private static readonly List<SecondaryPropCacheEntry> cachedFromHeaderProps = ReqTypeCache<TRequest>.CachedFromHeaderProps;
 
     private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)
     {

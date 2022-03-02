@@ -11,6 +11,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 {
     private static readonly Type tRequest = typeof(TRequest);
     private static readonly Type tResponse = typeof(TResponse);
+    private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
 
     /// <summary>
     /// specify to listen for GET requests on one or more routes.
@@ -75,7 +76,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         //default openapi descriptions (it's here because we need access to TRequest/TResponse)
         Configuration.InternalConfigAction = b =>
         {
-            if (ReqTypeCache<TRequest>.IsPlainTextRequest)
+            if (isPlainTextRequest)
             {
                 b.Accepts<TRequest>("text/plain", "application/json");
                 b.Produces<TResponse>(200, "text/plain", "application/json");

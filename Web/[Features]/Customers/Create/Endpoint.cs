@@ -17,7 +17,7 @@ public class Request
 
 public class Endpoint : Endpoint<Request>
 {
-    private IEmailService? _emailer;
+    private readonly IEmailService? _emailer;
 
     public Endpoint(IEmailService emailer)
     {

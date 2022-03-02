@@ -28,8 +28,8 @@ public class UnitTests
             services.AddSingleton(logger);
 
             ctx.RequestServices = services.BuildServiceProvider();
-
-        }, emailer);
+        }
+        , emailer);
 
         var req = new Customers.Create.Request
         {

@@ -6,25 +6,21 @@ internal static class ReqTypeCache<TRequest>
 {
     //key: property name
     internal static Dictionary<string, PrimaryPropCacheEntry> CachedProps { get; } = new(StringComparer.OrdinalIgnoreCase);
-
     internal static List<SecondaryPropCacheEntry> CachedFromClaimProps { get; } = new();
-
     internal static List<SecondaryPropCacheEntry> CachedFromHeaderProps { get; } = new();
-
-    internal static bool IsPlainTextRequest;
+    internal static List<SecondaryPropCacheEntry> CachedHasPermissionProps { get; } = new();
 
     static ReqTypeCache()
     {
         var tRequest = typeof(TRequest);
-
-        IsPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
+        var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
 
         foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
             if (!propInfo.CanRead || !propInfo.CanWrite)
                 continue;
 
-            if (IsPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
+            if (isPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
                 continue;
 
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);
@@ -33,6 +29,9 @@ internal static class ReqTypeCache<TRequest>
                 continue;
 
             if (AddFromHeaderPropCacheEntry(propInfo, compiledSetter))
+                continue;
+
+            if (AddHasPermissionPropCacheEntry(propInfo, compiledSetter))
                 continue;
 
             AddPropCacheEntry(propInfo, compiledSetter);
@@ -44,12 +43,12 @@ internal static class ReqTypeCache<TRequest>
         var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
         if (attrib is not null)
         {
-            var claimType = attrib?.ClaimType ?? propInfo.Name;
-            var forbidIfMissing = attrib?.IsRequired ?? false;
+            var claimType = attrib.ClaimType ?? propInfo.Name;
+            var forbidIfMissing = attrib.IsRequired;
 
             CachedFromClaimProps.Add(new()
             {
-                Name = claimType,
+                Identifier = claimType,
                 ForbidIfMissing = forbidIfMissing,
                 PropType = propInfo.PropertyType,
                 ValueParser = propInfo.PropertyType.ValueParser(),
@@ -66,12 +65,12 @@ internal static class ReqTypeCache<TRequest>
         var attrib = propInfo.GetCustomAttribute<FromHeaderAttribute>(false);
         if (attrib is not null)
         {
-            var headerName = attrib?.HeaderName ?? propInfo.Name;
-            var forbidIfMissing = attrib?.IsRequired ?? false;
+            var headerName = attrib.HeaderName ?? propInfo.Name;
+            var forbidIfMissing = attrib.IsRequired;
 
             CachedFromHeaderProps.Add(new()
             {
-                Name = headerName,
+                Identifier = headerName,
                 ForbidIfMissing = forbidIfMissing,
                 PropType = propInfo.PropertyType,
                 ValueParser = propInfo.PropertyType.ValueParser(),
@@ -79,6 +78,31 @@ internal static class ReqTypeCache<TRequest>
             });
 
             return forbidIfMissing; //if header is optional, return false so it will also be added as a PropCacheEntry;
+        }
+        return false;
+    }
+
+    private static bool AddHasPermissionPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        var attrib = propInfo.GetCustomAttribute<HasPermissionAttribute>(false);
+        if (attrib is not null)
+        {
+            if (propInfo.PropertyType != Types.Bool)
+                throw new NotSupportedException("The [HasPermission] attribute is only valid on boolean properties!");
+
+            var permission = attrib.Permission ?? propInfo.Name;
+            var forbidIfMissing = attrib.IsRequired;
+
+            CachedHasPermissionProps.Add(new()
+            {
+                Identifier = permission,
+                ForbidIfMissing = forbidIfMissing,
+                PropType = propInfo.PropertyType,
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter
+            });
+
+            return true; // don't allow binding from any other sources
         }
         return false;
     }
@@ -105,7 +129,7 @@ internal class PrimaryPropCacheEntry
 
 internal class SecondaryPropCacheEntry
 {
-    public string Name { get; init; }
+    public string Identifier { get; init; }
     public bool ForbidIfMissing { get; init; }
     public Type PropType { get; init; }
     public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }

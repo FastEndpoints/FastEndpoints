@@ -15,7 +15,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         if (ctx.Request.ContentLength != 0)
         {
-            if (ReqTypeCache<TRequest>.IsPlainTextRequest)
+            if (isPlainTextRequest)
                 req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
             else if (ctx.Request.HasJsonContentType())
                 req = (TRequest?)await FastEndpoints.Config.ReqDeserializerFunc(ctx.Request, tRequest, serializerCtx, cancellation);
@@ -27,8 +27,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         BindFormValues(req, ctx.Request, failures);
         BindRouteValues(req, ctx.Request.RouteValues, failures);
         BindQueryParams(req, ctx.Request.Query, failures);
-        BindUserClaims(req, ctx.User, failures);
+        BindUserClaims(req, ctx.User.Claims, failures);
         BindHeaders(req, ctx.Request.Headers, failures);
+        BindHasPermissionProps(req, ctx.User.Claims, failures);
 
         if (failures.Count > 0) throw new ValidationFailureException();
 
@@ -92,10 +93,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return Task.CompletedTask;
     }
 
-    private static readonly Dictionary<string, PrimaryPropCacheEntry> cachedProps = ReqTypeCache<TRequest>.CachedProps;
-    private static readonly List<SecondaryPropCacheEntry> cachedFromClaimProps = ReqTypeCache<TRequest>.CachedFromClaimProps;
-    private static readonly List<SecondaryPropCacheEntry> cachedFromHeaderProps = ReqTypeCache<TRequest>.CachedFromHeaderProps;
-
     private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)
     {
         if (!httpRequest.HasFormContentType) return;
@@ -109,7 +106,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         {
             var formFile = httpRequest.Form.Files[y];
 
-            if (cachedProps.TryGetValue(formFile.Name, out var prop))
+            if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(formFile.Name, out var prop))
             {
                 if (prop.PropType == Types.IFormFile)
                     prop.PropSetter(req, formFile);
@@ -138,21 +135,26 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             Bind(req, new(kvp.Key, kvp.Value[0]), failures);
     }
 
-    private static void BindUserClaims(TRequest req, ClaimsPrincipal principal, List<ValidationFailure> failures)
+    private static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
     {
-        for (int i = 0; i < cachedFromClaimProps.Count; i++)
+        var cachedProps = ReqTypeCache<TRequest>.CachedFromClaimProps;
+
+        for (int i = 0; i < cachedProps.Count; i++)
         {
-            var prop = cachedFromClaimProps[i];
+            var prop = cachedProps[i];
 
             string? claimVal = null;
-            foreach (var c in principal.Claims)
+            foreach (var c in claims)
             {
-                if (c.Type.Equals(prop.Name, StringComparison.OrdinalIgnoreCase))
+                if (c.Type.Equals(prop.Identifier, StringComparison.OrdinalIgnoreCase))
+                {
                     claimVal = c.Value;
+                    break;
+                }
             }
 
             if (claimVal is null && prop.ForbidIfMissing)
-                failures.Add(new(prop.Name, "User doesn't have this claim type!"));
+                failures.Add(new(prop.Identifier, "User doesn't have this claim type!"));
 
             if (claimVal is not null && prop.ValueParser is not null)
             {
@@ -160,20 +162,22 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 prop.PropSetter(req, value);
 
                 if (!success)
-                    failures.Add(new(prop.Name, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
+                    failures.Add(new(prop.Identifier, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
             }
         }
     }
 
     private static void BindHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
     {
-        for (int i = 0; i < cachedFromHeaderProps.Count; i++)
+        var cachedProps = ReqTypeCache<TRequest>.CachedFromHeaderProps;
+
+        for (int i = 0; i < cachedProps.Count; i++)
         {
-            var prop = cachedFromHeaderProps[i];
-            var hdrVal = headers[prop.Name].FirstOrDefault();
+            var prop = cachedProps[i];
+            var hdrVal = headers[prop.Identifier].FirstOrDefault();
 
             if (hdrVal is null && prop.ForbidIfMissing)
-                failures.Add(new(prop.Name, "This header is missing from the request!"));
+                failures.Add(new(prop.Identifier, "This header is missing from the request!"));
 
             if (hdrVal is not null && prop.ValueParser is not null)
             {
@@ -181,14 +185,40 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 prop.PropSetter(req, value);
 
                 if (!success)
-                    failures.Add(new(prop.Name, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
+                    failures.Add(new(prop.Identifier, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
+            }
+        }
+    }
+
+    private static void BindHasPermissionProps(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
+    {
+        var cachedProps = ReqTypeCache<TRequest>.CachedHasPermissionProps;
+
+        for (int i = 0; i < cachedProps.Count; i++)
+        {
+            var prop = cachedProps[i];
+
+            bool hasPerm = claims.Any(c =>
+               string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
+
+            if (!hasPerm && prop.ForbidIfMissing)
+                failures.Add(new(prop.Identifier, "User doesn't have this permission!"));
+
+            if (hasPerm && prop.ValueParser is not null)
+            {
+                var (success, value) = prop.ValueParser(hasPerm);
+                prop.PropSetter(req, value);
+
+                if (!success)
+                    failures.Add(new(prop.Identifier, $"Unable to bind [true] to [{prop.PropType.Name}] property!"));
             }
         }
     }
 
     private static void Bind(TRequest req, KeyValuePair<string, object?> kvp, List<ValidationFailure> failures)
     {
-        if (cachedProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
+        if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
         {
             var (success, value) = prop.ValueParser(kvp.Value);
             prop.PropSetter(req, value);

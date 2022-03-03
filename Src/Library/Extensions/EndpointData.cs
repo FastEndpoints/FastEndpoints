@@ -45,7 +45,8 @@ internal sealed class EndpointData
                 "netstandard",
                 "Newtonsoft.",
                 "mscorlib",
-                "NuGet."
+                "NuGet.",
+                "NSwag."
         };
 
         var discoveredTypes = AppDomain.CurrentDomain

@@ -19,9 +19,6 @@ public class UnitTests
 
         var ep = Factory.Create<Customers.Create.Endpoint>(ctx =>
         {
-            // if you really have to do this, consider doing an integration test instead.
-            // this is just a waste of energy ;-)
-
             var services = new ServiceCollection();
 
             var logger = A.Fake<ILogger<Endpoint<Customers.Create.Request, object>>>();

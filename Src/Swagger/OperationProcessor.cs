@@ -177,23 +177,8 @@ internal class OperationProcessor : IOperationProcessor
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
-                if (op.RequestBody is not null)
-                {
-                    //remove corresponding json field from the request body
-                    foreach (var c in op.RequestBody.Content)
-                    {
-                        var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault(kvp =>
-                            string.Equals(kvp.Key, ActualParamName(m.Value), StringComparison.OrdinalIgnoreCase));
-
-                        if (prop.Key != null)
-                        {
-                            c.Value.Schema.ActualSchema.Properties.Remove(prop.Key);
-
-                            foreach (var schema in c.Value.Schema.ActualSchema.AllOf)
-                                schema.Properties.Remove(prop.Key);
-                        }
-                    }
-                }
+                //remove corresponding json field from the request body
+                RemovePropFromRequestBodyContent(m.Value, op.RequestBody?.Content);
 
                 return new OpenApiParameter
                 {
@@ -213,11 +198,12 @@ internal class OperationProcessor : IOperationProcessor
 
             var qParams = reqDtoProps?
                 .Where(p =>
+                       //ignore props marksed with [FromClaim],[FromHeader],[HasPermission] or has a route param.
                        p.CanWrite &&
                       !p.IsDefined(typeof(FromClaimAttribute), false) &&
                       !p.IsDefined(typeof(FromHeaderAttribute), false) &&
                       !p.IsDefined(typeof(HasPermissionAttribute), false) &&
-                      !reqParams.Any(rp => rp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase))) //ignore props marksed with [FromClaim],[FromHeader],[HasPermission] or has a route param.
+                      !reqParams.Any(rp => rp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase)))
                 .Select(p =>
                     new OpenApiParameter
                     {
@@ -233,23 +219,37 @@ internal class OperationProcessor : IOperationProcessor
                 reqParams.AddRange(qParams);
         }
 
-        //add header params if there are any props marked with [FromHeader] attribute
         if (reqDtoProps is not null)
         {
             foreach (var prop in reqDtoProps)
             {
-                var attrib = prop.GetCustomAttribute<FromHeaderAttribute>(true);
-                if (attrib is not null)
+                foreach (var attribute in prop.GetCustomAttributes())
                 {
-                    var pName = attrib?.HeaderName ?? prop.Name;
-                    reqParams.Add(new OpenApiParameter
+                    //add header params if there are any props marked with [FromHeader] attribute
+                    if (attribute is FromHeaderAttribute hAttrib)
                     {
-                        Name = pName,
-                        IsRequired = attrib?.IsRequired ?? false,
-                        Schema = JsonSchema.FromType(prop.PropertyType),
-                        Kind = OpenApiParameterKind.Header,
-                        Description = reqParamDescriptions.GetValueOrDefault(pName)
-                    });
+                        var pName = hAttrib.HeaderName ?? prop.Name;
+                        reqParams.Add(new OpenApiParameter
+                        {
+                            Name = pName,
+                            IsRequired = hAttrib.IsRequired,
+                            Schema = JsonSchema.FromType(prop.PropertyType),
+                            Kind = OpenApiParameterKind.Header,
+                            Description = reqParamDescriptions.GetValueOrDefault(pName)
+                        });
+
+                        //remove corresponding json body field if it's required
+                        if (hAttrib.IsRequired)
+                            RemovePropFromRequestBodyContent(prop.Name, op.RequestBody?.Content);
+                    }
+
+                    //can only be bound from claim since it's required. so remove prop from body.
+                    if (attribute is FromClaimAttribute cAttrib && cAttrib.IsRequired)
+                        RemovePropFromRequestBodyContent(prop.Name, op.RequestBody?.Content);
+
+                    //can only be bound from permission since it's required. so remove prop from body.
+                    if (attribute is HasPermissionAttribute pAttrib && pAttrib.IsRequired)
+                        RemovePropFromRequestBodyContent(prop.Name, op.RequestBody?.Content);
                 }
             }
         }
@@ -285,6 +285,25 @@ internal class OperationProcessor : IOperationProcessor
             index = index == -1 ? input.Length : index;
             var left = input[..index];
             return left.TrimEnd('?');
+        }
+
+        static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)
+        {
+            if (content is null) return;
+
+            foreach (var c in content)
+            {
+                var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault(kvp =>
+                    string.Equals(kvp.Key, ActualParamName(propName), StringComparison.OrdinalIgnoreCase)).Key;
+
+                if (prop != null)
+                {
+                    c.Value.Schema.ActualSchema.Properties.Remove(prop);
+
+                    foreach (var schema in c.Value.Schema.ActualSchema.AllOf)
+                        schema.Properties.Remove(prop);
+                }
+            }
         }
     }
 }

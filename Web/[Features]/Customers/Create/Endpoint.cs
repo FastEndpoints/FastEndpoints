@@ -4,6 +4,8 @@ namespace Customers.Create;
 
 public class Request
 {
+    public string cID { get; set; }
+
     [From(Claim.UserName)]
     public string? CreatedBy { get; set; }
 
@@ -14,7 +16,7 @@ public class Request
 
     public IEnumerable<string> PhoneNumbers { get; set; }
 
-    [HasPermission(Allow.Customers_Create, IsRequired = true)]
+    [HasPermission(Allow.Customers_Create, IsRequired = false)]
     public bool HasCreatePermission { get; set; }
 }
 

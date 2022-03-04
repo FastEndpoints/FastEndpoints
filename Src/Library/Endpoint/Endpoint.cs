@@ -108,6 +108,36 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     /// Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</returns>
     public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : class
         => Event<TEvent>.PublishAsync(eventModel, waitMode, cancellation);
+
+    /// <summary>
+    /// get the value of a given route parameter by specifying the resulting type and param name.
+    /// NOTE: an automatic validation error is sent to the client when value retrieval is not successful.
+    /// </summary>
+    /// <typeparam name="T">type of the result</typeparam>
+    /// <param name="paramName">route parameter name</param>
+    /// <param name="isRequired">set to false for disabling the automatic validation error</param>
+    /// <returns>the value if retrieval is successful or null if <paramref name="isRequired"/> is set to false</returns>
+    protected T? Route<T>(string paramName, bool isRequired = true)
+    {
+        if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
+        {
+            var res = typeof(T).ValueParser()?.Invoke(val);
+
+            if (res?.isSuccess is true)
+                return (T?)res?.value;
+
+            if (isRequired)
+                ValidationFailures.Add(new(paramName, "Unable to read value of route parameter!"));
+        }
+        else if (isRequired)
+        {
+            ValidationFailures.Add(new(paramName, "Route parameter was not found!"));
+        }
+
+        ThrowIfAnyErrors();
+
+        return default;// not required and retrieval failed
+    }
 }
 
 /// <summary>
@@ -140,36 +170,6 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest>
     /// </summary>
     [NotImplemented]
     public sealed override Task<object> ExecuteAsync(EmptyRequest _, CancellationToken ct) => ExecuteAsync(ct);
-
-    /// <summary>
-    /// get the value of a given route parameter by specifying the resulting type.
-    /// NOTE: an automatic validation error is sent to the client when value retrieval is not successful.
-    /// </summary>
-    /// <typeparam name="T">type of the result</typeparam>
-    /// <param name="paramName">route parameter name</param>
-    /// <param name="isRequired">set to false for disabling the automatic validation error</param>
-    /// <returns>the value if retrieval is successful or null if <paramref name="isRequired"/> is set to false</returns>
-    protected T? Route<T>(string paramName, bool isRequired = true)
-    {
-        if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
-        {
-            var res = typeof(T).ValueParser()?.Invoke(val);
-
-            if (res?.isSuccess is true)
-                return (T?)res?.value;
-
-            if (isRequired)
-                ValidationFailures.Add(new(paramName, "Unable to read value of route parameter!"));
-        }
-        else if (isRequired)
-        {
-            ValidationFailures.Add(new(paramName, "Route parameter was not found!"));
-        }
-
-        ThrowIfAnyErrors();
-
-        return default;// not required and retrieval failed
-    }
 }
 
 /// <summary>
@@ -203,36 +203,6 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
     /// </summary>
     [NotImplemented]
     public sealed override Task<TResponse> ExecuteAsync(EmptyRequest _, CancellationToken ct) => ExecuteAsync(ct);
-
-    /// <summary>
-    /// get the value of a given route parameter by specifying the resulting type.
-    /// NOTE: an automatic validation error is sent to the client when value retrieval is not successful.
-    /// </summary>
-    /// <typeparam name="T">type of the result</typeparam>
-    /// <param name="paramName">route parameter name</param>
-    /// <param name="isRequired">set to false for disabling the automatic validation error</param>
-    /// <returns>the value if retrieval is successful or null if <paramref name="isRequired"/> is set to false</returns>
-    protected T? Route<T>(string paramName, bool isRequired = true)
-    {
-        if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
-        {
-            var res = typeof(T).ValueParser()?.Invoke(val);
-
-            if (res?.isSuccess is true)
-                return (T?)res?.value;
-
-            if (isRequired)
-                ValidationFailures.Add(new(paramName, "Unable to read value of route parameter!"));
-        }
-        else if (isRequired)
-        {
-            ValidationFailures.Add(new(paramName, "Route parameter was not found!"));
-        }
-
-        ThrowIfAnyErrors();
-
-        return default;// not required and retrieval failed
-    }
 }
 
 /// <summary>

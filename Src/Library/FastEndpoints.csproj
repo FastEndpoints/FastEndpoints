@@ -2,11 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta12</Version>
+        <Version>3.9.0-beta13</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - `[HasPermission("xyz")]` attribute to model bind if user has given permission
+            - `[HasPermission("xyz")]` attribute to model bind if user has the given permission
             - endpoint discovery from additional assemblies
             - relax type constraints on request/response dtos. anything with a parameterless ctor is now supported.
 
@@ -21,8 +21,10 @@
             - optimize ReqTypeCache class
 
             ### FIXES
+            - swagger required fromheader/fromclaim/haspermission props are removed from request body
             - swagger adding request param for non-writable dto properties
             - swagger handling of nullable reference types in dtos
+            - swagger misc. improvements in operation handler
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

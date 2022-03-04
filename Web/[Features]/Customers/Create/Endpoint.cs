@@ -16,7 +16,7 @@ public class Request
 
     public IEnumerable<string> PhoneNumbers { get; set; }
 
-    [HasPermission(Allow.Customers_Create, IsRequired = false)]
+    [HasPermission(Allow.Customers_Create)]
     public bool HasCreatePermission { get; set; }
 }
 

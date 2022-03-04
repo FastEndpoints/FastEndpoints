@@ -62,7 +62,7 @@ internal class OperationProcessor : IOperationProcessor
             }
         }
 
-        //this will be later removed from document processor
+        //this will be later removed from document processor. this info is needed by the document processor.
         op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{endpoint.Version.DeprecatedAt}");
 
         //fix request content-types not displaying correctly
@@ -152,9 +152,7 @@ internal class OperationProcessor : IOperationProcessor
                 foreach (var prop in c.Value.Schema.ActualSchema.ActualProperties)
                 {
                     if (reqParamDescriptions.ContainsKey(prop.Key))
-                    {
                         prop.Value.Description = reqParamDescriptions[prop.Key];
-                    }
                 }
 
                 if (c.Value.Schema.ActualSchema.InheritedSchema is not null)
@@ -162,9 +160,7 @@ internal class OperationProcessor : IOperationProcessor
                     foreach (var prop in c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties)
                     {
                         if (reqParamDescriptions.ContainsKey(prop.Key))
-                        {
                             prop.Value.Description = reqParamDescriptions[prop.Key];
-                        }
                     }
                 }
             }
@@ -198,12 +194,9 @@ internal class OperationProcessor : IOperationProcessor
 
             var qParams = reqDtoProps?
                 .Where(p =>
-                       //ignore props marksed with [FromClaim],[FromHeader],[HasPermission] or has a route param.
                        p.CanWrite &&
-                      !p.IsDefined(typeof(FromClaimAttribute), false) &&
-                      !p.IsDefined(typeof(FromHeaderAttribute), false) &&
-                      !p.IsDefined(typeof(HasPermissionAttribute), false) &&
-                      !reqParams.Any(rp => rp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase)))
+                       ShouldAddQueryParam(p) &&
+                       !reqParams.Any(rp => rp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase)))
                 .Select(p =>
                     new OpenApiParameter
                     {
@@ -238,7 +231,7 @@ internal class OperationProcessor : IOperationProcessor
                             Description = reqParamDescriptions.GetValueOrDefault(pName)
                         });
 
-                        //remove corresponding json body field if it's required
+                        //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired)
                             RemovePropFromRequestBodyContent(prop.Name, op.RequestBody?.Content);
                     }
@@ -285,6 +278,22 @@ internal class OperationProcessor : IOperationProcessor
             index = index == -1 ? input.Length : index;
             var left = input[..index];
             return left.TrimEnd('?');
+        }
+
+        static bool ShouldAddQueryParam(PropertyInfo prop)
+        {
+            foreach (var attribute in prop.GetCustomAttributes())
+            {
+                if (attribute is FromHeaderAttribute)
+                    return false; // because header request params are being added
+
+                if (attribute is FromClaimAttribute cAttrib)
+                    return !cAttrib.IsRequired; // add param if it's not required. if required only can bind from actual claim.
+
+                if (attribute is HasPermissionAttribute pAttrib)
+                    return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
+            }
+            return true;
         }
 
         static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)

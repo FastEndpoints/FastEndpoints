@@ -49,7 +49,7 @@ public static class MainExtensions
         return app;
     }
 
-    public static IApplicationBuilder UseFastEndpointsMiddleware(IApplicationBuilder app)
+    public static IApplicationBuilder UseFastEndpointsMiddleware(this IApplicationBuilder app)
     {
         app.UseMiddleware<ExecutorMiddleware>();
         return app;

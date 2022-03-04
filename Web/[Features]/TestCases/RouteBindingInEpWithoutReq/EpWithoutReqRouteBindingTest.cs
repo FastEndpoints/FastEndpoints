@@ -4,7 +4,7 @@ public class EpWithoutReqRouteBindingTest : EndpointWithoutRequest<Response>
 {
     public override void Configure()
     {
-        Get("test-cases/ep-witout-req-route-binding-test/{CustomerID:int}/{OtherID:int?}");
+        Get("test-cases/ep-witout-req-route-binding-test/{CustomerID:int}/{OtherID}");
         AllowAnonymous();
         Summary(s =>
             s.Params["OtherID"] = "the description for other id");

@@ -11,14 +11,12 @@ public abstract class BaseEndpoint : IEndpoint
     //key: the type of the endpoint
     internal static Dictionary<Type, string> TestURLCache { get; } = new();
 
-    public EndpointDefinition Configuration { get; set; }
+    public EndpointDefinition Configuration { get; internal set; }
 
     internal abstract Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken ct);
 
     internal void AddTestURLToCache(Type epType)
     {
-        Configure();
-
         if (Configuration.Routes is null)
             throw new InvalidOperationException($"AddTestURLToCache()[{nameof(Configuration.Routes)}]");
 

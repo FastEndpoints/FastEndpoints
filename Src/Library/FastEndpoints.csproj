@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0</Version>
+        <Version>3.9.1</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -22,6 +22,7 @@
             - optimize ReqTypeCache class
 
             ### FIXES
+            - startup failure when endpoints are inherited with ctor args
             - swagger required fromheader/fromclaim/haspermission props are removed from request body
             - swagger adding request param for non-writable dto properties
             - swagger handling of nullable reference types in dtos

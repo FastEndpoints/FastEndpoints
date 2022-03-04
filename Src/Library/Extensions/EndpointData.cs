@@ -150,7 +150,10 @@ internal sealed class EndpointData
 
             def.ExecuteAsyncImplemented = implementsExecuteAsync;
 
-            var instance = (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)!;
+            BaseEndpoint? instance =
+                x.tEndpoint.GetConstructor(Type.EmptyTypes) is null
+                ? (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)!
+                : (BaseEndpoint)Activator.CreateInstance(x.tEndpoint)!;
             instance.Configuration = def;
             instance.Configure();
             instance.AddTestURLToCache(x.tEndpoint);

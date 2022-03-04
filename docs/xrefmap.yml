@@ -1007,6 +1007,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Roles
   nameWithType: Endpoint<TRequest, TResponse>.Roles
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Roles
+- uid: FastEndpoints.Endpoint`2.Route*
+  name: Route
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Route_
+  commentId: Overload:FastEndpoints.Endpoint`2.Route
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Route
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Route
+  nameWithType: Endpoint<TRequest, TResponse>.Route
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Route
+- uid: FastEndpoints.Endpoint`2.Route``1(System.String,System.Boolean)
+  name: Route<T>(String, Boolean)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Route__1_System_String_System_Boolean_
+  commentId: M:FastEndpoints.Endpoint`2.Route``1(System.String,System.Boolean)
+  name.vb: Route(Of T)(String, Boolean)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Route<T>(System.String, System.Boolean)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Route(Of T)(System.String, System.Boolean)
+  nameWithType: Endpoint<TRequest, TResponse>.Route<T>(String, Boolean)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Route(Of T)(String, Boolean)
 - uid: FastEndpoints.Endpoint`2.Routes(System.String[])
   name: Routes(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Routes_System_String___
@@ -1960,22 +1978,6 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointWithoutRequest.HandleAsync
   nameWithType: EndpointWithoutRequest.HandleAsync
-- uid: FastEndpoints.EndpointWithoutRequest.Route*
-  name: Route
-  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_Route_
-  commentId: Overload:FastEndpoints.EndpointWithoutRequest.Route
-  isSpec: "True"
-  fullName: FastEndpoints.EndpointWithoutRequest.Route
-  nameWithType: EndpointWithoutRequest.Route
-- uid: FastEndpoints.EndpointWithoutRequest.Route``1(System.String,System.Boolean)
-  name: Route<T>(String, Boolean)
-  href: api/FastEndpoints.EndpointWithoutRequest.html#FastEndpoints_EndpointWithoutRequest_Route__1_System_String_System_Boolean_
-  commentId: M:FastEndpoints.EndpointWithoutRequest.Route``1(System.String,System.Boolean)
-  name.vb: Route(Of T)(String, Boolean)
-  fullName: FastEndpoints.EndpointWithoutRequest.Route<T>(System.String, System.Boolean)
-  fullName.vb: FastEndpoints.EndpointWithoutRequest.Route(Of T)(System.String, System.Boolean)
-  nameWithType: EndpointWithoutRequest.Route<T>(String, Boolean)
-  nameWithType.vb: EndpointWithoutRequest.Route(Of T)(String, Boolean)
 - uid: FastEndpoints.EndpointWithoutRequest`1
   name: EndpointWithoutRequest<TResponse>
   href: api/FastEndpoints.EndpointWithoutRequest-1.html
@@ -2035,24 +2037,6 @@ references:
   fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).HandleAsync
   nameWithType: EndpointWithoutRequest<TResponse>.HandleAsync
   nameWithType.vb: EndpointWithoutRequest(Of TResponse).HandleAsync
-- uid: FastEndpoints.EndpointWithoutRequest`1.Route*
-  name: Route
-  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_Route_
-  commentId: Overload:FastEndpoints.EndpointWithoutRequest`1.Route
-  isSpec: "True"
-  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.Route
-  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).Route
-  nameWithType: EndpointWithoutRequest<TResponse>.Route
-  nameWithType.vb: EndpointWithoutRequest(Of TResponse).Route
-- uid: FastEndpoints.EndpointWithoutRequest`1.Route``1(System.String,System.Boolean)
-  name: Route<T>(String, Boolean)
-  href: api/FastEndpoints.EndpointWithoutRequest-1.html#FastEndpoints_EndpointWithoutRequest_1_Route__1_System_String_System_Boolean_
-  commentId: M:FastEndpoints.EndpointWithoutRequest`1.Route``1(System.String,System.Boolean)
-  name.vb: Route(Of T)(String, Boolean)
-  fullName: FastEndpoints.EndpointWithoutRequest<TResponse>.Route<T>(System.String, System.Boolean)
-  fullName.vb: FastEndpoints.EndpointWithoutRequest(Of TResponse).Route(Of T)(System.String, System.Boolean)
-  nameWithType: EndpointWithoutRequest<TResponse>.Route<T>(String, Boolean)
-  nameWithType.vb: EndpointWithoutRequest(Of TResponse).Route(Of T)(String, Boolean)
 - uid: FastEndpoints.EpVersion
   name: EpVersion
   href: api/FastEndpoints.EpVersion.html
@@ -2454,6 +2438,51 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.FromHeaderAttribute.IsRequired
   nameWithType: FromHeaderAttribute.IsRequired
+- uid: FastEndpoints.HasPermissionAttribute
+  name: HasPermissionAttribute
+  href: api/FastEndpoints.HasPermissionAttribute.html
+  commentId: T:FastEndpoints.HasPermissionAttribute
+  fullName: FastEndpoints.HasPermissionAttribute
+  nameWithType: HasPermissionAttribute
+- uid: FastEndpoints.HasPermissionAttribute.#ctor(System.String,System.Boolean)
+  name: HasPermissionAttribute(String, Boolean)
+  href: api/FastEndpoints.HasPermissionAttribute.html#FastEndpoints_HasPermissionAttribute__ctor_System_String_System_Boolean_
+  commentId: M:FastEndpoints.HasPermissionAttribute.#ctor(System.String,System.Boolean)
+  fullName: FastEndpoints.HasPermissionAttribute.HasPermissionAttribute(System.String, System.Boolean)
+  nameWithType: HasPermissionAttribute.HasPermissionAttribute(String, Boolean)
+- uid: FastEndpoints.HasPermissionAttribute.#ctor*
+  name: HasPermissionAttribute
+  href: api/FastEndpoints.HasPermissionAttribute.html#FastEndpoints_HasPermissionAttribute__ctor_
+  commentId: Overload:FastEndpoints.HasPermissionAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.HasPermissionAttribute.HasPermissionAttribute
+  nameWithType: HasPermissionAttribute.HasPermissionAttribute
+- uid: FastEndpoints.HasPermissionAttribute.IsRequired
+  name: IsRequired
+  href: api/FastEndpoints.HasPermissionAttribute.html#FastEndpoints_HasPermissionAttribute_IsRequired
+  commentId: P:FastEndpoints.HasPermissionAttribute.IsRequired
+  fullName: FastEndpoints.HasPermissionAttribute.IsRequired
+  nameWithType: HasPermissionAttribute.IsRequired
+- uid: FastEndpoints.HasPermissionAttribute.IsRequired*
+  name: IsRequired
+  href: api/FastEndpoints.HasPermissionAttribute.html#FastEndpoints_HasPermissionAttribute_IsRequired_
+  commentId: Overload:FastEndpoints.HasPermissionAttribute.IsRequired
+  isSpec: "True"
+  fullName: FastEndpoints.HasPermissionAttribute.IsRequired
+  nameWithType: HasPermissionAttribute.IsRequired
+- uid: FastEndpoints.HasPermissionAttribute.Permission
+  name: Permission
+  href: api/FastEndpoints.HasPermissionAttribute.html#FastEndpoints_HasPermissionAttribute_Permission
+  commentId: P:FastEndpoints.HasPermissionAttribute.Permission
+  fullName: FastEndpoints.HasPermissionAttribute.Permission
+  nameWithType: HasPermissionAttribute.Permission
+- uid: FastEndpoints.HasPermissionAttribute.Permission*
+  name: Permission
+  href: api/FastEndpoints.HasPermissionAttribute.html#FastEndpoints_HasPermissionAttribute_Permission_
+  commentId: Overload:FastEndpoints.HasPermissionAttribute.Permission
+  isSpec: "True"
+  fullName: FastEndpoints.HasPermissionAttribute.Permission
+  nameWithType: HasPermissionAttribute.Permission
 - uid: FastEndpoints.Http
   name: Http
   href: api/FastEndpoints.Http.html
@@ -3481,6 +3510,40 @@ references:
   commentId: N:FastEndpoints.Validation
   fullName: FastEndpoints.Validation
   nameWithType: FastEndpoints.Validation
+- uid: FastEndpoints.Validation.ValidationFailureException
+  name: ValidationFailureException
+  href: api/FastEndpoints.Validation.ValidationFailureException.html
+  commentId: T:FastEndpoints.Validation.ValidationFailureException
+  fullName: FastEndpoints.Validation.ValidationFailureException
+  nameWithType: ValidationFailureException
+- uid: FastEndpoints.Validation.ValidationFailureException.#ctor
+  name: ValidationFailureException()
+  href: api/FastEndpoints.Validation.ValidationFailureException.html#FastEndpoints_Validation_ValidationFailureException__ctor
+  commentId: M:FastEndpoints.Validation.ValidationFailureException.#ctor
+  fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException()
+  nameWithType: ValidationFailureException.ValidationFailureException()
+- uid: FastEndpoints.Validation.ValidationFailureException.#ctor(System.String)
+  name: ValidationFailureException(String)
+  href: api/FastEndpoints.Validation.ValidationFailureException.html#FastEndpoints_Validation_ValidationFailureException__ctor_System_String_
+  commentId: M:FastEndpoints.Validation.ValidationFailureException.#ctor(System.String)
+  fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException(System.String)
+  nameWithType: ValidationFailureException.ValidationFailureException(String)
+- uid: FastEndpoints.Validation.ValidationFailureException.#ctor(System.String,System.Nullable{Exception})
+  name: ValidationFailureException(String, Nullable<Exception>)
+  href: api/FastEndpoints.Validation.ValidationFailureException.html#FastEndpoints_Validation_ValidationFailureException__ctor_System_String_System_Nullable_Exception__
+  commentId: M:FastEndpoints.Validation.ValidationFailureException.#ctor(System.String,System.Nullable{Exception})
+  name.vb: ValidationFailureException(String, Nullable(Of Exception))
+  fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException(System.String, System.Nullable<Exception>)
+  fullName.vb: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException(System.String, System.Nullable(Of Exception))
+  nameWithType: ValidationFailureException.ValidationFailureException(String, Nullable<Exception>)
+  nameWithType.vb: ValidationFailureException.ValidationFailureException(String, Nullable(Of Exception))
+- uid: FastEndpoints.Validation.ValidationFailureException.#ctor*
+  name: ValidationFailureException
+  href: api/FastEndpoints.Validation.ValidationFailureException.html#FastEndpoints_Validation_ValidationFailureException__ctor_
+  commentId: Overload:FastEndpoints.Validation.ValidationFailureException.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException
+  nameWithType: ValidationFailureException.ValidationFailureException
 - uid: FastEndpoints.Validation.Validator`1
   name: Validator<TRequest>
   href: api/FastEndpoints.Validation.Validator-1.html

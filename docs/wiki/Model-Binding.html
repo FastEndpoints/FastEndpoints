@@ -102,6 +102,7 @@
 <li>query parameters</li>
 <li>user claims (if property has <em>[FromClaim]</em> attribute)</li>
 <li>http headers (if property has <em>[FromHeader]</em> attribute)</li>
+<li>permissions (if <code>boolean</code> property has <em>[HasPermission]</em> attribute)</li>
 </ol>
 <p>consider the following request dto and http request:</p>
 <p><strong>dto</strong></p>
@@ -135,6 +136,16 @@ json  : { &quot;UserID&quot;: &quot;12345&quot; }
 }
 </code></pre>
 <p><code>FromHeader</code> attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing <code>[FromHeader(IsRequired = false)]</code> just like with the FromClaim attribute. Both attributes have the same overloads and behaves similarly.</p>
+<p>the <code>HasPermission</code> attribute can be used on <code>boolean</code> properties to check if the current user principal has a particular permission like so:</p>
+<pre><code class="lang-csharp">public class UpdateArticleRequest
+{
+    [HasPermission(&quot;Article_Update&quot;)]
+    public bool AllowedToUpdate { get; set; }
+}
+</code></pre>
+<p>the property value will be set to <code>true</code> if the current principal has the <code>Article_Update</code> permission. as with the above attributes, an automatic validation error will be sent in case the principal does not have the specified permission. you can disable the automatic validation error by doing the following:</p>
+<pre><code class="lang-java">[HasPermission(&quot;Article_Update&quot;, IsRequired = false)]
+</code></pre>
 <h1 id="route-parameters">route parameters</h1>
 <p>route parameters can be bound to properties on the dto using route templates like you'd typically do.</p>
 <p><strong>request dto</strong></p>

@@ -7,6 +7,7 @@ the endpoint handlers are supplied with fully populated request dtos. the dto pr
 4. query parameters
 5. user claims (if property has *[FromClaim]* attribute)
 6. http headers (if property has *[FromHeader]* attribute)
+7. permissions (if `boolean` property has *[HasPermission]* attribute)
 
 consider the following request dto and http request:
 
@@ -50,6 +51,19 @@ public class GetUserRequest
 }
 ```
 `FromHeader` attribute will also by default send an error response if a http header (with the same name as the property being bound to) is not present in the incoming request. you can make the header optional and turn off the default behavior by doing `[FromHeader(IsRequired = false)]` just like with the FromClaim attribute. Both attributes have the same overloads and behaves similarly.
+
+the `HasPermission` attribute can be used on `boolean` properties to check if the current user principal has a particular permission like so:
+```csharp
+public class UpdateArticleRequest
+{
+    [HasPermission("Article_Update")]
+    public bool AllowedToUpdate { get; set; }
+}
+```
+the property value will be set to `true` if the current principal has the `Article_Update` permission. as with the above attributes, an automatic validation error will be sent in case the principal does not have the specified permission. you can disable the automatic validation error by doing the following:
+```java
+[HasPermission("Article_Update", IsRequired = false)]
+```
 
 # route parameters
 route parameters can be bound to properties on the dto using route templates like you'd typically do.

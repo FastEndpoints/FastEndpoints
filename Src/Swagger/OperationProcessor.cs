@@ -40,7 +40,7 @@ internal class OperationProcessor : IOperationProcessor
             return true; //this is not a fastendpoint
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
-        var opPath = ctx.OperationDescription.Path = $"/{apiDescription.RelativePath}";//fix missing path parameters
+        var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!)}";//fix missing path parameters
         var apiVer = endpoint.Version.Current;
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
@@ -180,8 +180,8 @@ internal class OperationProcessor : IOperationProcessor
                 {
                     Name = ActualParamName(m.Value),
                     Kind = OpenApiParameterKind.Path,
-                    IsRequired = !m.Value.EndsWith('?'),
-                    Schema = JsonSchema.FromType(typeof(string)),
+                    IsRequired = true,
+                    Schema = JsonSchema.FromType(typeof(string)), //todo: detect route constraints from {name:int}/{name:double}
                     Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value))
                 };
             })
@@ -272,47 +272,65 @@ internal class OperationProcessor : IOperationProcessor
 
         return true;
 
-        static string ActualParamName(string input)
-        {
-            var index = input.IndexOf(':');
-            index = index == -1 ? input.Length : index;
-            var left = input[..index];
-            return left.TrimEnd('?');
-        }
+    }
 
-        static bool ShouldAddQueryParam(PropertyInfo prop)
+    private static string ActualParamName(string input)
+    {
+        var index = input.IndexOf(':');
+        index = index == -1 ? input.Length : index;
+        var left = input[..index];
+        return left.TrimEnd('?');
+    }
+
+    private static bool ShouldAddQueryParam(PropertyInfo prop)
+    {
+        foreach (var attribute in prop.GetCustomAttributes())
         {
-            foreach (var attribute in prop.GetCustomAttributes())
+            if (attribute is FromHeaderAttribute)
+                return false; // because header request params are being added
+
+            if (attribute is FromClaimAttribute cAttrib)
+                return !cAttrib.IsRequired; // add param if it's not required. if required only can bind from actual claim.
+
+            if (attribute is HasPermissionAttribute pAttrib)
+                return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
+        }
+        return true;
+    }
+
+    private static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)
+    {
+        if (content is null) return;
+
+        foreach (var c in content)
+        {
+            var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault(kvp =>
+                string.Equals(kvp.Key, ActualParamName(propName), StringComparison.OrdinalIgnoreCase)).Key;
+
+            if (prop != null)
             {
-                if (attribute is FromHeaderAttribute)
-                    return false; // because header request params are being added
+                c.Value.Schema.ActualSchema.Properties.Remove(prop);
 
-                if (attribute is FromClaimAttribute cAttrib)
-                    return !cAttrib.IsRequired; // add param if it's not required. if required only can bind from actual claim.
-
-                if (attribute is HasPermissionAttribute pAttrib)
-                    return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
+                foreach (var schema in c.Value.Schema.ActualSchema.AllOf)
+                    schema.Properties.Remove(prop);
             }
-            return true;
         }
+    }
 
-        static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)
+    private static string StripRouteConstraints(string relativePath)
+    {
+        var parts = relativePath.Split('/');
+
+        for (int i = 0; i < parts.Length; i++)
         {
-            if (content is null) return;
+            var p = ActualParamName(parts[i]);
 
-            foreach (var c in content)
-            {
-                var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault(kvp =>
-                    string.Equals(kvp.Key, ActualParamName(propName), StringComparison.OrdinalIgnoreCase)).Key;
+            if (p.StartsWith("{") && !p.EndsWith("}"))
+                p += "}";
 
-                if (prop != null)
-                {
-                    c.Value.Schema.ActualSchema.Properties.Remove(prop);
-
-                    foreach (var schema in c.Value.Schema.ActualSchema.AllOf)
-                        schema.Properties.Remove(prop);
-                }
-            }
+            parts[i] = p;
         }
+
+        return string.Join("/", parts);
     }
 }

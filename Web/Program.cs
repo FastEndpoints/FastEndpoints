@@ -73,7 +73,7 @@ app.UseFastEndpoints(config =>
 app.UseEndpoints(c =>
 {
     c.MapGet("test", () => "hello world!").WithTags("map-get");
-    c.MapGet("test/{testId}", (int testId) => "hello 2").WithTags("map-get");
+    c.MapGet("test/{testId:int?}", (int? testId) => $"hello {testId}").WithTags("map-get");
 });
 
 if (!app.Environment.IsProduction())

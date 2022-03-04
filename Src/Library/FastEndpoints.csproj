@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.9.0-beta11</Version>
+        <Version>3.9.0-beta12</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -22,6 +22,7 @@
 
             ### FIXES
             - swagger adding request param for non-writable dto properties
+            - swagger handling of nullable reference types in dtos
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

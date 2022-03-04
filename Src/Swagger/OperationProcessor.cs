@@ -222,7 +222,7 @@ internal class OperationProcessor : IOperationProcessor
                     new OpenApiParameter
                     {
                         Name = p.Name,
-                        IsRequired = Nullable.GetUnderlyingType(p.PropertyType) != null,
+                        IsRequired = !p.IsNullable(),
                         Schema = JsonSchema.FromType(p.PropertyType),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name)

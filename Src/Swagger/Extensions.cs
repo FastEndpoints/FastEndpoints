@@ -6,6 +6,7 @@ using NSwag.AspNetCore;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
+using System.Reflection;
 
 namespace FastEndpoints.Swagger;
 
@@ -113,4 +114,7 @@ public static class Extensions
         int index = value.IndexOf(removeString, StringComparison.Ordinal);
         return index < 0 ? value : value.Remove(index, removeString.Length);
     }
+
+    private static readonly NullabilityInfoContext nullCtx = new();
+    internal static bool IsNullable(this PropertyInfo p) => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
 }

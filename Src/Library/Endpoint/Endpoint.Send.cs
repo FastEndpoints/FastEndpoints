@@ -26,13 +26,22 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token</param>
-    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? responseBody, Http? verb = null, int? routeNumber = null,
+        bool generateAbsoluteUrl = false, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
         if (responseBody is not null)
             Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(routeValues, responseBody, verb, routeNumber, Configuration.SerializerContext, cancellation);
+        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(
+            routeValues,
+            responseBody,
+            verb,
+            routeNumber,
+            Configuration.SerializerContext,
+            generateAbsoluteUrl,
+            cancellation);
     }
 
     /// <summary>
@@ -42,13 +51,21 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">cancellation token</param>
-    protected Task SendCreatedAtAsync(string endpointName, object? routeValues, TResponse? responseBody, CancellationToken cancellation = default)
+    protected Task SendCreatedAtAsync(string endpointName, object? routeValues, TResponse? responseBody, bool generateAbsoluteUrl = false,
+        CancellationToken cancellation = default)
     {
         if (responseBody is not null)
             Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync(endpointName, routeValues, responseBody, Configuration.SerializerContext, cancellation);
+        return HttpContext.Response.SendCreatedAtAsync(
+            endpointName,
+            routeValues,
+            responseBody,
+            Configuration.SerializerContext,
+            generateAbsoluteUrl,
+            cancellation);
     }
 
     /// <summary>

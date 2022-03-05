@@ -40,7 +40,8 @@ public class Endpoint : Endpoint<Request>
         };
 
         return SendCreatedAtAsync<GetProduct.Endpoint>(
-            new { ProductID = res.ProductId },
-            res);
+            routeValues: new { ProductID = res.ProductId },
+            responseBody: res,
+            generateAbsoluteUrl: req.GenerateFullUrl);
     }
 }

@@ -14,6 +14,8 @@ public class Request
     public decimal Price { get; set; }
     public int QtyOnHand { get; set; }
     public string? ModifiedBy { get; set; }
+
+    public bool GenerateFullUrl { get; set; }
 }
 
 public class Validator : Validator<Request>

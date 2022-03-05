@@ -34,11 +34,19 @@ public static class HttpResponseExtensions
     /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token</param>
-    public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp,
-        object? routeValues, object? responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp, object? routeValues, object? responseBody, Http? verb = null,
+        int? routeNumber = null, JsonSerializerContext? jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
-        return SendCreatedAtAsync(rsp, typeof(TEndpoint).EndpointName(verb?.ToString(), routeNumber), routeValues, responseBody, jsonSerializerContext, cancellation);
+        return SendCreatedAtAsync(
+            rsp,
+            typeof(TEndpoint).EndpointName(verb?.ToString(), routeNumber),
+            routeValues,
+            responseBody,
+            jsonSerializerContext,
+            generateAbsoluteUrl,
+            cancellation);
     }
 
     /// <summary>
@@ -49,16 +57,22 @@ public static class HttpResponseExtensions
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">cancellation token</param>
-    public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object? routeValues, object? responseBody, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
+    public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object? routeValues, object? responseBody,
+        JsonSerializerContext? jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = default)
     {
+        var gen = rsp.HttpContext.RequestServices.GetRequiredService<LinkGenerator>();
+
         rsp.StatusCode = 201;
-        rsp.Headers.Location = rsp.HttpContext.RequestServices
-            .GetRequiredService<LinkGenerator>()
-            .GetPathByName(endpointName, routeValues);
+
+        rsp.Headers.Location = generateAbsoluteUrl
+                               ? gen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
+                               : gen.GetPathByName(endpointName, routeValues);
+
         return responseBody is null
-            ? rsp.StartAsync(cancellation)
-            : RespSerializerFunc(rsp, responseBody, "application/json", jsonSerializerContext, cancellation);
+               ? rsp.StartAsync(cancellation)
+               : RespSerializerFunc(rsp, responseBody, "application/json", jsonSerializerContext, cancellation);
     }
 
     /// <summary>

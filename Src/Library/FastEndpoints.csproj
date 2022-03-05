@@ -8,6 +8,7 @@
             ### NEW
             - add SendOkAsync() method from PR #51
             - overload for JWTBearer.CreateToken() to supply issuer and audience
+            - absolute url generation support for SendCreatedAt() method
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -115,13 +115,37 @@ namespace Test
                     Name = "Grape Juice",
                     Description = "description",
                     ModifiedBy = "me",
-                    Price = 100
+                    Price = 100,
+                    GenerateFullUrl = false
                 });
 
             var createdAtLocation = res?.Headers.Location?.ToString();
 
             Assert.AreEqual(HttpStatusCode.Created, res?.StatusCode);
             Assert.AreEqual($"/api/inventory/get-product/{result?.ProductId}", createdAtLocation);
+            Assert.IsTrue(result?.ProductId > 1);
+            Assert.AreEqual("Grape Juice", result?.ProductName);
+        }
+
+        [TestMethod]
+        public async Task CreatedAtSuccessFullUrl()
+        {
+            var (res, result) = await AdminClient.POSTAsync<
+                Inventory.Manage.Create.Endpoint,
+                Inventory.Manage.Create.Request,
+                Inventory.Manage.Create.Response>(new()
+                {
+                    Name = "Grape Juice",
+                    Description = "description",
+                    ModifiedBy = "me",
+                    Price = 100,
+                    GenerateFullUrl = true
+                });
+
+            var createdAtLocation = res?.Headers.Location?.ToString();
+
+            Assert.AreEqual(HttpStatusCode.Created, res?.StatusCode);
+            Assert.AreEqual($"http://localhost/api/inventory/get-product/{result?.ProductId}", createdAtLocation);
             Assert.IsTrue(result?.ProductId > 1);
             Assert.AreEqual("Grape Juice", result?.ProductName);
         }

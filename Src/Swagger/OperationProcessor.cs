@@ -271,7 +271,6 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         return true;
-
     }
 
     private static string ActualParamName(string input)

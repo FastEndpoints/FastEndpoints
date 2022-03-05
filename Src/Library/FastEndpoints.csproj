@@ -6,7 +6,7 @@
 
         <PackageReleaseNotes>
             ### NEW
-            -
+            - add SendOkAsync() method from PR #51
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

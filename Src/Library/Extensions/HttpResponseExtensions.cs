@@ -83,7 +83,7 @@ public static class HttpResponseExtensions
         rsp.StatusCode = 200;
         return rsp.StartAsync(cancellation);
     }
-    
+
     /// <summary>
     /// send an http 200 ok response with the supplied response dto serialized as json to the client.
     /// </summary>

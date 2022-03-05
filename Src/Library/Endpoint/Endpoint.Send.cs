@@ -72,7 +72,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         Response = response;
         return HttpContext.Response.SendOkAsync(response, Configuration.SerializerContext, cancellation);
     }
-    
+
     /// <summary>
     /// send an http 200 ok response without any body
     /// </summary>

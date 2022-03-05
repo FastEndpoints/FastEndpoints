@@ -145,6 +145,17 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// send a 301/302 redirect response
+    /// </summary>
+    /// <param name="location">the location to redirect to</param>
+    /// <param name="isPermanant">set to true for a 302 redirect. 301 is the default.</param>
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendRedirectAsync(string location, bool isPermanant = false, CancellationToken cancellation = default)
+    {
+        return HttpContext.Response.SendRedirectAsync(location, isPermanant, cancellation);
+    }
+
+    /// <summary>
     /// send a byte array to the client
     /// </summary>
     /// <param name="bytes">the bytes to send</param>

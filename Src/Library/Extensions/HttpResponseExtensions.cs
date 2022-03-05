@@ -162,6 +162,18 @@ public static class HttpResponseExtensions
     }
 
     /// <summary>
+    /// send a 301/302 redirect response
+    /// </summary>
+    /// <param name="location">the location to redirect to</param>
+    /// <param name="isPermanant">set to true for a 302 redirect. 301 is the default.</param>
+    /// <param name="cancellation">optional cancellation token</param>
+    public static Task SendRedirectAsync(this HttpResponse rsp, string location, bool isPermanant, CancellationToken cancellation = default)
+    {
+        rsp.Redirect(location, isPermanant);
+        return rsp.StartAsync(cancellation);
+    }
+
+    /// <summary>
     /// send a byte array to the client
     /// </summary>
     /// <param name="bytes">the bytes to send</param>

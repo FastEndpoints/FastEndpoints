@@ -19,6 +19,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
     /// <para>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint, specify the 'routeNumber' argument.</para>
+    /// <para>WARNING: this overload will not add a location header if you've set a custom endpoint name using .WithName() method. use the other overload that accepts a string endpoint name instead.</para>
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
@@ -36,6 +37,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
+    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
     /// </summary>
     /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>

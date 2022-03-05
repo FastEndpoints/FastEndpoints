@@ -27,8 +27,7 @@ internal static class MiscExtensions
 
     internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
     {
-        var v = verb?.ToString();
-        var vrb = v != null ? v[0] + v[1..].ToLowerInvariant() : null;
+        var vrb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
         var ep = ShortEpNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
         return vrb + ep + routeNum.ToString();
     }

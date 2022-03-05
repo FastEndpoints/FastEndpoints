@@ -218,7 +218,7 @@ app.UseFastEndpoints(c =>
     c.ShortEndpointNames = true;
 });
 ```
-
+### custom endpoint names
 if the auto-generated operation ids are not to your liking, you can specify a name for an endpoint using the `WithName()` method.
 ```csharp
 public override void Configure()

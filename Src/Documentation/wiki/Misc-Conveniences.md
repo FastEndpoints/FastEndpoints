@@ -63,7 +63,7 @@ the following **[response sending methods](xref:FastEndpoints.Endpoint`2.SendAsy
 sends a given response dto or any object that can be serialized as json down to the requesting client.
 
 #### SendCreatedAtAsync()
-sends a 201 created response with a `Location` header containing where the resource can be retrieved from.
+sends a 201 created response with a `Location` header containing where the resource can be retrieved from. **[see note](Swagger-Support.md#custom-endpoint-names)** about using with custom endpoint names.
 
 #### SendStringAsync()
 sends a given string to the client in the response body

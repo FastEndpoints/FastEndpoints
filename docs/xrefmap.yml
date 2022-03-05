@@ -1224,6 +1224,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendNotFoundAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendNotFoundAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendNotFoundAsync
+- uid: FastEndpoints.Endpoint`2.SendOkAsync(`1,CancellationToken)
+  name: SendOkAsync(TResponse, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync__1_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendOkAsync(`1,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendOkAsync(TResponse, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendOkAsync(TResponse, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendOkAsync(TResponse, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendOkAsync(TResponse, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendOkAsync(CancellationToken)
   name: SendOkAsync(CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync_CancellationToken_
@@ -2811,6 +2819,15 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendOkAsync
   nameWithType: HttpResponseExtensions.SendOkAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendOkAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
+  name: SendOkAsync<TResponse>(HttpResponse, TResponse, JsonSerializerContext, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendOkAsync__1_Microsoft_AspNetCore_Http_HttpResponse___0_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendOkAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
+  name.vb: SendOkAsync(Of TResponse)(HttpResponse, TResponse, JsonSerializerContext, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendOkAsync<TResponse>(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendOkAsync(Of TResponse)(Microsoft.AspNetCore.Http.HttpResponse, TResponse, System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendOkAsync<TResponse>(HttpResponse, TResponse, JsonSerializerContext, CancellationToken)
+  nameWithType.vb: HttpResponseExtensions.SendOkAsync(Of TResponse)(HttpResponse, TResponse, JsonSerializerContext, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendStreamAsync(Microsoft.AspNetCore.Http.HttpResponse,Stream,System.String,System.Nullable{System.Int64},System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
   name: SendStreamAsync(HttpResponse, Stream, String, Nullable<Int64>, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendStreamAsync_Microsoft_AspNetCore_Http_HttpResponse_Stream_System_String_System_Nullable_System_Int64__System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_

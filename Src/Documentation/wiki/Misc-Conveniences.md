@@ -21,7 +21,7 @@ the above is equivalent to using both `Verbs() and Routes()`. do note that you c
 the following properties are available to all endpoint classes.
 
 #### BaseURL (string)
-the base url of the current request in the form of `https://hostname:port/` (includes trailing slash).
+the base url of the current request in the form of `https://hostname:port/` (includes trailing slash). if your server is behind a proxy/gateway, use the [forwarded headers middleware](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer) to get the correct address.
 
 #### Config (IConfiguration)
 gives access to current configuration of the web app

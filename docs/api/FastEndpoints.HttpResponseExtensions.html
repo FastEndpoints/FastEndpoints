@@ -377,6 +377,7 @@
   <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(HttpResponse, Object, Object, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, JsonSerializerContext, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
 <p>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the &apos;verb&apos; argument and if pointing to a multi route endpoint, specify the &apos;routeNumber&apos; argument.</p>
+<p>WARNING: this overload will not add a location header if you&apos;ve set a custom endpoint name using .WithName() method. use the other overload that accepts a string endpoint name instead.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -847,6 +848,82 @@
     <tbody>
       <tr>
         <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_HttpResponseExtensions_SendOkAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendOkAsync*"></a>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendOkAsync__1_Microsoft_AspNetCore_Http_HttpResponse___0_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendOkAsync``1(Microsoft.AspNetCore.Http.HttpResponse,``0,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendOkAsync&lt;TResponse&gt;(HttpResponse, TResponse, JsonSerializerContext, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send an http 200 ok response with the supplied response dto serialized as json to the client.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Task SendOkAsync&lt;TResponse&gt;(this HttpResponse rsp, TResponse response, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Http.HttpResponse</span></td>
+        <td><span class="parametername">rsp</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">TResponse</span></td>
+        <td><span class="parametername">response</span></td>
+        <td><p>the object to serialize to json</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span></td>
+        <td><span class="parametername">jsonSerializerContext</span></td>
+        <td><p>json serializer context if code generation is used</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TResponse</span></td>
         <td></td>
       </tr>
     </tbody>

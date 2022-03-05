@@ -110,7 +110,7 @@
 <h1 id="endpoint-properties">endpoint properties</h1>
 <p>the following properties are available to all endpoint classes.</p>
 <h4 id="baseurl-string">BaseURL (string)</h4>
-<p>the base url of the current request in the form of <code>https://hostname:port/</code> (includes trailing slash).</p>
+<p>the base url of the current request in the form of <code>https://hostname:port/</code> (includes trailing slash). if your server is behind a proxy/gateway, use the <a href="https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer">forwarded headers middleware</a> to get the correct address.</p>
 <h4 id="config-iconfiguration">Config (IConfiguration)</h4>
 <p>gives access to current configuration of the web app</p>
 <h4 id="env-iwebhostenvironment">Env (IWebHostEnvironment)</h4>

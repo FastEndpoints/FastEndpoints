@@ -300,14 +300,14 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Object_System_Object_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendCreatedAtAsync(HttpResponse, String, Object, Object, JsonSerializerContext, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Object_System_Object_System_Text_Json_Serialization_JsonSerializerContext_System_Boolean_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,System.Text.Json.Serialization.JsonSerializerContext,System.Boolean,CancellationToken)">SendCreatedAtAsync(HttpResponse, String, Object, Object, JsonSerializerContext, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
 <p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object routeValues, object responseBody, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object routeValues, object responseBody, JsonSerializerContext jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -349,6 +349,12 @@
 </td>
       </tr>
       <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">generateAbsoluteUrl</span></td>
+        <td><p>set to true for generating a absolute url instead of relative url for the location header</p>
+</td>
+      </tr>
+      <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
         <td><p>cancellation token</p>
@@ -374,7 +380,7 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(HttpResponse, Object, Object, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, JsonSerializerContext, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__System_Text_Json_Serialization_JsonSerializerContext_System_Boolean_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Text.Json.Serialization.JsonSerializerContext,System.Boolean,CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(HttpResponse, Object, Object, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, JsonSerializerContext, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
 <p>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the &apos;verb&apos; argument and if pointing to a multi route endpoint, specify the &apos;routeNumber&apos; argument.</p>
 <p>WARNING: this overload will not add a location header if you&apos;ve set a custom endpoint name using .WithName() method. use the other overload that accepts a string endpoint name instead.</p>
@@ -382,8 +388,7 @@
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)
-
+    <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -429,6 +434,12 @@
         <td><span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span></td>
         <td><span class="parametername">jsonSerializerContext</span></td>
         <td><p>json serializer context if code generation is used</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">generateAbsoluteUrl</span></td>
+        <td><p>set to true for generating a absolute url instead of relative url for the location header</p>
 </td>
       </tr>
       <tr>

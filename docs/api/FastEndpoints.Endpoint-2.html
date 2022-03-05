@@ -155,7 +155,6 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
-
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -1386,7 +1385,6 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1535,7 +1533,6 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
-
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -1890,14 +1887,14 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   
   
   <a id="FastEndpoints_Endpoint_2_SendCreatedAtAsync_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendCreatedAtAsync_System_String_System_Object__1_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)">SendCreatedAtAsync(String, Object, TResponse, CancellationToken)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendCreatedAtAsync_System_String_System_Object__1_System_Boolean_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,System.Boolean,CancellationToken)">SendCreatedAtAsync(String, Object, TResponse, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
 <p>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync(string endpointName, object routeValues, TResponse responseBody, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync(string endpointName, object routeValues, TResponse responseBody, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -1928,6 +1925,12 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
 </td>
       </tr>
       <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">generateAbsoluteUrl</span></td>
+        <td><p>set to true for generating a absolute url instead of relative url for the location header</p>
+</td>
+      </tr>
+      <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
         <td><p>cancellation token</p>
@@ -1953,7 +1956,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   
   
   <a id="FastEndpoints_Endpoint_2_SendCreatedAtAsync_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendCreatedAtAsync__1_System_Object__1_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(Object, TResponse, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, CancellationToken)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendCreatedAtAsync__1_System_Object__1_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__System_Boolean_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Boolean,CancellationToken)">SendCreatedAtAsync&lt;TEndpoint&gt;(Object, TResponse, Nullable&lt;Http&gt;, Nullable&lt;Int32&gt;, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 201 created response with a location header containing where the resource can be retrieved from.</p>
 <p>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the &apos;verb&apos; argument and if pointing to a multi route endpoint, specify the &apos;routeNumber&apos; argument.</p>
 <p>WARNING: this overload will not add a location header if you&apos;ve set a custom endpoint name using .WithName() method. use the other overload that accepts a string endpoint name instead.</p>
@@ -1961,8 +1964,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, CancellationToken cancellation = null)
-
+    <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1997,6 +1999,12 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
         <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.Int32</span>&gt;</td>
         <td><span class="parametername">routeNumber</span></td>
         <td><p>only useful when pointing to a multi route endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">generateAbsoluteUrl</span></td>
+        <td><p>set to true for generating a absolute url instead of relative url for the location header</p>
 </td>
       </tr>
       <tr>
@@ -2608,7 +2616,6 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;()
-
     where TContext : JsonSerializerContext</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -2946,7 +2953,6 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
-
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>

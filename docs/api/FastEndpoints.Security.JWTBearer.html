@@ -141,13 +141,13 @@
   
   
   <a id="FastEndpoints_Security_JWTBearer_CreateToken_" data-uid="FastEndpoints.Security.JWTBearer.CreateToken*"></a>
-  <h4 id="FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_Security_Claims_Claim___" data-uid="FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}})">CreateToken(String, Nullable&lt;DateTime&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;Claim&gt;&gt;)</h4>
+  <h4 id="FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_Security_Claims_Claim___System_String_System_String_" data-uid="FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}},System.String,System.String)">CreateToken(String, Nullable&lt;DateTime&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;Claim&gt;&gt;, String, String)</h4>
   <div class="markdown level1 summary"><p>generate a jwt token with the supplied parameters</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static string CreateToken(string signingKey, DateTime? expireAt = null, IEnumerable&lt;string&gt;? permissions = null, IEnumerable&lt;string&gt;? roles = null, IEnumerable&lt;Claim&gt;? claims = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static string CreateToken(string signingKey, DateTime? expireAt = null, IEnumerable&lt;string&gt;? permissions = null, IEnumerable&lt;string&gt;? roles = null, IEnumerable&lt;Claim&gt;? claims = null, string issuer = null, string audience = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -187,6 +187,18 @@
         <td><span class="xref">System.Nullable</span>&lt;<span class="xref">IEnumerable</span>&lt;<span class="xref">System.Security.Claims.Claim</span>&gt;&gt;</td>
         <td><span class="parametername">claims</span></td>
         <td><p>one or more claims to assign to the user principal</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">issuer</span></td>
+        <td><p>the issuer</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">audience</span></td>
+        <td><p>the audience</p>
 </td>
       </tr>
     </tbody>
@@ -231,6 +243,86 @@
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">signingKey</span></td>
         <td><p>the secret key to use for signing the tokens</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">DateTime</span>&gt;</td>
+        <td><span class="parametername">expireAt</span></td>
+        <td><p>the expiry date</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;&gt;</td>
+        <td><span class="parametername">permissions</span></td>
+        <td><p>one or more permissions to assign to the user principal</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">IEnumerable</span>&lt;<span class="xref">System.String</span>&gt;&gt;</td>
+        <td><span class="parametername">roles</span></td>
+        <td><p>one or more roles to assign the user principal</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.ValueTuple</span>&lt;<span class="xref">System.String</span>, <span class="xref">System.String</span>&gt;[]</td>
+        <td><span class="parametername">claims</span></td>
+        <td><p>one or more claims to assign to the user principal</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Security_JWTBearer_CreateToken_" data-uid="FastEndpoints.Security.JWTBearer.CreateToken*"></a>
+  <h4 id="FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_String_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_ValueTuple_System_String_System_String____" data-uid="FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.String,System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.ValueTuple{System.String,System.String}[])">CreateToken(String, String, String, Nullable&lt;DateTime&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, Nullable&lt;IEnumerable&lt;String&gt;&gt;, (String claimType, String claimValue)[])</h4>
+  <div class="markdown level1 summary"><p>generate a jwt token with the supplied parameters</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static string CreateToken(string signingKey, string issuer, string audience, DateTime? expireAt = null, IEnumerable&lt;string&gt;? permissions = null, IEnumerable&lt;string&gt;? roles = null, params (string claimType, string claimValue)[] claims)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">signingKey</span></td>
+        <td><p>the secret key to use for signing the tokens</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">issuer</span></td>
+        <td><p>the issue</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">audience</span></td>
+        <td><p>the audience</p>
 </td>
       </tr>
       <tr>

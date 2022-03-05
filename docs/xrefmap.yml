@@ -1095,14 +1095,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendBytesAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendBytesAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendBytesAsync
-- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)
-  name: SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync_System_String_System_Object__1_CancellationToken_
-  commentId: M:FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,CancellationToken)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync(System.String, System.Object, TResponse, CancellationToken)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(System.String, System.Object, TResponse, CancellationToken)
-  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(String, Object, TResponse, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,System.Boolean,CancellationToken)
+  name: SendCreatedAtAsync(String, Object, TResponse, Boolean, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync_System_String_System_Object__1_System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendCreatedAtAsync(System.String,System.Object,`1,System.Boolean,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync(System.String, System.Object, TResponse, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(System.String, System.Object, TResponse, System.Boolean, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync(String, Object, TResponse, Boolean, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(String, Object, TResponse, Boolean, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync*
   name: SendCreatedAtAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync_
@@ -1112,15 +1112,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync
-- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},CancellationToken)
-  name: SendCreatedAtAsync<TEndpoint>(Object, TResponse, Nullable<Http>, Nullable<Int32>, CancellationToken)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync__1_System_Object__1_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__CancellationToken_
-  commentId: M:FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},CancellationToken)
-  name.vb: SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, Nullable(Of Http), Nullable(Of Int32), CancellationToken)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(System.Object, TResponse, System.Nullable<FastEndpoints.Http>, System.Nullable<System.Int32>, CancellationToken)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(System.Object, TResponse, System.Nullable(Of FastEndpoints.Http), System.Nullable(Of System.Int32), CancellationToken)
-  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(Object, TResponse, Nullable<Http>, Nullable<Int32>, CancellationToken)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, Nullable(Of Http), Nullable(Of Int32), CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Boolean,CancellationToken)
+  name: SendCreatedAtAsync<TEndpoint>(Object, TResponse, Nullable<Http>, Nullable<Int32>, Boolean, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendCreatedAtAsync__1_System_Object__1_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendCreatedAtAsync``1(System.Object,`1,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Boolean,CancellationToken)
+  name.vb: SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, Nullable(Of Http), Nullable(Of Int32), Boolean, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(System.Object, TResponse, System.Nullable<FastEndpoints.Http>, System.Nullable<System.Int32>, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(System.Object, TResponse, System.Nullable(Of FastEndpoints.Http), System.Nullable(Of System.Int32), System.Boolean, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendCreatedAtAsync<TEndpoint>(Object, TResponse, Nullable<Http>, Nullable<Int32>, Boolean, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendCreatedAtAsync(Of TEndpoint)(Object, TResponse, Nullable(Of Http), Nullable(Of Int32), Boolean, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendEmptyJsonObject(CancellationToken)
   name: SendEmptyJsonObject(CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEmptyJsonObject_CancellationToken_
@@ -2700,12 +2700,12 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendBytesAsync
   nameWithType: HttpResponseExtensions.SendBytesAsync
-- uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
-  name: SendCreatedAtAsync(HttpResponse, String, Object, Object, JsonSerializerContext, CancellationToken)
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Object_System_Object_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_
-  commentId: M:FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
-  fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Object, System.Object, System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
-  nameWithType: HttpResponseExtensions.SendCreatedAtAsync(HttpResponse, String, Object, Object, JsonSerializerContext, CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,System.Text.Json.Serialization.JsonSerializerContext,System.Boolean,CancellationToken)
+  name: SendCreatedAtAsync(HttpResponse, String, Object, Object, JsonSerializerContext, Boolean, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Object_System_Object_System_Text_Json_Serialization_JsonSerializerContext_System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Object,System.Object,System.Text.Json.Serialization.JsonSerializerContext,System.Boolean,CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Object, System.Object, System.Text.Json.Serialization.JsonSerializerContext, System.Boolean, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendCreatedAtAsync(HttpResponse, String, Object, Object, JsonSerializerContext, Boolean, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync*
   name: SendCreatedAtAsync
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync_
@@ -2713,15 +2713,15 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync
   nameWithType: HttpResponseExtensions.SendCreatedAtAsync
-- uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
-  name: SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, Nullable<Http>, Nullable<Int32>, JsonSerializerContext, CancellationToken)
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_
-  commentId: M:FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
-  name.vb: SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, Nullable(Of Http), Nullable(Of Int32), JsonSerializerContext, CancellationToken)
-  fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync<TEndpoint>(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, System.Nullable<FastEndpoints.Http>, System.Nullable<System.Int32>, System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
-  fullName.vb: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Of TEndpoint)(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, System.Nullable(Of FastEndpoints.Http), System.Nullable(Of System.Int32), System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
-  nameWithType: HttpResponseExtensions.SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, Nullable<Http>, Nullable<Int32>, JsonSerializerContext, CancellationToken)
-  nameWithType.vb: HttpResponseExtensions.SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, Nullable(Of Http), Nullable(Of Int32), JsonSerializerContext, CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Text.Json.Serialization.JsonSerializerContext,System.Boolean,CancellationToken)
+  name: SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, Nullable<Http>, Nullable<Int32>, JsonSerializerContext, Boolean, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendCreatedAtAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_Object_System_Object_System_Nullable_FastEndpoints_Http__System_Nullable_System_Int32__System_Text_Json_Serialization_JsonSerializerContext_System_Boolean_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.Object,System.Object,System.Nullable{FastEndpoints.Http},System.Nullable{System.Int32},System.Text.Json.Serialization.JsonSerializerContext,System.Boolean,CancellationToken)
+  name.vb: SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, Nullable(Of Http), Nullable(Of Int32), JsonSerializerContext, Boolean, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync<TEndpoint>(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, System.Nullable<FastEndpoints.Http>, System.Nullable<System.Int32>, System.Text.Json.Serialization.JsonSerializerContext, System.Boolean, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendCreatedAtAsync(Of TEndpoint)(Microsoft.AspNetCore.Http.HttpResponse, System.Object, System.Object, System.Nullable(Of FastEndpoints.Http), System.Nullable(Of System.Int32), System.Text.Json.Serialization.JsonSerializerContext, System.Boolean, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendCreatedAtAsync<TEndpoint>(HttpResponse, Object, Object, Nullable<Http>, Nullable<Int32>, JsonSerializerContext, Boolean, CancellationToken)
+  nameWithType.vb: HttpResponseExtensions.SendCreatedAtAsync(Of TEndpoint)(HttpResponse, Object, Object, Nullable(Of Http), Nullable(Of Int32), JsonSerializerContext, Boolean, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject(Microsoft.AspNetCore.Http.HttpResponse,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
   name: SendEmptyJsonObject(HttpResponse, JsonSerializerContext, CancellationToken)
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendEmptyJsonObject_Microsoft_AspNetCore_Http_HttpResponse_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_
@@ -3219,12 +3219,12 @@ references:
   commentId: T:FastEndpoints.Security.AuthExtensions
   fullName: FastEndpoints.Security.AuthExtensions
   nameWithType: AuthExtensions
-- uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
-  name: AddAuthenticationJWTBearer(IServiceCollection, String)
-  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_String_
-  commentId: M:FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)
-  fullName: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.String)
-  nameWithType: AuthExtensions.AddAuthenticationJWTBearer(IServiceCollection, String)
+- uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Boolean,System.Boolean)
+  name: AddAuthenticationJWTBearer(IServiceCollection, String, Boolean, Boolean)
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_String_System_Boolean_System_Boolean_
+  commentId: M:FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Boolean,System.Boolean)
+  fullName: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.String, System.Boolean, System.Boolean)
+  nameWithType: AuthExtensions.AddAuthenticationJWTBearer(IServiceCollection, String, Boolean, Boolean)
 - uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer*
   name: AddAuthenticationJWTBearer
   href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_
@@ -3277,15 +3277,15 @@ references:
   commentId: T:FastEndpoints.Security.JWTBearer
   fullName: FastEndpoints.Security.JWTBearer
   nameWithType: JWTBearer
-- uid: FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}})
-  name: CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<Claim>>)
-  href: api/FastEndpoints.Security.JWTBearer.html#FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_Security_Claims_Claim___
-  commentId: M:FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}})
-  name.vb: CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of Claim)))
-  fullName: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable<DateTime>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.Security.Claims.Claim>>)
-  fullName.vb: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable(Of DateTime), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.Security.Claims.Claim)))
-  nameWithType: JWTBearer.CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<Claim>>)
-  nameWithType.vb: JWTBearer.CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of Claim)))
+- uid: FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}},System.String,System.String)
+  name: CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<Claim>>, String, String)
+  href: api/FastEndpoints.Security.JWTBearer.html#FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_Security_Claims_Claim___System_String_System_String_
+  commentId: M:FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.Security.Claims.Claim}},System.String,System.String)
+  name.vb: CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of Claim)), String, String)
+  fullName: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable<DateTime>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.Security.Claims.Claim>>, System.String, System.String)
+  fullName.vb: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable(Of DateTime), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.Security.Claims.Claim)), System.String, System.String)
+  nameWithType: JWTBearer.CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<Claim>>, String, String)
+  nameWithType.vb: JWTBearer.CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of Claim)), String, String)
 - uid: FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.ValueTuple{System.String,System.String}[])
   name: CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, (String claimType, String claimValue)[])
   href: api/FastEndpoints.Security.JWTBearer.html#FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_ValueTuple_System_String_System_String____
@@ -3295,6 +3295,15 @@ references:
   fullName.vb: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.Nullable(Of DateTime), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.ValueTuple(Of System.String, System.String)())
   nameWithType: JWTBearer.CreateToken(String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, (String claimType, String claimValue)[])
   nameWithType.vb: JWTBearer.CreateToken(String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), (claimType As String, claimValue As String)(Of String, String)())
+- uid: FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.String,System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.ValueTuple{System.String,System.String}[])
+  name: CreateToken(String, String, String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, (String claimType, String claimValue)[])
+  href: api/FastEndpoints.Security.JWTBearer.html#FastEndpoints_Security_JWTBearer_CreateToken_System_String_System_String_System_String_System_Nullable_DateTime__System_Nullable_IEnumerable_System_String___System_Nullable_IEnumerable_System_String___System_ValueTuple_System_String_System_String____
+  commentId: M:FastEndpoints.Security.JWTBearer.CreateToken(System.String,System.String,System.String,System.Nullable{DateTime},System.Nullable{IEnumerable{System.String}},System.Nullable{IEnumerable{System.String}},System.ValueTuple{System.String,System.String}[])
+  name.vb: CreateToken(String, String, String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), (claimType As String, claimValue As String)(Of String, String)())
+  fullName: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.String, System.String, System.Nullable<DateTime>, System.Nullable<IEnumerable<System.String>>, System.Nullable<IEnumerable<System.String>>, System.ValueTuple<System.String, System.String>[])
+  fullName.vb: FastEndpoints.Security.JWTBearer.CreateToken(System.String, System.String, System.String, System.Nullable(Of DateTime), System.Nullable(Of IEnumerable(Of System.String)), System.Nullable(Of IEnumerable(Of System.String)), System.ValueTuple(Of System.String, System.String)())
+  nameWithType: JWTBearer.CreateToken(String, String, String, Nullable<DateTime>, Nullable<IEnumerable<String>>, Nullable<IEnumerable<String>>, (String claimType, String claimValue)[])
+  nameWithType.vb: JWTBearer.CreateToken(String, String, String, Nullable(Of DateTime), Nullable(Of IEnumerable(Of String)), Nullable(Of IEnumerable(Of String)), (claimType As String, claimValue As String)(Of String, String)())
 - uid: FastEndpoints.Security.JWTBearer.CreateToken*
   name: CreateToken
   href: api/FastEndpoints.Security.JWTBearer.html#FastEndpoints_Security_JWTBearer_CreateToken_

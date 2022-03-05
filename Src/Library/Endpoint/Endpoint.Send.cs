@@ -61,6 +61,17 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// send an http 200 ok response with the supplied response dto serialized as json to the client.
+    /// </summary>
+    /// <param name="response">the object to serialize to json</param>
+    /// <param name="cancellation">optional cancellation token</param>
+    protected Task SendOkAsync(TResponse response, CancellationToken cancellation = default)
+    {
+        Response = response;
+        return HttpContext.Response.SendOkAsync(response, Configuration.SerializerContext, cancellation);
+    }
+    
+    /// <summary>
     /// send an http 200 ok response without any body
     /// </summary>
     /// <param name="cancellation">optional cancellation token</param>

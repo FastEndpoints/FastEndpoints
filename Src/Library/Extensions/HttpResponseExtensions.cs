@@ -83,6 +83,18 @@ public static class HttpResponseExtensions
         rsp.StatusCode = 200;
         return rsp.StartAsync(cancellation);
     }
+    
+    /// <summary>
+    /// send an http 200 ok response with the supplied response dto serialized as json to the client.
+    /// </summary>
+    /// <param name="response">the object to serialize to json</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
+    /// <param name="cancellation">optional cancellation token</param>
+    public static Task SendOkAsync<TResponse>(this HttpResponse rsp, TResponse response, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : notnull
+    {
+        rsp.StatusCode = 200;
+        return RespSerializerFunc(rsp, response, "application/json", jsonSerializerContext, cancellation);
+    }
 
     /// <summary>
     /// send a 400 bad request with error details of the current validation failures

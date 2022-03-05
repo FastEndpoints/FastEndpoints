@@ -15,7 +15,9 @@ public static class AuthExtensions
     /// configure and enable jwt bearer authentication
     /// </summary>
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
-    public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services, string tokenSigningKey)
+    /// <param name="validateAudience">optionally validate audience</param>
+    /// <param name="validateIssuer">optionally validate issuer</param>
+    public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services, string tokenSigningKey, bool validateIssuer = false, bool validateAudience = false)
     {
         services.AddAuthentication(o =>
         {
@@ -27,8 +29,8 @@ public static class AuthExtensions
             o.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                ValidateAudience = false,
-                ValidateIssuer = false,
+                ValidateAudience = validateAudience,
+                ValidateIssuer = validateIssuer,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey))
             };
         });

@@ -7,6 +7,7 @@
         <PackageReleaseNotes>
             ### NEW
             - add SendOkAsync() method from PR #51
+            - overload for JWTBearer.CreateToken() to supply issuer and audience
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.10.0-beta4</Version>
+        <Version>3.10.0-beta5</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -10,7 +10,10 @@
             - add SendOkAsync() method from PR #51
             - overload for JWTBearer.CreateToken() to supply issuer and audience
             - absolute url generation support for SendCreatedAt() method
-            - `SendErrorsAsync()` method now takes an optional status code
+
+            ### CHANGES (minor breaking)
+            - #59 `SendErrorsAsync()` method now takes an optional status code
+            - #59 `ErrorResponseBuilder()` func is now supplied a http status code
 
             ### FIXES
             - #58 test url cache issue

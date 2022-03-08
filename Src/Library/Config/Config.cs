@@ -20,8 +20,8 @@ public class Config
     internal static RoutingOptions? RoutingOpts { get; private set; }
     internal static Func<EndpointDefinition, bool>? EpRegFilterFunc { get; private set; }
     internal static Action<EndpointDefinition, RouteHandlerBuilder>? GlobalEpOptsAction { get; private set; }
-    internal static Func<List<ValidationFailure>, object> ErrRespBldrFunc { get; private set; }
-        = failures => new ErrorResponse(failures);
+    internal static Func<List<ValidationFailure>, int, object> ErrRespBldrFunc { get; private set; }
+        = (failures, statusCode) => new ErrorResponse(failures, statusCode);
     internal static Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> ReqDeserializerFunc { get; private set; }
         = (req, tReqDto, jCtx, cancellation) =>
         {
@@ -95,8 +95,9 @@ public class Config
     /// a function for transforming validation errors to an error response dto.
     /// set it to any func that returns an object that can be serialized to json.
     /// this function will be run everytime an error response needs to be sent to the client.
+    /// the arguments for the func will be a collection of validation failures and an http status code.
     /// </summary>
-    public Func<IEnumerable<ValidationFailure>, object> ErrorResponseBuilder { set => ErrRespBldrFunc = value; }
+    public Func<IEnumerable<ValidationFailure>, int, object> ErrorResponseBuilder { set => ErrRespBldrFunc = value; }
 
     /// <summary>
     /// a function for deserializing the incoming http request body. this function will be executed for each request received if it has a json request body.

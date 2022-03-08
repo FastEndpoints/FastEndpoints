@@ -120,7 +120,7 @@ public static class HttpResponseExtensions
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, int statusCode = 400, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
         rsp.StatusCode = statusCode;
-        return RespSerializerFunc(rsp, ErrRespBldrFunc(failures), "application/problem+json", jsonSerializerContext, cancellation);
+        return RespSerializerFunc(rsp, ErrRespBldrFunc(failures, statusCode), "application/problem+json", jsonSerializerContext, cancellation);
     }
 
     /// <summary>

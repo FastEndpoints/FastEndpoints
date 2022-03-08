@@ -10,7 +10,7 @@ public sealed class ErrorResponse
     /// <summary>
     /// the http status code sent to the client. default is 400.
     /// </summary>
-    public int StatusCode { get; set; } = 400;
+    public int StatusCode { get; set; }
 
     /// <summary>
     /// the message for the error response
@@ -31,8 +31,9 @@ public sealed class ErrorResponse
     /// instantiate an error response with the given collection validation failures
     /// </summary>
     /// <param name="failures"></param>
-    public ErrorResponse(List<ValidationFailure> failures)
+    public ErrorResponse(List<ValidationFailure> failures, int statusCode = 400)
     {
+        StatusCode = statusCode;
         Errors = failures.GroupToDictionary(f => f.PropertyName, v => v.ErrorMessage);
     }
 }

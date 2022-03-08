@@ -156,7 +156,6 @@ internal sealed class EndpointData
                 : (BaseEndpoint)Activator.CreateInstance(x.tEndpoint)!;
             instance.Configuration = def;
             instance.Configure();
-            instance.AddTestURLToCache(x.tEndpoint);
 
             if (instance.Configuration.ValidatorType is not null)
             {

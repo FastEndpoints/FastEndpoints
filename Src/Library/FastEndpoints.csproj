@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.10.0-beta2</Version>
+        <Version>3.10.0-beta3</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -10,6 +10,9 @@
             - add SendOkAsync() method from PR #51
             - overload for JWTBearer.CreateToken() to supply issuer and audience
             - absolute url generation support for SendCreatedAt() method
+
+            ### FIXES
+            - #58 test url cache issue
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

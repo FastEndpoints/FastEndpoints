@@ -1,6 +1,5 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
-using System.Text;
 
 namespace FastEndpoints;
 
@@ -14,14 +13,6 @@ public abstract class BaseEndpoint : IEndpoint
     public EndpointDefinition Configuration { get; internal set; }
 
     internal abstract Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken ct);
-
-    internal void AddTestURLToCache(Type epType)
-    {
-        if (Configuration.Routes is null)
-            throw new InvalidOperationException($"AddTestURLToCache()[{nameof(Configuration.Routes)}]");
-
-        TestURLCache[epType] = new StringBuilder().BuildRoute(Configuration.Version.Current, Configuration.Routes[0]);
-    }
 
     /// <summary>
     /// the http context of the current request

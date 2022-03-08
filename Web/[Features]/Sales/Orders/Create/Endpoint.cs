@@ -10,7 +10,9 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
     public override void Configure()
     {
         Verbs(Http.POST);
-        Routes("/sales/orders/create/{guidTest}");
+        Routes(
+            "/sales/orders/create/{guidTest}",
+            "/sales/orders/create");
         PreProcessors(
             new MyRequestLogger<Request>());
         PostProcessors(

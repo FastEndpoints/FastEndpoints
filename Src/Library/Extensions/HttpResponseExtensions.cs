@@ -113,11 +113,13 @@ public static class HttpResponseExtensions
     /// <summary>
     /// send a 400 bad request with error details of the current validation failures
     /// </summary>
+    /// <param name="statusCode">the http status code for the error response</param>
+    /// <param name="failures">the collection of failures</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation"></param>
-    public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
+    public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, int statusCode = 400, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
-        rsp.StatusCode = 400;
+        rsp.StatusCode = statusCode;
         return RespSerializerFunc(rsp, ErrRespBldrFunc(failures), "application/problem+json", jsonSerializerContext, cancellation);
     }
 

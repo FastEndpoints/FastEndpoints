@@ -102,10 +102,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// send a 400 bad request with error details of the current validation failures
     /// </summary>
+    /// <param name="statusCode">the status code for the error response</param>
     /// <param name="cancellation"></param>
-    protected Task SendErrorsAsync(CancellationToken cancellation = default)
+    protected Task SendErrorsAsync(int statusCode = 400, CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendErrorsAsync(ValidationFailures, Configuration.SerializerContext, cancellation);
+        return HttpContext.Response.SendErrorsAsync(ValidationFailures, statusCode, Configuration.SerializerContext, cancellation);
     }
 
     /// <summary>

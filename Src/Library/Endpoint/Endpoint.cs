@@ -53,7 +53,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         }
         catch (ValidationFailureException)
         {
-            await SendErrorsAsync(cancellation).ConfigureAwait(false);
+            await SendErrorsAsync(cancellation: cancellation).ConfigureAwait(false);
         }
     }
 

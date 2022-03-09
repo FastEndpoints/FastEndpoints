@@ -13,7 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         TRequest? req = default;
 
-        if (ctx.Request.ContentLength != 0)
+        if (ctx.Request.ContentLength > 0)
         {
             if (isPlainTextRequest)
                 req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);

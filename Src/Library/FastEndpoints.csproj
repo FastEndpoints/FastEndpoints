@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.10.0-beta6</Version>
+        <Version>3.10.0-beta7</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -18,6 +18,7 @@
             ### FIXES
             - #58 test url cache issue
             - response body duplication issue with http servers other than kestrel
+            - content-length header missing issue with cross-fetch client
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

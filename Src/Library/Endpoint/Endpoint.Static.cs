@@ -81,16 +81,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return (TRequest)req;
     }
 
-    private static Task SendReponseIfNotSent(HttpContext ctx, TResponse? responseDto, JsonSerializerContext? jsonSerializerContext, CancellationToken cancellation)
+    private static Task AutoSendResponse(HttpContext ctx, TResponse? responseDto, JsonSerializerContext? jsonSerializerContext, CancellationToken cancellation)
     {
-        if (!ctx.Response.HasStarted)
-        {
-            if (responseDto is null)
-                return ctx.Response.SendNoContentAsync(cancellation);
-            else
-                return ctx.Response.SendAsync(responseDto, 200, jsonSerializerContext, cancellation);
-        }
-        return Task.CompletedTask;
+        return responseDto is null
+               ? ctx.Response.SendNoContentAsync(cancellation)
+               : ctx.Response.SendAsync(responseDto, 200, jsonSerializerContext, cancellation);
     }
 
     private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)

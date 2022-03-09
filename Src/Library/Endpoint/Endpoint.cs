@@ -34,7 +34,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
             await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
 
-            if (ctx.Response.HasStarted)
+            if (ctx.Items.ContainsKey(Constants.ResponseSent)) //HttpContext.Response.HasStarted doesn't work in AWS lambda!!!
                 return; //response already sent to client (most likely from a preprocessor)
 
             OnBeforeHandle(req);
@@ -45,7 +45,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             else
                 await HandleAsync(req, cancellation).ConfigureAwait(false);
 
-            await SendReponseIfNotSent(ctx, _response, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
+            if (!ctx.Items.ContainsKey(Constants.ResponseSent))
+                await AutoSendResponse(ctx, _response, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
 
             OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response).ConfigureAwait(false);
 

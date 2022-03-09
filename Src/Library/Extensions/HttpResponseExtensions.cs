@@ -19,6 +19,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : notnull
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = statusCode;
         return RespSerializerFunc(rsp, response, "application/json", jsonSerializerContext, cancellation);
     }
@@ -62,13 +63,13 @@ public static class HttpResponseExtensions
     public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object? routeValues, object? responseBody,
         JsonSerializerContext? jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = default)
     {
-        var gen = rsp.HttpContext.RequestServices.GetRequiredService<LinkGenerator>();
+        var linkGen = rsp.HttpContext.RequestServices.GetRequiredService<LinkGenerator>();
 
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 201;
-
         rsp.Headers.Location = generateAbsoluteUrl
-                               ? gen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
-                               : gen.GetPathByName(endpointName, routeValues);
+                               ? linkGen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
+                               : linkGen.GetPathByName(endpointName, routeValues);
 
         return responseBody is null
                ? rsp.StartAsync(cancellation)
@@ -83,6 +84,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendStringAsync(this HttpResponse rsp, string content, int statusCode = 200, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = statusCode;
         rsp.ContentType = "text/plain";
         return rsp.WriteAsync(content, cancellation);
@@ -94,6 +96,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 200;
         return rsp.StartAsync(cancellation);
     }
@@ -106,6 +109,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendOkAsync<TResponse>(this HttpResponse rsp, TResponse response, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : notnull
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 200;
         return RespSerializerFunc(rsp, response, "application/json", jsonSerializerContext, cancellation);
     }
@@ -119,6 +123,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation"></param>
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, int statusCode = 400, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = statusCode;
         return RespSerializerFunc(rsp, ErrRespBldrFunc(failures, statusCode), "application/problem+json", jsonSerializerContext, cancellation);
     }
@@ -129,6 +134,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendNoContentAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 204;
         return rsp.StartAsync(cancellation);
     }
@@ -139,6 +145,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendNotFoundAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 404;
         return rsp.StartAsync(cancellation);
     }
@@ -149,6 +156,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendUnauthorizedAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 401;
         return rsp.StartAsync(cancellation);
     }
@@ -159,6 +167,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendForbiddenAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 403;
         return rsp.StartAsync(cancellation);
     }
@@ -171,6 +180,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendRedirectAsync(this HttpResponse rsp, string location, bool isPermanant, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.Redirect(location, isPermanant);
         return rsp.StartAsync(cancellation);
     }
@@ -222,6 +232,7 @@ public static class HttpResponseExtensions
     {
         if (stream is null) throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 200;
 
         using (stream)
@@ -253,6 +264,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token</param>
     public static Task SendEmptyJsonObject(this HttpResponse rsp, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 200;
         return RespSerializerFunc(rsp, new JsonObject(), "application/json", jsonSerializerContext, cancellation);
     }

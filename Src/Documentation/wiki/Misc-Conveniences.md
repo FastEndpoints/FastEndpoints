@@ -71,11 +71,14 @@ sends a given string to the client in the response body
 #### SendOkAsync()
 sends a 200 ok response without any body.
 
-#### SendErrorsAsync()
-sends a 400 error response with the current list of validation errors describing the validation failures.
-
 #### SendNoContentAsync()
 sends a 204 no content response
+
+#### SendRedirectAsync()
+sends a 30X moved response with a location header containing the url to redirect to.
+
+#### SendErrorsAsync()
+sends a 400 error response with the current list of validation errors describing the validation failures.
 
 #### SendNotFoundAsync()
 sends a 404 not found response

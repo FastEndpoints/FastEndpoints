@@ -152,13 +152,13 @@
   
   
   <a id="FastEndpoints_ErrorResponse__ctor_" data-uid="FastEndpoints.ErrorResponse.#ctor*"></a>
-  <h4 id="FastEndpoints_ErrorResponse__ctor_List_ValidationFailure__" data-uid="FastEndpoints.ErrorResponse.#ctor(List{ValidationFailure})">ErrorResponse(List&lt;ValidationFailure&gt;)</h4>
+  <h4 id="FastEndpoints_ErrorResponse__ctor_List_ValidationFailure__System_Int32_" data-uid="FastEndpoints.ErrorResponse.#ctor(List{ValidationFailure},System.Int32)">ErrorResponse(List&lt;ValidationFailure&gt;, Int32)</h4>
   <div class="markdown level1 summary"><p>instantiate an error response with the given collection validation failures</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public ErrorResponse(List&lt;ValidationFailure&gt; failures)</code></pre>
+    <pre><code class="lang-csharp hljs">public ErrorResponse(List&lt;ValidationFailure&gt; failures, int statusCode = 400)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -173,6 +173,11 @@
       <tr>
         <td><span class="xref">List</span>&lt;<span class="xref">ValidationFailure</span>&gt;</td>
         <td><span class="parametername">failures</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">statusCode</span></td>
         <td></td>
       </tr>
     </tbody>

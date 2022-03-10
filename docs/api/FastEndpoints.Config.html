@@ -175,12 +175,13 @@ this function will executed for each endpoint that has been discovered during st
   <h4 id="FastEndpoints_Config_ErrorResponseBuilder" data-uid="FastEndpoints.Config.ErrorResponseBuilder">ErrorResponseBuilder</h4>
   <div class="markdown level1 summary"><p>a function for transforming validation errors to an error response dto.
 set it to any func that returns an object that can be serialized to json.
-this function will be run everytime an error response needs to be sent to the client.</p>
+this function will be run everytime an error response needs to be sent to the client.
+the arguments for the func will be a collection of validation failures and an http status code.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public Func&lt;IEnumerable&lt;ValidationFailure&gt;, object&gt; ErrorResponseBuilder { set; }</code></pre>
+    <pre><code class="lang-csharp hljs">public Func&lt;IEnumerable&lt;ValidationFailure&gt;, int, object&gt; ErrorResponseBuilder { set; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -192,7 +193,7 @@ this function will be run everytime an error response needs to be sent to the cl
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Func</span>&lt;<span class="xref">IEnumerable</span>&lt;<span class="xref">ValidationFailure</span>&gt;, <span class="xref">System.Object</span>&gt;</td>
+        <td><span class="xref">Func</span>&lt;<span class="xref">IEnumerable</span>&lt;<span class="xref">ValidationFailure</span>&gt;, <span class="xref">System.Int32</span>, <span class="xref">System.Object</span>&gt;</td>
         <td></td>
       </tr>
     </tbody>

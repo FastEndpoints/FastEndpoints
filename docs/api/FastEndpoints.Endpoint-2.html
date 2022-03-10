@@ -155,6 +155,7 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
+
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -1385,6 +1386,7 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1533,6 +1535,7 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -1965,6 +1968,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -2093,13 +2097,13 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   
   
   <a id="FastEndpoints_Endpoint_2_SendErrorsAsync_" data-uid="FastEndpoints.Endpoint`2.SendErrorsAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendErrorsAsync_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendErrorsAsync(CancellationToken)">SendErrorsAsync(CancellationToken)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendErrorsAsync_System_Int32_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendErrorsAsync(System.Int32,CancellationToken)">SendErrorsAsync(Int32, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 400 bad request with error details of the current validation failures</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendErrorsAsync(CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendErrorsAsync(int statusCode = 400, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2111,6 +2115,12 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">statusCode</span></td>
+        <td><p>the status code for the error response</p>
+</td>
+      </tr>
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
@@ -2428,6 +2438,62 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   </table>
   
   
+  <a id="FastEndpoints_Endpoint_2_SendRedirectAsync_" data-uid="FastEndpoints.Endpoint`2.SendRedirectAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendRedirectAsync_System_String_System_Boolean_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendRedirectAsync(System.String,System.Boolean,CancellationToken)">SendRedirectAsync(String, Boolean, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send a 301/302 redirect response</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendRedirectAsync(string location, bool isPermanant = false, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">location</span></td>
+        <td><p>the location to redirect to</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">isPermanant</span></td>
+        <td><p>set to true for a 302 redirect. 301 is the default.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_SendStreamAsync_" data-uid="FastEndpoints.Endpoint`2.SendStreamAsync*"></a>
   <h4 id="FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendStreamAsync(Stream,System.String,System.Nullable{System.Int64},System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)">SendStreamAsync(Stream, String, Nullable&lt;Int64&gt;, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send the contents of a stream to the client</p>
@@ -2616,6 +2682,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;()
+
     where TContext : JsonSerializerContext</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -2953,6 +3020,7 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>

@@ -389,6 +389,7 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -539,13 +540,13 @@
   
   
   <a id="FastEndpoints_HttpResponseExtensions_SendErrorsAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendErrorsAsync*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendErrorsAsync_Microsoft_AspNetCore_Http_HttpResponse_List_ValidationFailure__System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendErrorsAsync(HttpResponse, List&lt;ValidationFailure&gt;, JsonSerializerContext, CancellationToken)</h4>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendErrorsAsync_Microsoft_AspNetCore_Http_HttpResponse_List_ValidationFailure__System_Int32_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},System.Int32,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)">SendErrorsAsync(HttpResponse, List&lt;ValidationFailure&gt;, Int32, JsonSerializerContext, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send a 400 bad request with error details of the current validation failures</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static Task SendErrorsAsync(this HttpResponse rsp, List&lt;ValidationFailure&gt; failures, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static Task SendErrorsAsync(this HttpResponse rsp, List&lt;ValidationFailure&gt; failures, int statusCode = 400, JsonSerializerContext jsonSerializerContext = null, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -565,7 +566,14 @@
       <tr>
         <td><span class="xref">List</span>&lt;<span class="xref">ValidationFailure</span>&gt;</td>
         <td><span class="parametername">failures</span></td>
-        <td></td>
+        <td><p>the collection of failures</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">statusCode</span></td>
+        <td><p>the http status code for the error response</p>
+</td>
       </tr>
       <tr>
         <td><span class="xref">System.Text.Json.Serialization.JsonSerializerContext</span></td>
@@ -935,6 +943,67 @@
     <tbody>
       <tr>
         <td><span class="parametername">TResponse</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_HttpResponseExtensions_SendRedirectAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendRedirectAsync*"></a>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendRedirectAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Boolean_CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendRedirectAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Boolean,CancellationToken)">SendRedirectAsync(HttpResponse, String, Boolean, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>send a 301/302 redirect response</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Task SendRedirectAsync(this HttpResponse rsp, string location, bool isPermanant, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Microsoft.AspNetCore.Http.HttpResponse</span></td>
+        <td><span class="parametername">rsp</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">location</span></td>
+        <td><p>the location to redirect to</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">isPermanant</span></td>
+        <td><p>set to true for a 302 redirect. 301 is the default.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
         <td></td>
       </tr>
     </tbody>

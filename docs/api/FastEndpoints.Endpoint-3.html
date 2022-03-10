@@ -207,7 +207,7 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendOkAsync_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendOkAsync(CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendErrorsAsync_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendErrorsAsync(CancellationToken)</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendErrorsAsync_System_Int32_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendErrorsAsync(Int32, CancellationToken)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendNoContentAsync(CancellationToken)</a>
@@ -220,6 +220,9 @@
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendForbiddenAsync_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendForbiddenAsync(CancellationToken)</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendRedirectAsync_System_String_System_Boolean_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendRedirectAsync(String, Boolean, CancellationToken)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendBytesAsync_System_Byte___System_String_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendBytesAsync(Byte[], String, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</a>
@@ -386,7 +389,9 @@
   <h5 id="FastEndpoints_Endpoint_3_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse, TMapper&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : new()
+
     where TResponse : new()
+
     where TMapper : IEntityMapper, new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>

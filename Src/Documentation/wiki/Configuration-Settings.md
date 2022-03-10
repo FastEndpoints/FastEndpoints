@@ -83,11 +83,11 @@ app.UseFastEndpoints(c =>
 ```
 
 ## customizing error responses
-if the default error response is not to your liking, you can specify a function to produce the exact error response you need. whatever object you return from that function will be serialized to json and sent to the client whenever there needs to be an error response sent downstream. the function will be supplied a collection of validation failures you can use to construct your own error response object like so:
+if the default error response is not to your liking, you can specify a function to produce the exact error response you need. whatever object you return from that function will be serialized to json and sent to the client whenever there needs to be an error response sent downstream. the function will be supplied a collection of validation failures as well as a http status code you can use to construct your own error response object like so:
 ```csharp
 app.UseFastEndpoints(c =>
 {
-    c.ErrorResponseBuilder = failures =>
+    c.ErrorResponseBuilder = (failures, statusCode) =>
     {
         var list = new List<KeyValuePair<string, string>>();
 

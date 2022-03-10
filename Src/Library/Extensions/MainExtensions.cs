@@ -214,7 +214,8 @@ public static class MainExtensions
     {
         var policiesToAdd = new List<string>();
 
-        if (ep.PreBuiltUserPolicies?.Any() is true) policiesToAdd.AddRange(ep.PreBuiltUserPolicies);
+        if (ep.PreBuiltUserPolicies?.Any() is true)
+            policiesToAdd.AddRange(ep.PreBuiltUserPolicies);
 
         if (ep.Permissions?.Any() is true ||
             ep.ClaimTypes?.Any() is true ||

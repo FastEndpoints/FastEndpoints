@@ -31,7 +31,7 @@ app.MapPost("/benchmark/ok/{id}", async (
     .RequireAuthorization()
     .AllowAnonymous();
 
-app.Run("http://localhost:5000");
+app.Run();
 
 namespace MinimalApi
 {

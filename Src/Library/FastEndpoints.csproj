@@ -2,23 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.10.0</Version>
+        <Version>3.11.0-beta1</Version>
 
         <PackageReleaseNotes>
-            ### NEW
-            - add SendRedirectAsync() method
-            - add SendOkAsync() method from PR #51
-            - overload for JWTBearer.CreateToken() to supply issuer and audience
-            - absolute url generation support for SendCreatedAt() method
-
-            ### CHANGES (minor breaking)
-            - #59 `SendErrorsAsync()` method now takes an optional status code
-            - #59 `ErrorResponseBuilder()` func is now supplied a http status code
-
             ### FIXES
-            - #58 test url cache issue
-            - response body duplication issue with http servers other than kestrel
-            - content-length header missing issue with cross-fetch client
+            - correct handling of jwt issuer/audience
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

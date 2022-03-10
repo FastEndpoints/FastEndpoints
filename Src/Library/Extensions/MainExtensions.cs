@@ -222,7 +222,7 @@ public static class MainExtensions
             ep.Roles?.Any() is true ||
             ep.AuthSchemes?.Any() is true)
         {
-            policiesToAdd.Add(SecurityPolicyName(ep.EndpointType));
+            policiesToAdd.Add(ep.SecurityPolicyName);
         }
 
         return policiesToAdd.Select(p =>
@@ -246,9 +246,7 @@ public static class MainExtensions
             if (ep.Roles is null && ep.Permissions is null && ep.ClaimTypes is null && ep.AuthSchemes is null)
                 continue;
 
-            var secPolName = SecurityPolicyName(ep.EndpointType);
-
-            opts.AddPolicy(secPolName, b =>
+            opts.AddPolicy(ep.SecurityPolicyName, b =>
             {
                 b.RequireAuthenticatedUser();
 
@@ -292,11 +290,6 @@ public static class MainExtensions
                 //      roles and auth schemes are specified in the authorizeattribute in BuildAuthorizeAttributes()
             });
         }
-    }
-
-    private static string SecurityPolicyName(Type endpointType)
-    {
-        return $"epPolicy:{endpointType.FullName}";
     }
 }
 

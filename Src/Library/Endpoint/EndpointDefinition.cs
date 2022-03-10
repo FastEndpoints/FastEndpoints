@@ -24,6 +24,7 @@ public sealed class EndpointDefinition
     public string[]? Tags { get; internal set; }
     public EndpointSummary? Summary { get; internal set; }
     public EpVersion Version { get; internal set; } = new();
+    public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
 
     internal Type EndpointType;
     internal Type? ValidatorType;

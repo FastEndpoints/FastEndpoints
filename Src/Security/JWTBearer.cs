@@ -90,6 +90,8 @@ public static class JWTBearer
 
         var descriptor = new SecurityTokenDescriptor
         {
+            Issuer = issuer,
+            Audience = audience,
             IssuedAt = DateTime.UtcNow,
             Subject = new ClaimsIdentity(claimList),
             Expires = expireAt,
@@ -97,12 +99,6 @@ public static class JWTBearer
                 new SymmetricSecurityKey(Encoding.ASCII.GetBytes(signingKey)),
                 SecurityAlgorithms.HmacSha256Signature)
         };
-
-        if (issuer is not null)
-            descriptor.Issuer = issuer;
-
-        if (audience is not null)
-            descriptor.Audience = audience;
 
         var handler = new JwtSecurityTokenHandler();
         return handler.WriteToken(handler.CreateToken(descriptor));

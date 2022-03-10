@@ -9,7 +9,7 @@ builder.Services.AddSingleton<IValidator<Request>, Validator>();
 var app = builder.Build();
 app.UseAuthorization();
 app.MapControllers();
-app.Run();
+app.Run("http://localhost:5000");
 
 namespace MvcControllers
 {

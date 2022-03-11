@@ -63,7 +63,7 @@ public static class Extensions
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
         {
-            var ser = new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver { NamingStrategy = null } };
+            var ser = new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver { NamingStrategy = null } };
             serializerSettings?.Invoke(ser);
             s.SerializerSettings = ser;
             s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames);

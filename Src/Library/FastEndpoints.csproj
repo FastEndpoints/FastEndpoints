@@ -2,9 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0-beta1</Version>
+        <Version>3.11.0-beta2</Version>
 
         <PackageReleaseNotes>
+            ### CHANGES
+            - #62 set default swagger serializer casing to camel case
+
             ### FIXES
             - correct handling of jwt issuer/audience
         </PackageReleaseNotes>

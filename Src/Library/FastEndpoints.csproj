@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0-beta2</Version>
+        <Version>3.11.0-beta3</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -13,6 +13,7 @@
 
             ### IMPROVEMENTS
             - lazy initialize validation failure list in base endpoint class
+            - stop relying on request content-length header in model binding
 
             ### FIXES
             - correct handling of jwt issuer/audience

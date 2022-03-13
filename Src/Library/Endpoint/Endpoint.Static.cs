@@ -13,16 +13,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         TRequest? req = default;
 
-        if (ctx.Request.ContentLength > 0)
+        if (isPlainTextRequest)
         {
-            if (isPlainTextRequest)
-                req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
-            else if (ctx.Request.HasJsonContentType())
-                req = (TRequest?)await FastEndpoints.Config.ReqDeserializerFunc(ctx.Request, tRequest, serializerCtx, cancellation);
+            req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
         }
-
-        if (req is null)
+        else if (ctx.Request.HasJsonContentType())
+        {
+            req = (TRequest?)await FastEndpoints.Config.ReqDeserializerFunc(ctx.Request, tRequest, serializerCtx, cancellation);
+            if (req is null) throw new InvalidOperationException("JSON deserialization failed!");
+        }
+        else
+        {
             req = new();
+        }
 
         BindFormValues(req, ctx.Request, failures);
         BindRouteValues(req, ctx.Request.RouteValues, failures);

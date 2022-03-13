@@ -107,7 +107,7 @@ public class Config
     /// <para>JsonSerializerContext?: json serializer context if code generation is used</para>
     /// <para>CancellationToken: a cancellation token</para>
     /// </summary>
-    public Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> RequestDeserializer { set => ReqDeserializerFunc = value; }
+    public Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object>> RequestDeserializer { set => ReqDeserializerFunc = value; }
 
     /// <summary>
     /// a function for writing serialized response dtos to the response body.

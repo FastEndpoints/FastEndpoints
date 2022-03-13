@@ -8,6 +8,9 @@
             ### CHANGES
             - #62 set default swagger serializer casing to camel case
 
+            ### IMPROVEMENTS
+            - lazy initialize validation failure list in base endpoint class
+
             ### FIXES
             - correct handling of jwt issuer/audience
         </PackageReleaseNotes>

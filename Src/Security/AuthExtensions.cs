@@ -15,8 +15,8 @@ public static class AuthExtensions
     /// configure and enable jwt bearer authentication
     /// </summary>
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
-    /// <param name="audience">validates audience if set</param>
     /// <param name="issuer">validates issuer if set</param>
+    /// <param name="audience">validates audience if set</param>
     public static IServiceCollection AddAuthenticationJWTBearer(
         this IServiceCollection services, string tokenSigningKey, string? issuer = null, string? audience = null)
     {

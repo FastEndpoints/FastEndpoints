@@ -365,7 +365,21 @@ namespace Test
             using var stringContent = new StringContent("this is the body content");
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
 
-            var rsp = await AdminClient.PostAsync("/api/test-cases/plaintext/12345", stringContent);
+            var rsp = await AdminClient.PostAsync("test-cases/plaintext/12345", stringContent);
+
+            var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
+
+            Assert.AreEqual("this is the body content", res.BodyContent);
+            Assert.AreEqual(12345, res.Id);
+        }
+
+        [TestMethod]
+        public async Task GlobalRoutePrefixOverride()
+        {
+            using var stringContent = new StringContent("this is the body content");
+            stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
+
+            var rsp = await AdminClient.PostAsync("/mobile/api/test-cases/global-prefix-override/12345", stringContent);
 
             var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 

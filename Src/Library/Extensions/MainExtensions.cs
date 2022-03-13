@@ -77,7 +77,7 @@ public static class MainExtensions
 
             foreach (var route in epDef.Routes)
             {
-                var finalRoute = routeBuilder.BuildRoute(epDef.Version.Current, route);
+                var finalRoute = routeBuilder.BuildRoute(epDef.Version.Current, route, epDef.RoutePrefixOverride);
                 BaseEndpoint.TestURLCache[epDef.EndpointType] = finalRoute;
 
                 routeNum++;
@@ -155,7 +155,7 @@ public static class MainExtensions
     private static Func<string> SendMisconfiguredPipelineMsg()
         => () => "UseFastEndpoints() must appear after any routing middleware like UseRouting() and before any terminating middleware like UseEndpoints()";
 
-    internal static string BuildRoute(this StringBuilder builder, int epVersion, string route)
+    internal static string BuildRoute(this StringBuilder builder, int epVersion, string route, string? prefixOverride)
     {
         // {rPrfix}/{p}{ver}/{route}
         // mobile/v1/customer/retrieve
@@ -163,10 +163,10 @@ public static class MainExtensions
         // {rPrfix}/{route}/{p}{ver}
         // mobile/customer/retrieve/v1
 
-        if (RoutingOpts?.Prefix is not null)
+        if (RoutingOpts?.Prefix is not null && prefixOverride != string.Empty)
         {
             builder.Append('/')
-                   .Append(RoutingOpts.Prefix)
+                   .Append(prefixOverride ?? RoutingOpts.Prefix)
                    .Append('/');
         }
 

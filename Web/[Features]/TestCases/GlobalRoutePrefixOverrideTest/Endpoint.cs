@@ -1,4 +1,4 @@
-﻿namespace TestCases.PlainTextRequestTest;
+﻿namespace TestCases.GlobalRoutePrefixOverrideTest;
 
 public class Request : PlainTextRequest
 {
@@ -18,8 +18,8 @@ public class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
-        Post("test-cases/plaintext/{Id}");
-        RoutePrefixOverride(string.Empty);
+        Post("test-cases/global-prefix-override/{Id}");
+        RoutePrefixOverride("mobile/api");
         AllowAnonymous();
         Summary(s =>
         {

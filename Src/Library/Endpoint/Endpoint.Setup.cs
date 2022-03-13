@@ -343,4 +343,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.
     /// </summary>
     protected void ScopedValidator() => Configuration.ScopedValidator = true;
+
+    /// <summary>
+    /// specify an override route prefix for this endpoint if a global route prefix is enabled. 
+    /// this is ignored if a global route prefix is not configured. 
+    /// global prefix can be ignored by setting <c>string.Empty</c>
+    /// </summary>
+    /// <param name="routePrefix">route prefix value</param>
+    protected void RoutePrefixOverride(string routePrefix) => Configuration.RoutePrefixOverride = routePrefix;
 }

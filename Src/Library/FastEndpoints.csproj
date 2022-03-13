@@ -5,6 +5,9 @@
         <Version>3.11.0-beta2</Version>
 
         <PackageReleaseNotes>
+            ### NEW
+            - override/disable global route prefix in endpoints via `RoutePrefixOverride()` method
+
             ### CHANGES
             - #62 set default swagger serializer casing to camel case
 

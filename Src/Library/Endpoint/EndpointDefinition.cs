@@ -25,6 +25,7 @@ public sealed class EndpointDefinition
     public EndpointSummary? Summary { get; internal set; }
     public EpVersion Version { get; internal set; } = new();
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
+    public string? RoutePrefixOverride { get; internal set; }
 
     internal Type EndpointType;
     internal Type? ValidatorType;

@@ -10,9 +10,9 @@ public abstract class BaseEndpoint : IEndpoint
 
     protected internal HttpContext _httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
 
-    private List<ValidationFailure> _failures;
-
     public EndpointDefinition Configuration { get; internal set; }
+
+    private List<ValidationFailure> _failures;
 
     internal abstract Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken ct);
 

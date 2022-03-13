@@ -14,7 +14,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private ILogger _logger;
     private IWebHostEnvironment _env;
     private IConfiguration _config;
-    private TResponse? _response;
+    private TResponse _response;
 
     /// <summary>
     /// indicates if there are any validation failures for the current request

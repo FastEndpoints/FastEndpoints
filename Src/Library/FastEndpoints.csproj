@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0-beta4</Version>
+        <Version>3.11.0-beta5</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -10,6 +10,7 @@
 
             ### CHANGES
             - #62 set default swagger serializer casing to camel case
+            - all send methods will now use `HttpContext.RequestAborted` cancellation token if a token was not supplied
 
             ### IMPROVEMENTS
             - lazy initialize validation failure list in base endpoint class

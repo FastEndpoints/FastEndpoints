@@ -15,6 +15,7 @@
             ### IMPROVEMENTS
             - lazy initialize validation failure list in base endpoint class
             - stop relying on request content-length header in model binding
+            - swagger now honors system.text.json attributes such as `[JsonIgnore]` and [JsonPropertyName]
             - upgrade to latest fluentvalidation code
             - upgrade other dependancies to latest
 

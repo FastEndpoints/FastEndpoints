@@ -53,7 +53,7 @@ app.UseAuthorization();
 app.UseFastEndpoints(config =>
 {
     config.ShortEndpointNames = false;
-    config.SerializerOptions = o => o.PropertyNamingPolicy = null;
+    //config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
     config.GlobalEndpointOptions = (epDef, builder) =>
     {

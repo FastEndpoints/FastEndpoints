@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using NJsonSchema.Generation;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Security;
 using System.Reflection;
+using System.Text.Json;
 
 namespace FastEndpoints.Swagger;
 
@@ -63,7 +64,10 @@ public static class Extensions
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
         {
-            var ser = new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver { NamingStrategy = null } };
+            var ser = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             serializerSettings?.Invoke(ser);
             s.SerializerSettings = ser;
             s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames);

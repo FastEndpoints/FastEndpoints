@@ -20,7 +20,10 @@ builder.Services
         s.DocumentName = "Initial Release";
         s.Title = "Web API";
         s.Version = "v0.0";
-    }, shortSchemaNames: true)
+    },
+    shortSchemaNames: true,
+    serializerSettings: x => x.PropertyNamingPolicy = null)
+
     .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
      {
          s.DocumentName = "Release 1.0";
@@ -33,6 +36,7 @@ builder.Services
              Type = OpenApiSecuritySchemeType.ApiKey,
          });
      })
+
     .AddSwaggerDoc(maxEndpointVersion: 2, settings: s =>
     {
         s.DocumentName = "Release 2.0";
@@ -53,7 +57,7 @@ app.UseAuthorization();
 app.UseFastEndpoints(config =>
 {
     config.ShortEndpointNames = false;
-    //config.SerializerOptions = o => o.PropertyNamingPolicy = null;
+    config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
     config.GlobalEndpointOptions = (epDef, builder) =>
     {

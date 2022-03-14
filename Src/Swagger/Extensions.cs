@@ -55,7 +55,7 @@ public static class Extensions
     /// <param name="shortSchemaNames">set to true if you'd like schema names to be the class name intead of the full name</param>
     public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
         Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
-        Action<JsonSerializerSettings>? serializerSettings = null,
+        Action<JsonSerializerOptions>? serializerSettings = null,
         bool addJWTBearerAuth = true,
         int tagIndex = 1,
         int maxEndpointVersion = 0,
@@ -64,12 +64,9 @@ public static class Extensions
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
         {
-            var ser = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(new JsonSerializerOptions()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-            serializerSettings?.Invoke(ser);
-            s.SerializerSettings = ser;
+            var stjOpts = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            serializerSettings?.Invoke(stjOpts);
+            s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
             s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);

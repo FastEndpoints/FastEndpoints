@@ -2,13 +2,14 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0-beta5</Version>
+        <Version>3.11.0-beta6</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - override/disable global route prefix in endpoints via `RoutePrefixOverride()` method
 
             ### CHANGES
+            - `AddSwaggerDoc` serializer settings now accepts `System.Test.Json.JsonSerializerOptions` instead of newtonsoft
             - #62 set default swagger serializer casing to camel case
             - all send methods will now use `HttpContext.RequestAborted` cancellation token if a token was not supplied
 

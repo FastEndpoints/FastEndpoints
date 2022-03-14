@@ -209,6 +209,7 @@ namespace FastEndpoints.Validation
         /// </summary>
         public Func<MessageBuilderContext<T, TValue>, string> MessageBuilder { get; set; }
 
+        //TODO: Make this the default version of MessageBuilder for FV 11.
         Func<IMessageBuilderContext<T, TValue>, string> IValidationRuleConfigurable<T, TValue>.MessageBuilder
         {
             set => MessageBuilder = value;

@@ -40,6 +40,7 @@ namespace FastEndpoints.Validation
                     return false;
             }
 
+            //TODO: Rewrite to avoid boxing
             if (Equals(value, default(TProperty)))
             {
                 // Note: Code analysis indicates "Expression is always false" but this is incorrect.

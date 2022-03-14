@@ -26,8 +26,6 @@ namespace FastEndpoints.Validation
     internal class EnglishLanguage
     {
         public const string Culture = "en";
-        public const string AmericanCulture = "en-US";
-        public const string BritishCulture = "en-GB";
 
         public static string GetTranslation(string key) => key switch
         {

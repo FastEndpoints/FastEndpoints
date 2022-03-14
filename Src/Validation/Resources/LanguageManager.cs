@@ -41,8 +41,6 @@ namespace FastEndpoints.Validation
         {
             return culture switch
             {
-                EnglishLanguage.AmericanCulture => EnglishLanguage.GetTranslation(key),
-                EnglishLanguage.BritishCulture => EnglishLanguage.GetTranslation(key),
                 EnglishLanguage.Culture => EnglishLanguage.GetTranslation(key),
                 _ => null,
             };

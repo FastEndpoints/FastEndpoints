@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FakeItEasy" Version="7.3.0" />
+        <PackageReference Include="FakeItEasy" Version="7.3.1" />
         <PackageReference Include="FakeItEasy.Analyzer.CSharp" Version="6.1.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.3" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
         <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
         <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />

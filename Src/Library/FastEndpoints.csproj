@@ -15,6 +15,7 @@
             - lazy initialize validation failure list in base endpoint class
             - stop relying on request content-length header in model binding
             - upgrade to latest fluentvalidation code
+            - upgrade other dependancies to latest
 
             ### FIXES
             - correct handling of jwt issuer/audience

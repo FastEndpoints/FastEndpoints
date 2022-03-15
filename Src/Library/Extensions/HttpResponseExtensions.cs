@@ -81,12 +81,13 @@ public static class HttpResponseExtensions
     /// </summary>
     /// <param name="content">the string to write to the response body</param>
     /// <param name="statusCode">optional custom http status code</param>
+    /// <param name="contentType">optional content type header value</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendStringAsync(this HttpResponse rsp, string content, int statusCode = 200, CancellationToken cancellation = default)
+    public static Task SendStringAsync(this HttpResponse rsp, string content, int statusCode = 200, string contentType = "text/plain", CancellationToken cancellation = default)
     {
         rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = statusCode;
-        rsp.ContentType = "text/plain";
+        rsp.ContentType = contentType;
         return rsp.WriteAsync(content, cancellation.IfDefault(rsp));
     }
 

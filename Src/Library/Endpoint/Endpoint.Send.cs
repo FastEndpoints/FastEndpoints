@@ -73,10 +73,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="content">the string to write to the response body</param>
     /// <param name="statusCode">optional custom http status code</param>
+    /// <param name="contentType">optional content type header value</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendStringAsync(string content, int statusCode = 200, CancellationToken cancellation = default)
+    protected Task SendStringAsync(string content, int statusCode = 200, string contentType = "text/plain", CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendStringAsync(content, statusCode, cancellation);
+        return HttpContext.Response.SendStringAsync(content, statusCode, contentType, cancellation);
     }
 
     /// <summary>

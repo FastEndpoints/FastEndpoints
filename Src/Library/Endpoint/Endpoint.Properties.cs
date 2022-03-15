@@ -65,4 +65,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// the files sent with the request. only populated when content-type is 'multipart/form-data'
     /// </summary>
     public IFormFileCollection Files => Form.Files;
+
+    /// <summary>
+    /// get or set whether the response has started. you'd only use this if you're writing to the response stream by yourself.
+    /// </summary>
+    public bool ResponseStarted
+    {
+        get => _httpContext.Items.ContainsKey(Constants.ResponseSent);
+        set => _httpContext.Items[Constants.ResponseSent] = null;
+    }
 }

@@ -2,11 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0-beta6</Version>
+        <Version>3.11.0-beta7</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - override/disable global route prefix in endpoints via `RoutePrefixOverride()` method
+            - `ResponseStarted` property on endpoint class to facilitate manual response sending
 
             ### CHANGES
             - `AddSwaggerDoc` serializer settings now accepts `System.Test.Json.JsonSerializerOptions` instead of newtonsoft

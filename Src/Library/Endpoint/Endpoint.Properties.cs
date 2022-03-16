@@ -71,7 +71,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     public bool ResponseStarted
     {
-        get => _httpContext.Items.ContainsKey(Constants.ResponseSent);
+        get => _httpContext.Response.HasStarted || _httpContext.Items.ContainsKey(Constants.ResponseSent);
         set => _httpContext.Items[Constants.ResponseSent] = null;
     }
 }

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0-beta9</Version>
+        <Version>3.11.0-beta10</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -24,6 +24,7 @@
 
             ### FIXES
             - correct handling of jwt issuer/audience
+            - swagger replacing default response descriptions when user doesn't supply a value
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

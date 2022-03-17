@@ -112,8 +112,10 @@ internal class OperationProcessor : IOperationProcessor
               if (defaultDescriptions.ContainsKey(res.Key))
                   res.Value.Description = defaultDescriptions[res.Key]; //first set the default text
 
-              if (endpoint.Summary is not null)
-                  res.Value.Description = endpoint.Summary.Responses.GetValueOrDefault(Convert.ToInt32(res.Key)); //then take values from summary object
+              var key = Convert.ToInt32(res.Key);
+
+              if (endpoint.Summary?.Responses.ContainsKey(key) is true)
+                  res.Value.Description = endpoint.Summary.Responses[key]; //then take values from summary object
           });
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;

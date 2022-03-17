@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using NJsonSchema.Generation;
 using NSwag;
 using NSwag.AspNetCore;

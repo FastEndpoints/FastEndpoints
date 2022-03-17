@@ -195,19 +195,20 @@ internal class OperationProcessor : IOperationProcessor
             //so let's add each dto property as a query param to enable swagger ui to execute GET request with user supplied values
 
             var qParams = reqDtoProps?
-                .Where(p =>
-                       p.CanWrite &&
-                       ShouldAddQueryParam(p) &&
-                       !reqParams.Any(rp => rp.Name.Equals(p.Name, StringComparison.OrdinalIgnoreCase)))
+                .Where(p => ShouldAddQueryParam(p, reqParams))
                 .Select(p =>
-                    new OpenApiParameter
+                {
+                    var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name;
+
+                    return new OpenApiParameter
                     {
-                        Name = p.Name,
+                        Name = pName ?? p.Name,
                         IsRequired = !p.IsNullable(),
                         Schema = JsonSchema.FromType(p.PropertyType),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name)
-                    })
+                    };
+                })
                 .ToList();
 
             if (qParams?.Count > 0)
@@ -283,12 +284,17 @@ internal class OperationProcessor : IOperationProcessor
         return left.TrimEnd('?');
     }
 
-    private static bool ShouldAddQueryParam(PropertyInfo prop)
+    private static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams)
     {
+        if (!prop.CanWrite)
+            return false;
+
+        var paramName = prop.Name;
+
         foreach (var attribute in prop.GetCustomAttributes())
         {
-            if (attribute is BindFromAttribute)
-                return false; // because a path param was already added
+            if (attribute is BindFromAttribute att)
+                paramName = att.Name;
 
             if (attribute is FromHeaderAttribute)
                 return false; // because header request params are being added
@@ -299,7 +305,9 @@ internal class OperationProcessor : IOperationProcessor
             if (attribute is HasPermissionAttribute pAttrib)
                 return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
         }
-        return true;
+
+        //request params already has it. so don't add.
+        return !reqParams.Any(rp => rp.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase));
     }
 
     private static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)

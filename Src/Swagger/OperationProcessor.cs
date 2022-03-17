@@ -285,6 +285,9 @@ internal class OperationProcessor : IOperationProcessor
     {
         foreach (var attribute in prop.GetCustomAttributes())
         {
+            if (attribute is BindFromAttribute)
+                return false; // because a path param was already added
+
             if (attribute is FromHeaderAttribute)
                 return false; // because header request params are being added
 

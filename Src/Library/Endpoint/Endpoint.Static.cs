@@ -222,7 +222,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             prop.PropSetter(req, value);
 
             if (!success)
-                failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.Name}] property!"));
+                failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.ActualName()}] property!"));
         }
     }
 }

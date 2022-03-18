@@ -6,9 +6,6 @@ namespace FastEndpoints;
 
 internal static class ReflectionExtensions
 {
-    internal static string ActualName(this Type type)
-        => (Nullable.GetUnderlyingType(type) ?? type).Name;
-
     internal static string PropertyName<T>(this Expression<T> expression) => (
         expression.Body switch
         {

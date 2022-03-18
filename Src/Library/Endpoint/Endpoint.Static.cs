@@ -1,4 +1,5 @@
 ﻿using FastEndpoints.Validation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -225,4 +226,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.ActualName()}] property!"));
         }
     }
+
+    private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptProducesMetadata = b =>
+    {
+        b.Add(epBuilder =>
+        {
+            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is "ProducesResponseTypeMetadata" or "AcceptsMetadata").ToArray())
+                epBuilder.Metadata.Remove(m);
+        });
+    };
 }

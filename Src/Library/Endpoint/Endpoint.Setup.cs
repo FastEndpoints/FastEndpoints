@@ -224,23 +224,34 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="builder">the builder for this endpoint</param>
     protected void Options(Action<RouteHandlerBuilder> builder) => Configuration.UserConfigAction = builder;
 
+    //todo: remove in v4.0
     /// <summary>
     /// describe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.
-    /// <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
+    /// <para>
+    /// EXAMPLE: <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
+    /// </para>
     /// </summary>
     /// <param name="builder">the route handler builder for this endpoint</param>
+    [Obsolete("Use the Description() method.")]
     protected void Describe(Action<RouteHandlerBuilder> builder)
     {
-        Action<RouteHandlerBuilder> clearDefaultsAction = b =>
-        {
-            b.Add(epBuilder =>
-            {
-                foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is "ProducesResponseTypeMetadata" or "AcceptsMetadata").ToArray())
-                    epBuilder.Metadata.Remove(m);
-            });
-        };
+        Description(builder, clearDefaults: true);
+    }
 
-        Configuration.UserConfigAction = clearDefaultsAction + builder;
+    /// <summary>
+    /// describe openapi metadata for this endpoint. optionaly specify whether or not you want to clear the default Accepts/Produces metadata.
+    /// <para>
+    /// EXAMPLE: <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
+    /// </para>
+    /// </summary>
+    /// <param name="builder">the route handler builder for this endpoint</param>
+    /// <param name="clearDefaults">set to true if the defaults should be cleared</param>
+    protected void Description(Action<RouteHandlerBuilder> builder, bool clearDefaults = false)
+    {
+        if (clearDefaults)
+            Configuration.UserConfigAction = ClearDefaultAcceptProducesMetadata + builder;
+        else
+            Configuration.UserConfigAction = builder;
     }
 
     //todo: remove in v4.0

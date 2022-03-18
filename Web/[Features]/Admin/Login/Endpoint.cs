@@ -20,11 +20,10 @@ public class Endpoint : Endpoint<Request, Response>
         AllowAnonymous();
         ScopedValidator();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
-        Describe(b => b
-            .Accepts<Request>("application/json")
-            .Produces<Response>(200)
+        Description(b => b
             .Produces(400)
-            .Produces(403));
+            .Produces(403),
+            clearDefaults: true);
         Summary(s =>
         {
             s.Summary = "this is a short summary";

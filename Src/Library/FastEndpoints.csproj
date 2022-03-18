@@ -2,19 +2,21 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0-beta11</Version>
+        <Version>3.11.0-beta12</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - override/disable global route prefix in endpoints via `RoutePrefixOverride()` method
             - `ResponseStarted` property on endpoint class to facilitate manual response sending in non-kestrel environments
+            - `Description()` method with optional parameter to clear default Accepts/Produces metadata.
 
-            ### CHANGES
+            ### CHANGES (minor breaking)
+            - deprecate `Describe()` method in favor of `Description()` method
             - `AddSwaggerDoc` serializer settings now accepts `System.Test.Json.JsonSerializerOptions` instead of newtonsoft
             - #62 set default swagger serializer casing to camel case
-            - all send methods will now use `HttpContext.RequestAborted` cancellation token if a token was not supplied
 
             ### IMPROVEMENTS
+            - all send methods will now use `HttpContext.RequestAborted` cancellation token if a token was not supplied
             - lazy initialize validation failure list in base endpoint class
             - stop relying on request content-length header in model binding
             - swagger now honors system.text.json attributes such as `[JsonIgnore]` and [JsonPropertyName]
@@ -49,7 +51,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
         <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
     </ItemGroup>

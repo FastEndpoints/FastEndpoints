@@ -3,7 +3,9 @@ global using FastEndpoints.Security;
 global using FastEndpoints.Validation;
 global using Web.Auth;
 using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.Localization;
 using NSwag;
+using System.Globalization;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
@@ -45,6 +47,15 @@ builder.Services
     });
 
 var app = builder.Build();
+
+var supportedCultures = new[] { new CultureInfo("en-US") };
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en-US"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+});
+
 app.UseDefaultExceptionHandler();
 app.UseResponseCaching();
 

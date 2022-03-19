@@ -207,18 +207,27 @@ public class Point
 
     public static bool TryParse(string? input, out Point? output) //adhere to this signature
     {
+        output = null;
+
         if (string.IsNullOrEmpty(input))
         {
-            output = null;
             return false;
         }
 
         var parts = input.Split(',');
+
+        if (!double.TryParse(parts[0], out var x) ||
+            !double.TryParse(parts[1], out var y))
+        {
+            return false;
+        }
+
         output = new Point
         {
-            X = double.Parse(parts[0]),
-            Y = double.Parse(parts[1])
+            X = x,
+            Y = y
         };
+
         return true;
     }
 }

@@ -141,13 +141,13 @@
   
   
   <a id="FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_" data-uid="FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer*"></a>
-  <h4 id="FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_String_System_Boolean_System_Boolean_" data-uid="FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Boolean,System.Boolean)">AddAuthenticationJWTBearer(IServiceCollection, String, Boolean, Boolean)</h4>
+  <h4 id="FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_String_System_String_System_String_" data-uid="FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.String,System.String)">AddAuthenticationJWTBearer(IServiceCollection, String, String, String)</h4>
   <div class="markdown level1 summary"><p>configure and enable jwt bearer authentication</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services, string tokenSigningKey, bool validateIssuer = false, bool validateAudience = false)</code></pre>
+    <pre><code class="lang-csharp hljs">public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services, string tokenSigningKey, string issuer = null, string audience = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -171,15 +171,15 @@
 </td>
       </tr>
       <tr>
-        <td><span class="xref">System.Boolean</span></td>
-        <td><span class="parametername">validateIssuer</span></td>
-        <td><p>optionally validate issuer</p>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">issuer</span></td>
+        <td><p>validates issuer if set</p>
 </td>
       </tr>
       <tr>
-        <td><span class="xref">System.Boolean</span></td>
-        <td><span class="parametername">validateAudience</span></td>
-        <td><p>optionally validate audience</p>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">audience</span></td>
+        <td><p>validates audience if set</p>
 </td>
       </tr>
     </tbody>

@@ -458,6 +458,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe
   nameWithType: Endpoint<TRequest, TResponse>.Describe
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Describe
+- uid: FastEndpoints.Endpoint`2.Description(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder},System.Boolean)
+  name: Description(Action<RouteHandlerBuilder>, Boolean)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Description_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__System_Boolean_
+  commentId: M:FastEndpoints.Endpoint`2.Description(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder},System.Boolean)
+  name.vb: Description(Action(Of RouteHandlerBuilder), Boolean)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Description(Action<Microsoft.AspNetCore.Builder.RouteHandlerBuilder>, System.Boolean)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Description(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder), System.Boolean)
+  nameWithType: Endpoint<TRequest, TResponse>.Description(Action<RouteHandlerBuilder>, Boolean)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Description(Action(Of RouteHandlerBuilder), Boolean)
+- uid: FastEndpoints.Endpoint`2.Description*
+  name: Description
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Description_
+  commentId: Overload:FastEndpoints.Endpoint`2.Description
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Description
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Description
+  nameWithType: Endpoint<TRequest, TResponse>.Description
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Description
 - uid: FastEndpoints.Endpoint`2.DontThrowIfValidationFails
   name: DontThrowIfValidationFails()
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontThrowIfValidationFails
@@ -989,6 +1007,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ResponseCache
   nameWithType: Endpoint<TRequest, TResponse>.ResponseCache
   nameWithType.vb: Endpoint(Of TRequest, TResponse).ResponseCache
+- uid: FastEndpoints.Endpoint`2.ResponseStarted
+  name: ResponseStarted
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ResponseStarted
+  commentId: P:FastEndpoints.Endpoint`2.ResponseStarted
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ResponseStarted
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ResponseStarted
+  nameWithType: Endpoint<TRequest, TResponse>.ResponseStarted
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ResponseStarted
+- uid: FastEndpoints.Endpoint`2.ResponseStarted*
+  name: ResponseStarted
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ResponseStarted_
+  commentId: Overload:FastEndpoints.Endpoint`2.ResponseStarted
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.ResponseStarted
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ResponseStarted
+  nameWithType: Endpoint<TRequest, TResponse>.ResponseStarted
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).ResponseStarted
 - uid: FastEndpoints.Endpoint`2.Roles(System.String[])
   name: Roles(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Roles_System_String___
@@ -1025,6 +1060,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Route(Of T)(System.String, System.Boolean)
   nameWithType: Endpoint<TRequest, TResponse>.Route<T>(String, Boolean)
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Route(Of T)(String, Boolean)
+- uid: FastEndpoints.Endpoint`2.RoutePrefixOverride(System.String)
+  name: RoutePrefixOverride(String)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_RoutePrefixOverride_System_String_
+  commentId: M:FastEndpoints.Endpoint`2.RoutePrefixOverride(System.String)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.RoutePrefixOverride(System.String)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).RoutePrefixOverride(System.String)
+  nameWithType: Endpoint<TRequest, TResponse>.RoutePrefixOverride(String)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).RoutePrefixOverride(String)
+- uid: FastEndpoints.Endpoint`2.RoutePrefixOverride*
+  name: RoutePrefixOverride
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_RoutePrefixOverride_
+  commentId: Overload:FastEndpoints.Endpoint`2.RoutePrefixOverride
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.RoutePrefixOverride
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).RoutePrefixOverride
+  nameWithType: Endpoint<TRequest, TResponse>.RoutePrefixOverride
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).RoutePrefixOverride
 - uid: FastEndpoints.Endpoint`2.Routes(System.String[])
   name: Routes(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Routes_System_String___
@@ -1284,14 +1336,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStreamAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendStreamAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStreamAsync
-- uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
-  name: SendStringAsync(String, Int32, CancellationToken)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStringAsync_System_String_System_Int32_CancellationToken_
-  commentId: M:FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStringAsync(System.String, System.Int32, CancellationToken)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStringAsync(System.String, System.Int32, CancellationToken)
-  nameWithType: Endpoint<TRequest, TResponse>.SendStringAsync(String, Int32, CancellationToken)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStringAsync(String, Int32, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,System.String,CancellationToken)
+  name: SendStringAsync(String, Int32, String, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStringAsync_System_String_System_Int32_System_String_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,System.String,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendStringAsync(System.String, System.Int32, System.String, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendStringAsync(System.String, System.Int32, System.String, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendStringAsync(String, Int32, String, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendStringAsync(String, Int32, String, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendStringAsync*
   name: SendStringAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStringAsync_
@@ -1703,6 +1755,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointDefinition.Roles
   nameWithType: EndpointDefinition.Roles
+- uid: FastEndpoints.EndpointDefinition.RoutePrefixOverride
+  name: RoutePrefixOverride
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_RoutePrefixOverride
+  commentId: P:FastEndpoints.EndpointDefinition.RoutePrefixOverride
+  fullName: FastEndpoints.EndpointDefinition.RoutePrefixOverride
+  nameWithType: EndpointDefinition.RoutePrefixOverride
+- uid: FastEndpoints.EndpointDefinition.RoutePrefixOverride*
+  name: RoutePrefixOverride
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_RoutePrefixOverride_
+  commentId: Overload:FastEndpoints.EndpointDefinition.RoutePrefixOverride
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.RoutePrefixOverride
+  nameWithType: EndpointDefinition.RoutePrefixOverride
 - uid: FastEndpoints.EndpointDefinition.Routes
   name: Routes
   href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Routes
@@ -1716,6 +1781,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointDefinition.Routes
   nameWithType: EndpointDefinition.Routes
+- uid: FastEndpoints.EndpointDefinition.SecurityPolicyName
+  name: SecurityPolicyName
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_SecurityPolicyName
+  commentId: P:FastEndpoints.EndpointDefinition.SecurityPolicyName
+  fullName: FastEndpoints.EndpointDefinition.SecurityPolicyName
+  nameWithType: EndpointDefinition.SecurityPolicyName
+- uid: FastEndpoints.EndpointDefinition.SecurityPolicyName*
+  name: SecurityPolicyName
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_SecurityPolicyName_
+  commentId: Overload:FastEndpoints.EndpointDefinition.SecurityPolicyName
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.SecurityPolicyName
+  nameWithType: EndpointDefinition.SecurityPolicyName
 - uid: FastEndpoints.EndpointDefinition.Summary
   name: Summary
   href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Summary
@@ -2874,12 +2952,12 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendStreamAsync
   nameWithType: HttpResponseExtensions.SendStreamAsync
-- uid: FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
-  name: SendStringAsync(HttpResponse, String, Int32, CancellationToken)
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendStringAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Int32_CancellationToken_
-  commentId: M:FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,CancellationToken)
-  fullName: FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Int32, CancellationToken)
-  nameWithType: HttpResponseExtensions.SendStringAsync(HttpResponse, String, Int32, CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,System.String,CancellationToken)
+  name: SendStringAsync(HttpResponse, String, Int32, String, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendStringAsync_Microsoft_AspNetCore_Http_HttpResponse_System_String_System_Int32_System_String_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse,System.String,System.Int32,System.String,CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendStringAsync(Microsoft.AspNetCore.Http.HttpResponse, System.String, System.Int32, System.String, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendStringAsync(HttpResponse, String, Int32, String, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendStringAsync*
   name: SendStringAsync
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendStringAsync_
@@ -3249,12 +3327,12 @@ references:
   commentId: T:FastEndpoints.Security.AuthExtensions
   fullName: FastEndpoints.Security.AuthExtensions
   nameWithType: AuthExtensions
-- uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Boolean,System.Boolean)
-  name: AddAuthenticationJWTBearer(IServiceCollection, String, Boolean, Boolean)
-  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_String_System_Boolean_System_Boolean_
-  commentId: M:FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.Boolean,System.Boolean)
-  fullName: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.String, System.Boolean, System.Boolean)
-  nameWithType: AuthExtensions.AddAuthenticationJWTBearer(IServiceCollection, String, Boolean, Boolean)
+- uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.String,System.String)
+  name: AddAuthenticationJWTBearer(IServiceCollection, String, String, String)
+  href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_String_System_String_System_String_
+  commentId: M:FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String,System.String,System.String)
+  fullName: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.String, System.String, System.String)
+  nameWithType: AuthExtensions.AddAuthenticationJWTBearer(IServiceCollection, String, String, String)
 - uid: FastEndpoints.Security.AuthExtensions.AddAuthenticationJWTBearer*
   name: AddAuthenticationJWTBearer
   href: api/FastEndpoints.Security.AuthExtensions.html#FastEndpoints_Security_AuthExtensions_AddAuthenticationJWTBearer_
@@ -3502,15 +3580,15 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swagger.Extensions.AddAuth
   nameWithType: Extensions.AddAuth
-- uid: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings}},System.Nullable{Action{Newtonsoft.Json.JsonSerializerSettings}},System.Boolean,System.Int32,System.Int32,System.Boolean)
-  name: AddSwaggerDoc(IServiceCollection, Nullable<Action<AspNetCoreOpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonSerializerSettings>>, Boolean, Int32, Int32, Boolean)
-  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddSwaggerDoc_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_AspNetCore_AspNetCoreOpenApiDocumentGeneratorSettings___System_Nullable_Action_Newtonsoft_Json_JsonSerializerSettings___System_Boolean_System_Int32_System_Int32_System_Boolean_
-  commentId: M:FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings}},System.Nullable{Action{Newtonsoft.Json.JsonSerializerSettings}},System.Boolean,System.Int32,System.Int32,System.Boolean)
-  name.vb: AddSwaggerDoc(IServiceCollection, Nullable(Of Action(Of AspNetCoreOpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonSerializerSettings)), Boolean, Int32, Int32, Boolean)
-  fullName: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings>>, System.Nullable<Action<Newtonsoft.Json.JsonSerializerSettings>>, System.Boolean, System.Int32, System.Int32, System.Boolean)
-  fullName.vb: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of Newtonsoft.Json.JsonSerializerSettings)), System.Boolean, System.Int32, System.Int32, System.Boolean)
-  nameWithType: Extensions.AddSwaggerDoc(IServiceCollection, Nullable<Action<AspNetCoreOpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonSerializerSettings>>, Boolean, Int32, Int32, Boolean)
-  nameWithType.vb: Extensions.AddSwaggerDoc(IServiceCollection, Nullable(Of Action(Of AspNetCoreOpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonSerializerSettings)), Boolean, Int32, Int32, Boolean)
+- uid: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings}},System.Nullable{Action{System.Text.Json.JsonSerializerOptions}},System.Boolean,System.Int32,System.Int32,System.Boolean)
+  name: AddSwaggerDoc(IServiceCollection, Nullable<Action<AspNetCoreOpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonSerializerOptions>>, Boolean, Int32, Int32, Boolean)
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddSwaggerDoc_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_NSwag_Generation_AspNetCore_AspNetCoreOpenApiDocumentGeneratorSettings___System_Nullable_Action_System_Text_Json_JsonSerializerOptions___System_Boolean_System_Int32_System_Int32_System_Boolean_
+  commentId: M:FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings}},System.Nullable{Action{System.Text.Json.JsonSerializerOptions}},System.Boolean,System.Int32,System.Int32,System.Boolean)
+  name.vb: AddSwaggerDoc(IServiceCollection, Nullable(Of Action(Of AspNetCoreOpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonSerializerOptions)), Boolean, Int32, Int32, Boolean)
+  fullName: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings>>, System.Nullable<Action<System.Text.Json.JsonSerializerOptions>>, System.Boolean, System.Int32, System.Int32, System.Boolean)
+  fullName.vb: FastEndpoints.Swagger.Extensions.AddSwaggerDoc(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of NSwag.Generation.AspNetCore.AspNetCoreOpenApiDocumentGeneratorSettings)), System.Nullable(Of Action(Of System.Text.Json.JsonSerializerOptions)), System.Boolean, System.Int32, System.Int32, System.Boolean)
+  nameWithType: Extensions.AddSwaggerDoc(IServiceCollection, Nullable<Action<AspNetCoreOpenApiDocumentGeneratorSettings>>, Nullable<Action<JsonSerializerOptions>>, Boolean, Int32, Int32, Boolean)
+  nameWithType.vb: Extensions.AddSwaggerDoc(IServiceCollection, Nullable(Of Action(Of AspNetCoreOpenApiDocumentGeneratorSettings)), Nullable(Of Action(Of JsonSerializerOptions)), Boolean, Int32, Int32, Boolean)
 - uid: FastEndpoints.Swagger.Extensions.AddSwaggerDoc*
   name: AddSwaggerDoc
   href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_AddSwaggerDoc_

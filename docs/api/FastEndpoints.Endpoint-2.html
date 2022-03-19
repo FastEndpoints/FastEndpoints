@@ -391,6 +391,32 @@
   </table>
   
   
+  <a id="FastEndpoints_Endpoint_2_ResponseStarted_" data-uid="FastEndpoints.Endpoint`2.ResponseStarted*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_ResponseStarted" data-uid="FastEndpoints.Endpoint`2.ResponseStarted">ResponseStarted</h4>
+  <div class="markdown level1 summary"><p>get or set whether the response has started. you'd only use this if you're writing to the response stream by yourself.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool ResponseStarted { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_User_" data-uid="FastEndpoints.Endpoint`2.User*"></a>
   <h4 id="FastEndpoints_Endpoint_2_User" data-uid="FastEndpoints.Endpoint`2.User">User</h4>
   <div class="markdown level1 summary"><p>the current user principal</p>
@@ -677,8 +703,10 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   
   <a id="FastEndpoints_Endpoint_2_Describe_" data-uid="FastEndpoints.Endpoint`2.Describe*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Describe_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__" data-uid="FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})">Describe(Action&lt;RouteHandlerBuilder&gt;)</h4>
-  <div class="markdown level1 summary"><p>describe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.
-<code>b =&gt; b.Accepts&lt;Request&gt;(&quot;text/plain&quot;)</code></p>
+  <div class="markdown level1 summary"><p>describe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.</p>
+<p>
+EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
+</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -699,6 +727,44 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
         <td><span class="xref">Action</span>&lt;<span class="xref">Microsoft.AspNetCore.Builder.RouteHandlerBuilder</span>&gt;</td>
         <td><span class="parametername">builder</span></td>
         <td><p>the route handler builder for this endpoint</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_Description_" data-uid="FastEndpoints.Endpoint`2.Description*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Description_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__System_Boolean_" data-uid="FastEndpoints.Endpoint`2.Description(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder},System.Boolean)">Description(Action&lt;RouteHandlerBuilder&gt;, Boolean)</h4>
+  <div class="markdown level1 summary"><p>describe openapi metadata for this endpoint. optionaly specify whether or not you want to clear the default Accepts/Produces metadata.</p>
+<p>
+EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
+</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void Description(Action&lt;RouteHandlerBuilder&gt; builder, bool clearDefaults = false)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Action</span>&lt;<span class="xref">Microsoft.AspNetCore.Builder.RouteHandlerBuilder</span>&gt;</td>
+        <td><span class="parametername">builder</span></td>
+        <td><p>the route handler builder for this endpoint</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">clearDefaults</span></td>
+        <td><p>set to true if the defaults should be cleared</p>
 </td>
       </tr>
     </tbody>
@@ -1721,6 +1787,37 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   </table>
   
   
+  <a id="FastEndpoints_Endpoint_2_RoutePrefixOverride_" data-uid="FastEndpoints.Endpoint`2.RoutePrefixOverride*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_RoutePrefixOverride_System_String_" data-uid="FastEndpoints.Endpoint`2.RoutePrefixOverride(System.String)">RoutePrefixOverride(String)</h4>
+  <div class="markdown level1 summary"><p>specify an override route prefix for this endpoint if a global route prefix is enabled.
+this is ignored if a global route prefix is not configured.
+global prefix can be ignored by setting <code>string.Empty</code></p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void RoutePrefixOverride(string routePrefix)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">routePrefix</span></td>
+        <td><p>route prefix value</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_Routes_" data-uid="FastEndpoints.Endpoint`2.Routes*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Routes_System_String___" data-uid="FastEndpoints.Endpoint`2.Routes(System.String[])">Routes(String[])</h4>
   <div class="markdown level1 summary"><p>specify one or more route patterns this endpoint should be listening for</p>
@@ -1794,7 +1891,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -1867,7 +1964,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -1936,7 +2033,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2014,7 +2111,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2074,7 +2171,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2124,7 +2221,8 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td></td>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -2190,7 +2288,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2234,7 +2332,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2278,7 +2376,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2322,7 +2420,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2372,7 +2470,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2416,7 +2514,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2472,7 +2570,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2552,7 +2650,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2575,13 +2673,13 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   
   
   <a id="FastEndpoints_Endpoint_2_SendStringAsync_" data-uid="FastEndpoints.Endpoint`2.SendStringAsync*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendStringAsync_System_String_System_Int32_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,CancellationToken)">SendStringAsync(String, Int32, CancellationToken)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_SendStringAsync_System_String_System_Int32_System_String_CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendStringAsync(System.String,System.Int32,System.String,CancellationToken)">SendStringAsync(String, Int32, String, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>send the supplied string content to the client.</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendStringAsync(string content, int statusCode = 200, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendStringAsync(string content, int statusCode = 200, string contentType = &quot;text/plain&quot;, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2606,9 +2704,15 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
 </td>
       </tr>
       <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">contentType</span></td>
+        <td><p>optional content type header value</p>
+</td>
+      </tr>
+      <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>
@@ -2652,7 +2756,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
       <tr>
         <td><span class="xref">CancellationToken</span></td>
         <td><span class="parametername">cancellation</span></td>
-        <td><p>optional cancellation token</p>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used</p>
 </td>
       </tr>
     </tbody>

@@ -6,9 +6,18 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Localization;
 using NSwag;
 using System.Globalization;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http.Json;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
+
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+});
+
 builder.Services.AddCors();
 builder.Services.AddResponseCaching();
 builder.Services.AddFastEndpoints();
@@ -68,7 +77,7 @@ app.UseAuthorization();
 app.UseFastEndpoints(config =>
 {
     config.ShortEndpointNames = false;
-    config.SerializerOptions = o => o.PropertyNamingPolicy = null;
+    // config.SerializerOptions = o => o.PropertyNamingPolicy = null;
     config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
     config.GlobalEndpointOptions = (epDef, builder) =>
     {

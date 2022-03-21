@@ -1,4 +1,6 @@
-﻿namespace Web.PipelineBehaviors.PreProcessors;
+﻿using FluentValidation.Results;
+
+namespace Web.PipelineBehaviors.PreProcessors;
 
 public class SecurityProcessor<TRequest> : IPreProcessor<TRequest>
 {

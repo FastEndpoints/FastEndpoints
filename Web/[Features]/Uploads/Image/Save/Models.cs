@@ -1,4 +1,6 @@
-﻿namespace Uploads.Image.Save;
+﻿using FluentValidation;
+
+namespace Uploads.Image.Save;
 
 public class Request
 {

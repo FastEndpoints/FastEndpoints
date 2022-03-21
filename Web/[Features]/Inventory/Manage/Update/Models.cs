@@ -1,4 +1,6 @@
-﻿namespace Inventory.Manage.Update;
+﻿using FluentValidation;
+
+namespace Inventory.Manage.Update;
 
 public class Request
 {

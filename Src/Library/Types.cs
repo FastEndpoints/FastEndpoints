@@ -1,4 +1,5 @@
 ﻿using FastEndpoints.Validation;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 

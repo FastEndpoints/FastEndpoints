@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using FluentValidation.Results;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;

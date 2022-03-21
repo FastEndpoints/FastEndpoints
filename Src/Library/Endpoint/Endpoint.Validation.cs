@@ -1,5 +1,6 @@
 ﻿using FastEndpoints.Validation;
 using System.Linq.Expressions;
+using FluentValidation.Results;
 
 namespace FastEndpoints;
 

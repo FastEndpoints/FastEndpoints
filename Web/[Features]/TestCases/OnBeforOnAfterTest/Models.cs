@@ -1,4 +1,6 @@
-﻿namespace TestCases.OnBeforeAfterValidationTest
+﻿using FluentValidation;
+
+namespace TestCases.OnBeforeAfterValidationTest
 {
     public class Request
     {

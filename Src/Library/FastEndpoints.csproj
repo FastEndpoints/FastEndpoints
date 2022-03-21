@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>3.11.1-beta1</Version>
+        <Version>3.12.1-beta1</Version>
 
         <PackageReleaseNotes>
             ### FIXES

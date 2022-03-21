@@ -28,6 +28,15 @@ Get("client/update"); -> "/api/client/update"
 Put("inventory/delete"); -> "/api/inventory/delete"
 Post("sales/recent-list"); -> "/api/sales/recent-list"
 ```
+if needed, you can override or disable the global prefix from within individual endpoints like so:
+```csharp
+public override void Configure()
+{
+    Post("user/create");
+    RoutePrefixOverride("mobile");
+}
+```
+in order to disable the global prefix, simply pass in a `string.Empty` to the `RoutePrefixOverride()` method.
 
 ## filtering endpoint auto registration
 if you'd like to prevent some of the endpoints in your project to be not auto registered during startup, you have the option to supply a filtering function which will be run against each discovered endpoint. if your function returns `true`, that particular endpoint will be registered. if the function returns `false` that endpoint will be ignored and not registered.
@@ -66,7 +75,7 @@ app.UseFastEndpoints(c =>
 ## global endpoint options
 you can have a set of common options applied to each endpoint by specifying an action for the `GlobalEndpointOptions` property of the configuration. 
 the action you set here will be executed for each endpoint during startup. you can inspect the `EndpointDefinition` argument to check what the current endpoint is, if needed.
-options to be applied to endpoints are performed on the `RouteHandlerBuilder` argument. the action you specify here is executed before `Options()` and `Describe()` of each individual endpoint during registration. whatever you do here may get overridden or compounded by what you do in the `Configure()` method of each endpoint.
+options to be applied to endpoints are performed on the `RouteHandlerBuilder` argument. the action you specify here is executed before `Options()` and `Description()` of each individual endpoint during registration. whatever you do here may get overridden or compounded by what you do in the `Configure()` method of each endpoint.
 ```csharp
 app.UseFastEndpoints(c =>
 {

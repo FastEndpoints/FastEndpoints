@@ -113,7 +113,7 @@ app.Run();
 </code></pre>
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
 <h2 id="configuration">configuration</h2>
-<p>swagger options can be configured as you'd typically do like follows:</p>
+<p>swagger options can be configured as you'd typically do via the <code>AddSwaggerDoc()</code> method:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(settings =&gt;
 {
     settings.Title = &quot;My API&quot;;
@@ -121,26 +121,30 @@ app.Run();
 });
 </code></pre>
 <h2 id="describe-endpoints">describe endpoints</h2>
-<p>by default, both <code>Accepts</code> and <code>Produces</code> are inferred from the request/response dto types of your endpoints and added to the swagger description. if the defaults are not satisfactory, you can clear the defaults completely and describe your endpoints with the <code>Describe()</code> method in configuration like so:</p>
+<p>by default, both <code>Accepts</code> and <code>Produces</code> metadata are inferred from the request/response dto types of your endpoints and added to the swagger document automatically. so you only need to specify the additional accepts/produces metadata using the <code>Description()</code> method like so:</p>
 <pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;MyRequest, MyResponse&gt;
 {
     public override void Configure()
     {
         Post(&quot;/admin/login&quot;);
         AllowAnonymous();
-        Describe(b =&gt; b
-          .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
-          .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
+        Description(b =&gt; b
+          .Produces&lt;ErrorResponse&gt;(400,&quot;application/json+problem&quot;)
           .ProducesProblem(403));
     }
 }
 </code></pre>
-<p>on the other-hand if the default <code>Accepts</code> &amp; <code>Produces</code> are ok, and you want to just add something else like <code>ProducesProblem</code>, simply use the <code>Options()</code> method to specify the additional descriptions:</p>
+<p>if the default <code>Accepts</code> &amp; <code>Produces</code> are not to your liking, you can clear the defaults and do it all yourself by setting the <code>clearDefaults</code> argument to <code>true</code>:</p>
 <pre><code class="lang-csharp">public override void Configure()
 {
     Post(&quot;/admin/login&quot;);
     AllowAnonymous();
-    Options(x =&gt; x.ProducesProblem(404));
+    Description(b =&gt; b
+        .Accepts&lt;MyRequest&gt;(&quot;application/json+custom&quot;)
+        .Produces&lt;MyResponse&gt;(200, &quot;application/json+custom&quot;)
+        .Produces&lt;ErrorResponse&gt;(400, &quot;application/json+problem&quot;)
+        .ProducesProblem(403),
+    clearDefaults: true);
 }
 </code></pre>
 <h3 id="swagger-documentation">swagger documentation</h3>
@@ -149,9 +153,7 @@ app.Run();
 {
     Post(&quot;/admin/login&quot;);
     AllowAnonymous();
-    Describe(b =&gt; b
-      .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
-      .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
+    Description(b =&gt; b
       .ProducesProblem(403));
     Summary(s =&gt; {
         s.Summary = &quot;short summary goes here&quot;;
@@ -177,9 +179,7 @@ public override void Configure()
 {
     Post(&quot;/admin/login&quot;);
     AllowAnonymous();
-    Describe(b =&gt; b
-      .Accepts&lt;MyRequest&gt;(&quot;application/json&quot;)
-      .Produces&lt;MyResponse&gt;(200,&quot;application/json&quot;)
+    Description(b =&gt; b
       .ProducesProblem(403));
     Summary(new AdminLoginSummary());        
 }
@@ -267,12 +267,15 @@ public class Request
 <pre><code class="lang-cshar">builder.Services.AddSwaggerDoc(shortSchemaNames: true);
 </code></pre>
 <h2 id="swagger-serializer-options">swagger serializer options</h2>
-<p>nswag uses a separate serializer (newtonsoft) and has it's own set of serializer options you can configure like so:</p>
+<p>even though nswag uses a separate serializer (newtonsoft) internally, we specify serialization settings for nswag using <code>System.Text.Json.JsonSerializerOptions</code> just so we don't have to deal with anything related to newtonsoft (until nswag fully switches over to System.Text.Json).</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(serializerSettings: x =&gt;
 {
-    x.ContractResolver = new CamelCasePropertyNamesContractResolver();
+    x.PropertyNamingPolicy = null; //pascal case property names
+    x.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    ...
 });
 </code></pre>
+<p>with the above approach, <code>System.Text.Json</code> annotations such as <code>JsonIgnore</code> and <code>JsonPropertyName</code> on your dtos work out of the box.</p>
 <h2 id="customize-endpoint-name-swagger-operation-id">customize endpoint name/ swagger operation id</h2>
 <p>the full name (including namespace) of the endpoint classes are used to generate the operation ids. you can change it to use just the class name by doing the following at startup:</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
@@ -285,7 +288,7 @@ public class Request
 <pre><code class="lang-csharp">public override void Configure()
 {
     Get(&quot;/sales/invoice/{InvoiceID}&quot;);
-    Options(x =&gt; x.WithName(&quot;GetInvoice&quot;));
+    Description(x =&gt; x.WithName(&quot;GetInvoice&quot;));
 }
 </code></pre>
 <p><strong>note:</strong> when you manually specify a name for an endpoint like above and you want to point to that endpoint when using <a href="Misc-Conveniences.html#sendcreatedatasync">SendCreatedAtAsync()</a> method, you must use the overload that takes a string argument with which you can specify the name of the target endpoint. i.e. you lose the convenience/type-safety of being able to simply point to another endpoint using the class type like so:</p>

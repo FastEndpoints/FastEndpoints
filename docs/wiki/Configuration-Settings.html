@@ -118,6 +118,14 @@ all configuration settings must be specified during app startup with the <code>U
 Put(&quot;inventory/delete&quot;); -&gt; &quot;/api/inventory/delete&quot;
 Post(&quot;sales/recent-list&quot;); -&gt; &quot;/api/sales/recent-list&quot;
 </code></pre>
+<p>if needed, you can override or disable the global prefix from within individual endpoints like so:</p>
+<pre><code class="lang-csharp">public override void Configure()
+{
+    Post(&quot;user/create&quot;);
+    RoutePrefixOverride(&quot;mobile&quot;);
+}
+</code></pre>
+<p>in order to disable the global prefix, simply pass in a <code>string.Empty</code> to the <code>RoutePrefixOverride()</code> method.</p>
 <h2 id="filtering-endpoint-auto-registration">filtering endpoint auto registration</h2>
 <p>if you'd like to prevent some of the endpoints in your project to be not auto registered during startup, you have the option to supply a filtering function which will be run against each discovered endpoint. if your function returns <code>true</code>, that particular endpoint will be registered. if the function returns <code>false</code> that endpoint will be ignored and not registered.</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
@@ -152,7 +160,7 @@ app.UseFastEndpoints(c =&gt;
 <h2 id="global-endpoint-options">global endpoint options</h2>
 <p>you can have a set of common options applied to each endpoint by specifying an action for the <code>GlobalEndpointOptions</code> property of the configuration.
 the action you set here will be executed for each endpoint during startup. you can inspect the <code>EndpointDefinition</code> argument to check what the current endpoint is, if needed.
-options to be applied to endpoints are performed on the <code>RouteHandlerBuilder</code> argument. the action you specify here is executed before <code>Options()</code> and <code>Describe()</code> of each individual endpoint during registration. whatever you do here may get overridden or compounded by what you do in the <code>Configure()</code> method of each endpoint.</p>
+options to be applied to endpoints are performed on the <code>RouteHandlerBuilder</code> argument. the action you specify here is executed before <code>Options()</code> and <code>Description()</code> of each individual endpoint during registration. whatever you do here may get overridden or compounded by what you do in the <code>Configure()</code> method of each endpoint.</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
 {
     c.GlobalEndpointOptions = (endpoint, builder) =&gt;

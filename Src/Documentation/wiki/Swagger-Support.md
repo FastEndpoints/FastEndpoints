@@ -25,7 +25,7 @@ app.Run();
 you can then visit `/swagger` or `/swagger/v1/swagger.json` to see swagger output.
 
 ## configuration
-swagger options can be configured as you'd typically do like follows:
+swagger options can be configured as you'd typically do via the `AddSwaggerDoc()` method:
 ```csharp
 builder.Services.AddSwaggerDoc(settings =>
 {
@@ -35,7 +35,8 @@ builder.Services.AddSwaggerDoc(settings =>
 ```
 
 ## describe endpoints
-by default, both `Accepts` and `Produces` are inferred from the request/response dto types of your endpoints and added to the swagger description. if the defaults are not satisfactory, you can clear the defaults completely and describe your endpoints with the `Describe()` method in configuration like so:
+by default, both `Accepts` and `Produces` metadata are inferred from the request/response dto types of your endpoints and added to the swagger document automatically. so you only need to specify the additional accepts/produces metadata using the `Description()` method like so:
+
 ```csharp
 public class MyEndpoint : Endpoint<MyRequest, MyResponse>
 {
@@ -43,20 +44,24 @@ public class MyEndpoint : Endpoint<MyRequest, MyResponse>
     {
         Post("/admin/login");
         AllowAnonymous();
-        Describe(b => b
-          .Accepts<MyRequest>("application/json")
-          .Produces<MyResponse>(200,"application/json")
+        Description(b => b
+          .Produces<ErrorResponse>(400,"application/json+problem")
           .ProducesProblem(403));
     }
 }
 ```
-on the other-hand if the default `Accepts` & `Produces` are ok, and you want to just add something else like `ProducesProblem`, simply use the `Options()` method to specify the additional descriptions:
+if the default `Accepts` & `Produces` are not to your liking, you can clear the defaults and do it all yourself by setting the `clearDefaults` argument to `true`:
 ```csharp
 public override void Configure()
 {
     Post("/admin/login");
     AllowAnonymous();
-    Options(x => x.ProducesProblem(404));
+    Description(b => b
+        .Accepts<MyRequest>("application/json+custom")
+        .Produces<MyResponse>(200, "application/json+custom")
+        .Produces<ErrorResponse>(400, "application/json+problem")
+        .ProducesProblem(403),
+    clearDefaults: true);
 }
 ```
 
@@ -68,9 +73,7 @@ public override void Configure()
 {
     Post("/admin/login");
     AllowAnonymous();
-    Describe(b => b
-      .Accepts<MyRequest>("application/json")
-      .Produces<MyResponse>(200,"application/json")
+    Description(b => b
       .ProducesProblem(403));
     Summary(s => {
         s.Summary = "short summary goes here";
@@ -98,9 +101,7 @@ public override void Configure()
 {
     Post("/admin/login");
     AllowAnonymous();
-    Describe(b => b
-      .Accepts<MyRequest>("application/json")
-      .Produces<MyResponse>(200,"application/json")
+    Description(b => b
       .ProducesProblem(403));
     Summary(new AdminLoginSummary());        
 }
@@ -203,13 +204,16 @@ builder.Services.AddSwaggerDoc(shortSchemaNames: true);
 ```
 
 ## swagger serializer options
-nswag uses a separate serializer (newtonsoft) and has it's own set of serializer options you can configure like so:
+even though nswag uses a separate serializer (newtonsoft) internally, we specify serialization settings for nswag using `System.Text.Json.JsonSerializerOptions` just so we don't have to deal with anything related to newtonsoft (until nswag fully switches over to System.Text.Json).
 ```csharp
 builder.Services.AddSwaggerDoc(serializerSettings: x =>
 {
-    x.ContractResolver = new CamelCasePropertyNamesContractResolver();
+    x.PropertyNamingPolicy = null; //pascal case property names
+    x.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    ...
 });
 ```
+with the above approach, `System.Text.Json` annotations such as `JsonIgnore` and `JsonPropertyName` on your dtos work out of the box.
 
 ## customize endpoint name/ swagger operation id
 the full name (including namespace) of the endpoint classes are used to generate the operation ids. you can change it to use just the class name by doing the following at startup:
@@ -225,7 +229,7 @@ if the auto-generated operation ids are not to your liking, you can specify a na
 public override void Configure()
 {
     Get("/sales/invoice/{InvoiceID}");
-    Options(x => x.WithName("GetInvoice"));
+    Description(x => x.WithName("GetInvoice"));
 }
 ```
 **note:** when you manually specify a name for an endpoint like above and you want to point to that endpoint when using [SendCreatedAtAsync()](Misc-Conveniences.md#sendcreatedatasync) method, you must use the overload that takes a string argument with which you can specify the name of the target endpoint. i.e. you lose the convenience/type-safety of being able to simply point to another endpoint using the class type like so:

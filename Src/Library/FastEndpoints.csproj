@@ -2,11 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0-beta12</Version>
+        <Version>3.11.0</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - override/disable global route prefix in endpoints via `RoutePrefixOverride()` method
+            - override or disable global route prefix in endpoints via `RoutePrefixOverride()` method
             - `ResponseStarted` property on endpoint class to facilitate manual response sending in non-kestrel environments
             - `Description()` method with optional parameter to clear default Accepts/Produces metadata.
 
@@ -25,7 +25,7 @@
             - upgrade other dependancies to latest
 
             ### FIXES
-            - correct handling of jwt issuer/audience
+            - incorrect handling of jwt issuer/audience
             - swagger replacing default response descriptions when user doesn't supply a value
         </PackageReleaseNotes>
 

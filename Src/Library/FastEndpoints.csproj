@@ -7,6 +7,9 @@
         <PackageReleaseNotes>
             ### FIXES
             - issue #65 with serializer ctx not being set correctly
+
+            ### IMPROVEMENTS
+            - nswag now uses the same serializer settings as fastendpoints by default
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

@@ -63,7 +63,7 @@ public static class Extensions
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
         {
-            var stjOpts = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            var stjOpts = new JsonSerializerOptions(Config.SerializerOpts);
             serializerSettings?.Invoke(stjOpts);
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
             s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames);

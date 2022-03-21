@@ -6,10 +6,10 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Localization;
 using NSwag;
 using System.Globalization;
+using System.Text.Json;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
-//builder.Services.Configure<JsonOptions>(o => o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 builder.Services.AddCors();
 builder.Services.AddResponseCaching();
 builder.Services.AddFastEndpoints();
@@ -25,7 +25,7 @@ builder.Services
         s.Version = "v0.0";
     },
     shortSchemaNames: true,
-    serializerSettings: x => x.PropertyNamingPolicy = null)
+    serializerSettings: x => x.PropertyNamingPolicy = JsonNamingPolicy.CamelCase)
 
     .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
      {

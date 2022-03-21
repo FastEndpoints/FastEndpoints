@@ -721,6 +721,17 @@
       "version": ""
     },
     {
+      "type": "Resource",
+      "source_relative_path": "images/techempower-benchmarks.png",
+      "output": {
+        "resource": {
+          "relative_path": "images/techempower-benchmarks.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
       "type": "Conceptual",
       "source_relative_path": "index.md",
       "output": {
@@ -762,7 +773,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Benchmarks.html",
-          "hash": "+4JamcFH4fyS60+7MMONXifOgvnDNQ/ZAA1kpWG4h10="
+          "hash": "TEJ9yqPBwFVQxHXREDOK3L8cz1ozk+PbgqvSVM1TQQs="
         }
       },
       "is_incremental": false,
@@ -998,7 +1009,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 20,
-          "skipped_file_count": 20
+          "skipped_file_count": 19
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

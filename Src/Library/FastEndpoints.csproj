@@ -2,31 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>3.11.0</Version>
+        <Version>3.11.1-beta1</Version>
 
         <PackageReleaseNotes>
-            ### NEW
-            - override or disable global route prefix in endpoints via `RoutePrefixOverride()` method
-            - `ResponseStarted` property on endpoint class to facilitate manual response sending in non-kestrel environments
-            - `Description()` method with optional parameter to clear default Accepts/Produces metadata.
-
-            ### CHANGES (minor breaking)
-            - deprecate `Describe()` method in favor of `Description()` method
-            - `AddSwaggerDoc` serializer settings now accepts `System.Test.Json.JsonSerializerOptions` instead of newtonsoft
-            - #62 set default swagger serializer casing to camel case
-
-            ### IMPROVEMENTS
-            - all send methods will now use `HttpContext.RequestAborted` cancellation token if a token was not supplied
-            - lazy initialize validation failure list in base endpoint class
-            - stop relying on request content-length header in model binding
-            - swagger now honors system.text.json attributes such as `[JsonIgnore]` and [JsonPropertyName]
-            - swagger `[BindFrom]` attribute handling improvements
-            - upgrade to latest fluentvalidation code
-            - upgrade other dependancies to latest
-
             ### FIXES
-            - incorrect handling of jwt issuer/audience
-            - swagger replacing default response descriptions when user doesn't supply a value
+            - issue #65 with serializer ctx not being set correctly
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

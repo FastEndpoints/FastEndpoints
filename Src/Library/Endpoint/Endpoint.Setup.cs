@@ -342,6 +342,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// specify the json serializer context if code generation for request/response dtos
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
+    [Obsolete("Use the SerializerContext<TContext>(TContext serializerContext) method")]
     protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
     {
         Configuration.SerializerContext =
@@ -350,6 +351,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 new JsonSerializerOptions(SerializerOpts))!;
     }
 
+    /// <summary>
+    /// specify the json serializer context if code generation for request/response dtos
+    /// </summary>
+    /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
+    protected void SerializerContext<TContext>(TContext serializerContext) where TContext : JsonSerializerContext
+    {
+        Configuration.SerializerContext = serializerContext;
+    }
+    
     /// <summary>
     /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.
     /// </summary>

@@ -50,7 +50,7 @@ public class CodeGenEndpoint : Endpoint<CodeGenRequest, CodeGenResponse>
         Verbs(Http.POST);
         Routes("/benchmark/codegen/{id}");
         AllowAnonymous();
-        SerializerContext<SerializerCtx>();
+        SerializerContext(SerializerCtx.Default);
     }
 
     public override Task HandleAsync(CodeGenRequest req, CancellationToken ct)

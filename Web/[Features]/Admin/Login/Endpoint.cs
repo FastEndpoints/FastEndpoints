@@ -21,9 +21,11 @@ public class Endpoint : Endpoint<Request, Response>
         ScopedValidator();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         Description(b => b
+            .Accepts<Request>("application/json")
+            .Produces<Response>(200, "application/json")
             .Produces(400)
             .Produces(403),
-            clearDefaults: true);
+        clearDefaults: true);
         Summary(s =>
         {
             s.Summary = "this is a short summary";
@@ -34,10 +36,6 @@ public class Endpoint : Endpoint<Request, Response>
             s[403] = "forbidden when login fails";
             s[201] = "new resource created";
         });
-        
-        // NOTE: Commenting out the SerializerContext() call will result in a camel cased response (including dictionary keys)
-        // Expected: When the SerializerContext() is used the response should also be camel cased (possibly with exception to the dictionary keys [can't confirm right now])
-        // Actual: The response object is pascal cased due to a null JsonNamingPolicy in the default options
         SerializerContext<AdminLogin>();
     }
 

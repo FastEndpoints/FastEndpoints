@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -71,6 +73,13 @@ public static class MainExtensions
             if (EpRegFilterFunc is not null && !EpRegFilterFunc(epDef)) continue;
             if (epDef.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
             if (epDef.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
+
+            if (epDef.SerializerCtxType is not null)
+            {
+                epDef.SerializerContext = (JsonSerializerContext)Activator.CreateInstance(
+                    epDef.SerializerCtxType,
+                    new JsonSerializerOptions(SerializerOpts))!;
+            }
 
             var authorizeAttributes = BuildAuthorizeAttributes(epDef);
             var routeNum = 0;

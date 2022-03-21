@@ -22,7 +22,7 @@ public class Request
     /// </summary>
     public string Password { get; set; }
 
-    [JsonIgnore, Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     public string GetterOnlyProp => "test";
 }
 

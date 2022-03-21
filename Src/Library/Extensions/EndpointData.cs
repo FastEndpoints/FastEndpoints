@@ -150,10 +150,11 @@ internal sealed class EndpointData
 
             def.ExecuteAsyncImplemented = implementsExecuteAsync;
 
+            //create an endpoint instance and run the Configure() method in order to get the def object populated
             BaseEndpoint? instance =
                 x.tEndpoint.GetConstructor(Type.EmptyTypes) is null
-                ? (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)!
-                : (BaseEndpoint)Activator.CreateInstance(x.tEndpoint)!;
+                ? (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)! //this is an endpoint with ctor arguments
+                : (BaseEndpoint)Activator.CreateInstance(x.tEndpoint)!; //endpoint which has a default ctor
             instance.Configuration = def;
             instance.Configure();
 

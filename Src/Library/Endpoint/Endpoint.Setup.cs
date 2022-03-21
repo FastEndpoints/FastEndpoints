@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
@@ -344,10 +343,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
     protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
     {
-        Configuration.SerializerContext =
-            (JsonSerializerContext)Activator.CreateInstance(
-                typeof(TContext),
-                new JsonSerializerOptions(SerializerOpts))!;
+        Configuration.SerializerCtxType = typeof(TContext);
     }
 
     /// <summary>

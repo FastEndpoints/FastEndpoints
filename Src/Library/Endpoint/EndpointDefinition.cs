@@ -38,6 +38,7 @@ public sealed class EndpointDefinition
     internal object? PostProcessors;
     internal ResponseCacheAttribute? ResponseCacheSettings;
     internal HitCounter? HitCounter;
+    internal Type? SerializerCtxType;
     internal JsonSerializerContext? SerializerContext;
     internal bool ExecuteAsyncImplemented;
 }

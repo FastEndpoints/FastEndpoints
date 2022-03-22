@@ -9,7 +9,7 @@
             - PR #70 fluentvalidation code is no longer integrated. you will have to add the fluentvalidation namespaces to your validator code to get your existing projects to build again. no other changes are necessary.
             - PR #68 `SerializerContext[T]()` has been removed. use the `SerializerContext(myContext.Default)` and provide the serializer context yourself.
             - the `Describe()` has been removed. use the `Description()` method isntead. refer to the [doc page](https://fast-endpoints.com/wiki/Swagger-Support.html#describe-endpoints) for details. to migrate your existing code, just rename `Describe(...)` to `Description(..., clearDefaults: true)`
-            - remove a previously deprecated `Summary()` overload. use one of the other `Summary()` methods if this applies to you.
+            - removed a previously deprecated `Summary()` overload. use one of the other `Summary()` methods if you were using the deprecated method.
 
             ### NEW
             - `SendEventStream()` method for doing server-sent-events
@@ -18,7 +18,7 @@
             - issue #65 with serializer ctx not being set correctly
 
             ### IMPROVEMENTS
-            - nswag now uses the same serializer settings as fastendpoints by default
+            - nswag now uses the same serializer settings as fastendpoints by default, which is overrideable.
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

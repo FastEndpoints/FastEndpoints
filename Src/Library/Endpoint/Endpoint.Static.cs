@@ -1,12 +1,12 @@
 ﻿using FastEndpoints.Validation;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
-using FluentValidation;
-using FluentValidation.Results;
 
 namespace FastEndpoints;
 

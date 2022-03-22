@@ -1,10 +1,9 @@
-﻿using FastEndpoints.Validation;
+﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FluentValidation.Results;
 
 #pragma warning disable CA1822, IDE1006
 

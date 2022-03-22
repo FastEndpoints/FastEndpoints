@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using FastEndpoints.Validation;
-using System.Text.Json.Serialization;
 using FluentValidation;
+using System.Text.Json.Serialization;
 
 namespace FastEndpointsBench;
 

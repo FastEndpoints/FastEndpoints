@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using FluentValidation;
+﻿using FluentValidation;
+using System.Text.Json.Serialization;
 
 namespace Admin.Login;
 

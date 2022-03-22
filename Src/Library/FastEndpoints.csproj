@@ -2,14 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>3.12.1-beta1</Version>
+        <Version>4.0.0-beta1</Version>
 
         <PackageReleaseNotes>
-            ### FIXES
-            - issue #65 with serializer ctx not being set correctly
-
-            ### IMPROVEMENTS
-            - nswag now uses the same serializer settings as fastendpoints by default
+            ### BREAKING CHANGES
+            - PR #70 fluentvalidation code is no longer integrated. you will have to add the fluentvalidation namespaces to your validator code to get your existing projects to build again. no other changes are necessary.
+            -
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

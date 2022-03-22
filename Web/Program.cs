@@ -1,6 +1,5 @@
 global using FastEndpoints;
 global using FastEndpoints.Security;
-global using FastEndpoints.Validation;
 global using Web.Auth;
 using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Localization;

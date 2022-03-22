@@ -2,13 +2,13 @@
 
     <PropertyGroup>
 
-        <Version>4.0.0-beta2</Version>
+        <Version>4.0.0-beta3</Version>
 
         <PackageReleaseNotes>
             ### BREAKING CHANGES
-            - PR #70 fluentvalidation code is no longer integrated. you will have to add the fluentvalidation namespaces to your validator code to get your existing projects to build again. no other changes are necessary.
+            - PR #70 fluentvalidation code is no longer integrated. remove the package reference to `FastEndpoints.Validation` from your csproj file. no other changes are necessary.
             - PR #68 `SerializerContext[T]()` has been removed. use the `SerializerContext(myContext.Default)` and provide the serializer context yourself.
-            - the `Describe()` has been removed. use the `Description()` method isntead. refer to the [doc page](https://fast-endpoints.com/wiki/Swagger-Support.html#describe-endpoints) for details. to migrate your existing code, just rename `Describe(...)` to `Description(..., clearDefaults: true)`
+            - the `Describe()` method has been removed. use `Description()` isntead. refer to the [doc page](https://fast-endpoints.com/wiki/Swagger-Support.html#describe-endpoints) for details. to migrate your existing code, just rename `Describe(...)` to `Description(..., clearDefaults: true)`
             - removed a previously deprecated `Summary()` overload. use one of the other `Summary()` methods if you were using the deprecated method.
 
             ### NEW

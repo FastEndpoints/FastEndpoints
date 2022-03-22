@@ -1,5 +1,4 @@
 ﻿using FastEndpoints;
-using FastEndpoints.Validation;
 using FluentValidation;
 using System.Text.Json.Serialization;
 

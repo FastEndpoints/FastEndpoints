@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FastEndpoints.Validation;
+namespace FastEndpoints;
 
 /// <summary>
 /// inherit from this base class to define your dto validators

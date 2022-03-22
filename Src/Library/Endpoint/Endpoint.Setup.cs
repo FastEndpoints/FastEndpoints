@@ -223,20 +223,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="builder">the builder for this endpoint</param>
     protected void Options(Action<RouteHandlerBuilder> builder) => Configuration.UserConfigAction = builder;
 
-    //todo: remove in v4.0
-    /// <summary>
-    /// describe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.
-    /// <para>
-    /// EXAMPLE: <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
-    /// </para>
-    /// </summary>
-    /// <param name="builder">the route handler builder for this endpoint</param>
-    [Obsolete("Use the Description() method.")]
-    protected void Describe(Action<RouteHandlerBuilder> builder)
-    {
-        Description(builder, clearDefaults: true);
-    }
-
     /// <summary>
     /// describe openapi metadata for this endpoint. optionaly specify whether or not you want to clear the default Accepts/Produces metadata.
     /// <para>
@@ -251,18 +237,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             Configuration.UserConfigAction = ClearDefaultAcceptProducesMetadata + builder;
         else
             Configuration.UserConfigAction = builder;
-    }
-
-    //todo: remove in v4.0
-    [Obsolete("Use the one of the other Summary() overloads.", false)]
-    protected void Summary(string endpointDescription, params (int statusCode, string statusCodeDescription)[] statusCodeDescriptions)
-    {
-        Summary(s =>
-        {
-            s.Description = endpointDescription;
-            foreach (var (code, desc) in statusCodeDescriptions)
-                s[code] = desc;
-        });
     }
 
     /// <summary>
@@ -338,32 +312,22 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// specify the json serializer context if code generation for request/response dtos
-    /// </summary>
-    /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
-    [Obsolete("Use the SerializerContext<TContext>(TContext serializerContext) method")]
-    protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
-    {
-        Configuration.SerializerCtxType = typeof(TContext);
-    }
-
-    /// <summary>
-    /// specify the json serializer context if code generation for request/response dtos
+    /// specify the json serializer context if code generation for request/response dtos is being used
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
     protected void SerializerContext<TContext>(TContext serializerContext) where TContext : JsonSerializerContext
     {
         Configuration.SerializerContext = serializerContext;
     }
-    
+
     /// <summary>
     /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.
     /// </summary>
     protected void ScopedValidator() => Configuration.ScopedValidator = true;
 
     /// <summary>
-    /// specify an override route prefix for this endpoint if a global route prefix is enabled. 
-    /// this is ignored if a global route prefix is not configured. 
+    /// specify an override route prefix for this endpoint if a global route prefix is enabled.
+    /// this is ignored if a global route prefix is not configured.
     /// global prefix can be ignored by setting <c>string.Empty</c>
     /// </summary>
     /// <param name="routePrefix">route prefix value</param>

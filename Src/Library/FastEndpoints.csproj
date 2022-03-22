@@ -7,7 +7,9 @@
         <PackageReleaseNotes>
             ### BREAKING CHANGES
             - PR #70 fluentvalidation code is no longer integrated. you will have to add the fluentvalidation namespaces to your validator code to get your existing projects to build again. no other changes are necessary.
-            -
+            - PR #68 `SerializerContext[T]()` has been removed. use the `SerializerContext(myContext.Default)` and provide the serializer context yourself.
+            - the `Describe()` has been removed. use the `Description()` method isntead. refer to the [doc page](https://fast-endpoints.com/wiki/Swagger-Support.html#describe-endpoints) for details. to migrate your existing code, just rename `Describe(...)` to `Description(..., clearDefaults: true)`
+            - remove a previously deprecated `Summary()` overload. use one of the other `Summary()` methods if this applies to you.
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

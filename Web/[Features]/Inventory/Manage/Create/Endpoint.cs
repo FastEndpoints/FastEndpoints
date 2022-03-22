@@ -12,12 +12,13 @@ public class Endpoint : Endpoint<Request>
         ClaimsAll(
             Claim.AdminID,
             "test-claim");
-        Describe(x => x
+        Description(x => x
             .Accepts<Request>("application/json")
             .Produces(201)
             .Produces(500)
             .WithTags("test")
-            .WithName("CreateInventoryItem"));
+            .WithName("CreateInventoryItem"),
+            clearDefaults: true);
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)

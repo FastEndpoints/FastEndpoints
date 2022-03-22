@@ -1,4 +1,6 @@
-﻿namespace Web.PipelineBehaviors.PostProcessors;
+﻿using FluentValidation.Results;
+
+namespace Web.PipelineBehaviors.PostProcessors;
 
 public class MyResponseLogger<TRequest, TResponse> : IPostProcessor<TRequest, TResponse>
 {

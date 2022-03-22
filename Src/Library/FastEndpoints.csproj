@@ -34,9 +34,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentValidation" Version="10.4.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        <ProjectReference Include="..\Validation\FastEndpoints.Validation.csproj" />
     </ItemGroup>
 
     <ItemGroup>

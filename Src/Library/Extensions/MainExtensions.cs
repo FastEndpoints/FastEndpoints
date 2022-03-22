@@ -144,7 +144,7 @@ public static class MainExtensions
             //we wait for 10 minutes in case WAF might create multiple instances of the web application in some testing scenarios.
             //if someone's tests run for more than 10 minutes, we should make this a user configurable setting.
 
-            await Task.Delay(TimeSpan.FromMinutes(10)).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromMinutes(10));
             _endpoints = null!;
         });
 

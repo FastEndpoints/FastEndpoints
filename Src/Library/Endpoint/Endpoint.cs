@@ -17,10 +17,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         Configuration = endpoint;
         try
         {
-            var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
+            var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, cancellation);
 
             OnBeforeValidate(req);
-            await OnBeforeValidateAsync(req).ConfigureAwait(false);
+            await OnBeforeValidateAsync(req);
 
             await ValidateRequest(
                 req,
@@ -28,33 +28,33 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 endpoint,
                 endpoint.PreProcessors,
                 ValidationFailures,
-                cancellation).ConfigureAwait(false);
+                cancellation);
 
-            OnAfterValidate(req); await OnAfterValidateAsync(req).ConfigureAwait(false);
+            OnAfterValidate(req); await OnAfterValidateAsync(req);
 
-            await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation);
 
             if (ResponseStarted) //HttpContext.Response.HasStarted doesn't work in AWS lambda!!!
                 return; //response already sent to client (most likely from a preprocessor)
 
             OnBeforeHandle(req);
-            await OnBeforeHandleAsync(req).ConfigureAwait(false);
+            await OnBeforeHandleAsync(req);
 
             if (endpoint.ExecuteAsyncImplemented)
-                _response = await ExecuteAsync(req, cancellation).ConfigureAwait(false);
+                _response = await ExecuteAsync(req, cancellation);
             else
-                await HandleAsync(req, cancellation).ConfigureAwait(false);
+                await HandleAsync(req, cancellation);
 
             if (!ResponseStarted)
-                await AutoSendResponse(ctx, _response, endpoint.SerializerContext, cancellation).ConfigureAwait(false);
+                await AutoSendResponse(ctx, _response, endpoint.SerializerContext, cancellation);
 
-            OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response).ConfigureAwait(false);
+            OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response);
 
-            await RunPostProcessors(endpoint.PostProcessors, req, Response, ctx, ValidationFailures, cancellation).ConfigureAwait(false);
+            await RunPostProcessors(endpoint.PostProcessors, req, Response, ctx, ValidationFailures, cancellation);
         }
         catch (ValidationFailureException)
         {
-            await SendErrorsAsync(cancellation: cancellation).ConfigureAwait(false);
+            await SendErrorsAsync(cancellation: cancellation);
         }
     }
 

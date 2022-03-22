@@ -20,7 +20,7 @@ public static class HttpClientExtensions
     public static async Task<(HttpResponseMessage? response, TResponse? result)>
         POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.PostAsJsonAsync(requestUri, request, Config.SerializerOpts).ConfigureAwait(false);
+        var res = await client.PostAsJsonAsync(requestUri, request, Config.SerializerOpts);
 
         if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
@@ -29,11 +29,11 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts).ConfigureAwait(false);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts);
         }
         catch (JsonException)
         {
-            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync().ConfigureAwait(false)}";
+            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync()}";
             throw new InvalidOperationException(
                 $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
         }
@@ -60,7 +60,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
     {
-        var (response, _) = await POSTAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request).ConfigureAwait(false);
+        var (response, _) = await POSTAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
         return response;
     }
 
@@ -82,7 +82,7 @@ public static class HttpClientExtensions
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
     public static async Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.PutAsJsonAsync(requestUri, request, Config.SerializerOpts).ConfigureAwait(false);
+        var res = await client.PutAsJsonAsync(requestUri, request, Config.SerializerOpts);
 
         if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
@@ -91,11 +91,11 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts).ConfigureAwait(false);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts);
         }
         catch (JsonException)
         {
-            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync().ConfigureAwait(false)}";
+            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync()}";
             throw new InvalidOperationException(
                 $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
         }
@@ -121,7 +121,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
     {
-        var (response, _) = await PUTAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request).ConfigureAwait(false);
+        var (response, _) = await PUTAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
         return response;
     }
 
@@ -151,7 +151,7 @@ public static class HttpClientExtensions
                     client.BaseAddress!.ToString().TrimEnd('/') +
                     (requestUri.StartsWith('/') ? requestUri : "/" + requestUri)),
                 Content = new StringContent(JsonSerializer.Serialize(request, Config.SerializerOpts), Encoding.UTF8, "application/json")
-            }).ConfigureAwait(false);
+            });
 
         if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
@@ -160,11 +160,11 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts).ConfigureAwait(false);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts);
         }
         catch (JsonException)
         {
-            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync().ConfigureAwait(false)}";
+            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync()}";
             throw new InvalidOperationException(
                 $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
         }
@@ -190,7 +190,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
     {
-        var (response, _) = await GETAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request).ConfigureAwait(false);
+        var (response, _) = await GETAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
         return response;
     }
 

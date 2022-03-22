@@ -18,7 +18,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         if (isPlainTextRequest)
         {
-            req = await BindPlainTextBody(ctx.Request.Body).ConfigureAwait(false);
+            req = await BindPlainTextBody(ctx.Request.Body);
         }
         else if (ctx.Request.HasJsonContentType())
         {
@@ -49,14 +49,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         var validator = (IValidator<TRequest>)ctx.RequestServices.GetRequiredService(ep.ValidatorType)!;
 
-        var valResult = await validator.ValidateAsync(req, cancellation).ConfigureAwait(false);
+        var valResult = await validator.ValidateAsync(req, cancellation);
 
         if (!valResult.IsValid)
             validationFailures.AddRange(valResult.Errors);
 
         if (validationFailures.Count > 0 && ep.ThrowIfValidationFails)
         {
-            await RunPreprocessors(preProcessors, req, ctx, validationFailures, cancellation).ConfigureAwait(false);
+            await RunPreprocessors(preProcessors, req, ctx, validationFailures, cancellation);
             throw new ValidationFailureException();
         }
     }
@@ -66,7 +66,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (postProcessors is not null)
         {
             foreach (var pp in (IPostProcessor<TRequest, TResponse>[])postProcessors)
-                await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation).ConfigureAwait(false);
+                await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
         }
     }
 
@@ -75,7 +75,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (preProcessors is not null)
         {
             foreach (var p in (IPreProcessor<TRequest>[])preProcessors)
-                await p.PreProcessAsync(req, ctx, validationFailures, cancellation).ConfigureAwait(false);
+                await p.PreProcessAsync(req, ctx, validationFailures, cancellation);
         }
     }
 
@@ -83,7 +83,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         IPlainTextRequest req = (IPlainTextRequest)new TRequest();
         using var streamReader = new StreamReader(body);
-        req.Content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+        req.Content = await streamReader.ReadToEndAsync();
         return (TRequest)req;
     }
 

@@ -52,7 +52,7 @@ REASON: {error}
                         Code = ctx.Response.StatusCode,
                         Reason = error,
                         Note = "See application log for stack trace."
-                    }).ConfigureAwait(false);
+                    });
                 }
             });
         });

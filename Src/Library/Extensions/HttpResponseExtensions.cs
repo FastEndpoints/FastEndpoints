@@ -281,6 +281,23 @@ public static class HttpResponseExtensions
     }
 
     /// <summary>
+    /// start a "server-sent-events" data stream to the client asynchronously without blocking any threads
+    /// </summary>
+    /// <typeparam name="T">the type of the objects being sent in the event stream</typeparam>
+    /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
+    /// <param name="contentType">an optional content-type header</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static Task SendEventStream<T>(this HttpResponse rsp, IAsyncEnumerable<T> eventStream, string contentType = "text/event-stream",
+        JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
+    {
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.StatusCode = 200;
+        rsp.Headers.ContentType = contentType;
+        return RespSerializerFunc(rsp, eventStream, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+    }
+
+    /// <summary>
     /// send an empty json object in the body
     /// </summary>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>

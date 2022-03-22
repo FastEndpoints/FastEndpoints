@@ -203,6 +203,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// start a "server-sent-events" data stream to the client asynchronously without blocking any threads
+    /// </summary>
+    /// <typeparam name="T">the type of the objects being sent in the event stream</typeparam>
+    /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
+    /// <param name="contentType">an optional content-type header</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    protected Task SendEventStream<T>(IAsyncEnumerable<T> eventStream, string contentType = "text/event-stream",
+        CancellationToken cancellation = default)
+    {
+        return HttpContext.Response.SendEventStream(eventStream, contentType, Configuration.SerializerContext, cancellation);
+    }
+
+    /// <summary>
     /// send an empty json object in the body
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>

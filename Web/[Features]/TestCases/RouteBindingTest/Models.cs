@@ -1,3 +1,4 @@
+using FluentValidation;
 using System.Text.Json.Serialization;
 
 namespace TestCases.RouteBindingTest;

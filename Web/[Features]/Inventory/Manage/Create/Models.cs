@@ -1,4 +1,6 @@
-﻿namespace Inventory.Manage.Create;
+﻿using FluentValidation;
+
+namespace Inventory.Manage.Create;
 
 public class Request
 {

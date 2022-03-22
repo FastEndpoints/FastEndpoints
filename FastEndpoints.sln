@@ -19,8 +19,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcControllers", "Benchmark
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApi", "Benchmark\MinimalApi\MinimalApi.csproj", "{37EF74E1-F6AD-4B0E-B573-32489D003E1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Validation", "Src\Validation\FastEndpoints.Validation.csproj", "{D2E167E3-4B68-4866-A87B-18E8E472E389}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Security", "Src\Security\FastEndpoints.Security.csproj", "{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Swagger", "Src\Swagger\FastEndpoints.Swagger.csproj", "{7FCF797D-C5B6-4AD3-9E55-5C68BDFA1FE6}"
@@ -89,14 +87,6 @@ Global
 		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|x86.ActiveCfg = Release|Any CPU
 		{37EF74E1-F6AD-4B0E-B573-32489D003E1B}.Release|x86.Build.0 = Release|Any CPU
-		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Debug|x86.Build.0 = Debug|Any CPU
-		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|x86.ActiveCfg = Release|Any CPU
-		{D2E167E3-4B68-4866-A87B-18E8E472E389}.Release|x86.Build.0 = Release|Any CPU
 		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1A3F212-CD6A-48F4-BE4C-ACBEF04137D8}.Debug|x86.ActiveCfg = Debug|Any CPU

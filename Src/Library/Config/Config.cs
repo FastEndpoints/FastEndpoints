@@ -1,4 +1,4 @@
-﻿using FastEndpoints.Validation;
+﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System.Runtime.CompilerServices;

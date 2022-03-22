@@ -1,4 +1,6 @@
-﻿namespace TestCases.PreProcessorIsRunOnValidationFailure
+﻿using FluentValidation.Results;
+
+namespace TestCases.PreProcessorIsRunOnValidationFailure
 {
     public class MyPreProcessor : IPreProcessor<Request>
     {

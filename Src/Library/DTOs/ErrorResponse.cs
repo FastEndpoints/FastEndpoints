@@ -1,4 +1,4 @@
-﻿using FastEndpoints.Validation;
+﻿using FluentValidation.Results;
 
 namespace FastEndpoints;
 

@@ -5,9 +5,6 @@ namespace FastEndpoints;
 
 public abstract class BaseEndpoint : IEndpoint
 {
-    //key: the type of the endpoint
-    internal static Dictionary<Type, string> TestURLCache { get; } = new();
-
     protected internal HttpContext _httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
 
     public EndpointDefinition Configuration { get; internal set; }

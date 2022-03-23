@@ -77,7 +77,7 @@ public static class MainExtensions
             foreach (var route in epDef.Routes)
             {
                 var finalRoute = routeBuilder.BuildRoute(epDef.Version.Current, route, epDef.RoutePrefixOverride);
-                BaseEndpoint.TestURLCache[epDef.EndpointType] = finalRoute;
+                IEndpoint.SetTestURL(epDef.EndpointType, finalRoute);
 
                 routeNum++;
 

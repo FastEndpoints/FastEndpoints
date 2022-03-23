@@ -50,7 +50,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static Task<(HttpResponseMessage? response, TResponse? result)>
         POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
-        => POSTAsync<TRequest, TResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
+        => POSTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
     /// make a POST request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -60,7 +60,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
     {
-        var (response, _) = await POSTAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
+        var (response, _) = await POSTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
         return response;
     }
 
@@ -70,7 +70,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint
-        => POSTAsync<EmptyRequest, TResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], new EmptyRequest());
+        => POSTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
     /// make a PUT request using a request dto and get back a response dto.
@@ -111,7 +111,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
-        => PUTAsync<TRequest, TResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
+        => PUTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
     /// make a PUT request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -121,7 +121,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
     {
-        var (response, _) = await PUTAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
+        var (response, _) = await PUTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
         return response;
     }
 
@@ -131,7 +131,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint
-        => PUTAsync<EmptyRequest, TResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], new EmptyRequest());
+        => PUTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
     /// make a GET request using a request dto and get back a response dto.
@@ -180,7 +180,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
-        => GETAsync<TRequest, TResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
+        => GETAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
     /// make a GET request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -190,7 +190,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
     {
-        var (response, _) = await GETAsync<TRequest, EmptyResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], request);
+        var (response, _) = await GETAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
         return response;
     }
 
@@ -200,5 +200,5 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint
-        => GETAsync<EmptyRequest, TResponse>(client, BaseEndpoint.TestURLCache[typeof(TEndpoint)], new EmptyRequest());
+        => GETAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 }

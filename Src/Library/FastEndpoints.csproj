@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.0.0-beta3</Version>
+        <Version>4.0.0-beta4</Version>
 
         <PackageReleaseNotes>
             ### BREAKING CHANGES
@@ -15,7 +15,8 @@
             - `SendEventStream()` method for doing server-sent-events
 
             ### FIXES
-            - issue #65 with serializer ctx not being set correctly
+            - #65 with serializer ctx not being set correctly
+            - #69 swagger not removing json properties correctly
 
             ### IMPROVEMENTS
             - nswag now uses the same serializer settings as fastendpoints by default, which is overrideable.

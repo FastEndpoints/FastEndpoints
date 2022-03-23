@@ -314,17 +314,32 @@ internal class OperationProcessor : IOperationProcessor
     {
         if (content is null) return;
 
+        propName = ActualParamName(propName);
+
         foreach (var c in content)
         {
-            var prop = c.Value.Schema.ActualSchema.ActualProperties.FirstOrDefault(kvp =>
-                string.Equals(kvp.Key, ActualParamName(propName), StringComparison.OrdinalIgnoreCase)).Key;
+            var props1 = c.Value.Schema.ActualSchema.ActualProperties;
+            var props2 = c.Value.Schema.ActualSchema.AllInheritedSchemas
+                .Select(s => s.ActualProperties)
+                .SelectMany(s => s.Select(s => s));
 
-            if (prop != null)
+            var props = props1.Union(props2);
+
+            var key = props.FirstOrDefault(p => string.Equals(p.Key, propName, StringComparison.OrdinalIgnoreCase)).Key;
+
+            Remove(c.Value.Schema.ActualSchema, key);
+        }
+
+        //recursive property removal
+        static void Remove(JsonSchema schema, string? key)
+        {
+            if (key is null) return;
+
+            schema.Properties.Remove(key);
+
+            foreach (var s in schema.AllOf.Union(schema.AllInheritedSchemas))
             {
-                c.Value.Schema.ActualSchema.Properties.Remove(prop);
-
-                foreach (var schema in c.Value.Schema.ActualSchema.AllOf)
-                    schema.Properties.Remove(prop);
+                Remove(s, key);
             }
         }
     }

@@ -397,5 +397,30 @@ namespace Test
             Assert.AreEqual(HttpStatusCode.OK, rsp.StatusCode);
             Assert.AreEqual("ok!", res.Message);
         }
+        
+        [TestMethod]
+        public async Task QueryParamReadingInEndpointWithoutRequest()
+        {
+            var (rsp, res) = await GuestClient.GETAsync<
+                EmptyRequest,
+                TestCases.RouteBindingInEpWithoutReq.Response>(
+                "/api/test-cases/ep-witout-req-query-param-binding-test?customerId=09809&otherId=12", new());
+
+            Assert.AreEqual(HttpStatusCode.OK, rsp?.StatusCode);
+            Assert.AreEqual(09809, res!.CustomerID);
+            Assert.AreEqual(12, res!.OtherID);
+        }
+
+        [TestMethod]
+        public async Task QueryParamReadingIsRequired()
+        {
+            var (rsp, res) = await GuestClient.GETAsync<
+                EmptyRequest,
+                ErrorResponse>(
+                "/api/test-cases/ep-witout-req-query-param-binding-test?customerId=09809&otherId=lkjhlkjh", new());
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, rsp?.StatusCode);
+            Assert.IsTrue(res?.Errors.ContainsKey("OtherID"));
+        }
     }
 }

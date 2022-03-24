@@ -139,18 +139,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
         return default;// not required and retrieval failed
     }
-    
+
     /// <summary>
     /// get the value of a given query parameter by specifying the resulting type and query parameter name.
     /// NOTE: an automatic validation error is sent to the client when value retrieval is not successful.
     /// </summary>
     /// <typeparam name="T">type of the result</typeparam>
-    /// <param name="queryParamName">query parameter name</param>
+    /// <param name="paramName">query parameter name</param>
     /// <param name="isRequired">set to false for disabling the automatic validation error</param>
     /// <returns>the value if retrieval is successful or null if <paramref name="isRequired"/> is set to false</returns>
-    protected T? Query<T>(string queryParamName, bool isRequired = true)
+    protected T? Query<T>(string paramName, bool isRequired = true)
     {
-        if (HttpContext.Request.Query.TryGetValue(queryParamName, out var val))
+        if (HttpContext.Request.Query.TryGetValue(paramName, out var val))
         {
             var res = typeof(T).ValueParser()?.Invoke(val);
 
@@ -158,11 +158,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 return (T?)res?.value;
 
             if (isRequired)
-                ValidationFailures.Add(new(queryParamName, "Unable to read value of query parameter!"));
+                ValidationFailures.Add(new(paramName, "Unable to read value of query parameter!"));
         }
         else if (isRequired)
         {
-            ValidationFailures.Add(new(queryParamName, "Query parameter was not found!"));
+            ValidationFailures.Add(new(paramName, "Query parameter was not found!"));
         }
 
         ThrowIfAnyErrors();

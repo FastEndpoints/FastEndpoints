@@ -14,6 +14,7 @@
             ### NEW
             - `SendEventStream()` method for doing server-sent-events
             - `[QueryParam]` attribute for describing query parameters for swagger
+            - `Query[T]("xxx")` endpoint method for reading query params without a request dto - PR #73
 
             ### FIXES
             - #65 with serializer ctx not being set correctly

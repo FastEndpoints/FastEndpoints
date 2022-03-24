@@ -397,7 +397,7 @@ namespace Test
             Assert.AreEqual(HttpStatusCode.OK, rsp.StatusCode);
             Assert.AreEqual("ok!", res.Message);
         }
-        
+
         [TestMethod]
         public async Task QueryParamReadingInEndpointWithoutRequest()
         {

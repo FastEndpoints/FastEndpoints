@@ -1,6 +1,6 @@
-﻿namespace Web._Features_.TestCases.QueryParamBindingInEpWithoutReq;
+﻿namespace TestCases.QueryParamBindingInEpWithoutReq;
 
-public class EpWithoutReqQueryParamBindingTest  : EndpointWithoutRequest<Response>
+public class EpWithoutReqQueryParamBindingTest : EndpointWithoutRequest<Response>
 {
     public override void Configure()
     {

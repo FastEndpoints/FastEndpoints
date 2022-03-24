@@ -170,7 +170,7 @@ internal class OperationProcessor : IOperationProcessor
 
         var reqParams = new List<OpenApiParameter>();
 
-        //add a param for each route param such as /{xxx}/{yyy}/{zzz}
+        //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
         reqParams = regex
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
@@ -189,20 +189,21 @@ internal class OperationProcessor : IOperationProcessor
             })
             .ToList();
 
-        if (isGETRequest && reqDtoType is not null)
+        //add query params for properties marked with [QueryParam] or for all props if it's a GET request
+        if (reqDtoType is not null)
         {
-            //it's a GET request with a request dto
-            //so let's add each dto property as a query param to enable swagger ui to execute GET request with user supplied values
-
             var qParams = reqDtoProps?
-                .Where(p => ShouldAddQueryParam(p, reqParams))
+                .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest))
                 .Select(p =>
                 {
-                    var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name;
+                    var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
+
+                    //remove corresponding json field from the request body
+                    RemovePropFromRequestBodyContent(pName, op.RequestBody?.Content);
 
                     return new OpenApiParameter
                     {
-                        Name = pName ?? p.Name,
+                        Name = pName,
                         IsRequired = !p.IsNullable(),
                         Schema = JsonSchema.FromType(p.PropertyType),
                         Kind = OpenApiParameterKind.Query,
@@ -284,7 +285,7 @@ internal class OperationProcessor : IOperationProcessor
         return left.TrimEnd('?');
     }
 
-    private static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams)
+    private static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGETRequest)
     {
         if (!prop.CanWrite)
             return false;
@@ -293,8 +294,8 @@ internal class OperationProcessor : IOperationProcessor
 
         foreach (var attribute in prop.GetCustomAttributes())
         {
-            if (attribute is BindFromAttribute att)
-                paramName = att.Name;
+            if (attribute is BindFromAttribute bAtt)
+                paramName = bAtt.Name;
 
             if (attribute is FromHeaderAttribute)
                 return false; // because header request params are being added
@@ -306,8 +307,12 @@ internal class OperationProcessor : IOperationProcessor
                 return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
         }
 
-        //request params already has it. so don't add.
-        return !reqParams.Any(rp => rp.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase));
+        return
+            //it's a GET request and request params already has it. so don't add
+            (isGETRequest && !reqParams.Any(rp => rp.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase)))
+                ||
+            //this prop is marked with [QueryParam], so add. applies to all verbs.
+            prop.IsDefined(Types.QueryParamAttribute);
     }
 
     private static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)

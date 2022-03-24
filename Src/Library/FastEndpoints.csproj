@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.0.0-beta4</Version>
+        <Version>4.0.0-beta5</Version>
 
         <PackageReleaseNotes>
             ### BREAKING CHANGES
@@ -13,6 +13,7 @@
 
             ### NEW
             - `SendEventStream()` method for doing server-sent-events
+            - `[QueryParam]` attribute for describing query parameters for swagger
 
             ### FIXES
             - #65 with serializer ctx not being set correctly

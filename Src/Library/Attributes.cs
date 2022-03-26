@@ -1,5 +1,38 @@
 ﻿namespace FastEndpoints;
 
+[AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+public abstract class HttpAttribute : Attribute
+{
+    /// <summary>
+    /// the http verb for the endpoint
+    /// </summary>
+    internal Http Verb { get; set; }
+
+    /// <summary>
+    /// the route for the endpoint
+    /// </summary>
+    internal string Route { get; set; }
+
+    protected HttpAttribute(Http verb, string route)
+    {
+        Verb = verb;
+        Route = route;
+    }
+}
+
+/// <summary>
+/// use this attribute to specify a GET route for an endpoint
+/// </summary>
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+public class HttpGetAttribute : HttpAttribute
+{
+    /// <summary>
+    /// use this attribute to specify a GET route for an endpoint
+    /// </summary>
+    /// <param name="route">the route for the endpoint</param>
+    public HttpGetAttribute(string route) : base(Http.GET, route) { }
+}
+
 /// <summary>
 /// properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal
 /// </summary>

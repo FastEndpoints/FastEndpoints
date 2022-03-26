@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -125,21 +126,32 @@ internal sealed class EndpointData
             if (serviceBoundEpProps.Length > 0)
                 def.ServiceBoundEpProps = serviceBoundEpProps;
 
+            var implementsConfigureMethod = false;
             var implementsHandleAsync = false;
             var implementsExecuteAsync = false;
 
             foreach (var m in x.tEndpoint.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
             {
+                if (m.Name == "Configure" && !m.IsDefined(Types.NotImplementedAttribute, false))
+                    implementsConfigureMethod = true;
+
                 if (m.Name == "HandleAsync" && !m.IsDefined(Types.NotImplementedAttribute, false))
-                {
                     implementsHandleAsync = true;
-                }
 
                 if (m.Name == "ExecuteAsync" && !m.IsDefined(Types.NotImplementedAttribute, false))
-                {
                     implementsExecuteAsync = true;
-                }
             }
+
+            var epAttribs = x.tEndpoint
+                .GetCustomAttributes(true)
+                .Where(a => a is HttpAttribute or AllowAnonymousAttribute or AuthorizeAttribute)
+                .ToArray();
+
+            if (implementsConfigureMethod && epAttribs.Length > 0)
+                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
+
+            if (epAttribs.Length > 0 && !epAttribs.Any(a => a is HttpAttribute))
+                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] should have at least one http method attribute such as [HttpGet(...)]");
 
             if (!implementsHandleAsync && !implementsExecuteAsync)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
@@ -154,8 +166,37 @@ internal sealed class EndpointData
                 x.tEndpoint.GetConstructor(Type.EmptyTypes) is null
                 ? (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)! //this is an endpoint with ctor arguments
                 : (BaseEndpoint)Activator.CreateInstance(x.tEndpoint)!; //endpoint which has a default ctor
+
             instance.Configuration = def;
-            instance.Configure();
+
+            if (implementsConfigureMethod)
+            {
+                instance.Configure();
+            }
+            else
+            {
+                foreach (var att in epAttribs)
+                {
+                    if (att is HttpAttribute http)
+                    {
+                        instance.Verbs(http.Verb);
+                        instance.Configuration.Routes = new[] { http.Route };
+                    }
+                    if (att is AllowAnonymousAttribute)
+                    {
+                        instance.Configuration.AnonymousVerbs =
+                            instance.Configuration.Verbs?.Length > 0
+                            ? instance.Configuration.Verbs.Select(v => v).ToArray()
+                            : Enum.GetNames(Types.Http);
+                    }
+                    if (att is AuthorizeAttribute auth)
+                    {
+                        instance.Configuration.Roles = auth.Roles?.Split(',');
+                        instance.Configuration.AuthSchemes = auth.AuthenticationSchemes?.Split(',');
+                        if (auth.Policy is not null) instance.Configuration.PreBuiltUserPolicies = new[] { auth.Policy };
+                    }
+                }
+            }
 
             if (instance.Configuration.ValidatorType is not null)
             {

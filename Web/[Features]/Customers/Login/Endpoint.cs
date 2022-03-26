@@ -1,14 +1,11 @@
-﻿namespace Customers.Login;
+﻿using Microsoft.AspNetCore.Authorization;
 
+namespace Customers.Login;
+
+[HttpGet("/customer/login")]
+[AllowAnonymous]
 public class Endpoint : EndpointWithoutRequest
 {
-    public override void Configure()
-    {
-        Verbs(Http.GET);
-        Routes("/customer/login");
-        AllowAnonymous();
-    }
-
     public override Task HandleAsync(CancellationToken t)
     {
         var token = JWTBearer.CreateToken(

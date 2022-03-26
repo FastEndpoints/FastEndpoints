@@ -13,6 +13,8 @@ public abstract class BaseEndpoint : IEndpoint
 
     internal abstract Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken ct);
 
+    public virtual void Verbs(params Http[] methods) => throw new NotImplementedException();
+
     /// <summary>
     /// the http context of the current request
     /// </summary>
@@ -27,5 +29,6 @@ public abstract class BaseEndpoint : IEndpoint
     /// use this method to configure how the endpoint should be listening to incoming requests.
     /// <para>HINT: it is only called once during endpoint auto registration during app startup.</para>
     /// </summary>
-    public abstract void Configure();
+    [NotImplemented]
+    public virtual void Configure() => throw new NotImplementedException();
 }

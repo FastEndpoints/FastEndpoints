@@ -68,7 +68,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
-    protected void Verbs(params Http[] methods)
+    public sealed override void Verbs(params Http[] methods)
     {
         Configuration.Verbs = methods.Select(m => m.ToString()).ToArray();
 

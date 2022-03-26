@@ -36,6 +36,8 @@ public class Endpoint : Endpoint<Request>
             "/customer/new/{RefererID}",
             "/customer/{cID}/new/{SourceID}",
             "/customer/save");
+        DontAutoTag();
+        Description(x => x.WithTags("Customer Save"));
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)

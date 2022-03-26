@@ -103,6 +103,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void DontThrowIfValidationFails() => Configuration.ThrowIfValidationFails = false;
 
     /// <summary>
+    /// if swagger auto tagging based on path segment is enabled, calling this method will prevent a tag from being added to this endpoint.
+    /// </summary>
+    protected void DontAutoTag() => Configuration.DontAutoTag = true;
+
+    /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
     /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require authentication.
     /// </summary>
@@ -271,6 +276,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     /// <summary>
     /// specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.
+    /// <para>HINT: these tags have nothing to do with swagger tags!</para>
     /// </summary>
     /// <param name="endpointTags">the tag values to associate with this endpoint</param>
     protected void Tags(params string[] endpointTags)

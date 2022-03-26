@@ -53,7 +53,7 @@ internal class OperationProcessor : IOperationProcessor
             op.OperationId = nameMetaData.EndpointName;
 
         //set operation tag
-        if (tagIndex > 0)
+        if (tagIndex > 0 && !endpoint.DontAutoTag)
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= tagIndex)

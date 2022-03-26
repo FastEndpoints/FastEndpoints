@@ -195,7 +195,7 @@ if you'd like to group your endpoints by a segment of the route url, simply spec
 ```csharp
 builder.Services.AddSwaggerDoc(tagIndex: 2)
 ```
-if you'd like to take control of the tagging behavior, simply set `tagIndex: 0` to disable auto tagging of endpoints and specify a tag for each endpoint via `Options(x => x.WithTags("xyz"))` method.
+if you'd like to take control of the tagging behavior, simply set `tagIndex: 0` to disable auto tagging of endpoints and specify a tag for each endpoint via `Description(x => x.WithTags("xyz"))` method.
 
 ## customize swagger schema names
 by default, schema names are generated using the full name of dto classes. you can make the schema names be just the class name.

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.0.0-beta5</Version>
+        <Version>4.0.0-beta6</Version>
 
         <PackageReleaseNotes>
             ### BREAKING CHANGES
@@ -12,7 +12,8 @@
             - removed a previously deprecated `Summary()` overload. use one of the other `Summary()` methods if you were using the deprecated method.
 
             ### NEW
-            - `SendEventStream()` method for doing server-sent-events
+            - `SendEventStream()` method for doing server-sent-events streams
+            - `DontAutoTag()` method for ignoring auto swagger tagging based on path segment
             - `[QueryParam]` attribute for describing query parameters for swagger
             - `Query[T]("xxx")` endpoint method for reading query params without a request dto - PR #73
 

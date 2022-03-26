@@ -12,10 +12,11 @@
             - removed a previously deprecated `Summary()` overload. use one of the other `Summary()` methods if you were using the deprecated method.
 
             ### NEW
+            - `Configure()` method is now optional. endpoint classes can be annotated with `[HttpGet("xyz")]`,`[AllowAnonymous]`,`[Authorize(Roles="abc")]` instead if that's preferred. Advanced usage however does require `Configure()` method.
             - `SendEventStream()` method for doing server-sent-events streams
             - `DontAutoTag()` method for ignoring auto swagger tagging based on path segment
-            - `[QueryParam]` attribute for describing query parameters for swagger
-            - `Query[T]("xxx")` endpoint method for reading query params without a request dto - PR #73
+            - `[QueryParam]` attribute for marking/describing request dto properties which are to be bound from query parameters.
+            - PR #73 `Query[T]("xyz")` endpoint method for reading query params without a request dto
 
             ### FIXES
             - #65 with serializer ctx not being set correctly

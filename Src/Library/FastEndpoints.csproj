@@ -24,6 +24,7 @@
 
             ### IMPROVEMENTS
             - nswag now uses the same serializer settings as fastendpoints by default, which is overrideable.
+            - optional `[FromClaim]` and `[HasPermission]` dto properties now get transformed into query params in swagger.
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

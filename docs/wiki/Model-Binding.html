@@ -330,7 +330,7 @@ public partial class UpdateAddressCtx : JsonSerializerContext { }
     public override void Configure()
     {
         Post(&quot;user/address&quot;);
-        SerializerContext&lt;UpdateAddressCtx&gt;();
+        SerializerContext(UpdateAddressCtx.Default);
     }
 }
 </code></pre>

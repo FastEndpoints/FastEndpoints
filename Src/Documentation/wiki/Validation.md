@@ -1,5 +1,7 @@
 # request dto validation
-request validation is done using [FluentValidation](https://fluentvalidation.net/) rules. FastEndpoints uses a customized version of the fluentvalidations library *(which is allowed by it's apache v2 license)* but the api for the end user is the same. please refer to the fluentvalidations website if you haven't used it before. the built-in validation is provided by the `FastEndpoints.Validation` package. make sure to import it first *(or add a global using statement in program.cs)* before writing any validators.
+request validation is done using [FluentValidation](https://fluentvalidation.net/) rules. please refer to the FluentValidation website if you haven't used it before. just make sure to import it first *(or add a `global using FluentValidation;` in program.cs)* before writing any validators. you don't need to install the FluentValidation package as it's automatically brought in by FastEndpoints.
+
+simply write your validators by inheriting the `Validator<TRequest>` base class like below. you don't need to register your validators with the DI container. that is automatically taken care of by FastEndpoints. 
 
 **request dto**
 ```csharp
@@ -12,8 +14,6 @@ public class CreateUserRequest
 
 **validator**
 ```csharp
-using FastEndpoints.Validation;
-
 public class MyValidator : Validator<CreateUserRequest>
 {
     public MyValidator()
@@ -60,7 +60,7 @@ public class CreateUserEndpoint : Endpoint<CreateUserRequest>
     }
 }
 ```
-doing so will not send an automatic error response to the client and your handler will be executed. you can check the validation status in your handler by looking at the `ValidationFailures` property of the handler like so:
+doing so will not send an automatic error response to the client and your handler will be executed. you can check the validation status by looking at the `ValidationFailures` property of the handler like so:
 
 ```csharp
 public override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)

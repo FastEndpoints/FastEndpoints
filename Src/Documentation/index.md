@@ -34,7 +34,7 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 - Supports policy/permission/role/claim based security
 - Declarative security policy building (in each endpoint)
 - Supports any IOC container compatible with asp.net
-- Property injection of endpoint dependencies
+- Constructor & property injection of endpoint dependencies
 - Easy model binding from route/query/json body/claims/forms/headers
 - Json source generator support for request/response dtos
 - Easy file handling (multipart/form-data)
@@ -45,11 +45,12 @@ A light-weight REST Api framework for ASP.Net 6 that implements **[REPR (Request
 - Rate limiting
 - Response caching
 - In-process pub/sub event notifications (with auto discovery)
+- Easy Server-Sent-Events real-time data streaming
 - Convenient integration testing (route-less & strongly-typed)
 - Built-in uncaught exception handler
 - Supports swagger/serilog/etc.
-- Plays well with the asp.net middleware pipeline
 - Visual studio extension (vsix) for easy vertical slice feature scaffolding
+- Plays well with the asp.net middleware pipeline
 - Plus anything else the `Minimal APIs` can do...
 </div>
 

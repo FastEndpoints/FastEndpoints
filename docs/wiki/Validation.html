@@ -94,7 +94,8 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="request-dto-validation">request dto validation</h1>
 
-<p>request validation is done using <a href="https://fluentvalidation.net/">FluentValidation</a> rules. FastEndpoints uses a customized version of the fluentvalidations library <em>(which is allowed by it's apache v2 license)</em> but the api for the end user is the same. please refer to the fluentvalidations website if you haven't used it before. the built-in validation is provided by the <code>FastEndpoints.Validation</code> package. make sure to import it first <em>(or add a global using statement in program.cs)</em> before writing any validators.</p>
+<p>request validation is done using <a href="https://fluentvalidation.net/">FluentValidation</a> rules. please refer to the FluentValidation website if you haven't used it before. just make sure to import it first <em>(or add a <code>global using FluentValidation;</code> in program.cs)</em> before writing any validators. you don't need to install the FluentValidation package as it's automatically brought in by FastEndpoints.</p>
+<p>simply write your validators by inheriting the <code>Validator&lt;TRequest&gt;</code> base class like below. you don't need to register your validators with the DI container. that is automatically taken care of by FastEndpoints.</p>
 <p><strong>request dto</strong></p>
 <pre><code class="lang-csharp">public class CreateUserRequest
 {
@@ -103,9 +104,7 @@
 }
 </code></pre>
 <p><strong>validator</strong></p>
-<pre><code class="lang-csharp">using FastEndpoints.Validation;
-
-public class MyValidator : Validator&lt;CreateUserRequest&gt;
+<pre><code class="lang-csharp">public class MyValidator : Validator&lt;CreateUserRequest&gt;
 {
     public MyValidator()
     {
@@ -148,7 +147,7 @@ public class MyValidator : Validator&lt;CreateUserRequest&gt;
     }
 }
 </code></pre>
-<p>doing so will not send an automatic error response to the client and your handler will be executed. you can check the validation status in your handler by looking at the <code>ValidationFailures</code> property of the handler like so:</p>
+<p>doing so will not send an automatic error response to the client and your handler will be executed. you can check the validation status by looking at the <code>ValidationFailures</code> property of the handler like so:</p>
 <pre><code class="lang-csharp">public override async Task HandleAsync(CreateUserRequest req, CancellationToken ct)
 {
     if (ValidationFailed)

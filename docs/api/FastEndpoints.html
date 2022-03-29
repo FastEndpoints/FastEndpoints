@@ -126,7 +126,8 @@
       <section><p>a class used for providing a textual description about an endpoint for swagger</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.EndpointSummary-1.html">EndpointSummary&lt;TRequest&gt;</a></h4>
-      <section></section>
+      <section><p>a class used for providing a textual description about an endpoint for swagger</p>
+</section>
       <h4><a class="xref" href="FastEndpoints.EndpointWithMapping-3.html">EndpointWithMapping&lt;TRequest, TResponse, TEntity&gt;</a></h4>
       <section><p>use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity.</p>
 </section>
@@ -167,8 +168,25 @@ this is a shorter alias for the [FromClaim] attribute.</p>
       <h4><a class="xref" href="FastEndpoints.HasPermissionAttribute.html">HasPermissionAttribute</a></h4>
       <section><p>boolean properties decorated with this attribute will have their values set to true if the current principal has the specified permission.</p>
 </section>
+      <h4><a class="xref" href="FastEndpoints.HttpAttribute.html">HttpAttribute</a></h4>
+      <section></section>
       <h4><a class="xref" href="FastEndpoints.HttpClientExtensions.html">HttpClientExtensions</a></h4>
       <section><p>a set of extensions to the httpclient in order to facilitate route-less integration testing</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.HttpDeleteAttribute.html">HttpDeleteAttribute</a></h4>
+      <section><p>use this attribute to specify a DELETE route for an endpoint</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.HttpGetAttribute.html">HttpGetAttribute</a></h4>
+      <section><p>use this attribute to specify a GET route for an endpoint</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.HttpPatchAttribute.html">HttpPatchAttribute</a></h4>
+      <section><p>use this attribute to specify a PATCH route for an endpoint</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.HttpPostAttribute.html">HttpPostAttribute</a></h4>
+      <section><p>use this attribute to specify a POST route for an endpoint</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.HttpPutAttribute.html">HttpPutAttribute</a></h4>
+      <section><p>use this attribute to specify a PUT route for an endpoint</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.HttpResponseExtensions.html">HttpResponseExtensions</a></h4>
       <section></section>
@@ -182,8 +200,15 @@ this is a shorter alias for the [FromClaim] attribute.</p>
       <h4><a class="xref" href="FastEndpoints.PlainTextRequest.html">PlainTextRequest</a></h4>
       <section><p>use this dto if you need to model bind the raw content body of an incoming http request or you may implement the IPlainTextRequest interface on your own request dto.</p>
 </section>
+      <h4><a class="xref" href="FastEndpoints.QueryParamAttribute.html">QueryParamAttribute</a></h4>
+      <section><p>properties decorated with this attribute will have a corresponding request parameter added to the swagger schema</p>
+</section>
       <h4><a class="xref" href="FastEndpoints.RoutingOptions.html">RoutingOptions</a></h4>
       <section><p>routing options for the endpoints</p>
+</section>
+      <h4><a class="xref" href="FastEndpoints.Validator-1.html">Validator&lt;TRequest&gt;</a></h4>
+      <section><p>inherit from this base class to define your dto validators</p>
+<p>HINT: validators are registered as singletons. i.e. the same validator instance is used to validate each request for best performance. hance, do not maintain state in your validators.</p>
 </section>
       <h4><a class="xref" href="FastEndpoints.VersioningOptions.html">VersioningOptions</a></h4>
       <section><p>global endpoint versioning options</p>

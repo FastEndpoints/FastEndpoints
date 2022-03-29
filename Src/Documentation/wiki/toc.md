@@ -9,6 +9,7 @@
 # [Response Caching](Response-Caching.md)
 # [Pre/Post Processors](Pre-Post-Processors.md)
 # [Event Notifications](Event-Notifications.md)
+# [Server-Sent-Events](Server-Sent-Events.md)
 # [Exception Handler](Exception-Handler.md)
 # [Integration/Unit Testing](Integration-Testing.md)
 # [Misc. Conveniences](Misc-Conveniences.md)

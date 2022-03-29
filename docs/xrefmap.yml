@@ -71,6 +71,22 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.BaseEndpoint.ValidationFailures
   nameWithType: BaseEndpoint.ValidationFailures
+- uid: FastEndpoints.BaseEndpoint.Verbs(FastEndpoints.Http[])
+  name: Verbs(Http[])
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Verbs_FastEndpoints_Http___
+  commentId: M:FastEndpoints.BaseEndpoint.Verbs(FastEndpoints.Http[])
+  name.vb: Verbs(Http())
+  fullName: FastEndpoints.BaseEndpoint.Verbs(FastEndpoints.Http[])
+  fullName.vb: FastEndpoints.BaseEndpoint.Verbs(FastEndpoints.Http())
+  nameWithType: BaseEndpoint.Verbs(Http[])
+  nameWithType.vb: BaseEndpoint.Verbs(Http())
+- uid: FastEndpoints.BaseEndpoint.Verbs*
+  name: Verbs
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Verbs_
+  commentId: Overload:FastEndpoints.BaseEndpoint.Verbs
+  isSpec: "True"
+  fullName: FastEndpoints.BaseEndpoint.Verbs
+  nameWithType: BaseEndpoint.Verbs
 - uid: FastEndpoints.BindFromAttribute
   name: BindFromAttribute
   href: api/FastEndpoints.BindFromAttribute.html
@@ -440,24 +456,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Delete
   nameWithType: Endpoint<TRequest, TResponse>.Delete
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Delete
-- uid: FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
-  name: Describe(Action<RouteHandlerBuilder>)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Describe_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__
-  commentId: M:FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
-  name.vb: Describe(Action(Of RouteHandlerBuilder))
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Describe(Action<Microsoft.AspNetCore.Builder.RouteHandlerBuilder>)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe(Action(Of Microsoft.AspNetCore.Builder.RouteHandlerBuilder))
-  nameWithType: Endpoint<TRequest, TResponse>.Describe(Action<RouteHandlerBuilder>)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Describe(Action(Of RouteHandlerBuilder))
-- uid: FastEndpoints.Endpoint`2.Describe*
-  name: Describe
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Describe_
-  commentId: Overload:FastEndpoints.Endpoint`2.Describe
-  isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Describe
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Describe
-  nameWithType: Endpoint<TRequest, TResponse>.Describe
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Describe
 - uid: FastEndpoints.Endpoint`2.Description(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder},System.Boolean)
   name: Description(Action<RouteHandlerBuilder>, Boolean)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Description_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__System_Boolean_
@@ -476,6 +474,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Description
   nameWithType: Endpoint<TRequest, TResponse>.Description
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Description
+- uid: FastEndpoints.Endpoint`2.DontAutoTag
+  name: DontAutoTag()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontAutoTag
+  commentId: M:FastEndpoints.Endpoint`2.DontAutoTag
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.DontAutoTag()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).DontAutoTag()
+  nameWithType: Endpoint<TRequest, TResponse>.DontAutoTag()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).DontAutoTag()
+- uid: FastEndpoints.Endpoint`2.DontAutoTag*
+  name: DontAutoTag
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontAutoTag_
+  commentId: Overload:FastEndpoints.Endpoint`2.DontAutoTag
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.DontAutoTag
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).DontAutoTag
+  nameWithType: Endpoint<TRequest, TResponse>.DontAutoTag
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).DontAutoTag
 - uid: FastEndpoints.Endpoint`2.DontThrowIfValidationFails
   name: DontThrowIfValidationFails()
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_DontThrowIfValidationFails
@@ -946,6 +961,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Put
   nameWithType: Endpoint<TRequest, TResponse>.Put
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Put
+- uid: FastEndpoints.Endpoint`2.Query*
+  name: Query
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Query_
+  commentId: Overload:FastEndpoints.Endpoint`2.Query
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Query
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Query
+  nameWithType: Endpoint<TRequest, TResponse>.Query
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Query
+- uid: FastEndpoints.Endpoint`2.Query``1(System.String,System.Boolean)
+  name: Query<T>(String, Boolean)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Query__1_System_String_System_Boolean_
+  commentId: M:FastEndpoints.Endpoint`2.Query``1(System.String,System.Boolean)
+  name.vb: Query(Of T)(String, Boolean)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Query<T>(System.String, System.Boolean)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Query(Of T)(System.String, System.Boolean)
+  nameWithType: Endpoint<TRequest, TResponse>.Query<T>(String, Boolean)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Query(Of T)(String, Boolean)
 - uid: FastEndpoints.Endpoint`2.Resolve(Type)
   name: Resolve(Type)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Resolve_Type_
@@ -1207,6 +1240,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendErrorsAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendErrorsAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendErrorsAsync
+- uid: FastEndpoints.Endpoint`2.SendEventStream*
+  name: SendEventStream
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEventStream_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendEventStream
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEventStream
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEventStream
+  nameWithType: Endpoint<TRequest, TResponse>.SendEventStream
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEventStream
+- uid: FastEndpoints.Endpoint`2.SendEventStream``1(System.String,IAsyncEnumerable{``0},CancellationToken)
+  name: SendEventStream<T>(String, IAsyncEnumerable<T>, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEventStream__1_System_String_IAsyncEnumerable___0__CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendEventStream``1(System.String,IAsyncEnumerable{``0},CancellationToken)
+  name.vb: SendEventStream(Of T)(String, IAsyncEnumerable(Of T), CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEventStream<T>(System.String, IAsyncEnumerable<T>, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEventStream(Of T)(System.String, IAsyncEnumerable(Of T), CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendEventStream<T>(String, IAsyncEnumerable<T>, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEventStream(Of T)(String, IAsyncEnumerable(Of T), CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
   name: SendFileAsync(FileInfo, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
@@ -1379,15 +1430,15 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SerializerContext
   nameWithType: Endpoint<TRequest, TResponse>.SerializerContext
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SerializerContext
-- uid: FastEndpoints.Endpoint`2.SerializerContext``1
-  name: SerializerContext<TContext>()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SerializerContext__1
-  commentId: M:FastEndpoints.Endpoint`2.SerializerContext``1
-  name.vb: SerializerContext(Of TContext)()
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SerializerContext<TContext>()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SerializerContext(Of TContext)()
-  nameWithType: Endpoint<TRequest, TResponse>.SerializerContext<TContext>()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SerializerContext(Of TContext)()
+- uid: FastEndpoints.Endpoint`2.SerializerContext``1(``0)
+  name: SerializerContext<TContext>(TContext)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SerializerContext__1___0_
+  commentId: M:FastEndpoints.Endpoint`2.SerializerContext``1(``0)
+  name.vb: SerializerContext(Of TContext)(TContext)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SerializerContext<TContext>(TContext)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SerializerContext(Of TContext)(TContext)
+  nameWithType: Endpoint<TRequest, TResponse>.SerializerContext<TContext>(TContext)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SerializerContext(Of TContext)(TContext)
 - uid: FastEndpoints.Endpoint`2.Summary(Action{FastEndpoints.EndpointSummary{`0}})
   name: Summary(Action<EndpointSummary<TRequest>>)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_Action_FastEndpoints_EndpointSummary__0___
@@ -1414,15 +1465,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Summary(FastEndpoints.EndpointSummary)
   nameWithType: Endpoint<TRequest, TResponse>.Summary(EndpointSummary)
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Summary(EndpointSummary)
-- uid: FastEndpoints.Endpoint`2.Summary(System.String,System.ValueTuple{System.Int32,System.String}[])
-  name: Summary(String, (Int32 statusCode, String statusCodeDescription)[])
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_System_String_System_ValueTuple_System_Int32_System_String____
-  commentId: M:FastEndpoints.Endpoint`2.Summary(System.String,System.ValueTuple{System.Int32,System.String}[])
-  name.vb: Summary(String, (statusCode As Int32, statusCodeDescription As String)(Of Int32, String)())
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Summary(System.String, System.ValueTuple<System.Int32, System.String>[])
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Summary(System.String, System.ValueTuple(Of System.Int32, System.String)())
-  nameWithType: Endpoint<TRequest, TResponse>.Summary(String, (Int32 statusCode, String statusCodeDescription)[])
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Summary(String, (statusCode As Int32, statusCodeDescription As String)(Of Int32, String)())
 - uid: FastEndpoints.Endpoint`2.Summary*
   name: Summary
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Summary_
@@ -1716,6 +1758,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointDefinition.ClaimTypes
   nameWithType: EndpointDefinition.ClaimTypes
+- uid: FastEndpoints.EndpointDefinition.DontAutoTag
+  name: DontAutoTag
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_DontAutoTag
+  commentId: P:FastEndpoints.EndpointDefinition.DontAutoTag
+  fullName: FastEndpoints.EndpointDefinition.DontAutoTag
+  nameWithType: EndpointDefinition.DontAutoTag
+- uid: FastEndpoints.EndpointDefinition.DontAutoTag*
+  name: DontAutoTag
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_DontAutoTag_
+  commentId: Overload:FastEndpoints.EndpointDefinition.DontAutoTag
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.DontAutoTag
+  nameWithType: EndpointDefinition.DontAutoTag
 - uid: FastEndpoints.EndpointDefinition.Permissions
   name: Permissions
   href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Permissions
@@ -2184,13 +2239,13 @@ references:
   commentId: M:FastEndpoints.ErrorResponse.#ctor
   fullName: FastEndpoints.ErrorResponse.ErrorResponse()
   nameWithType: ErrorResponse.ErrorResponse()
-- uid: FastEndpoints.ErrorResponse.#ctor(List{ValidationFailure},System.Int32)
+- uid: FastEndpoints.ErrorResponse.#ctor(List{FluentValidation.Results.ValidationFailure},System.Int32)
   name: ErrorResponse(List<ValidationFailure>, Int32)
-  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_List_ValidationFailure__System_Int32_
-  commentId: M:FastEndpoints.ErrorResponse.#ctor(List{ValidationFailure},System.Int32)
+  href: api/FastEndpoints.ErrorResponse.html#FastEndpoints_ErrorResponse__ctor_List_FluentValidation_Results_ValidationFailure__System_Int32_
+  commentId: M:FastEndpoints.ErrorResponse.#ctor(List{FluentValidation.Results.ValidationFailure},System.Int32)
   name.vb: ErrorResponse(List(Of ValidationFailure), Int32)
-  fullName: FastEndpoints.ErrorResponse.ErrorResponse(List<ValidationFailure>, System.Int32)
-  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(List(Of ValidationFailure), System.Int32)
+  fullName: FastEndpoints.ErrorResponse.ErrorResponse(List<FluentValidation.Results.ValidationFailure>, System.Int32)
+  fullName.vb: FastEndpoints.ErrorResponse.ErrorResponse(List(Of FluentValidation.Results.ValidationFailure), System.Int32)
   nameWithType: ErrorResponse.ErrorResponse(List<ValidationFailure>, Int32)
   nameWithType.vb: ErrorResponse.ErrorResponse(List(Of ValidationFailure), Int32)
 - uid: FastEndpoints.ErrorResponse.#ctor*
@@ -2622,6 +2677,25 @@ references:
   commentId: F:FastEndpoints.Http.PUT
   fullName: FastEndpoints.Http.PUT
   nameWithType: Http.PUT
+- uid: FastEndpoints.HttpAttribute
+  name: HttpAttribute
+  href: api/FastEndpoints.HttpAttribute.html
+  commentId: T:FastEndpoints.HttpAttribute
+  fullName: FastEndpoints.HttpAttribute
+  nameWithType: HttpAttribute
+- uid: FastEndpoints.HttpAttribute.#ctor(FastEndpoints.Http,System.String)
+  name: HttpAttribute(Http, String)
+  href: api/FastEndpoints.HttpAttribute.html#FastEndpoints_HttpAttribute__ctor_FastEndpoints_Http_System_String_
+  commentId: M:FastEndpoints.HttpAttribute.#ctor(FastEndpoints.Http,System.String)
+  fullName: FastEndpoints.HttpAttribute.HttpAttribute(FastEndpoints.Http, System.String)
+  nameWithType: HttpAttribute.HttpAttribute(Http, String)
+- uid: FastEndpoints.HttpAttribute.#ctor*
+  name: HttpAttribute
+  href: api/FastEndpoints.HttpAttribute.html#FastEndpoints_HttpAttribute__ctor_
+  commentId: Overload:FastEndpoints.HttpAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.HttpAttribute.HttpAttribute
+  nameWithType: HttpAttribute.HttpAttribute
 - uid: FastEndpoints.HttpClientExtensions
   name: HttpClientExtensions
   href: api/FastEndpoints.HttpClientExtensions.html
@@ -2757,6 +2831,101 @@ references:
   fullName.vb: FastEndpoints.HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
   nameWithType: HttpClientExtensions.PUTAsync<TEndpoint, TRequest, TResponse>(HttpClient, TRequest)
   nameWithType.vb: HttpClientExtensions.PUTAsync(Of TEndpoint, TRequest, TResponse)(HttpClient, TRequest)
+- uid: FastEndpoints.HttpDeleteAttribute
+  name: HttpDeleteAttribute
+  href: api/FastEndpoints.HttpDeleteAttribute.html
+  commentId: T:FastEndpoints.HttpDeleteAttribute
+  fullName: FastEndpoints.HttpDeleteAttribute
+  nameWithType: HttpDeleteAttribute
+- uid: FastEndpoints.HttpDeleteAttribute.#ctor(System.String)
+  name: HttpDeleteAttribute(String)
+  href: api/FastEndpoints.HttpDeleteAttribute.html#FastEndpoints_HttpDeleteAttribute__ctor_System_String_
+  commentId: M:FastEndpoints.HttpDeleteAttribute.#ctor(System.String)
+  fullName: FastEndpoints.HttpDeleteAttribute.HttpDeleteAttribute(System.String)
+  nameWithType: HttpDeleteAttribute.HttpDeleteAttribute(String)
+- uid: FastEndpoints.HttpDeleteAttribute.#ctor*
+  name: HttpDeleteAttribute
+  href: api/FastEndpoints.HttpDeleteAttribute.html#FastEndpoints_HttpDeleteAttribute__ctor_
+  commentId: Overload:FastEndpoints.HttpDeleteAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.HttpDeleteAttribute.HttpDeleteAttribute
+  nameWithType: HttpDeleteAttribute.HttpDeleteAttribute
+- uid: FastEndpoints.HttpGetAttribute
+  name: HttpGetAttribute
+  href: api/FastEndpoints.HttpGetAttribute.html
+  commentId: T:FastEndpoints.HttpGetAttribute
+  fullName: FastEndpoints.HttpGetAttribute
+  nameWithType: HttpGetAttribute
+- uid: FastEndpoints.HttpGetAttribute.#ctor(System.String)
+  name: HttpGetAttribute(String)
+  href: api/FastEndpoints.HttpGetAttribute.html#FastEndpoints_HttpGetAttribute__ctor_System_String_
+  commentId: M:FastEndpoints.HttpGetAttribute.#ctor(System.String)
+  fullName: FastEndpoints.HttpGetAttribute.HttpGetAttribute(System.String)
+  nameWithType: HttpGetAttribute.HttpGetAttribute(String)
+- uid: FastEndpoints.HttpGetAttribute.#ctor*
+  name: HttpGetAttribute
+  href: api/FastEndpoints.HttpGetAttribute.html#FastEndpoints_HttpGetAttribute__ctor_
+  commentId: Overload:FastEndpoints.HttpGetAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.HttpGetAttribute.HttpGetAttribute
+  nameWithType: HttpGetAttribute.HttpGetAttribute
+- uid: FastEndpoints.HttpPatchAttribute
+  name: HttpPatchAttribute
+  href: api/FastEndpoints.HttpPatchAttribute.html
+  commentId: T:FastEndpoints.HttpPatchAttribute
+  fullName: FastEndpoints.HttpPatchAttribute
+  nameWithType: HttpPatchAttribute
+- uid: FastEndpoints.HttpPatchAttribute.#ctor(System.String)
+  name: HttpPatchAttribute(String)
+  href: api/FastEndpoints.HttpPatchAttribute.html#FastEndpoints_HttpPatchAttribute__ctor_System_String_
+  commentId: M:FastEndpoints.HttpPatchAttribute.#ctor(System.String)
+  fullName: FastEndpoints.HttpPatchAttribute.HttpPatchAttribute(System.String)
+  nameWithType: HttpPatchAttribute.HttpPatchAttribute(String)
+- uid: FastEndpoints.HttpPatchAttribute.#ctor*
+  name: HttpPatchAttribute
+  href: api/FastEndpoints.HttpPatchAttribute.html#FastEndpoints_HttpPatchAttribute__ctor_
+  commentId: Overload:FastEndpoints.HttpPatchAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.HttpPatchAttribute.HttpPatchAttribute
+  nameWithType: HttpPatchAttribute.HttpPatchAttribute
+- uid: FastEndpoints.HttpPostAttribute
+  name: HttpPostAttribute
+  href: api/FastEndpoints.HttpPostAttribute.html
+  commentId: T:FastEndpoints.HttpPostAttribute
+  fullName: FastEndpoints.HttpPostAttribute
+  nameWithType: HttpPostAttribute
+- uid: FastEndpoints.HttpPostAttribute.#ctor(System.String)
+  name: HttpPostAttribute(String)
+  href: api/FastEndpoints.HttpPostAttribute.html#FastEndpoints_HttpPostAttribute__ctor_System_String_
+  commentId: M:FastEndpoints.HttpPostAttribute.#ctor(System.String)
+  fullName: FastEndpoints.HttpPostAttribute.HttpPostAttribute(System.String)
+  nameWithType: HttpPostAttribute.HttpPostAttribute(String)
+- uid: FastEndpoints.HttpPostAttribute.#ctor*
+  name: HttpPostAttribute
+  href: api/FastEndpoints.HttpPostAttribute.html#FastEndpoints_HttpPostAttribute__ctor_
+  commentId: Overload:FastEndpoints.HttpPostAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.HttpPostAttribute.HttpPostAttribute
+  nameWithType: HttpPostAttribute.HttpPostAttribute
+- uid: FastEndpoints.HttpPutAttribute
+  name: HttpPutAttribute
+  href: api/FastEndpoints.HttpPutAttribute.html
+  commentId: T:FastEndpoints.HttpPutAttribute
+  fullName: FastEndpoints.HttpPutAttribute
+  nameWithType: HttpPutAttribute
+- uid: FastEndpoints.HttpPutAttribute.#ctor(System.String)
+  name: HttpPutAttribute(String)
+  href: api/FastEndpoints.HttpPutAttribute.html#FastEndpoints_HttpPutAttribute__ctor_System_String_
+  commentId: M:FastEndpoints.HttpPutAttribute.#ctor(System.String)
+  fullName: FastEndpoints.HttpPutAttribute.HttpPutAttribute(System.String)
+  nameWithType: HttpPutAttribute.HttpPutAttribute(String)
+- uid: FastEndpoints.HttpPutAttribute.#ctor*
+  name: HttpPutAttribute
+  href: api/FastEndpoints.HttpPutAttribute.html#FastEndpoints_HttpPutAttribute__ctor_
+  commentId: Overload:FastEndpoints.HttpPutAttribute.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.HttpPutAttribute.HttpPutAttribute
+  nameWithType: HttpPutAttribute.HttpPutAttribute
 - uid: FastEndpoints.HttpResponseExtensions
   name: HttpResponseExtensions
   href: api/FastEndpoints.HttpResponseExtensions.html
@@ -2830,13 +2999,13 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendEmptyJsonObject
   nameWithType: HttpResponseExtensions.SendEmptyJsonObject
-- uid: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},System.Int32,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{FluentValidation.Results.ValidationFailure},System.Int32,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
   name: SendErrorsAsync(HttpResponse, List<ValidationFailure>, Int32, JsonSerializerContext, CancellationToken)
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendErrorsAsync_Microsoft_AspNetCore_Http_HttpResponse_List_ValidationFailure__System_Int32_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_
-  commentId: M:FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{ValidationFailure},System.Int32,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendErrorsAsync_Microsoft_AspNetCore_Http_HttpResponse_List_FluentValidation_Results_ValidationFailure__System_Int32_System_Text_Json_Serialization_JsonSerializerContext_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse,List{FluentValidation.Results.ValidationFailure},System.Int32,System.Text.Json.Serialization.JsonSerializerContext,CancellationToken)
   name.vb: SendErrorsAsync(HttpResponse, List(Of ValidationFailure), Int32, JsonSerializerContext, CancellationToken)
-  fullName: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List<ValidationFailure>, System.Int32, System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
-  fullName.vb: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List(Of ValidationFailure), System.Int32, System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List<FluentValidation.Results.ValidationFailure>, System.Int32, System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendErrorsAsync(Microsoft.AspNetCore.Http.HttpResponse, List(Of FluentValidation.Results.ValidationFailure), System.Int32, System.Text.Json.Serialization.JsonSerializerContext, CancellationToken)
   nameWithType: HttpResponseExtensions.SendErrorsAsync(HttpResponse, List<ValidationFailure>, Int32, JsonSerializerContext, CancellationToken)
   nameWithType.vb: HttpResponseExtensions.SendErrorsAsync(HttpResponse, List(Of ValidationFailure), Int32, JsonSerializerContext, CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendErrorsAsync*
@@ -2846,6 +3015,22 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendErrorsAsync
   nameWithType: HttpResponseExtensions.SendErrorsAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendEventStream*
+  name: SendEventStream
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendEventStream_
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendEventStream
+  isSpec: "True"
+  fullName: FastEndpoints.HttpResponseExtensions.SendEventStream
+  nameWithType: HttpResponseExtensions.SendEventStream
+- uid: FastEndpoints.HttpResponseExtensions.SendEventStream``1(Microsoft.AspNetCore.Http.HttpResponse,System.String,IAsyncEnumerable{``0},CancellationToken)
+  name: SendEventStream<T>(HttpResponse, String, IAsyncEnumerable<T>, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendEventStream__1_Microsoft_AspNetCore_Http_HttpResponse_System_String_IAsyncEnumerable___0__CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendEventStream``1(Microsoft.AspNetCore.Http.HttpResponse,System.String,IAsyncEnumerable{``0},CancellationToken)
+  name.vb: SendEventStream(Of T)(HttpResponse, String, IAsyncEnumerable(Of T), CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendEventStream<T>(Microsoft.AspNetCore.Http.HttpResponse, System.String, IAsyncEnumerable<T>, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendEventStream(Of T)(Microsoft.AspNetCore.Http.HttpResponse, System.String, IAsyncEnumerable(Of T), CancellationToken)
+  nameWithType: HttpResponseExtensions.SendEventStream<T>(HttpResponse, String, IAsyncEnumerable<T>, CancellationToken)
+  nameWithType.vb: HttpResponseExtensions.SendEventStream(Of T)(HttpResponse, String, IAsyncEnumerable(Of T), CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
   name: SendFileAsync(HttpResponse, FileInfo, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendFileAsync_Microsoft_AspNetCore_Http_HttpResponse_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
@@ -3012,13 +3197,13 @@ references:
   fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse)
   nameWithType: IPostProcessor<TRequest, TResponse>
   nameWithType.vb: IPostProcessor(Of TRequest, TResponse)
-- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
+- uid: FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FluentValidation.Results.ValidationFailure},CancellationToken)
   name: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
-  href: api/FastEndpoints.IPostProcessor-2.html#FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_ValidationFailure__CancellationToken_
-  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{ValidationFailure},CancellationToken)
+  href: api/FastEndpoints.IPostProcessor-2.html#FastEndpoints_IPostProcessor_2_PostProcessAsync__0__1_Microsoft_AspNetCore_Http_HttpContext_IReadOnlyCollection_FluentValidation_Results_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.IPostProcessor`2.PostProcessAsync(`0,`1,Microsoft.AspNetCore.Http.HttpContext,IReadOnlyCollection{FluentValidation.Results.ValidationFailure},CancellationToken)
   name.vb: PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
-  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
-  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection<FluentValidation.Results.ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, Microsoft.AspNetCore.Http.HttpContext, IReadOnlyCollection(Of FluentValidation.Results.ValidationFailure), CancellationToken)
   nameWithType: IPostProcessor<TRequest, TResponse>.PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection<ValidationFailure>, CancellationToken)
   nameWithType.vb: IPostProcessor(Of TRequest, TResponse).PostProcessAsync(TRequest, TResponse, HttpContext, IReadOnlyCollection(Of ValidationFailure), CancellationToken)
 - uid: FastEndpoints.IPostProcessor`2.PostProcessAsync*
@@ -3039,13 +3224,13 @@ references:
   fullName.vb: FastEndpoints.IPreProcessor(Of TRequest)
   nameWithType: IPreProcessor<TRequest>
   nameWithType.vb: IPreProcessor(Of TRequest)
-- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+- uid: FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FluentValidation.Results.ValidationFailure},CancellationToken)
   name: PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
-  href: api/FastEndpoints.IPreProcessor-1.html#FastEndpoints_IPreProcessor_1_PreProcessAsync__0_Microsoft_AspNetCore_Http_HttpContext_List_ValidationFailure__CancellationToken_
-  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{ValidationFailure},CancellationToken)
+  href: api/FastEndpoints.IPreProcessor-1.html#FastEndpoints_IPreProcessor_1_PreProcessAsync__0_Microsoft_AspNetCore_Http_HttpContext_List_FluentValidation_Results_ValidationFailure__CancellationToken_
+  commentId: M:FastEndpoints.IPreProcessor`1.PreProcessAsync(`0,Microsoft.AspNetCore.Http.HttpContext,List{FluentValidation.Results.ValidationFailure},CancellationToken)
   name.vb: PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
-  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<ValidationFailure>, CancellationToken)
-  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of ValidationFailure), CancellationToken)
+  fullName: FastEndpoints.IPreProcessor<TRequest>.PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List<FluentValidation.Results.ValidationFailure>, CancellationToken)
+  fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync(TRequest, Microsoft.AspNetCore.Http.HttpContext, List(Of FluentValidation.Results.ValidationFailure), CancellationToken)
   nameWithType: IPreProcessor<TRequest>.PreProcessAsync(TRequest, HttpContext, List<ValidationFailure>, CancellationToken)
   nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync(TRequest, HttpContext, List(Of ValidationFailure), CancellationToken)
 - uid: FastEndpoints.IPreProcessor`1.PreProcessAsync*
@@ -3296,6 +3481,12 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.PlainTextRequest.Content
   nameWithType: PlainTextRequest.Content
+- uid: FastEndpoints.QueryParamAttribute
+  name: QueryParamAttribute
+  href: api/FastEndpoints.QueryParamAttribute.html
+  commentId: T:FastEndpoints.QueryParamAttribute
+  fullName: FastEndpoints.QueryParamAttribute
+  nameWithType: QueryParamAttribute
 - uid: FastEndpoints.RoutingOptions
   name: RoutingOptions
   href: api/FastEndpoints.RoutingOptions.html
@@ -3678,65 +3869,65 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException
   nameWithType: ValidationFailureException.ValidationFailureException
-- uid: FastEndpoints.Validation.Validator`1
+- uid: FastEndpoints.Validator`1
   name: Validator<TRequest>
-  href: api/FastEndpoints.Validation.Validator-1.html
-  commentId: T:FastEndpoints.Validation.Validator`1
+  href: api/FastEndpoints.Validator-1.html
+  commentId: T:FastEndpoints.Validator`1
   name.vb: Validator(Of TRequest)
-  fullName: FastEndpoints.Validation.Validator<TRequest>
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest)
+  fullName: FastEndpoints.Validator<TRequest>
+  fullName.vb: FastEndpoints.Validator(Of TRequest)
   nameWithType: Validator<TRequest>
   nameWithType.vb: Validator(Of TRequest)
-- uid: FastEndpoints.Validation.Validator`1.Resolve(Type)
+- uid: FastEndpoints.Validator`1.Resolve(Type)
   name: Resolve(Type)
-  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_Resolve_Type_
-  commentId: M:FastEndpoints.Validation.Validator`1.Resolve(Type)
-  fullName: FastEndpoints.Validation.Validator<TRequest>.Resolve(Type)
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve(Type)
+  href: api/FastEndpoints.Validator-1.html#FastEndpoints_Validator_1_Resolve_Type_
+  commentId: M:FastEndpoints.Validator`1.Resolve(Type)
+  fullName: FastEndpoints.Validator<TRequest>.Resolve(Type)
+  fullName.vb: FastEndpoints.Validator(Of TRequest).Resolve(Type)
   nameWithType: Validator<TRequest>.Resolve(Type)
   nameWithType.vb: Validator(Of TRequest).Resolve(Type)
-- uid: FastEndpoints.Validation.Validator`1.Resolve*
+- uid: FastEndpoints.Validator`1.Resolve*
   name: Resolve
-  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_Resolve_
-  commentId: Overload:FastEndpoints.Validation.Validator`1.Resolve
+  href: api/FastEndpoints.Validator-1.html#FastEndpoints_Validator_1_Resolve_
+  commentId: Overload:FastEndpoints.Validator`1.Resolve
   isSpec: "True"
-  fullName: FastEndpoints.Validation.Validator<TRequest>.Resolve
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve
+  fullName: FastEndpoints.Validator<TRequest>.Resolve
+  fullName.vb: FastEndpoints.Validator(Of TRequest).Resolve
   nameWithType: Validator<TRequest>.Resolve
   nameWithType.vb: Validator(Of TRequest).Resolve
-- uid: FastEndpoints.Validation.Validator`1.Resolve``1
+- uid: FastEndpoints.Validator`1.Resolve``1
   name: Resolve<TService>()
-  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_Resolve__1
-  commentId: M:FastEndpoints.Validation.Validator`1.Resolve``1
+  href: api/FastEndpoints.Validator-1.html#FastEndpoints_Validator_1_Resolve__1
+  commentId: M:FastEndpoints.Validator`1.Resolve``1
   name.vb: Resolve(Of TService)()
-  fullName: FastEndpoints.Validation.Validator<TRequest>.Resolve<TService>()
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).Resolve(Of TService)()
+  fullName: FastEndpoints.Validator<TRequest>.Resolve<TService>()
+  fullName.vb: FastEndpoints.Validator(Of TRequest).Resolve(Of TService)()
   nameWithType: Validator<TRequest>.Resolve<TService>()
   nameWithType.vb: Validator(Of TRequest).Resolve(Of TService)()
-- uid: FastEndpoints.Validation.Validator`1.TryResolve(Type)
+- uid: FastEndpoints.Validator`1.TryResolve(Type)
   name: TryResolve(Type)
-  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_TryResolve_Type_
-  commentId: M:FastEndpoints.Validation.Validator`1.TryResolve(Type)
-  fullName: FastEndpoints.Validation.Validator<TRequest>.TryResolve(Type)
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve(Type)
+  href: api/FastEndpoints.Validator-1.html#FastEndpoints_Validator_1_TryResolve_Type_
+  commentId: M:FastEndpoints.Validator`1.TryResolve(Type)
+  fullName: FastEndpoints.Validator<TRequest>.TryResolve(Type)
+  fullName.vb: FastEndpoints.Validator(Of TRequest).TryResolve(Type)
   nameWithType: Validator<TRequest>.TryResolve(Type)
   nameWithType.vb: Validator(Of TRequest).TryResolve(Type)
-- uid: FastEndpoints.Validation.Validator`1.TryResolve*
+- uid: FastEndpoints.Validator`1.TryResolve*
   name: TryResolve
-  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_TryResolve_
-  commentId: Overload:FastEndpoints.Validation.Validator`1.TryResolve
+  href: api/FastEndpoints.Validator-1.html#FastEndpoints_Validator_1_TryResolve_
+  commentId: Overload:FastEndpoints.Validator`1.TryResolve
   isSpec: "True"
-  fullName: FastEndpoints.Validation.Validator<TRequest>.TryResolve
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve
+  fullName: FastEndpoints.Validator<TRequest>.TryResolve
+  fullName.vb: FastEndpoints.Validator(Of TRequest).TryResolve
   nameWithType: Validator<TRequest>.TryResolve
   nameWithType.vb: Validator(Of TRequest).TryResolve
-- uid: FastEndpoints.Validation.Validator`1.TryResolve``1
+- uid: FastEndpoints.Validator`1.TryResolve``1
   name: TryResolve<TService>()
-  href: api/FastEndpoints.Validation.Validator-1.html#FastEndpoints_Validation_Validator_1_TryResolve__1
-  commentId: M:FastEndpoints.Validation.Validator`1.TryResolve``1
+  href: api/FastEndpoints.Validator-1.html#FastEndpoints_Validator_1_TryResolve__1
+  commentId: M:FastEndpoints.Validator`1.TryResolve``1
   name.vb: TryResolve(Of TService)()
-  fullName: FastEndpoints.Validation.Validator<TRequest>.TryResolve<TService>()
-  fullName.vb: FastEndpoints.Validation.Validator(Of TRequest).TryResolve(Of TService)()
+  fullName: FastEndpoints.Validator<TRequest>.TryResolve<TService>()
+  fullName.vb: FastEndpoints.Validator(Of TRequest).TryResolve(Of TService)()
   nameWithType: Validator<TRequest>.TryResolve<TService>()
   nameWithType.vb: Validator(Of TRequest).TryResolve(Of TService)()
 - uid: FastEndpoints.VersioningOptions

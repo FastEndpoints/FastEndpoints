@@ -287,7 +287,7 @@ public class UpdateAddress : Endpoint<RequestModel, ResponseModel>
     public override void Configure()
     {
         Post("user/address");
-        SerializerContext<UpdateAddressCtx>();
+        SerializerContext(UpdateAddressCtx.Default);
     }
 }
 ```

@@ -190,11 +190,16 @@ builder.Services.AddSwaggerDoc(s =>
 ```
 doing the above will associate each of the auth schemes with all endpoints/ swagger operations. if some of your endpoints are only using a a few, they can be specified per endpoint with the `AuthSchemes()` [endpoint method](Security.md#multiple-authentication-schemes), in which case only the relevant auth schemes will be associated with each swagger operation. for example, if you have both `ApiKey` and `Bearer` schemes enabled in swagger and an endpoint only uses `ApiKey` scheme, when you hit the `Try It Out` button in swagger ui, only api key auth prompt will be shown.
 
-## group endpoints by path segment
+## group endpoints by path segment (auto tagging)
 if you'd like to group your endpoints by a segment of the route url, simply specify an integer indicating which segment to use for tagging/grouping.
 ```csharp
 builder.Services.AddSwaggerDoc(tagIndex: 2)
 ```
+
+### overriding auto tagging
+if you have auto tagging enabled but would like to prevent a particular endpoint from being auto tagged, you can call the `DontAutoTag()` method in endpoint configuration to prevent a tag based on a path segment from being added.
+
+### manual tagging
 if you'd like to take control of the tagging behavior, simply set `tagIndex: 0` to disable auto tagging of endpoints and specify a tag for each endpoint via `Description(x => x.WithTags("xyz"))` method.
 
 ## customize swagger schema names

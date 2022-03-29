@@ -145,3 +145,18 @@ public override Task HandleAsync(CancellationToken ct)
     return Task.CompletedTask;
 }
 ```
+
+# configuring endpoints using attributes
+instead of overriding the `Configure()` method, endpoint classes can be annotated with `[HttpGet(...)]`,`[AllowAnonymous]`, and `[Authorize(...)]` attributes. advanced usage however does require overriding `Configure()`. you can only use one of these strategies for configuring endpoints. an exception will be thrown if you use both or none at all.
+
+```csharp
+[HttpPost("/my-endpoint")]
+[Authorize(Roles = "Admin,Manager")]
+public class UpdateAddress : Endpoint<MyRequest, MyResponse>
+{
+    public override async Task HandleAsync(MyRequest req, CancellationToken ct)
+    {
+        await SendAsync(new MyResponse { });
+    }
+}
+```

@@ -155,7 +155,6 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
-
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -701,38 +700,6 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   </table>
   
   
-  <a id="FastEndpoints_Endpoint_2_Describe_" data-uid="FastEndpoints.Endpoint`2.Describe*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_Describe_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__" data-uid="FastEndpoints.Endpoint`2.Describe(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})">Describe(Action&lt;RouteHandlerBuilder&gt;)</h4>
-  <div class="markdown level1 summary"><p>describe openapi metadata for this endpoint. this method clears the default Accepts/Produces metadata.</p>
-<p>
-EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
-</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Describe(Action&lt;RouteHandlerBuilder&gt; builder)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Action</span>&lt;<span class="xref">Microsoft.AspNetCore.Builder.RouteHandlerBuilder</span>&gt;</td>
-        <td><span class="parametername">builder</span></td>
-        <td><p>the route handler builder for this endpoint</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <a id="FastEndpoints_Endpoint_2_Description_" data-uid="FastEndpoints.Endpoint`2.Description*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Description_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__System_Boolean_" data-uid="FastEndpoints.Endpoint`2.Description(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder},System.Boolean)">Description(Action&lt;RouteHandlerBuilder&gt;, Boolean)</h4>
   <div class="markdown level1 summary"><p>describe openapi metadata for this endpoint. optionaly specify whether or not you want to clear the default Accepts/Produces metadata.</p>
@@ -769,6 +736,17 @@ EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
       </tr>
     </tbody>
   </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_DontAutoTag_" data-uid="FastEndpoints.Endpoint`2.DontAutoTag*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_DontAutoTag" data-uid="FastEndpoints.Endpoint`2.DontAutoTag">DontAutoTag()</h4>
+  <div class="markdown level1 summary"><p>if swagger auto tagging based on path segment is enabled, calling this method will prevent a tag from being added to this endpoint.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void DontAutoTag()</code></pre>
+  </div>
   
   
   <a id="FastEndpoints_Endpoint_2_DontThrowIfValidationFails_" data-uid="FastEndpoints.Endpoint`2.DontThrowIfValidationFails*"></a>
@@ -1452,7 +1430,6 @@ EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1549,6 +1526,74 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   </table>
   
   
+  <a id="FastEndpoints_Endpoint_2_Query_" data-uid="FastEndpoints.Endpoint`2.Query*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_Query__1_System_String_System_Boolean_" data-uid="FastEndpoints.Endpoint`2.Query``1(System.String,System.Boolean)">Query&lt;T&gt;(String, Boolean)</h4>
+  <div class="markdown level1 summary"><p>get the value of a given query parameter by specifying the resulting type and query parameter name.
+NOTE: an automatic validation error is sent to the client when value retrieval is not successful.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected T Query&lt;T&gt;(string paramName, bool isRequired = true)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">paramName</span></td>
+        <td><p>query parameter name</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">isRequired</span></td>
+        <td><p>set to false for disabling the automatic validation error</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">T</span></td>
+        <td><p>the value if retrieval is successful or null if <code data-dev-comment-type="paramref" class="paramref">isRequired</code> is set to false</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>type of the result</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_Resolve_" data-uid="FastEndpoints.Endpoint`2.Resolve*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Resolve_Type_" data-uid="FastEndpoints.Endpoint`2.Resolve(Type)">Resolve(Type)</h4>
   <div class="markdown level1 summary"><p>resolve an instance for the given type from the dependency injection container. will throw if unresolvable.</p>
@@ -1601,7 +1646,6 @@ Mode.WaitForAll return a Task that will complete only when all of the subscriber
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
-
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -2065,7 +2109,6 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
-
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -2238,6 +2281,78 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
       <tr>
         <td><span class="xref">Task</span></td>
         <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_SendEventStream_" data-uid="FastEndpoints.Endpoint`2.SendEventStream*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendEventStream__1_System_String_IAsyncEnumerable___0__CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendEventStream``1(System.String,IAsyncEnumerable{``0},CancellationToken)">SendEventStream&lt;T&gt;(String, IAsyncEnumerable&lt;T&gt;, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>start a &quot;server-sent-events&quot; data stream for the client asynchronously without blocking any threads</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected Task SendEventStream&lt;T&gt;(string eventName, IAsyncEnumerable&lt;T&gt; eventStream, CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">eventName</span></td>
+        <td><p>the name of the event stream</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">IAsyncEnumerable</span>&lt;T&gt;</td>
+        <td><span class="parametername">eventStream</span></td>
+        <td><p>an IAsyncEnumerable that is the source of the data</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token. if not specified, the <code>HttpContext.RequestAborted</code> token is used.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">T</span></td>
+        <td><p>the type of the objects being sent in the event stream</p>
+</td>
       </tr>
     </tbody>
   </table>
@@ -2779,16 +2894,32 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   
   
   <a id="FastEndpoints_Endpoint_2_SerializerContext_" data-uid="FastEndpoints.Endpoint`2.SerializerContext*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SerializerContext__1" data-uid="FastEndpoints.Endpoint`2.SerializerContext``1">SerializerContext&lt;TContext&gt;()</h4>
-  <div class="markdown level1 summary"><p>specify the json serializer context if code generation for request/response dtos</p>
+  <h4 id="FastEndpoints_Endpoint_2_SerializerContext__1___0_" data-uid="FastEndpoints.Endpoint`2.SerializerContext``1(``0)">SerializerContext&lt;TContext&gt;(TContext)</h4>
+  <div class="markdown level1 summary"><p>specify the json serializer context if code generation for request/response dtos is being used</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;()
-
+    <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;(TContext serializerContext)
     where TContext : JsonSerializerContext</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TContext</span></td>
+        <td><span class="parametername">serializerContext</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
@@ -2894,41 +3025,10 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   </table>
   
   
-  <a id="FastEndpoints_Endpoint_2_Summary_" data-uid="FastEndpoints.Endpoint`2.Summary*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_Summary_System_String_System_ValueTuple_System_Int32_System_String____" data-uid="FastEndpoints.Endpoint`2.Summary(System.String,System.ValueTuple{System.Int32,System.String}[])">Summary(String, (Int32 statusCode, String statusCodeDescription)[])</h4>
-  <div class="markdown level1 summary"></div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Summary(string endpointDescription, params (int statusCode, string statusCodeDescription)[] statusCodeDescriptions)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.String</span></td>
-        <td><span class="parametername">endpointDescription</span></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.ValueTuple</span>&lt;<span class="xref">System.Int32</span>, <span class="xref">System.String</span>&gt;[]</td>
-        <td><span class="parametername">statusCodeDescriptions</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
   <a id="FastEndpoints_Endpoint_2_Tags_" data-uid="FastEndpoints.Endpoint`2.Tags*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Tags_System_String___" data-uid="FastEndpoints.Endpoint`2.Tags(System.String[])">Tags(String[])</h4>
   <div class="markdown level1 summary"><p>specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.</p>
+<p>HINT: these tags have nothing to do with swagger tags!</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -3124,7 +3224,6 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
-
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -3167,7 +3266,7 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void Verbs(params Http[] methods)</code></pre>
+    <pre><code class="lang-csharp hljs">public sealed override void Verbs(params Http[] methods)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -3186,6 +3285,8 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
       </tr>
     </tbody>
   </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Verbs_FastEndpoints_Http___">BaseEndpoint.Verbs(Http[])</a></div>
   
   
   <a id="FastEndpoints_Endpoint_2_Version_" data-uid="FastEndpoints.Endpoint`2.Version*"></a>

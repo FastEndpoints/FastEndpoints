@@ -221,6 +221,18 @@ app.Run();
     return Task.CompletedTask;
 }
 </code></pre>
+<h1 id="configuring-endpoints-using-attributes">configuring endpoints using attributes</h1>
+<p>instead of overriding the <code>Configure()</code> method, endpoint classes can be annotated with <code>[HttpGet(...)]</code>,<code>[AllowAnonymous]</code>, and <code>[Authorize(...)]</code> attributes. advanced usage however does require overriding <code>Configure()</code>. you can only use one of these strategies for configuring endpoints. an exception will be thrown if you use both or none at all.</p>
+<pre><code class="lang-csharp">[HttpPost(&quot;/my-endpoint&quot;)]
+[Authorize(Roles = &quot;Admin,Manager&quot;)]
+public class UpdateAddress : Endpoint&lt;MyRequest, MyResponse&gt;
+{
+    public override async Task HandleAsync(MyRequest req, CancellationToken ct)
+    {
+        await SendAsync(new MyResponse { });
+    }
+}
+</code></pre>
 </article>
           </div>
           

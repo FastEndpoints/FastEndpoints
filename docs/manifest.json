@@ -806,6 +806,17 @@
     },
     {
       "type": "Resource",
+      "source_relative_path": "images/swagger-queryparam.png",
+      "output": {
+        "resource": {
+          "relative_path": "images/swagger-queryparam.png"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Resource",
       "source_relative_path": "images/techempower-benchmarks.png",
       "output": {
         "resource": {
@@ -977,7 +988,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Model-Binding.html",
-          "hash": "eNdL7MmHwM0gafM86FmyhU9nmbfYeshthH2WxuSJwdw="
+          "hash": "kvg1/jFe+D2V/mklhV1Xn5unfWhM15us9S86ZFgUYY0="
         }
       },
       "is_incremental": false,
@@ -1049,7 +1060,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Swagger-Support.html",
-          "hash": "USU/1PMdaTO89RAvZFT/8rNElxuzueMD1XgWxmGGh+A="
+          "hash": "pAlhdlrtPFE3+6K+n4NDIvJwA+5G/8C2mkm3yGvODiM="
         }
       },
       "is_incremental": false,

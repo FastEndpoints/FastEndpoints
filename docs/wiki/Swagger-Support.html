@@ -231,6 +231,20 @@ public class Request
 <blockquote>
 <p>if you can figure out how to get nswag to read the xml summary/remarks tags from the endpoint classes, please submit a PR on github.</p>
 </blockquote>
+<h2 id="adding-query-params-to-swagger-document">adding query params to swagger document</h2>
+<p>in order to let swagger know that a particular request dto property is being bound from a query string parameter, you need to decorate that property with the <code>[QueryParam]</code> attribute like below. when you annotate a property with the <code>[QueryParam]</code> attribute, a <a href="/images/swagger-queryparam.png">query parameter will be added</a> to the swagger document for that property.</p>
+<pre><code class="lang-csharp">public class CreateEmployeeRequest
+{
+    [QueryParam]
+    public string Name { get; set; } //bound from query string
+
+    [QueryParam, BindFrom(&quot;id&quot;)]
+    public string? ID { get; set; } //bound from query string
+
+    public Address Address { get; set; } //bound from body
+}
+</code></pre>
+<p>the <code>[QueryParam]</code> attribute does not affect the <a href="/wiki/Model-Binding.md">model binding order</a> in any way. it is just a way to make swagger add a query param.</p>
 <h2 id="disable-jwt-auth-scheme">disable jwt auth scheme</h2>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(addJWTBearerAuth: false);
@@ -267,13 +281,13 @@ public class Request
 <p>if you'd like to take control of the tagging behavior, simply set <code>tagIndex: 0</code> to disable auto tagging of endpoints and specify a tag for each endpoint via <code>Description(x =&gt; x.WithTags(&quot;xyz&quot;))</code> method.</p>
 <h2 id="customize-swagger-schema-names">customize swagger schema names</h2>
 <p>by default, schema names are generated using the full name of dto classes. you can make the schema names be just the class name.</p>
-<pre><code class="lang-cshar">builder.Services.AddSwaggerDoc(shortSchemaNames: true);
+<pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(shortSchemaNames: true);
 </code></pre>
 <h2 id="swagger-serializer-options">swagger serializer options</h2>
 <p>even though nswag uses a separate serializer (newtonsoft) internally, we specify serialization settings for nswag using <code>System.Text.Json.JsonSerializerOptions</code> just so we don't have to deal with anything related to newtonsoft (until nswag fully switches over to System.Text.Json).</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(serializerSettings: x =&gt;
 {
-    x.PropertyNamingPolicy = null; //pascal case property names
+    x.PropertyNamingPolicy = null;
     x.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     ...
 });

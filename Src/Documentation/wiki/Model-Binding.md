@@ -132,7 +132,7 @@ public class UpdateAddressRequest
 }
 ```
 
-**json request**
+**json request body**
 ```
 {
     "UserID": 111,
@@ -172,7 +172,7 @@ public string UserID { get; set; }
 #### json body:
 any complex type can be bound as long as the `System.Text.Json` serializer can handle it. if it's not supported out of the box, please see the [STJ documentation](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0) on how to implement custom converters for your types.
 
-you can register your custom converts in startup like this:
+you can register your custom converters in startup like this:
 ```csharp
 app.UseFastEndpoints(c =>
 {
@@ -233,8 +233,8 @@ public class Point
 }
 ```
 
-## route binding when there's no request dto
-if your endpoint doesn't have/need a request dto, you can easily read route parameters using the `Route<T>()` method.
+## route/query binding when there's no request dto
+if your endpoint doesn't have/need a request dto, you can easily read route & query parameters using the `Route<T>()` and `Query<T>()` methods.
 ```csharp
 public class GetArticle : EndpointWithoutRequest
 {
@@ -246,14 +246,18 @@ public class GetArticle : EndpointWithoutRequest
 
     public override Task HandleAsync(CancellationToken ct)
     {
-        int id = Route<int>("ArticleID");
-        return SendAsync(id);
+        //http://localhost:5000/article/123
+        int routeParam = Route<int>("ArticleID");
+        
+        //http://localhost:5000/article/123?OtherID=8635ffb2-6589-4629-85bc-29f2cce5a12d
+        Guid queryParam = Query<Guid>("OtherID");
     }
 }
 ```
-**note:** the `Route<T>()` method is also only able to handle types that has a static `TryParse()` method as mentioned above. if there's no static `TryParse()` method or if parsing fails, an automatic validation failure response is sent to the client. this behavior can be turned off with the following overload:
+**note:** `Route<T>()` & `Query<T>()` methods are also only able to handle types that have a static `TryParse()` method as mentioned above. if there's no static `TryParse()` method or if parsing fails, an automatic validation failure response is sent to the client. this behavior can be turned off with the following overload:
 ```csharp
-Route<Point>("point", isRequired: false);
+Route<Point>("ArticleID", isRequired: false);
+Query<Guid>("OtherID", isRequired: false);
 ```
 
 ## binding to raw request content

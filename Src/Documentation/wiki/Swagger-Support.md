@@ -160,6 +160,22 @@ xml documentation is only supported for request/response dtos (swagger schemas) 
 ```
 > if you can figure out how to get nswag to read the xml summary/remarks tags from the endpoint classes, please submit a PR on github.
 
+## adding query params to swagger document
+in order to let swagger know that a particular request dto property is being bound from a query string parameter, you need to decorate that property with the `[QueryParam]` attribute like below. when you annotate a property with the `[QueryParam]` attribute, a [query parameter will be added](/images/swagger-queryparam.png) to the swagger document for that property.
+```csharp
+public class CreateEmployeeRequest
+{
+    [QueryParam]
+    public string Name { get; set; } //bound from query string
+
+    [QueryParam, BindFrom("id")]
+    public string? ID { get; set; } //bound from query string
+
+    public Address Address { get; set; } //bound from body
+}
+```
+the `[QueryParam]` attribute does not affect the [model binding order](/wiki/Model-Binding.md) in any way. it is just a way to make swagger add a query param.
+
 ## disable jwt auth scheme
 support for jwt bearer auth is automatically added. if you need to disable it, simply pass a `false` value to the following parameter:
 ```csharp
@@ -204,7 +220,7 @@ if you'd like to take control of the tagging behavior, simply set `tagIndex: 0` 
 
 ## customize swagger schema names
 by default, schema names are generated using the full name of dto classes. you can make the schema names be just the class name.
-```cshar
+```csharp
 builder.Services.AddSwaggerDoc(shortSchemaNames: true);
 ```
 
@@ -213,7 +229,7 @@ even though nswag uses a separate serializer (newtonsoft) internally, we specify
 ```csharp
 builder.Services.AddSwaggerDoc(serializerSettings: x =>
 {
-    x.PropertyNamingPolicy = null; //pascal case property names
+    x.PropertyNamingPolicy = null;
     x.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     ...
 });

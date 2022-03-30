@@ -209,9 +209,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    protected Task SendEventStream<T>(string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
+    protected Task SendEventStreamAsync<T>(string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendEventStream(eventName, eventStream, cancellation);
+        return HttpContext.Response.SendEventStreamAsync(eventName, eventStream, cancellation);
     }
 
     /// <summary>

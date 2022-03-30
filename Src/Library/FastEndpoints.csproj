@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.0.0-beta6</Version>
+        <Version>4.0.0</Version>
 
         <PackageReleaseNotes>
             ### BREAKING CHANGES
@@ -13,7 +13,7 @@
 
             ### NEW
             - `Configure()` method is now optional. endpoint classes can be annotated with `[HttpGet("xyz")]`,`[AllowAnonymous]`,`[Authorize(Roles="abc")]` instead if that's preferred. Advanced usage however does require `Configure()` method.
-            - `SendEventStream()` method for doing server-sent-events streams
+            - `SendEventStreamAsync()` method for doing server-sent-events streams
             - `DontAutoTag()` method for ignoring auto swagger tagging based on path segment
             - `[QueryParam]` attribute for marking/describing request dto properties which are to be bound from query parameters.
             - PR #73 `Query[T]("xyz")` endpoint method for reading query params without a request dto

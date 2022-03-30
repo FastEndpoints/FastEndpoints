@@ -155,6 +155,7 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
+
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -1430,6 +1431,7 @@ EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1646,6 +1648,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -2109,6 +2112,7 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -2286,14 +2290,14 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   </table>
   
   
-  <a id="FastEndpoints_Endpoint_2_SendEventStream_" data-uid="FastEndpoints.Endpoint`2.SendEventStream*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_SendEventStream__1_System_String_IAsyncEnumerable___0__CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendEventStream``1(System.String,IAsyncEnumerable{``0},CancellationToken)">SendEventStream&lt;T&gt;(String, IAsyncEnumerable&lt;T&gt;, CancellationToken)</h4>
+  <a id="FastEndpoints_Endpoint_2_SendEventStreamAsync_" data-uid="FastEndpoints.Endpoint`2.SendEventStreamAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_SendEventStreamAsync__1_System_String_IAsyncEnumerable___0__CancellationToken_" data-uid="FastEndpoints.Endpoint`2.SendEventStreamAsync``1(System.String,IAsyncEnumerable{``0},CancellationToken)">SendEventStreamAsync&lt;T&gt;(String, IAsyncEnumerable&lt;T&gt;, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>start a &quot;server-sent-events&quot; data stream for the client asynchronously without blocking any threads</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected Task SendEventStream&lt;T&gt;(string eventName, IAsyncEnumerable&lt;T&gt; eventStream, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">protected Task SendEventStreamAsync&lt;T&gt;(string eventName, IAsyncEnumerable&lt;T&gt; eventStream, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -2901,6 +2905,7 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;(TContext serializerContext)
+
     where TContext : JsonSerializerContext</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -3224,6 +3229,7 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>

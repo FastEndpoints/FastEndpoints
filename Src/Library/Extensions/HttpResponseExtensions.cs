@@ -287,7 +287,7 @@ public static class HttpResponseExtensions
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static async Task SendEventStream<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream,
+    public static async Task SendEventStreamAsync<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream,
         CancellationToken cancellation = default)
     {
         rsp.HttpContext.Items[Constants.ResponseSent] = null;

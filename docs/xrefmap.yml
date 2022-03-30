@@ -1240,24 +1240,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendErrorsAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendErrorsAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendErrorsAsync
-- uid: FastEndpoints.Endpoint`2.SendEventStream*
-  name: SendEventStream
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEventStream_
-  commentId: Overload:FastEndpoints.Endpoint`2.SendEventStream
+- uid: FastEndpoints.Endpoint`2.SendEventStreamAsync*
+  name: SendEventStreamAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEventStreamAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendEventStreamAsync
   isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEventStream
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEventStream
-  nameWithType: Endpoint<TRequest, TResponse>.SendEventStream
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEventStream
-- uid: FastEndpoints.Endpoint`2.SendEventStream``1(System.String,IAsyncEnumerable{``0},CancellationToken)
-  name: SendEventStream<T>(String, IAsyncEnumerable<T>, CancellationToken)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEventStream__1_System_String_IAsyncEnumerable___0__CancellationToken_
-  commentId: M:FastEndpoints.Endpoint`2.SendEventStream``1(System.String,IAsyncEnumerable{``0},CancellationToken)
-  name.vb: SendEventStream(Of T)(String, IAsyncEnumerable(Of T), CancellationToken)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEventStream<T>(System.String, IAsyncEnumerable<T>, CancellationToken)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEventStream(Of T)(System.String, IAsyncEnumerable(Of T), CancellationToken)
-  nameWithType: Endpoint<TRequest, TResponse>.SendEventStream<T>(String, IAsyncEnumerable<T>, CancellationToken)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEventStream(Of T)(String, IAsyncEnumerable(Of T), CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEventStreamAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEventStreamAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendEventStreamAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEventStreamAsync
+- uid: FastEndpoints.Endpoint`2.SendEventStreamAsync``1(System.String,IAsyncEnumerable{``0},CancellationToken)
+  name: SendEventStreamAsync<T>(String, IAsyncEnumerable<T>, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEventStreamAsync__1_System_String_IAsyncEnumerable___0__CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendEventStreamAsync``1(System.String,IAsyncEnumerable{``0},CancellationToken)
+  name.vb: SendEventStreamAsync(Of T)(String, IAsyncEnumerable(Of T), CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendEventStreamAsync<T>(System.String, IAsyncEnumerable<T>, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendEventStreamAsync(Of T)(System.String, IAsyncEnumerable(Of T), CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendEventStreamAsync<T>(String, IAsyncEnumerable<T>, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendEventStreamAsync(Of T)(String, IAsyncEnumerable(Of T), CancellationToken)
 - uid: FastEndpoints.Endpoint`2.SendFileAsync(FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
   name: SendFileAsync(FileInfo, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendFileAsync_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_
@@ -3015,22 +3015,22 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendErrorsAsync
   nameWithType: HttpResponseExtensions.SendErrorsAsync
-- uid: FastEndpoints.HttpResponseExtensions.SendEventStream*
-  name: SendEventStream
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendEventStream_
-  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendEventStream
+- uid: FastEndpoints.HttpResponseExtensions.SendEventStreamAsync*
+  name: SendEventStreamAsync
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendEventStreamAsync_
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendEventStreamAsync
   isSpec: "True"
-  fullName: FastEndpoints.HttpResponseExtensions.SendEventStream
-  nameWithType: HttpResponseExtensions.SendEventStream
-- uid: FastEndpoints.HttpResponseExtensions.SendEventStream``1(Microsoft.AspNetCore.Http.HttpResponse,System.String,IAsyncEnumerable{``0},CancellationToken)
-  name: SendEventStream<T>(HttpResponse, String, IAsyncEnumerable<T>, CancellationToken)
-  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendEventStream__1_Microsoft_AspNetCore_Http_HttpResponse_System_String_IAsyncEnumerable___0__CancellationToken_
-  commentId: M:FastEndpoints.HttpResponseExtensions.SendEventStream``1(Microsoft.AspNetCore.Http.HttpResponse,System.String,IAsyncEnumerable{``0},CancellationToken)
-  name.vb: SendEventStream(Of T)(HttpResponse, String, IAsyncEnumerable(Of T), CancellationToken)
-  fullName: FastEndpoints.HttpResponseExtensions.SendEventStream<T>(Microsoft.AspNetCore.Http.HttpResponse, System.String, IAsyncEnumerable<T>, CancellationToken)
-  fullName.vb: FastEndpoints.HttpResponseExtensions.SendEventStream(Of T)(Microsoft.AspNetCore.Http.HttpResponse, System.String, IAsyncEnumerable(Of T), CancellationToken)
-  nameWithType: HttpResponseExtensions.SendEventStream<T>(HttpResponse, String, IAsyncEnumerable<T>, CancellationToken)
-  nameWithType.vb: HttpResponseExtensions.SendEventStream(Of T)(HttpResponse, String, IAsyncEnumerable(Of T), CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendEventStreamAsync
+  nameWithType: HttpResponseExtensions.SendEventStreamAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendEventStreamAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.String,IAsyncEnumerable{``0},CancellationToken)
+  name: SendEventStreamAsync<T>(HttpResponse, String, IAsyncEnumerable<T>, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendEventStreamAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_String_IAsyncEnumerable___0__CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendEventStreamAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.String,IAsyncEnumerable{``0},CancellationToken)
+  name.vb: SendEventStreamAsync(Of T)(HttpResponse, String, IAsyncEnumerable(Of T), CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendEventStreamAsync<T>(Microsoft.AspNetCore.Http.HttpResponse, System.String, IAsyncEnumerable<T>, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendEventStreamAsync(Of T)(Microsoft.AspNetCore.Http.HttpResponse, System.String, IAsyncEnumerable(Of T), CancellationToken)
+  nameWithType: HttpResponseExtensions.SendEventStreamAsync<T>(HttpResponse, String, IAsyncEnumerable<T>, CancellationToken)
+  nameWithType.vb: HttpResponseExtensions.SendEventStreamAsync(Of T)(HttpResponse, String, IAsyncEnumerable(Of T), CancellationToken)
 - uid: FastEndpoints.HttpResponseExtensions.SendFileAsync(Microsoft.AspNetCore.Http.HttpResponse,FileInfo,System.String,System.Nullable{DateTimeOffset},System.Boolean,CancellationToken)
   name: SendFileAsync(HttpResponse, FileInfo, String, Nullable<DateTimeOffset>, Boolean, CancellationToken)
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendFileAsync_Microsoft_AspNetCore_Http_HttpResponse_FileInfo_System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_

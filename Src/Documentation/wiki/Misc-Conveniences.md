@@ -98,6 +98,9 @@ sends a file to the client
 #### SendStreamAsync()
 sends the contents of a stream to the client
 
+#### SendEventStreamAsync()
+sends a "server-sent-events" data stream to the client
+
 # hook methods
 the following 4 hook methods allow you to do something before and after dto validation as well as handler execution.
 

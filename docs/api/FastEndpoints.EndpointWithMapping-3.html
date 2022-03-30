@@ -240,7 +240,7 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendStreamAsync_Stream_System_String_System_Nullable_System_Int64__System_String_System_Nullable_DateTimeOffset__System_Boolean_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendStreamAsync(Stream, String, Nullable&lt;Int64&gt;, String, Nullable&lt;DateTimeOffset&gt;, Boolean, CancellationToken)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEventStream__1_System_String_IAsyncEnumerable___0__CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendEventStream&lt;T&gt;(String, IAsyncEnumerable&lt;T&gt;, CancellationToken)</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEventStreamAsync__1_System_String_IAsyncEnumerable___0__CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendEventStreamAsync&lt;T&gt;(String, IAsyncEnumerable&lt;T&gt;, CancellationToken)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendEmptyJsonObject_CancellationToken_">Endpoint&lt;TRequest, TResponse&gt;.SendEmptyJsonObject(CancellationToken)</a>
@@ -404,6 +404,7 @@
   <h5 id="FastEndpoints_EndpointWithMapping_3_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class EndpointWithMapping&lt;TRequest, TResponse, TEntity&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : new()
+
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>

@@ -389,6 +389,7 @@
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public static Task SendCreatedAtAsync&lt;TEndpoint&gt;(this HttpResponse rsp, object routeValues, object responseBody, Http? verb = null, int? routeNumber = null, JsonSerializerContext jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -605,14 +606,14 @@
   </table>
   
   
-  <a id="FastEndpoints_HttpResponseExtensions_SendEventStream_" data-uid="FastEndpoints.HttpResponseExtensions.SendEventStream*"></a>
-  <h4 id="FastEndpoints_HttpResponseExtensions_SendEventStream__1_Microsoft_AspNetCore_Http_HttpResponse_System_String_IAsyncEnumerable___0__CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendEventStream``1(Microsoft.AspNetCore.Http.HttpResponse,System.String,IAsyncEnumerable{``0},CancellationToken)">SendEventStream&lt;T&gt;(HttpResponse, String, IAsyncEnumerable&lt;T&gt;, CancellationToken)</h4>
+  <a id="FastEndpoints_HttpResponseExtensions_SendEventStreamAsync_" data-uid="FastEndpoints.HttpResponseExtensions.SendEventStreamAsync*"></a>
+  <h4 id="FastEndpoints_HttpResponseExtensions_SendEventStreamAsync__1_Microsoft_AspNetCore_Http_HttpResponse_System_String_IAsyncEnumerable___0__CancellationToken_" data-uid="FastEndpoints.HttpResponseExtensions.SendEventStreamAsync``1(Microsoft.AspNetCore.Http.HttpResponse,System.String,IAsyncEnumerable{``0},CancellationToken)">SendEventStreamAsync&lt;T&gt;(HttpResponse, String, IAsyncEnumerable&lt;T&gt;, CancellationToken)</h4>
   <div class="markdown level1 summary"><p>start a &quot;server-sent-events&quot; data stream for the client asynchronously without blocking any threads</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static async Task SendEventStream&lt;T&gt;(this HttpResponse rsp, string eventName, IAsyncEnumerable&lt;T&gt; eventStream, CancellationToken cancellation = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static async Task SendEventStreamAsync&lt;T&gt;(this HttpResponse rsp, string eventName, IAsyncEnumerable&lt;T&gt; eventStream, CancellationToken cancellation = null)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">

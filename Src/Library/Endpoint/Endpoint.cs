@@ -17,7 +17,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         Configuration = endpoint;
         try
         {
-            var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, cancellation);
+            var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, endpoint.DontBindFormData, cancellation);
 
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req);

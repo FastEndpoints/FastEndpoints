@@ -14,6 +14,7 @@ public sealed class EndpointDefinition
     public string[]? AnonymousVerbs { get; internal set; }
     public bool ThrowIfValidationFails { get; internal set; } = true;
     public bool AllowFormData { get; internal set; }
+    public bool DontBindFormData { get; internal set; }
     public string[]? PreBuiltUserPolicies { get; internal set; }
     public string[]? AuthSchemes { get; internal set; }
     public string[]? Roles { get; internal set; }

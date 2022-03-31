@@ -122,7 +122,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
-    protected void AllowFileUploads() => Configuration.AllowFormData = true;
+    /// <param name="dontAutoBindFormData">
+    /// set 'true' to disable auto binding of form data which enables uploading and reading of large files without buffering to memory/disk.
+    /// you can access the multipart sections for reading via the FormFileSectionsAsync() method.
+    /// </param>
+    protected void AllowFileUploads(bool dontAutoBindFormData = false)
+    {
+        Configuration.AllowFormData = true;
+        Configuration.DontBindFormData = dontAutoBindFormData;
+    }
 
     /// <summary>
     /// enable multipart/form-data submissions

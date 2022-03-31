@@ -2,29 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>4.0.0</Version>
+        <Version>4.1.0-beta1</Version>
 
         <PackageReleaseNotes>
-            ### BREAKING CHANGES
-            - PR #70 fluentvalidation code is no longer integrated. remove the package reference to `FastEndpoints.Validation` from your csproj file and add a `global using FluentValidation`. no other changes are necessary.
-            - PR #68 `SerializerContext[T]()` has been removed. use the `SerializerContext(myContext.Default)` and provide the serializer context yourself.
-            - the `Describe()` method has been removed. use `Description()` isntead. refer to the [doc page](https://fast-endpoints.com/wiki/Swagger-Support.html#describe-endpoints) for details. to migrate your existing code, just rename `Describe(...)` to `Description(..., clearDefaults: true)`
-            - removed a previously deprecated `Summary()` overload. use one of the other `Summary()` methods if you were using the deprecated method.
-
             ### NEW
-            - `Configure()` method is now optional. endpoint classes can be annotated with `[HttpGet("xyz")]`,`[AllowAnonymous]`,`[Authorize(Roles="abc")]` instead if that's preferred. Advanced usage however does require `Configure()` method.
-            - `SendEventStreamAsync()` method for doing server-sent-events streams
-            - `DontAutoTag()` method for ignoring auto swagger tagging based on path segment
-            - `[QueryParam]` attribute for marking/describing request dto properties which are to be bound from query parameters.
-            - PR #73 `Query[T]("xyz")` endpoint method for reading query params without a request dto
-
-            ### FIXES
-            - #65 with serializer ctx not being set correctly
-            - #69 swagger not removing json properties correctly
-
-            ### IMPROVEMENTS
-            - nswag now uses the same serializer settings as fastendpoints by default, which is overrideable.
-            - optional (IsRequired=false) `[FromClaim]` and `[HasPermission]` dto properties now get transformed into query params in swagger.
+            - large file upload/reading support via `FormFileSectionsAsync()` without buffering to memory/disk #79
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

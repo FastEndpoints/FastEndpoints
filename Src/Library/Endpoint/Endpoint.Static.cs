@@ -12,7 +12,7 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
 {
-    private static async Task<TRequest> BindToModel(HttpContext ctx, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
+    private static async Task<TRequest> BindToModel(HttpContext ctx, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx, bool dontAutoBindForm, CancellationToken cancellation)
     {
         TRequest? req = default;
 
@@ -30,7 +30,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             req = new();
         }
 
-        BindFormValues(req, ctx.Request, failures);
+        BindFormValues(req, ctx.Request, failures, dontAutoBindForm);
         BindRouteValues(req, ctx.Request.RouteValues, failures);
         BindQueryParams(req, ctx.Request.Query, failures);
         BindUserClaims(req, ctx.User.Claims, failures);
@@ -94,9 +94,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                : ctx.Response.SendAsync(responseDto, 200, jsonSerializerContext, cancellation);
     }
 
-    private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures)
+    private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures, bool dontAutoBindForm)
     {
-        if (!httpRequest.HasFormContentType) return;
+        if (!httpRequest.HasFormContentType || dontAutoBindForm) return;
 
         var formFields = httpRequest.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
 

@@ -51,4 +51,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="req">the request dto</param>
     /// <param name="res">the response dto that was sent to the client</param>
     public virtual Task OnAfterHandleAsync(TRequest req, TResponse res) => Task.CompletedTask;
+
+    /// <summary>
+    /// override this method if you'd like to do something when a validation failure occurs.
+    /// </summary>
+    public virtual void OnValidationFailed() { }
+
+    /// <summary>
+    /// override this method if you'd like to do something when a validation failure occurs.
+    /// </summary>
+    public virtual Task OnValidationFailedAsync() => Task.CompletedTask;
 }

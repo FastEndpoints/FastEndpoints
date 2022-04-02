@@ -30,7 +30,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 ValidationFailures,
                 cancellation);
 
-            OnAfterValidate(req); await OnAfterValidateAsync(req);
+            OnAfterValidate(req);
+            await OnAfterValidateAsync(req);
 
             await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation);
 
@@ -48,12 +49,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             if (!ResponseStarted)
                 await AutoSendResponse(ctx, _response, endpoint.SerializerContext, cancellation);
 
-            OnAfterHandle(req, Response); await OnAfterHandleAsync(req, Response);
+            OnAfterHandle(req, Response);
+            await OnAfterHandleAsync(req, Response);
 
             await RunPostProcessors(endpoint.PostProcessors, req, Response, ctx, ValidationFailures, cancellation);
         }
         catch (ValidationFailureException)
         {
+            OnValidationFailed();
+            await OnValidationFailedAsync();
+
             await SendErrorsAsync(cancellation: cancellation);
         }
     }

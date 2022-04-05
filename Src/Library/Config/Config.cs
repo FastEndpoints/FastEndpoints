@@ -17,6 +17,7 @@ public class Config
     internal static JsonSerializerOptions SerializerOpts { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
     internal static bool ShortEpNames { get; private set; }
     internal static VersioningOptions? VersioningOpts { get; private set; }
+    internal static ThrottleOptions? ThrottleOpts { get; private set; }
     internal static RoutingOptions? RoutingOpts { get; private set; }
     internal static Func<EndpointDefinition, bool>? EpRegFilterFunc { get; private set; }
     internal static Action<EndpointDefinition, RouteHandlerBuilder>? GlobalEpOptsAction { get; private set; }
@@ -69,6 +70,18 @@ public class Config
         {
             RoutingOpts = new();
             value(RoutingOpts);
+        }
+    }
+    
+    /// <summary>
+    /// throttling options for all endpoints
+    /// </summary>
+    public Action<ThrottleOptions> ThrottleOptions
+    {
+        set
+        {
+            ThrottleOpts = new();
+            value(ThrottleOpts);
         }
     }
 

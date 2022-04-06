@@ -428,35 +428,39 @@ namespace Test
         {
             HttpResponseMessage? response = null;
 
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
-                var request = new HttpRequestMessage();
-                request.Method = HttpMethod.Get;
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get
+                };
                 request.Headers.Add("X-Custom-Throttle-Header", "test");
                 request.RequestUri = new Uri("api/test-cases/global-throttle-error-response?customerId=09809&otherId=12", UriKind.Relative);
                 response = await GuestClient.SendAsync(request);
             }
-            
+
             Assert.AreEqual(HttpStatusCode.TooManyRequests, response!.StatusCode);
-            
+
             var responseContent = await response!.Content.ReadAsStringAsync();
             Assert.AreEqual(responseContent, "Custom Error Response");
         }
-        
+
         [TestMethod]
         public async Task NotThrottledGlobalResponse()
         {
             HttpResponseMessage? response = null;
 
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
-                var request = new HttpRequestMessage();
-                request.Method = HttpMethod.Get;
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get
+                };
                 request.Headers.Add("X-Custom-Throttle-Header", "test-2");
                 request.RequestUri = new Uri("api/test-cases/global-throttle-error-response?customerId=09809&otherId=12", UriKind.Relative);
                 response = await GuestClient.SendAsync(request);
             }
-            
+
             Assert.AreEqual(HttpStatusCode.OK, response!.StatusCode);
         }
     }

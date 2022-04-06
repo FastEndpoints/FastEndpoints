@@ -318,7 +318,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="durationSeconds">the frequency in seconds where the accrued hit count should be reset</param>
     /// <param name="headerName">
     /// the name of the request header used to uniquely identify clients.
-    /// specifying null will first look for 'X-Forwarded-For' and if not present, will use `HttpContext.Connection.RemoteIpAddress`
+    /// header name can also be configured globally using <c>app.UseFastEndpoints(c=> c.ThrottleOptions...)</c>
+    /// not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
     /// </param>
     protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
     {

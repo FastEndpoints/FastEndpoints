@@ -51,9 +51,7 @@ internal class ExecutorMiddleware
                 if (epDef.HitCounter.LimitReached(hdrVal[0]))
                 {
                     ctx.Response.StatusCode = 429;
-
-                    var response = ThrottleOpts?.ThrottledResponse ?? "You are requesting this endpoint too frequently!";
-                    return ctx.Response.WriteAsync(response);
+                    return ctx.Response.WriteAsync(ThrottleOpts?.ThrottledResponse ?? "You are requesting this endpoint too frequently!");
                 }
             }
 

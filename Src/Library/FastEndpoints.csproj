@@ -2,12 +2,13 @@
 
     <PropertyGroup>
 
-        <Version>4.1.0-beta2</Version>
+        <Version>4.1.0-beta3</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - large file upload/reading support via `FormFileSectionsAsync()` without buffering to memory/disk #79
             - `OnValidationFailed()` hook method added
+            - ability to specify a global header name and response message for rate limiting/throttling #84
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

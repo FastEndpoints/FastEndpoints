@@ -72,7 +72,7 @@ public class Config
             value(RoutingOpts);
         }
     }
-    
+
     /// <summary>
     /// throttling options for all endpoints
     /// </summary>

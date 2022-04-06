@@ -61,7 +61,7 @@ namespace Test
         public async Task AdminLoginThrottling()
         {
             var guestClient = new WebApplicationFactory<Program>().CreateClient();
-            guestClient.DefaultRequestHeaders.Add("X-Forwarded-For", "TEST");
+            guestClient.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST");
 
             int successCount = 0;
 

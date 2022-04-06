@@ -82,6 +82,11 @@ app.UseFastEndpoints(config =>
         //o.DefaultVersion = 1; 
         //o.SuffixedVersion = false; 
     };
+    config.ThrottleOptions = o =>
+    {
+        o.HeaderName = "X-Custom-Throttle-Header";
+        o.ThrottledResponse = "Custom Error Response";
+    };
 });
 
 //this must go after usefastendpoints (only if using endpoints)

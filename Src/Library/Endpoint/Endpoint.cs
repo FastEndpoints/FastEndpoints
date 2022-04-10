@@ -14,7 +14,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     internal override async Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken cancellation)
     {
         _httpContext = ctx;
-        Configuration = endpoint;
+        Definition = endpoint;
         try
         {
             var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, endpoint.DontBindFormData, cancellation);

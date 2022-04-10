@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,9 +25,11 @@ public static class MainExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="endpointAssmeblies">an optional collection of additional assemblies to discover endpoints from</param>
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, IEnumerable<Assembly>? endpointAssmeblies = null)
+    /// <param name="config">optionally specify the IConfiguration/ConfigurationManager if you need to access it from within endpoint Configure() method</param>
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services,
+        IEnumerable<Assembly>? endpointAssmeblies = null, ConfigurationManager? config = null)
     {
-        _endpoints = new(services, endpointAssmeblies);
+        _endpoints = new(services, endpointAssmeblies, config);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();
         return services;

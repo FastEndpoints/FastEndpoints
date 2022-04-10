@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
@@ -13,7 +12,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private string _baseURL;
     private ILogger _logger;
     private IWebHostEnvironment _env;
-    private IConfiguration _config;
     private TResponse _response;
 
     /// <summary>
@@ -30,11 +28,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// the response that is sent to the client.
     /// </summary>
     public TResponse Response { get => _response ??= new(); set => _response = value; }
-
-    /// <summary>
-    /// gives access to the configuration
-    /// </summary>
-    public IConfiguration Config => _config ??= HttpContext.RequestServices.GetRequiredService<IConfiguration>();
 
     /// <summary>
     /// gives access to the hosting environment

@@ -16,7 +16,7 @@ public static class Factory
     public static TEndpoint Create<TEndpoint>(DefaultHttpContext httContext, params object?[]? dependancies) where TEndpoint : class, IEndpoint
     {
         var ep = (BaseEndpoint)Activator.CreateInstance(typeof(TEndpoint), dependancies)!;
-        ep.Configuration = new();
+        ep.Definition = new();
         ep.Configure();
         ep._httpContext = httContext;
         return (ep as TEndpoint)!;

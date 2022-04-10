@@ -13,7 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
     {
         Response = response;
-        return HttpContext.Response.SendAsync(response, statusCode, Configuration.SerializerContext, cancellation);
+        return HttpContext.Response.SendAsync(response, statusCode, Definition.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             responseBody,
             verb,
             routeNumber,
-            Configuration.SerializerContext,
+            Definition.SerializerContext,
             generateAbsoluteUrl,
             cancellation);
     }
@@ -63,7 +63,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             endpointName,
             routeValues,
             responseBody,
-            Configuration.SerializerContext,
+            Definition.SerializerContext,
             generateAbsoluteUrl,
             cancellation);
     }
@@ -88,7 +88,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected Task SendOkAsync(TResponse response, CancellationToken cancellation = default)
     {
         Response = response;
-        return HttpContext.Response.SendOkAsync(response, Configuration.SerializerContext, cancellation);
+        return HttpContext.Response.SendOkAsync(response, Definition.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     protected Task SendErrorsAsync(int statusCode = 400, CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendErrorsAsync(ValidationFailures, statusCode, Configuration.SerializerContext, cancellation);
+        return HttpContext.Response.SendErrorsAsync(ValidationFailures, statusCode, Definition.SerializerContext, cancellation);
     }
 
     /// <summary>

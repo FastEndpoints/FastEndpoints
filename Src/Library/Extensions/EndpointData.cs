@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;
@@ -15,11 +16,11 @@ internal sealed class EndpointData
 
     internal static Stopwatch Stopwatch { get; } = new();
 
-    internal EndpointData(IServiceCollection services, IEnumerable<Assembly>? assemblies)
+    internal EndpointData(IServiceCollection services, IEnumerable<Assembly>? assemblies, ConfigurationManager? config)
     {
         _endpoints = new(() =>
         {
-            var endpoints = BuildEndpointDefinitions(services, assemblies ?? Enumerable.Empty<Assembly>());
+            var endpoints = BuildEndpointDefinitions(services, assemblies ?? Enumerable.Empty<Assembly>(), config);
 
             if (endpoints.Length == 0)
                 throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
@@ -32,7 +33,8 @@ internal sealed class EndpointData
         _ = _endpoints.Value;
     }
 
-    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services, IEnumerable<Assembly> assemblies)
+    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services, IEnumerable<Assembly> assemblies,
+        ConfigurationManager? config)
     {
         Stopwatch.Start();
 
@@ -167,7 +169,8 @@ internal sealed class EndpointData
                 ? (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)! //this is an endpoint with ctor arguments
                 : (BaseEndpoint)Activator.CreateInstance(x.tEndpoint)!; //endpoint which has a default ctor
 
-            instance.Configuration = def;
+            instance.Definition = def;
+            instance.Config = config;
 
             if (implementsConfigureMethod)
             {
@@ -180,30 +183,30 @@ internal sealed class EndpointData
                     if (att is HttpAttribute http)
                     {
                         instance.Verbs(http.Verb);
-                        instance.Configuration.Routes = new[] { http.Route };
+                        instance.Definition.Routes = new[] { http.Route };
                     }
                     if (att is AllowAnonymousAttribute)
                     {
-                        instance.Configuration.AnonymousVerbs =
-                            instance.Configuration.Verbs?.Length > 0
-                            ? instance.Configuration.Verbs.Select(v => v).ToArray()
+                        instance.Definition.AnonymousVerbs =
+                            instance.Definition.Verbs?.Length > 0
+                            ? instance.Definition.Verbs.Select(v => v).ToArray()
                             : Enum.GetNames(Types.Http);
                     }
                     if (att is AuthorizeAttribute auth)
                     {
-                        instance.Configuration.Roles = auth.Roles?.Split(',');
-                        instance.Configuration.AuthSchemes = auth.AuthenticationSchemes?.Split(',');
-                        if (auth.Policy is not null) instance.Configuration.PreBuiltUserPolicies = new[] { auth.Policy };
+                        instance.Definition.Roles = auth.Roles?.Split(',');
+                        instance.Definition.AuthSchemes = auth.AuthenticationSchemes?.Split(',');
+                        if (auth.Policy is not null) instance.Definition.PreBuiltUserPolicies = new[] { auth.Policy };
                     }
                 }
             }
 
-            if (instance.Configuration.ValidatorType is not null)
+            if (instance.Definition.ValidatorType is not null)
             {
-                if (instance.Configuration.ScopedValidator)
-                    services.AddScoped(instance.Configuration.ValidatorType);
+                if (instance.Definition.ScopedValidator)
+                    services.AddScoped(instance.Definition.ValidatorType);
                 else
-                    services.AddSingleton(instance.Configuration.ValidatorType);
+                    services.AddSingleton(instance.Definition.ValidatorType);
             }
 
             return def;

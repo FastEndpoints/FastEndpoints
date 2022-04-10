@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 
@@ -9,15 +11,27 @@ namespace FastEndpoints;
 
 public abstract class BaseEndpoint : IEndpoint
 {
-    protected internal HttpContext _httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
-
-    public EndpointDefinition Configuration { get; internal set; }
-
+    internal HttpContext _httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
     private List<ValidationFailure> _failures;
+    private IConfiguration? _config;
 
     internal abstract Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken ct);
 
     public virtual void Verbs(params Http[] methods) => throw new NotImplementedException();
+
+    /// <summary>
+    /// gets the endpoint definition which contains all the configuration info for the endpoint
+    /// </summary>
+    public EndpointDefinition Definition { get; internal set; }
+
+    /// <summary>
+    /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <c>.AddFastEndpoints(config: builder.Configuration)</c>
+    /// </summary>
+    public IConfiguration? Config
+    {
+        get => _config ??= _httpContext?.RequestServices.GetRequiredService<IConfiguration>();
+        internal set => _config = value;
+    }
 
     /// <summary>
     /// the http context of the current request

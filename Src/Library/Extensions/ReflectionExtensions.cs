@@ -37,6 +37,23 @@ internal static class ReflectionExtensions
         return Expression.Lambda<Action<object, object>>(body, parent, value).Compile();
     }
 
+    internal static Type[]? GetGenericArgumentsOfType(this Type source, Type targetGeneric)
+    {
+        if (!targetGeneric.IsGenericType)
+            throw new ArgumentException($"{nameof(targetGeneric)} is not a valid generic type", nameof(targetGeneric));
+
+        var t = source;
+        while (t != null)
+        {
+            if (t.IsGenericType && t.GetGenericTypeDefinition() == targetGeneric)
+                return t.GetGenericArguments();
+
+            t = t.BaseType;
+        }
+
+        return null;
+    }
+
     private static readonly ConcurrentDictionary<Type, Func<object?, (bool isSuccess, object value)>?> parsers = new();
     internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type)
     {

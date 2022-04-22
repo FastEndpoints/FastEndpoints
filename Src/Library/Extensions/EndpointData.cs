@@ -81,10 +81,7 @@ internal sealed class EndpointData
             {
                 if (tInterface == Types.IEndpoint)
                 {
-                    var tRequest = Types.EmptyRequest;
-
-                    if (tDisc.BaseType?.IsGenericType is true)
-                        tRequest = tDisc.BaseType?.GetGenericArguments()?[0] ?? tRequest;
+                    var tRequest = tDisc.GetGenericArgumentsOfType(Types.Endpoint)?[0] ?? Types.EmptyRequest;
 
                     services.AddTransient(tDisc);
                     epList.Add((tDisc, tRequest));
@@ -93,7 +90,7 @@ internal sealed class EndpointData
 
                 if (tInterface == Types.IValidator)
                 {
-                    Type tRequest = tDisc.BaseType?.GetGenericArguments()[0]!;
+                    Type tRequest = tDisc.GetGenericArgumentsOfType(Types.Validator)?[0]!;
                     valDict.Add(tRequest, tDisc);
                     continue;
                 }

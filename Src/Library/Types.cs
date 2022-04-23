@@ -16,11 +16,13 @@ internal static class Types
     internal static readonly Type Guid = typeof(Guid);
     internal static readonly Type Http = typeof(Http);
     internal static readonly Type IEndpoint = typeof(IEndpoint);
+    internal static readonly Type Endpoint = typeof(Endpoint<,>);
     internal static readonly Type IEndpointFeature = typeof(IEndpointFeature);
     internal static readonly Type IEventHandler = typeof(IEventHandler);
     internal static readonly Type IFormFile = typeof(IFormFile);
     internal static readonly Type IPlainTextRequest = typeof(IPlainTextRequest);
     internal static readonly Type IValidator = typeof(IValidator);
+    internal static readonly Type Validator = typeof(AbstractValidator<>);
     internal static readonly Type NotImplementedAttribute = typeof(NotImplementedAttribute);
     internal static readonly Type Object = typeof(object);
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);

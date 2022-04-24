@@ -61,10 +61,12 @@ internal sealed class EndpointData
             .Where(t =>
                 !t.IsAbstract &&
                 !t.IsInterface &&
+                !t.IsGenericType &&
                 t.GetInterfaces().Intersect(new[] {
                         Types.IEndpoint,
                         Types.IValidator,
-                        Types.IEventHandler
+                        Types.IEventHandler,
+                        Types.ISummary
                 }).Any());
 
         //Endpoint<TRequest>
@@ -74,6 +76,9 @@ internal sealed class EndpointData
 
         //key: TRequest //val: TValidator
         var valDict = new Dictionary<Type, Type>();
+
+        //key: TEndpoint //val: TSummary
+        var summaryDict = new Dictionary<Type, Type>();
 
         foreach (var tDisc in discoveredTypes)
         {
@@ -90,8 +95,15 @@ internal sealed class EndpointData
 
                 if (tInterface == Types.IValidator)
                 {
-                    Type tRequest = tDisc.GetGenericArgumentsOfType(Types.Validator)?[0]!;
+                    var tRequest = tDisc.GetGenericArgumentsOfType(Types.Validator)?[0]!;
                     valDict.Add(tRequest, tDisc);
+                    continue;
+                }
+
+                if (tInterface == Types.ISummary)
+                {
+                    var tEndpoint = tDisc.GetGenericArgumentsOfType(Types.Summary)?[0]!;
+                    summaryDict.Add(tEndpoint, tDisc);
                     continue;
                 }
 
@@ -204,6 +216,11 @@ internal sealed class EndpointData
                     services.AddScoped(instance.Definition.ValidatorType);
                 else
                     services.AddSingleton(instance.Definition.ValidatorType);
+            }
+
+            if (summaryDict.TryGetValue(def.EndpointType, out var tSummary))
+            {
+                def.Summary = (EndpointSummary?)Activator.CreateInstance(tSummary);
             }
 
             return def;

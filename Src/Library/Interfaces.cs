@@ -18,6 +18,9 @@ public interface IEndpoint
     public static string TestURLFor<TEndpoint>() => TestURLCache[typeof(TEndpoint)];
 }
 
+[HideFromDocs]
+public interface ISummary { }
+
 /// <summary>
 /// interface for defining pre-processors to be executed before the main endpoint handler is called
 /// </summary>

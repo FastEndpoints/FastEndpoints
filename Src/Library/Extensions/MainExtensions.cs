@@ -110,6 +110,7 @@ public static class MainExtensions
 
                     if (epDef.Summary?.ProducesMetas.Count > 0)
                     {
+                        EndpointSummary.ClearDefaultProduces200Metadata(hb);
                         foreach (var pMeta in epDef.Summary.ProducesMetas)
                             hb.WithMetadata(pMeta);
                     }

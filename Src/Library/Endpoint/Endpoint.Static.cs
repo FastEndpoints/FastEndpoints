@@ -229,11 +229,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptProducesMetadata = b =>
+    private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
     {
         b.Add(epBuilder =>
         {
-            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is "ProducesResponseTypeMetadata" or "AcceptsMetadata").ToArray())
+            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is Constants.ProducesMetadata or Constants.AcceptsMetaData).ToArray())
                 epBuilder.Metadata.Remove(m);
         });
     };

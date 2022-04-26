@@ -247,7 +247,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void Description(Action<RouteHandlerBuilder> builder, bool clearDefaults = false)
     {
         if (clearDefaults)
-            Definition.UserConfigAction = ClearDefaultAcceptProducesMetadata + builder;
+            Definition.UserConfigAction = ClearDefaultAcceptsProducesMetadata + builder;
         else
             Definition.UserConfigAction = builder;
     }

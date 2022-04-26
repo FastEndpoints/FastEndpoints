@@ -274,6 +274,14 @@ internal class OperationProcessor : IOperationProcessor
             if (bodyParam != null) op.Parameters.Remove(bodyParam);
         }
 
+        if(endpoint.ExampleRequest is not null)
+        {
+            foreach (var requestBody in ctx.OperationDescription.Operation.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
+            {
+                requestBody.ActualSchema.Example = endpoint.ExampleRequest;
+            }
+        }
+
         return true;
     }
 

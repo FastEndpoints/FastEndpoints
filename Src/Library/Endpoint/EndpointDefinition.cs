@@ -24,6 +24,7 @@ public sealed class EndpointDefinition
     public bool AllowAnyClaim { get; internal set; }
     public string[]? Tags { get; internal set; }
     public EndpointSummary? Summary { get; internal set; }
+    public object? ExampleRequest { get; internal set; }
     public EpVersion Version { get; internal set; } = new();
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public string? RoutePrefixOverride { get; internal set; }

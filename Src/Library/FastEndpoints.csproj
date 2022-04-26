@@ -2,16 +2,16 @@
 
     <PropertyGroup>
 
-        <Version>4.1.0-beta8</Version>
+        <Version>4.1.0</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - large file upload/reading support via `FormFileSectionsAsync()` without buffering to memory/disk #79
-            - `OnValidationFailed()` hook method added
-            - ability to specify a global header name and response message for rate limiting/throttling #84
-            - access to `IConfiguration` from within endpoint `Configure()` method
             - complete decoupling of endpoint summaries via `Summary&lt;TEndpoint&gt;` abstract class
             - `Response&lt;T&gt;()` method as an alternative to `.Produces()` method
+            - large file upload/reading support via `FormFileSectionsAsync()` without buffering to memory/disk #79
+            - `OnValidationFailed()` hook method
+            - ability to specify a global header name and response message for rate limiting/throttling #84
+            - access to `IConfiguration` from within endpoint `Configure()` method
 
             ### IMPROVEMENTS
             - ability to change order of generic arguments when inheriting `Endpoint` abstract classes #95

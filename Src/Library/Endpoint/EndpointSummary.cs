@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Metadata;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Metadata;
 using System.Linq.Expressions;
 
 namespace FastEndpoints;
@@ -9,6 +10,20 @@ namespace FastEndpoints;
 public class EndpointSummary
 {
     internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
+
+    internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b =>
+    {
+        b.Add(epBuilder =>
+        {
+            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata).ToArray())
+            {
+                if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
+                {
+                    epBuilder.Metadata.Remove(m);
+                }
+            }
+        });
+    };
 
     /// <summary>
     /// the short summary of the endpoint
@@ -49,13 +64,32 @@ public class EndpointSummary
     /// <param name="statusCode">http status code</param>
     /// <param name="description">the description of the response</param>
     /// <param name="contentType">the media/content type of the response</param>
-    public void AddResponse<TResponse>(int statusCode = 200, string? description = null, string contentType = "application/json")
+    public void Response<TResponse>(int statusCode = 200, string? description = null, string contentType = "application/json")
     {
         ProducesMetas.Add(new ProducesResponseTypeMetadata
         {
             ContentTypes = new[] { contentType },
             StatusCode = statusCode,
             Type = typeof(TResponse)
+        });
+
+        if (description is not null)
+            Responses[statusCode] = description;
+    }
+
+    /// <summary>
+    /// add a response description that doesn't have a response dto to the swagger document
+    /// </summary>
+    /// <param name="statusCode">http status code</param>
+    /// <param name="description">the description of the response</param>
+    /// <param name="contentType">the media/content type of the response</param>
+    public void Response(int statusCode = 200, string? description = null, string? contentType = null)
+    {
+        ProducesMetas.Add(new ProducesResponseTypeMetadata
+        {
+            ContentTypes = contentType is null ? Enumerable.Empty<string>() : new[] { contentType },
+            StatusCode = statusCode,
+            Type = typeof(void)
         });
 
         if (description is not null)

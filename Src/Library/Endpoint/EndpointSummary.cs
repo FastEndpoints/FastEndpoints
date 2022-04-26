@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.AspNetCore.Http.Metadata;
+using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
@@ -7,6 +8,8 @@ namespace FastEndpoints;
 /// </summary>
 public class EndpointSummary
 {
+    internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
+
     /// <summary>
     /// the short summary of the endpoint
     /// </summary>
@@ -38,6 +41,26 @@ public class EndpointSummary
         get => Responses[statusCode];
         set => Responses[statusCode] = value;
     }
+
+    /// <summary>
+    /// add a response description to the swagger document
+    /// </summary>
+    /// <typeparam name="TResponse">the type of the response dto</typeparam>
+    /// <param name="statusCode">http status code</param>
+    /// <param name="description">the description of the response</param>
+    /// <param name="contentType">the media/content type of the response</param>
+    public void AddResponse<TResponse>(int statusCode = 200, string? description = null, string contentType = "application/json")
+    {
+        ProducesMetas.Add(new ProducesResponseTypeMetadata
+        {
+            ContentTypes = new[] { contentType },
+            StatusCode = statusCode,
+            Type = typeof(TResponse)
+        });
+
+        if (description is not null)
+            Responses[statusCode] = description;
+    }
 }
 
 ///<inheritdoc/>
@@ -61,3 +84,12 @@ public abstract class Summary<TEndpoint> : EndpointSummary, ISummary where TEndp
 ///<typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
 ///<typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Summary<TEndpoint, TRequest> : EndpointSummary<TRequest>, ISummary where TEndpoint : IEndpoint where TRequest : new() { }
+
+internal class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
+{
+    public Type? Type { get; set; }
+
+    public int StatusCode { get; set; }
+
+    public IEnumerable<string> ContentTypes { get; set; }
+}

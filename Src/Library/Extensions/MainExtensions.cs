@@ -108,6 +108,12 @@ public static class MainExtensions
                     if (epDef.AllowFormData)
                         hb.Accepts(epDef.ReqDtoType, "multipart/form-data");
 
+                    if (epDef.Summary?.ProducesMetas.Count > 0)
+                    {
+                        foreach (var pMeta in epDef.Summary.ProducesMetas)
+                            hb.WithMetadata(pMeta);
+                    }
+
                     GlobalEpOptsAction?.Invoke(epDef, hb);
 
                     epDef.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above

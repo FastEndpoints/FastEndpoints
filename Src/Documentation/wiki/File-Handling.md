@@ -46,15 +46,53 @@ public class MyRequest
 }
 ```
 
+## handling large file uploads without buffering
+in asp.net, accessing `IFormFileCollection` or `IFormFile` causes the complete uploaded file to be read from the request stream and buffered to either memory or disk. you can avoid this buffering and reduce server resource utilization by manually reading the multipart file sections with the combination of `AllowFileUploads(dontAutoBindFormData: true)` and `FormFileSectionsAsync()` methods as shown below:
+
+```csharp
+public class Upload : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Post("/api/file-upload");
+        AllowFileUploads(dontAutoBindFormData: true); //turns off buffering
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        await foreach (var section in FormFileSectionsAsync(ct))
+        {
+            if (section is not null)
+            {
+                using (var fs = System.IO.File.Create(section.FileName))
+                {
+                    await section.Section.Body.CopyToAsync(fs, 1024 * 64, ct);
+                }
+            }
+        }
+
+        await SendOkAsync("upload complete!");
+    }
+}
+```
+
+you may also need to increase the max request body size in kestrel to allow large file uploads like so:
+```csharp
+builder.WebHost.ConfigureKestrel(o =>
+{
+    o.Limits.MaxRequestBodySize = 1073741824; //set to max allowed file size of your system
+});
+```
+
 # sending file responses
 
 there are 3 methods you can use to send file data down to the client.
 
-**SendStreamAsync()** - you can supply a `System.IO.Stream` to this method for reading binary data from.
+**SendStreamAsync()** - supply a `System.IO.Stream` to this method for reading binary data from.
 
-**SendFileAsync()** - you can supply a `System.IO.FileInfo` instance as the source of the binary data.
+**SendFileAsync()** - supply a `System.IO.FileInfo` instance as the source of the binary data.
 
-**SendBytesAsync()** - you can supply a byte array as the source of data to be sent to the client.
+**SendBytesAsync()** - supply a byte array as the source of data to be sent to the client.
 
 all three methods allow you to optionally specify the `content-type` and `file name`. if file name is specified, the `Content-Disposition: attachment` response header will be set with the given file name so that a file download will be initiated by the client/browser. range requests/ partial responses are also supported by setting the `enableRangeProcessing` parameter to `true`.
 

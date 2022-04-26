@@ -11,7 +11,7 @@
             - ability to specify a global header name and response message for rate limiting/throttling #84
             - access to `IConfiguration` from within endpoint `Configure()` method
             - complete decoupling of endpoint summaries via `Summary&lt;TEndpoint&gt;` abstract class
-            - `AddResponse&lt;TResponse&gt;()` method as an alternative to `.Produces()` method
+            - `Response&lt;T&gt;()` method as an alternative to `.Produces()` method
 
             ### IMPROVEMENTS
             - ability to change order of generic arguments when inheriting `Endpoint` abstract classes #95

@@ -134,11 +134,44 @@
     public IFormFile File3 { get; set; }
 }
 </code></pre>
+<h2 id="handling-large-file-uploads-without-buffering">handling large file uploads without buffering</h2>
+<p>in asp.net, accessing <code>IFormFileCollection</code> or <code>IFormFile</code> causes the complete uploaded file to be read from the request stream and buffered to either memory or disk. you can avoid this buffering and reduce server resource utilization by manually reading the multipart file sections with the combination of <code>AllowFileUploads(dontAutoBindFormData: true)</code> and <code>FormFileSectionsAsync()</code> methods as shown below:</p>
+<pre><code class="lang-csharp">public class Upload : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Post(&quot;/api/file-upload&quot;);
+        AllowFileUploads(dontAutoBindFormData: true); //turns off buffering
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        await foreach (var section in FormFileSectionsAsync(ct))
+        {
+            if (section is not null)
+            {
+                using (var fs = System.IO.File.Create(section.FileName))
+                {
+                    await section.Section.Body.CopyToAsync(fs, 1024 * 64, ct);
+                }
+            }
+        }
+
+        await SendOkAsync(&quot;upload complete!&quot;);
+    }
+}
+</code></pre>
+<p>you may also need to increase the max request body size in kestrel to allow large file uploads like so:</p>
+<pre><code class="lang-csharp">builder.WebHost.ConfigureKestrel(o =&gt;
+{
+    o.Limits.MaxRequestBodySize = 1073741824; //set to max allowed file size of your system
+});
+</code></pre>
 <h1 id="sending-file-responses">sending file responses</h1>
 <p>there are 3 methods you can use to send file data down to the client.</p>
-<p><strong>SendStreamAsync()</strong> - you can supply a <code>System.IO.Stream</code> to this method for reading binary data from.</p>
-<p><strong>SendFileAsync()</strong> - you can supply a <code>System.IO.FileInfo</code> instance as the source of the binary data.</p>
-<p><strong>SendBytesAsync()</strong> - you can supply a byte array as the source of data to be sent to the client.</p>
+<p><strong>SendStreamAsync()</strong> - supply a <code>System.IO.Stream</code> to this method for reading binary data from.</p>
+<p><strong>SendFileAsync()</strong> - supply a <code>System.IO.FileInfo</code> instance as the source of the binary data.</p>
+<p><strong>SendBytesAsync()</strong> - supply a byte array as the source of data to be sent to the client.</p>
 <p>all three methods allow you to optionally specify the <code>content-type</code> and <code>file name</code>. if file name is specified, the <code>Content-Disposition: attachment</code> response header will be set with the given file name so that a file download will be initiated by the client/browser. range requests/ partial responses are also supported by setting the <code>enableRangeProcessing</code> parameter to <code>true</code>.</p>
 <h1 id="write-to-response-stream">write to response stream</h1>
 <p>instead of using the above methods, you also have the choice of writing directly to the http response stream.</p>

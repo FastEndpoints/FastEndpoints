@@ -136,18 +136,20 @@
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class BaseEndpoint : IEndpoint</code></pre>
   </div>
-  <h3 id="fields">Fields
+  <h3 id="properties">Properties
   </h3>
   
   
-  <h4 id="FastEndpoints_BaseEndpoint__httpContext" data-uid="FastEndpoints.BaseEndpoint._httpContext">_httpContext</h4>
-  <div class="markdown level1 summary"></div>
+  <a id="FastEndpoints_BaseEndpoint_Config_" data-uid="FastEndpoints.BaseEndpoint.Config*"></a>
+  <h4 id="FastEndpoints_BaseEndpoint_Config" data-uid="FastEndpoints.BaseEndpoint.Config">Config</h4>
+  <div class="markdown level1 summary"><p>gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <code>.AddFastEndpoints(config: builder.Configuration)</code></p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected HttpContext _httpContext</code></pre>
+    <pre><code class="lang-csharp hljs">public IConfiguration Config { get; }</code></pre>
   </div>
-  <h5 class="fieldValue">Field Value</h5>
+  <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
@@ -157,22 +159,21 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="xref">Microsoft.AspNetCore.Http.HttpContext</span></td>
+        <td><span class="xref">Microsoft.Extensions.Configuration.IConfiguration</span></td>
         <td></td>
       </tr>
     </tbody>
   </table>
-  <h3 id="properties">Properties
-  </h3>
   
   
-  <a id="FastEndpoints_BaseEndpoint_Configuration_" data-uid="FastEndpoints.BaseEndpoint.Configuration*"></a>
-  <h4 id="FastEndpoints_BaseEndpoint_Configuration" data-uid="FastEndpoints.BaseEndpoint.Configuration">Configuration</h4>
-  <div class="markdown level1 summary"></div>
+  <a id="FastEndpoints_BaseEndpoint_Definition_" data-uid="FastEndpoints.BaseEndpoint.Definition*"></a>
+  <h4 id="FastEndpoints_BaseEndpoint_Definition" data-uid="FastEndpoints.BaseEndpoint.Definition">Definition</h4>
+  <div class="markdown level1 summary"><p>gets the endpoint definition which contains all the configuration info for the endpoint</p>
+</div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public EndpointDefinition Configuration { get; }</code></pre>
+    <pre><code class="lang-csharp hljs">public EndpointDefinition Definition { get; }</code></pre>
   </div>
   <h5 class="propertyValue">Property Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -255,6 +256,50 @@
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public virtual void Configure()</code></pre>
   </div>
+  
+  
+  <a id="FastEndpoints_BaseEndpoint_FormFileSectionsAsync_" data-uid="FastEndpoints.BaseEndpoint.FormFileSectionsAsync*"></a>
+  <h4 id="FastEndpoints_BaseEndpoint_FormFileSectionsAsync_CancellationToken_" data-uid="FastEndpoints.BaseEndpoint.FormFileSectionsAsync(CancellationToken)">FormFileSectionsAsync(CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk as done with IFormFile</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public async IAsyncEnumerable&lt;FileMultipartSection&gt; FormFileSectionsAsync(CancellationToken cancellation = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td><p>optional cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">IAsyncEnumerable</span>&lt;<span class="xref">Microsoft.AspNetCore.WebUtilities.FileMultipartSection</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
   
   
   <a id="FastEndpoints_BaseEndpoint_Verbs_" data-uid="FastEndpoints.BaseEndpoint.Verbs*"></a>

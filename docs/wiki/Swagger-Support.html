@@ -184,8 +184,32 @@ public override void Configure()
     Summary(new AdminLoginSummary());        
 }
 </code></pre>
+<p>alternatively, if you'd like to get rid of all traces of <code>Summary()</code> from your endpoint classes and have the summary completely separated, you can implement the <code>Summary&lt;TEndpoint&gt;</code> abstract class like shown below:</p>
+<pre><code class="lang-csharp">public class MySummary : Summary&lt;MyEndpoint&gt;
+{
+    public MySummary()
+    {
+        Summary = &quot;short summary goes here&quot;;
+        Description = &quot;long description goes here&quot;;
+        Response&lt;MyResponse&gt;(200, &quot;ok response with body&quot;);
+        Response&lt;ErrorResponse&gt;(400, &quot;validation failure&quot;);
+        Response(404, &quot;account not found&quot;);
+    }
+}
+
+public class MyEndpoint : Endpoint&lt;MyRequest, MyResponse&gt;
+{
+    public override void Configure()
+    {
+        Post(&quot;/api/my-endpoint&quot;);
+        AllowAnonymous();
+        //no need to specify summary here
+    }
+}
+</code></pre>
+<p>the <code>Response()</code> method does the same job as the <code>Produces()</code> method mentioned earlier. do note however, if you use the <code>Response()</code> method, the default <code>200</code> response is automatically removed, and you'd have to specify the <code>200</code> response yourself if it applies to your endpoint.</p>
 <h3 id="describe-request-params">describe request params</h3>
-<p>route parameters, query parameters and request dto property descriptions can be specified either with xml comments or with the <code>Summary()</code> method or <code>EndpointSummary</code> subclassing. take the following for example:</p>
+<p>route parameters, query parameters and request dto property descriptions can be specified either with xml comments or with the <code>Summary()</code> method or <code>EndpointSummary</code> or <code>Summary&lt;TEndpoint,TRequest&gt;</code> subclassing. take the following for example:</p>
 <p><strong>request dto:</strong></p>
 <pre><code class="lang-csharp">/// &lt;summary&gt;
 /// the admin login request summary
@@ -219,7 +243,7 @@ public class Request
 }
 </code></pre>
 <p>use the <code>s.Params</code> dictionary to specify descriptions for params that don't exist on the request dto or when there is no request dto.</p>
-<p>use the <code>s.RequestParam()</code> method to specify descriptions for properties of the request dto in a strongly-typed manner.</p>
+<p>use the <code>s.RequestParam()</code> method to specify descriptions for properties of the request dto in a strongly-typed manner. <code>RequestParam()</code> is also available when you use the <code>Summary&lt;TEndpoint,TRequest&gt;</code> generic overload.</p>
 <p>whatever you specify within the <code>Summary()</code> method as above takes higher precedence over xml comments.</p>
 <h3 id="enabling-xml-documentation">enabling xml documentation</h3>
 <p>xml documentation is only supported for request/response dtos (swagger schemas) which can be enabled by adding the following to the <code>csproj</code> file:</p>

@@ -114,10 +114,10 @@
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
     <div>
-      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint__httpContext">BaseEndpoint._httpContext</a>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Definition">BaseEndpoint.Definition</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configuration">BaseEndpoint.Configuration</a>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Config">BaseEndpoint.Config</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_HttpContext">BaseEndpoint.HttpContext</a>
@@ -127,6 +127,9 @@
     </div>
     <div>
       <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configure">BaseEndpoint.Configure()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_FormFileSectionsAsync_CancellationToken_">BaseEndpoint.FormFileSectionsAsync(CancellationToken)</a>
     </div>
     <div>
       <span class="xref">System.Object.Equals(System.Object)</span>
@@ -155,7 +158,6 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
-
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -203,32 +205,6 @@
     <tbody>
       <tr>
         <td><span class="xref">System.String</span></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-  
-  
-  <a id="FastEndpoints_Endpoint_2_Config_" data-uid="FastEndpoints.Endpoint`2.Config*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_Config" data-uid="FastEndpoints.Endpoint`2.Config">Config</h4>
-  <div class="markdown level1 summary"><p>gives access to the configuration</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IConfiguration Config { get; }</code></pre>
-  </div>
-  <h5 class="propertyValue">Property Value</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">Microsoft.Extensions.Configuration.IConfiguration</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -565,14 +541,33 @@ i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify Allow
   
   
   <a id="FastEndpoints_Endpoint_2_AllowFileUploads_" data-uid="FastEndpoints.Endpoint`2.AllowFileUploads*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_AllowFileUploads" data-uid="FastEndpoints.Endpoint`2.AllowFileUploads">AllowFileUploads()</h4>
+  <h4 id="FastEndpoints_Endpoint_2_AllowFileUploads_System_Boolean_" data-uid="FastEndpoints.Endpoint`2.AllowFileUploads(System.Boolean)">AllowFileUploads(Boolean)</h4>
   <div class="markdown level1 summary"><p>enable file uploads with multipart/form-data content type</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void AllowFileUploads()</code></pre>
+    <pre><code class="lang-csharp hljs">protected void AllowFileUploads(bool dontAutoBindFormData = false)</code></pre>
   </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">dontAutoBindFormData</span></td>
+        <td><p>set 'true' to disable auto binding of form data which enables uploading and reading of large files without buffering to memory/disk.
+you can access the multipart sections for reading via the FormFileSectionsAsync() method.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
   
   
   <a id="FastEndpoints_Endpoint_2_AllowFormData_" data-uid="FastEndpoints.Endpoint`2.AllowFormData*"></a>
@@ -1193,6 +1188,43 @@ EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
   </table>
   
   
+  <a id="FastEndpoints_Endpoint_2_OnValidationFailed_" data-uid="FastEndpoints.Endpoint`2.OnValidationFailed*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnValidationFailed" data-uid="FastEndpoints.Endpoint`2.OnValidationFailed">OnValidationFailed()</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something when a validation failure occurs.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual void OnValidationFailed()</code></pre>
+  </div>
+  
+  
+  <a id="FastEndpoints_Endpoint_2_OnValidationFailedAsync_" data-uid="FastEndpoints.Endpoint`2.OnValidationFailedAsync*"></a>
+  <h4 id="FastEndpoints_Endpoint_2_OnValidationFailedAsync" data-uid="FastEndpoints.Endpoint`2.OnValidationFailedAsync">OnValidationFailedAsync()</h4>
+  <div class="markdown level1 summary"><p>override this method if you'd like to do something when a validation failure occurs.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public virtual Task OnValidationFailedAsync()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="FastEndpoints_Endpoint_2_Options_" data-uid="FastEndpoints.Endpoint`2.Options*"></a>
   <h4 id="FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__" data-uid="FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})">Options(Action&lt;RouteHandlerBuilder&gt;)</h4>
   <div class="markdown level1 summary"><p>set endpoint configurations options using an endpoint builder action ///</p>
@@ -1431,7 +1463,6 @@ EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
-
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1648,7 +1679,6 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
-
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -2112,7 +2142,6 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
-
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -2905,7 +2934,6 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;(TContext serializerContext)
-
     where TContext : JsonSerializerContext</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -3095,7 +3123,8 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">headerName</span></td>
         <td><p>the name of the request header used to uniquely identify clients.
-specifying null will first look for 'X-Forwarded-For' and if not present, will use <code>HttpContext.Connection.RemoteIpAddress</code></p>
+header name can also be configured globally using <code>app.UseFastEndpoints(c=&gt; c.ThrottleOptions...)</code>
+not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use <code>HttpContext.Connection.RemoteIpAddress</code>.</p>
 </td>
       </tr>
     </tbody>
@@ -3229,7 +3258,6 @@ specifying null will first look for 'X-Forwarded-For' and if not present, will u
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
-
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>

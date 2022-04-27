@@ -110,6 +110,9 @@ override this method if you'd like to do something to the request dto before it 
 #### OnAfterValidate()
 override this method if you'd like to do something to the request dto after it gets validated.
 
+#### OnValidationFailed()
+override this method if you'd like to do something when validation fails. 
+
 #### OnBeforeHandle()
 override this method if you'd like to do something to the request dto before the handler is executed.
 

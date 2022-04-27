@@ -162,6 +162,12 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandleAsync__0__1_">Endpoint&lt;TRequest, TResponse&gt;.OnAfterHandleAsync(TRequest, TResponse)</a>
     </div>
     <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailed">Endpoint&lt;TRequest, TResponse&gt;.OnValidationFailed()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailedAsync">Endpoint&lt;TRequest, TResponse&gt;.OnValidationFailedAsync()</a>
+    </div>
+    <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ValidationFailed">Endpoint&lt;TRequest, TResponse&gt;.ValidationFailed</a>
     </div>
     <div>
@@ -169,9 +175,6 @@
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Response">Endpoint&lt;TRequest, TResponse&gt;.Response</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Config">Endpoint&lt;TRequest, TResponse&gt;.Config</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Env">Endpoint&lt;TRequest, TResponse&gt;.Env</a>
@@ -276,7 +279,7 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowAnonymous_FastEndpoints_Http___">Endpoint&lt;TRequest, TResponse&gt;.AllowAnonymous(Http[])</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads">Endpoint&lt;TRequest, TResponse&gt;.AllowFileUploads()</a>
+      <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads_System_Boolean_">Endpoint&lt;TRequest, TResponse&gt;.AllowFileUploads(Boolean)</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFormData">Endpoint&lt;TRequest, TResponse&gt;.AllowFormData()</a>
@@ -360,13 +363,13 @@
       <a class="xref" href="FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_ThrowError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_">Endpoint&lt;TRequest, TResponse&gt;.ThrowError(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String)</a>
     </div>
     <div>
-      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint__httpContext">BaseEndpoint._httpContext</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configuration">BaseEndpoint.Configuration</a>
-    </div>
-    <div>
       <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Verbs_FastEndpoints_Http___">BaseEndpoint.Verbs(Http[])</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Definition">BaseEndpoint.Definition</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Config">BaseEndpoint.Config</a>
     </div>
     <div>
       <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_HttpContext">BaseEndpoint.HttpContext</a>
@@ -376,6 +379,9 @@
     </div>
     <div>
       <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configure">BaseEndpoint.Configure()</a>
+    </div>
+    <div>
+      <a class="xref" href="FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_FormFileSectionsAsync_CancellationToken_">BaseEndpoint.FormFileSectionsAsync(CancellationToken)</a>
     </div>
     <div>
       <span class="xref">System.Object.Equals(System.Object)</span>
@@ -404,9 +410,7 @@
   <h5 id="FastEndpoints_Endpoint_3_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse, TMapper&gt; : Endpoint&lt;TRequest, TResponse&gt;, IEndpoint, IServiceResolver where TRequest : new()
-
     where TResponse : new()
-
     where TMapper : IEntityMapper, new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>

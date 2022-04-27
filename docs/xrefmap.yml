@@ -13,25 +13,19 @@ references:
   commentId: T:FastEndpoints.BaseEndpoint
   fullName: FastEndpoints.BaseEndpoint
   nameWithType: BaseEndpoint
-- uid: FastEndpoints.BaseEndpoint._httpContext
-  name: _httpContext
-  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint__httpContext
-  commentId: F:FastEndpoints.BaseEndpoint._httpContext
-  fullName: FastEndpoints.BaseEndpoint._httpContext
-  nameWithType: BaseEndpoint._httpContext
-- uid: FastEndpoints.BaseEndpoint.Configuration
-  name: Configuration
-  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configuration
-  commentId: P:FastEndpoints.BaseEndpoint.Configuration
-  fullName: FastEndpoints.BaseEndpoint.Configuration
-  nameWithType: BaseEndpoint.Configuration
-- uid: FastEndpoints.BaseEndpoint.Configuration*
-  name: Configuration
-  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configuration_
-  commentId: Overload:FastEndpoints.BaseEndpoint.Configuration
+- uid: FastEndpoints.BaseEndpoint.Config
+  name: Config
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Config
+  commentId: P:FastEndpoints.BaseEndpoint.Config
+  fullName: FastEndpoints.BaseEndpoint.Config
+  nameWithType: BaseEndpoint.Config
+- uid: FastEndpoints.BaseEndpoint.Config*
+  name: Config
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Config_
+  commentId: Overload:FastEndpoints.BaseEndpoint.Config
   isSpec: "True"
-  fullName: FastEndpoints.BaseEndpoint.Configuration
-  nameWithType: BaseEndpoint.Configuration
+  fullName: FastEndpoints.BaseEndpoint.Config
+  nameWithType: BaseEndpoint.Config
 - uid: FastEndpoints.BaseEndpoint.Configure
   name: Configure()
   href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Configure
@@ -45,6 +39,32 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.BaseEndpoint.Configure
   nameWithType: BaseEndpoint.Configure
+- uid: FastEndpoints.BaseEndpoint.Definition
+  name: Definition
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Definition
+  commentId: P:FastEndpoints.BaseEndpoint.Definition
+  fullName: FastEndpoints.BaseEndpoint.Definition
+  nameWithType: BaseEndpoint.Definition
+- uid: FastEndpoints.BaseEndpoint.Definition*
+  name: Definition
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_Definition_
+  commentId: Overload:FastEndpoints.BaseEndpoint.Definition
+  isSpec: "True"
+  fullName: FastEndpoints.BaseEndpoint.Definition
+  nameWithType: BaseEndpoint.Definition
+- uid: FastEndpoints.BaseEndpoint.FormFileSectionsAsync(CancellationToken)
+  name: FormFileSectionsAsync(CancellationToken)
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_FormFileSectionsAsync_CancellationToken_
+  commentId: M:FastEndpoints.BaseEndpoint.FormFileSectionsAsync(CancellationToken)
+  fullName: FastEndpoints.BaseEndpoint.FormFileSectionsAsync(CancellationToken)
+  nameWithType: BaseEndpoint.FormFileSectionsAsync(CancellationToken)
+- uid: FastEndpoints.BaseEndpoint.FormFileSectionsAsync*
+  name: FormFileSectionsAsync
+  href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_FormFileSectionsAsync_
+  commentId: Overload:FastEndpoints.BaseEndpoint.FormFileSectionsAsync
+  isSpec: "True"
+  fullName: FastEndpoints.BaseEndpoint.FormFileSectionsAsync
+  nameWithType: BaseEndpoint.FormFileSectionsAsync
 - uid: FastEndpoints.BaseEndpoint.HttpContext
   name: HttpContext
   href: api/FastEndpoints.BaseEndpoint.html#FastEndpoints_BaseEndpoint_HttpContext
@@ -229,6 +249,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Config.ShortEndpointNames
   nameWithType: Config.ShortEndpointNames
+- uid: FastEndpoints.Config.ThrottleOptions
+  name: ThrottleOptions
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_ThrottleOptions
+  commentId: P:FastEndpoints.Config.ThrottleOptions
+  fullName: FastEndpoints.Config.ThrottleOptions
+  nameWithType: Config.ThrottleOptions
+- uid: FastEndpoints.Config.ThrottleOptions*
+  name: ThrottleOptions
+  href: api/FastEndpoints.Config.html#FastEndpoints_Config_ThrottleOptions_
+  commentId: Overload:FastEndpoints.Config.ThrottleOptions
+  isSpec: "True"
+  fullName: FastEndpoints.Config.ThrottleOptions
+  nameWithType: Config.ThrottleOptions
 - uid: FastEndpoints.Config.VersioningOptions
   name: VersioningOptions
   href: api/FastEndpoints.Config.html#FastEndpoints_Config_VersioningOptions
@@ -316,14 +349,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowAnonymous
   nameWithType: Endpoint<TRequest, TResponse>.AllowAnonymous
   nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowAnonymous
-- uid: FastEndpoints.Endpoint`2.AllowFileUploads
-  name: AllowFileUploads()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads
-  commentId: M:FastEndpoints.Endpoint`2.AllowFileUploads
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowFileUploads()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFileUploads()
-  nameWithType: Endpoint<TRequest, TResponse>.AllowFileUploads()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFileUploads()
+- uid: FastEndpoints.Endpoint`2.AllowFileUploads(System.Boolean)
+  name: AllowFileUploads(Boolean)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads_System_Boolean_
+  commentId: M:FastEndpoints.Endpoint`2.AllowFileUploads(System.Boolean)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AllowFileUploads(System.Boolean)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AllowFileUploads(System.Boolean)
+  nameWithType: Endpoint<TRequest, TResponse>.AllowFileUploads(Boolean)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AllowFileUploads(Boolean)
 - uid: FastEndpoints.Endpoint`2.AllowFileUploads*
   name: AllowFileUploads
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AllowFileUploads_
@@ -421,23 +454,6 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).ClaimsAll
   nameWithType: Endpoint<TRequest, TResponse>.ClaimsAll
   nameWithType.vb: Endpoint(Of TRequest, TResponse).ClaimsAll
-- uid: FastEndpoints.Endpoint`2.Config
-  name: Config
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Config
-  commentId: P:FastEndpoints.Endpoint`2.Config
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Config
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Config
-  nameWithType: Endpoint<TRequest, TResponse>.Config
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Config
-- uid: FastEndpoints.Endpoint`2.Config*
-  name: Config
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Config_
-  commentId: Overload:FastEndpoints.Endpoint`2.Config
-  isSpec: "True"
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Config
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Config
-  nameWithType: Endpoint<TRequest, TResponse>.Config
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).Config
 - uid: FastEndpoints.Endpoint`2.Delete(System.String[])
   name: Delete(String[])
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Delete_System_String___
@@ -781,6 +797,40 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync
   nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidateAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync
+- uid: FastEndpoints.Endpoint`2.OnValidationFailed
+  name: OnValidationFailed()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailed
+  commentId: M:FastEndpoints.Endpoint`2.OnValidationFailed
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnValidationFailed()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnValidationFailed()
+  nameWithType: Endpoint<TRequest, TResponse>.OnValidationFailed()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnValidationFailed()
+- uid: FastEndpoints.Endpoint`2.OnValidationFailed*
+  name: OnValidationFailed
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailed_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnValidationFailed
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnValidationFailed
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnValidationFailed
+  nameWithType: Endpoint<TRequest, TResponse>.OnValidationFailed
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnValidationFailed
+- uid: FastEndpoints.Endpoint`2.OnValidationFailedAsync
+  name: OnValidationFailedAsync()
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailedAsync
+  commentId: M:FastEndpoints.Endpoint`2.OnValidationFailedAsync
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnValidationFailedAsync()
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnValidationFailedAsync()
+  nameWithType: Endpoint<TRequest, TResponse>.OnValidationFailedAsync()
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnValidationFailedAsync()
+- uid: FastEndpoints.Endpoint`2.OnValidationFailedAsync*
+  name: OnValidationFailedAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailedAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.OnValidationFailedAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnValidationFailedAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnValidationFailedAsync
+  nameWithType: Endpoint<TRequest, TResponse>.OnValidationFailedAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnValidationFailedAsync
 - uid: FastEndpoints.Endpoint`2.Options(Action{Microsoft.AspNetCore.Builder.RouteHandlerBuilder})
   name: Options(Action<RouteHandlerBuilder>)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Options_Action_Microsoft_AspNetCore_Builder_RouteHandlerBuilder__
@@ -1771,6 +1821,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointDefinition.DontAutoTag
   nameWithType: EndpointDefinition.DontAutoTag
+- uid: FastEndpoints.EndpointDefinition.DontBindFormData
+  name: DontBindFormData
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_DontBindFormData
+  commentId: P:FastEndpoints.EndpointDefinition.DontBindFormData
+  fullName: FastEndpoints.EndpointDefinition.DontBindFormData
+  nameWithType: EndpointDefinition.DontBindFormData
+- uid: FastEndpoints.EndpointDefinition.DontBindFormData*
+  name: DontBindFormData
+  href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_DontBindFormData_
+  commentId: Overload:FastEndpoints.EndpointDefinition.DontBindFormData
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDefinition.DontBindFormData
+  nameWithType: EndpointDefinition.DontBindFormData
 - uid: FastEndpoints.EndpointDefinition.Permissions
   name: Permissions
   href: api/FastEndpoints.EndpointDefinition.html#FastEndpoints_EndpointDefinition_Permissions
@@ -1962,6 +2025,28 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointSummary.Params
   nameWithType: EndpointSummary.Params
+- uid: FastEndpoints.EndpointSummary.Response(System.Int32,System.String,System.String)
+  name: Response(Int32, String, String)
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Response_System_Int32_System_String_System_String_
+  commentId: M:FastEndpoints.EndpointSummary.Response(System.Int32,System.String,System.String)
+  fullName: FastEndpoints.EndpointSummary.Response(System.Int32, System.String, System.String)
+  nameWithType: EndpointSummary.Response(Int32, String, String)
+- uid: FastEndpoints.EndpointSummary.Response*
+  name: Response
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Response_
+  commentId: Overload:FastEndpoints.EndpointSummary.Response
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointSummary.Response
+  nameWithType: EndpointSummary.Response
+- uid: FastEndpoints.EndpointSummary.Response``1(System.Int32,System.String,System.String)
+  name: Response<TResponse>(Int32, String, String)
+  href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Response__1_System_Int32_System_String_System_String_
+  commentId: M:FastEndpoints.EndpointSummary.Response``1(System.Int32,System.String,System.String)
+  name.vb: Response(Of TResponse)(Int32, String, String)
+  fullName: FastEndpoints.EndpointSummary.Response<TResponse>(System.Int32, System.String, System.String)
+  fullName.vb: FastEndpoints.EndpointSummary.Response(Of TResponse)(System.Int32, System.String, System.String)
+  nameWithType: EndpointSummary.Response<TResponse>(Int32, String, String)
+  nameWithType.vb: EndpointSummary.Response(Of TResponse)(Int32, String, String)
 - uid: FastEndpoints.EndpointSummary.Responses
   name: Responses
   href: api/FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Responses
@@ -3248,15 +3333,15 @@ references:
   commentId: T:FastEndpoints.MainExtensions
   fullName: FastEndpoints.MainExtensions
   nameWithType: MainExtensions
-- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{IEnumerable{System.Reflection.Assembly}})
-  name: AddFastEndpoints(IServiceCollection, Nullable<IEnumerable<Assembly>>)
-  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_IEnumerable_System_Reflection_Assembly___
-  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{IEnumerable{System.Reflection.Assembly}})
-  name.vb: AddFastEndpoints(IServiceCollection, Nullable(Of IEnumerable(Of Assembly)))
-  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<IEnumerable<System.Reflection.Assembly>>)
-  fullName.vb: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of IEnumerable(Of System.Reflection.Assembly)))
-  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable<IEnumerable<Assembly>>)
-  nameWithType.vb: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable(Of IEnumerable(Of Assembly)))
+- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{IEnumerable{System.Reflection.Assembly}},Microsoft.Extensions.Configuration.ConfigurationManager)
+  name: AddFastEndpoints(IServiceCollection, Nullable<IEnumerable<Assembly>>, ConfigurationManager)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_IEnumerable_System_Reflection_Assembly___Microsoft_Extensions_Configuration_ConfigurationManager_
+  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{IEnumerable{System.Reflection.Assembly}},Microsoft.Extensions.Configuration.ConfigurationManager)
+  name.vb: AddFastEndpoints(IServiceCollection, Nullable(Of IEnumerable(Of Assembly)), ConfigurationManager)
+  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<IEnumerable<System.Reflection.Assembly>>, Microsoft.Extensions.Configuration.ConfigurationManager)
+  fullName.vb: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of IEnumerable(Of System.Reflection.Assembly)), Microsoft.Extensions.Configuration.ConfigurationManager)
+  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable<IEnumerable<Assembly>>, ConfigurationManager)
+  nameWithType.vb: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable(Of IEnumerable(Of Assembly)), ConfigurationManager)
 - uid: FastEndpoints.MainExtensions.AddFastEndpoints*
   name: AddFastEndpoints
   href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_
@@ -3743,6 +3828,24 @@ references:
   fullName: FastEndpoints.Security.Permissions.System.Collections.IEnumerable.GetEnumerator
   nameWithType: Permissions.IEnumerable.GetEnumerator
   nameWithType.vb: Permissions.System.Collections.IEnumerable.GetEnumerator
+- uid: FastEndpoints.Summary`1
+  name: Summary<TEndpoint>
+  href: api/FastEndpoints.Summary-1.html
+  commentId: T:FastEndpoints.Summary`1
+  name.vb: Summary(Of TEndpoint)
+  fullName: FastEndpoints.Summary<TEndpoint>
+  fullName.vb: FastEndpoints.Summary(Of TEndpoint)
+  nameWithType: Summary<TEndpoint>
+  nameWithType.vb: Summary(Of TEndpoint)
+- uid: FastEndpoints.Summary`2
+  name: Summary<TEndpoint, TRequest>
+  href: api/FastEndpoints.Summary-2.html
+  commentId: T:FastEndpoints.Summary`2
+  name.vb: Summary(Of TEndpoint, TRequest)
+  fullName: FastEndpoints.Summary<TEndpoint, TRequest>
+  fullName.vb: FastEndpoints.Summary(Of TEndpoint, TRequest)
+  nameWithType: Summary<TEndpoint, TRequest>
+  nameWithType.vb: Summary(Of TEndpoint, TRequest)
 - uid: FastEndpoints.Swagger
   name: FastEndpoints.Swagger
   href: api/FastEndpoints.Swagger.html
@@ -3829,6 +3932,38 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth
   nameWithType: Extensions.EnableJWTBearerAuth
+- uid: FastEndpoints.ThrottleOptions
+  name: ThrottleOptions
+  href: api/FastEndpoints.ThrottleOptions.html
+  commentId: T:FastEndpoints.ThrottleOptions
+  fullName: FastEndpoints.ThrottleOptions
+  nameWithType: ThrottleOptions
+- uid: FastEndpoints.ThrottleOptions.HeaderName
+  name: HeaderName
+  href: api/FastEndpoints.ThrottleOptions.html#FastEndpoints_ThrottleOptions_HeaderName
+  commentId: P:FastEndpoints.ThrottleOptions.HeaderName
+  fullName: FastEndpoints.ThrottleOptions.HeaderName
+  nameWithType: ThrottleOptions.HeaderName
+- uid: FastEndpoints.ThrottleOptions.HeaderName*
+  name: HeaderName
+  href: api/FastEndpoints.ThrottleOptions.html#FastEndpoints_ThrottleOptions_HeaderName_
+  commentId: Overload:FastEndpoints.ThrottleOptions.HeaderName
+  isSpec: "True"
+  fullName: FastEndpoints.ThrottleOptions.HeaderName
+  nameWithType: ThrottleOptions.HeaderName
+- uid: FastEndpoints.ThrottleOptions.ThrottledResponse
+  name: ThrottledResponse
+  href: api/FastEndpoints.ThrottleOptions.html#FastEndpoints_ThrottleOptions_ThrottledResponse
+  commentId: P:FastEndpoints.ThrottleOptions.ThrottledResponse
+  fullName: FastEndpoints.ThrottleOptions.ThrottledResponse
+  nameWithType: ThrottleOptions.ThrottledResponse
+- uid: FastEndpoints.ThrottleOptions.ThrottledResponse*
+  name: ThrottledResponse
+  href: api/FastEndpoints.ThrottleOptions.html#FastEndpoints_ThrottleOptions_ThrottledResponse_
+  commentId: Overload:FastEndpoints.ThrottleOptions.ThrottledResponse
+  isSpec: "True"
+  fullName: FastEndpoints.ThrottleOptions.ThrottledResponse
+  nameWithType: ThrottleOptions.ThrottledResponse
 - uid: FastEndpoints.Validation
   name: FastEndpoints.Validation
   href: api/FastEndpoints.Validation.html

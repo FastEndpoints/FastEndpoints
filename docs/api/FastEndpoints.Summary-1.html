@@ -14,10 +14,10 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class EndpointSummary&lt;TRequest&gt;
+    <title>Class Summary&lt;TEndpoint&gt;
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class EndpointSummary&lt;TRequest&gt;
+    <meta name="title" content="Class Summary&lt;TEndpoint&gt;
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern">
@@ -93,10 +93,10 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.EndpointSummary`1">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.Summary`1">
   
   
-  <h1 id="FastEndpoints_EndpointSummary_1" data-uid="FastEndpoints.EndpointSummary`1" class="text-break">Class EndpointSummary&lt;TRequest&gt;
+  <h1 id="FastEndpoints_Summary_1" data-uid="FastEndpoints.Summary`1" class="text-break">Class Summary&lt;TEndpoint&gt;
   </h1>
   <div class="markdown level0 summary"><p>a class used for providing a textual description about an endpoint for swagger</p>
 </div>
@@ -105,8 +105,7 @@
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><a class="xref" href="FastEndpoints.EndpointSummary.html">EndpointSummary</a></div>
-    <div class="level2"><span class="xref">EndpointSummary&lt;TRequest&gt;</span></div>
-      <div class="level3"><a class="xref" href="FastEndpoints.Summary-2.html">Summary&lt;TEndpoint, TRequest&gt;</a></div>
+    <div class="level2"><span class="xref">Summary&lt;TEndpoint&gt;</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -155,9 +154,9 @@
   </div>
   <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
   <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_EndpointSummary_1_syntax">Syntax</h5>
+  <h5 id="FastEndpoints_Summary_1_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class EndpointSummary&lt;TRequest&gt; : EndpointSummary where TRequest : new()</code></pre>
+    <pre><code class="lang-csharp hljs">public abstract class Summary&lt;TEndpoint&gt; : EndpointSummary, ISummary where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -169,45 +168,8 @@
     </thead>
     <tbody>
       <tr>
-        <td><span class="parametername">TRequest</span></td>
-        <td><p>the type of the request dto</p>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <h3 id="methods">Methods
-  </h3>
-  
-  
-  <a id="FastEndpoints_EndpointSummary_1_RequestParam_" data-uid="FastEndpoints.EndpointSummary`1.RequestParam*"></a>
-  <h4 id="FastEndpoints_EndpointSummary_1_RequestParam_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_" data-uid="FastEndpoints.EndpointSummary`1.RequestParam(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)">RequestParam(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String)</h4>
-  <div class="markdown level1 summary"><p>add a description for a request param for a given property of the request dto</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void RequestParam(Expression&lt;Func&lt;TRequest, object&gt;&gt; property, string description)</code></pre>
-  </div>
-  <h5 class="parameters">Parameters</h5>
-  <table class="table table-bordered table-striped table-condensed">
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="xref">System.Linq.Expressions.Expression</span>&lt;<span class="xref">Func</span>&lt;TRequest, <span class="xref">System.Object</span>&gt;&gt;</td>
-        <td><span class="parametername">property</span></td>
-        <td><p>a member expression for specifying which property the description is for</p>
-</td>
-      </tr>
-      <tr>
-        <td><span class="xref">System.String</span></td>
-        <td><span class="parametername">description</span></td>
-        <td><p>the description text</p>
+        <td><span class="parametername">TEndpoint</span></td>
+        <td><p>the type of the endpoint this summary is associated with</p>
 </td>
       </tr>
     </tbody>

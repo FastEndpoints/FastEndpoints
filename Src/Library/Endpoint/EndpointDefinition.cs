@@ -29,11 +29,11 @@ public sealed class EndpointDefinition
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public string? RoutePrefixOverride { get; internal set; }
     public bool DontAutoTag { get; internal set; }
+    public Type ReqDtoType { get; internal set; }
+    public Type EndpointType { get; internal set; }
+    public Type? ValidatorType { get; internal set; }
+    public bool ScopedValidator { get; internal set; }
 
-    internal Type EndpointType;
-    internal Type? ValidatorType;
-    internal bool ScopedValidator;
-    internal Type ReqDtoType;
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal Action<RouteHandlerBuilder>? UserConfigAction;

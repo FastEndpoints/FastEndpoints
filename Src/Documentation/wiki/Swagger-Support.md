@@ -107,8 +107,34 @@ public override void Configure()
 }
 ```
 
+alternatively, if you'd like to get rid of all traces of `Summary()` from your endpoint classes and have the summary completely separated, you can implement the `Summary<TEndpoint>` abstract class like shown below:
+```csharp
+public class MySummary : Summary<MyEndpoint>
+{
+    public MySummary()
+    {
+        Summary = "short summary goes here";
+        Description = "long description goes here";
+        Response<MyResponse>(200, "ok response with body");
+        Response<ErrorResponse>(400, "validation failure");
+        Response(404, "account not found");
+    }
+}
+
+public class MyEndpoint : Endpoint<MyRequest, MyResponse>
+{
+    public override void Configure()
+    {
+        Post("/api/my-endpoint");
+        AllowAnonymous();
+        //no need to specify summary here
+    }
+}
+```
+the `Response()` method does the same job as the `Produces()` method mentioned earlier. do note however, if you use the `Response()` method, the default `200` response is automatically removed, and you'd have to specify the `200` response yourself if it applies to your endpoint.
+
 ### describe request params
-route parameters, query parameters and request dto property descriptions can be specified either with xml comments or with the `Summary()` method or `EndpointSummary` subclassing. take the following for example:
+route parameters, query parameters and request dto property descriptions can be specified either with xml comments or with the `Summary()` method or `EndpointSummary` or `Summary<TEndpoint,TRequest>` subclassing. take the following for example:
 
 **request dto:**
 ```csharp
@@ -146,7 +172,7 @@ public override void Configure()
 ```
 use the `s.Params` dictionary to specify descriptions for params that don't exist on the request dto or when there is no request dto. 
 
-use the `s.RequestParam()` method to specify descriptions for properties of the request dto in a strongly-typed manner.
+use the `s.RequestParam()` method to specify descriptions for properties of the request dto in a strongly-typed manner. `RequestParam()` is also available when you use the `Summary<TEndpoint,TRequest>` generic overload.
 
 whatever you specify within the `Summary()` method as above takes higher precedence over xml comments.
 

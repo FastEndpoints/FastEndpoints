@@ -106,6 +106,7 @@
     <div class="level0"><span class="xref">System.Object</span></div>
     <div class="level1"><span class="xref">EndpointSummary</span></div>
       <div class="level2"><a class="xref" href="FastEndpoints.EndpointSummary-1.html">EndpointSummary&lt;TRequest&gt;</a></div>
+      <div class="level2"><a class="xref" href="FastEndpoints.Summary-1.html">Summary&lt;TEndpoint&gt;</a></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -286,6 +287,106 @@ what you specify here will take precedence over xml comments of dto classes (if 
       <tr>
         <td><span class="xref">System.String</span></td>
         <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="FastEndpoints_EndpointSummary_Response_" data-uid="FastEndpoints.EndpointSummary.Response*"></a>
+  <h4 id="FastEndpoints_EndpointSummary_Response_System_Int32_System_String_System_String_" data-uid="FastEndpoints.EndpointSummary.Response(System.Int32,System.String,System.String)">Response(Int32, String, String)</h4>
+  <div class="markdown level1 summary"><p>add a response description that doesn't have a response dto to the swagger document</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Response(int statusCode = 200, string description = null, string contentType = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">statusCode</span></td>
+        <td><p>http status code</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">description</span></td>
+        <td><p>the description of the response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">contentType</span></td>
+        <td><p>the media/content type of the response</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointSummary_Response_" data-uid="FastEndpoints.EndpointSummary.Response*"></a>
+  <h4 id="FastEndpoints_EndpointSummary_Response__1_System_Int32_System_String_System_String_" data-uid="FastEndpoints.EndpointSummary.Response``1(System.Int32,System.String,System.String)">Response&lt;TResponse&gt;(Int32, String, String)</h4>
+  <div class="markdown level1 summary"><p>add a response description to the swagger document</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Response&lt;TResponse&gt;(int statusCode = 200, string description = null, string contentType = &quot;application/json&quot;)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">statusCode</span></td>
+        <td><p>http status code</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">description</span></td>
+        <td><p>the description of the response</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">contentType</span></td>
+        <td><p>the media/content type of the response</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TResponse</span></td>
+        <td><p>the type of the response dto</p>
+</td>
       </tr>
     </tbody>
   </table>

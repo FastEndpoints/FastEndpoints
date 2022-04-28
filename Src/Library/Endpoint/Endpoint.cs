@@ -1,6 +1,7 @@
 ﻿using FastEndpoints.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -59,7 +60,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             OnValidationFailed();
             await OnValidationFailedAsync();
 
-            await SendErrorsAsync(cancellation: cancellation);
+            await SendErrorsAsync(ErrRespStatusCode, cancellation);
         }
     }
 

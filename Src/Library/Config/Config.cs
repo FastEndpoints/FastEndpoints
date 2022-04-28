@@ -23,6 +23,7 @@ public class Config
     internal static Action<EndpointDefinition, RouteHandlerBuilder>? GlobalEpOptsAction { get; private set; }
     internal static Func<List<ValidationFailure>, int, object> ErrRespBldrFunc { get; private set; }
         = (failures, statusCode) => new ErrorResponse(failures, statusCode);
+    internal static int ErrRespStatusCode { get; private set; } = 400;
     internal static Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> ReqDeserializerFunc { get; private set; }
         = (req, tReqDto, jCtx, cancellation) =>
         {
@@ -103,6 +104,11 @@ public class Config
     /// so, whatever you do here may get overridden or compounded by what you do in the Configure() method of each endpoint.
     /// </summary>
     public Action<EndpointDefinition, RouteHandlerBuilder> GlobalEndpointOptions { set => GlobalEpOptsAction = value; }
+
+    /// <summary>
+    /// this http status code will be used for all automatically sent validation failure responses. defaults to 400.
+    /// </summary>
+    public int ErrorResponseStatusCode { set => ErrRespStatusCode = value; }
 
     /// <summary>
     /// a function for transforming validation errors to an error response dto.

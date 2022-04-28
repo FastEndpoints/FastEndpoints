@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
+using System.Text;
 using TestCases.EventHandlingTest;
 using static Test.Setup;
 
@@ -370,6 +371,29 @@ namespace Test
             var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
             Assert.AreEqual("this is the body content", res.BodyContent);
+            Assert.AreEqual(12345, res.Id);
+        }
+
+        [TestMethod]
+        public async Task PostWithEmptyBodyHandling()
+        {
+            var rsp = await AdminClient.PostAsync("test-cases/post-empty-body/12345", null);
+
+            var res = await rsp.Content.ReadFromJsonAsync<TestCases.PostWithEmptyBodyTest.Response>();
+
+            Assert.AreEqual(12345, res.Id);
+        }
+
+        [TestMethod]
+        public async Task PostWithEmptyBodyNSwagHandling()
+        {
+            // this is how the nswag client gets generated
+            using var stringContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
+
+            var rsp = await AdminClient.PostAsync("test-cases/post-empty-body/12345", stringContent);
+
+            var res = await rsp.Content.ReadFromJsonAsync<TestCases.PostWithEmptyBodyTest.Response>();
+
             Assert.AreEqual(12345, res.Id);
         }
 

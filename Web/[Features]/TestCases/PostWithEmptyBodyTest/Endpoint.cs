@@ -22,6 +22,6 @@ public class Endpoint : EndpointWithoutRequest<Response>
     {
         Response.Id = Route<int>("Id");
 
-        return SendAsync(Response);
+        return Task.CompletedTask;
     }
 }

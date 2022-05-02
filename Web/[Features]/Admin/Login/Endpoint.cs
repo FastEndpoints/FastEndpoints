@@ -36,6 +36,11 @@ public class Endpoint : Endpoint<Request, Response>
             s[403] = "forbidden when login fails";
             s[201] = "new resource created";
         });
+        Example( new Request
+        {
+            UserName = "custom example user name",
+            Password = "custom example password"
+        });
         SerializerContext(AdminLogin.Default);
     }
 

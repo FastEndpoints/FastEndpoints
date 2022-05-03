@@ -31,15 +31,15 @@ public class Endpoint : Endpoint<Request, Response>
             s.Summary = "this is a short summary";
             s.Description = "this is the long description of the endpoint";
             s.RequestParam(r => r.UserName, "overriden username text");
+            s.ExampleRequest = new Request
+            {
+                UserName = "custom example user name from summary",
+                Password = "custom example password from summary"
+            };
             s[200] = "all good";
             s[400] = "indicates an error";
             s[403] = "forbidden when login fails";
             s[201] = "new resource created";
-        });
-        Example( new Request
-        {
-            UserName = "custom example user name",
-            Password = "custom example password"
         });
         SerializerContext(AdminLogin.Default);
     }

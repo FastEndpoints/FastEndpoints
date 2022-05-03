@@ -36,6 +36,11 @@ public class EndpointSummary
     public string Description { get; set; }
 
     /// <summary>
+    /// an example request object to be used in swagger/ openapi.
+    /// </summary>
+    public object? ExampleRequest { get; set; }
+
+    /// <summary>
     /// the descriptions of the different responses/ status codes an endpoint can return
     /// </summary>
     public Dictionary<int, string> Responses { get; set; } = new();

@@ -16,11 +16,13 @@ public class Request
     /// <summary>
     /// the admin username
     /// </summary>
+    /// <example>example username</example>
     public string UserName { get; set; }
 
     /// <summary>
     /// the admin password
     /// </summary>
+    /// <example>example password</example>
     public string Password { get; set; }
 
     [JsonIgnore]
@@ -53,6 +55,10 @@ public class Validator : Validator<Request>
 
 public class Response
 {
+    /// <summary>
+    /// the jwt token
+    /// </summary>
+    /// <example>blahblahblah</example>
     public string JWTToken { get; set; }
     public DateTime ExpiryDate { get; set; }
     public IEnumerable<string> Permissions { get; set; }

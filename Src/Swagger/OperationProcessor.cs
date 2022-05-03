@@ -274,11 +274,20 @@ internal class OperationProcessor : IOperationProcessor
             if (bodyParam != null) op.Parameters.Remove(bodyParam);
         }
 
-        if(endpoint.ExampleRequest is not null)
+        //set request example if provided by user
+        if (endpoint.Summary?.ExampleRequest is not null)
         {
-            foreach (var requestBody in ctx.OperationDescription.Operation.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
+            foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
             {
-                requestBody.ActualSchema.Example = endpoint.ExampleRequest;
+                //todo: need to figure out how to do the following:
+                // 1) read correct property name from the `BindFromAttribute` if present on properties
+                // 2) remove properties that are not present in requestBody
+
+                //need to serialize to a json string because just setting the object doesn't honor the serializer settings provided by user.
+                requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
+                    endpoint.Summary.ExampleRequest,
+                    ctx.SchemaGenerator.Settings.ActualSerializerSettings);
+
             }
         }
 

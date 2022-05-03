@@ -281,15 +281,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         Definition.Summary = endpointSummary;
     }
-    
-    /// <summary>
-    /// provide a example for this endpoint to be used in swagger/ openapi
-    /// </summary>
-    /// <param name="endpointRequestExample">define a custom request body in swagger/ openapi</param>
-    protected void Example(TRequest endpointRequestExample)
-    {
-        Definition.ExampleRequest = endpointRequestExample;
-    }
 
     /// <summary>
     /// specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.

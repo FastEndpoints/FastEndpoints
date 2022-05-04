@@ -39,7 +39,7 @@ $@"=================================
 TYPE: {type}
 REASON: {error}
 ---------------------------------
-{exHandlerFeature.Error.StackTrace}";
+{exHandlerFeature.Error}";
 
                     logger ??= ctx.RequestServices.GetRequiredService<ILogger<ExceptionHandler>>();
                     logger.LogError(msg);

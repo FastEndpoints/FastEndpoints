@@ -22,7 +22,7 @@ public static class ExceptionHandlerExtensions
     /// </code>
     /// </summary>
     /// <param name="logger">an optional logger instance</param>
-    public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null)
+    public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null, bool logEntireException = false)
     {
         app.UseExceptionHandler(errApp =>
         {
@@ -33,17 +33,21 @@ public static class ExceptionHandlerExtensions
                 {
                     var type = exHandlerFeature.Error.GetType().Name;
                     var error = exHandlerFeature.Error.Message;
-                    var msg =
-$@"=================================
-{exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0]}
-TYPE: {type}
-REASON: {error}
----------------------------------
-{exHandlerFeature.Error.StackTrace}";
 
+                    var http = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
+                    
                     logger ??= ctx.RequestServices.GetRequiredService<ILogger<ExceptionHandler>>();
-                    logger.LogError(msg);
 
+                    if (logEntireException)
+                    {
+                        logger.LogError("================================={@HTTP}{@TYPE}{@REASON}{@EXCEPTION}",http,type,error,exHandlerFeature.Error);
+
+                    }
+                    else
+                    {
+                        logger.LogError("================================={@HTTP}{@TYPE}{@REASON}{@STACKTRACE}", http,
+                            type, error, exHandlerFeature.Error.StackTrace);
+                    }
                     ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     ctx.Response.ContentType = "application/problem+json";
                     await ctx.Response.WriteAsJsonAsync(new

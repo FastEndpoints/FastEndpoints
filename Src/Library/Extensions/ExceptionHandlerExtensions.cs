@@ -22,7 +22,8 @@ public static class ExceptionHandlerExtensions
     /// </code>
     /// </summary>
     /// <param name="logger">an optional logger instance</param>
-    public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null, bool logEntireException = false)
+    public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null,
+        bool logEntireException = false)
     {
         app.UseExceptionHandler(errApp =>
         {
@@ -35,20 +36,21 @@ public static class ExceptionHandlerExtensions
                     var error = exHandlerFeature.Error.Message;
 
                     var http = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
-                    
+
                     logger ??= ctx.RequestServices.GetRequiredService<ILogger<ExceptionHandler>>();
 
                     if (logEntireException)
                     {
-                        logger.LogError("================================={@http}{@type}{@reason}{@exception}",http,type,error,exHandlerFeature.Error);
-
+                        logger.LogError("================================={@http}{@type}{@reason}{@exception}",
+                            http, type, error, exHandlerFeature.Error);
                     }
                     else
                     {
-                        logger.LogError("================================={@http}{@type}{@reason}{@stackTrace}", http,
-                            type, error, exHandlerFeature.Error.StackTrace);
+                        logger.LogError("================================={@http}{@type}{@reason}{@stackTrace}",
+                            http, type, error, exHandlerFeature.Error.StackTrace);
                     }
-                    ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                    ctx.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                     ctx.Response.ContentType = "application/problem+json";
                     await ctx.Response.WriteAsJsonAsync(new
                     {

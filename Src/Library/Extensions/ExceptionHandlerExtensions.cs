@@ -40,12 +40,12 @@ public static class ExceptionHandlerExtensions
 
                     if (logEntireException)
                     {
-                        logger.LogError("================================={@HTTP}{@TYPE}{@REASON}{@EXCEPTION}",http,type,error,exHandlerFeature.Error);
+                        logger.LogError("================================={@http}{@type}{@reason}{@exception}",http,type,error,exHandlerFeature.Error);
 
                     }
                     else
                     {
-                        logger.LogError("================================={@HTTP}{@TYPE}{@REASON}{@STACKTRACE}", http,
+                        logger.LogError("================================={@http}{@type}{@reason}{@stackTrace}", http,
                             type, error, exHandlerFeature.Error.StackTrace);
                     }
                     ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

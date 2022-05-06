@@ -10,6 +10,7 @@
 
             ### IMPROVEMENTS
             - correctly infer and set route parameter type in swagger from dto property type #99
+            - structured logging for default exception handler #105
 
             ### EXPERIMENTAL
             - set an example request object for the `ExampleRequest` property in the summary

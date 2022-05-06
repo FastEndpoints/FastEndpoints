@@ -22,7 +22,8 @@ public static class ExceptionHandlerExtensions
     /// </code>
     /// </summary>
     /// <param name="logger">an optional logger instance</param>
-    public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null)
+    /// <param name="logStructuredException">set to true if you'd like to log the error in a structured manner</param>
+    public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null, bool logStructuredException = false)
     {
         app.UseExceptionHandler(errApp =>
         {
@@ -31,18 +32,22 @@ public static class ExceptionHandlerExtensions
                 var exHandlerFeature = ctx.Features.Get<IExceptionHandlerFeature>();
                 if (exHandlerFeature is not null)
                 {
+                    logger ??= ctx.RequestServices.GetRequiredService<ILogger<ExceptionHandler>>();
+                    var http = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
                     var type = exHandlerFeature.Error.GetType().Name;
                     var error = exHandlerFeature.Error.Message;
                     var msg =
-$@"=================================
-{exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0]}
-TYPE: {type}
-REASON: {error}
----------------------------------
+$@"================================= 
+{http} 
+TYPE: {type} 
+REASON: {error} 
+--------------------------------- 
 {exHandlerFeature.Error.StackTrace}";
 
-                    logger ??= ctx.RequestServices.GetRequiredService<ILogger<ExceptionHandler>>();
-                    logger.LogError(msg);
+                    if (logStructuredException)
+                        logger.LogError("{@http}{@type}{@reason}{@exception}", http, type, error, exHandlerFeature.Error);
+                    else
+                        logger.LogError(msg);
 
                     ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     ctx.Response.ContentType = "application/problem+json";

@@ -178,12 +178,18 @@ internal class OperationProcessor : IOperationProcessor
                 //remove corresponding json field from the request body
                 RemovePropFromRequestBodyContent(m.Value, op.RequestBody?.Content);
 
+                var pType = reqDtoProps?.SingleOrDefault(p =>
+                {
+                    var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
+                    return string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase);
+                })?.PropertyType ?? Types.String;
+
                 return new OpenApiParameter
                 {
                     Name = ActualParamName(m.Value),
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
-                    Schema = JsonSchema.FromType(typeof(string)), //todo: detect route constraints from {name:int}/{name:double}
+                    Schema = JsonSchema.FromType(pType),
                     Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value))
                 };
             })

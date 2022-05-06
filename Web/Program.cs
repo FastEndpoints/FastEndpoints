@@ -24,7 +24,7 @@ builder.Services
         s.Version = "v0.0";
     },
     shortSchemaNames: true,
-    serializerSettings: x => x.PropertyNamingPolicy = JsonNamingPolicy.CamelCase)
+    serializerSettings: x => x.PropertyNamingPolicy = null)
 
     .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
      {

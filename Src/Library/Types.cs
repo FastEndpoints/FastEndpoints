@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using System.Collections;
 
 namespace FastEndpoints;
 
@@ -27,6 +28,7 @@ internal static class Types
     internal static readonly Type Object = typeof(object);
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);
     internal static readonly Type String = typeof(string);
+    internal static readonly Type List = typeof(IList);
     internal static readonly Type Summary = typeof(Summary<>);
     internal static readonly Type TimeSpan = typeof(TimeSpan);
     internal static readonly Type Uri = typeof(Uri);

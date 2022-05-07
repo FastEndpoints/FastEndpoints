@@ -1,6 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 
 namespace FastEndpoints;
 
@@ -82,6 +85,9 @@ internal static class ReflectionExtensions
 
         if (type == Types.Uri)
             return input => (true, new Uri((string)input!));
+
+        if (type.GetInterfaces().Contains(Types.List))
+            return input => (true, input is null ? null : JsonSerializer.Deserialize($"[{input}]", type))!;
 
         var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, type.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)

@@ -24,9 +24,9 @@ steps:
     displayName: "Run Tests"
     inputs:
       command: "test"
-      projects: "**/*[Tt]est/*.csproj"
+      projects: "**/*[Tt]ests/*.csproj"
       arguments: "--configuration $(BuildConfiguration)"
-      workingDirectory: "Test"
+      workingDirectory: "Tests"
 
   # - task: DotNetCoreCLI@2
   #   displayName: "Make Nuget Package"

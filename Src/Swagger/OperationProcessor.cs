@@ -35,6 +35,7 @@ internal class OperationProcessor : IOperationProcessor
     {
         var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
         var endpoint = metaData.OfType<EndpointDefinition>().SingleOrDefault();
+        var schemaGeneratorSettings = ctx.SchemaGenerator.Settings;
 
         if (endpoint is null)
             return true; //this is not a fastendpoint
@@ -189,7 +190,7 @@ internal class OperationProcessor : IOperationProcessor
                     Name = ActualParamName(m.Value),
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
-                    Schema = JsonSchema.FromType(pType),
+                    Schema = JsonSchema.FromType(pType, schemaGeneratorSettings),
                     Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value))
                 };
             })
@@ -211,7 +212,7 @@ internal class OperationProcessor : IOperationProcessor
                     {
                         Name = pName,
                         IsRequired = !p.IsNullable(),
-                        Schema = JsonSchema.FromType(p.PropertyType),
+                        Schema = JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name)
                     };
@@ -236,7 +237,7 @@ internal class OperationProcessor : IOperationProcessor
                         {
                             Name = pName,
                             IsRequired = hAttrib.IsRequired,
-                            Schema = JsonSchema.FromType(prop.PropertyType),
+                            Schema = JsonSchema.FromType(prop.PropertyType, schemaGeneratorSettings),
                             Kind = OpenApiParameterKind.Header,
                             Description = reqParamDescriptions.GetValueOrDefault(pName)
                         });

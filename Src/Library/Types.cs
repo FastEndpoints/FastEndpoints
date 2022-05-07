@@ -12,6 +12,7 @@ internal static class Types
 
     internal static readonly Type Bool = typeof(bool);
     internal static readonly Type Enum = typeof(Enum);
+    internal static readonly Type Enumerable = typeof(IEnumerable);
     internal static readonly Type EmptyResponse = typeof(EmptyResponse);
     internal static readonly Type EmptyRequest = typeof(EmptyRequest);
     internal static readonly Type Endpoint = typeof(Endpoint<,>);
@@ -28,7 +29,6 @@ internal static class Types
     internal static readonly Type Object = typeof(object);
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);
     internal static readonly Type String = typeof(string);
-    internal static readonly Type List = typeof(IList);
     internal static readonly Type Summary = typeof(Summary<>);
     internal static readonly Type TimeSpan = typeof(TimeSpan);
     internal static readonly Type Uri = typeof(Uri);

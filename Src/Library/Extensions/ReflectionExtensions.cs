@@ -86,7 +86,7 @@ internal static class ReflectionExtensions
         if (type == Types.Uri)
             return input => (true, new Uri((string)input!));
 
-        if (type.GetInterfaces().Contains(Types.List))
+        if (type.GetInterfaces().Contains(Types.Enumerable))
             return input => (true, input is null ? null : JsonSerializer.Deserialize($"[{input}]", type))!;
 
         var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, type.MakeByRefType() });

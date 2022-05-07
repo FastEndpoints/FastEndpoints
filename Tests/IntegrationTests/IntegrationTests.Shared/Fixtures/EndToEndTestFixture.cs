@@ -16,6 +16,7 @@ public class EndToEndTestFixture : IAsyncLifetime
     {
         // Ref: https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-6.0#basic-tests-with-the-default-webapplicationfactory
         _factory = new CustomWebApplicationFactory<Program>();
+        Environment.SetEnvironmentVariable("DOTNET_hostBuilder:reloadConfigOnChange", "false");
     }
 
     public IServiceProvider ServiceProvider => _factory.Services;
@@ -35,20 +36,16 @@ public class EndToEndTestFixture : IAsyncLifetime
     public IHttpContextAccessor HttpContextAccessor =>
         ServiceProvider.GetRequiredService<IHttpContextAccessor>();
 
-    public HttpClient CreateNewClient(Action<IServiceCollection>? services = null)
-    {
-       return _factory.WithWebHostBuilder(b =>
-            b.ConfigureTestServices(sv =>
-            {
-                services?.Invoke(sv);
-            }))
-        .CreateClient();
-    }
+    public HttpClient CreateNewClient(Action<IServiceCollection>? services = null) =>
+        _factory.WithWebHostBuilder(b =>
+                b.ConfigureTestServices(sv =>
+                {
+                    services?.Invoke(sv);
+                }))
+            .CreateClient();
 
-    public void RegisterTestServices(Action<IServiceCollection> services)
-    {
+    public void RegisterTestServices(Action<IServiceCollection> services) =>
         _factory.TestRegistrationServices = services;
-    }
 
     public async Task ExecuteScopeAsync(Func<IServiceProvider, Task> action)
     {

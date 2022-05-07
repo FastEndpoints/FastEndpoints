@@ -53,10 +53,8 @@ public class Config
     /// <summary>
     /// options for enabling endpoint versioning support
     /// </summary>
-    public Action<VersioningOptions> VersioningOptions
-    {
-        set
-        {
+    public Action<VersioningOptions> VersioningOptions {
+        set {
             VersioningOpts = new();
             value(VersioningOpts);
         }
@@ -65,10 +63,8 @@ public class Config
     /// <summary>
     /// routing options for all endpoints
     /// </summary>
-    public Action<RoutingOptions> RoutingOptions
-    {
-        set
-        {
+    public Action<RoutingOptions> RoutingOptions {
+        set {
             RoutingOpts = new();
             value(RoutingOpts);
         }
@@ -77,10 +73,8 @@ public class Config
     /// <summary>
     /// throttling options for all endpoints
     /// </summary>
-    public Action<ThrottleOptions> ThrottleOptions
-    {
-        set
-        {
+    public Action<ThrottleOptions> ThrottleOptions {
+        set {
             ThrottleOpts = new();
             value(ThrottleOpts);
         }

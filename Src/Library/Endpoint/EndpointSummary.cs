@@ -56,8 +56,7 @@ public class EndpointSummary
     /// </summary>
     /// <param name="statusCode">the status code of the response you want to access</param>
     /// <returns>the text description</returns>
-    public string this[int statusCode]
-    {
+    public string this[int statusCode] {
         get => Responses[statusCode];
         set => Responses[statusCode] = value;
     }

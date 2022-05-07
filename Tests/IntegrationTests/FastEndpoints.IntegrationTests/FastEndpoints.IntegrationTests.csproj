@@ -1,21 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj" />
-    <ProjectReference Include="..\..\..\Web\Web.csproj" />
-    <ProjectReference Include="..\IntegrationTests.Shared\IntegrationTests.Shared.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj" />
+        <ProjectReference Include="..\..\..\Web\Web.csproj" />
+        <ProjectReference Include="..\IntegrationTests.Shared\IntegrationTests.Shared.csproj" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="test.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="test.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="xunit.runner.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  
+    <ItemGroup>
+        <None Update="xunit.runner.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
 </Project>

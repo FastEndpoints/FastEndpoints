@@ -1,11 +1,11 @@
-﻿using System.Net;
-using IntegrationTests.Shared.Fixtures;
+﻿using IntegrationTests.Shared.Fixtures;
+using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace FastEndpoints.IntegrationTests.WebTests;
 
-public class CustomersTests: IntegrationTestBase
+public class CustomersTests : IntegrationTestBase
 {
     public CustomersTests(IntegrationTestFixture integrationTestFixture, ITestOutputHelper outputHelper) : base(integrationTestFixture, outputHelper)
     {
@@ -40,11 +40,11 @@ public class CustomersTests: IntegrationTestBase
             Customers.Create.Endpoint,
             Customers.Create.Request,
             string>(new()
-        {
-            CreatedBy = "this should be replaced by claim",
-            CustomerName = "test customer",
-            PhoneNumbers = new[] { "123", "456" }
-        });
+            {
+                CreatedBy = "this should be replaced by claim",
+                CustomerName = "test customer",
+                PhoneNumbers = new[] { "123", "456" }
+            });
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Should().Be("Email was not sent during testing! admin");
@@ -57,12 +57,12 @@ public class CustomersTests: IntegrationTestBase
             Customers.Update.Endpoint,
             Customers.Update.Request,
             string>(new()
-        {
-            CustomerID = "this will be auto bound from claim",
-            Address = "address",
-            Age = 123,
-            Name = "test customer"
-        });
+            {
+                CustomerID = "this will be auto bound from claim",
+                Address = "address",
+                Age = 123,
+                Name = "test customer"
+            });
 
         res.Should().Be("CST001");
     }
@@ -74,12 +74,12 @@ public class CustomersTests: IntegrationTestBase
             Customers.Update.Endpoint,
             Customers.Update.Request,
             string>(new()
-        {
-            CustomerID = "customer id set by admin user",
-            Address = "address",
-            Age = 123,
-            Name = "test customer"
-        });
+            {
+                CustomerID = "customer id set by admin user",
+                Address = "address",
+                Age = 123,
+                Name = "test customer"
+            });
 
         res.Should().Be("customer id set by admin user");
     }
@@ -91,11 +91,11 @@ public class CustomersTests: IntegrationTestBase
             Sales.Orders.Create.Endpoint,
             Sales.Orders.Create.Request,
             Sales.Orders.Create.Response>(new()
-        {
-            CustomerID = 12345,
-            ProductID = 100,
-            Quantity = 23
-        });
+            {
+                CustomerID = 12345,
+                ProductID = 100,
+                Quantity = 23
+            });
 
         rsp?.IsSuccessStatusCode.Should().BeTrue();
         res?.OrderID.Should().Be(54321);
@@ -131,13 +131,13 @@ public class CustomersTests: IntegrationTestBase
             Customers.UpdateWithHeader.Endpoint,
             Customers.UpdateWithHeader.Request,
             string>(new()
-        {
-            CustomerID = 0,
-            Address = "address",
-            Age = 123,
-            Name = "test customer",
-            TenantID = "this will be set to qwerty from header"
-        });
+            {
+                CustomerID = 0,
+                Address = "address",
+                Age = 123,
+                Name = "test customer",
+                TenantID = "this will be set to qwerty from header"
+            });
 
         var results = res!.Split('|');
         results[0].Should().Be("qwerty");

@@ -9,8 +9,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
-[assembly:InternalsVisibleTo("FastEndpoints.Swagger.UnitTests")]
-[assembly:InternalsVisibleTo("FastEndpoints.Swagger.IntegrationTests")]
+[assembly: InternalsVisibleTo("FastEndpoints.Swagger.UnitTests")]
+[assembly: InternalsVisibleTo("FastEndpoints.Swagger.IntegrationTests")]
 
 namespace FastEndpoints.Swagger;
 

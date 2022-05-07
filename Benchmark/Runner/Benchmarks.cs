@@ -16,8 +16,7 @@ public class Benchmarks
     private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
     private static readonly StringContent Payload = new(
-        JsonSerializer.Serialize(new
-        {
+        JsonSerializer.Serialize(new {
             FirstName = "xxx",
             LastName = "yyy",
             Age = 23,

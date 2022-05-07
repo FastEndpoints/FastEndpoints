@@ -5,7 +5,6 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Localization;
 using NSwag;
 using System.Globalization;
-using System.Text.Json;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();

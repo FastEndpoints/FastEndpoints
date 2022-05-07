@@ -1,5 +1,5 @@
-﻿using System.Net;
-using IntegrationTests.Shared.Fixtures;
+﻿using IntegrationTests.Shared.Fixtures;
+using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
@@ -20,9 +20,9 @@ public class InventoryTests : IntegrationTestBase
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             ErrorResponse>(new()
-        {
-            Price = 1100
-        });
+            {
+                Price = 1100
+            });
 
         res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result?.Errors.Count.Should().Be(2);
@@ -37,11 +37,11 @@ public class InventoryTests : IntegrationTestBase
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             ErrorResponse>(new()
-        {
-            Name = "test item",
-            ModifiedBy = "me",
-            Price = 1100
-        });
+            {
+                Name = "test item",
+                ModifiedBy = "me",
+                Price = 1100
+            });
 
         res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result?.Errors.Should().NotBeNull();
@@ -57,12 +57,12 @@ public class InventoryTests : IntegrationTestBase
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             ErrorResponse>(new()
-        {
-            Name = "Apple Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100
-        });
+            {
+                Name = "Apple Juice",
+                Description = "description",
+                ModifiedBy = "me",
+                Price = 100
+            });
 
         res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result?.Errors.Should().NotBeNull();
@@ -79,12 +79,12 @@ public class InventoryTests : IntegrationTestBase
                 Inventory.Manage.Update.Endpoint,
                 Inventory.Manage.Update.Request,
                 Inventory.Manage.Update.Response>(new()
-            {
-                Name = "Grape Juice",
-                Description = "description",
-                ModifiedBy = "me",
-                Price = 100
-            });
+                {
+                    Name = "Grape Juice",
+                    Description = "description",
+                    ModifiedBy = "me",
+                    Price = 100
+                });
         };
 
         await func.Should().ThrowAsync<InvalidOperationException>();
@@ -97,12 +97,12 @@ public class InventoryTests : IntegrationTestBase
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             Inventory.Manage.Create.Response>(new()
-        {
-            Name = "Grape Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100
-        });
+            {
+                Name = "Grape Juice",
+                Description = "description",
+                ModifiedBy = "me",
+                Price = 100
+            });
 
         res?.StatusCode.Should().Be(HttpStatusCode.Created);
         result?.ProductId.Should().BeGreaterThan(1);
@@ -116,13 +116,13 @@ public class InventoryTests : IntegrationTestBase
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             Inventory.Manage.Create.Response>(new()
-        {
-            Name = "Grape Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100,
-            GenerateFullUrl = false
-        });
+            {
+                Name = "Grape Juice",
+                Description = "description",
+                ModifiedBy = "me",
+                Price = 100,
+                GenerateFullUrl = false
+            });
 
         var createdAtLocation = res?.Headers.Location?.ToString();
 
@@ -139,13 +139,13 @@ public class InventoryTests : IntegrationTestBase
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             Inventory.Manage.Create.Response>(new()
-        {
-            Name = "Grape Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100,
-            GenerateFullUrl = true
-        });
+            {
+                Name = "Grape Juice",
+                Description = "description",
+                ModifiedBy = "me",
+                Price = 100,
+                GenerateFullUrl = true
+            });
 
         var createdAtLocation = res?.Headers.Location?.ToString();
 

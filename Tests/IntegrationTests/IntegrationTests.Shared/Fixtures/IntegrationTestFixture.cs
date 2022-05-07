@@ -37,12 +37,12 @@ public class IntegrationTestFixture : IAsyncLifetime
 
     public HttpClient CreateNewClient(Action<IServiceCollection>? services = null)
     {
-       return _factory.WithWebHostBuilder(b =>
-            b.ConfigureTestServices(sv =>
-            {
-                services?.Invoke(sv);
-            }))
-        .CreateClient();
+        return _factory.WithWebHostBuilder(b =>
+             b.ConfigureTestServices(sv =>
+             {
+                 services?.Invoke(sv);
+             }))
+         .CreateClient();
     }
 
     public void RegisterTestServices(Action<IServiceCollection> services)

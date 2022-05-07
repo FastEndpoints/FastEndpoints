@@ -12,7 +12,7 @@ namespace FastEndpoints;
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : notnull, new() where TResponse : notnull, new()
 {
-    internal override async Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken cancellation)
+    internal async override Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken cancellation)
     {
         _httpContext = ctx;
         Definition = endpoint;

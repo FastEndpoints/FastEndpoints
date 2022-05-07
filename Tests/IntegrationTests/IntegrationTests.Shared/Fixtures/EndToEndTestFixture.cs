@@ -8,23 +8,21 @@ using Xunit.Abstractions;
 
 namespace IntegrationTests.Shared.Fixtures;
 
-public class IntegrationTestFixture : IAsyncLifetime
+public class EndToEndTestFixture : IAsyncLifetime
 {
     private readonly CustomWebApplicationFactory<Program> _factory;
 
-    public IntegrationTestFixture()
+    public EndToEndTestFixture()
     {
-        //hack for being able to run integration tests in azuer/github containers
-        Environment.SetEnvironmentVariable("DOTNET_hostBuilder:reloadConfigOnChange", "false");
-
         // Ref: https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-6.0#basic-tests-with-the-default-webapplicationfactory
         _factory = new CustomWebApplicationFactory<Program>();
+        Environment.SetEnvironmentVariable("DOTNET_hostBuilder:reloadConfigOnChange", "false");
     }
 
     public IServiceProvider ServiceProvider => _factory.Services;
 
-    public ILogger<IntegrationTestFixture> Logger =>
-        ServiceProvider.GetRequiredService<ILogger<IntegrationTestFixture>>();
+    public ILogger<EndToEndTestFixture> Logger =>
+        ServiceProvider.GetRequiredService<ILogger<EndToEndTestFixture>>();
 
     public IConfiguration Configuration => _factory.Configuration;
 
@@ -38,20 +36,16 @@ public class IntegrationTestFixture : IAsyncLifetime
     public IHttpContextAccessor HttpContextAccessor =>
         ServiceProvider.GetRequiredService<IHttpContextAccessor>();
 
-    public HttpClient CreateNewClient(Action<IServiceCollection>? services = null)
-    {
-        return _factory.WithWebHostBuilder(b =>
-             b.ConfigureTestServices(sv =>
-             {
-                 services?.Invoke(sv);
-             }))
-         .CreateClient();
-    }
+    public HttpClient CreateNewClient(Action<IServiceCollection>? services = null) =>
+        _factory.WithWebHostBuilder(b =>
+                b.ConfigureTestServices(sv =>
+                {
+                    services?.Invoke(sv);
+                }))
+            .CreateClient();
 
-    public void RegisterTestServices(Action<IServiceCollection> services)
-    {
+    public void RegisterTestServices(Action<IServiceCollection> services) =>
         _factory.TestRegistrationServices = services;
-    }
 
     public async Task ExecuteScopeAsync(Func<IServiceProvider, Task> action)
     {

@@ -50,6 +50,8 @@ public class CustomWebApplicationFactory<TEntryPoint> : WebApplicationFactory<TE
         {
             services.RemoveAll(typeof(IHostedService));
 
+            services.AddHttpContextAccessor();
+
             TestRegistrationServices?.Invoke(services);
         });
 

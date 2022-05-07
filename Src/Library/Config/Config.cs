@@ -7,7 +7,6 @@ using System.Text.Json.Serialization;
 
 #pragma warning disable CA1822, IDE1006
 
-[assembly: InternalsVisibleTo("FastEndpoints.Swagger")]
 namespace FastEndpoints;
 /// <summary>
 /// global configuration settings for FastEndpoints

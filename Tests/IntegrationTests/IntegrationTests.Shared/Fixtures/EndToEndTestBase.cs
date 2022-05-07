@@ -1,19 +1,19 @@
+using System.Net.Http.Headers;
 using FastEndpoints;
 using IntegrationTests.Shared.Mocks;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http.Headers;
 using Web.Services;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace IntegrationTests.Shared.Fixtures;
 
-public abstract class IntegrationTestBase : IClassFixture<IntegrationTestFixture>
+public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
 {
     protected CancellationTokenSource CancellationTokenSource { get; } = new(TimeSpan.FromSeconds(10));
     protected IServiceProvider ServiceProvider { get; }
     protected IServiceScope Scope { get; }
-    protected IntegrationTestFixture IntegrationTestFixture { get; }
+    protected EndToEndTestFixture EndToEndTestFixture { get; }
 
     protected CancellationToken CancellationToken => CancellationTokenSource.Token;
     protected TextWriter TextWriter => Scope.ServiceProvider.GetRequiredService<TextWriter>();
@@ -23,42 +23,42 @@ public abstract class IntegrationTestBase : IClassFixture<IntegrationTestFixture
     protected HttpClient CustomerClient { get; }
     protected HttpClient RangeClient { get; }
 
-    protected IntegrationTestBase(IntegrationTestFixture integrationTestFixture, ITestOutputHelper outputHelper)
+    protected EndToEndTestBase(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper)
     {
-        IntegrationTestFixture = integrationTestFixture;
+        EndToEndTestFixture = endToEndTestFixture;
 
-        AdminClient = IntegrationTestFixture.CreateNewClient(services =>
+        AdminClient = EndToEndTestFixture.CreateNewClient(services =>
         {
             services.AddSingleton<IEmailService, MockEmailService>();
         });
 
-        GuestClient = IntegrationTestFixture.CreateNewClient(services =>
+        GuestClient = EndToEndTestFixture.CreateNewClient(services =>
         {
             services.AddSingleton<IEmailService, EmailService>();
         });
 
-        CustomerClient = IntegrationTestFixture.CreateNewClient(services =>
+        CustomerClient = EndToEndTestFixture.CreateNewClient(services =>
         {
             services.AddSingleton<IEmailService, EmailService>();
         });
 
-        RangeClient = IntegrationTestFixture.CreateNewClient(services =>
+        RangeClient = EndToEndTestFixture.CreateNewClient(services =>
         {
             services.AddSingleton<IEmailService, EmailService>();
         });
 
-        IntegrationTestFixture.SetOutputHelper(outputHelper);
-        ServiceProvider = IntegrationTestFixture.ServiceProvider;
+        EndToEndTestFixture.SetOutputHelper(outputHelper);
+        ServiceProvider = EndToEndTestFixture.ServiceProvider;
         Scope = ServiceProvider.CreateScope();
 
         var (_, result) = GuestClient.POSTAsync<
                 Admin.Login.Endpoint,
                 Admin.Login.Request,
                 Admin.Login.Response>(new()
-                {
-                    UserName = "admin",
-                    Password = "pass"
-                })
+            {
+                UserName = "admin",
+                Password = "pass"
+            })
             .GetAwaiter()
             .GetResult();
 

@@ -6,10 +6,10 @@ using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace FastEndpoints.IntegrationTests.WebTests;
 
-public class InventoryTests : IntegrationTestBase
+public class InventoryTests : EndToEndTestBase
 {
-    public InventoryTests(IntegrationTestFixture integrationTestFixture, ITestOutputHelper outputHelper) :
-        base(integrationTestFixture, outputHelper)
+    public InventoryTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) :
+        base(endToEndTestFixture, outputHelper)
     {
     }
 

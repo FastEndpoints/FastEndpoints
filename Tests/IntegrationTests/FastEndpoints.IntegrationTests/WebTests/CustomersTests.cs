@@ -5,9 +5,9 @@ using Xunit.Abstractions;
 
 namespace FastEndpoints.IntegrationTests.WebTests;
 
-public class CustomersTests: IntegrationTestBase
+public class CustomersTests: EndToEndTestBase
 {
-    public CustomersTests(IntegrationTestFixture integrationTestFixture, ITestOutputHelper outputHelper) : base(integrationTestFixture, outputHelper)
+    public CustomersTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
     {
     }
 

@@ -10,10 +10,10 @@ using Xunit.Abstractions;
 
 namespace FastEndpoints.IntegrationTests.WebTests;
 
-public class MiscTestCases : IntegrationTestBase
+public class MiscTestCases : EndToEndTestBase
 {
-    public MiscTestCases(IntegrationTestFixture integrationTestFixture, ITestOutputHelper outputHelper) : base(
-        integrationTestFixture, outputHelper)
+    public MiscTestCases(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(
+        endToEndTestFixture, outputHelper)
     {
     }
 

@@ -5,12 +5,12 @@ using Xunit.Abstractions;
 
 namespace FastEndpoints.IntegrationTests.WebTests;
 
-public class AdminTests : IntegrationTestBase
+public class AdminTests : EndToEndTestBase
 {
-    public AdminTests(IntegrationTestFixture integrationTestFixture, ITestOutputHelper outputHelper) :
-        base(integrationTestFixture, outputHelper)
+    public AdminTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) :
+        base(endToEndTestFixture, outputHelper)
     {
-        integrationTestFixture.RegisterTestServices(services => { });
+        endToEndTestFixture.RegisterTestServices(services => { });
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class AdminTests : IntegrationTestBase
     [Fact]
     public async Task AdminLoginThrottling()
     {
-        var guest = IntegrationTestFixture.CreateNewClient();
+        var guest = EndToEndTestFixture.CreateNewClient();
         guest.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST");
 
         int successCount = 0;

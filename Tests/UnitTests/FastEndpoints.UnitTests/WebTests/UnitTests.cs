@@ -1,31 +1,30 @@
-﻿using FakeItEasy;
+using FakeItEasy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Web.Services;
 using Xunit;
 
-namespace FastEndpoints.UnitTests;
+namespace FastEndpoints.UnitTests.WebTests;
 
 public class UnitTests
 {
     [Fact]
-    public async Task CreateNewCustomer()
+    public async Task handle_with_correct_input_without_context_should_set_create_customer_response_correctly()
     {
         var emailer = A.Fake<IEmailService>();
         A.CallTo(() => emailer.SendEmail()).Returns("test email");
 
         var ep = Factory.Create<Customers.Create.Endpoint>(ctx =>
-        {
-            var services = new ServiceCollection();
+            {
+                var services = new ServiceCollection();
 
-            var logger = A.Fake<ILogger<Endpoint<Customers.Create.Request, object>>>();
-            services.AddSingleton(logger);
+                var logger = A.Fake<ILogger<Endpoint<Customers.Create.Request, object>>>();
+                services.AddSingleton(logger);
 
-            ctx.RequestServices = services.BuildServiceProvider();
-        }
-        , emailer);
+                ctx.RequestServices = services.BuildServiceProvider();
+            }
+            , emailer);
 
         var req = new Customers.Create.Request
         {
@@ -38,7 +37,7 @@ public class UnitTests
     }
 
     [Fact]
-    public async Task AdminLoginSuccess()
+    public async Task handle_with_correct_input_with_context_should_set_login_admin_response_correctly()
     {
         //arrange
         var fakeConfig = A.Fake<IConfiguration>();
@@ -66,7 +65,7 @@ public class UnitTests
     }
 
     [Fact]
-    public async Task AdminLoginWithBadInput()
+    public async Task handle_with_bad_input_should_set_admin_login_validation_failed()
     {
         //arrange
         var ep = Factory.Create<Admin.Login.Endpoint>(
@@ -88,12 +87,11 @@ public class UnitTests
         ep.ValidationFailures.Any(f => f.ErrorMessage == "Authentication Failed!").Should().BeTrue();
     }
 
-    [TestMethod]
-    public async Task ListRecentCustomers()
+    [Fact]
+    public async Task execute_customer_recent_list_should_return_correct_data()
     {
-        var res = await Factory
-            .Create<Customers.List.Recent.Endpoint>()
-            .ExecuteAsync(default) as Customers.List.Recent.Response;
+        var endpoint = Factory.Create<Customers.List.Recent.Endpoint>();
+        var res = await endpoint.ExecuteAsync(default) as Customers.List.Recent.Response;
 
         res?.Customers?.Count().Should().Be(3);
         res?.Customers?.First().Key.Should().Be("ryan gunner");

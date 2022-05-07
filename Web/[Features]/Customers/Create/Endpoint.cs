@@ -29,6 +29,10 @@ public class Endpoint : Endpoint<Request>
         _emailer = emailer;
     }
 
+    public Endpoint()
+    {
+    }
+
     public override void Configure()
     {
         Verbs(Http.POST, Http.GET);

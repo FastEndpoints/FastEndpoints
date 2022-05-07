@@ -20,7 +20,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
         Tags("orders");
     }
 
-    public override async Task HandleAsync(Request r, CancellationToken t)
+    public async override Task HandleAsync(Request r, CancellationToken t)
     {
         var userType = User.ClaimValue(Claim.UserType);
 

@@ -15,7 +15,7 @@ public class Endpoint : Endpoint<Request>
              .Produces(204, contentType: "text/plain", additionalContentTypes: "test/notcontent"));
     }
 
-    public override async Task HandleAsync(Request r, CancellationToken ct)
+    public async override Task HandleAsync(Request r, CancellationToken ct)
     {
         if (r.File1 is not null && r.File2 is not null)
         {

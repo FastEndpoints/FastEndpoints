@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Src\Library\FastEndpoints.csproj" />
-    <PackageReference Include="FluentValidation" Version="10.4.0" />
+    <PackageReference Include="FluentValidation" Version="11.0.0" />
   </ItemGroup>
 
 </Project>

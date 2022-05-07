@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Src\Swagger\FastEndpoints.Swagger.csproj" />
-  </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Swagger\FastEndpoints.Swagger.csproj" />
+    </ItemGroup>
+
 </Project>

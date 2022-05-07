@@ -1,5 +1,5 @@
-using System.Net;
 using IntegrationTests.Shared.Fixtures;
+using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,10 +20,10 @@ public class AdminTests : EndToEndTestBase
             Admin.Login.Endpoint,
             Admin.Login.Request,
             ErrorResponse>(new()
-        {
-            UserName = "x",
-            Password = "y"
-        });
+            {
+                UserName = "x",
+                Password = "y"
+            });
 
         resp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result?.Errors.Count.Should().Be(2);
@@ -36,10 +36,10 @@ public class AdminTests : EndToEndTestBase
             Admin.Login.Endpoint,
             Admin.Login.Request,
             Admin.Login.Response>(new()
-        {
-            UserName = "admin",
-            Password = "pass"
-        });
+            {
+                UserName = "admin",
+                Password = "pass"
+            });
 
         resp?.StatusCode.Should().Be(HttpStatusCode.OK);
         result?.Permissions?.Count().Should().Be(7);
@@ -53,10 +53,10 @@ public class AdminTests : EndToEndTestBase
             Admin.Login.Endpoint,
             Admin.Login.Request,
             Admin.Login.Response>(new()
-        {
-            UserName = "admin",
-            Password = "xxxxx"
-        });
+            {
+                UserName = "admin",
+                Password = "xxxxx"
+            });
 
         res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -77,10 +77,10 @@ public class AdminTests : EndToEndTestBase
                     Admin.Login.Endpoint_V1,
                     Admin.Login.Request,
                     Admin.Login.Response>(new()
-                {
-                    UserName = "admin",
-                    Password = "pass"
-                });
+                    {
+                        UserName = "admin",
+                        Password = "pass"
+                    });
 
                 rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
                 successCount++;

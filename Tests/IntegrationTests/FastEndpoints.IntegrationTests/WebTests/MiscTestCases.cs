@@ -1,9 +1,9 @@
-﻿using System.Net;
+﻿using IntegrationTests.Shared.Fixtures;
+using Microsoft.AspNetCore.Http;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
-using IntegrationTests.Shared.Fixtures;
-using Microsoft.AspNetCore.Http;
 using TestCases.EventHandlingTest;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,7 +23,7 @@ public class MiscTestCases : EndToEndTestBase
         using var imageContent = new ByteArrayContent(Array.Empty<byte>());
         imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
 
-        using var form = new MultipartFormDataContent {{imageContent, "File", "test.png"}};
+        using var form = new MultipartFormDataContent { { imageContent, "File", "test.png" } };
 
         var res = await GuestClient.PutAsync("/api/uploads/image/save", form);
 
@@ -37,9 +37,9 @@ public class MiscTestCases : EndToEndTestBase
             TestCases.MissingClaimTest.ThrowIfMissingEndpoint,
             TestCases.MissingClaimTest.ThrowIfMissingRequest,
             ErrorResponse>(new()
-        {
-            TestProp = "xyz"
-        });
+            {
+                TestProp = "xyz"
+            });
 
         result?.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         result?.Errors.Should().NotBeNull();
@@ -54,9 +54,9 @@ public class MiscTestCases : EndToEndTestBase
             TestCases.MissingClaimTest.DontThrowIfMissingEndpoint,
             TestCases.MissingClaimTest.DontThrowIfMissingRequest,
             string>(new()
-        {
-            TestProp = "xyz"
-        });
+            {
+                TestProp = "xyz"
+            });
 
         res?.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Should().Be("you sent xyz");
@@ -69,9 +69,9 @@ public class MiscTestCases : EndToEndTestBase
             TestCases.MissingHeaderTest.ThrowIfMissingEndpoint,
             TestCases.MissingHeaderTest.ThrowIfMissingRequest,
             ErrorResponse>(new()
-        {
-            TenantID = "abc"
-        });
+            {
+                TenantID = "abc"
+            });
 
         result?.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         result?.Errors.Should().NotBeNull();
@@ -86,9 +86,9 @@ public class MiscTestCases : EndToEndTestBase
             TestCases.MissingHeaderTest.DontThrowIfMissingEndpoint,
             TestCases.MissingHeaderTest.DontThrowIfMissingRequest,
             string>(new()
-        {
-            TenantID = "abc"
-        });
+            {
+                TenantID = "abc"
+            });
 
         res?.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Should().Be("you sent abc");
@@ -135,7 +135,7 @@ public class MiscTestCases : EndToEndTestBase
                     Int = 1,
                     Long = 1,
                     String = "nothing",
-                    Custom = new() {Value = 11111}
+                    Custom = new() { Value = 11111 }
                 });
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -212,9 +212,9 @@ public class MiscTestCases : EndToEndTestBase
     [Fact]
     public async Task TestEventHandling()
     {
-        var event1 = new NewItemAddedToStock {ID = 1, Name = "one", Quantity = 10};
-        var event2 = new NewItemAddedToStock {ID = 2, Name = "two", Quantity = 20};
-        var event3 = new NewItemAddedToStock {ID = 3, Name = "three", Quantity = 30};
+        var event1 = new NewItemAddedToStock { ID = 1, Name = "one", Quantity = 10 };
+        var event2 = new NewItemAddedToStock { ID = 2, Name = "two", Quantity = 20 };
+        var event3 = new NewItemAddedToStock { ID = 3, Name = "three", Quantity = 30 };
 
         await Event<NewItemAddedToStock>.PublishAsync(event3, Mode.WaitForAll);
         await Event<NewItemAddedToStock>.PublishAsync(event2, Mode.WaitForAny);
@@ -319,10 +319,10 @@ public class MiscTestCases : EndToEndTestBase
             TestCases.OnBeforeAfterValidationTest.Endpoint,
             TestCases.OnBeforeAfterValidationTest.Request,
             TestCases.OnBeforeAfterValidationTest.Response>(new()
-        {
-            Host = "blah",
-            Verb = Http.DELETE
-        });
+            {
+                Host = "blah",
+                Verb = Http.DELETE
+            });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Host.Should().Be("localhost");
@@ -334,7 +334,7 @@ public class MiscTestCases : EndToEndTestBase
         var (rsp, res) = await GuestClient.GETAsync<
             Sales.Orders.Retrieve.Endpoint,
             Sales.Orders.Retrieve.Request,
-            ErrorResponse>(new() {OrderID = "order1"});
+            ErrorResponse>(new() { OrderID = "order1" });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res.Errors.Should().NotBeNull();
@@ -350,7 +350,7 @@ public class MiscTestCases : EndToEndTestBase
             await AdminClient.POSTAsync<
                 Sales.Orders.Retrieve.Endpoint,
                 Sales.Orders.Retrieve.Request,
-                object>(new() {OrderID = "order1"});
+                object>(new() { OrderID = "order1" });
         };
 
         await func.Should().ThrowAsync<InvalidOperationException>();
@@ -362,7 +362,7 @@ public class MiscTestCases : EndToEndTestBase
         var (rsp, res) = await CustomerClient.GETAsync<
             Sales.Orders.Retrieve.Endpoint,
             Sales.Orders.Retrieve.Request,
-            ErrorResponse>(new() {OrderID = "order1"});
+            ErrorResponse>(new() { OrderID = "order1" });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Message.Should().Be("ok!");

@@ -16,8 +16,7 @@ internal class DocumentProcessor : IDocumentProcessor
             {
                 var tag = o.Tags.SingleOrDefault(t => t.StartsWith("|"));
                 var segments = tag?.Split("|");
-                return new
-                {
+                return new {
                     route = segments?[1],
                     ver = Convert.ToInt32(segments?[2]),
                     depVer = Convert.ToInt32(segments?[3]),
@@ -25,8 +24,7 @@ internal class DocumentProcessor : IDocumentProcessor
                 };
             })
             .GroupBy(x => x.route)
-            .Select(g => new
-            {
+            .Select(g => new {
                 pathItm = g.Where(x => x.ver <= maxEpVer)
                            .OrderByDescending(x => x.ver)
                            .Take(1)

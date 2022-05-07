@@ -14,6 +14,9 @@ public class IntegrationTestFixture : IAsyncLifetime
 
     public IntegrationTestFixture()
     {
+        //hack for being able to run integration tests in azuer/github containers
+        Environment.SetEnvironmentVariable("DOTNET_hostBuilder:reloadConfigOnChange", "false");
+
         // Ref: https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-6.0#basic-tests-with-the-default-webapplicationfactory
         _factory = new CustomWebApplicationFactory<Program>();
     }

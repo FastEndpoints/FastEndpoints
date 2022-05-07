@@ -271,6 +271,7 @@ internal class OperationProcessor : IOperationProcessor
         //remove request body if there are no properties left after above operations
         //otherwise there's gonna be an empty schema added in the swagger doc
         if (op.RequestBody?.Content.SelectMany(c => c.Value.Schema.ActualSchema.ActualProperties).Any() == false &&
+            op.RequestBody?.Content.Where(c => c.Value.Schema.ActualSchema.InheritedSchema is not null).SelectMany(c => c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties).Any() == false &&
            !op.RequestBody.Content.SelectMany(c => c.Value.Schema.ActualSchema.AllOf.SelectMany(s => s.Properties)).Any())
         {
             op.RequestBody = null;

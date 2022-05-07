@@ -102,3 +102,5 @@ if (!app.Environment.IsProduction())
     app.UseSwaggerUi3(s => s.ConfigureDefaults());
 }
 app.Run();
+
+public partial class Program { }

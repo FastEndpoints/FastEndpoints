@@ -1,17 +1,16 @@
 ﻿using FakeItEasy;
-using FastEndpoints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Web.Services;
+using Xunit;
 
-namespace Test;
+namespace FastEndpoints.UnitTests;
 
-[TestClass]
 public class UnitTests
 {
-    [TestMethod]
+    [Fact]
     public async Task CreateNewCustomer()
     {
         var emailer = A.Fake<IEmailService>();
@@ -35,10 +34,10 @@ public class UnitTests
 
         await ep.HandleAsync(req, default);
 
-        Assert.AreEqual("test email by harry potter", ep.Response);
+        ep.Response.Should().Be("test email by harry potter");
     }
 
-    [TestMethod]
+    [Fact]
     public async Task AdminLoginSuccess()
     {
         //arrange
@@ -61,12 +60,12 @@ public class UnitTests
         var rsp = ep.Response;
 
         //assert
-        Assert.IsFalse(ep.ValidationFailed);
-        Assert.IsNotNull(rsp);
-        Assert.IsTrue(rsp.Permissions.Contains("Inventory_Delete_Item"));
+        ep.ValidationFailed.Should().BeFalse();
+        rsp.Should().NotBeNull();
+        rsp.Permissions.Should().Contain("Inventory_Delete_Item");
     }
 
-    [TestMethod]
+    [Fact]
     public async Task AdminLoginWithBadInput()
     {
         //arrange
@@ -85,8 +84,8 @@ public class UnitTests
         await ep.HandleAsync(req, default);
 
         //assert
-        Assert.IsTrue(ep.ValidationFailed);
-        Assert.IsTrue(ep.ValidationFailures.Any(f => f.ErrorMessage == "Authentication Failed!"));
+        ep.ValidationFailed.Should().BeTrue();
+        ep.ValidationFailures.Any(f => f.ErrorMessage == "Authentication Failed!").Should().BeTrue();
     }
 
     [TestMethod]
@@ -96,8 +95,8 @@ public class UnitTests
             .Create<Customers.List.Recent.Endpoint>()
             .ExecuteAsync(default) as Customers.List.Recent.Response;
 
-        Assert.AreEqual(3, res?.Customers?.Count());
-        Assert.AreEqual("ryan gunner", res?.Customers?.First().Key);
-        Assert.AreEqual("ryan reynolds", res?.Customers?.Last().Key);
+        res?.Customers?.Count().Should().Be(3);
+        res?.Customers?.First().Key.Should().Be("ryan gunner");
+        res?.Customers?.Last().Key.Should().Be(res?.Customers?.Last().Key);
     }
 }

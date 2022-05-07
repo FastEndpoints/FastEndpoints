@@ -11,6 +11,7 @@
             ### IMPROVEMENTS
             - correctly infer and set route parameter type in swagger from dto property type #99
             - structured logging for default exception handler #105
+            - upgrade to latest fluentvalidation version
 
             ### EXPERIMENTAL
             - set an example request object for the `ExampleRequest` property in the summary
@@ -38,7 +39,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="10.4.0" />
+        <PackageReference Include="FluentValidation" Version="11.0.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using System.Collections;
 
 namespace FastEndpoints;
 
@@ -11,6 +12,7 @@ internal static class Types
 
     internal static readonly Type Bool = typeof(bool);
     internal static readonly Type Enum = typeof(Enum);
+    internal static readonly Type Enumerable = typeof(IEnumerable);
     internal static readonly Type EmptyResponse = typeof(EmptyResponse);
     internal static readonly Type EmptyRequest = typeof(EmptyRequest);
     internal static readonly Type Endpoint = typeof(Endpoint<,>);

@@ -1,0 +1,24 @@
+{
+  "symbolInfo": {
+    "method": {
+      "longName": "method",
+      "shortName": "m"
+    },
+    "useAttributes": {
+      "longName": "attributes",
+      "shortName": "t"
+    },
+    "useValidator": {
+      "longName": "validator",
+      "shortName": "v"
+    },
+    "useMapper": {
+      "longName": "mapper",
+      "shortName": "p"
+    },
+    "route": {
+      "longName": "route",
+      "shortName": "r"
+    }
+  }
+}

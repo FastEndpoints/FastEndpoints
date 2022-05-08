@@ -1,0 +1,62 @@
+﻿{
+  "name": "Feature Fileset - no parameters",
+  "create": "feat --name Blogs.List",
+  "tasks": [
+    {
+      "handler": "fileInspect",
+      "file": "Data.cs",
+      "expectations": [
+        {
+          "assertion": "contains",
+          "text": "namespace Blogs.List"
+        }
+      ]
+    },
+    {
+      "handler": "fileInspect",
+      "file": "Endpoint.cs",
+      "expectations": [
+        {
+          "assertion": "contains",
+          "text": "namespace Blogs.List"
+        },
+        {
+          "assertion": "does_not_contain",
+          "text": "[Http"
+        },
+        {
+          "assertion": "contains",
+          "text": "public override void Configure()"
+        },
+        {
+          "assertion": "contains",
+          "text": "Mapper>"
+        }
+      ]
+    },
+    {
+      "handler": "fileInspect",
+      "file": "Mapper.cs",
+      "expectations": [
+        {
+          "assertion": "contains",
+          "text": "namespace Blogs.List"
+        }
+      ]
+    },
+    {
+      "handler": "fileInspect",
+      "file": "Models.cs",
+      "expectations": [
+        {
+          "assertion": "contains",
+          "text": "namespace Blogs.List"
+        },
+        {
+          "assertion": "contains",
+          "text": "public class Validator : Validator<Request>"
+        }
+      ]
+    }
+  ]
+}

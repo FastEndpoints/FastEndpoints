@@ -81,7 +81,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static async Task<TRequest> BindPlainTextBody(Stream body)
     {
-        IPlainTextRequest req = (IPlainTextRequest)new TRequest();
+        var req = (IPlainTextRequest)new TRequest();
         using var streamReader = new StreamReader(body);
         req.Content = await streamReader.ReadToEndAsync();
         return (TRequest)req;
@@ -100,10 +100,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         var formFields = httpRequest.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
 
-        for (int x = 0; x < formFields.Length; x++)
+        for (var x = 0; x < formFields.Length; x++)
             Bind(req, formFields[x], failures);
 
-        for (int y = 0; y < httpRequest.Form.Files.Count; y++)
+        for (var y = 0; y < httpRequest.Form.Files.Count; y++)
         {
             var formFile = httpRequest.Form.Files[y];
 
@@ -140,7 +140,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         var cachedProps = ReqTypeCache<TRequest>.CachedFromClaimProps;
 
-        for (int i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < cachedProps.Count; i++)
         {
             var prop = cachedProps[i];
 
@@ -172,7 +172,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         var cachedProps = ReqTypeCache<TRequest>.CachedFromHeaderProps;
 
-        for (int i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < cachedProps.Count; i++)
         {
             var prop = cachedProps[i];
             var hdrVal = headers[prop.Identifier].FirstOrDefault();
@@ -195,11 +195,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         var cachedProps = ReqTypeCache<TRequest>.CachedHasPermissionProps;
 
-        for (int i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < cachedProps.Count; i++)
         {
             var prop = cachedProps[i];
 
-            bool hasPerm = claims.Any(c =>
+            var hasPerm = claims.Any(c =>
                string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
 

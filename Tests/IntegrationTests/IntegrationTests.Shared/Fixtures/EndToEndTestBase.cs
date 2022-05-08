@@ -1,7 +1,7 @@
-using System.Net.Http.Headers;
 using FastEndpoints;
 using IntegrationTests.Shared.Mocks;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http.Headers;
 using Web.Services;
 using Xunit;
 using Xunit.Abstractions;
@@ -55,10 +55,10 @@ public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
                 Admin.Login.Endpoint,
                 Admin.Login.Request,
                 Admin.Login.Response>(new()
-            {
-                UserName = "admin",
-                Password = "pass"
-            })
+                {
+                    UserName = "admin",
+                    Password = "pass"
+                })
             .GetAwaiter()
             .GetResult();
 

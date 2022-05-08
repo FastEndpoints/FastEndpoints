@@ -72,7 +72,7 @@ internal class OperationProcessor : IOperationProcessor
         {
             var contentVal = reqContent.FirstOrDefault().Value;
             var list = new List<KeyValuePair<string, OpenApiMediaType>>(op.Consumes.Count);
-            for (int i = 0; i < op.Consumes.Count; i++)
+            for (var i = 0; i < op.Consumes.Count; i++)
                 list.Add(new(op.Consumes[i], contentVal));
             reqContent.Clear();
             foreach (var c in list)
@@ -295,7 +295,6 @@ internal class OperationProcessor : IOperationProcessor
                 requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
                     endpoint.Summary.ExampleRequest,
                     ctx.SchemaGenerator.Settings.ActualSerializerSettings);
-
             }
         }
 
@@ -378,7 +377,7 @@ internal class OperationProcessor : IOperationProcessor
     {
         var parts = relativePath.Split('/');
 
-        for (int i = 0; i < parts.Length; i++)
+        for (var i = 0; i < parts.Length; i++)
         {
             var p = ActualParamName(parts[i]);
 

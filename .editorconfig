@@ -61,7 +61,7 @@ csharp_prefer_braces = false:suggestion
 #prefer block bodies for constructors
 csharp_style_expression_bodied_constructors = false:suggestion
 #prefer expression-bodied members for methods
-csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
 #prefer expression-bodied members for properties
 csharp_style_expression_bodied_properties = true:suggestion
 
@@ -136,6 +136,11 @@ csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
 csharp_style_throw_expression = true:suggestion
 csharp_style_prefer_null_check_over_type_check = true:suggestion
+csharp_style_prefer_local_over_anonymous_function = true:suggestion
+csharp_style_prefer_index_operator = true:suggestion
+csharp_style_prefer_range_operator = true:suggestion
+csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
+csharp_style_prefer_tuple_swap = true:suggestion
 
 [*.{cs,vb}]
 #### Naming styles ####

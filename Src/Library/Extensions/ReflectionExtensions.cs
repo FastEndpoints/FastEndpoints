@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using System.Collections;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
@@ -86,8 +84,8 @@ internal static class ReflectionExtensions
         if (type == Types.Uri)
             return input => (true, new Uri((string)input!));
 
-        if (type.GetInterfaces().Contains(Types.Enumerable))
-            return input => (true, input is null ? null : JsonSerializer.Deserialize($"[{input}]", type))!;
+        if (type.GetInterfaces().Contains(Types.IEnumerable))
+            return input => (true, input is null ? null : JsonSerializer.Deserialize((string)input, type, Config.SerializerOpts))!;
 
         var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, type.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)

@@ -179,6 +179,28 @@ public class MiscTestCases : EndToEndTestBase
         res?.Blank.Should().BeNull();
     }
 
+    public async Task JsonArrayBindingToIEnumerableProps()
+    {
+        var (rsp, res) = await GuestClient
+            .GETAsync<EmptyRequest, TestCases.JsonArrayBindingForIEnumerableProps.Response>(
+            "/test-cases/json-array-binding-for-ienumerable-props?" +
+            "doubles=[123.45,543.21]&" +
+            "dates=['2022-01-01','2022-02-02']&" +
+            "guids['b01ec302-0adc-4a2b-973d-bbfe639ed9a5','e08664a4-efd8-4062-a1e1-6169c6eac2ab']&" +
+            "ints=[1,2,3]",
+            new EmptyRequest());
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Doubles.Length.Should().Be(2);
+        res?.Doubles[0].Should().Be(123.45);
+        res?.Dates.Count.Should().Be(2);
+        res?.Dates.First().Should().Be(DateTime.Parse("2022-01-01"));
+        res?.Guids.Count.Should().Be(2);
+        res?.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
+        res?.Ints.Count().Should().Be(2);
+        res?.Ints.First().Should().Be(1);
+    }
+
     [Fact]
     public async Task BindingFromAttributeUse()
     {

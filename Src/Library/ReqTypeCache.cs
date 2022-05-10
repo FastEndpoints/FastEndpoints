@@ -13,6 +13,9 @@ internal static class ReqTypeCache<TRequest>
     static ReqTypeCache()
     {
         var tRequest = typeof(TRequest);
+
+        if (tRequest.IsGenericType) return;
+
         var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
 
         foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))

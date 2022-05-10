@@ -2,12 +2,13 @@
 
     <PropertyGroup>
 
-        <Version>4.2.0-beta4</Version>
+        <Version>4.2.0-beta5</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - global config `ErrorResponseStatusCode` for overriding status code for validation error responses
+            - model bind json arrays from request body by doing `MyEndpoint : Endpoint&lt;List&lt;MyModel&gt;&gt;`
             - ability to bind `json array strings` to `IEnumerable` properties of request dtos from form fiels/query params/headers/claims #110
+            - global config `ErrorResponseStatusCode` for overriding status code for validation error responses
 
             ### IMPROVEMENTS
             - structured logging for default exception handler #105

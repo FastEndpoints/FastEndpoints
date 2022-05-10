@@ -29,7 +29,10 @@ internal class OperationProcessor : IOperationProcessor
     };
 
     private readonly int tagIndex;
-    public OperationProcessor(int tagIndex) => this.tagIndex = tagIndex;
+    public OperationProcessor(int tagIndex)
+    {
+        this.tagIndex = tagIndex;
+    }
 
     public bool Process(OperationProcessorContext ctx)
     {
@@ -292,9 +295,9 @@ internal class OperationProcessor : IOperationProcessor
                 // 2) remove properties that are not present in requestBody
 
                 //need to serialize to a json string because just setting the object doesn't honor the serializer settings provided by user.
-                requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
-                    endpoint.Summary.ExampleRequest,
-                    ctx.SchemaGenerator.Settings.ActualSerializerSettings);
+                var settings = ctx.SchemaGenerator.Settings.ActualSerializerSettings;
+                var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(endpoint.Summary.ExampleRequest, settings);
+                requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString, settings);
             }
         }
 

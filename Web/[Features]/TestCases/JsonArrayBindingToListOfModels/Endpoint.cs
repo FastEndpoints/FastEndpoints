@@ -4,7 +4,7 @@ public class Endpoint : Endpoint<List<Request>, List<Response>>
 {
     public override void Configure()
     {
-        Get("/test-cases/json-array-binding-to-list-of-models");
+        Post("/test-cases/json-array-binding-to-list-of-models");
         AllowAnonymous();
     }
 

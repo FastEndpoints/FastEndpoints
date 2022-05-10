@@ -203,6 +203,23 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
+    public async Task JsonArrayBindingToListOfModels()
+    {
+        var (rsp, res) = await GuestClient.POSTAsync<
+            TestCases.JsonArrayBindingToListOfModels.Endpoint,
+            List<TestCases.JsonArrayBindingToListOfModels.Request>,
+            List<TestCases.JsonArrayBindingToListOfModels.Response>>(new()
+            {
+                { new TestCases.JsonArrayBindingToListOfModels.Request() { Name = "test1" } },
+                { new TestCases.JsonArrayBindingToListOfModels.Request() { Name = "test2" } },
+            });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Count.Should().Be(2);
+        res?[0].Name.Should().Be("test1");
+    }
+
+    [Fact]
     public async Task BindingFromAttributeUse()
     {
         var (rsp, res) = await GuestClient

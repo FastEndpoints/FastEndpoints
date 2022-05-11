@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
+using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NSwag;
 using NSwag.Generation.AspNetCore;
@@ -61,9 +62,7 @@ internal class OperationProcessor : IOperationProcessor
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= tagIndex)
-            {
                 op.Tags.Add(segments[tagIndex - 1]);
-            }
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
@@ -135,9 +134,7 @@ internal class OperationProcessor : IOperationProcessor
             foreach (var c in op.RequestBody.Content)
             {
                 foreach (var prop in c.Value.Schema.ActualSchema.ActualProperties)
-                {
                     reqParamDescriptions[prop.Key] = prop.Value.Description;
-                }
             }
         }
 
@@ -145,9 +142,7 @@ internal class OperationProcessor : IOperationProcessor
         if (endpoint.Summary is not null)
         {
             foreach (var param in endpoint.Summary.Params)
-            {
                 reqParamDescriptions[param.Key] = param.Value;
-            }
         }
 
         //override req param descriptions for each consumes/content type from user supplied summary request param descriptions
@@ -179,13 +174,15 @@ internal class OperationProcessor : IOperationProcessor
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
-                //remove corresponding json field from the request body
-                RemovePropFromRequestBodyContent(m.Value, op.RequestBody?.Content);
-
                 var pType = reqDtoProps?.SingleOrDefault(p =>
                 {
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-                    return string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase);
+                    if (string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
+                    {
+                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
+                        return true;
+                    }
+                    return false;
                 })?.PropertyType ?? Types.String;
 
                 return new OpenApiParameter
@@ -206,15 +203,15 @@ internal class OperationProcessor : IOperationProcessor
                 .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest))
                 .Select(p =>
                 {
-                    var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
+                    var isRequired = !p.IsNullable();
 
-                    //remove corresponding json field from the request body
-                    RemovePropFromRequestBodyContent(pName, op.RequestBody?.Content);
+                    if (isRequired)
+                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
 
                     return new OpenApiParameter
                     {
-                        Name = pName,
-                        IsRequired = !p.IsNullable(),
+                        Name = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name,
+                        IsRequired = isRequired,
                         Schema = JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name)
@@ -228,35 +225,35 @@ internal class OperationProcessor : IOperationProcessor
 
         if (reqDtoProps is not null)
         {
-            foreach (var prop in reqDtoProps)
+            foreach (var p in reqDtoProps)
             {
-                foreach (var attribute in prop.GetCustomAttributes())
+                foreach (var attribute in p.GetCustomAttributes())
                 {
                     //add header params if there are any props marked with [FromHeader] attribute
                     if (attribute is FromHeaderAttribute hAttrib)
                     {
-                        var pName = hAttrib.HeaderName ?? prop.Name;
+                        var pName = hAttrib.HeaderName ?? p.Name;
                         reqParams.Add(new OpenApiParameter
                         {
                             Name = pName,
                             IsRequired = hAttrib.IsRequired,
-                            Schema = JsonSchema.FromType(prop.PropertyType, schemaGeneratorSettings),
+                            Schema = JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
                             Kind = OpenApiParameterKind.Header,
                             Description = reqParamDescriptions.GetValueOrDefault(pName)
                         });
 
                         //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired)
-                            RemovePropFromRequestBodyContent(prop.Name, op.RequestBody?.Content);
+                            RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
                     }
 
                     //can only be bound from claim since it's required. so remove prop from body.
                     if (attribute is FromClaimAttribute cAttrib && cAttrib.IsRequired)
-                        RemovePropFromRequestBodyContent(prop.Name, op.RequestBody?.Content);
+                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
 
                     //can only be bound from permission since it's required. so remove prop from body.
                     if (attribute is HasPermissionAttribute pAttrib && pAttrib.IsRequired)
-                        RemovePropFromRequestBodyContent(prop.Name, op.RequestBody?.Content);
+                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
                 }
             }
         }
@@ -290,14 +287,18 @@ internal class OperationProcessor : IOperationProcessor
         {
             foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
             {
-                //todo: need to figure out how to do the following:
-                // 1) read correct property name from the `BindFromAttribute` if present on properties
-                // 2) remove properties that are not present in requestBody
+                var jObj = JObject.Parse(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(
+                        endpoint.Summary.ExampleRequest,
+                        ctx.SchemaGenerator.Settings.ActualSerializerSettings));
 
-                //need to serialize to a json string because just setting the object doesn't honor the serializer settings provided by user.
-                var settings = ctx.SchemaGenerator.Settings.ActualSerializerSettings;
-                var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(endpoint.Summary.ExampleRequest, settings);
-                requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString, settings);
+                foreach (var p in jObj.Properties().ToArray())
+                {
+                    if (propsToRemoveFromExample.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                        p.Remove();
+                }
+
+                requestBody.ActualSchema.Example = jObj;
             }
         }
 
@@ -342,11 +343,14 @@ internal class OperationProcessor : IOperationProcessor
             prop.IsDefined(Types.QueryParamAttribute);
     }
 
-    private static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)
+    private readonly List<string> propsToRemoveFromExample = new();
+    private void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)
     {
         if (content is null) return;
 
-        propName = ActualParamName(propName);
+        propsToRemoveFromExample.Add(propName);
+
+        //propName = ActualParamName(propName);
 
         foreach (var c in content)
         {

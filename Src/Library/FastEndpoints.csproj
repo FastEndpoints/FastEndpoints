@@ -2,12 +2,13 @@
 
     <PropertyGroup>
 
-        <Version>4.2.0-beta5</Version>
+        <Version>4.2.0-beta6</Version>
 
         <PackageReleaseNotes>
             ### NEW
+            - specify example request object for the `ExampleRequest` property in endpoint summary
             - model bind json arrays from request body by doing `MyEndpoint : Endpoint&lt;List&lt;MyModel&gt;&gt;`
-            - ability to bind `json array strings` to `IEnumerable` properties of request dtos from form fiels/query params/headers/claims #110
+            - model bind `json array strings` to `IEnumerable` properties of request dtos from form fiels/query params/headers/claims #110
             - global config `ErrorResponseStatusCode` for overriding status code for validation error responses
 
             ### IMPROVEMENTS
@@ -18,9 +19,6 @@
 
             ### FIXES
             - swagger bug #86 solved by PR #109
-
-            ### EXPERIMENTAL
-            - set an example request object for the `ExampleRequest` property in the summary
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

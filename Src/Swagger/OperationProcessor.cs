@@ -168,6 +168,7 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         var reqParams = new List<OpenApiParameter>();
+        var propsToRemoveFromExample = new List<string>();
 
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
         reqParams = regex
@@ -179,7 +180,7 @@ internal class OperationProcessor : IOperationProcessor
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
                     if (string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                     {
-                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
+                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                         return true;
                     }
                     return false;
@@ -203,15 +204,12 @@ internal class OperationProcessor : IOperationProcessor
                 .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest))
                 .Select(p =>
                 {
-                    var isRequired = !p.IsNullable();
-
-                    if (isRequired)
-                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
+                    RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
 
                     return new OpenApiParameter
                     {
                         Name = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name,
-                        IsRequired = isRequired,
+                        IsRequired = !p.IsNullable(),
                         Schema = JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name)
@@ -244,16 +242,16 @@ internal class OperationProcessor : IOperationProcessor
 
                         //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired)
-                            RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
+                            RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                     }
 
                     //can only be bound from claim since it's required. so remove prop from body.
                     if (attribute is FromClaimAttribute cAttrib && cAttrib.IsRequired)
-                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
+                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
 
                     //can only be bound from permission since it's required. so remove prop from body.
                     if (attribute is HasPermissionAttribute pAttrib && pAttrib.IsRequired)
-                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content);
+                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                 }
             }
         }
@@ -343,14 +341,11 @@ internal class OperationProcessor : IOperationProcessor
             prop.IsDefined(Types.QueryParamAttribute);
     }
 
-    private readonly List<string> propsToRemoveFromExample = new();
-    private void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content)
+    private static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content, List<string> propsToRemoveFromExample)
     {
         if (content is null) return;
 
         propsToRemoveFromExample.Add(propName);
-
-        //propName = ActualParamName(propName);
 
         foreach (var c in content)
         {

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.2.0-beta6</Version>
+        <Version>4.2.0-beta7</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -15,6 +15,7 @@
             - structured logging for default exception handler #105
             - correctly infer and set route parameter type in swagger from dto property type #99
             - swagger `OperationProcessor` now uses `NJsonSchema.SchemaGeneratorSettings` #108
+            - misc. swagger improvements
             - upgrade to latest fluentvalidation version
 
             ### FIXES

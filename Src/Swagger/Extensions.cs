@@ -29,6 +29,7 @@ public static class Extensions
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
+        settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
         settings.OperationProcessors.Add(new OperationProcessor(tagIndex));
         settings.DocumentProcessors.Add(new DocumentProcessor(maxEndpointVersion));
     }

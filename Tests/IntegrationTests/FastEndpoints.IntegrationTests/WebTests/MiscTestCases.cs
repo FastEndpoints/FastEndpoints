@@ -455,7 +455,7 @@ public class MiscTestCases : EndToEndTestBase
             TestCases.QueryParamBindingInEpWithoutReq.Response>(
             "/api/test-cases/ep-witout-req-query-param-binding-test" +
             "?customerId=09809" +
-            "&otherId=12" + 
+            "&otherId=12" +
             "&doubles=[123.45,543.21]" +
             "&guids=[\"b01ec302-0adc-4a2b-973d-bbfe639ed9a5\",\"e08664a4-efd8-4062-a1e1-6169c6eac2ab\"]" +
             "&ints=[1,2,3]" +

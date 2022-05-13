@@ -12,7 +12,7 @@ public class EpWithoutReqQueryParamBindingTest : EndpointWithoutRequest<Response
 
     public override Task HandleAsync(CancellationToken ct)
     {
-        return SendAsync(new() 
+        return SendAsync(new()
         {
             CustomerID = Query<int>("CustomerID"),
             OtherID = Query<int>("OtherID"),
@@ -36,7 +36,7 @@ public class Response
     public double[] Doubles { get; set; }
 
     public IEnumerable<int> Ints { get; set; }
-    
+
     public List<Guid> Guids { get; set; }
 
     public float Floaty { get; set; }

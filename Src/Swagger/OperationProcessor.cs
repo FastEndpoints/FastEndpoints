@@ -258,38 +258,26 @@ internal class OperationProcessor : IOperationProcessor
 
         foreach (var p in reqParams)
             op.Parameters.Add(p);
-        
-        //remove request body if there are no properties left after above operations
+
+        //remove request body & schema if there are no properties left after above operations
         //otherwise there's gonna be an empty schema added in the swagger doc
         if (op.RequestBody?.Content.SelectMany(c => c.Value.Schema.ActualSchema.ActualProperties).Any() == false &&
-            op.RequestBody?.Content.Where(c => c.Value.Schema.ActualSchema.InheritedSchema is not null).SelectMany(c => c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties).Any() == false &&
+           !op.RequestBody.Content.Where(c => c.Value.Schema.ActualSchema.InheritedSchema is not null).SelectMany(c => c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties).Any() &&
            !op.RequestBody.Content.SelectMany(c => c.Value.Schema.ActualSchema.AllOf.SelectMany(s => s.Properties)).Any())
         {
-            // Body null
             op.RequestBody = null;
 
-            // Remove any missing schema
-            for (int i = op.Parameters.Count-1 ; i>=0; i--)
+            foreach (var p in op.Parameters.Where(p => p.Kind == OpenApiParameterKind.Body))
             {
-                var p = op.Parameters[i];
-                // Document.Components.Schemas and Document.Definitions are the same dictionary. So removal can be done in any of them
                 if (ctx.Document.Components.Schemas.ContainsKey(p.Name))
                     ctx.Document.Components.Schemas.Remove(p.Name);
-                if (p.Kind == OpenApiParameterKind.Body)
-                    op.Parameters.Remove(p);
-
-                // SchemaResolver still holds an schema for this type but seems does no harm. Noted here for the future
-                // ctx.SchemaResolver.HasSchema(apiDescriptionParameterDescription.Type, false);
             }
-            // Clear ParameterDescriptions although it has no impact
-            apiDescription?.ParameterDescriptions.Clear();
         }
-        
-        // If get request, no matter what, set body to null
+
+        //remove request body since this is a get request
+        //cause swagger ui/fetch client doesn't support GET with body
         if (isGETRequest)
         {
-            //remove request body since this is a get request
-            //cause swagger ui/fetch client doesn't support GET with body
             op.RequestBody = null;
         }
 
@@ -312,7 +300,6 @@ internal class OperationProcessor : IOperationProcessor
                 requestBody.ActualSchema.Example = jObj;
             }
         }
-
         return true;
     }
 

@@ -54,14 +54,12 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 
         try
         {
-            var validator = Activator.CreateInstance(validatorType) as IValidator;
+            var validator = (IValidator)Activator.CreateInstance(validatorType)!;
             ApplyRulesToSchema(context, validator);
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.Error.WriteLine(e);
-
-            //TODO:
+            throw;
         }
     }
 
@@ -77,17 +75,20 @@ public class ValidationSchemaProcessor : ISchemaProcessor
     {
         var validators = validator.GetValidatorsForMemberIgnoreCase(schemaProperty);
         foreach (var propertyValidator in validators)
-        foreach (var rule in _rules)
         {
-            if (!rule.Matches(propertyValidator))
-                continue;
+            foreach (var rule in _rules)
+            {
+                if (!rule.Matches(propertyValidator))
+                    continue;
 
-            try
-            {
-                rule.Apply(new RuleContext(context, schemaProperty, propertyValidator));
-            }
-            catch (Exception e)
-            {
+                try
+                {
+                    rule.Apply(new RuleContext(context, schemaProperty, propertyValidator));
+                }
+                finally
+                {
+
+                }
             }
         }
     }

@@ -158,7 +158,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     {
         if (HttpContext.Request.Query.TryGetValue(paramName, out var val))
         {
-            var res = typeof(T).ValueParser()?.Invoke(val);
+            var res = typeof(T).ValueParser()?.Invoke(val.ToString());
 
             if (res?.isSuccess is true)
                 return (T?)res?.value;

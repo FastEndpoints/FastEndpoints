@@ -452,12 +452,25 @@ public class MiscTestCases : EndToEndTestBase
     {
         var (rsp, res) = await GuestClient.GETAsync<
             EmptyRequest,
-            TestCases.RouteBindingInEpWithoutReq.Response>(
-            "/api/test-cases/ep-witout-req-query-param-binding-test?customerId=09809&otherId=12", new());
+            TestCases.QueryParamBindingInEpWithoutReq.Response>(
+            "/api/test-cases/ep-witout-req-query-param-binding-test" +
+            "?customerId=09809" +
+            "&otherId=12" + 
+            "&doubles=[123.45,543.21]" +
+            "&guids=[\"b01ec302-0adc-4a2b-973d-bbfe639ed9a5\",\"e08664a4-efd8-4062-a1e1-6169c6eac2ab\"]" +
+            "&ints=[1,2,3]" +
+            "&floaty=3.2", new());
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
         res!.CustomerID.Should().Be(09809);
         res!.OtherID.Should().Be(12);
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Doubles.Length.Should().Be(2);
+        res?.Doubles[0].Should().Be(123.45);
+        res?.Guids.Count.Should().Be(2);
+        res?.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
+        res?.Ints.Count().Should().Be(3);
+        res?.Ints.First().Should().Be(1);
     }
 
     [Fact]

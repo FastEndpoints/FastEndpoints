@@ -18,7 +18,7 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    private static EndpointData _endpoints;
+    internal static EndpointData Endpoints { get; private set; }
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -29,7 +29,7 @@ public static class MainExtensions
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services,
         IEnumerable<Assembly>? endpointAssmeblies = null, ConfigurationManager? config = null)
     {
-        _endpoints = new(services, endpointAssmeblies, config);
+        Endpoints = new(services, endpointAssmeblies, config);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();
         return services;
@@ -68,7 +68,7 @@ public static class MainExtensions
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 
-        foreach (var epDef in _endpoints.Found)
+        foreach (var epDef in Endpoints.Found)
         {
             if (EpRegFilterFunc is not null && !EpRegFilterFunc(epDef)) continue;
             if (epDef.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
@@ -150,12 +150,12 @@ public static class MainExtensions
 
         Task.Run(async () =>
         {
-            //release memory held by _endpoints static variable after 10 mins as it's not needed after app startup.
+            //release memory held by Endpoints static variable after 10 mins as it's not needed after app startup.
             //we wait for 10 minutes in case WAF might create multiple instances of the web application in some testing scenarios.
             //if someone's tests run for more than 10 minutes, we should make this a user configurable setting.
 
             await Task.Delay(TimeSpan.FromMinutes(10));
-            _endpoints = null!;
+            Endpoints = null!;
         });
 
         return app;
@@ -250,7 +250,7 @@ public static class MainExtensions
 
     private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
-        foreach (var ep in _endpoints.Found)
+        foreach (var ep in Endpoints.Found)
         {
             if (ep.Roles is null && ep.Permissions is null && ep.ClaimTypes is null && ep.AuthSchemes is null)
                 continue;

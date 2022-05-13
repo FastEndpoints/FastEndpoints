@@ -38,7 +38,9 @@ public class Validator : Validator<Request>
 
         RuleFor(x => x.UserName)
             .Must(_ => config["TokenKey"] == "some long secret key to sign jwt tokens with")
-            .WithMessage("config didn't resolve correctly!");
+            .WithMessage("config didn't resolve correctly!")
+            .MaximumLength(50)
+            .WithMessage("cannot exceed 50 chars!");
 
         RuleFor(x => x.UserName)
             .NotEmpty().WithMessage("Username is required!")

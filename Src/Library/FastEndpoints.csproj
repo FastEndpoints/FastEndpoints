@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.2.0-beta7</Version>
+        <Version>4.2.0-beta8</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -10,6 +10,7 @@
             - model bind json arrays from request body by doing `MyEndpoint : Endpoint&lt;List&lt;MyModel&gt;&gt;`
             - model bind `json array strings` to `IEnumerable` properties of request dtos from form fiels/query params/headers/claims #110
             - global config `ErrorResponseStatusCode` for overriding status code for validation error responses
+            - fluentvalidation integration with swagger #112
 
             ### IMPROVEMENTS
             - structured logging for default exception handler #105

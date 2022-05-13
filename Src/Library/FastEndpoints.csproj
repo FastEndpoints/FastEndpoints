@@ -20,6 +20,7 @@
 
             ### FIXES
             - swagger bug #86 solved by PR #109
+            - fix `Query&lt;T&lt;()` method StringValues issue PR #113
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

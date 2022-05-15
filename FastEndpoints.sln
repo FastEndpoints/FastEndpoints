@@ -48,6 +48,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Generator", "Src\Generator\FastEndpoints.Generator.csproj", "{D7551B53-9C05-442D-B1E4-6C79FB81E91F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -184,6 +186,14 @@ Global
 		{290579FF-FDAB-4853-8682-BB3F040B5AFE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{290579FF-FDAB-4853-8682-BB3F040B5AFE}.Release|x86.ActiveCfg = Release|Any CPU
 		{290579FF-FDAB-4853-8682-BB3F040B5AFE}.Release|x86.Build.0 = Release|Any CPU
+		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Debug|x86.Build.0 = Debug|Any CPU
+		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Release|x86.ActiveCfg = Release|Any CPU
+		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

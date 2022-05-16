@@ -1,4 +1,5 @@
-﻿using IntegrationTests.Shared.Fixtures;
+﻿using FluentValidation;
+using IntegrationTests.Shared.Fixtures;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Net.Http.Headers;
@@ -349,7 +350,9 @@ public class MiscTestCases : EndToEndTestBase
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res.Errors.Should().NotBeNull();
         res.Errors.Count.Should().Be(2);
-        res.Errors["x"].First().Should().Be("blah");
+        res.Errors["x"].First().Message.Should().Be("blah");
+        res.Errors["x"].First().ErrorCode.Should().Be("EC001");
+        res.Errors["x"].First().Severity.Should().Be(Severity.Warning);
     }
 
     [Fact]

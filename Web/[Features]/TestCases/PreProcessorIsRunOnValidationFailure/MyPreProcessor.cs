@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using FluentValidation;
+using FluentValidation.Results;
 
 namespace TestCases.PreProcessorIsRunOnValidationFailure
 {
@@ -6,7 +7,13 @@ namespace TestCases.PreProcessorIsRunOnValidationFailure
     {
         public Task PreProcessAsync(Request req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
         {
-            failures.Add(new("x", "blah"));
+            var validationFailure = new ValidationFailure("x", "blah") {
+                Severity = Severity.Warning,
+                ErrorCode = "EC001"
+            };
+            
+            failures.Add(validationFailure);
+            
             return Task.CompletedTask;
         }
     }

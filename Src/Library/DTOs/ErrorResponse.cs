@@ -20,7 +20,7 @@ public sealed class ErrorResponse
     /// <summary>
     /// the collection of errors for the current context
     /// </summary>
-    public Dictionary<string, List<string>> Errors { get; set; } = new();
+    public Dictionary<string, List<ErrorResponseObject>> Errors { get; set; } = new();
 
     /// <summary>
     /// instantiate a new error response without any errors
@@ -34,6 +34,12 @@ public sealed class ErrorResponse
     public ErrorResponse(List<ValidationFailure> failures, int statusCode = 400)
     {
         StatusCode = statusCode;
-        Errors = failures.GroupToDictionary(f => f.PropertyName, v => v.ErrorMessage);
+        Errors = failures.GroupToDictionary(f => f.PropertyName, v => new ErrorResponseObject
+        {
+            ErrorCode = v.ErrorCode,
+            Message = v.ErrorMessage,
+            Severity = v.Severity
+        });
+            
     }
 }

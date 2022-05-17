@@ -14,10 +14,10 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class Summary&lt;TEndpoint&gt;
+    <title>Class RuleContext
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class Summary&lt;TEndpoint&gt;
+    <meta name="title" content="Class RuleContext
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern">
@@ -93,45 +93,20 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.Summary`1">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext">
   
   
-  <h1 id="FastEndpoints_Summary_1" data-uid="FastEndpoints.Summary`1" class="text-break">Class Summary&lt;TEndpoint&gt;
+  <h1 id="FastEndpoints_Swagger_ValidationProcessor_RuleContext" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext" class="text-break">Class RuleContext
   </h1>
   <div class="markdown level0 summary"></div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><a class="xref" href="FastEndpoints.EndpointSummary.html">EndpointSummary</a></div>
-    <div class="level2"><span class="xref">Summary&lt;TEndpoint&gt;</span></div>
+    <div class="level1"><span class="xref">RuleContext</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Summary">EndpointSummary.Summary</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Description">EndpointSummary.Description</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_ExampleRequest">EndpointSummary.ExampleRequest</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Responses">EndpointSummary.Responses</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Params">EndpointSummary.Params</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Item_System_Int32_">EndpointSummary.Item[Int32]</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Response__1_System_Int32_System_String_System_String_">EndpointSummary.Response&lt;TResponse&gt;(Int32, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Response_System_Int32_System_String_System_String_">EndpointSummary.Response(Int32, String, String)</a>
-    </div>
     <div>
       <span class="xref">System.Object.Equals(System.Object)</span>
     </div>
@@ -154,25 +129,125 @@
       <span class="xref">System.Object.ToString()</span>
     </div>
   </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
-  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_Summary_1_syntax">Syntax</h5>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.Swagger.ValidationProcessor.html">FastEndpoints.Swagger.ValidationProcessor</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.Swagger.dll</h6>
+  <h5 id="FastEndpoints_Swagger_ValidationProcessor_RuleContext_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class Summary&lt;TEndpoint&gt; : EndpointSummary, ISummary where TEndpoint : IEndpoint</code></pre>
+    <pre><code class="lang-csharp hljs">public class RuleContext</code></pre>
   </div>
-  <h5 class="typeParameters">Type Parameters</h5>
+  <h3 id="constructors">Constructors
+  </h3>
+  
+  
+  <a id="FastEndpoints_Swagger_ValidationProcessor_RuleContext__ctor_" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext.#ctor*"></a>
+  <h4 id="FastEndpoints_Swagger_ValidationProcessor_RuleContext__ctor_NJsonSchema_JsonSchema_System_String_FluentValidation_Validators_IPropertyValidator_" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext.#ctor(NJsonSchema.JsonSchema,System.String,FluentValidation.Validators.IPropertyValidator)">RuleContext(JsonSchema, String, IPropertyValidator)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public RuleContext(JsonSchema schema, string propertyKey, IPropertyValidator propertyValidator)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
+        <th>Type</th>
         <th>Name</th>
         <th>Description</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><span class="parametername">TEndpoint</span></td>
-        <td><p>the type of the endpoint this summary is associated with</p>
-</td>
+        <td><span class="xref">NJsonSchema.JsonSchema</span></td>
+        <td><span class="parametername">schema</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">propertyKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">FluentValidation.Validators.IPropertyValidator</span></td>
+        <td><span class="parametername">propertyValidator</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  
+  
+  <a id="FastEndpoints_Swagger_ValidationProcessor_RuleContext_PropertyKey_" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyKey*"></a>
+  <h4 id="FastEndpoints_Swagger_ValidationProcessor_RuleContext_PropertyKey" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyKey">PropertyKey</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string PropertyKey { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Swagger_ValidationProcessor_RuleContext_PropertyValidator_" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyValidator*"></a>
+  <h4 id="FastEndpoints_Swagger_ValidationProcessor_RuleContext_PropertyValidator" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyValidator">PropertyValidator</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IPropertyValidator PropertyValidator { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">FluentValidation.Validators.IPropertyValidator</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_Swagger_ValidationProcessor_RuleContext_Schema_" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext.Schema*"></a>
+  <h4 id="FastEndpoints_Swagger_ValidationProcessor_RuleContext_Schema" data-uid="FastEndpoints.Swagger.ValidationProcessor.RuleContext.Schema">Schema</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public JsonSchema Schema { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">NJsonSchema.JsonSchema</span></td>
+        <td></td>
       </tr>
     </tbody>
   </table>

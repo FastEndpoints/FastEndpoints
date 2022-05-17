@@ -14,10 +14,10 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Class Summary&lt;TEndpoint&gt;
+    <title>Class ValidationSchemaProcessor
    | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="Class Summary&lt;TEndpoint&gt;
+    <meta name="title" content="Class ValidationSchemaProcessor
    | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern">
@@ -93,45 +93,24 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="FastEndpoints.Summary`1">
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.Swagger.ValidationSchemaProcessor">
   
   
-  <h1 id="FastEndpoints_Summary_1" data-uid="FastEndpoints.Summary`1" class="text-break">Class Summary&lt;TEndpoint&gt;
+  <h1 id="FastEndpoints_Swagger_ValidationSchemaProcessor" data-uid="FastEndpoints.Swagger.ValidationSchemaProcessor" class="text-break">Class ValidationSchemaProcessor
   </h1>
   <div class="markdown level0 summary"></div>
   <div class="markdown level0 conceptual"></div>
   <div class="inheritance">
     <h5>Inheritance</h5>
     <div class="level0"><span class="xref">System.Object</span></div>
-    <div class="level1"><a class="xref" href="FastEndpoints.EndpointSummary.html">EndpointSummary</a></div>
-    <div class="level2"><span class="xref">Summary&lt;TEndpoint&gt;</span></div>
+    <div class="level1"><span class="xref">ValidationSchemaProcessor</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">NJsonSchema.Generation.ISchemaProcessor</span></div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Summary">EndpointSummary.Summary</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Description">EndpointSummary.Description</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_ExampleRequest">EndpointSummary.ExampleRequest</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Responses">EndpointSummary.Responses</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Params">EndpointSummary.Params</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Item_System_Int32_">EndpointSummary.Item[Int32]</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Response__1_System_Int32_System_String_System_String_">EndpointSummary.Response&lt;TResponse&gt;(Int32, String, String)</a>
-    </div>
-    <div>
-      <a class="xref" href="FastEndpoints.EndpointSummary.html#FastEndpoints_EndpointSummary_Response_System_Int32_System_String_System_String_">EndpointSummary.Response(Int32, String, String)</a>
-    </div>
     <div>
       <span class="xref">System.Object.Equals(System.Object)</span>
     </div>
@@ -154,28 +133,57 @@
       <span class="xref">System.Object.ToString()</span>
     </div>
   </div>
-  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
-  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
-  <h5 id="FastEndpoints_Summary_1_syntax">Syntax</h5>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.Swagger.html">FastEndpoints.Swagger</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.Swagger.dll</h6>
+  <h5 id="FastEndpoints_Swagger_ValidationSchemaProcessor_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public abstract class Summary&lt;TEndpoint&gt; : EndpointSummary, ISummary where TEndpoint : IEndpoint</code></pre>
+    <pre><code class="lang-csharp hljs">public class ValidationSchemaProcessor : ISchemaProcessor</code></pre>
   </div>
-  <h5 class="typeParameters">Type Parameters</h5>
+  <h3 id="constructors">Constructors
+  </h3>
+  
+  
+  <a id="FastEndpoints_Swagger_ValidationSchemaProcessor__ctor_" data-uid="FastEndpoints.Swagger.ValidationSchemaProcessor.#ctor*"></a>
+  <h4 id="FastEndpoints_Swagger_ValidationSchemaProcessor__ctor" data-uid="FastEndpoints.Swagger.ValidationSchemaProcessor.#ctor">ValidationSchemaProcessor()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ValidationSchemaProcessor()</code></pre>
+  </div>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="FastEndpoints_Swagger_ValidationSchemaProcessor_Process_" data-uid="FastEndpoints.Swagger.ValidationSchemaProcessor.Process*"></a>
+  <h4 id="FastEndpoints_Swagger_ValidationSchemaProcessor_Process_NJsonSchema_Generation_SchemaProcessorContext_" data-uid="FastEndpoints.Swagger.ValidationSchemaProcessor.Process(NJsonSchema.Generation.SchemaProcessorContext)">Process(SchemaProcessorContext)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Process(SchemaProcessorContext context)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
+        <th>Type</th>
         <th>Name</th>
         <th>Description</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><span class="parametername">TEndpoint</span></td>
-        <td><p>the type of the endpoint this summary is associated with</p>
-</td>
+        <td><span class="xref">NJsonSchema.Generation.SchemaProcessorContext</span></td>
+        <td><span class="parametername">context</span></td>
+        <td></td>
       </tr>
     </tbody>
   </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">NJsonSchema.Generation.ISchemaProcessor</span>
+  </div>
 </article>
           </div>
           

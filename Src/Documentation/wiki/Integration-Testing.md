@@ -8,7 +8,7 @@ i.e. you don't need to specify the route urls when testing endpoints. follow the
 > this document is still a work-in-progress.
 > please check back soon...
 
-> you can have a look at the [test project here](https://github.com/dj-nitehawk/FastEndpoints/tree/main/Test) in the meantime to get an idea.
+> you can have a look at the [test project here](https://github.com/dj-nitehawk/FastEndpoints/tree/v4.1.0/Test) in the meantime to get an idea.
 
 # unit testing endpoints
 if you don't mind paying the price of extra work needed for more granular testing with unit tests, you may use the `Factory.Create<TEndpoint>()` method to get an instance of your endpoint which is suitable for unit testing.

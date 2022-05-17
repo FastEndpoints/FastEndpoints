@@ -158,6 +158,7 @@
   <h5 id="FastEndpoints_Endpoint_2_syntax">Syntax</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public abstract class Endpoint&lt;TRequest, TResponse&gt; : BaseEndpoint, IEndpoint, IServiceResolver where TRequest : new()
+
     where TResponse : new()</code></pre>
   </div>
   <h5 class="typeParameters">Type Parameters</h5>
@@ -1463,6 +1464,7 @@ EXAMPLE: <code>b => b.Accepts&lt;Request>(&quot;text/plain&quot;)</code>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public Task PublishAsync&lt;TEvent&gt;(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = null)
+
     where TEvent : class</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -1679,6 +1681,7 @@ NOTE: an automatic validation error is sent to the client when value retrieval i
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService Resolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>
@@ -2142,6 +2145,7 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected Task SendCreatedAtAsync&lt;TEndpoint&gt;(object routeValues, TResponse responseBody, Http? verb = null, int? routeNumber = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = null)
+
     where TEndpoint : IEndpoint</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -2934,6 +2938,7 @@ global prefix can be ignored by setting <code>string.Empty</code></p>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">protected void SerializerContext&lt;TContext&gt;(TContext serializerContext)
+
     where TContext : JsonSerializerContext</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
@@ -3258,6 +3263,7 @@ not specifying a header name will first look for 'X-Forwarded-For' header and if
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
     <pre><code class="lang-csharp hljs">public TService TryResolve&lt;TService&gt;()
+
     where TService : class</code></pre>
   </div>
   <h5 class="returns">Returns</h5>

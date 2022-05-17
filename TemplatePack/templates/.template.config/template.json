@@ -84,7 +84,7 @@
           ]
         },
         {
-          "exclude": [".idea/**", "*.csproj"]
+          "exclude": [ ".idea/**", "*.csproj", "Properties/**" ]
         }
       ]
     }

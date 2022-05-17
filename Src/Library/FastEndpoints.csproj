@@ -10,7 +10,8 @@
             - model bind json arrays from request body by doing `MyEndpoint : Endpoint&lt;List&lt;MyModel&gt;&gt;`
             - model bind `json array strings` to `IEnumerable` properties of request dtos from form fiels/query params/headers/claims #110
             - global config `ErrorResponseStatusCode` for overriding status code for validation error responses
-            - fluentvalidation integration with swagger #112
+            - fluentvalidation integration with swagger #112 #116
+            - `dotnet new` template for scaffolding vertical slice feature file sets #119
 
             ### IMPROVEMENTS
             - structured logging for default exception handler #105

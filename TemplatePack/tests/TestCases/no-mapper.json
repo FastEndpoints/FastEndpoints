@@ -1,0 +1,25 @@
+﻿{
+  "name": "Feature Fileset - no mapper",
+  "create": "feat --name Blogs.List -p false",
+  "tasks": [
+    {
+      "handler": "fileInspect",
+      "file": "Endpoint.cs",
+      "expectations": [
+        {
+          "assertion": "does_not_contain",
+          "text": "Mapper>"
+        }
+      ]
+    },
+    {
+      "handler": "fileInspect",
+      "file": "Mapper.cs",
+      "expectations": [
+        {
+          "assertion": "does_not_exist"
+        }
+      ]
+    }
+  ]
+}

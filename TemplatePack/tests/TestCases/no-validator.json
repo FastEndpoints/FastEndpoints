@@ -1,0 +1,16 @@
+﻿{
+  "name": "Feature Fileset - no validator",
+  "create": "feat --name Blogs.List -v false",
+  "tasks": [
+    {
+      "handler": "fileInspect",
+      "file": "Models.cs",
+      "expectations": [
+        {
+          "assertion": "does_not_contain",
+          "text": "public class Validator : Validator<Request>"
+        }
+      ]
+    }
+  ]
+}

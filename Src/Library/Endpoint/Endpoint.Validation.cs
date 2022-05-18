@@ -1,4 +1,5 @@
 ﻿using FastEndpoints.Validation;
+using FluentValidation;
 using FluentValidation.Results;
 using System.Linq.Expressions;
 
@@ -10,18 +11,35 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// adds a "GeneralError" to the current list of validation failures
     /// </summary>
     /// <param name="message">the error message</param>
-    protected void AddError(string message)
-        => ValidationFailures.Add(new ValidationFailure("GeneralErrors", message));
+    /// <param name="errorCode">the error code associated to the error</param>
+    /// <param name="severity">the severity of the error</param>
+    protected void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
+    {
+        var validationFailure = new ValidationFailure("GeneralErrors", message)
+        {
+            ErrorCode = errorCode,
+            Severity = severity
+        };
+
+        ValidationFailures.Add(validationFailure);
+    }
 
     /// <summary>
     /// adds an error message for the specified property of the request dto
     /// </summary>
     /// <param name="property">the property to add the error message for</param>
     /// <param name="errorMessage">the error message</param>
-    protected void AddError(Expression<Func<TRequest, object>> property, string errorMessage)
+    /// <param name="errorCode">the error code associated to the error</param>
+    /// <param name="severity">the severity of the error</param>
+    protected void AddError(Expression<Func<TRequest, object>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
     {
-        ValidationFailures.Add(
-            new ValidationFailure(property.PropertyName(), errorMessage));
+        var validationFailure = new ValidationFailure(property.PropertyName(), errorMessage)
+        {
+            ErrorCode = errorCode,
+            Severity = severity
+        };
+
+        ValidationFailures.Add(validationFailure);
     }
 
     /// <summary>

@@ -1152,6 +1152,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/Template-Pack.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Template-Pack.html",
+          "hash": "2L0fbMIyi3acxmzLRm/Z9ZbEap2NMevZao7+9k5vZmA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/VS-Extension.md",
       "output": {
         ".html": {
@@ -1180,7 +1192,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "kk5pQ3nTyf14Cyzd6GBakBolagle8o+onSNXOTAEECs="
+          "hash": "RZ4T8m1wbVHxWSGyelx2dz9KByI3OHSlqTmSDQHR+LI="
         }
       },
       "is_incremental": false,
@@ -1199,8 +1211,8 @@
         "ConceptualDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 21,
-          "skipped_file_count": 21
+          "total_file_count": 22,
+          "skipped_file_count": 22
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

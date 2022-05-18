@@ -11,7 +11,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// adds a "GeneralError" to the current list of validation failures
     /// </summary>
     /// <param name="message">the error message</param>
-    /// <param name="errorCode">the error code associated to the error</param>
+    /// <param name="errorCode">the error code associated with the error</param>
     /// <param name="severity">the severity of the error</param>
     protected void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
     {
@@ -29,7 +29,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="property">the property to add the error message for</param>
     /// <param name="errorMessage">the error message</param>
-    /// <param name="errorCode">the error code associated to the error</param>
+    /// <param name="errorCode">the error code associated with the error</param>
     /// <param name="severity">the severity of the error</param>
     protected void AddError(Expression<Func<TRequest, object>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
     {

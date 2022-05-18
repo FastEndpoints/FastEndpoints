@@ -59,14 +59,14 @@ public class ValidationSchemaProcessor : ISchemaProcessor
     {
         if (schema is null)
             return;
-        
+
         // Add properties from current schema/class
         if (schema.Properties != null)
         {
             foreach (var schemaProperty in schema.Properties.Keys)
                 TryApplyValidation(schema, validator, schemaProperty);
         }
-        
+
         // Add properties from base class
         ApplyRulesToSchema(context, schema.InheritedSchema, validator);
     }

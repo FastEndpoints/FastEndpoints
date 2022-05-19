@@ -24,17 +24,7 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Compile Remove="bin\**" />
-      <EmbeddedResource Remove="bin\**" />
-      <None Remove="bin\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="bin\Debug\net6.0\\FastEndpoints.Generator.dll" />
-    </ItemGroup>
-
-    <ItemGroup>
+  <ItemGroup>
       <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     </ItemGroup>
 

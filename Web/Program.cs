@@ -22,7 +22,6 @@ builder.Services
         s.Title = "Web API";
         s.Version = "v0.0";
     },
-    shortSchemaNames: true,
     serializerSettings: x => x.PropertyNamingPolicy = null)
 
     .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>

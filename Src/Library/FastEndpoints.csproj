@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.2.0-beta9</Version>
+        <Version>4.2.0</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -20,6 +20,7 @@
             - remove empty request schema from swagger doc #115
             - misc. swagger improvements
             - upgrade to latest fluentvalidation version
+            - new optional parameters for AddError() method #120
 
             ### FIXES
             - swagger bug #86 solved by #109
@@ -48,7 +49,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.0.0" />
+        <PackageReference Include="FluentValidation" Version="11.0.1" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>

@@ -2,29 +2,14 @@
 
     <PropertyGroup>
 
-        <Version>4.2.0</Version>
+        <Version>4.2.1-beta2</Version>
 
         <PackageReleaseNotes>
             ### NEW
-            - specify example request object for the `ExampleRequest` property in endpoint summary
-            - model bind json arrays from request body by doing `MyEndpoint : Endpoint&lt;List&lt;MyModel&gt;&gt;`
-            - model bind `json array strings` to `IEnumerable` properties of request dtos from form fiels/query params/headers/claims #110
-            - global config `ErrorResponseStatusCode` for overriding status code for validation error responses
-            - fluentvalidation integration with swagger #112 #116
-            - `dotnet new` template for scaffolding vertical slice feature file sets #119
+            - endpoint discovery options argument for `AddFastEndpoints()`
 
             ### IMPROVEMENTS
-            - structured logging for default exception handler #105
-            - correctly infer and set route parameter type in swagger from dto property type #99
-            - swagger `OperationProcessor` now uses `NJsonSchema.SchemaGeneratorSettings` #108
-            - remove empty request schema from swagger doc #115
-            - misc. swagger improvements
-            - upgrade to latest fluentvalidation version
-            - new optional parameters for AddError() method #120
-
-            ### FIXES
-            - swagger bug #86 solved by #109
-            - fix `Query&lt;T&lt;()` method StringValues issue #113
+            - throw exception if swagger pipeline is misconfigured #122
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

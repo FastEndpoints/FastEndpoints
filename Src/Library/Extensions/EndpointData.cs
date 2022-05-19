@@ -16,11 +16,11 @@ internal sealed class EndpointData
 
     internal static Stopwatch Stopwatch { get; } = new();
 
-    internal EndpointData(IServiceCollection services, IEnumerable<Assembly>? assemblies, ConfigurationManager? config)
+    internal EndpointData(IServiceCollection services, EndpointDiscoveryOptions? options, ConfigurationManager? config)
     {
         _endpoints = new(() =>
         {
-            var endpoints = BuildEndpointDefinitions(services, assemblies ?? Enumerable.Empty<Assembly>(), config);
+            var endpoints = BuildEndpointDefinitions(services, options, config);
 
             if (endpoints.Length == 0)
                 throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
@@ -33,9 +33,12 @@ internal sealed class EndpointData
         _ = _endpoints.Value;
     }
 
-    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services, IEnumerable<Assembly> assemblies,
+    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services, EndpointDiscoveryOptions? options,
         ConfigurationManager? config)
     {
+        if (options?.DisableAutoDiscovery is true && options.Assemblies?.Any() is false)
+            throw new InvalidOperationException("If 'DisableAutoDiscovery' is true, a collection of `Assemblies` must be provided!");
+
         Stopwatch.Start();
 
         var excludes = new[]
@@ -51,9 +54,15 @@ internal sealed class EndpointData
                 "NSwag."
         };
 
-        var discoveredTypes = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .Union(assemblies)
+        var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
+
+        if (options?.DisableAutoDiscovery != true)
+            assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
+
+        if (options?.AssemblyFilter is not null)
+            assemblies = assemblies.Where(options.AssemblyFilter);
+
+        var discoveredTypes = assemblies
             .Where(a =>
                 !a.IsDynamic &&
                 !excludes.Any(n => a.FullName!.StartsWith(n)))

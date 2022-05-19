@@ -5,6 +5,9 @@
         <Version>4.2.1-beta1</Version>
 
         <PackageReleaseNotes>
+            ### NEW
+            - endpoint discovery options argument for `AddFastEndpoints()`
+
             ### IMPROVEMENTS
             - throw exception if swagger pipeline is misconfigured #122
         </PackageReleaseNotes>

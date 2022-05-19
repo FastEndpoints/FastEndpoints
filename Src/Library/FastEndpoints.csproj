@@ -48,8 +48,4 @@
         <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-
 </Project>

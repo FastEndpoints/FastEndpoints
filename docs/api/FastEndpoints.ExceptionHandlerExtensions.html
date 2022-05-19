@@ -141,7 +141,7 @@
   
   
   <a id="FastEndpoints_ExceptionHandlerExtensions_UseDefaultExceptionHandler_" data-uid="FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler*"></a>
-  <h4 id="FastEndpoints_ExceptionHandlerExtensions_UseDefaultExceptionHandler_Microsoft_AspNetCore_Builder_IApplicationBuilder_Microsoft_Extensions_Logging_ILogger_" data-uid="FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Logging.ILogger)">UseDefaultExceptionHandler(IApplicationBuilder, ILogger)</h4>
+  <h4 id="FastEndpoints_ExceptionHandlerExtensions_UseDefaultExceptionHandler_Microsoft_AspNetCore_Builder_IApplicationBuilder_Microsoft_Extensions_Logging_ILogger_System_Boolean_" data-uid="FastEndpoints.ExceptionHandlerExtensions.UseDefaultExceptionHandler(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.Extensions.Logging.ILogger,System.Boolean)">UseDefaultExceptionHandler(IApplicationBuilder, ILogger, Boolean)</h4>
   <div class="markdown level1 summary"><p>registers the default global exception handler which will log the exceptions on the server and return a user-friendly json response to the client when unhandled exceptions occur.
 TIP: when using this exception handler, you may want to turn off the asp.net core exception middleware logging to avoid duplication like so:</p>
 <pre><code>&quot;Logging&quot;: { &quot;LogLevel&quot;: { &quot;Default&quot;: &quot;Warning&quot;, &quot;Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware&quot;: &quot;None&quot; } }</code></pre>
@@ -149,7 +149,7 @@ TIP: when using this exception handler, you may want to turn off the asp.net cor
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger logger = null)</code></pre>
+    <pre><code class="lang-csharp hljs">public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger logger = null, bool logStructuredException = false)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -170,6 +170,12 @@ TIP: when using this exception handler, you may want to turn off the asp.net cor
         <td><span class="xref">Microsoft.Extensions.Logging.ILogger</span></td>
         <td><span class="parametername">logger</span></td>
         <td><p>an optional logger instance</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">logStructuredException</span></td>
+        <td><p>set to true if you'd like to log the error in a structured manner</p>
 </td>
       </tr>
     </tbody>

@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <!-- for testing different values -->
+        <DefineConstants>useAttributes;useValidation;useMapper</DefineConstants>
+
+        <PackageType>Template</PackageType>
+        <Authors>@lazyboy1</Authors>
+        <Description>FastEndpoints feature fileset template pack</Description>
+        <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>fastendpoints, template, http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet6, minimal-api, vertical-slice-architecture, repr-pattern</PackageTags>
+
+        <Version>0.1.1</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FastEndpoints" Version="4.*" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="**/*"
+                 Exclude="bin/**;obj/**;packages.lock.json;.idea/**;Properties/**"/>
+        <Compile Remove="**\*"/>
+        <None Include="..\..\Src\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
+    </ItemGroup>
+
+</Project>

@@ -42,9 +42,6 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 
     public void Process(SchemaProcessorContext context)
     {
-        if (!context.Schema.IsObject || context.Schema.Properties.Count == 0)
-            return;
-
         var tRequest = context.Type;
 
         foreach (var e in MainExtensions.Endpoints.Found)
@@ -52,20 +49,29 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             if (e.ValidatorType?.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
             {
                 var validator = _serviceProvider.GetRequiredService(e.ValidatorType);
-                ApplyRulesToSchema(context, (IValidator)validator);
+                ApplyRulesToSchema(context, context.Schema, (IValidator)validator);
                 break;
             }
         }
     }
 
-    private void ApplyRulesToSchema(SchemaProcessorContext context, IValidator validator)
+    private void ApplyRulesToSchema(SchemaProcessorContext context, JsonSchema? schema, IValidator validator)
     {
-        var schemaProperties = context.Schema?.Properties?.Keys ?? Array.Empty<string>();
-        foreach (var schemaProperty in schemaProperties)
-            TryApplyValidation(context, validator, schemaProperty);
+        if (schema is null)
+            return;
+
+        // Add properties from current schema/class
+        if (schema.Properties != null)
+        {
+            foreach (var schemaProperty in schema.Properties.Keys)
+                TryApplyValidation(schema, validator, schemaProperty);
+        }
+
+        // Add properties from base class
+        ApplyRulesToSchema(context, schema.InheritedSchema, validator);
     }
 
-    private void TryApplyValidation(SchemaProcessorContext context, IValidator validator, string schemaProperty)
+    private void TryApplyValidation(JsonSchema schema, IValidator validator, string schemaProperty)
     {
         foreach (var propertyValidator in validator.GetValidatorsForMemberIgnoreCase(schemaProperty))
         {
@@ -76,7 +82,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 
                 try
                 {
-                    rule.Apply(new RuleContext(context, schemaProperty, propertyValidator));
+                    rule.Apply(new RuleContext(schema, schemaProperty, propertyValidator));
                 }
                 finally
                 {
@@ -93,7 +99,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Matches = propertyValidator => propertyValidator is INotNullValidator or INotEmptyValidator,
             Apply = context =>
             {
-                var schema = context.SchemaProcessorContext.Schema;
+                var schema = context.Schema;
                 if (schema == null)
                     return;
                 if (!schema.RequiredProperties.Contains(context.PropertyKey))
@@ -105,7 +111,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Matches = propertyValidator => propertyValidator is INotNullValidator,
             Apply = context =>
             {
-                var schema = context.SchemaProcessorContext.Schema;
+                var schema = context.Schema;
                 schema.Properties[context.PropertyKey].IsNullableRaw = false;
                 if (schema.Properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
                     schema.Properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
@@ -125,7 +131,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Matches = propertyValidator => propertyValidator is INotEmptyValidator,
             Apply = context =>
             {
-                var schema = context.SchemaProcessorContext.Schema;
+                var schema = context.Schema;
                 schema.Properties[context.PropertyKey].IsNullableRaw = false;
                 if (schema.Properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
                     schema.Properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
@@ -146,7 +152,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Matches = propertyValidator => propertyValidator is ILengthValidator,
             Apply = context =>
             {
-                var schema = context.SchemaProcessorContext.Schema;
+                var schema = context.Schema;
                 var lengthValidator = (ILengthValidator)context.PropertyValidator;
                 if (lengthValidator.Max > 0)
                     schema.Properties[context.PropertyKey].MaxLength = lengthValidator.Max;
@@ -164,7 +170,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Apply = context =>
             {
                 var regularExpressionValidator = (IRegularExpressionValidator)context.PropertyValidator;
-                var schema = context.SchemaProcessorContext.Schema;
+                var schema = context.Schema;
                 schema.Properties[context.PropertyKey].Pattern = regularExpressionValidator.Expression;
             }
         },
@@ -177,7 +183,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
                 if (comparisonValidator.ValueToCompare.IsNumeric())
                 {
                     var valueToCompare = Convert.ToDecimal(comparisonValidator.ValueToCompare);
-                    var schema = context.SchemaProcessorContext.Schema;
+                    var schema = context.Schema;
                     var schemaProperty = schema.Properties[context.PropertyKey];
                     if (comparisonValidator.Comparison == Comparison.GreaterThanOrEqual)
                     {
@@ -202,7 +208,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Apply = context =>
             {
                 var betweenValidator = (IBetweenValidator)context.PropertyValidator;
-                var schema = context.SchemaProcessorContext.Schema;
+                var schema = context.Schema;
                 var schemaProperty = schema.Properties[context.PropertyKey];
                 if (betweenValidator.From.IsNumeric())
                 {
@@ -225,7 +231,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Matches = propertyValidator => propertyValidator.GetType().IsSubClassOfGeneric(typeof(AspNetCoreCompatibleEmailValidator<>)),
             Apply = context =>
             {
-                var schema = context.SchemaProcessorContext.Schema;
+                var schema = context.Schema;
                 schema.Properties[context.PropertyKey].Pattern = "^[^@]+@[^@]+$"; // [^@] All chars except @
             }
         },

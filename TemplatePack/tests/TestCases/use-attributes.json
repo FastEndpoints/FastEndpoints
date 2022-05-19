@@ -1,0 +1,20 @@
+﻿{
+  "name": "Feature Fileset - use attributes",
+  "create": "feat --name Blogs.List -t",
+  "tasks": [
+    {
+      "handler": "fileInspect",
+      "file": "Endpoint.cs",
+      "expectations": [
+        {
+          "assertion": "contains",
+          "text": "[Http"
+        },
+        {
+          "assertion": "does_not_contain",
+          "text": "public override void Configure()"
+        }
+      ]
+    }
+  ]
+}

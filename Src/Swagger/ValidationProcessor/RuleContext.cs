@@ -21,21 +21,21 @@
 // SOFTWARE.
 
 using FluentValidation.Validators;
-using NJsonSchema.Generation;
+using NJsonSchema;
 
 namespace FastEndpoints.Swagger.ValidationProcessor;
 
 public class RuleContext
 {
-    public SchemaProcessorContext SchemaProcessorContext { get; }
+    public JsonSchema Schema { get; }
 
     public string PropertyKey { get; }
 
     public IPropertyValidator PropertyValidator { get; }
 
-    public RuleContext(SchemaProcessorContext schemaProcessorContext, string propertyKey, IPropertyValidator propertyValidator)
+    public RuleContext(JsonSchema schema, string propertyKey, IPropertyValidator propertyValidator)
     {
-        SchemaProcessorContext = schemaProcessorContext;
+        Schema = schema;
         PropertyKey = propertyKey;
         PropertyValidator = propertyValidator;
     }

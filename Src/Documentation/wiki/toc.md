@@ -18,3 +18,4 @@
 # [API Versioning](Api-Versioning.md)
 # [Rate Limiting](Rate-Limiting.md)
 # [VS Extension](VS-Extension.md)
+# [Template Pack](Template-Pack.md)

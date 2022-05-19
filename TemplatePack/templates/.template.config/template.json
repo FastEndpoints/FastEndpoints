@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "@lazyboy1",
+  "classifications": [
+    "FastEndpoints"
+  ],
+  "identity": "FastEndpoints.TemplatePack",
+  "name": "FastEndpoints Feature Fileset",
+  "shortName": "feat",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  },
+  "sourceName": "FeatureName",
+  "symbols": {
+    "useAttributes": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether to use attributes for endpoint configuration"
+    },
+    "useMapper": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Whether to use a mapper"
+    },
+    "useValidator": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Whether to use a validator",
+      "displayName": "Use Validator"
+    },
+    "method": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "GET"
+        },
+        {
+          "choice": "POST"
+        },
+        {
+          "choice": "PUT"
+        },
+        {
+          "choice": "DELETE"
+        },
+        {
+          "choice": "PATCH"
+        }
+      ],
+      "description": "Endpoint HTTP method",
+      "defaultValue": "GET"
+    },
+    "methodLowerCase": {
+      "type": "derived",
+      "valueSource": "method",
+      "valueTransform": "lowerCase"
+    },
+    "methodPascalCase": {
+      "type": "derived",
+      "valueSource": "methodLowerCase",
+      "valueTransform": "firstUpperCaseInvariant",
+      "replaces": "Post"
+    },
+    "route": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Endpoint path",
+      "defaultValue": "api/route/here",
+      "replaces": "api/route/here"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!useMapper}",
+          "exclude": [
+            "Mapper.cs"
+          ]
+        },
+        {
+          "exclude": [ ".idea/**", "*.csproj", "Properties/**" ]
+        }
+      ]
+    }
+  ]
+}

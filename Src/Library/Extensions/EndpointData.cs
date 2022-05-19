@@ -56,7 +56,7 @@ internal sealed class EndpointData
 
         var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
 
-        if (options?.DisableAutoDiscovery != false)
+        if (options?.DisableAutoDiscovery == false)
             assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
 
         if (options?.AssemblyFilter is not null)

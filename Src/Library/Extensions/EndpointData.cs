@@ -54,29 +54,51 @@ internal sealed class EndpointData
                 "NSwag."
         };
 
-        var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
+        IEnumerable<Type>? discoveredTypes = null;
 
-        if (options?.DisableAutoDiscovery != true)
-            assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
+        var discoveryHelper = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .Where(a => a.GetType("FastEndpoints.DiscoveredTypes") is not null)
+            .Select(a => a.GetType("FastEndpoints.DiscoveredTypes"))
+            .FirstOrDefault();
 
-        if (options?.AssemblyFilter is not null)
-            assemblies = assemblies.Where(options.AssemblyFilter);
+        // generated helper class available
+        if (discoveryHelper is not null)
+        {
+            var allTypesField = discoveryHelper.GetField("AllTypes", BindingFlags.Static|BindingFlags.Public);
+            var allTypesValue = allTypesField?.GetValue(null);
 
-        var discoveredTypes = assemblies
-            .Where(a =>
-                !a.IsDynamic &&
-                !excludes.Any(n => a.FullName!.StartsWith(n)))
-            .SelectMany(a => a.GetTypes())
-            .Where(t =>
-                !t.IsAbstract &&
-                !t.IsInterface &&
-                !t.IsGenericType &&
-                t.GetInterfaces().Intersect(new[] {
+            if (allTypesValue is not null)
+                discoveredTypes = (Type[])allTypesValue;
+        }
+
+        // helper not available or ran into an error
+        if (discoveredTypes is null)
+        {
+            var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
+
+            if (options?.DisableAutoDiscovery != true)
+                assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
+
+            if (options?.AssemblyFilter is not null)
+                assemblies = assemblies.Where(options.AssemblyFilter);
+
+            discoveredTypes = assemblies
+                .Where(a =>
+                    !a.IsDynamic &&
+                    !excludes.Any(n => a.FullName!.StartsWith(n)))
+                .SelectMany(a => a.GetTypes())
+                .Where(t =>
+                    !t.IsAbstract &&
+                    !t.IsInterface &&
+                    !t.IsGenericType &&
+                    t.GetInterfaces().Intersect(new[] {
                         Types.IEndpoint,
                         Types.IValidator,
                         Types.IEventHandler,
                         Types.ISummary
-                }).Any());
+                    }).Any());
+        }
 
         //Endpoint<TRequest>
         //Validator<TRequest>

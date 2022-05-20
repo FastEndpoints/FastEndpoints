@@ -1,6 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using System.Diagnostics;
 using System.Text;
 
 namespace FastEndpoints.Generator;
@@ -8,14 +7,12 @@ namespace FastEndpoints.Generator;
 [Generator]
 public class EndpointsDiscoveryGenerator : ISourceGenerator
 {
-    public void Initialize(GeneratorInitializationContext context)
-    {
-    }
+    public void Initialize(GeneratorInitializationContext context) { }
 
-    public void Execute(GeneratorExecutionContext context)
+    public void Execute(GeneratorExecutionContext ctx)
     {
-        // list of excluded namespaces
-        var excludes = new[] {
+        var excludes = new[]
+        {
             "Microsoft",
             "System",
             "FastEndpoints",
@@ -25,49 +22,50 @@ public class EndpointsDiscoveryGenerator : ISourceGenerator
             "mscorlib",
             "NuGet",
             "NSwag",
-            "FluentValidation"
+            "FluentValidation",
+            "YamlDotNet",
+            "Accessibility",
+            "NJsonSchema",
+            "Namotion"
         };
 
-        var mainTypes = GetAssemblySymbolTypes(context.Compilation.SourceModule.ContainingAssembly);
-
-        var referencedTypes =
-            context.Compilation.SourceModule.ReferencedAssemblySymbols.SelectMany(GetAssemblySymbolTypes);
-
-        var types = mainTypes.Concat(referencedTypes);
-
-        var filteredTypes = types
-            .Where(t =>
-                !excludes.Any(n =>
-                    GetRootNamespaceSymbolFor(t).Name.StartsWith(n, StringComparison.OrdinalIgnoreCase)) &&
+        var mainTypes = GetAssemblySymbolTypes(ctx.Compilation.SourceModule.ContainingAssembly);
+        var referencedTypes = ctx.Compilation.SourceModule.ReferencedAssemblySymbols.SelectMany(GetAssemblySymbolTypes);
+        var filteredTypes = mainTypes.Concat(referencedTypes).Where(t =>
+                !t.IsAbstract &&
+                !excludes.Any(n => GetRootNamespaceSymbolFor(t).Name.StartsWith(n, StringComparison.OrdinalIgnoreCase)) &&
+                t.DeclaredAccessibility == Accessibility.Public &&
                 t.AllInterfaces.Select(i => i.Name).Intersect(new[] {
                     "IEndpoint",
                     "IValidator",
                     "IEventHandler",
                     "ISummary"
-                }).Any()
-            ).ToList();
+                }).Any());
 
-        var sourceBuilder = new StringBuilder(@"using System;
+        var sb = new StringBuilder(@"
+using System;
 namespace FastEndpoints
 {
     public static class DiscoveredTypes
     {
         public static readonly System.Type[] AllTypes = new System.Type[]
-        {");
+        {
+");
 
         foreach (var discoveredType in filteredTypes)
-            sourceBuilder.Append(@$"
-            typeof({discoveredType}),
+        {
+            sb.Append("            typeof(").Append(discoveredType).Append(@"),
 ");
+        }
 
-        sourceBuilder.Append(@"
-        };
+        sb.Append(@"        };
     }
-}
-");
+}");
 
-        context.AddSource("FastEndpointsDiscoveredTypesGenerated.g.cs",
-            SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
+        ctx.AddSource(
+            "DiscoveredTypes.g.cs",
+            SourceText.From(sb.ToString(),
+            Encoding.UTF8));
     }
 
     private static INamespaceSymbol GetRootNamespaceSymbolFor(ITypeSymbol symbol)
@@ -78,7 +76,7 @@ namespace FastEndpoints
         {
             var parentNamespace = currentNamespace.ContainingNamespace;
 
-            if (parentNamespace is null || parentNamespace.IsGlobalNamespace)
+            if (parentNamespace?.IsGlobalNamespace != false)
                 return currentNamespace;
 
             currentNamespace = parentNamespace;
@@ -88,24 +86,28 @@ namespace FastEndpoints
     private static IEnumerable<ITypeSymbol> GetAllTypes(INamespaceSymbol root)
     {
         foreach (var namespaceOrTypeSymbol in root.GetMembers())
+        {
             switch (namespaceOrTypeSymbol)
             {
                 case INamespaceSymbol @namespace:
-                {
-                    foreach (var nested in GetAllTypes(@namespace)) yield return nested;
-                    break;
-                }
+                    {
+                        foreach (var nested in GetAllTypes(@namespace))
+                            yield return nested;
+                        break;
+                    }
                 case ITypeSymbol type:
                     yield return type;
                     break;
             }
+        }
     }
 
     private static IEnumerable<ITypeSymbol> GetAssemblySymbolTypes(IAssemblySymbol a)
     {
         try
         {
-            var main = a.Identity.Name.Split('.').Aggregate(a.GlobalNamespace,
+            var main = a.Identity.Name.Split('.').Aggregate(
+                a.GlobalNamespace,
                 (s, c) => s.GetNamespaceMembers().Single(m => m.Name.Equals(c)));
 
             return GetAllTypes(main);

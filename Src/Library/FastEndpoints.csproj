@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.2.1-beta2</Version>
+        <Version>4.3.0-beta1</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -10,6 +10,9 @@
 
             ### IMPROVEMENTS
             - throw exception if swagger pipeline is misconfigured #122
+
+            ### EXPERIMENTAL
+            - source generator for type discovery #117
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

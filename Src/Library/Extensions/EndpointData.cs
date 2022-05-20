@@ -41,39 +41,43 @@ internal sealed class EndpointData
 
         Stopwatch.Start();
 
+        //also update FastEndpoints.Generator if updating these
         var excludes = new[]
         {
-                "Microsoft.",
-                "System.",
-                "FastEndpoints.",
-                "testhost",
-                "netstandard",
-                "Newtonsoft.",
-                "mscorlib",
-                "NuGet.",
-                "NSwag."
-        };
+            "Microsoft",
+            "System",
+            "FastEndpoints",
+            "testhost",
+            "netstandard",
+            "Newtonsoft",
+            "mscorlib",
+            "NuGet",
+            "NSwag",
+            "FluentValidation",
+            "YamlDotNet",
+            "Accessibility",
+            "NJsonSchema",
+            "Namotion"
+    };
 
-        IEnumerable<Type>? discoveredTypes = null;
+        var discoveredTypes = Enumerable.Empty<Type>();
 
-        var discoveryHelper = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .Where(a => a.GetType("FastEndpoints.DiscoveredTypes") is not null)
-            .Select(a => a.GetType("FastEndpoints.DiscoveredTypes"))
-            .FirstOrDefault();
+        var discoveryHelper = AppDomain.CurrentDomain.GetAssemblies()
+            .FirstOrDefault(a => a.GetType("FastEndpoints.DiscoveredTypes") is not null)?
+            .GetType("FastEndpoints.DiscoveredTypes");
 
-        // generated helper class available
+        // check if generated helper class is available
         if (discoveryHelper is not null)
         {
-            var allTypesField = discoveryHelper.GetField("AllTypes", BindingFlags.Static|BindingFlags.Public);
+            var allTypesField = discoveryHelper.GetField("AllTypes", BindingFlags.Static | BindingFlags.Public);
             var allTypesValue = allTypesField?.GetValue(null);
 
             if (allTypesValue is not null)
                 discoveredTypes = (Type[])allTypesValue;
         }
 
-        // helper not available or ran into an error
-        if (discoveredTypes is null)
+        // helper is not available or ran into an error
+        if (!discoveredTypes.Any())
         {
             var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
 
@@ -204,7 +208,7 @@ internal sealed class EndpointData
             def.ExecuteAsyncImplemented = implementsExecuteAsync;
 
             //create an endpoint instance and run the Configure() method in order to get the def object populated
-            BaseEndpoint? instance =
+            var instance =
                 x.tEndpoint.GetConstructor(Type.EmptyTypes) is null
                 ? (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)! //this is an endpoint with ctor arguments
                 : (BaseEndpoint)Activator.CreateInstance(x.tEndpoint)!; //endpoint which has a default ctor

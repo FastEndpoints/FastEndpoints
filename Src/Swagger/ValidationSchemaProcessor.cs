@@ -52,26 +52,26 @@ public class ValidationSchemaProcessor : ISchemaProcessor
                 var validator = _serviceProvider?.GetRequiredService(e.ValidatorType);
                 if (validator is null)
                     throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
-                ApplyRulesToSchema(context, context.Schema, (IValidator)validator);
+                ApplyRulesToSchema(context.Schema, (IValidator)validator);
                 break;
             }
         }
     }
 
-    private void ApplyRulesToSchema(SchemaProcessorContext context, JsonSchema? schema, IValidator validator)
+    private void ApplyRulesToSchema(JsonSchema? schema, IValidator validator)
     {
         if (schema is null)
             return;
 
         // Add properties from current schema/class
-        if (schema.Properties != null)
+        if (schema.ActualProperties != null)
         {
-            foreach (var schemaProperty in schema.Properties.Keys)
+            foreach (var schemaProperty in schema.ActualProperties.Keys)
                 TryApplyValidation(schema, validator, schemaProperty);
         }
 
         // Add properties from base class
-        ApplyRulesToSchema(context, schema.InheritedSchema, validator);
+        ApplyRulesToSchema(schema.InheritedSchema, validator);
     }
 
     private void TryApplyValidation(JsonSchema schema, IValidator validator, string schemaProperty)
@@ -115,17 +115,18 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Apply = context =>
             {
                 var schema = context.Schema;
-                schema.Properties[context.PropertyKey].IsNullableRaw = false;
-                if (schema.Properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
-                    schema.Properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
-                var oneOfsWithReference = schema.Properties[context.PropertyKey].OneOf
+                var properties = schema.ActualProperties;
+                properties[context.PropertyKey].IsNullableRaw = false;
+                if (properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
+                    properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
+                var oneOfsWithReference = properties[context.PropertyKey].OneOf
                     .Where(x => x.Reference != null)
                     .ToList();
                 if (oneOfsWithReference.Count == 1)
                 {
                     // Set the Reference directly instead and clear the OneOf collection
-                    schema.Properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
-                    schema.Properties[context.PropertyKey].OneOf.Clear();
+                    properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
+                    properties[context.PropertyKey].OneOf.Clear();
                 }
             }
         },
@@ -135,19 +136,20 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Apply = context =>
             {
                 var schema = context.Schema;
-                schema.Properties[context.PropertyKey].IsNullableRaw = false;
-                if (schema.Properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
-                    schema.Properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
-                var oneOfsWithReference = schema.Properties[context.PropertyKey].OneOf
+                var properties = schema.ActualProperties;
+                properties[context.PropertyKey].IsNullableRaw = false;
+                if (properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
+                    properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
+                var oneOfsWithReference = properties[context.PropertyKey].OneOf
                     .Where(x => x.Reference != null)
                     .ToList();
                 if (oneOfsWithReference.Count == 1)
                 {
                     // Set the Reference directly instead and clear the OneOf collection
-                    schema.Properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
-                    schema.Properties[context.PropertyKey].OneOf.Clear();
+                    properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
+                    properties[context.PropertyKey].OneOf.Clear();
                 }
-                schema.Properties[context.PropertyKey].MinLength = 1;
+                properties[context.PropertyKey].MinLength = 1;
             }
         },
         new FluentValidationRule("Length")
@@ -156,14 +158,15 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Apply = context =>
             {
                 var schema = context.Schema;
+                var properties = schema.ActualProperties;
                 var lengthValidator = (ILengthValidator)context.PropertyValidator;
                 if (lengthValidator.Max > 0)
-                    schema.Properties[context.PropertyKey].MaxLength = lengthValidator.Max;
+                    properties[context.PropertyKey].MaxLength = lengthValidator.Max;
                 if (lengthValidator.GetType() == typeof(MinimumLengthValidator<>) ||
                     lengthValidator.GetType() == typeof(ExactLengthValidator<>) ||
-                    schema.Properties[context.PropertyKey].MinLength == null)
+                    properties[context.PropertyKey].MinLength == null)
                 {
-                    schema.Properties[context.PropertyKey].MinLength = lengthValidator.Min;
+                    properties[context.PropertyKey].MinLength = lengthValidator.Min;
                 }
             }
         },
@@ -174,7 +177,8 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             {
                 var regularExpressionValidator = (IRegularExpressionValidator)context.PropertyValidator;
                 var schema = context.Schema;
-                schema.Properties[context.PropertyKey].Pattern = regularExpressionValidator.Expression;
+                var properties = schema.ActualProperties;
+                properties[context.PropertyKey].Pattern = regularExpressionValidator.Expression;
             }
         },
         new FluentValidationRule("Comparison")
@@ -187,7 +191,8 @@ public class ValidationSchemaProcessor : ISchemaProcessor
                 {
                     var valueToCompare = Convert.ToDecimal(comparisonValidator.ValueToCompare);
                     var schema = context.Schema;
-                    var schemaProperty = schema.Properties[context.PropertyKey];
+                    var properties = schema.ActualProperties;
+                    var schemaProperty = properties[context.PropertyKey];
                     if (comparisonValidator.Comparison == Comparison.GreaterThanOrEqual)
                     {
                         schemaProperty.Minimum = valueToCompare;
@@ -212,7 +217,8 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             {
                 var betweenValidator = (IBetweenValidator)context.PropertyValidator;
                 var schema = context.Schema;
-                var schemaProperty = schema.Properties[context.PropertyKey];
+                var properties = schema.ActualProperties;
+                var schemaProperty = properties[context.PropertyKey];
                 if (betweenValidator.From.IsNumeric())
                 {
                     if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
@@ -235,7 +241,8 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Apply = context =>
             {
                 var schema = context.Schema;
-                schema.Properties[context.PropertyKey].Pattern = "^[^@]+@[^@]+$"; // [^@] All chars except @
+                var properties = schema.ActualProperties;
+                properties[context.PropertyKey].Pattern = "^[^@]+@[^@]+$"; // [^@] All chars except @
             }
         },
     };

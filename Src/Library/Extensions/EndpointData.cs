@@ -62,8 +62,11 @@ internal sealed class EndpointData
 
         var discoveredTypes = Enumerable.Empty<Type>();
 
+        //TODO: we're iterating the assemblies/type collection twice in case the discovery helper isn't present.
+        //      maybe a better alternative would be to let .AddFastEndpoint(...) pass in the types array from the generated class?
+
         var discoveryHelper = AppDomain.CurrentDomain.GetAssemblies()
-            .FirstOrDefault(a => a.GetType("FastEndpoints.DiscoveredTypes") is not null)?
+            .FirstOrDefault(a => a.GetType("FastEndpoints.DiscoveredTypes") is not null)? //first iteration :-(
             .GetType("FastEndpoints.DiscoveredTypes");
 
         // check if generated helper class is available
@@ -82,7 +85,7 @@ internal sealed class EndpointData
             var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
 
             if (options?.DisableAutoDiscovery != true)
-                assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
+                assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies()); //second iteration :-(
 
             if (options?.AssemblyFilter is not null)
                 assemblies = assemblies.Where(options.AssemblyFilter);

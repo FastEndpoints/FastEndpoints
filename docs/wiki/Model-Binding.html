@@ -238,7 +238,7 @@ public string UserID { get; set; }
 });
 </code></pre>
 <h4 id="form-fieldsroutequeryclaimsheaders">form fields/route/query/claims/headers:</h4>
-<p>simple strings can be bound automatically to any of the primitive/clr types such as the following that has a static <code>TryParse()</code> method:</p>
+<p>simple strings (scalar values) can be bound automatically to any of the primitive/clr <strong>non-collection types</strong> such as the following that has a static <code>TryParse()</code> method:</p>
 <ul>
 <li>bool</li>
 <li>double</li>
@@ -286,6 +286,19 @@ public string UserID { get; set; }
     }
 }
 </code></pre>
+<p>json array strings can be bound to collection type properties such as <code>IEnumerable&lt;T&gt;</code> and <code>T[]</code> as long as the incoming string is valid json. the incoming json string is deserialized using <code>System.Text.Json</code> serializer. consider the following example:</p>
+<p><strong>request url:</strong></p>
+<pre><code>/my-endpoint?items=[{id=&quot;1&quot;},{id=&quot;2&quot;}]&amp;codes=[1,2,3,4,5]
+</code></pre>
+<p><strong>request dto</strong></p>
+<pre><code class="lang-csharp">public class MyRequest
+{
+    public IEnumerable&lt;Item&gt; Items { get; set; }
+    public int[] Codes { get; set; }
+}
+</code></pre>
+<p>the <code>Items</code> property will have 2 objects as it's values and the <code>Codes</code> will have 5 integers as it's values when the handler receives the dto.</p>
+<p>to reiterate, if you want to automatically bind incoming values to collection type properties from query params, form fields, header values or claim values, those values must be valid json arrays. if the input is invalid json, an exception will be thrown by STJ.</p>
 <h2 id="routequery-binding-when-theres-no-request-dto">route/query binding when there's no request dto</h2>
 <p>if your endpoint doesn't have/need a request dto, you can easily read route &amp; query parameters using the <code>Route&lt;T&gt;()</code> and <code>Query&lt;T&gt;()</code> methods.</p>
 <pre><code class="lang-csharp">public class GetArticle : EndpointWithoutRequest
@@ -306,7 +319,7 @@ public string UserID { get; set; }
     }
 }
 </code></pre>
-<p><strong>note:</strong> <code>Route&lt;T&gt;()</code> &amp; <code>Query&lt;T&gt;()</code> methods are also only able to handle types that have a static <code>TryParse()</code> method as mentioned above. if there's no static <code>TryParse()</code> method or if parsing fails, an automatic validation failure response is sent to the client. this behavior can be turned off with the following overload:</p>
+<p><strong>note:</strong> <code>Route&lt;T&gt;()</code> &amp; <code>Query&lt;T&gt;()</code> methods are also only able to handle types that have a static <code>TryParse()</code> method and/or valid json arrays as mentioned above. if there's no static <code>TryParse()</code> method or if parsing fails, an automatic validation failure response is sent to the client. this behavior can be turned off with the following overload:</p>
 <pre><code class="lang-csharp">Route&lt;Point&gt;(&quot;ArticleID&quot;, isRequired: false);
 Query&lt;Guid&gt;(&quot;OtherID&quot;, isRequired: false);
 </code></pre>

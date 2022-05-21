@@ -184,7 +184,7 @@ app.UseFastEndpoints(c =>
 ```
 
 #### form fields/route/query/claims/headers:
-simple strings can be bound automatically to any of the primitive/clr types such as the following that has a static `TryParse()` method:
+simple strings (scalar values) can be bound automatically to any of the primitive/clr **non-collection types** such as the following that has a static `TryParse()` method:
 - bool
 - double
 - decimal
@@ -233,6 +233,26 @@ public class Point
 }
 ```
 
+json array strings can be bound to collection type properties such as `IEnumerable<T>` and `T[]` as long as the incoming string is valid json. the incoming json string is deserialized using `System.Text.Json` serializer. consider the following example:
+
+**request url:**
+```
+/my-endpoint?items=[{id="1"},{id="2"}]&codes=[1,2,3,4,5]
+```
+
+**request dto**
+```csharp
+public class MyRequest
+{
+    public IEnumerable<Item> Items { get; set; }
+    public int[] Codes { get; set; }
+}
+```
+
+the `Items` property will have 2 objects as it's values and the `Codes` will have 5 integers as it's values when the handler receives the dto.
+
+to reiterate, if you want to automatically bind incoming values to collection type properties from query params, form fields, header values or claim values, those values must be valid json arrays. if the input is invalid json, an exception will be thrown by STJ.
+
 ## route/query binding when there's no request dto
 if your endpoint doesn't have/need a request dto, you can easily read route & query parameters using the `Route<T>()` and `Query<T>()` methods.
 ```csharp
@@ -254,7 +274,7 @@ public class GetArticle : EndpointWithoutRequest
     }
 }
 ```
-**note:** `Route<T>()` & `Query<T>()` methods are also only able to handle types that have a static `TryParse()` method as mentioned above. if there's no static `TryParse()` method or if parsing fails, an automatic validation failure response is sent to the client. this behavior can be turned off with the following overload:
+**note:** `Route<T>()` & `Query<T>()` methods are also only able to handle types that have a static `TryParse()` method and/or valid json arrays as mentioned above. if there's no static `TryParse()` method or if parsing fails, an automatic validation failure response is sent to the client. this behavior can be turned off with the following overload:
 ```csharp
 Route<Point>("ArticleID", isRequired: false);
 Query<Guid>("OtherID", isRequired: false);

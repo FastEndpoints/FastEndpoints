@@ -318,23 +318,23 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse)
   nameWithType: Endpoint<TRequest, TResponse>
   nameWithType.vb: Endpoint(Of TRequest, TResponse)
-- uid: FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
-  name: AddError(Expression<Func<TRequest, Object>>, String)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_
-  commentId: M:FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)
-  name.vb: AddError(Expression(Of Func(Of TRequest, Object)), String)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AddError(System.Linq.Expressions.Expression<Func<TRequest, System.Object>>, System.String)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError(System.Linq.Expressions.Expression(Of Func(Of TRequest, System.Object)), System.String)
-  nameWithType: Endpoint<TRequest, TResponse>.AddError(Expression<Func<TRequest, Object>>, String)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError(Expression(Of Func(Of TRequest, Object)), String)
-- uid: FastEndpoints.Endpoint`2.AddError(System.String)
-  name: AddError(String)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_String_
-  commentId: M:FastEndpoints.Endpoint`2.AddError(System.String)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AddError(System.String)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError(System.String)
-  nameWithType: Endpoint<TRequest, TResponse>.AddError(String)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError(String)
+- uid: FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String,System.String,FluentValidation.Severity)
+  name: AddError(Expression<Func<TRequest, Object>>, String, String, Severity)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_System_String_FluentValidation_Severity_
+  commentId: M:FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String,System.String,FluentValidation.Severity)
+  name.vb: AddError(Expression(Of Func(Of TRequest, Object)), String, String, Severity)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AddError(System.Linq.Expressions.Expression<Func<TRequest, System.Object>>, System.String, System.String, FluentValidation.Severity)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError(System.Linq.Expressions.Expression(Of Func(Of TRequest, System.Object)), System.String, System.String, FluentValidation.Severity)
+  nameWithType: Endpoint<TRequest, TResponse>.AddError(Expression<Func<TRequest, Object>>, String, String, Severity)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError(Expression(Of Func(Of TRequest, Object)), String, String, Severity)
+- uid: FastEndpoints.Endpoint`2.AddError(System.String,System.String,FluentValidation.Severity)
+  name: AddError(String, String, Severity)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_System_String_System_String_FluentValidation_Severity_
+  commentId: M:FastEndpoints.Endpoint`2.AddError(System.String,System.String,FluentValidation.Severity)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.AddError(System.String, System.String, FluentValidation.Severity)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).AddError(System.String, System.String, FluentValidation.Severity)
+  nameWithType: Endpoint<TRequest, TResponse>.AddError(String, String, Severity)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).AddError(String, String, Severity)
 - uid: FastEndpoints.Endpoint`2.AddError*
   name: AddError
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_AddError_
@@ -2042,6 +2042,51 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointDefinition.Version
   nameWithType: EndpointDefinition.Version
+- uid: FastEndpoints.EndpointDiscoveryOptions
+  name: EndpointDiscoveryOptions
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html
+  commentId: T:FastEndpoints.EndpointDiscoveryOptions
+  fullName: FastEndpoints.EndpointDiscoveryOptions
+  nameWithType: EndpointDiscoveryOptions
+- uid: FastEndpoints.EndpointDiscoveryOptions.Assemblies
+  name: Assemblies
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html#FastEndpoints_EndpointDiscoveryOptions_Assemblies
+  commentId: P:FastEndpoints.EndpointDiscoveryOptions.Assemblies
+  fullName: FastEndpoints.EndpointDiscoveryOptions.Assemblies
+  nameWithType: EndpointDiscoveryOptions.Assemblies
+- uid: FastEndpoints.EndpointDiscoveryOptions.Assemblies*
+  name: Assemblies
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html#FastEndpoints_EndpointDiscoveryOptions_Assemblies_
+  commentId: Overload:FastEndpoints.EndpointDiscoveryOptions.Assemblies
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDiscoveryOptions.Assemblies
+  nameWithType: EndpointDiscoveryOptions.Assemblies
+- uid: FastEndpoints.EndpointDiscoveryOptions.AssemblyFilter
+  name: AssemblyFilter
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html#FastEndpoints_EndpointDiscoveryOptions_AssemblyFilter
+  commentId: P:FastEndpoints.EndpointDiscoveryOptions.AssemblyFilter
+  fullName: FastEndpoints.EndpointDiscoveryOptions.AssemblyFilter
+  nameWithType: EndpointDiscoveryOptions.AssemblyFilter
+- uid: FastEndpoints.EndpointDiscoveryOptions.AssemblyFilter*
+  name: AssemblyFilter
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html#FastEndpoints_EndpointDiscoveryOptions_AssemblyFilter_
+  commentId: Overload:FastEndpoints.EndpointDiscoveryOptions.AssemblyFilter
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDiscoveryOptions.AssemblyFilter
+  nameWithType: EndpointDiscoveryOptions.AssemblyFilter
+- uid: FastEndpoints.EndpointDiscoveryOptions.DisableAutoDiscovery
+  name: DisableAutoDiscovery
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html#FastEndpoints_EndpointDiscoveryOptions_DisableAutoDiscovery
+  commentId: P:FastEndpoints.EndpointDiscoveryOptions.DisableAutoDiscovery
+  fullName: FastEndpoints.EndpointDiscoveryOptions.DisableAutoDiscovery
+  nameWithType: EndpointDiscoveryOptions.DisableAutoDiscovery
+- uid: FastEndpoints.EndpointDiscoveryOptions.DisableAutoDiscovery*
+  name: DisableAutoDiscovery
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html#FastEndpoints_EndpointDiscoveryOptions_DisableAutoDiscovery_
+  commentId: Overload:FastEndpoints.EndpointDiscoveryOptions.DisableAutoDiscovery
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDiscoveryOptions.DisableAutoDiscovery
+  nameWithType: EndpointDiscoveryOptions.DisableAutoDiscovery
 - uid: FastEndpoints.EndpointSummary
   name: EndpointSummary
   href: api/FastEndpoints.EndpointSummary.html
@@ -3411,15 +3456,12 @@ references:
   commentId: T:FastEndpoints.MainExtensions
   fullName: FastEndpoints.MainExtensions
   nameWithType: MainExtensions
-- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{IEnumerable{System.Reflection.Assembly}},Microsoft.Extensions.Configuration.ConfigurationManager)
-  name: AddFastEndpoints(IServiceCollection, Nullable<IEnumerable<Assembly>>, ConfigurationManager)
-  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_IEnumerable_System_Reflection_Assembly___Microsoft_Extensions_Configuration_ConfigurationManager_
-  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{IEnumerable{System.Reflection.Assembly}},Microsoft.Extensions.Configuration.ConfigurationManager)
-  name.vb: AddFastEndpoints(IServiceCollection, Nullable(Of IEnumerable(Of Assembly)), ConfigurationManager)
-  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<IEnumerable<System.Reflection.Assembly>>, Microsoft.Extensions.Configuration.ConfigurationManager)
-  fullName.vb: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of IEnumerable(Of System.Reflection.Assembly)), Microsoft.Extensions.Configuration.ConfigurationManager)
-  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable<IEnumerable<Assembly>>, ConfigurationManager)
-  nameWithType.vb: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable(Of IEnumerable(Of Assembly)), ConfigurationManager)
+- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,FastEndpoints.EndpointDiscoveryOptions,Microsoft.Extensions.Configuration.ConfigurationManager)
+  name: AddFastEndpoints(IServiceCollection, EndpointDiscoveryOptions, ConfigurationManager)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_FastEndpoints_EndpointDiscoveryOptions_Microsoft_Extensions_Configuration_ConfigurationManager_
+  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,FastEndpoints.EndpointDiscoveryOptions,Microsoft.Extensions.Configuration.ConfigurationManager)
+  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, FastEndpoints.EndpointDiscoveryOptions, Microsoft.Extensions.Configuration.ConfigurationManager)
+  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection, EndpointDiscoveryOptions, ConfigurationManager)
 - uid: FastEndpoints.MainExtensions.AddFastEndpoints*
   name: AddFastEndpoints
   href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_

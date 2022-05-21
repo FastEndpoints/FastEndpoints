@@ -449,13 +449,13 @@
   
   
   <a id="FastEndpoints_Endpoint_2_AddError_" data-uid="FastEndpoints.Endpoint`2.AddError*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_AddError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_" data-uid="FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String)">AddError(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_AddError_System_Linq_Expressions_Expression_Func__0_System_Object___System_String_System_String_FluentValidation_Severity_" data-uid="FastEndpoints.Endpoint`2.AddError(System.Linq.Expressions.Expression{Func{`0,System.Object}},System.String,System.String,FluentValidation.Severity)">AddError(Expression&lt;Func&lt;TRequest, Object&gt;&gt;, String, String, Severity)</h4>
   <div class="markdown level1 summary"><p>adds an error message for the specified property of the request dto</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void AddError(Expression&lt;Func&lt;TRequest, object&gt;&gt; property, string errorMessage)</code></pre>
+    <pre><code class="lang-csharp hljs">protected void AddError(Expression&lt;Func&lt;TRequest, object&gt;&gt; property, string errorMessage, string errorCode = null, Severity severity = Severity.Error)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -479,18 +479,30 @@
         <td><p>the error message</p>
 </td>
       </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">errorCode</span></td>
+        <td><p>the error code associated with the error</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">FluentValidation.Severity</span></td>
+        <td><span class="parametername">severity</span></td>
+        <td><p>the severity of the error</p>
+</td>
+      </tr>
     </tbody>
   </table>
   
   
   <a id="FastEndpoints_Endpoint_2_AddError_" data-uid="FastEndpoints.Endpoint`2.AddError*"></a>
-  <h4 id="FastEndpoints_Endpoint_2_AddError_System_String_" data-uid="FastEndpoints.Endpoint`2.AddError(System.String)">AddError(String)</h4>
+  <h4 id="FastEndpoints_Endpoint_2_AddError_System_String_System_String_FluentValidation_Severity_" data-uid="FastEndpoints.Endpoint`2.AddError(System.String,System.String,FluentValidation.Severity)">AddError(String, String, Severity)</h4>
   <div class="markdown level1 summary"><p>adds a &quot;GeneralError&quot; to the current list of validation failures</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">protected void AddError(string message)</code></pre>
+    <pre><code class="lang-csharp hljs">protected void AddError(string message, string errorCode = null, Severity severity = Severity.Error)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -506,6 +518,18 @@
         <td><span class="xref">System.String</span></td>
         <td><span class="parametername">message</span></td>
         <td><p>the error message</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">errorCode</span></td>
+        <td><p>the error code associated with the error</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">FluentValidation.Severity</span></td>
+        <td><span class="parametername">severity</span></td>
+        <td><p>the severity of the error</p>
 </td>
       </tr>
     </tbody>

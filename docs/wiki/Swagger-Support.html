@@ -148,7 +148,7 @@ app.Run();
 }
 </code></pre>
 <h3 id="swagger-documentation">swagger documentation</h3>
-<p>the text descriptions for the endpoint and the different responses the endpoint returns can be specified with the <code>Summary()</code> method:</p>
+<p>summary &amp; description text, the different responses the endpoint returns, as well as an example request object can be specified with the <code>Summary()</code> method:</p>
 <pre><code class="lang-csharp">public override void Configure()
 {
     Post(&quot;/admin/login&quot;);
@@ -158,8 +158,9 @@ app.Run();
     Summary(s =&gt; {
         s.Summary = &quot;short summary goes here&quot;;
         s.Description = &quot;long description goes here&quot;;
-        s[200] = &quot;success response description goes here&quot;;
-        s[403] = &quot;forbidden response description goes here&quot;;
+        s.ExampleRequest = new MyRequest { ... };
+        s.Responses[200] = &quot;success response description goes here&quot;;
+        s.Responses[403] = &quot;forbidden response description goes here&quot;;
     });      
 }
 </code></pre>
@@ -170,8 +171,9 @@ app.Run();
     {
         Summary = &quot;short summary goes here&quot;;
         Description = &quot;long description goes here&quot;;
-        this[200] = &quot;success response description goes here&quot;;
-        this[403] = &quot;forbidden response description goes here&quot;;
+        ExampleRequest = new MyRequest { ... };
+        Responses[200] = &quot;success response description goes here&quot;;
+        Responses[403] = &quot;forbidden response description goes here&quot;;
     }
 }
 
@@ -191,6 +193,7 @@ public override void Configure()
     {
         Summary = &quot;short summary goes here&quot;;
         Description = &quot;long description goes here&quot;;
+        ExampleRequest = new MyRequest { ... };
         Response&lt;MyResponse&gt;(200, &quot;ok response with body&quot;);
         Response&lt;ErrorResponse&gt;(400, &quot;validation failure&quot;);
         Response(404, &quot;account not found&quot;);
@@ -232,7 +235,6 @@ public class Request
 {
     Post(&quot;admin/login/{ClientID?}&quot;);
     AllowAnonymous();
-    Options(b =&gt; b.RequireCors(b =&gt; b.AllowAnyOrigin()));
     Summary(s =&gt;
     {
         s.Summary = &quot;summary&quot;;

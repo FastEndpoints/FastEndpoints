@@ -67,7 +67,7 @@ public override void Configure()
 
 ### swagger documentation
 
-the text descriptions for the endpoint and the different responses the endpoint returns can be specified with the `Summary()` method:
+summary & description text, the different responses the endpoint returns, as well as an example request object can be specified with the `Summary()` method:
 ```csharp
 public override void Configure()
 {
@@ -78,8 +78,9 @@ public override void Configure()
     Summary(s => {
         s.Summary = "short summary goes here";
         s.Description = "long description goes here";
-        s[200] = "success response description goes here";
-        s[403] = "forbidden response description goes here";
+        s.ExampleRequest = new MyRequest { ... };
+        s.Responses[200] = "success response description goes here";
+        s.Responses[403] = "forbidden response description goes here";
     });      
 }
 ```
@@ -92,8 +93,9 @@ class AdminLoginSummary : EndpointSummary
     {
         Summary = "short summary goes here";
         Description = "long description goes here";
-        this[200] = "success response description goes here";
-        this[403] = "forbidden response description goes here";
+        ExampleRequest = new MyRequest { ... };
+        Responses[200] = "success response description goes here";
+        Responses[403] = "forbidden response description goes here";
     }
 }
 
@@ -115,6 +117,7 @@ public class MySummary : Summary<MyEndpoint>
     {
         Summary = "short summary goes here";
         Description = "long description goes here";
+        ExampleRequest = new MyRequest { ... };
         Response<MyResponse>(200, "ok response with body");
         Response<ErrorResponse>(400, "validation failure");
         Response(404, "account not found");
@@ -160,7 +163,6 @@ public override void Configure()
 {
     Post("admin/login/{ClientID?}");
     AllowAnonymous();
-    Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
     Summary(s =>
     {
         s.Summary = "summary";

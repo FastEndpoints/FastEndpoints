@@ -4,4 +4,8 @@
         <ProjectReference Include="..\..\..\Web\Web.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Update="MartinCostello.Logging.XUnit" Version="0.2.1" />
+    </ItemGroup>
+
 </Project>

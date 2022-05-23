@@ -37,7 +37,7 @@ public class EndpointsDiscoveryGenerator : ISourceGenerator
                 t.DeclaredAccessibility == Accessibility.Public &&
                 t.AllInterfaces.Select(i => new TypeDescription(i)).Intersect(new[] {
                     new TypeDescription("FastEndpoints.IEndpoint"),
-                    new TypeDescription("FastEndpoints.IValidator"),
+                    new TypeDescription("FluentValidation.IValidator"),
                     new TypeDescription("FastEndpoints.IEventHandler"),
                     new TypeDescription("FastEndpoints.ISummary")
                 }).Any());
@@ -114,7 +114,7 @@ namespace FastEndpoints
         }
         catch
         {
-            return Enumerable.Empty<ITypeSymbol>();
+            return GetAllTypes(a.GlobalNamespace);
         }
     }
 }

@@ -117,8 +117,7 @@ app.Run();
 {
     public override void Configure()
     {
-        Verbs(Http.POST);
-        Routes(&quot;/api/login&quot;);
+        Post(&quot;/api/login&quot;);
         AllowAnonymous();
     }
 
@@ -209,7 +208,7 @@ if the requirement is to allow access only if <code>ALL</code> specified claims 
 <p>the above endpoint is listening for all 3 http methods on the same route but only <code>POST</code> method is allowed to be accessed anonymously. it is useful for example when you'd like to use the same handler logic for create/replace/update scenarios and create operation is allowed to be done by anonymous users.</p>
 <p>using just <code>AllowAnonymous()</code> without any arguments means all verbs are allowed anonymous access.</p>
 <h2 id="other-auth-providers">other auth providers</h2>
-<p>all auth providers compatible with the <code>asp.net</code> middleware pipeline can be registered and used like above. the only difference is that you use the methods mentioned above to restrict access to endpoints rather than using the <code>[Authorize]</code> attribute as you would typically do.</p>
+<p>all auth providers compatible with the <code>asp.net</code> middleware pipeline can be registered and used like above.</p>
 <div class="TIP">
 <h5>Tip</h5>
 <p>here's an <strong><a href="https://github.com/dj-nitehawk/FastEndpoints-Auth0-Demo">example project</a></strong> using <strong><a href="https://auth0.com/access-management">Auth0</a></strong> with permissions.</p>

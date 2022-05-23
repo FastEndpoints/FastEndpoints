@@ -88,8 +88,7 @@ public class MyEndpoint : Endpoint<MyRequest>
 {
     public override void Configure()
     {
-        Verbs(Http.GET);
-        Routes("/api/{MyString}/{MyBool}/{MyInt}/{MyLong}/{MyDouble}/{MyDecimal}");
+        Get("/api/{MyString}/{MyBool}/{MyInt}/{MyLong}/{MyDouble}/{MyDecimal}");
     }
 }
 ```
@@ -114,7 +113,21 @@ if your request dto has a property called `Message` it would then have `hello fr
 
 # complex model binding
 
-complex model binding is only supported from the json body. for example, the following request dto will be automatically populated from the below json request body.
+complex models are bound automatically from the incoming http request body that has a `content-type` header value of `application/json` if the body has valid json such as the following:
+
+**json request body**
+```
+{
+    "UserID": 111,
+    "Address": {
+        "Street": "123 road",
+        "City": "new york",
+        "Country": "usa"
+    }
+}
+```
+
+which would be bound to a complex type such as this:
 
 **request dto**
 ```csharp
@@ -132,15 +145,11 @@ public class UpdateAddressRequest
 }
 ```
 
-**json request body**
-```
+json arrays in the request body can be bound to models by specifying the request dto type of the endpoint as `List<T>` like so:
+```csharp
+public class MyEndpoint : Endpoint<List<Address>>
 {
-    "UserID": 111,
-    "Address": {
-        "Street": "123 road",
-        "City": "new york",
-        "Country": "usa"
-    }
+  ...
 }
 ```
 
@@ -168,8 +177,8 @@ public string TenantID { get; set; }
 public string UserID { get; set; }
 ```
 
-# supported property types
-#### json body:
+# supported dto property types
+#### from json body:
 any complex type can be bound as long as the `System.Text.Json` serializer can handle it. if it's not supported out of the box, please see the [STJ documentation](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0) on how to implement custom converters for your types.
 
 you can register your custom converters in startup like this:
@@ -183,7 +192,7 @@ app.UseFastEndpoints(c =>
 });
 ```
 
-#### form fields/route/query/claims/headers:
+#### from form fields/route/query/claims/headers:
 simple strings (scalar values) can be bound automatically to any of the primitive/clr **non-collection types** such as the following that has a static `TryParse()` method:
 - bool
 - double
@@ -281,7 +290,7 @@ Query<Guid>("OtherID", isRequired: false);
 ```
 
 ## binding to raw request content
-if you need to access the raw request content as a string, you can achieve that by implementing the interface `IPlainTextRequest` like so:
+if you need to access the raw request content as a string, you can achieve that by implementing the interface `IPlainTextRequest` on your dto like so:
 ```csharp
 public class Request : IPlainTextRequest
 {

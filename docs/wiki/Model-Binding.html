@@ -164,8 +164,7 @@ json  : { &quot;UserID&quot;: &quot;12345&quot; }
 {
     public override void Configure()
     {
-        Verbs(Http.GET);
-        Routes(&quot;/api/{MyString}/{MyBool}/{MyInt}/{MyLong}/{MyDouble}/{MyDecimal}&quot;);
+        Get(&quot;/api/{MyString}/{MyBool}/{MyInt}/{MyLong}/{MyDouble}/{MyDecimal}&quot;);
     }
 }
 </code></pre>
@@ -183,7 +182,18 @@ MyDecimal - 123.4567
 </code></pre>
 <p>if your request dto has a property called <code>Message</code> it would then have <code>hello from query string</code> as it's value.</p>
 <h1 id="complex-model-binding">complex model binding</h1>
-<p>complex model binding is only supported from the json body. for example, the following request dto will be automatically populated from the below json request body.</p>
+<p>complex models are bound automatically from the incoming http request body that has a <code>content-type</code> header value of <code>application/json</code> if the body has valid json such as the following:</p>
+<p><strong>json request body</strong></p>
+<pre><code>{
+    &quot;UserID&quot;: 111,
+    &quot;Address&quot;: {
+        &quot;Street&quot;: &quot;123 road&quot;,
+        &quot;City&quot;: &quot;new york&quot;,
+        &quot;Country&quot;: &quot;usa&quot;
+    }
+}
+</code></pre>
+<p>which would be bound to a complex type such as this:</p>
 <p><strong>request dto</strong></p>
 <pre><code class="lang-csharp">public class UpdateAddressRequest
 {
@@ -198,14 +208,10 @@ MyDecimal - 123.4567
     }
 }
 </code></pre>
-<p><strong>json request body</strong></p>
-<pre><code>{
-    &quot;UserID&quot;: 111,
-    &quot;Address&quot;: {
-        &quot;Street&quot;: &quot;123 road&quot;,
-        &quot;City&quot;: &quot;new york&quot;,
-        &quot;Country&quot;: &quot;usa&quot;
-    }
+<p>json arrays in the request body can be bound to models by specifying the request dto type of the endpoint as <code>List&lt;T&gt;</code> like so:</p>
+<pre><code class="lang-csharp">public class MyEndpoint : Endpoint&lt;List&lt;Address&gt;&gt;
+{
+  ...
 }
 </code></pre>
 <h1 id="mismatched-property-names">mismatched property names</h1>
@@ -225,8 +231,8 @@ public string TenantID { get; set; }
 [FromClaim(&quot;user-id&quot;)]
 public string UserID { get; set; }
 </code></pre>
-<h1 id="supported-property-types">supported property types</h1>
-<h4 id="json-body-1">json body:</h4>
+<h1 id="supported-dto-property-types">supported dto property types</h1>
+<h4 id="from-json-body">from json body:</h4>
 <p>any complex type can be bound as long as the <code>System.Text.Json</code> serializer can handle it. if it's not supported out of the box, please see the <a href="https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to?pivots=dotnet-6-0">STJ documentation</a> on how to implement custom converters for your types.</p>
 <p>you can register your custom converters in startup like this:</p>
 <pre><code class="lang-csharp">app.UseFastEndpoints(c =&gt;
@@ -237,7 +243,7 @@ public string UserID { get; set; }
     };
 });
 </code></pre>
-<h4 id="form-fieldsroutequeryclaimsheaders">form fields/route/query/claims/headers:</h4>
+<h4 id="from-form-fieldsroutequeryclaimsheaders">from form fields/route/query/claims/headers:</h4>
 <p>simple strings (scalar values) can be bound automatically to any of the primitive/clr <strong>non-collection types</strong> such as the following that has a static <code>TryParse()</code> method:</p>
 <ul>
 <li>bool</li>
@@ -324,7 +330,7 @@ public string UserID { get; set; }
 Query&lt;Guid&gt;(&quot;OtherID&quot;, isRequired: false);
 </code></pre>
 <h2 id="binding-to-raw-request-content">binding to raw request content</h2>
-<p>if you need to access the raw request content as a string, you can achieve that by implementing the interface <code>IPlainTextRequest</code> like so:</p>
+<p>if you need to access the raw request content as a string, you can achieve that by implementing the interface <code>IPlainTextRequest</code> on your dto like so:</p>
 <pre><code class="lang-csharp">public class Request : IPlainTextRequest
 {
     public string Content { get; set; }

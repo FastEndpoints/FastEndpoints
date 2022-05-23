@@ -64,6 +64,7 @@ internal sealed class EndpointData
 
         //TODO: we're iterating the assemblies/type collection twice in case the discovery helper isn't present.
         //      maybe a better alternative would be to let .AddFastEndpoint(...) pass in the types array from the generated class?
+        //      Nef: shouldn't it be sufficient to iterate it once by slapping a .ToList() on it and use that reference?
 
         var discoveryHelper = AppDomain.CurrentDomain.GetAssemblies()
             .FirstOrDefault(a => a.GetType("FastEndpoints.DiscoveredTypes") is not null)? //first iteration :-(
@@ -73,10 +74,22 @@ internal sealed class EndpointData
         if (discoveryHelper is not null)
         {
             var allTypesField = discoveryHelper.GetField("AllTypes", BindingFlags.Static | BindingFlags.Public);
+
+            if (allTypesField is null)
+                throw new InvalidOperationException(
+                    "The 'AllTypes' field of the auto-generated 'FastEndpoints.DiscoveredTypes' wasn't found!"
+                    );
+
             var allTypesValue = allTypesField?.GetValue(null);
 
-            if (allTypesValue is not null)
-                discoveredTypes = (Type[])allTypesValue;
+            discoveredTypes = (Type[]?)allTypesValue ?? throw new InvalidOperationException(
+                "The 'AllTypes' field of the auto-generated 'FastEndpoints.DiscoveredTypes' is null!"
+                );
+
+            if (!discoveredTypes.Any())
+                throw new InvalidOperationException(
+                    "The 'AllTypes' field of the auto-generated 'FastEndpoints.DiscoveredTypes' is empty!"
+                    );
         }
 
         // helper is not available or ran into an error

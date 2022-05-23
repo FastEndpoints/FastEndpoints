@@ -21,7 +21,8 @@
 // SOFTWARE.
 
 using FluentValidation;
-using FluentValidation.Validators;
+using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace FastEndpoints.Swagger.ValidationProcessor.Extensions;
 
@@ -39,33 +40,50 @@ internal static class ValidationExtensions
     /// Returns not null enumeration.
     /// </summary>
     public static IEnumerable<TValue> NotNull<TValue>(this IEnumerable<TValue>? collection) => collection ?? Array.Empty<TValue>();
-
+    
     /// <summary>
-    /// Returns validation rules by property name ignoring name case.
+    /// Creates a dictionary with the validation rules.
+    /// Keys are the property names of the rules, converted to the schema casing by using the selected JsonNamingPolicy
     /// </summary>
-    /// <param name="validator">Validator</param>
-    /// <param name="name">Property name.</param>
-    /// <returns>enumeration.</returns>
-    public static IEnumerable<ValidationRuleContext> GetValidationRulesForMemberIgnoreCase(this IValidator validator, string name) =>
-            (validator as IEnumerable<IValidationRule>)
-            .NotNull()
-            .GetPropertyRules()
-            .Where(validationRuleContext => HasNoCondition(validationRuleContext.ValidationRule) &&
-                                            validationRuleContext.ValidationRule.PropertyName.EqualsIgnoreAll(name));
-
+    /// <param name="validator"></param>
+    /// <returns></returns>
+    public static ReadOnlyDictionary<string, IValidationRule> GetDictionaryOfRules(this IValidator validator)
+    {
+        // Dictionary that will hold the rules with a key of the property name with casing that matches the selected JsonNamingPolicy
+        Dictionary<string, IValidationRule> rulesDict = new Dictionary<string, IValidationRule>();
+        
+        if (validator is IEnumerable<IValidationRule> rules)
+        {
+            foreach (var rule in rules.GetPropertyRules())
+            {
+                var propertyNameRaw = rule.ValidationRule.PropertyName;
+                var propertyNameWithSchemaCasing = propertyNameRaw.ConvertToSchemaCasing(FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy);
+                
+                rulesDict.Add(propertyNameWithSchemaCasing, rule.ValidationRule);
+            }
+        }
+        
+        return new ReadOnlyDictionary<string, IValidationRule>(rulesDict);
+    }
+    
     /// <summary>
-    /// Returns property validators by property name ignoring name case.
+    /// Converts a property name (route of) to the schema casing by using the selected JsonNamingPolicy
     /// </summary>
-    /// <param name="validator">Validator</param>
-    /// <param name="name">Property name.</param>
-    /// <returns>enumeration.</returns>
-    public static IEnumerable<IPropertyValidator> GetValidatorsForMemberIgnoreCase(this IValidator validator, string name) =>
-            GetValidationRulesForMemberIgnoreCase(validator, name)
-                    .SelectMany(
-                                validationRuleContext =>
-                                {
-                                    return validationRuleContext.ValidationRule.Components.Select(c => c.Validator);
-                                });
+    /// <remarks>The property name can have points as it defines the object composition hierarchy</remarks>
+    /// <param name="propertyName"></param>
+    /// <param name="namingPolicy"></param>
+    /// <returns></returns>
+    public static string ConvertToSchemaCasing(this string propertyName, JsonNamingPolicy? namingPolicy)
+    {
+        if (namingPolicy is null)
+            return propertyName;
+        
+        var segments = propertyName.Split('.');
+        for (int i=0; i < segments.Length; i++)
+            segments[i] = namingPolicy.ConvertName(segments[i]);
+        
+        return string.Join(".", segments);
+    }
 
     /// <summary>
     /// Returns all IValidationRules that are PropertyRule.
@@ -80,14 +98,6 @@ internal static class ValidationExtensions
             yield return new ValidationRuleContext(validationRule, isCollectionRule);
         }
     }
-
-    // /// <summary>
-    // /// Returns a <see cref="bool"/> indicating if the <paramref name="propertyValidator"/> is conditional.
-    // /// </summary>
-    // internal static bool HasNoCondition(this IPropertyValidator propertyValidator)
-    // {
-    //     return propertyValidator?.Options?.Condition == null && propertyValidator?.Options?.AsyncCondition == null;
-    // }
 
     /// <summary>
     /// Returns a <see cref="bool"/> indicating if the <paramref name="propertyRule"/> is conditional.

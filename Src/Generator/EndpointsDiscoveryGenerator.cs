@@ -102,19 +102,5 @@ namespace FastEndpoints
         }
     }
 
-    private static IEnumerable<ITypeSymbol> GetAssemblySymbolTypes(IAssemblySymbol a)
-    {
-        try
-        {
-            var main = a.Identity.Name.Split('.').Aggregate(
-                a.GlobalNamespace,
-                (s, c) => s.GetNamespaceMembers().Single(m => m.Name.Equals(c)));
-
-            return GetAllTypes(main);
-        }
-        catch
-        {
-            return GetAllTypes(a.GlobalNamespace);
-        }
-    }
+    private static IEnumerable<ITypeSymbol> GetAssemblySymbolTypes(IAssemblySymbol a) => GetAllTypes(a.GlobalNamespace);
 }

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.3.0-beta2</Version>
+        <Version>4.3.0-beta3</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -11,6 +11,9 @@
             ### IMPROVEMENTS
             - throw exception if swagger pipeline is misconfigured #122
             - validator inheritance for swagger-fluentvalidation integration #126
+
+            ### FIXES
+            - fix binding duplicate claim types such as `role` #131
 
             ### EXPERIMENTAL
             - source generator for type discovery #117

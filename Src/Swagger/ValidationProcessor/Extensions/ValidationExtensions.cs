@@ -46,10 +46,10 @@ internal static class ValidationExtensions
     /// Keys are the property names of the rules, converted to the schema casing by using the selected JsonNamingPolicy
     /// </summary>
     /// <param name="validator"></param>
-    public static ReadOnlyDictionary<string, IValidationRule> GetDictionaryOfRules(this IValidator validator)
+    public static ReadOnlyDictionary<string, List<IValidationRule>> GetDictionaryOfRules(this IValidator validator)
     {
         // Dictionary that will hold the rules with a key of the property name with casing that matches the selected JsonNamingPolicy
-        var rulesDict = new Dictionary<string, IValidationRule>();
+        var rulesDict = new Dictionary<string, List<IValidationRule>>();
 
         if (validator is IEnumerable<IValidationRule> rules)
         {
@@ -58,11 +58,14 @@ internal static class ValidationExtensions
                 var propertyNameRaw = rule.ValidationRule.PropertyName;
                 var propertyNameWithSchemaCasing = propertyNameRaw.ConvertToSchemaCasing(Swagger.Extensions.SelectedJsonNamingPolicy);
 
-                rulesDict.Add(propertyNameWithSchemaCasing, rule.ValidationRule);
+                if (rulesDict.TryGetValue(propertyNameWithSchemaCasing, out var propertyRules))
+                    propertyRules.Add(rule.ValidationRule);
+                else
+                    rulesDict.Add(propertyNameWithSchemaCasing, new List<IValidationRule> { rule.ValidationRule });
             }
         }
 
-        return new ReadOnlyDictionary<string, IValidationRule>(rulesDict);
+        return new ReadOnlyDictionary<string, List<IValidationRule>>(rulesDict);
     }
 
     /// <summary>

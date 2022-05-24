@@ -21,7 +21,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, endpoint.DontBindFormData, cancellation);
 
             OnBeforeValidate(req);
-            await OnBeforeValidateAsync(req);
+            await OnBeforeValidateAsync(req, cancellation);
 
             await ValidateRequest(
                 req,
@@ -32,7 +32,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 cancellation);
 
             OnAfterValidate(req);
-            await OnAfterValidateAsync(req);
+            await OnAfterValidateAsync(req, cancellation);
 
             await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation);
 
@@ -40,7 +40,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 return; //response already sent to client (most likely from a preprocessor)
 
             OnBeforeHandle(req);
-            await OnBeforeHandleAsync(req);
+            await OnBeforeHandleAsync(req, cancellation);
 
             if (endpoint.ExecuteAsyncImplemented)
                 _response = await ExecuteAsync(req, cancellation);
@@ -51,14 +51,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 await AutoSendResponse(ctx, _response, endpoint.SerializerContext, cancellation);
 
             OnAfterHandle(req, Response);
-            await OnAfterHandleAsync(req, Response);
+            await OnAfterHandleAsync(req, Response, cancellation);
 
             await RunPostProcessors(endpoint.PostProcessors, req, Response, ctx, ValidationFailures, cancellation);
         }
         catch (ValidationFailureException)
         {
             OnValidationFailed();
-            await OnValidationFailedAsync();
+            await OnValidationFailedAsync(cancellation);
 
             await SendErrorsAsync(ErrRespStatusCode, cancellation);
         }

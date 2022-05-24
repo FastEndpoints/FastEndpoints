@@ -12,6 +12,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// override this method if you'd like to do something to the request dto before it gets validated.
     /// </summary>
     /// <param name="req">the request dto</param>
+    /// <param name="ct">a cancellation token</param>
     public virtual Task OnBeforeValidateAsync(TRequest req, CancellationToken ct = default) => Task.CompletedTask;
 
     /// <summary>

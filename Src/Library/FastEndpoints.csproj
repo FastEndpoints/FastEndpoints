@@ -12,6 +12,7 @@
             ### IMPROVEMENTS
             - throw exception if swagger pipeline is misconfigured #122
             - validator inheritance for swagger-fluentvalidation integration #126 #135
+            - cancellation token support for hooks #134
 
             ### FIXES
             - fix binding duplicate claim types such as `role` #131

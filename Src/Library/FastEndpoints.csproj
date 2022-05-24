@@ -2,11 +2,12 @@
 
     <PropertyGroup>
 
-        <Version>4.3.0-beta3</Version>
+        <Version>4.3.0-beta4</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - endpoint discovery options argument for `AddFastEndpoints()`
+            - source generator for type discovery #117
 
             ### IMPROVEMENTS
             - throw exception if swagger pipeline is misconfigured #122
@@ -14,9 +15,6 @@
 
             ### FIXES
             - fix binding duplicate claim types such as `role` #131
-
-            ### EXPERIMENTAL
-            - source generator for type discovery #117
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

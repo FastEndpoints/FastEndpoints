@@ -40,48 +40,46 @@ internal static class ValidationExtensions
     /// Returns not null enumeration.
     /// </summary>
     public static IEnumerable<TValue> NotNull<TValue>(this IEnumerable<TValue>? collection) => collection ?? Array.Empty<TValue>();
-    
+
     /// <summary>
     /// Creates a dictionary with the validation rules.
     /// Keys are the property names of the rules, converted to the schema casing by using the selected JsonNamingPolicy
     /// </summary>
     /// <param name="validator"></param>
-    /// <returns></returns>
     public static ReadOnlyDictionary<string, IValidationRule> GetDictionaryOfRules(this IValidator validator)
     {
         // Dictionary that will hold the rules with a key of the property name with casing that matches the selected JsonNamingPolicy
-        Dictionary<string, IValidationRule> rulesDict = new Dictionary<string, IValidationRule>();
-        
+        var rulesDict = new Dictionary<string, IValidationRule>();
+
         if (validator is IEnumerable<IValidationRule> rules)
         {
             foreach (var rule in rules.GetPropertyRules())
             {
                 var propertyNameRaw = rule.ValidationRule.PropertyName;
-                var propertyNameWithSchemaCasing = propertyNameRaw.ConvertToSchemaCasing(FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy);
-                
+                var propertyNameWithSchemaCasing = propertyNameRaw.ConvertToSchemaCasing(Swagger.Extensions.SelectedJsonNamingPolicy);
+
                 rulesDict.Add(propertyNameWithSchemaCasing, rule.ValidationRule);
             }
         }
-        
+
         return new ReadOnlyDictionary<string, IValidationRule>(rulesDict);
     }
-    
+
     /// <summary>
     /// Converts a property name (route of) to the schema casing by using the selected JsonNamingPolicy
     /// </summary>
     /// <remarks>The property name can have points as it defines the object composition hierarchy</remarks>
     /// <param name="propertyName"></param>
     /// <param name="namingPolicy"></param>
-    /// <returns></returns>
     public static string ConvertToSchemaCasing(this string propertyName, JsonNamingPolicy? namingPolicy)
     {
         if (namingPolicy is null)
             return propertyName;
-        
+
         var segments = propertyName.Split('.');
-        for (int i=0; i < segments.Length; i++)
+        for (int i = 0; i < segments.Length; i++)
             segments[i] = namingPolicy.ConvertName(segments[i]);
-        
+
         return string.Join(".", segments);
     }
 

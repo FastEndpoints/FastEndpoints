@@ -23,7 +23,7 @@ public static class Extensions
     /// JsonNamingPolicy chosen for swagger
     /// </summary>
     public static JsonNamingPolicy? SelectedJsonNamingPolicy { get; private set; }
-    
+
     /// <summary>
     /// enable support for FastEndpoints in swagger
     /// </summary>
@@ -122,7 +122,7 @@ public static class Extensions
 
     internal static string Remove(this string value, string removeString)
     {
-        int index = value.IndexOf(removeString, StringComparison.Ordinal);
+        var index = value.IndexOf(removeString, StringComparison.Ordinal);
         return index < 0 ? value : value.Remove(index, removeString.Length);
     }
 

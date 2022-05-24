@@ -20,6 +20,11 @@ namespace FastEndpoints.Swagger;
 public static class Extensions
 {
     /// <summary>
+    /// JsonNamingPolicy chosen for swagger
+    /// </summary>
+    public static JsonNamingPolicy? SelectedJsonNamingPolicy { get; private set; }
+    
+    /// <summary>
     /// enable support for FastEndpoints in swagger
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
@@ -69,6 +74,7 @@ public static class Extensions
         services.AddOpenApiDocument(s =>
         {
             var stjOpts = new JsonSerializerOptions(Config.SerializerOpts);
+            SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             serializerSettings?.Invoke(stjOpts);
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
             s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames);

@@ -68,7 +68,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         ApplyRulesToSchema(schema, rulesDict, propertyPrefix);
     }
 
-    private void ApplyRulesToSchema(JsonSchema? schema, ReadOnlyDictionary<string, IValidationRule> rulesDict, string propertyPrefix)
+    private void ApplyRulesToSchema(JsonSchema? schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict, string propertyPrefix)
     {
         if (schema is null)
             return;
@@ -84,54 +84,18 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         ApplyRulesToSchema(schema.InheritedSchema, rulesDict, propertyPrefix);
     }
 
-    private void TryApplyValidation(JsonSchema schema, ReadOnlyDictionary<string, IValidationRule> rulesDict,
+    private void TryApplyValidation(JsonSchema schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
         string propertyName, string parameterPrefix)
     {
         // Build the full propertyname with composition route: request.child.property
         var fullPropertyName = $"{parameterPrefix}{propertyName}";
 
-        // Try get a valid rule that matches this property name
-        if (rulesDict.TryGetValue(fullPropertyName, out var validationRule))
+        // Try get a list of valid rules that matches this property name
+        if (rulesDict.TryGetValue(fullPropertyName, out var validationRules))
         {
-            // Apply validation rule to schema
-            foreach (var ruleComponent in validationRule.Components)
-            {
-                var propertyValidator = ruleComponent.Validator;
-
-                // 1. If the propertyValidator is a ChildValidatorAdaptor (RuleFor(....).SetValidator(new MyChildValidator())), we need to get the underlying validator
-                if (propertyValidator.Name == "ChildValidatorAdaptor")
-                {
-                    // Get underlying validator using reflection
-                    var validatorTypeObj = propertyValidator.GetType()
-                        ?.GetProperty("ValidatorType")
-                        ?.GetValue(propertyValidator);
-                    // Check if something went wrong
-                    if (validatorTypeObj is null || !(validatorTypeObj is Type validatorType))
-                        throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
-
-                    // Retrieve or create an instance of the validator
-                    if (!_childAdaptorValidators.TryGetValue(validatorType.FullName!, out var childValidator))
-                        childValidator = _childAdaptorValidators[validatorType.FullName!] = (IValidator)Activator.CreateInstance(validatorType)!;
-
-                    // Apply the validator to the schema. Again, recursively
-                    ApplyValidator(schema.ActualProperties[propertyName].ActualSchema, childValidator, "");
-
-                    continue;
-                }
-
-                // 2. Normal property validator processing
-                foreach (var rule in _rules)
-                {
-                    if (!rule.Matches(propertyValidator))
-                        continue;
-
-                    try
-                    {
-                        rule.Apply(new RuleContext(schema, propertyName, propertyValidator));
-                    }
-                    catch { }
-                }
-            }
+            // Go through each rule and apply it to the schema
+            foreach (var validationRule in validationRules)
+                ApplyValidationRule(schema, validationRule, propertyName);
         }
 
         // If the property is a child object, recursively apply validation to it adding prefix as we go down one level
@@ -139,6 +103,48 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         var propertySchema = property.ActualSchema;
         if (propertySchema.ActualProperties is not null && propertySchema.ActualProperties.Count > 0)
             ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.");
+    }
+
+    private void ApplyValidationRule(JsonSchema schema, IValidationRule validationRule, string propertyName)
+    {
+        foreach (var ruleComponent in validationRule.Components)
+        {
+            var propertyValidator = ruleComponent.Validator;
+
+            // 1. If the propertyValidator is a ChildValidatorAdaptor (RuleFor(....).SetValidator(new MyChildValidator())), we need to get the underlying validator
+            if (propertyValidator.Name == "ChildValidatorAdaptor")
+            {
+                // Get underlying validator using reflection
+                var validatorTypeObj = propertyValidator.GetType()
+                    ?.GetProperty("ValidatorType")
+                    ?.GetValue(propertyValidator);
+                // Check if something went wrong
+                if (validatorTypeObj is null || !(validatorTypeObj is Type validatorType))
+                    throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
+
+                // Retrieve or create an instance of the validator
+                if (!_childAdaptorValidators.TryGetValue(validatorType.FullName!, out var childValidator))
+                    childValidator = _childAdaptorValidators[validatorType.FullName!] = (IValidator)Activator.CreateInstance(validatorType)!;
+
+                // Apply the validator to the schema. Again, recursively
+                ApplyValidator(schema.ActualProperties[propertyName].ActualSchema, childValidator, "");
+
+                continue;
+            }
+
+            // 2. Normal property validator processing
+            foreach (var rule in _rules)
+            {
+                if (!rule.Matches(propertyValidator))
+                    continue;
+
+                try
+                {
+                    rule.Apply(new RuleContext(schema, propertyName, propertyValidator));
+                }
+                catch { }
+            }
+        }
     }
 
     private static FluentValidationRule[] CreateDefaultRules() => new[]

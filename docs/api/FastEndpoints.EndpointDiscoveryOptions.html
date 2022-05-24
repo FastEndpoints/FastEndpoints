@@ -144,6 +144,7 @@
   <h4 id="FastEndpoints_EndpointDiscoveryOptions_Assemblies" data-uid="FastEndpoints.EndpointDiscoveryOptions.Assemblies">Assemblies</h4>
   <div class="markdown level1 summary"><p>an optional collection of assemblies to discover endpoints from.
 if DisableAutoDiscovery is set to true, this must be provided.</p>
+<p>NOTE: not applicable when using FastEndpoints.Generator package</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -170,6 +171,7 @@ if DisableAutoDiscovery is set to true, this must be provided.</p>
   <a id="FastEndpoints_EndpointDiscoveryOptions_AssemblyFilter_" data-uid="FastEndpoints.EndpointDiscoveryOptions.AssemblyFilter*"></a>
   <h4 id="FastEndpoints_EndpointDiscoveryOptions_AssemblyFilter" data-uid="FastEndpoints.EndpointDiscoveryOptions.AssemblyFilter">AssemblyFilter</h4>
   <div class="markdown level1 summary"><p>an optional predicate to filter out the final collection of assemblies before scanning for endpoints.</p>
+<p>NOTE: not applicable when using FastEndpoints.Generator package</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -197,6 +199,7 @@ if DisableAutoDiscovery is set to true, this must be provided.</p>
   <h4 id="FastEndpoints_EndpointDiscoveryOptions_DisableAutoDiscovery" data-uid="FastEndpoints.EndpointDiscoveryOptions.DisableAutoDiscovery">DisableAutoDiscovery</h4>
   <div class="markdown level1 summary"><p>set to true if only the provided Assemblies should be scanned for endpoints.
 if the Assemblies property is null and this is set to true, an exception will be thrown.</p>
+<p>NOTE: not applicable when using FastEndpoints.Generator package</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -214,6 +217,33 @@ if the Assemblies property is null and this is set to true, an exception will be
     <tbody>
       <tr>
         <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="FastEndpoints_EndpointDiscoveryOptions_SourceGeneratorDiscoveredTypes_" data-uid="FastEndpoints.EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes*"></a>
+  <h4 id="FastEndpoints_EndpointDiscoveryOptions_SourceGeneratorDiscoveredTypes" data-uid="FastEndpoints.EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes">SourceGeneratorDiscoveredTypes</h4>
+  <div class="markdown level1 summary"><p>if using the FastEndpoints.Generator package, assign <code>DiscoveredTypes.All</code> to this property.
+doing so will use the types discovered during source generation instead of reflection bases type discovery.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Type[] SourceGeneratorDiscoveredTypes { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">Type</span>[]</td>
         <td></td>
       </tr>
     </tbody>

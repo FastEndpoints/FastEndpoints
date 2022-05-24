@@ -691,14 +691,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandle
   nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandle
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandle
-- uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
-  name: OnAfterHandleAsync(TRequest, TResponse)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandleAsync__0__1_
-  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandleAsync(TRequest, TResponse)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandleAsync(TRequest, TResponse)
-  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandleAsync(TRequest, TResponse)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandleAsync(TRequest, TResponse)
+- uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1,CancellationToken)
+  name: OnAfterHandleAsync(TRequest, TResponse, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandleAsync__0__1_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterHandleAsync(`0,`1,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterHandleAsync(TRequest, TResponse, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterHandleAsync(TRequest, TResponse, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterHandleAsync(TRequest, TResponse, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterHandleAsync(TRequest, TResponse, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.OnAfterHandleAsync*
   name: OnAfterHandleAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterHandleAsync_
@@ -725,14 +725,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidate
   nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidate
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidate
-- uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
-  name: OnAfterValidateAsync(TRequest)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidateAsync__0_
-  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidateAsync(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidateAsync(TRequest)
-  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidateAsync(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidateAsync(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0,CancellationToken)
+  name: OnAfterValidateAsync(TRequest, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidateAsync__0_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.OnAfterValidateAsync(`0,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnAfterValidateAsync(TRequest, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnAfterValidateAsync(TRequest, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.OnAfterValidateAsync(TRequest, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnAfterValidateAsync(TRequest, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.OnAfterValidateAsync*
   name: OnAfterValidateAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnAfterValidateAsync_
@@ -759,14 +759,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandle
   nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandle
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandle
-- uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
-  name: OnBeforeHandleAsync(TRequest)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandleAsync__0_
-  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandleAsync(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync(TRequest)
-  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandleAsync(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0,CancellationToken)
+  name: OnBeforeHandleAsync(TRequest, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandleAsync__0_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeHandleAsync(`0,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeHandleAsync(TRequest, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync(TRequest, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeHandleAsync(TRequest, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeHandleAsync(TRequest, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.OnBeforeHandleAsync*
   name: OnBeforeHandleAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeHandleAsync_
@@ -793,14 +793,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidate
   nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidate
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidate
-- uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
-  name: OnBeforeValidateAsync(TRequest)
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidateAsync__0_
-  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0)
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidateAsync(TRequest)
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync(TRequest)
-  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidateAsync(TRequest)
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync(TRequest)
+- uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0,CancellationToken)
+  name: OnBeforeValidateAsync(TRequest, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidateAsync__0_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.OnBeforeValidateAsync(`0,CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnBeforeValidateAsync(TRequest, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync(TRequest, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.OnBeforeValidateAsync(TRequest, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnBeforeValidateAsync(TRequest, CancellationToken)
 - uid: FastEndpoints.Endpoint`2.OnBeforeValidateAsync*
   name: OnBeforeValidateAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnBeforeValidateAsync_
@@ -827,14 +827,14 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnValidationFailed
   nameWithType: Endpoint<TRequest, TResponse>.OnValidationFailed
   nameWithType.vb: Endpoint(Of TRequest, TResponse).OnValidationFailed
-- uid: FastEndpoints.Endpoint`2.OnValidationFailedAsync
-  name: OnValidationFailedAsync()
-  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailedAsync
-  commentId: M:FastEndpoints.Endpoint`2.OnValidationFailedAsync
-  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnValidationFailedAsync()
-  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnValidationFailedAsync()
-  nameWithType: Endpoint<TRequest, TResponse>.OnValidationFailedAsync()
-  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnValidationFailedAsync()
+- uid: FastEndpoints.Endpoint`2.OnValidationFailedAsync(CancellationToken)
+  name: OnValidationFailedAsync(CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailedAsync_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.OnValidationFailedAsync(CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.OnValidationFailedAsync(CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).OnValidationFailedAsync(CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.OnValidationFailedAsync(CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).OnValidationFailedAsync(CancellationToken)
 - uid: FastEndpoints.Endpoint`2.OnValidationFailedAsync*
   name: OnValidationFailedAsync
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_OnValidationFailedAsync_
@@ -2087,6 +2087,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.EndpointDiscoveryOptions.DisableAutoDiscovery
   nameWithType: EndpointDiscoveryOptions.DisableAutoDiscovery
+- uid: FastEndpoints.EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes
+  name: SourceGeneratorDiscoveredTypes
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html#FastEndpoints_EndpointDiscoveryOptions_SourceGeneratorDiscoveredTypes
+  commentId: P:FastEndpoints.EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes
+  fullName: FastEndpoints.EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes
+  nameWithType: EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes
+- uid: FastEndpoints.EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes*
+  name: SourceGeneratorDiscoveredTypes
+  href: api/FastEndpoints.EndpointDiscoveryOptions.html#FastEndpoints_EndpointDiscoveryOptions_SourceGeneratorDiscoveredTypes_
+  commentId: Overload:FastEndpoints.EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes
+  isSpec: "True"
+  fullName: FastEndpoints.EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes
+  nameWithType: EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes
 - uid: FastEndpoints.EndpointSummary
   name: EndpointSummary
   href: api/FastEndpoints.EndpointSummary.html
@@ -4052,6 +4065,19 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swagger.Extensions.EnableJWTBearerAuth
   nameWithType: Extensions.EnableJWTBearerAuth
+- uid: FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy
+  name: SelectedJsonNamingPolicy
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_SelectedJsonNamingPolicy
+  commentId: P:FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy
+  fullName: FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy
+  nameWithType: Extensions.SelectedJsonNamingPolicy
+- uid: FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy*
+  name: SelectedJsonNamingPolicy
+  href: api/FastEndpoints.Swagger.Extensions.html#FastEndpoints_Swagger_Extensions_SelectedJsonNamingPolicy_
+  commentId: Overload:FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy
+  isSpec: "True"
+  fullName: FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy
+  nameWithType: Extensions.SelectedJsonNamingPolicy
 - uid: FastEndpoints.Swagger.ValidationProcessor
   name: FastEndpoints.Swagger.ValidationProcessor
   href: api/FastEndpoints.Swagger.ValidationProcessor.html

@@ -48,7 +48,7 @@ namespace FastEndpoints
 {
     public static class DiscoveredTypes
     {
-        public static readonly System.Type[] AllTypes = new System.Type[]
+        public static readonly System.Type[] All = new System.Type[]
         {
 ");
 

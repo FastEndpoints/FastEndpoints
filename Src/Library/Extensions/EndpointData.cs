@@ -58,41 +58,10 @@ internal sealed class EndpointData
             "Accessibility",
             "NJsonSchema",
             "Namotion"
-    };
+        };
 
-        var discoveredTypes = Enumerable.Empty<Type>();
+        var discoveredTypes = options?.SourceGeneratorDiscoveredTypes ?? Enumerable.Empty<Type>();
 
-        //TODO: we're iterating the assemblies/type collection twice in case the discovery helper isn't present.
-        //      maybe a better alternative would be to let .AddFastEndpoint(...) pass in the types array from the generated class?
-        //      Nef: shouldn't it be sufficient to iterate it once by slapping a .ToList() on it and use that reference?
-
-        var discoveryHelper = AppDomain.CurrentDomain.GetAssemblies()
-            .FirstOrDefault(a => a.GetType("FastEndpoints.DiscoveredTypes") is not null)? //first iteration :-(
-            .GetType("FastEndpoints.DiscoveredTypes");
-
-        // check if generated helper class is available
-        if (discoveryHelper is not null)
-        {
-            var allTypesField = discoveryHelper.GetField("AllTypes", BindingFlags.Static | BindingFlags.Public);
-
-            if (allTypesField is null)
-                throw new InvalidOperationException(
-                    "The 'AllTypes' field of the auto-generated 'FastEndpoints.DiscoveredTypes' wasn't found!"
-                    );
-
-            var allTypesValue = allTypesField?.GetValue(null);
-
-            discoveredTypes = (Type[]?)allTypesValue ?? throw new InvalidOperationException(
-                "The 'AllTypes' field of the auto-generated 'FastEndpoints.DiscoveredTypes' is null!"
-                );
-
-            if (!discoveredTypes.Any())
-                throw new InvalidOperationException(
-                    "The 'AllTypes' field of the auto-generated 'FastEndpoints.DiscoveredTypes' is empty!"
-                    );
-        }
-
-        // helper is not available or ran into an error
         if (!discoveredTypes.Any())
         {
             var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
@@ -131,36 +100,36 @@ internal sealed class EndpointData
         //key: TEndpoint //val: TSummary
         var summaryDict = new Dictionary<Type, Type>();
 
-        foreach (var tDisc in discoveredTypes)
+        foreach (var t in discoveredTypes)
         {
-            foreach (var tInterface in tDisc.GetInterfaces())
+            foreach (var tInterface in t.GetInterfaces())
             {
                 if (tInterface == Types.IEndpoint)
                 {
-                    var tRequest = tDisc.GetGenericArgumentsOfType(Types.Endpoint)?[0] ?? Types.EmptyRequest;
+                    var tRequest = t.GetGenericArgumentsOfType(Types.Endpoint)?[0] ?? Types.EmptyRequest;
 
-                    services.AddTransient(tDisc);
-                    epList.Add((tDisc, tRequest));
+                    services.AddTransient(t);
+                    epList.Add((t, tRequest));
                     continue;
                 }
 
                 if (tInterface == Types.IValidator)
                 {
-                    var tRequest = tDisc.GetGenericArgumentsOfType(Types.Validator)?[0]!;
-                    valDict.Add(tRequest, tDisc);
+                    var tRequest = t.GetGenericArgumentsOfType(Types.Validator)?[0]!;
+                    valDict.Add(tRequest, t);
                     continue;
                 }
 
                 if (tInterface == Types.ISummary)
                 {
-                    var tEndpoint = tDisc.GetGenericArgumentsOfType(Types.Summary)?[0]!;
-                    summaryDict.Add(tEndpoint, tDisc);
+                    var tEndpoint = t.GetGenericArgumentsOfType(Types.Summary)?[0]!;
+                    summaryDict.Add(tEndpoint, t);
                     continue;
                 }
 
                 if (tInterface == Types.IEventHandler)
                 {
-                    ((IEventHandler?)Activator.CreateInstance(tDisc))?.Subscribe();
+                    ((IEventHandler?)Activator.CreateInstance(t))?.Subscribe();
                     continue;
                 }
             }

@@ -149,7 +149,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             {
                 if (g.Key.Equals(prop.Identifier, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (g.Count() > 1)
+                    if (prop.IsCollection || g.Count() > 1)
                         claimVal = $"[{string.Join(',', g.Select(v => $"\"{v}\""))}]"; //turn the group values into a json array so the value parser can deserialize it using STJ
                     else
                         claimVal = g.FirstOrDefault();

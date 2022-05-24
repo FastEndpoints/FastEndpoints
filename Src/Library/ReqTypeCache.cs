@@ -54,6 +54,7 @@ internal static class ReqTypeCache<TRequest>
                 Identifier = claimType,
                 ForbidIfMissing = forbidIfMissing,
                 PropType = propInfo.PropertyType,
+                IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
                 ValueParser = propInfo.PropertyType.ValueParser(),
                 PropSetter = compiledSetter,
             });
@@ -134,6 +135,7 @@ internal class SecondaryPropCacheEntry
     public bool ForbidIfMissing { get; init; }
     public string? PropName { get; set; }
     public Type PropType { get; init; }
+    public bool IsCollection { get; set; }
     public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }
     public Action<object, object> PropSetter { get; set; }
 }

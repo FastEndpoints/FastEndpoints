@@ -106,7 +106,7 @@ internal sealed class EndpointData
             {
                 if (tInterface == Types.IEndpoint)
                 {
-                    var tRequest = t.GetGenericArgumentsOfType(Types.Endpoint)?[0] ?? Types.EmptyRequest;
+                    var tRequest = t.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest;
 
                     services.AddTransient(t);
                     epList.Add((t, tRequest));
@@ -115,14 +115,16 @@ internal sealed class EndpointData
 
                 if (tInterface == Types.IValidator)
                 {
-                    var tRequest = t.GetGenericArgumentsOfType(Types.Validator)?[0]!;
+                    var tRequest = t.GetGenericArgumentsOfType(Types.ValidatorOf1)?[0]!;
                     valDict.Add(tRequest, t);
                     continue;
                 }
 
                 if (tInterface == Types.ISummary)
                 {
-                    var tEndpoint = t.GetGenericArgumentsOfType(Types.Summary)?[0]!;
+                    var tEndpoint =
+                        t.GetGenericArgumentsOfType(Types.SummaryOf1)?[0]! ??
+                        t.GetGenericArgumentsOfType(Types.SummaryOf2)?[0]!;
                     summaryDict.Add(tEndpoint, t);
                     continue;
                 }

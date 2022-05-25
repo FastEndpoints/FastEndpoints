@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.3.0-beta5</Version>
+        <Version>4.3.0-beta6</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -15,7 +15,8 @@
             - cancellation token support for hooks #134
 
             ### FIXES
-            - fix binding duplicate claim types such as `role` #131
+            - binding duplicate claim types such as `role` #131
+            - not finding generic parameters of `Summary&lt;TEndpoint,TRequest&gt;` at startup
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

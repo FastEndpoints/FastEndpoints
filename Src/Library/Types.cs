@@ -24,7 +24,7 @@ internal static class Types
     internal static readonly Type IFormFile = typeof(IFormFile);
     internal static readonly Type IPlainTextRequest = typeof(IPlainTextRequest);
     internal static readonly Type ISummary = typeof(ISummary);
-    internal static readonly Type IValidator = typeof(IValidator);
+    internal static readonly Type IEndpointValidator = typeof(IEndpointValidator);
     internal static readonly Type NotImplementedAttribute = typeof(NotImplementedAttribute);
     internal static readonly Type Object = typeof(object);
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);

@@ -83,3 +83,11 @@ internal interface IEventHandler
 {
     void Subscribe();
 }
+
+/// <summary>
+/// Interface that marks a validator as an endpoint validator
+/// </summary>
+[HideFromDocs]
+internal interface IEndpointValidator
+{
+}

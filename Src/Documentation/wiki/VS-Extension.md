@@ -22,3 +22,59 @@ there will be 4 new files created under the namespace you chose.
 <a target="_blank" href="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/b34139su76mm3toq9dps.gif">
   <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/b34139su76mm3toq9dps.gif">
 </a>
+
+# dotnet new template
+alternatively, if you're more comfortable working with the cli, you can use our `dotnet new` template to create a new feature file set.
+
+## installation
+```shell
+dotnet new -i FastEndpoints.TemplatePack
+```
+
+## basic usage
+the following command will use the namepsace `MyProject.Comments.Create`
+
+method `POST` 
+
+route `api/comments`
+
+files will be created in folder `Features/Comments/Create`:
+
+```shell
+dotnet new feat --name MyProject.Comments.Create \
+-m post \
+-r api/comments \
+-o Features/Comments/Create
+```
+
+## all options
+```shell
+> dotnet new feat --help
+
+FastEndpoints Feature Fileset (C#)
+Author: @lazyboy1
+Options:
+  -t|--attributes  Whether to use attributes for endpoint configuration
+                   bool - Optional
+                   Default: false
+
+  -p|--mapper      Whether to use a mapper
+                   bool - Optional
+                   Default: true
+
+  -v|--validator   Whether to use a validator
+                   bool - Optional
+                   Default: true
+
+  -m|--method      Endpoint HTTP method
+                       GET
+                       POST
+                       PUT
+                       DELETE
+                       PATCH
+                   Default: GET
+
+  -r|--route       Endpoint path
+                   string - Optional
+                   Default: api/route/here
+```

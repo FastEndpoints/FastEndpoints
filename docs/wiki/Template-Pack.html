@@ -94,11 +94,44 @@
             <article class="content wrap" id="_content" data-uid="">
 <h1 id="dotnet-new-template">dotnet new template</h1>
 
-<div class="NOTE">
-<h5>Note</h5>
-<p>this document is still a work-in-progress.
-please check back soon...</p>
-</div>
+<p>similar to the <a href="VS-Extension.html">vs extension</a>, you can use our <code>dotnet new</code> template to create a new feature file set (slice).</p>
+<h2 id="instllation">instllation</h2>
+<pre><code class="lang-shell">dotnet new -i FastEndpoints.TemplatePack
+</code></pre>
+<h2 id="basic-usage">basic usage</h2>
+<p>the following command will use the namepsace <code>MyProject.Comments.Create</code>, method <code>POST</code> and route <code>api/comments</code>. Files will be created in folder <code>Features/Comments/Create</code>:</p>
+<pre><code class="lang-shell">dotnet new feat --name MyProject.Comments.Create -m post -r api/comments -o Features/Comments/Create
+</code></pre>
+<h2 id="all-options">all options</h2>
+<pre><code class="lang-shell">&gt; dotnet new feat --help
+
+FastEndpoints Feature Fileset (C#)
+Author: @lazyboy1
+Options:
+  -t|--attributes  Whether to use attributes for endpoint configuration
+                   bool - Optional
+                   Default: false
+
+  -p|--mapper      Whether to use a mapper
+                   bool - Optional
+                   Default: true
+
+  -v|--validator   Whether to use a validator
+                   bool - Optional
+                   Default: true
+
+  -m|--method      Endpoint HTTP method
+                       GET
+                       POST
+                       PUT
+                       DELETE
+                       PATCH
+                   Default: GET
+
+  -r|--route       Endpoint path
+                   string - Optional
+                   Default: api/route/here
+</code></pre>
 </article>
           </div>
           

@@ -4078,128 +4078,6 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.Swagger.Extensions.SelectedJsonNamingPolicy
   nameWithType: Extensions.SelectedJsonNamingPolicy
-- uid: FastEndpoints.Swagger.ValidationProcessor
-  name: FastEndpoints.Swagger.ValidationProcessor
-  href: api/FastEndpoints.Swagger.ValidationProcessor.html
-  commentId: N:FastEndpoints.Swagger.ValidationProcessor
-  fullName: FastEndpoints.Swagger.ValidationProcessor
-  nameWithType: FastEndpoints.Swagger.ValidationProcessor
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule
-  name: FluentValidationRule
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html
-  commentId: T:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule
-  nameWithType: FluentValidationRule
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.#ctor(System.String)
-  name: FluentValidationRule(String)
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html#FastEndpoints_Swagger_ValidationProcessor_FluentValidationRule__ctor_System_String_
-  commentId: M:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.#ctor(System.String)
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.FluentValidationRule(System.String)
-  nameWithType: FluentValidationRule.FluentValidationRule(String)
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.#ctor*
-  name: FluentValidationRule
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html#FastEndpoints_Swagger_ValidationProcessor_FluentValidationRule__ctor_
-  commentId: Overload:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.#ctor
-  isSpec: "True"
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.FluentValidationRule
-  nameWithType: FluentValidationRule.FluentValidationRule
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Apply
-  name: Apply
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html#FastEndpoints_Swagger_ValidationProcessor_FluentValidationRule_Apply
-  commentId: P:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Apply
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Apply
-  nameWithType: FluentValidationRule.Apply
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Apply*
-  name: Apply
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html#FastEndpoints_Swagger_ValidationProcessor_FluentValidationRule_Apply_
-  commentId: Overload:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Apply
-  isSpec: "True"
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Apply
-  nameWithType: FluentValidationRule.Apply
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Matches
-  name: Matches
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html#FastEndpoints_Swagger_ValidationProcessor_FluentValidationRule_Matches
-  commentId: P:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Matches
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Matches
-  nameWithType: FluentValidationRule.Matches
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Matches*
-  name: Matches
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html#FastEndpoints_Swagger_ValidationProcessor_FluentValidationRule_Matches_
-  commentId: Overload:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Matches
-  isSpec: "True"
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Matches
-  nameWithType: FluentValidationRule.Matches
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Name
-  name: Name
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html#FastEndpoints_Swagger_ValidationProcessor_FluentValidationRule_Name
-  commentId: P:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Name
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Name
-  nameWithType: FluentValidationRule.Name
-- uid: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Name*
-  name: Name
-  href: api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html#FastEndpoints_Swagger_ValidationProcessor_FluentValidationRule_Name_
-  commentId: Overload:FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Name
-  isSpec: "True"
-  fullName: FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.Name
-  nameWithType: FluentValidationRule.Name
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext
-  name: RuleContext
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html
-  commentId: T:FastEndpoints.Swagger.ValidationProcessor.RuleContext
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext
-  nameWithType: RuleContext
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext.#ctor(NJsonSchema.JsonSchema,System.String,FluentValidation.Validators.IPropertyValidator)
-  name: RuleContext(JsonSchema, String, IPropertyValidator)
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html#FastEndpoints_Swagger_ValidationProcessor_RuleContext__ctor_NJsonSchema_JsonSchema_System_String_FluentValidation_Validators_IPropertyValidator_
-  commentId: M:FastEndpoints.Swagger.ValidationProcessor.RuleContext.#ctor(NJsonSchema.JsonSchema,System.String,FluentValidation.Validators.IPropertyValidator)
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext.RuleContext(NJsonSchema.JsonSchema, System.String, FluentValidation.Validators.IPropertyValidator)
-  nameWithType: RuleContext.RuleContext(JsonSchema, String, IPropertyValidator)
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext.#ctor*
-  name: RuleContext
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html#FastEndpoints_Swagger_ValidationProcessor_RuleContext__ctor_
-  commentId: Overload:FastEndpoints.Swagger.ValidationProcessor.RuleContext.#ctor
-  isSpec: "True"
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext.RuleContext
-  nameWithType: RuleContext.RuleContext
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyKey
-  name: PropertyKey
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html#FastEndpoints_Swagger_ValidationProcessor_RuleContext_PropertyKey
-  commentId: P:FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyKey
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyKey
-  nameWithType: RuleContext.PropertyKey
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyKey*
-  name: PropertyKey
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html#FastEndpoints_Swagger_ValidationProcessor_RuleContext_PropertyKey_
-  commentId: Overload:FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyKey
-  isSpec: "True"
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyKey
-  nameWithType: RuleContext.PropertyKey
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyValidator
-  name: PropertyValidator
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html#FastEndpoints_Swagger_ValidationProcessor_RuleContext_PropertyValidator
-  commentId: P:FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyValidator
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyValidator
-  nameWithType: RuleContext.PropertyValidator
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyValidator*
-  name: PropertyValidator
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html#FastEndpoints_Swagger_ValidationProcessor_RuleContext_PropertyValidator_
-  commentId: Overload:FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyValidator
-  isSpec: "True"
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext.PropertyValidator
-  nameWithType: RuleContext.PropertyValidator
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext.Schema
-  name: Schema
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html#FastEndpoints_Swagger_ValidationProcessor_RuleContext_Schema
-  commentId: P:FastEndpoints.Swagger.ValidationProcessor.RuleContext.Schema
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext.Schema
-  nameWithType: RuleContext.Schema
-- uid: FastEndpoints.Swagger.ValidationProcessor.RuleContext.Schema*
-  name: Schema
-  href: api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html#FastEndpoints_Swagger_ValidationProcessor_RuleContext_Schema_
-  commentId: Overload:FastEndpoints.Swagger.ValidationProcessor.RuleContext.Schema
-  isSpec: "True"
-  fullName: FastEndpoints.Swagger.ValidationProcessor.RuleContext.Schema
-  nameWithType: RuleContext.Schema
 - uid: FastEndpoints.Swagger.ValidationSchemaProcessor
   name: ValidationSchemaProcessor
   href: api/FastEndpoints.Swagger.ValidationSchemaProcessor.html
@@ -4264,45 +4142,39 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.ThrottleOptions.ThrottledResponse
   nameWithType: ThrottleOptions.ThrottledResponse
-- uid: FastEndpoints.Validation
-  name: FastEndpoints.Validation
-  href: api/FastEndpoints.Validation.html
-  commentId: N:FastEndpoints.Validation
-  fullName: FastEndpoints.Validation
-  nameWithType: FastEndpoints.Validation
-- uid: FastEndpoints.Validation.ValidationFailureException
+- uid: FastEndpoints.ValidationFailureException
   name: ValidationFailureException
-  href: api/FastEndpoints.Validation.ValidationFailureException.html
-  commentId: T:FastEndpoints.Validation.ValidationFailureException
-  fullName: FastEndpoints.Validation.ValidationFailureException
+  href: api/FastEndpoints.ValidationFailureException.html
+  commentId: T:FastEndpoints.ValidationFailureException
+  fullName: FastEndpoints.ValidationFailureException
   nameWithType: ValidationFailureException
-- uid: FastEndpoints.Validation.ValidationFailureException.#ctor
+- uid: FastEndpoints.ValidationFailureException.#ctor
   name: ValidationFailureException()
-  href: api/FastEndpoints.Validation.ValidationFailureException.html#FastEndpoints_Validation_ValidationFailureException__ctor
-  commentId: M:FastEndpoints.Validation.ValidationFailureException.#ctor
-  fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException()
+  href: api/FastEndpoints.ValidationFailureException.html#FastEndpoints_ValidationFailureException__ctor
+  commentId: M:FastEndpoints.ValidationFailureException.#ctor
+  fullName: FastEndpoints.ValidationFailureException.ValidationFailureException()
   nameWithType: ValidationFailureException.ValidationFailureException()
-- uid: FastEndpoints.Validation.ValidationFailureException.#ctor(System.String)
+- uid: FastEndpoints.ValidationFailureException.#ctor(System.String)
   name: ValidationFailureException(String)
-  href: api/FastEndpoints.Validation.ValidationFailureException.html#FastEndpoints_Validation_ValidationFailureException__ctor_System_String_
-  commentId: M:FastEndpoints.Validation.ValidationFailureException.#ctor(System.String)
-  fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException(System.String)
+  href: api/FastEndpoints.ValidationFailureException.html#FastEndpoints_ValidationFailureException__ctor_System_String_
+  commentId: M:FastEndpoints.ValidationFailureException.#ctor(System.String)
+  fullName: FastEndpoints.ValidationFailureException.ValidationFailureException(System.String)
   nameWithType: ValidationFailureException.ValidationFailureException(String)
-- uid: FastEndpoints.Validation.ValidationFailureException.#ctor(System.String,System.Nullable{Exception})
+- uid: FastEndpoints.ValidationFailureException.#ctor(System.String,System.Nullable{Exception})
   name: ValidationFailureException(String, Nullable<Exception>)
-  href: api/FastEndpoints.Validation.ValidationFailureException.html#FastEndpoints_Validation_ValidationFailureException__ctor_System_String_System_Nullable_Exception__
-  commentId: M:FastEndpoints.Validation.ValidationFailureException.#ctor(System.String,System.Nullable{Exception})
+  href: api/FastEndpoints.ValidationFailureException.html#FastEndpoints_ValidationFailureException__ctor_System_String_System_Nullable_Exception__
+  commentId: M:FastEndpoints.ValidationFailureException.#ctor(System.String,System.Nullable{Exception})
   name.vb: ValidationFailureException(String, Nullable(Of Exception))
-  fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException(System.String, System.Nullable<Exception>)
-  fullName.vb: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException(System.String, System.Nullable(Of Exception))
+  fullName: FastEndpoints.ValidationFailureException.ValidationFailureException(System.String, System.Nullable<Exception>)
+  fullName.vb: FastEndpoints.ValidationFailureException.ValidationFailureException(System.String, System.Nullable(Of Exception))
   nameWithType: ValidationFailureException.ValidationFailureException(String, Nullable<Exception>)
   nameWithType.vb: ValidationFailureException.ValidationFailureException(String, Nullable(Of Exception))
-- uid: FastEndpoints.Validation.ValidationFailureException.#ctor*
+- uid: FastEndpoints.ValidationFailureException.#ctor*
   name: ValidationFailureException
-  href: api/FastEndpoints.Validation.ValidationFailureException.html#FastEndpoints_Validation_ValidationFailureException__ctor_
-  commentId: Overload:FastEndpoints.Validation.ValidationFailureException.#ctor
+  href: api/FastEndpoints.ValidationFailureException.html#FastEndpoints_ValidationFailureException__ctor_
+  commentId: Overload:FastEndpoints.ValidationFailureException.#ctor
   isSpec: "True"
-  fullName: FastEndpoints.Validation.ValidationFailureException.ValidationFailureException
+  fullName: FastEndpoints.ValidationFailureException.ValidationFailureException
   nameWithType: ValidationFailureException.ValidationFailureException
 - uid: FastEndpoints.Validator`1
   name: Validator<TRequest>

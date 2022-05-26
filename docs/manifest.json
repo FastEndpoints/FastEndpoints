@@ -637,42 +637,6 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.Swagger.ValidationProcessor.FluentValidationRule.html",
-          "hash": "T5OjmGoPwqiFXbqubiVkrGaFcmiVD0nSuN9/3QEo7RE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.Swagger.ValidationProcessor.RuleContext.html",
-          "hash": "0ur6DT8xtNsENOFVhsiEqtTSoWDS/ni2ZXcAq8O8zjE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Swagger.ValidationProcessor.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.Swagger.ValidationProcessor.html",
-          "hash": "have67qOezo7MOCXmhqaAbeeWXgjw2o7bynpmHrNXsM="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
       "source_relative_path": "api/FastEndpoints.Swagger.ValidationSchemaProcessor.yml",
       "output": {
         ".html": {
@@ -709,23 +673,11 @@
     },
     {
       "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Validation.ValidationFailureException.yml",
+      "source_relative_path": "api/FastEndpoints.ValidationFailureException.yml",
       "output": {
         ".html": {
-          "relative_path": "api/FastEndpoints.Validation.ValidationFailureException.html",
-          "hash": "eOcg6ogS9lBh0SdUXz+5gSoLTlNIMF09PryByNLR1eE="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "ManagedReference",
-      "source_relative_path": "api/FastEndpoints.Validation.yml",
-      "output": {
-        ".html": {
-          "relative_path": "api/FastEndpoints.Validation.html",
-          "hash": "JhIDH5+5Mg1Zg5PCbu7TZeisNS6inD7BYviZUiqA5F4="
+          "relative_path": "api/FastEndpoints.ValidationFailureException.html",
+          "hash": "cZ0baygzSxHmT98RhctnKzqZE53XiMs+YD4SiPeYl/Q="
         }
       },
       "is_incremental": false,
@@ -761,7 +713,7 @@
       "output": {
         ".html": {
           "relative_path": "api/FastEndpoints.html",
-          "hash": "ahe5zlw2w+0hAIn8kin0k0o1quSop1oVwDOU6Pbcr84="
+          "hash": "cVMjx72ngs2ijI8VjrchUoAS5eBP2MenJhC4Zij6f8I="
         }
       },
       "is_incremental": false,
@@ -773,7 +725,7 @@
       "output": {
         ".html": {
           "relative_path": "api/toc.html",
-          "hash": "CZdiW9KEe7u471sBSl0zO4qTfKCczZffZ3mR75xg+z4="
+          "hash": "EFkQzC+iZq2Lh3UQ5BGb1AN3UFZaT+DIdczpgPo2+L8="
         }
       },
       "is_incremental": false,
@@ -1228,8 +1180,8 @@
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,
           "incrementalPhase": "build",
-          "total_file_count": 62,
-          "skipped_file_count": 62
+          "total_file_count": 58,
+          "skipped_file_count": 58
         },
         "ResourceDocumentProcessor": {
           "can_incremental": false,

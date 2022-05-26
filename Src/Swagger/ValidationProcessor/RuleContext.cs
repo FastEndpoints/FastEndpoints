@@ -25,6 +25,7 @@ using NJsonSchema;
 
 namespace FastEndpoints.Swagger.ValidationProcessor;
 
+[HideFromDocs]
 public class RuleContext
 {
     public JsonSchema Schema { get; }

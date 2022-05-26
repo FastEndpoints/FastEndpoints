@@ -24,6 +24,7 @@ using FluentValidation.Validators;
 
 namespace FastEndpoints.Swagger.ValidationProcessor;
 
+[HideFromDocs]
 public class FluentValidationRule
 {
     /// <summary>

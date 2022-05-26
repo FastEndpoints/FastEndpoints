@@ -18,7 +18,7 @@
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>fastendpoints, template, http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet6, minimal-api, vertical-slice-architecture, repr-pattern</PackageTags>
 
-        <Version>0.1.1</Version>
+        <Version>1.0.0</Version>
     </PropertyGroup>
 
     <ItemGroup>

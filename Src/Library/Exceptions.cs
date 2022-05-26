@@ -1,4 +1,4 @@
-﻿namespace FastEndpoints.Validation;
+﻿namespace FastEndpoints;
 
 /// <summary>
 /// the exception thrown when a validation error has occured. this class is only useful in unit tests.

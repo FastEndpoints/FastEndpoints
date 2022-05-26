@@ -1,5 +1,4 @@
-﻿using FastEndpoints.Validation;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.Results;
 using System.Linq.Expressions;
 

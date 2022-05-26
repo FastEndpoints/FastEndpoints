@@ -17,6 +17,9 @@
             ### FIXES
             - binding duplicate claim types such as `role` #131
             - not finding generic parameters of `Summary&lt;TEndpoint,TRequest&gt;` at startup
+
+            ### CHANGES
+            - move `ValidationFailureException` to `FastEndpoints` namespace
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

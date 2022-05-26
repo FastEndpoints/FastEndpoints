@@ -923,6 +923,17 @@
       "version": ""
     },
     {
+      "type": "Resource",
+      "source_relative_path": "images/vslice.gif",
+      "output": {
+        "resource": {
+          "relative_path": "images/vslice.gif"
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
       "type": "Conceptual",
       "source_relative_path": "index.md",
       "output": {
@@ -1036,7 +1047,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/Feature-Scaffolding.html",
-          "hash": "e8Ewam3XBrVTzsFIBerdqGaZiNBnv0V19WTbctAsIas="
+          "hash": "UrrwmgPdHugz/zT3Zb1Yf7Ht+GFBN4VGDFD4ZoeuBq4="
         }
       },
       "is_incremental": false,
@@ -1212,7 +1223,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 21,
-          "skipped_file_count": 20
+          "skipped_file_count": 21
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

@@ -19,8 +19,8 @@ there will be 4 new files created under the namespace you chose.
 
 ---
 
-<a target="_blank" href="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/b34139su76mm3toq9dps.gif">
-  <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/b34139su76mm3toq9dps.gif">
+<a target="_blank" href="../images/vslice.gif">
+  <img src="../images/vslice.gif">
 </a>
 
 # dotnet new template

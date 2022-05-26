@@ -24,7 +24,7 @@ there will be 4 new files created under the namespace you chose.
 </a>
 
 # dotnet new template
-alternatively, if you're more comfortable working with the cli, you can use our `dotnet new` template to create a new feature file set.
+if you prefer working with the cli, you can use our `dotnet new` template to create a new feature file set.
 
 ## installation
 ```shell

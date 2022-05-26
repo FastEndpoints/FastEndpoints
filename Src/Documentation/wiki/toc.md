@@ -17,4 +17,4 @@
 # [Configuration Settings](Configuration-Settings.md)
 # [API Versioning](Api-Versioning.md)
 # [Rate Limiting](Rate-Limiting.md)
-# [VS Extension](VS-Extension.md)
+# [Feature Scaffolding](Feature-Scaffolding.md)

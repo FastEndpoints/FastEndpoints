@@ -1032,6 +1032,18 @@
     },
     {
       "type": "Conceptual",
+      "source_relative_path": "wiki/Feature-Scaffolding.md",
+      "output": {
+        ".html": {
+          "relative_path": "wiki/Feature-Scaffolding.html",
+          "hash": "e8Ewam3XBrVTzsFIBerdqGaZiNBnv0V19WTbctAsIas="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
       "source_relative_path": "wiki/File-Handling.md",
       "output": {
         ".html": {
@@ -1164,18 +1176,6 @@
     },
     {
       "type": "Conceptual",
-      "source_relative_path": "wiki/VS-Extension.md",
-      "output": {
-        ".html": {
-          "relative_path": "wiki/VS-Extension.html",
-          "hash": "k18N/OqH8aiQk1Vyw3MzgyJx3/99yNg4XM1R0d5wtZw="
-        }
-      },
-      "is_incremental": false,
-      "version": ""
-    },
-    {
-      "type": "Conceptual",
       "source_relative_path": "wiki/Validation.md",
       "output": {
         ".html": {
@@ -1192,7 +1192,7 @@
       "output": {
         ".html": {
           "relative_path": "wiki/toc.html",
-          "hash": "kk5pQ3nTyf14Cyzd6GBakBolagle8o+onSNXOTAEECs="
+          "hash": "x0BQK2Ht9rYuPLb1g5Zh7QPfjoHGyTnCA1N6v70bWO8="
         }
       },
       "is_incremental": false,
@@ -1212,7 +1212,7 @@
           "can_incremental": true,
           "incrementalPhase": "build",
           "total_file_count": 21,
-          "skipped_file_count": 21
+          "skipped_file_count": 20
         },
         "ManagedReferenceDocumentProcessor": {
           "can_incremental": true,

@@ -102,7 +102,7 @@ using FastEndpoints.Swagger; //add this
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddFastEndpoints();
-builder.Services.AddSwaggerDoc(); //add this
+builder.Services.AddSwaggerDocument(); //add this
 
 var app = builder.Build();
 app.UseAuthorization();
@@ -113,8 +113,8 @@ app.Run();
 </code></pre>
 <p>you can then visit <code>/swagger</code> or <code>/swagger/v1/swagger.json</code> to see swagger output.</p>
 <h2 id="configuration">configuration</h2>
-<p>swagger options can be configured as you'd typically do via the <code>AddSwaggerDoc()</code> method:</p>
-<pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(settings =&gt;
+<p>swagger options can be configured as you'd typically do via the <code>AddSwaggerDocument()</code> method:</p>
+<pre><code class="lang-csharp">builder.Services.AddSwaggerDocument(settings =&gt;
 {
     settings.Title = &quot;My API&quot;;
     settings.Version = &quot;v1&quot;;

@@ -2,16 +2,16 @@
 
     <PropertyGroup>
 
-        <Version>4.3.0-beta6</Version>
+        <Version>4.3.0-beta7</Version>
 
         <PackageReleaseNotes>
             ### NEW
             - endpoint discovery options argument for `AddFastEndpoints()`
-            - source generator for type discovery #117
+            - source generator support for type discovery #117
 
             ### IMPROVEMENTS
             - throw exception if swagger pipeline is misconfigured #122
-            - validator inheritance for swagger-fluentvalidation integration #126 #135
+            - validator inheritance for swagger-fluentvalidation integration #126 #135 #141
             - cancellation token support for hooks #134
 
             ### FIXES
@@ -19,7 +19,9 @@
             - not finding generic parameters of `Summary&lt;TEndpoint,TRequest&gt;` at startup
 
             ### CHANGES
-            - move `ValidationFailureException` to `FastEndpoints` namespace
+            - specifying custom assemblies at startup should now be done like: `AddFastEndpoints(o=> o.Assemblies = ...)`
+            - `AbstractValidator&lt;T&gt;` classes will no longer be auto discovered due to #140
+            - moved `ValidationFailureException` to `FastEndpoints` namespace. you'll have to add a `Using FastEndoints;` import statement if this class is referenced from your code.
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>

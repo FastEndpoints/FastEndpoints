@@ -24,10 +24,12 @@ public static class MainExtensions
     /// </summary>
     /// <param name="options">optionally specify the endpoint discovery options</param>
     /// <param name="config">optionally specify the IConfiguration/ConfigurationManager if you need to access it from within endpoint Configure() method</param>
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, EndpointDiscoveryOptions? options = null,
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options = null,
         ConfigurationManager? config = null)
     {
-        Endpoints = new(services, options, config);
+        EndpointDiscoveryOptions? opts = null;
+        options?.Invoke(opts ?? new());
+        Endpoints = new(services, opts, config);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();
         return services;

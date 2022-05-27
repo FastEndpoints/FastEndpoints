@@ -101,7 +101,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         // If the property is a child object, recursively apply validation to it adding prefix as we go down one level
         var property = schema.ActualProperties[propertyName];
         var propertySchema = property.ActualSchema;
-        if (propertySchema.ActualProperties is not null && propertySchema.ActualProperties.Count > 0)
+        if (propertySchema.ActualProperties is not null && propertySchema.ActualProperties.Count > 0 && propertySchema != schema)
             ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.");
     }
 

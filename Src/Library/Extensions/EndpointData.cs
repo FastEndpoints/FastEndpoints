@@ -83,7 +83,7 @@ internal sealed class EndpointData
                     !t.IsGenericType &&
                     t.GetInterfaces().Intersect(new[] {
                         Types.IEndpoint,
-                        Types.IValidator,
+                        Types.IEndpointValidator,
                         Types.IEventHandler,
                         Types.ISummary
                     }).Any());
@@ -113,7 +113,7 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface == Types.IValidator)
+                if (tInterface == Types.IEndpointValidator)
                 {
                     var tRequest = t.GetGenericArgumentsOfType(Types.ValidatorOf1)?[0]!;
                     valDict.Add(tRequest, t);

@@ -95,6 +95,7 @@ internal static class ValidationExtensions
     {
         foreach (var validationRule in validationRules)
         {
+            if (validationRule.Member is null || string.IsNullOrEmpty(validationRule.PropertyName)) continue;
             var isCollectionRule = validationRule.GetType() == typeof(ICollectionRule<,>);
             yield return new ValidationRuleContext(validationRule, isCollectionRule);
         }

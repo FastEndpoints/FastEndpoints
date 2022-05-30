@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>4.3.0-beta8</Version>
+        <Version>4.3.0-beta9</Version>
 
         <PackageReleaseNotes>
             ### NEW
@@ -17,6 +17,7 @@
             ### FIXES
             - binding duplicate claim types such as `role` #131
             - not finding generic parameters of `Summary&lt;TEndpoint,TRequest&gt;` at startup
+            - model binding issue with generic request dtos #143
 
             ### CHANGES
             - specifying custom assemblies at startup should now be done like: `AddFastEndpoints(o=> o.Assemblies = ...)`

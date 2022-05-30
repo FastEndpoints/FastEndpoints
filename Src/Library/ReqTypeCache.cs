@@ -14,7 +14,11 @@ internal static class ReqTypeCache<TRequest>
     {
         var tRequest = typeof(TRequest);
 
-        if (tRequest.IsGenericType) return;
+        // a request dto such as MyRequest<T> can have a value parser, so allow to proceed.
+        // if the request dto type is an IEnumerable such as List<T>, it will be deserialized by STJ.
+        // so skip caching value parsers for this dto type.
+        if (tRequest.IsGenericType && tRequest.GetInterfaces().Contains(Types.IEnumerable))
+            return;
 
         var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
 

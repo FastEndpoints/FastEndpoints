@@ -28,7 +28,12 @@ public enum Http
     /// <summary>
     /// remove a record
     /// </summary>
-    DELETE = 5
+    DELETE = 5,
+
+    /// <summary>
+    /// retrieve only headers
+    /// </summary>
+    HEAD = 6
 }
 
 /// <summary>

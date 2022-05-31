@@ -58,6 +58,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// specify to listen for HEAD requests on one or more routes.
+    /// </summary>
+    protected void Head(params string[] routePatterns)
+    {
+        Verbs(Http.HEAD);
+        Routes(routePatterns);
+    }
+
+    /// <summary>
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
     protected void Routes(params string[] patterns)
@@ -84,7 +93,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
             if (tRequest != Types.EmptyRequest)
             {
-                if (methods.Contains(Http.GET))
+                if (methods.Any(m => m is Http.GET or Http.HEAD))
                     b.Accepts<TRequest>("*/*", "application/json");
                 else
                     b.Accepts<TRequest>("application/json");

@@ -158,6 +158,17 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// send headers in response to a HEAD request
+    /// </summary>
+    /// <param name="headers">an action to be performed on the headers dictionary of the response</param>
+    /// <param name="statusCode">optional custom http status code</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    protected Task SendHeadersAsync(Action<IHeaderDictionary> headers, int statusCode = 200, CancellationToken cancellation = default)
+    {
+        return HttpContext.Response.SendHeadersAsync(headers, statusCode, cancellation);
+    }
+
+    /// <summary>
     /// send a byte array to the client
     /// </summary>
     /// <param name="bytes">the bytes to send</param>

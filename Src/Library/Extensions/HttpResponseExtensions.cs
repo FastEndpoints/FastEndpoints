@@ -193,6 +193,20 @@ public static class HttpResponseExtensions
     }
 
     /// <summary>
+    /// send headers in response to a HEAD request
+    /// </summary>
+    /// <param name="headers">an action to be performed on the headers dictionary of the response</param>
+    /// <param name="statusCode">optional custom http status code</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static Task SendHeadersAsync(this HttpResponse rsp, Action<IHeaderDictionary> headers, int statusCode = 200, CancellationToken cancellation = default)
+    {
+        headers(rsp.Headers);
+        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.StatusCode = statusCode;
+        return rsp.StartAsync(cancellation.IfDefault(rsp));
+    }
+
+    /// <summary>
     /// send a byte array to the client
     /// </summary>
     /// <param name="bytes">the bytes to send</param>

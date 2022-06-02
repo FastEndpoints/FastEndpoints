@@ -233,6 +233,16 @@ public class UpdateAddress : Endpoint&lt;MyRequest, MyResponse&gt;
     }
 }
 </code></pre>
+<h1 id="cancellation-token">cancellation token</h1>
+<p>the <code>HandleAsync</code> method of the endpoint is supplied a <code>CancellationToken</code> which you can pass down to your own async methods within the handler that requires a token.</p>
+<p>the <code>Send*Async</code> methods of the endpoint also <strong>optionally</strong> accepts a <code>CancellationToken</code>. i.e. you can either pass down the same token supplied to the <code>HandleAsync</code> method or you may create/use a different token with these response sending methods depending on your requirement.</p>
+<p>however, do note that it is <em>not required</em> to supply a <code>CancellationToken</code> to the <code>Send*Async</code> methods, and there's no real need to dirty up your code like the following:</p>
+<pre><code class="lang-csharp">await SendAsync(response, cancellation: ct);
+</code></pre>
+<p>because if you do not supply the token to the <code>Send*Async</code> methods, the library automatically supplies the same token that is supplied to the <code>HandleAsync</code> method internally, and your code can remain cleaner.</p>
+<p>the analyzer hint/warning can be turned off by adding the following to your <code>csproj</code> file:</p>
+<pre><code class="lang-xml">&lt;NoWarn&gt;CA2016&lt;/NoWarn&gt;
+</code></pre>
 </article>
           </div>
           

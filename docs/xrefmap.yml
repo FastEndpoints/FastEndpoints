@@ -640,6 +640,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).HandleAsync
   nameWithType: Endpoint<TRequest, TResponse>.HandleAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).HandleAsync
+- uid: FastEndpoints.Endpoint`2.Head(System.String[])
+  name: Head(String[])
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Head_System_String___
+  commentId: M:FastEndpoints.Endpoint`2.Head(System.String[])
+  name.vb: Head(String())
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Head(System.String[])
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Head(System.String())
+  nameWithType: Endpoint<TRequest, TResponse>.Head(String[])
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Head(String())
+- uid: FastEndpoints.Endpoint`2.Head*
+  name: Head
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Head_
+  commentId: Overload:FastEndpoints.Endpoint`2.Head
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.Head
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Head
+  nameWithType: Endpoint<TRequest, TResponse>.Head
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).Head
 - uid: FastEndpoints.Endpoint`2.HttpMethod
   name: HttpMethod
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_HttpMethod
@@ -1356,6 +1374,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendForbiddenAsync
   nameWithType: Endpoint<TRequest, TResponse>.SendForbiddenAsync
   nameWithType.vb: Endpoint(Of TRequest, TResponse).SendForbiddenAsync
+- uid: FastEndpoints.Endpoint`2.SendHeadersAsync(Action{Microsoft.AspNetCore.Http.IHeaderDictionary},System.Int32,CancellationToken)
+  name: SendHeadersAsync(Action<IHeaderDictionary>, Int32, CancellationToken)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendHeadersAsync_Action_Microsoft_AspNetCore_Http_IHeaderDictionary__System_Int32_CancellationToken_
+  commentId: M:FastEndpoints.Endpoint`2.SendHeadersAsync(Action{Microsoft.AspNetCore.Http.IHeaderDictionary},System.Int32,CancellationToken)
+  name.vb: SendHeadersAsync(Action(Of IHeaderDictionary), Int32, CancellationToken)
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendHeadersAsync(Action<Microsoft.AspNetCore.Http.IHeaderDictionary>, System.Int32, CancellationToken)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendHeadersAsync(Action(Of Microsoft.AspNetCore.Http.IHeaderDictionary), System.Int32, CancellationToken)
+  nameWithType: Endpoint<TRequest, TResponse>.SendHeadersAsync(Action<IHeaderDictionary>, Int32, CancellationToken)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendHeadersAsync(Action(Of IHeaderDictionary), Int32, CancellationToken)
+- uid: FastEndpoints.Endpoint`2.SendHeadersAsync*
+  name: SendHeadersAsync
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendHeadersAsync_
+  commentId: Overload:FastEndpoints.Endpoint`2.SendHeadersAsync
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.SendHeadersAsync
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).SendHeadersAsync
+  nameWithType: Endpoint<TRequest, TResponse>.SendHeadersAsync
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).SendHeadersAsync
 - uid: FastEndpoints.Endpoint`2.SendNoContentAsync(CancellationToken)
   name: SendNoContentAsync(CancellationToken)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_SendNoContentAsync_CancellationToken_
@@ -2880,6 +2916,12 @@ references:
   commentId: F:FastEndpoints.Http.GET
   fullName: FastEndpoints.Http.GET
   nameWithType: Http.GET
+- uid: FastEndpoints.Http.HEAD
+  name: HEAD
+  href: api/FastEndpoints.Http.html#FastEndpoints_Http_HEAD
+  commentId: F:FastEndpoints.Http.HEAD
+  fullName: FastEndpoints.Http.HEAD
+  nameWithType: Http.HEAD
 - uid: FastEndpoints.Http.PATCH
   name: PATCH
   href: api/FastEndpoints.Http.html#FastEndpoints_Http_PATCH
@@ -3281,6 +3323,22 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.HttpResponseExtensions.SendForbiddenAsync
   nameWithType: HttpResponseExtensions.SendForbiddenAsync
+- uid: FastEndpoints.HttpResponseExtensions.SendHeadersAsync(Microsoft.AspNetCore.Http.HttpResponse,Action{Microsoft.AspNetCore.Http.IHeaderDictionary},System.Int32,CancellationToken)
+  name: SendHeadersAsync(HttpResponse, Action<IHeaderDictionary>, Int32, CancellationToken)
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendHeadersAsync_Microsoft_AspNetCore_Http_HttpResponse_Action_Microsoft_AspNetCore_Http_IHeaderDictionary__System_Int32_CancellationToken_
+  commentId: M:FastEndpoints.HttpResponseExtensions.SendHeadersAsync(Microsoft.AspNetCore.Http.HttpResponse,Action{Microsoft.AspNetCore.Http.IHeaderDictionary},System.Int32,CancellationToken)
+  name.vb: SendHeadersAsync(HttpResponse, Action(Of IHeaderDictionary), Int32, CancellationToken)
+  fullName: FastEndpoints.HttpResponseExtensions.SendHeadersAsync(Microsoft.AspNetCore.Http.HttpResponse, Action<Microsoft.AspNetCore.Http.IHeaderDictionary>, System.Int32, CancellationToken)
+  fullName.vb: FastEndpoints.HttpResponseExtensions.SendHeadersAsync(Microsoft.AspNetCore.Http.HttpResponse, Action(Of Microsoft.AspNetCore.Http.IHeaderDictionary), System.Int32, CancellationToken)
+  nameWithType: HttpResponseExtensions.SendHeadersAsync(HttpResponse, Action<IHeaderDictionary>, Int32, CancellationToken)
+  nameWithType.vb: HttpResponseExtensions.SendHeadersAsync(HttpResponse, Action(Of IHeaderDictionary), Int32, CancellationToken)
+- uid: FastEndpoints.HttpResponseExtensions.SendHeadersAsync*
+  name: SendHeadersAsync
+  href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendHeadersAsync_
+  commentId: Overload:FastEndpoints.HttpResponseExtensions.SendHeadersAsync
+  isSpec: "True"
+  fullName: FastEndpoints.HttpResponseExtensions.SendHeadersAsync
+  nameWithType: HttpResponseExtensions.SendHeadersAsync
 - uid: FastEndpoints.HttpResponseExtensions.SendNoContentAsync(Microsoft.AspNetCore.Http.HttpResponse,CancellationToken)
   name: SendNoContentAsync(HttpResponse, CancellationToken)
   href: api/FastEndpoints.HttpResponseExtensions.html#FastEndpoints_HttpResponseExtensions_SendNoContentAsync_Microsoft_AspNetCore_Http_HttpResponse_CancellationToken_
@@ -3469,12 +3527,15 @@ references:
   commentId: T:FastEndpoints.MainExtensions
   fullName: FastEndpoints.MainExtensions
   nameWithType: MainExtensions
-- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,FastEndpoints.EndpointDiscoveryOptions,Microsoft.Extensions.Configuration.ConfigurationManager)
-  name: AddFastEndpoints(IServiceCollection, EndpointDiscoveryOptions, ConfigurationManager)
-  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_FastEndpoints_EndpointDiscoveryOptions_Microsoft_Extensions_Configuration_ConfigurationManager_
-  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,FastEndpoints.EndpointDiscoveryOptions,Microsoft.Extensions.Configuration.ConfigurationManager)
-  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, FastEndpoints.EndpointDiscoveryOptions, Microsoft.Extensions.Configuration.ConfigurationManager)
-  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection, EndpointDiscoveryOptions, ConfigurationManager)
+- uid: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{FastEndpoints.EndpointDiscoveryOptions}},Microsoft.Extensions.Configuration.ConfigurationManager)
+  name: AddFastEndpoints(IServiceCollection, Nullable<Action<EndpointDiscoveryOptions>>, ConfigurationManager)
+  href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_Microsoft_Extensions_DependencyInjection_IServiceCollection_System_Nullable_Action_FastEndpoints_EndpointDiscoveryOptions___Microsoft_Extensions_Configuration_ConfigurationManager_
+  commentId: M:FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Nullable{Action{FastEndpoints.EndpointDiscoveryOptions}},Microsoft.Extensions.Configuration.ConfigurationManager)
+  name.vb: AddFastEndpoints(IServiceCollection, Nullable(Of Action(Of EndpointDiscoveryOptions)), ConfigurationManager)
+  fullName: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable<Action<FastEndpoints.EndpointDiscoveryOptions>>, Microsoft.Extensions.Configuration.ConfigurationManager)
+  fullName.vb: FastEndpoints.MainExtensions.AddFastEndpoints(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Nullable(Of Action(Of FastEndpoints.EndpointDiscoveryOptions)), Microsoft.Extensions.Configuration.ConfigurationManager)
+  nameWithType: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable<Action<EndpointDiscoveryOptions>>, ConfigurationManager)
+  nameWithType.vb: MainExtensions.AddFastEndpoints(IServiceCollection, Nullable(Of Action(Of EndpointDiscoveryOptions)), ConfigurationManager)
 - uid: FastEndpoints.MainExtensions.AddFastEndpoints*
   name: AddFastEndpoints
   href: api/FastEndpoints.MainExtensions.html#FastEndpoints_MainExtensions_AddFastEndpoints_

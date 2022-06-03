@@ -1,6 +1,5 @@
 ﻿using IntegrationTests.Shared.Fixtures;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
@@ -68,23 +67,24 @@ public class MiscTestCases : EndToEndTestBase
     public async Task EmptyRequest()
     {
         var endpointUrl = IEndpoint.TestURLFor<TestCases.EmptyRequestTest.EmptyRequestEndpoint>();
-        
+
         var requestUri = new Uri(
             AdminClient.BaseAddress!.ToString().TrimEnd('/') +
             (endpointUrl.StartsWith('/') ? endpointUrl : "/" + endpointUrl)
         );
-        
-        var message = new HttpRequestMessage {
+
+        var message = new HttpRequestMessage
+        {
             Content = new StringContent(string.Empty, Encoding.UTF8, "application/json"),
             Method = HttpMethod.Get,
             RequestUri = requestUri
         };
-        
+
         var response = await AdminClient.SendAsync(message);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
-    
+
     [Fact]
     public async Task HeaderMissing()
     {

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
+using static FastEndpoints.Config;
+using static FastEndpoints.Constants;
 
 namespace FastEndpoints;
 
@@ -13,20 +15,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 {
     private static async Task<TRequest> BindToModel(HttpContext ctx, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx, bool dontAutoBindForm, CancellationToken cancellation)
     {
+        if (skipModelBinding)
+            return new TRequest();
+
         TRequest? req = default;
 
-        if (isEmptyRequest)
+        if (ctx.Request.HasJsonContentType())
         {
-            req = new TRequest();
-        } 
+            req = (TRequest?)await ReqDeserializerFunc(ctx.Request, tRequest, serializerCtx, cancellation);
+            if (req is null) throw new InvalidOperationException("JSON deserialization failed!");
+        }
         else if (isPlainTextRequest)
         {
             req = await BindPlainTextBody(ctx.Request.Body);
-        }
-        else if (ctx.Request.HasJsonContentType())
-        {
-            req = (TRequest?)await FastEndpoints.Config.ReqDeserializerFunc(ctx.Request, tRequest, serializerCtx, cancellation);
-            if (req is null) throw new InvalidOperationException("JSON deserialization failed!");
         }
         else
         {
@@ -205,7 +206,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             var prop = cachedProps[i];
 
             var hasPerm = claims.Any(c =>
-               string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(c.Type, PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
 
             if (!hasPerm && prop.ForbidIfMissing)
@@ -238,7 +239,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         b.Add(epBuilder =>
         {
-            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is Constants.ProducesMetadata or Constants.AcceptsMetaData).ToArray())
+            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
                 epBuilder.Metadata.Remove(m);
         });
     };

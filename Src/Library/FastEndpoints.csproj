@@ -11,6 +11,7 @@
             - http `HEAD` support #144
 
             ### IMPROVEMENTS
+            - support empty requests with `application/json` content type #147
             - throw exception if swagger pipeline is misconfigured #122
             - validator inheritance for swagger-fluentvalidation integration #126 #135 #141
             - cancellation token support for hooks #134

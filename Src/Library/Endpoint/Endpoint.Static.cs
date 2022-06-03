@@ -15,7 +15,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         TRequest? req = default;
 
-        if (isPlainTextRequest)
+        if (isEmptyRequest)
+        {
+            req = new TRequest();
+        } 
+        else if (isPlainTextRequest)
         {
             req = await BindPlainTextBody(ctx.Request.Body);
         }
@@ -26,7 +30,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
         else
         {
-            req = new();
+            req = new TRequest();
         }
 
         BindFormValues(req, ctx.Request, failures, dontAutoBindForm);

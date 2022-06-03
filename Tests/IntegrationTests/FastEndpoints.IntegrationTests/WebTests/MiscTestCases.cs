@@ -1,12 +1,14 @@
 ﻿using IntegrationTests.Shared.Fixtures;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
+using System.Text;
 using TestCases.EventHandlingTest;
 using Xunit;
 using Xunit.Abstractions;
+using MediaTypeHeaderValue = System.Net.Http.Headers.MediaTypeHeaderValue;
 
 namespace FastEndpoints.IntegrationTests.WebTests;
 
@@ -62,6 +64,27 @@ public class MiscTestCases : EndToEndTestBase
         result.Should().Be("you sent xyz");
     }
 
+    [Fact]
+    public async Task EmptyRequest()
+    {
+        var endpointUrl = IEndpoint.TestURLFor<TestCases.EmptyRequestTest.EmptyRequestEndpoint>();
+        
+        var requestUri = new Uri(
+            AdminClient.BaseAddress!.ToString().TrimEnd('/') +
+            (endpointUrl.StartsWith('/') ? endpointUrl : "/" + endpointUrl)
+        );
+        
+        var message = new HttpRequestMessage {
+            Content = new StringContent(string.Empty, Encoding.UTF8, "application/json"),
+            Method = HttpMethod.Get,
+            RequestUri = requestUri
+        };
+        
+        var response = await AdminClient.SendAsync(message);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+    
     [Fact]
     public async Task HeaderMissing()
     {

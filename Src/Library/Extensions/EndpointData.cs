@@ -29,7 +29,7 @@ internal sealed class EndpointData
         });
 
         //need this here to cause the lazy factory to run now.
-        //cause the endpoints are being added to DI container within the factory
+        //because the endpoints are being added to DI container within the factory
         _ = _endpoints.Value;
     }
 
@@ -67,7 +67,7 @@ internal sealed class EndpointData
             var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
 
             if (options?.DisableAutoDiscovery != true)
-                assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies()); //second iteration :-(
+                assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
 
             if (options?.AssemblyFilter is not null)
                 assemblies = assemblies.Where(options.AssemblyFilter);

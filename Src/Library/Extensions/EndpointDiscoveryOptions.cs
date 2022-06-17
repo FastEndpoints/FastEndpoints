@@ -29,7 +29,7 @@ public class EndpointDiscoveryOptions
 
     /// <summary>
     /// if using the FastEndpoints.Generator package, assign <c>DiscoveredTypes.All</c> to this property.
-    /// doing so will use the types discovered during source generation instead of reflection bases type discovery.
+    /// doing so will use the types discovered during source generation instead of reflection based type discovery.
     /// </summary>
     public Type[]? SourceGeneratorDiscoveredTypes { get; set; }
 }

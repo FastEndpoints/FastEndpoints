@@ -218,6 +218,16 @@ CancellationToken: a cancellation token
     return rsp.WriteAsync(Newtonsoft.Json.JsonConvert.SerializeObject(dto), ct);
 };
 </code></pre>
+<h2 id="source-generator-based-startup-type-discovery">source generator based startup type discovery</h2>
+<p>reflection based assembly scanning is used by default to discover endpoints, validators, summaries and event handlers. if your application has many hundreds of these types and it's running in a serverless environment, you may be able to get about a 20% startup speed boost by utilizing our experimental source generator.</p>
+<p>to enable the source generator, simply install the <code>FastEndpoints.Generator</code> package from nuget.</p>
+<p>then modify your startup code to look like the following:</p>
+<pre><code class="lang-csharp">builder.Services.AddFastEndpoints(o =&gt;
+{
+    o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All;
+});
+</code></pre>
+<p>if source generation is not working, make sure you have <code>.Net Compiler Platform SDK</code> installed in your environment. <a href="https://github.com/dj-nitehawk/FastEndpoints/issues/117#issuecomment-1136891324">see here</a> for more info.</p>
 </article>
           </div>
           

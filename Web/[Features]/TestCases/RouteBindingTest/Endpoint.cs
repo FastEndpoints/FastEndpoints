@@ -38,7 +38,8 @@ public class Endpoint : Endpoint<Request, Response>
             String = r.String,
             Blank = r.Blank,
             Url = r.Url?.ToString(),
-            Custom = r.Custom
+            Custom = r.Custom,
+            CustomList = r.CustomList,
         });
     }
 }

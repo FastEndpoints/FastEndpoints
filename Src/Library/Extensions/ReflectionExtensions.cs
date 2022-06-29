@@ -84,12 +84,14 @@ internal static class ReflectionExtensions
         if (type == Types.Uri)
             return input => (true, new Uri((string)input!));
 
-        if (type.GetInterfaces().Contains(Types.IEnumerable))
-            return input => (true, input is null ? null : JsonSerializer.Deserialize((string)input, type, Config.SerializerOpts))!;
-
         var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, type.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
+        {
+            if (type.GetInterfaces().Contains(Types.IEnumerable))
+                return input => (true, input is null ? null : JsonSerializer.Deserialize((string)input, type, Config.SerializerOpts))!;
+
             return null;
+        }
 
         // The 'object' parameter passed into our delegate
         var inputParameter = Expression.Parameter(Types.Object, "input");

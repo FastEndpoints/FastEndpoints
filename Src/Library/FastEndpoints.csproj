@@ -2,30 +2,11 @@
 
     <PropertyGroup>
 
-        <Version>4.3.0</Version>
+        <Version>4.3.1-beta1</Version>
 
         <PackageReleaseNotes>
-            ### NEW
-            - endpoint discovery options argument for `AddFastEndpoints()`
-            - source generator support for type discovery #117
-            - http `HEAD` support #144
-
-            ### IMPROVEMENTS
-            - support empty requests with `application/json` content type #147
-            - throw exception if swagger pipeline is misconfigured #122
-            - validator inheritance for swagger-fluentvalidation integration #126 #135 #141
-            - cancellation token support for hooks #134
-            - upgrade dependancies to latest
-
             ### FIXES
-            - binding duplicate claim types such as `role` #131
-            - not finding generic parameters of `Summary&lt;TEndpoint,TRequest&gt;` at startup
-            - model binding issue with generic request dtos #143
-
-            ### CHANGES
-            - specifying custom assemblies at startup should now be done like: `AddFastEndpoints(o=&gt; o.Assemblies = ...)`
-            - `AbstractValidator&lt;T&gt;` classes will no longer be auto discovered due to #140
-            - moved `ValidationFailureException` to `FastEndpoints` namespace. you'll have to add a `Using FastEndoints;` import statement if this class is referenced from your code.
+            - custom `TryParse()` method precedence over JsonSerializer issue #155
         </PackageReleaseNotes>
 
         <TargetFramework>net6.0</TargetFramework>
@@ -50,7 +31,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.0.3" />
+        <PackageReference Include="FluentValidation" Version="11.1.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>

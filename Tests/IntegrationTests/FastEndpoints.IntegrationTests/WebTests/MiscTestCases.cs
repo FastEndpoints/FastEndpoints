@@ -148,7 +148,7 @@ public class MiscTestCases : EndToEndTestBase
     {
         var (rsp, res) = await GuestClient
             .POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
-                "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12",
+                "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12&CustomList=1;2",
                 new()
                 {
                     Bool = false,
@@ -158,7 +158,8 @@ public class MiscTestCases : EndToEndTestBase
                     Int = 1,
                     Long = 1,
                     String = "nothing",
-                    Custom = new() { Value = 11111 }
+                    Custom = new() { Value = 11111 },
+                    CustomList = new() { 0 }
                 });
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -171,6 +172,7 @@ public class MiscTestCases : EndToEndTestBase
         res?.Decimal.Should().Be(123.45m);
         res?.Url.Should().Be("https://test.com/");
         res?.Custom.Value.Should().Be(12);
+        res?.CustomList.Should().ContainInOrder(1,2);
     }
 
     [Fact]

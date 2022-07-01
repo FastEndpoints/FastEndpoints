@@ -28,7 +28,7 @@ public static class MainExtensions
         ConfigurationManager? config = null)
     {
         EndpointDiscoveryOptions? opts = null;
-        options?.Invoke(opts ?? new());
+        options?.Invoke(opts ??= new());
         Endpoints = new(services, opts, config);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();

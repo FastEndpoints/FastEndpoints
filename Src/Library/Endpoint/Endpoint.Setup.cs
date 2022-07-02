@@ -10,8 +10,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 {
     private static readonly Type tRequest = typeof(TRequest);
     private static readonly Type tResponse = typeof(TResponse);
-    private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest;
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
+    private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
 
     /// <summary>
     /// specify to listen for GET requests on one or more routes.

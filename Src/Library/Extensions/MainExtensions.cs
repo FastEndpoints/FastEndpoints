@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Collections.Concurrent;
 using System.Text;
 using static FastEndpoints.Config;
 
@@ -64,7 +65,7 @@ public static class MainExtensions
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
-        var routeToHandlerCounts = new Dictionary<string, int>();
+        var routeToHandlerCounts = new ConcurrentDictionary<string, int>(); //using concurrent dict due to: https://discord.com/channels/933662816458645504/992958014699077683
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 
@@ -121,7 +122,7 @@ public static class MainExtensions
 
                     var key = $"{verb}:{finalRoute}";
                     routeToHandlerCounts.TryGetValue(key, out var count);
-                    routeToHandlerCounts[key] = count + 1;
+                    routeToHandlerCounts.AddOrUpdate(key, 1, (_, c) => c++);
                     totalEndpointCount++;
                 }
             }

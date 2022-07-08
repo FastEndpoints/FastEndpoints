@@ -202,7 +202,7 @@ public class CreateEmployeeRequest
     public Address Address { get; set; } //bound from body
 }
 ```
-the `[QueryParam]` attribute does not affect the [model binding order](/wiki/Model-Binding.md) in any way. it is just a way to make swagger add a query param.
+the `[QueryParam]` attribute does not affect the [model binding order](Model-Binding.md) in any way. it is just a way to make swagger add a query param.
 
 ## disable jwt auth scheme
 support for jwt bearer auth is automatically added. if you need to disable it, simply pass a `false` value to the following parameter:

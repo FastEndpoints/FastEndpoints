@@ -270,7 +270,7 @@ public class Request
     public Address Address { get; set; } //bound from body
 }
 </code></pre>
-<p>the <code>[QueryParam]</code> attribute does not affect the <a href="/wiki/Model-Binding.md">model binding order</a> in any way. it is just a way to make swagger add a query param.</p>
+<p>the <code>[QueryParam]</code> attribute does not affect the <a href="Model-Binding.html">model binding order</a> in any way. it is just a way to make swagger add a query param.</p>
 <h2 id="disable-jwt-auth-scheme">disable jwt auth scheme</h2>
 <p>support for jwt bearer auth is automatically added. if you need to disable it, simply pass a <code>false</code> value to the following parameter:</p>
 <pre><code class="lang-csharp">builder.Services.AddSwaggerDoc(addJWTBearerAuth: false);

@@ -2,12 +2,13 @@
 
     <PropertyGroup>
 
-        <Version>4.3.1-beta4</Version>
+        <Version>4.3.1-beta5</Version>
 
         <PackageReleaseNotes>
             ### FIXES
             - custom `TryParse()` method precedence over JsonSerializer issue #155
             - `EndpointDiscoveryOptions` not considered in `AddFastEndpoints()` #157
+            - `IEnumerable` property binding not allowing pre-processors to work #161
             - plain text request binding `IPlainText` issue introduced in v4.3
             - concurrency issue with xunit parallel test runs
         </PackageReleaseNotes>

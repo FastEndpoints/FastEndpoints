@@ -88,8 +88,7 @@ internal static class ReflectionExtensions
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
         {
             if (type.GetInterfaces().Contains(Types.IEnumerable))
-                return input => (true, input is null ? null : JsonSerializer.Deserialize((string)input, type, Config.SerializerOpts))!;
-
+                return input => (TryDeserialize(input, type, out var result), result!);
             return null;
         }
 
@@ -122,5 +121,26 @@ internal static class ReflectionExtensions
             block,
             inputParameter
             ).Compile();
+    }
+
+    private static bool TryDeserialize(object? input, Type type, out object? result)
+    {
+        result = null;
+
+        if (input is null)
+            return true;
+
+        var val = ((string)input).Trim();
+
+        if (val.StartsWith('[') && val.EndsWith(']'))
+        {
+            result = JsonSerializer.Deserialize(val, type, Config.SerializerOpts);
+        }
+
+        return true;
+
+        //we're always returning true in order to allow other binding sources to do the binding
+        //if we return false, it would cause a validation error
+        //user may have a preprocessor doing the binding
     }
 }

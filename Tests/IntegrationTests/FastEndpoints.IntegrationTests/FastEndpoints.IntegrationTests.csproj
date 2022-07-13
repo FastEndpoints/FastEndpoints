@@ -20,7 +20,8 @@
 
     <ItemGroup>
       <PackageReference Update="MartinCostello.Logging.XUnit" Version="0.3.0" />
-      <PackageReference Update="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.6" />
+      <PackageReference Update="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.7" />
+      <PackageReference Update="NSubstitute" Version="4.4.0" />
     </ItemGroup>
 
 </Project>

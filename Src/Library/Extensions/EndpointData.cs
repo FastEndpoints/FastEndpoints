@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -42,7 +43,7 @@ internal sealed class EndpointData
         Stopwatch.Start();
 
         //also update FastEndpoints.Generator if updating these
-        var excludes = new[]
+        IEnumerable<string> excludes = new[]
         {
             "Microsoft",
             "System",
@@ -64,7 +65,13 @@ internal sealed class EndpointData
 
         if (!discoveredTypes.Any())
         {
-            var assemblies = options?.Assemblies ?? Enumerable.Empty<Assembly>();
+            var assemblies = Enumerable.Empty<Assembly>();
+
+            if (options?.Assemblies?.Any() is true)
+            {
+                assemblies = options.Assemblies;
+                excludes = excludes.Except(options.Assemblies.Select(a => a.FullName?.Split('.')[0]!));
+            }
 
             if (options?.DisableAutoDiscovery != true)
                 assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());

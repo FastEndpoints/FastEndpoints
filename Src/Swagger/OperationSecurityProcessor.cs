@@ -23,7 +23,13 @@ internal class OperationSecurityProcessor : IOperationProcessor
         if (epMeta.OfType<AllowAnonymousAttribute>().Any() || !epMeta.OfType<AuthorizeAttribute>().Any())
             return true;
 
-        var epSchemes = epMeta.OfType<EndpointDefinition>().Single().AuthSchemes;
+        var schemesList = epMeta.OfType<EndpointDefinition>().SingleOrDefault();
+        if (schemesList == null)
+        {
+            throw new InvalidOperationsException($"Endpoint {context} missing an EndpointDefinition attribute for scheme {schemeName}");
+        }
+
+        var epSchemes = schemesList.AuthSchemes;
         if (epSchemes?.Contains(schemeName) == false)
             return true;
 

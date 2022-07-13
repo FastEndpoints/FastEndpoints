@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors;
@@ -11,7 +12,9 @@ internal class OperationSecurityProcessor : IOperationProcessor
     private readonly string schemeName;
 
     public OperationSecurityProcessor(string schemeName)
-        => this.schemeName = schemeName;
+    {
+        this.schemeName = schemeName;
+    }
 
     public bool Process(OperationProcessorContext context)
     {
@@ -23,19 +26,23 @@ internal class OperationSecurityProcessor : IOperationProcessor
         if (epMeta.OfType<AllowAnonymousAttribute>().Any() || !epMeta.OfType<AuthorizeAttribute>().Any())
             return true;
 
-        var schemesList = epMeta.OfType<EndpointDefinition>().SingleOrDefault();
-        if (schemesList == null)
+        var epDef = epMeta.OfType<EndpointDefinition>().SingleOrDefault();
+        if (epDef == null)
         {
-            throw new InvalidOperationsException($"Endpoint {context} missing an EndpointDefinition attribute for scheme {schemeName}");
+            if (epMeta.OfType<ControllerAttribute>().Any()) // it is an ApiController
+                return true; // TODO return false if the documentation of such ApiControllers is not wanted.
+
+            throw new InvalidOperationException(
+                $"Endpoint {context.ControllerType.FullName} missing an endpoint description. " +
+                $"This may indicate an MvcController. Consider adding `[ApiExplorerSettings(IgnoreApi = true)]`");
         }
 
-        var epSchemes = schemesList.AuthSchemes;
+        var epSchemes = epDef.AuthSchemes;
         if (epSchemes?.Contains(schemeName) == false)
             return true;
 
         (context.OperationDescription.Operation.Security ??= new List<OpenApiSecurityRequirement>()).Add(
-            new OpenApiSecurityRequirement
-            {
+            new OpenApiSecurityRequirement {
                 { schemeName, BuildScopes(epMeta!.OfType<AuthorizeAttribute>()) }
             });
 
@@ -45,8 +52,8 @@ internal class OperationSecurityProcessor : IOperationProcessor
     private static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
     {
         return authorizeAttributes
-            .Where(a => a.Roles != null)
-            .SelectMany(a => a.Roles!.Split(','))
-            .Distinct();
+               .Where(a => a.Roles != null)
+               .SelectMany(a => a.Roles!.Split(','))
+               .Distinct();
     }
 }

@@ -33,8 +33,8 @@ internal class OperationSecurityProcessor : IOperationProcessor
                 return true; // TODO return false if the documentation of such ApiControllers is not wanted.
 
             throw new InvalidOperationException(
-                $"Endpoint {context.ControllerType.FullName} missing an endpoint description. " +
-                $"This may indicate an MvcController. Consider adding `[ApiExplorerSettings(IgnoreApi = true)]`");
+                $"Endpoint `{context.ControllerType.FullName}` is missing an endpoint description. " +
+                 "This may indicate an MvcController. Consider adding `[ApiExplorerSettings(IgnoreApi = true)]`");
         }
 
         var epSchemes = epDef.AuthSchemes;
@@ -52,8 +52,8 @@ internal class OperationSecurityProcessor : IOperationProcessor
     private static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
     {
         return authorizeAttributes
-               .Where(a => a.Roles != null)
-               .SelectMany(a => a.Roles!.Split(','))
-               .Distinct();
+            .Where(a => a.Roles != null)
+            .SelectMany(a => a.Roles!.Split(','))
+            .Distinct();
     }
 }

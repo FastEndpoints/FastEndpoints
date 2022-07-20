@@ -1,23 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-
-        <Version>4.3.2-beta1</Version>
-
         <TargetFramework>netstandard2.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
-        <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
         <Description>Source generator library for FastEndpoints.</Description>
-        <PackageProjectUrl>https://github.com/dj-nitehawk/FastEndpoints</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
         <PackageIcon>icon.png</PackageIcon>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <LangVersion>latest</LangVersion>
         <IsRoslynComponent>true</IsRoslynComponent>
     </PropertyGroup>
 

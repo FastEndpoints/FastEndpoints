@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup .Net SDK
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 6.x
 

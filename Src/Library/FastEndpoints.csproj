@@ -1,25 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-
-        <Version>4.4.0-beta1</Version>
-
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>1701;1702;CS1591;CS1573,CA2254;RCS1079;CS8618</NoWarn>
-        <Authors>Đĵ ΝιΓΞΗΛψΚ</Authors>
         <Description>A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.</Description>
-        <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/dj-nitehawk/FastEndpoints.git</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
         <PackageIcon>icon.png</PackageIcon>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet6, minimal-api, vertical-slice-architecture, repr-pattern</PackageTags>
         <OutputType>Library</OutputType>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -39,6 +26,7 @@
         <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme" />
         <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
         <None Include="changelog.md" Link="Content\Changelog" Pack="false"/>
+        <None Include="..\Directory.Build.props" Link="Content\BuildProps" Pack="false"/>
     </ItemGroup>
 
 </Project>

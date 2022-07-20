@@ -26,3 +26,11 @@ jobs:
         run: dotnet nuget push Src/*/bin/Release/*.nupkg -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ !contains(github.ref, 'beta') }}
+        with:
+          name: v${{ env.GitVersion_SemVer }} Release
+          draft: false
+          body_path: Src/Library/changelog.md

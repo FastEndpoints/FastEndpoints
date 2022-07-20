@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
@@ -102,10 +103,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         if (!httpRequest.HasFormContentType || dontAutoBindForm) return;
 
-        var formFields = httpRequest.Form.Select(kv => new KeyValuePair<string, object?>(kv.Key, kv.Value[0])).ToArray();
-
-        for (var x = 0; x < formFields.Length; x++)
-            Bind(req, formFields[x], failures);
+        foreach (var kvp in httpRequest.Form)
+            Bind(req, kvp, failures);
 
         for (var y = 0; y < httpRequest.Form.Files.Count; y++)
         {
@@ -127,8 +126,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         foreach (var kvp in routeValues)
         {
-            if ((kvp.Value as string)?.StartsWith("{") is false)
-                Bind(req, kvp, failures);
+            var val = kvp.Value?.ToString();
+            if (val?.StartsWith("{") is false)
+                Bind(req, new(kvp.Key, val), failures);
         }
     }
 
@@ -137,7 +137,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (query.Count == 0) return;
 
         foreach (var kvp in query)
-            Bind(req, new(kvp.Key, kvp.Value[0]), failures);
+            Bind(req, kvp, failures);
     }
 
     private static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
@@ -223,7 +223,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static void Bind(TRequest req, KeyValuePair<string, object?> kvp, List<ValidationFailure> failures)
+    private static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures)
     {
         if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
         {

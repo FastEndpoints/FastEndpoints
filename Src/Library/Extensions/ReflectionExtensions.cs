@@ -76,19 +76,19 @@ internal static class ReflectionExtensions
         type = Nullable.GetUnderlyingType(type) ?? type;
 
         if (type == Types.String)
-            return input => (true, input!);
+            return input => (true, input?.ToString()!);
 
         if (type.IsEnum)
             return input => (Enum.TryParse(type, input?.ToString(), out var res), res!);
 
         if (type == Types.Uri)
-            return input => (true, new Uri((string)input!));
+            return input => (true, new Uri(input?.ToString()!));
 
         var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, type.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
         {
             if (type.GetInterfaces().Contains(Types.IEnumerable))
-                return input => (TryDeserialize(input, type, out var result), result!);
+                return input => (TryDeserializeArrayString(input, type, out var result), result!);
             return null;
         }
 
@@ -123,19 +123,19 @@ internal static class ReflectionExtensions
             ).Compile();
     }
 
-    private static bool TryDeserialize(object? input, Type type, out object? result)
+    private static bool TryDeserializeArrayString(object? input, Type type, out object? result)
     {
         result = null;
 
         if (input is null)
             return true;
 
-        var val = ((string)input).Trim();
+        var val = input.ToString()!; //ToString() will make `StringValues` to a comma seperated string
 
-        if (val.StartsWith('[') && val.EndsWith(']'))
-        {
-            result = JsonSerializer.Deserialize(val, type, Config.SerializerOpts);
-        }
+        if (!val.StartsWith('[') && !val.EndsWith(']'))
+            val = $"[{val}]";
+
+        result = JsonSerializer.Deserialize(val, type, Config.SerializerOpts);
 
         return true;
 

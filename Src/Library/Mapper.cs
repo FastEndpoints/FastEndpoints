@@ -34,6 +34,13 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IEntityMapper, ISer
     public virtual Task<TResponse> FromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
 
     /// <summary>
+    /// override this method and place the logic for mapping the updated request dto to the desired domain entity
+    /// </summary>
+    /// <param name="r">the request dto to update from</param>
+    /// <param name="e">the domain entity to update</param>
+    public virtual TEntity UpdateEntity(TRequest r, TEntity e) => throw new NotImplementedException($"Please override the {nameof(UpdateEntity)} method!");
+
+    /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>

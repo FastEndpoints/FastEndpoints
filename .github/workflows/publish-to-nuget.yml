@@ -31,6 +31,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: ${{ !contains(github.ref, 'beta') }}
         with:
-          name: v${{ env.GitVersion_SemVer }} Release
           draft: false
+          name: ${{ github.ref_name }} Release
           body_path: Src/Library/changelog.md

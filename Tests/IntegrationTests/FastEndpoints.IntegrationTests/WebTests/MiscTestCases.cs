@@ -254,7 +254,7 @@ public class MiscTestCases : EndToEndTestBase
             "dates=2022-01-01&dates=2022-02-02&" +
             "guids=b01ec302-0adc-4a2b-973d-bbfe639ed9a5&guids=e08664a4-efd8-4062-a1e1-6169c6eac2ab&" +
             "ints=1&ints=2&ints=3&" +
-            "strings=string1&strings=string2",
+            "strings=[1,2]&strings=string2",
             new());
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -267,7 +267,7 @@ public class MiscTestCases : EndToEndTestBase
         res?.Ints.Count().Should().Be(3);
         res?.Ints.First().Should().Be(1);
         res?.Strings.Length.Should().Be(2);
-        res?.Strings.First().Should().Be("string1");
+        res?.Strings.First().Should().Be("[1,2]");
     }
 
     [Fact]

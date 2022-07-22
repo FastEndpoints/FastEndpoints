@@ -140,11 +140,12 @@ internal static class ReflectionExtensions
         // - 1,2,3 (as StringValues)
         // - one (as StringValues)
         // - one,two,three (as StringValues)
+        // - [1,2], 2, 3 (as StringValues)
         // - [1,2,3] (as StringValues[0])
         // - ["one","two","three"] (as StringValues[0])
         // - [{id="1"},{id="2"}] (as StringValues[0])
 
-        if (input.Value[0].StartsWith('[') && input.Value[0].EndsWith(']'))
+        if (input.Value.Count == 1 && input.Value[0].StartsWith('[') && input.Value[0].EndsWith(']'))
         {
             result = JsonSerializer.Deserialize(input.Value[0], tProp, Config.SerializerOpts);
             return true;

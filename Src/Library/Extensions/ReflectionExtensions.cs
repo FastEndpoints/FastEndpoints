@@ -1,6 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using Microsoft.Extensions.Primitives;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace FastEndpoints;
@@ -67,28 +69,31 @@ internal static class ReflectionExtensions
 
     private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
     private static readonly ConstructorInfo valueTupleConstructor = typeof(ValueTuple<bool, object>).GetConstructor(new[] { Types.Bool, Types.Object })!;
-    private static Func<object?, (bool isSuccess, object value)>? GetCompiledValueParser(Type type)
+    private static Func<object?, (bool isSuccess, object value)>? GetCompiledValueParser(Type tProp)
     {
         // this method was contributed by: https://stackoverflow.com/users/1086121/canton7
         // as an answer to a stackoverflow question: https://stackoverflow.com/questions/71220157
         // many thanks to canton7 :-)
 
-        type = Nullable.GetUnderlyingType(type) ?? type;
+        tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
 
-        if (type == Types.String)
+        //note: the actual type of the `input` to the parser func can be
+        //      either [object] or [StringValues] 
+
+        if (tProp == Types.String)
             return input => (true, input?.ToString()!);
 
-        if (type.IsEnum)
-            return input => (Enum.TryParse(type, input?.ToString(), out var res), res!);
+        if (tProp.IsEnum)
+            return input => (Enum.TryParse(tProp, input?.ToString(), out var res), res!);
 
-        if (type == Types.Uri)
+        if (tProp == Types.Uri)
             return input => (true, new Uri(input?.ToString()!));
 
-        var tryParseMethod = type.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, type.MakeByRefType() });
+        var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
         {
-            if (type.GetInterfaces().Contains(Types.IEnumerable))
-                return input => (TryDeserializeArrayString(input, type, out var result), result!);
+            if (tProp.GetInterfaces().Contains(Types.IEnumerable))
+                return input => (TryDeserializeArrayString((StringValues)input!, tProp, out var result), result!);
             return null;
         }
 
@@ -102,7 +107,7 @@ internal static class ReflectionExtensions
             Expression.Call(inputParameter, toStringMethod));
 
         // 'res' variable used as the out parameter to the TryParse call
-        var resultVar = Expression.Variable(type, "res");
+        var resultVar = Expression.Variable(tProp, "res");
 
         // 'isSuccess' variable to hold the result of calling TryParse
         var isSuccessVar = Expression.Variable(Types.Bool, "isSuccess");
@@ -123,20 +128,41 @@ internal static class ReflectionExtensions
             ).Compile();
     }
 
-    private static bool TryDeserializeArrayString(object? input, Type type, out object? result)
+    private static bool TryDeserializeArrayString(StringValues? input, Type tProp, out object? result)
     {
         result = null;
 
-        if (input is null)
+        if (input?.Count is null or 0)
             return true;
 
-        var val = input.ToString()!; //ToString() will make `StringValues` to a comma seperated string
+        // possible inputs:
+        // - 1 (as StringValues)
+        // - 1,2,3 (as StringValues)
+        // - one (as StringValues)
+        // - one,two,three (as StringValues)
+        // - [1,2,3] (as StringValues[0])
+        // - ["one","two","three"] (as StringValues[0])
+        // - [{id="1"},{id="2"}] (as StringValues[0])
 
-        if (!val.StartsWith('[') && !val.EndsWith(']'))
-            val = $"[{val}]";
+        if (input.Value[0].StartsWith('[') && input.Value[0].EndsWith(']'))
+        {
+            result = JsonSerializer.Deserialize(input.Value[0], tProp, Config.SerializerOpts);
+            return true;
+        }
 
-        result = JsonSerializer.Deserialize(val, type, Config.SerializerOpts);
+        var sb = new StringBuilder("[");
+        for (var i = 0; i < input.Value.Count; i++)
+        {
+            sb.Append('"')
+              .Append(input.Value[i])
+              .Append('"');
 
+            if (i < input.Value.Count - 1)
+                sb.Append(',');
+        }
+        sb.Append(']');
+
+        result = JsonSerializer.Deserialize(sb.ToString(), tProp, Config.SerializerOpts);
         return true;
 
         //we're always returning true in order to allow other binding sources to do the binding

@@ -14,6 +14,7 @@ public class Endpoint : Endpoint<Request, Response>
         Response.Dates = r.Dates;
         Response.Guids = r.Guids;
         Response.Ints = r.Ints;
+        Response.Strings = r.Strings;
         return Task.CompletedTask;
     }
 }

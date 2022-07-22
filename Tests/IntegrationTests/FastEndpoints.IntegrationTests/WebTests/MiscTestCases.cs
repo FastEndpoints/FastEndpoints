@@ -251,9 +251,10 @@ public class MiscTestCases : EndToEndTestBase
             .GETAsync<TestCases.DupeParamBindingForIEnumerableProps.Request, TestCases.DupeParamBindingForIEnumerableProps.Response>(
             "/api/test-cases/dupe-param-binding-for-ienumerable-props?" +
             "doubles=123.45&doubles=543.21&" +
-            "dates=\"2022-01-01\"&dates=\"2022-02-02\"&" +
-            "guids=\"b01ec302-0adc-4a2b-973d-bbfe639ed9a5\"&guids=\"e08664a4-efd8-4062-a1e1-6169c6eac2ab\"&" +
-            "ints=1&ints=2&ints=3",
+            "dates=2022-01-01&dates=2022-02-02&" +
+            "guids=b01ec302-0adc-4a2b-973d-bbfe639ed9a5&guids=e08664a4-efd8-4062-a1e1-6169c6eac2ab&" +
+            "ints=1&ints=2&ints=3&" +
+            "strings=string1&strings=string2",
             new());
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -265,6 +266,8 @@ public class MiscTestCases : EndToEndTestBase
         res?.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
         res?.Ints.Count().Should().Be(3);
         res?.Ints.First().Should().Be(1);
+        res?.Strings.Length.Should().Be(2);
+        res?.Strings.First().Should().Be("string1");
     }
 
     [Fact]

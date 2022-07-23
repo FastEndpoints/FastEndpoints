@@ -203,10 +203,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// specify which authentication schemes to use for authenticating requests to this endpoint
     /// </summary>
     /// <param name="authSchemeNames">the authentication scheme names</param>
-    protected void AuthSchemes(params string[] authSchemeNames)
-    {
-        Definition.AuthSchemes = authSchemeNames;
-    }
+    protected void AuthSchemes(params string[] authSchemeNames) => Definition.AuthSchemes = authSchemeNames;
 
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
@@ -287,10 +284,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an endpoint summary instance</param>
-    protected void Summary(EndpointSummary endpointSummary)
-    {
-        Definition.Summary = endpointSummary;
-    }
+    protected void Summary(EndpointSummary endpointSummary) => Definition.Summary = endpointSummary;
 
     /// <summary>
     /// specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.
@@ -331,19 +325,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// header name can also be configured globally using <c>app.UseFastEndpoints(c=> c.ThrottleOptions...)</c>
     /// not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
     /// </param>
-    protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
-    {
-        Definition.HitCounter = new(headerName, durationSeconds, hitLimit);
-    }
+    protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null) => Definition.HitCounter = new(headerName, durationSeconds, hitLimit);
 
     /// <summary>
     /// specify the json serializer context if code generation for request/response dtos is being used
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
-    protected void SerializerContext<TContext>(TContext serializerContext) where TContext : JsonSerializerContext
-    {
-        Definition.SerializerContext = serializerContext;
-    }
+    protected void SerializerContext<TContext>(TContext serializerContext) where TContext : JsonSerializerContext => Definition.SerializerContext = serializerContext;
 
     /// <summary>
     /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.

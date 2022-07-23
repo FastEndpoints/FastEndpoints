@@ -6,6 +6,7 @@ internal static class ReqTypeCache<TRequest>
 {
     //key: property name
     internal static Dictionary<string, PrimaryPropCacheEntry> CachedProps { get; } = new(StringComparer.OrdinalIgnoreCase);
+    internal static PropCacheEntry? CachedFromBodyProp { get; private set; }
     internal static List<SecondaryPropCacheEntry> CachedFromClaimProps { get; } = new();
     internal static List<SecondaryPropCacheEntry> CachedFromHeaderProps { get; } = new();
     internal static List<SecondaryPropCacheEntry> CachedHasPermissionProps { get; } = new();
@@ -14,9 +15,9 @@ internal static class ReqTypeCache<TRequest>
     {
         var tRequest = typeof(TRequest);
 
-        // a request dto such as MyRequest<T> can have a value parser, so allow to proceed.
         // if the request dto type is an IEnumerable such as List<T>, it will be deserialized by STJ.
         // so skip caching value parsers for this dto type.
+        // otherwise, a request dto such as MyRequest<T> can have a value parser, so allow to proceed.
         if (tRequest.IsGenericType && tRequest.GetInterfaces().Contains(Types.IEnumerable))
             return;
 
@@ -32,6 +33,9 @@ internal static class ReqTypeCache<TRequest>
 
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);
 
+            if (SetFromBodyPropCache(propInfo, compiledSetter))
+                continue;
+
             if (AddFromClaimPropCacheEntry(propInfo, compiledSetter))
                 continue;
 
@@ -43,6 +47,21 @@ internal static class ReqTypeCache<TRequest>
 
             AddPropCacheEntry(propInfo, compiledSetter);
         }
+    }
+
+    private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        var attrib = propInfo.GetCustomAttribute<FromBodyAttribute>(false);
+        if (attrib is not null)
+        {
+            CachedFromBodyProp = new()
+            {
+                PropType = propInfo.PropertyType,
+                PropSetter = compiledSetter,
+            };
+            return true;
+        }
+        return false;
     }
 
     private static bool AddFromClaimPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
@@ -126,20 +145,21 @@ internal static class ReqTypeCache<TRequest>
     }
 }
 
-internal class PrimaryPropCacheEntry
+internal class PropCacheEntry
 {
     public Type PropType { get; init; }
-    public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }
     public Action<object, object> PropSetter { get; init; }
 }
 
-internal class SecondaryPropCacheEntry
+internal class PrimaryPropCacheEntry : PropCacheEntry
+{
+    public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }
+}
+
+internal class SecondaryPropCacheEntry : PrimaryPropCacheEntry
 {
     public string Identifier { get; init; }
     public bool ForbidIfMissing { get; init; }
     public string? PropName { get; set; }
-    public Type PropType { get; init; }
     public bool IsCollection { get; set; }
-    public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }
-    public Action<object, object> PropSetter { get; set; }
 }

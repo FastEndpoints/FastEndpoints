@@ -119,7 +119,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
                     ?.GetProperty("ValidatorType")
                     ?.GetValue(propertyValidator);
                 // Check if something went wrong
-                if (validatorTypeObj is null || !(validatorTypeObj is Type validatorType))
+                if (validatorTypeObj is null || validatorTypeObj is not Type validatorType)
                     throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
 
                 // Retrieve or create an instance of the validator

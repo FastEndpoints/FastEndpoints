@@ -92,9 +92,9 @@ internal static class ReflectionExtensions
         var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
         {
-            if (tProp.GetInterfaces().Contains(Types.IEnumerable))
-                return input => (TryDeserializeArrayString((StringValues)input!, tProp, out var result), result!);
-            return null;
+            return tProp.GetInterfaces().Contains(Types.IEnumerable)
+                   ? (input => (TryDeserializeArrayString((StringValues)input!, tProp, out var result), result!))
+                   : null;
         }
 
         // The 'object' parameter passed into our delegate

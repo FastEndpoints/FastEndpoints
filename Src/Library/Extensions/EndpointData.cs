@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -23,10 +22,9 @@ internal sealed class EndpointData
         {
             var endpoints = BuildEndpointDefinitions(services, options, config);
 
-            if (endpoints.Length == 0)
-                throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
-
-            return endpoints!;
+            return endpoints.Length == 0
+                   ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
+                   : endpoints;
         });
 
         //need this here to cause the lazy factory to run now.

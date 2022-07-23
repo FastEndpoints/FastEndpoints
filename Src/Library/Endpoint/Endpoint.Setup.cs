@@ -12,6 +12,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private static readonly Type tResponse = typeof(TResponse);
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
+    private static readonly PropCacheEntry? bindFromBodyProp = ReqTypeCache<TRequest>.CachedFromBodyProp;
 
     /// <summary>
     /// specify to listen for GET requests on one or more routes.
@@ -71,9 +72,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
     protected void Routes(params string[] patterns)
-    {
-        Definition.Routes = patterns;
-    }
+        => Definition.Routes = patterns;
 
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
@@ -110,12 +109,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint
     /// </summary>
-    protected void DontThrowIfValidationFails() => Definition.ThrowIfValidationFails = false;
+    protected void DontThrowIfValidationFails()
+        => Definition.ThrowIfValidationFails = false;
 
     /// <summary>
     /// if swagger auto tagging based on path segment is enabled, calling this method will prevent a tag from being added to this endpoint.
     /// </summary>
-    protected void DontAutoTag() => Definition.DontAutoTag = true;
+    protected void DontAutoTag()
+        => Definition.DontAutoTag = true;
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
@@ -145,19 +146,22 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// enable multipart/form-data submissions
     /// </summary>
-    protected void AllowFormData() => Definition.AllowFormData = true;
+    protected void AllowFormData()
+        => Definition.AllowFormData = true;
 
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
     /// </summary>
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
-    protected void Policies(params string[] policyNames) => Definition.PreBuiltUserPolicies = policyNames;
+    protected void Policies(params string[] policyNames)
+        => Definition.PreBuiltUserPolicies = policyNames;
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given roles
     /// </summary>
     /// <param name="rolesNames">one or more roles that has access</param>
-    protected void Roles(params string[] rolesNames) => Definition.Roles = rolesNames;
+    protected void Roles(params string[] rolesNames)
+        => Definition.Roles = rolesNames;
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given permissions
@@ -203,19 +207,22 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// specify which authentication schemes to use for authenticating requests to this endpoint
     /// </summary>
     /// <param name="authSchemeNames">the authentication scheme names</param>
-    protected void AuthSchemes(params string[] authSchemeNames) => Definition.AuthSchemes = authSchemeNames;
+    protected void AuthSchemes(params string[] authSchemeNames)
+        => Definition.AuthSchemes = authSchemeNames;
 
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>
-    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => Definition.PreProcessors = preProcessors;
+    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors)
+        => Definition.PreProcessors = preProcessors;
 
     /// <summary>
     /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
-    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => Definition.PostProcessors = postProcessors;
+    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors)
+        => Definition.PostProcessors = postProcessors;
 
     /// <summary>
     /// specify response caching settings for this endpoint
@@ -252,12 +259,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="builder">the route handler builder for this endpoint</param>
     /// <param name="clearDefaults">set to true if the defaults should be cleared</param>
     protected void Description(Action<RouteHandlerBuilder> builder, bool clearDefaults = false)
-    {
-        if (clearDefaults)
-            Definition.UserConfigAction = ClearDefaultAcceptsProducesMetadata + builder;
-        else
-            Definition.UserConfigAction = builder;
-    }
+        => Definition.UserConfigAction = clearDefaults
+                                         ? ClearDefaultAcceptsProducesMetadata + builder
+                                         : builder;
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
@@ -284,7 +288,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an endpoint summary instance</param>
-    protected void Summary(EndpointSummary endpointSummary) => Definition.Summary = endpointSummary;
+    protected void Summary(EndpointSummary endpointSummary)
+        => Definition.Summary = endpointSummary;
 
     /// <summary>
     /// specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.
@@ -292,9 +297,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="endpointTags">the tag values to associate with this endpoint</param>
     protected void Tags(params string[] endpointTags)
-    {
-        Definition.Tags = endpointTags;
-    }
+        => Definition.Tags = endpointTags;
 
     /// <summary>
     /// specify the version of the endpoint if versioning is enabled
@@ -325,18 +328,21 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// header name can also be configured globally using <c>app.UseFastEndpoints(c=> c.ThrottleOptions...)</c>
     /// not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
     /// </param>
-    protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null) => Definition.HitCounter = new(headerName, durationSeconds, hitLimit);
+    protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
+        => Definition.HitCounter = new(headerName, durationSeconds, hitLimit);
 
     /// <summary>
     /// specify the json serializer context if code generation for request/response dtos is being used
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
-    protected void SerializerContext<TContext>(TContext serializerContext) where TContext : JsonSerializerContext => Definition.SerializerContext = serializerContext;
+    protected void SerializerContext<TContext>(TContext serializerContext) where TContext : JsonSerializerContext
+        => Definition.SerializerContext = serializerContext;
 
     /// <summary>
     /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.
     /// </summary>
-    protected void ScopedValidator() => Definition.ScopedValidator = true;
+    protected void ScopedValidator()
+        => Definition.ScopedValidator = true;
 
     /// <summary>
     /// specify an override route prefix for this endpoint if a global route prefix is enabled.
@@ -344,5 +350,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// global prefix can be ignored by setting <c>string.Empty</c>
     /// </summary>
     /// <param name="routePrefix">route prefix value</param>
-    protected void RoutePrefixOverride(string routePrefix) => Definition.RoutePrefixOverride = routePrefix;
+    protected void RoutePrefixOverride(string routePrefix)
+        => Definition.RoutePrefixOverride = routePrefix;
 }

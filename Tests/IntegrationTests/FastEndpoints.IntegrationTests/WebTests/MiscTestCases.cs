@@ -579,4 +579,25 @@ public class MiscTestCases : EndToEndTestBase
 
         response!.StatusCode.Should().Be(HttpStatusCode.OK);
     }
+
+    [Fact]
+    public async Task FromBodyJsonBinding()
+    {
+        var (rsp, res) = await CustomerClient.POSTAsync<
+            TestCases.FromBodyJsonBinding.Endpoint,
+            TestCases.FromBodyJsonBinding.Product,
+            TestCases.FromBodyJsonBinding.Response>(new()
+            {
+                Id = 202,
+                Name = "test product",
+                Price = 10.10m
+            });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Product.Name.Should().Be("test product");
+        res?.Product.Price.Should().Be(10.10m);
+        res?.Product.Id.Should().Be(202);
+        res?.CustomerID.Should().Be(123);
+        res?.Id.Should().Be(0);
+    }
 }

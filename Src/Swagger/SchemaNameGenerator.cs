@@ -14,29 +14,27 @@ internal class SchemaNameGenerator : ISchemaNameGenerator
 
     public string? Generate(Type type)
     {
-        bool isGeneric = type.IsGenericType;
-        string fullNameWithoutGenericArgs;
-
-        if (isGeneric)
-            fullNameWithoutGenericArgs = type.FullName![..type.FullName!.IndexOf('`')];
-        else
-            fullNameWithoutGenericArgs = type.FullName!;
+        var isGeneric = type.IsGenericType;
+        var fullNameWithoutGenericArgs =
+                isGeneric
+                ? type.FullName![..type.FullName!.IndexOf('`')]
+                : type.FullName;
 
         if (shortSchemaNames)
         {
-            var index = fullNameWithoutGenericArgs.LastIndexOf('.');
+            var index = fullNameWithoutGenericArgs!.LastIndexOf('.');
             index = index == -1 ? 0 : index + 1;
             var shortName = fullNameWithoutGenericArgs[index..];
-            if (isGeneric)
-                return shortName + GenericArgString(type);
-            return shortName;
+            return isGeneric
+                   ? shortName + GenericArgString(type)
+                   : shortName;
         }
         else
         {
-            var sanitizedFullName = fullNameWithoutGenericArgs.Replace(".", string.Empty);
-            if (isGeneric)
-                return sanitizedFullName + GenericArgString(type);
-            return sanitizedFullName;
+            var sanitizedFullName = fullNameWithoutGenericArgs!.Replace(".", string.Empty);
+            return isGeneric
+                   ? sanitizedFullName + GenericArgString(type)
+                   : sanitizedFullName;
         }
 
         static string? GenericArgString(Type type)
@@ -45,7 +43,7 @@ internal class SchemaNameGenerator : ISchemaNameGenerator
             {
                 var sb = new StringBuilder();
                 var args = type.GetGenericArguments();
-                for (int i = 0; i < args.Length; i++)
+                for (var i = 0; i < args.Length; i++)
                 {
                     var arg = args[i];
                     if (i == 0) sb.Append("Of");

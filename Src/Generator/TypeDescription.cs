@@ -24,26 +24,21 @@ internal class TypeDescription : IEquatable<TypeDescription>
 
     public bool Equals(TypeDescription? other)
     {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return string.Equals(Namespace, other.Namespace, StringComparison.OrdinalIgnoreCase) &&
-               string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
+        return
+            other is not null && (ReferenceEquals(this, other) ||
+            (string.Equals(Namespace, other.Namespace, StringComparison.OrdinalIgnoreCase) &&
+             string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)));
     }
 
     public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-        return Equals((TypeDescription)obj);
-    }
+        => obj is not null && (ReferenceEquals(this, obj) || (obj.GetType() == GetType() && Equals((TypeDescription)obj)));
 
     public override int GetHashCode()
     {
         unchecked
         {
             return (StringComparer.OrdinalIgnoreCase.GetHashCode(Namespace) * 397) ^
-                   StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
+                    StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
         }
     }
 

@@ -11,13 +11,13 @@ namespace FastEndpoints;
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : notnull, new() where TResponse : notnull, new()
 {
-    internal async override Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken cancellation)
+    internal async override Task ExecAsync(HttpContext ctx, EndpointDefinition epDef, CancellationToken cancellation)
     {
         _httpContext = ctx;
-        Definition = endpoint;
+        Definition = epDef;
         try
         {
-            var req = await BindToModel(ctx, ValidationFailures, endpoint.SerializerContext, endpoint.DontBindFormData, cancellation);
+            var req = await BindToModel(ctx, ValidationFailures, epDef.SerializerContext, epDef.DontBindFormData, cancellation);
 
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req, cancellation);
@@ -25,15 +25,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             await ValidateRequest(
                 req,
                 ctx,
-                endpoint,
-                endpoint.PreProcessors,
+                epDef,
+                epDef.PreProcessors,
                 ValidationFailures,
                 cancellation);
 
             OnAfterValidate(req);
             await OnAfterValidateAsync(req, cancellation);
 
-            await RunPreprocessors(endpoint.PreProcessors, req, ctx, ValidationFailures, cancellation);
+            await RunPreprocessors(epDef.PreProcessors, req, ctx, ValidationFailures, cancellation);
 
             if (ResponseStarted) //HttpContext.Response.HasStarted doesn't work in AWS lambda!!!
                 return; //response already sent to client (most likely from a preprocessor)
@@ -41,18 +41,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             OnBeforeHandle(req);
             await OnBeforeHandleAsync(req, cancellation);
 
-            if (endpoint.ExecuteAsyncImplemented)
+            if (epDef.ExecuteAsyncImplemented)
                 _response = await ExecuteAsync(req, cancellation);
             else
                 await HandleAsync(req, cancellation);
 
             if (!ResponseStarted)
-                await AutoSendResponse(ctx, _response, endpoint.SerializerContext, cancellation);
+                await AutoSendResponse(ctx, _response, epDef.SerializerContext, cancellation);
 
             OnAfterHandle(req, Response);
             await OnAfterHandleAsync(req, Response, cancellation);
 
-            await RunPostProcessors(endpoint.PostProcessors, req, Response, ctx, ValidationFailures, cancellation);
+            await RunPostProcessors(epDef.PostProcessors, req, Response, ctx, ValidationFailures, cancellation);
         }
         catch (ValidationFailureException)
         {

@@ -31,18 +31,12 @@ internal static class StringExtensions
     /// <returns>lowerCamelCase string.</returns>
     internal static string? ToLowerCamelCase(this string? inputString)
     {
-        switch (inputString)
+        return inputString switch
         {
-            case null:
-                return null;
-            case "":
-                return string.Empty;
-        }
-
-        if (char.IsLower(inputString[0]))
-            return inputString;
-
-        return inputString[..1].ToLower() + inputString[1..];
+            null => null,
+            "" => string.Empty,
+            _ => char.IsLower(inputString[0]) ? inputString : inputString[..1].ToLower() + inputString[1..],
+        };
     }
 
     /// <summary>

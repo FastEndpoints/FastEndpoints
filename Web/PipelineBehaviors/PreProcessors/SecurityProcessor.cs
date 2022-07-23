@@ -14,9 +14,6 @@ public class SecurityProcessor<TRequest> : IPreProcessor<TRequest>
             return ctx.Response.SendErrorsAsync(failures);
         }
 
-        if (tenantID != "qwerty")
-            return ctx.Response.SendForbiddenAsync();
-
-        return Task.CompletedTask;
+        return tenantID != "qwerty" ? ctx.Response.SendForbiddenAsync() : Task.CompletedTask;
     }
 }

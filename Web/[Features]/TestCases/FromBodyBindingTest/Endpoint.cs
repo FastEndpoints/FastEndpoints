@@ -4,14 +4,29 @@ namespace TestCases.FromBodyJsonBinding;
 
 public class Product
 {
+    public Product(int id)
+    {
+        Id = id;
+    }
+
+    /// <summary>
+    /// product id goes here
+    /// </summary>
     public int Id { get; set; }
+
+    /// <summary>
+    /// this is the name of the product
+    /// </summary>
     public string Name { get; set; }
+
+    /// <summary>
+    /// product price goes here
+    /// </summary>
     public decimal Price { get; set; }
 }
 
 public class Request
 {
-    [JsonIgnore]
     public int Id { get; set; }
 
     [FromBody]
@@ -26,14 +41,23 @@ public class Response : Request { }
 public class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
-        => Post("test-cases/from-body-binding/{id}");
+    {
+        Post("test-cases/from-body-binding/{id}");
+        AllowAnonymous();
+        Summary(s => s.ExampleRequest = new Product(100)
+        {
+            Id = 201,
+            Name = "test product name",
+            Price = 200.22m
+        });
+    }
 
     public async override Task HandleAsync(Request req, CancellationToken ct)
     {
         await SendAsync(new Response
         {
-            CustomerID = req.CustomerID,
             Id = req.Id,
+            CustomerID = req.CustomerID,
             Product = req.Product,
         });
     }

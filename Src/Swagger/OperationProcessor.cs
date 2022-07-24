@@ -38,15 +38,15 @@ internal class OperationProcessor : IOperationProcessor
     public bool Process(OperationProcessorContext ctx)
     {
         var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
-        var endpoint = metaData.OfType<EndpointDefinition>().SingleOrDefault();
+        var epDef = metaData.OfType<EndpointDefinition>().SingleOrDefault();
         var schemaGeneratorSettings = ctx.SchemaGenerator.Settings;
 
-        if (endpoint is null)
+        if (epDef is null)
             return true; //this is not a fastendpoint
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!)}";//fix missing path parameters
-        var apiVer = endpoint.Version.Current;
+        var apiVer = epDef.Version.Current;
         var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
         var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
         var bareRoute = opPath.Remove(routePrefix).Remove(version);
@@ -58,7 +58,7 @@ internal class OperationProcessor : IOperationProcessor
             op.OperationId = nameMetaData.EndpointName;
 
         //set operation tag
-        if (tagIndex > 0 && !endpoint.DontAutoTag)
+        if (tagIndex > 0 && !epDef.DontAutoTag)
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= tagIndex)
@@ -66,7 +66,7 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
-        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{endpoint.Version.DeprecatedAt}");
+        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epDef.Version.DeprecatedAt}");
 
         //fix request content-types not displaying correctly
         var reqContent = op.RequestBody?.Content;
@@ -103,8 +103,8 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //set endpoint summary & description
-        op.Summary = endpoint.Summary?.Summary;
-        op.Description = endpoint.Summary?.Description;
+        op.Summary = epDef.Summary?.Summary;
+        op.Description = epDef.Summary?.Description;
 
         //set response descriptions (no xml comments support here, yet!)
         op.Responses
@@ -117,8 +117,8 @@ internal class OperationProcessor : IOperationProcessor
 
               var key = Convert.ToInt32(res.Key);
 
-              if (endpoint.Summary?.Responses.ContainsKey(key) is true)
-                  res.Value.Description = endpoint.Summary.Responses[key]; //then take values from summary object
+              if (epDef.Summary?.Responses.ContainsKey(key) is true)
+                  res.Value.Description = epDef.Summary.Responses[key]; //then take values from summary object
           });
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
@@ -139,9 +139,9 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //also add descriptions from user supplied summary request params overriding the above
-        if (endpoint.Summary is not null)
+        if (epDef.Summary is not null)
         {
-            foreach (var param in endpoint.Summary.Params)
+            foreach (var param in epDef.Summary.Params)
                 reqParamDescriptions[param.Key] = param.Value;
         }
 
@@ -281,14 +281,16 @@ internal class OperationProcessor : IOperationProcessor
             op.RequestBody = null;
         }
 
+        var tFromBodyProp = reqDtoProps?.Where(p => p.IsDefined(typeof(FromBodyAttribute), false)).FirstOrDefault()?.PropertyType;
+
         //set request example if provided by user
-        if (endpoint.Summary?.ExampleRequest is not null)
+        if (epDef.Summary?.ExampleRequest is not null)
         {
             foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
             {
                 var jObj = JObject.Parse(
                     Newtonsoft.Json.JsonConvert.SerializeObject(
-                        endpoint.Summary.ExampleRequest,
+                        epDef.Summary.ExampleRequest,
                         ctx.SchemaGenerator.Settings.ActualSerializerSettings));
 
                 foreach (var p in jObj.Properties().ToArray())
@@ -300,6 +302,23 @@ internal class OperationProcessor : IOperationProcessor
                 requestBody.ActualSchema.Example = jObj;
             }
         }
+        else if (tFromBodyProp is not null) //user didn't provide example, but this dto has a prop with [FromBody] attribute
+        {
+            foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
+            {
+                try
+                {
+                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
+                                        Activator.CreateInstance(tFromBodyProp),
+                                        ctx.SchemaGenerator.Settings.ActualSerializerSettings);
+                }
+                catch (Exception)
+                {
+                    requestBody.ActualSchema.Example = "Error: Please provide 'ExampleRequest' to see an example here!";
+                }
+            }
+        }
+
         return true;
     }
 

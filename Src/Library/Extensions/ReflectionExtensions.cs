@@ -93,7 +93,7 @@ internal static class ReflectionExtensions
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
         {
             return tProp.GetInterfaces().Contains(Types.IEnumerable)
-                   ? (input => (TryDeserializeArrayString((StringValues)input!, tProp, out var result), result!))
+                   ? (input => (true, DeserializeArrayString(input, tProp))!)
                    : null;
         }
 
@@ -128,46 +128,46 @@ internal static class ReflectionExtensions
             ).Compile();
     }
 
-    private static bool TryDeserializeArrayString(StringValues? input, Type tProp, out object? result)
+    private static object? DeserializeArrayString(object? input, Type tProp)
     {
-        result = null;
+        if (input is not StringValues vals || vals.Count == 0)
+            return null;
 
-        if (input?.Count is null or 0)
-            return true;
+        if (vals.Count == 1 && vals[0].StartsWith('[') && vals[0].EndsWith(']'))
+        {
+            // querystring: ?ids=[1,2,3]
+            // possible inputs:
+            // - [1,2,3] (as StringValues[0])
+            // - ["one","two","three"] (as StringValues[0])
+            // - [{id="1"},{id="2"}] (as StringValues[0])
 
+            return JsonSerializer.Deserialize(vals[0], tProp, Config.SerializerOpts);
+        }
+
+        // querystring: ?ids=one&ids=two
         // possible inputs:
         // - 1 (as StringValues)
         // - 1,2,3 (as StringValues)
         // - one (as StringValues)
         // - one,two,three (as StringValues)
         // - [1,2], 2, 3 (as StringValues)
-        // - [1,2,3] (as StringValues[0])
-        // - ["one","two","three"] (as StringValues[0])
-        // - [{id="1"},{id="2"}] (as StringValues[0])
-
-        if (input.Value.Count == 1 && input.Value[0].StartsWith('[') && input.Value[0].EndsWith(']'))
-        {
-            result = JsonSerializer.Deserialize(input.Value[0], tProp, Config.SerializerOpts);
-            return true;
-        }
+        // - ["one","two"], three, four (as StringValues)
 
         var sb = new StringBuilder("[");
-        for (var i = 0; i < input.Value.Count; i++)
+        for (var i = 0; i < vals.Count; i++)
         {
             sb.Append('"')
-              .Append(input.Value[i])
+              .Append(
+                vals[i].Contains('"') //json strings with quotations must be escaped
+                ? vals[i].Replace("\"", "\\\"")
+                : vals[i])
               .Append('"');
 
-            if (i < input.Value.Count - 1)
+            if (i < vals.Count - 1)
                 sb.Append(',');
         }
         sb.Append(']');
 
-        result = JsonSerializer.Deserialize(sb.ToString(), tProp, Config.SerializerOpts);
-        return true;
-
-        //we're always returning true in order to allow other binding sources to do the binding
-        //if we return false, it would cause a validation error
-        //user may have a preprocessor doing the binding
+        return JsonSerializer.Deserialize(sb.ToString(), tProp, Config.SerializerOpts);
     }
 }

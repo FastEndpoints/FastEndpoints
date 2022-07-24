@@ -4,11 +4,6 @@ namespace TestCases.FromBodyJsonBinding;
 
 public class Product
 {
-    public Product(int id)
-    {
-        Id = id;
-    }
-
     /// <summary>
     /// product id goes here
     /// </summary>
@@ -44,7 +39,7 @@ public class Endpoint : Endpoint<Request, Response>
     {
         Post("test-cases/from-body-binding/{id}");
         AllowAnonymous();
-        Summary(s => s.ExampleRequest = new Product(100)
+        Summary(s => s.ExampleRequest = new Product()
         {
             Id = 201,
             Name = "test product name",

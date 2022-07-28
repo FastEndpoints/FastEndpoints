@@ -1,4 +1,5 @@
 ### NEW
+- custom request model binder support via `IRequetBinder<TRequest>` interface
 - `[FromBody]` attribute for binding requet json body to the dto sub property
 - swagger integration for `[FromBody]` attribute
 - support for binding duplicate query param values to `IEnumerable` properties #165

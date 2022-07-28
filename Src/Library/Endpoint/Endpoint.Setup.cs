@@ -113,6 +113,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         => Definition.ThrowIfValidationFails = false;
 
     /// <summary>
+    /// configure custom model binding for this endpoint by supplying an IRequestBinder implementation.
+    /// by calling this method, you're completely bypassing the built-in model binding and taking things into your own hands for this endpoint.
+    /// </summary>
+    /// <param name="binder">custom model binder implementation to use for this endpoint</param>
+    protected void RequestBinder(IRequestBinder<TRequest> binder)
+        => Definition.RequestBinder = binder;
+
+    /// <summary>
     /// if swagger auto tagging based on path segment is enabled, calling this method will prevent a tag from being added to this endpoint.
     /// </summary>
     protected void DontAutoTag()

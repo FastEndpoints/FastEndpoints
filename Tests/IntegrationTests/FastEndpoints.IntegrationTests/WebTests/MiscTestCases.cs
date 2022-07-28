@@ -603,4 +603,25 @@ public class MiscTestCases : EndToEndTestBase
         res?.CustomerID.Should().Be(123);
         res?.Id.Should().Be(0);
     }
+
+    [Fact]
+    public async Task CustomRequestBinder()
+    {
+        var (rsp, res) = await CustomerClient.POSTAsync<
+            TestCases.CustomRequestBinder.Endpoint,
+            TestCases.CustomRequestBinder.Product,
+            TestCases.CustomRequestBinder.Response>(new()
+            {
+                Id = 202,
+                Name = "test product",
+                Price = 10.10m
+            });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Product?.Name.Should().Be("test product");
+        res?.Product?.Price.Should().Be(10.10m);
+        res?.Product?.Id.Should().Be(202);
+        res?.CustomerID.Should().Be("123");
+        res?.Id.Should().Be(null);
+    }
 }

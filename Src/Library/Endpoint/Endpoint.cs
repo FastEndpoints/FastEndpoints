@@ -15,9 +15,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     {
         _httpContext = ctx;
         Definition = epDef;
+        TRequest req;
         try
         {
-            var req = await BindToModel(ctx, ValidationFailures, epDef.SerializerContext, epDef.DontBindFormData, cancellation);
+            if (epDef.RequestBinder is null)
+            {
+                req = await BindToModel(ctx, ValidationFailures, epDef.SerializerContext, epDef.DontBindFormData, cancellation);
+            }
+            else
+            {
+                req = await ((IRequestBinder<TRequest>)epDef.RequestBinder).BindAsync(
+                    new(ctx, ValidationFailures, epDef.SerializerContext),
+                    cancellation);
+            }
 
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req, cancellation);

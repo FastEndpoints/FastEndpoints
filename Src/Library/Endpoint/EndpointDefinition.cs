@@ -9,33 +9,34 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class EndpointDefinition
 {
-    public string[]? Routes { get; internal set; }
-    public string[]? Verbs { get; internal set; }
-    public string[]? AnonymousVerbs { get; internal set; }
-    public bool ThrowIfValidationFails { get; internal set; } = true;
     public bool AllowFormData { get; internal set; }
-    public bool DontBindFormData { get; internal set; }
-    public string[]? PreBuiltUserPolicies { get; internal set; }
-    public string[]? AuthSchemes { get; internal set; }
-    public string[]? Roles { get; internal set; }
-    public string[]? Permissions { get; internal set; }
     public bool AllowAnyPermission { get; internal set; }
-    public string[]? ClaimTypes { get; internal set; }
     public bool AllowAnyClaim { get; internal set; }
-    public string[]? Tags { get; internal set; }
-    public EndpointSummary? Summary { get; internal set; }
-    public EpVersion Version { get; internal set; } = new();
-    public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
-    public string? RoutePrefixOverride { get; internal set; }
+    public string[]? AnonymousVerbs { get; internal set; }
+    public string[]? AuthSchemes { get; internal set; }
+    public string[]? ClaimTypes { get; internal set; }
     public bool DontAutoTag { get; internal set; }
-    public Type ReqDtoType { get; internal set; }
+    public bool DontBindFormData { get; internal set; }
     public Type EndpointType { get; internal set; }
-    public Type? ValidatorType { get; internal set; }
+    public string[]? Permissions { get; internal set; }
+    public string[]? PreBuiltUserPolicies { get; internal set; }
+    public string[]? Roles { get; internal set; }
+    public string[]? Routes { get; internal set; }
+    public string? RoutePrefixOverride { get; internal set; }
+    public Type ReqDtoType { get; internal set; }
+    public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public bool ScopedValidator { get; internal set; }
+    public EndpointSummary? Summary { get; internal set; }
+    public string[]? Tags { get; internal set; }
+    public bool ThrowIfValidationFails { get; internal set; } = true;
+    public Type? ValidatorType { get; internal set; }
+    public string[]? Verbs { get; internal set; }
+    public EpVersion Version { get; internal set; } = new();
 
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal Action<RouteHandlerBuilder>? UserConfigAction;
+    internal object? RequestBinder;
     internal object? PreProcessors;
     internal object? PostProcessors;
     internal ResponseCacheAttribute? ResponseCacheSettings;

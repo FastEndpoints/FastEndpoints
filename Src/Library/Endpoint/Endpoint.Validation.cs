@@ -45,7 +45,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// interrupt the flow of handler execution and send a 400 bad request with error details if there are any validation failures in the current request. if there are no validation failures, execution will continue past this call.
     /// </summary>
-    [DoesNotReturn]
     protected void ThrowIfAnyErrors()
     {
         if (ValidationFailed) throw new ValidationFailureException();

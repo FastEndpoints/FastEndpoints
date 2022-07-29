@@ -58,7 +58,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void ThrowError(string message)
     {
         AddError(message);
-        ThrowIfAnyErrors();
+        throw new ValidationFailureException();
     }
 
     /// <summary>
@@ -70,6 +70,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
     {
         AddError(property, errorMessage);
-        ThrowIfAnyErrors();
+        throw new ValidationFailureException();
     }
 }

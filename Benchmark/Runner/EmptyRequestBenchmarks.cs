@@ -7,8 +7,8 @@ namespace Runner;
 [MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 10, invocationCount: 10000)]
 public class EmptyRequestBenchmarks
 {
-    private static HttpClient emptyClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
-    private static HttpClient objectClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
+    private static HttpClient emptyClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    private static HttpClient objectClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
 
     [Benchmark(Baseline = true)]
     public Task EmptyRequest()

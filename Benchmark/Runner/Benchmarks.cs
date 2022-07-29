@@ -9,10 +9,10 @@ namespace Runner;
 [MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 10, invocationCount: 10000)]
 public class Benchmarks
 {
-    private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
-    private static HttpClient FECodeGenClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
-    private static HttpClient FEThrottleClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
-    private static HttpClient FEScopedValidatorClient { get; } = new WebApplicationFactory<FastEndpointsBench.Program>().CreateClient();
+    private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    private static HttpClient FECodeGenClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    private static HttpClient FEThrottleClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    private static HttpClient FEScopedValidatorClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
     private static readonly StringContent Payload = new(

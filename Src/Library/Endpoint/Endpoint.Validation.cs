@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace FastEndpoints;
@@ -53,6 +54,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// add a "GeneralError" to the validation failure list and send back a 400 bad request with error details immediately interrupting handler execution flow. if there are any vallidation failures, no execution will continue past this call.
     /// </summary>
     /// <param name="message">the error message</param>
+    [DoesNotReturn]
     protected void ThrowError(string message)
     {
         AddError(message);
@@ -64,6 +66,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="property">the property to add the error message for</param>
     /// <param name="errorMessage">the error message</param>
+    [DoesNotReturn]
     protected void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
     {
         AddError(property, errorMessage);

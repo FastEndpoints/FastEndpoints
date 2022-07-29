@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 
-namespace FastEndpointsBench;
+namespace FEBench;
 
 public class ObjectRequestEndpoint : Endpoint<object, object>
 {

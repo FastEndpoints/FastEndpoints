@@ -9,7 +9,7 @@ app.UseAuthorization();
 app.UseFastEndpoints();
 app.Run();
 
-namespace FastEndpointsBench
+namespace FEBench
 {
     public partial class Program { }
 }

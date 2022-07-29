@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using FluentValidation;
 
-namespace FastEndpointsBench;
+namespace FEBench;
 
 public class Request
 {

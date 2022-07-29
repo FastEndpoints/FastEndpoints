@@ -2,7 +2,7 @@
 using FluentValidation;
 using System.Text.Json.Serialization;
 
-namespace FastEndpointsBench;
+namespace FEBench;
 
 [JsonSerializable(typeof(CodeGenRequest))]
 [JsonSerializable(typeof(CodeGenResponse))]

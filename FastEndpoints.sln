@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmark", "Benchmark", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Runner", "Benchmark\Runner\Runner.csproj", "{3014AF58-165B-4CD7-BB4C-BC54B0872BD2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpointsBench", "Benchmark\FastEndpointsBench\FastEndpointsBench.csproj", "{87F3C4B5-FA58-4143-9C09-4328F172B158}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FEBench", "Benchmark\FastEndpointsBench\FEBench.csproj", "{87F3C4B5-FA58-4143-9C09-4328F172B158}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcControllers", "Benchmark\MvcControllers\MvcControllers.csproj", "{7E007C8A-1518-4A6A-A47D-857CD6C0A150}"
 EndProject

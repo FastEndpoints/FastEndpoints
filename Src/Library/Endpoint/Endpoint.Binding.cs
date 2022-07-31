@@ -105,14 +105,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         for (var i = 0; i < cachedProps.Count; i++)
         {
             var prop = cachedProps[i];
-            string? claimVal = null;
+            StringValues? claimVal = null;
 
             foreach (var g in claims.GroupBy(c => c.Type, c => c.Value))
             {
                 if (g.Key.Equals(prop.Identifier, StringComparison.OrdinalIgnoreCase))
                 {
                     if (prop.IsCollection || g.Count() > 1)
-                        claimVal = $"[{string.Join(',', g.Select(v => $"\"{v}\""))}]"; //turn the group values into a json array so the value parser can deserialize it using STJ
+                        claimVal = g.Select(v => v).ToArray();
                     else
                         claimVal = g.FirstOrDefault();
                 }
@@ -139,12 +139,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         for (var i = 0; i < cachedProps.Count; i++)
         {
             var prop = cachedProps[i];
-            var hdrVal = headers[prop.Identifier].FirstOrDefault();
+            var hdrVal = headers[prop.Identifier];
 
-            if (hdrVal is null && prop.ForbidIfMissing)
+            if (hdrVal.Count == 0 && prop.ForbidIfMissing)
                 failures.Add(new(prop.Identifier, "This header is missing from the request!"));
 
-            if (hdrVal is not null && prop.ValueParser is not null)
+            if (hdrVal.Count > 0 && prop.ValueParser is not null)
             {
                 var (success, value) = prop.ValueParser(hdrVal);
                 prop.PropSetter(req, value);

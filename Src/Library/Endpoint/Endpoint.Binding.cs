@@ -186,9 +186,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (ReqTypeCache<TRequest>.CachedProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
         {
             var (success, value) = prop.ValueParser(kvp.Value);
-            prop.PropSetter(req, value);
 
-            if (!success)
+            if (success)
+                prop.PropSetter(req, value);
+            else
                 failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.ActualName()}] property!"));
         }
     }

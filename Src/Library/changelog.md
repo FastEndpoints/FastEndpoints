@@ -8,3 +8,4 @@
 
 ### FIXES
 - swagger issue when `ApiController` exists in same project #163
+- enum binding from route cause NRE when value is invalid or case not matched

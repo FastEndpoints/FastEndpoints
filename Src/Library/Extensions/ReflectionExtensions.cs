@@ -84,10 +84,10 @@ internal static class ReflectionExtensions
             return input => (true, input?.ToString()!);
 
         if (tProp.IsEnum)
-            return input => (Enum.TryParse(tProp, input?.ToString(), out var res), res!);
+            return input => (Enum.TryParse(tProp, input?.ToString(), true, out var res), res!);
 
         if (tProp == Types.Uri)
-            return input => (true, new Uri(input?.ToString()!));
+            return input => (Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res!);
 
         var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)

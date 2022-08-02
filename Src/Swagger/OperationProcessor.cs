@@ -6,6 +6,7 @@ using NSwag;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -175,12 +176,15 @@ internal class OperationProcessor : IOperationProcessor
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
+                object? defaultVal = null;
+
                 var pType = reqDtoProps?.SingleOrDefault(p =>
                 {
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
                     if (string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                     {
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                        defaultVal = p.GetCustomAttribute<DefaultValueAttribute>()?.Value;
                         return true;
                     }
                     return false;
@@ -192,7 +196,8 @@ internal class OperationProcessor : IOperationProcessor
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
                     Schema = JsonSchema.FromType(pType, schemaGeneratorSettings),
-                    Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value))
+                    Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value)),
+                    Default = defaultVal
                 };
             })
             .ToList();
@@ -212,7 +217,8 @@ internal class OperationProcessor : IOperationProcessor
                         IsRequired = !p.IsNullable(),
                         Schema = JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
                         Kind = OpenApiParameterKind.Query,
-                        Description = reqParamDescriptions.GetValueOrDefault(p.Name)
+                        Description = reqParamDescriptions.GetValueOrDefault(p.Name),
+                        Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
                     };
                 })
                 .ToList();
@@ -237,7 +243,8 @@ internal class OperationProcessor : IOperationProcessor
                             IsRequired = hAttrib.IsRequired,
                             Schema = JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
                             Kind = OpenApiParameterKind.Header,
-                            Description = reqParamDescriptions.GetValueOrDefault(pName)
+                            Description = reqParamDescriptions.GetValueOrDefault(pName),
+                            Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
                         });
 
                         //remove corresponding json body field if it's required. allow binding only from header.

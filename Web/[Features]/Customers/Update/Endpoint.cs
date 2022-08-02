@@ -1,10 +1,14 @@
-﻿namespace Customers.Update;
+﻿using System.ComponentModel;
+
+namespace Customers.Update;
 
 public class Request
 {
     [FromClaim(Claim.CustomerID, IsRequired = false)] //allow non customers to set the customer id for updates
+    [DefaultValue("test default val")]
     public string CustomerID { get; set; }
 
+    [QueryParam, DefaultValue("query test default val")]
     public string Name { get; set; }
     public int Age { get; set; }
     public string Address { get; set; }

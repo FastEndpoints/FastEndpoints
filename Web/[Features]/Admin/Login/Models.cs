@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 
 namespace Admin.Login;
@@ -17,6 +18,7 @@ public class Request
     /// the admin username
     /// </summary>
     /// <example>example username</example>
+    [DefaultValue("admin")]
     public string UserName { get; set; }
 
     /// <summary>

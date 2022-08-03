@@ -140,4 +140,4 @@ at least one of the following settings should be set in order to enable versioni
 
 - **DefaultVersion :** this value will be used for endpoints that do not specify a version in it's configuration. the default value is `0`. when the version of an endpoint is `0` it does not get added to the route making that version the initial version of that endpoint.
 
-- **SuffixedVersion :** by default the version string is <b>*appended*</b> to the endpoint route. by setting this to `false`, you can have it <b>*prepended*</b> to the route.
+- **SuffixedVersion :** by default the version string is <b>*appended*</b> to the endpoint route. by setting this to `false`, you can have it <b>*prepended*</b> to the route, for instance `v1/user/delete`.

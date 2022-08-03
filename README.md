@@ -13,5 +13,5 @@ Performance is on par with Minimal APIs. It's faster, uses less memory and does 
 
 ---
 
-## Documentation: [https://fast-endpoints.com](https://fast-endpoints.com)
+**Documentation:** [https://fast-endpoints.com](https://fast-endpoints.com)
 Please visit the official website for detailed documentation...

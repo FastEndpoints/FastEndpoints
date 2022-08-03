@@ -1,15 +1,6 @@
 {{!Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See LICENSE file in the project root for full license information.}}
 
 <head>
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBQ9J9F5M0"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-VBQ9J9F5M0');
-  </script>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}</title>
@@ -26,12 +17,4 @@
   {{#_noindex}}<meta name="searchOption" content="noindex">{{/_noindex}}
   {{#_enableSearch}}<meta property="docfx:rel" content="{{_rel}}">{{/_enableSearch}}
   {{#_enableNewTab}}<meta property="docfx:newtab" content="true">{{/_enableNewTab}}
-  <meta property="og:title" content="FastEndpoints">
-  <meta property="og:site_name" content="FastEndpoints">
-  <meta property="og:url" content="https://fast-endpoints.com">
-  {{#_description}}
-  <meta property="og:description" content="{{_description}}">
-  {{/_description}}
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://fast-endpoints.com/images/og-image.png">  
 </head>

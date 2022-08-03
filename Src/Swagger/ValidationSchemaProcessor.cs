@@ -26,6 +26,7 @@ using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NJsonSchema;
 using NJsonSchema.Generation;
 using System.Collections.ObjectModel;
@@ -37,26 +38,57 @@ public class ValidationSchemaProcessor : ISchemaProcessor
     private readonly FluentValidationRule[] _rules;
     private readonly IServiceProvider? _serviceProvider = IServiceResolver.ServiceProvider?.CreateScope().ServiceProvider;
     private readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
+    private readonly ILogger<ValidationSchemaProcessor>? _logger;
 
     public ValidationSchemaProcessor()
     {
         _rules = CreateDefaultRules();
+        _logger = _serviceProvider?.GetRequiredService<ILogger<ValidationSchemaProcessor>>();
     }
 
     public void Process(SchemaProcessorContext context)
     {
+        if (context is null)
+        {
+            _logger?.LogError("SchemaProcessorContext is null");
+            return;
+        }
+        
+        if (MainExtensions.Endpoints is null)
+        {
+            _logger?.LogError("MainExtensions.Endpoints is null");
+            return;
+        }
+        
+        if (MainExtensions.Endpoints.Found is null)
+        {
+            _logger?.LogError("MainExtensions.Endpoints.Found is null");
+            return;
+        }
+        
         var tRequest = context.ContextualType;
 
         foreach (var e in MainExtensions.Endpoints.Found)
         {
-            if (e.ValidatorType?.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
+            try
             {
-                var validator = _serviceProvider?.GetRequiredService(e.ValidatorType);
-                if (validator is null)
-                    throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
+                if (e.ValidatorType?.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
+                {
+                    var validator = _serviceProvider?.GetRequiredService(e.ValidatorType);
+                    if (validator is null)
+                        throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
 
-                ApplyValidator(context.Schema, (IValidator)validator, "");
-                break;
+                    ApplyValidator(context.Schema, (IValidator)validator, "");
+                    break;
+                }
+            }
+            catch (NullReferenceException nullEx)
+            {
+                _logger?.LogError(nullEx, "NullReferenceException while processing {@endpointDefinition}", e);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Exception while processing {@endpointDefinition}", e);
             }
         }
     }

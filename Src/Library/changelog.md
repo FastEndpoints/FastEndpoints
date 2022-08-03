@@ -1,4 +1,5 @@
 ### NEW
+- doc site refresh: http://fast-endpoints.com
 - custom request model binder support via `IRequetBinder<TRequest>` interface #172
 - `[FromBody]` attribute for binding request json body to a dto sub property [#info](https://discord.com/channels/933662816458645504/998996342187753543/998996347925561505)
 - swagger integration for `[FromBody]` attribute

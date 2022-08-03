@@ -4,9 +4,9 @@
 
 ## **FastEndpoints** is a developer friendly alternative to Minimal APIs & MVC
 
-It nudges you towards the [REPR Design Pattern (Request-Endpoint-Response)](https://deviq.com/design-patterns/repr-design-pattern) for convenient & maintainable endpoint creation with virtually no boilerplate.
+It nudges you towards the **[REPR Design Pattern (Request-Endpoint-Response)](https://deviq.com/design-patterns/repr-design-pattern)** for convenient & maintainable endpoint creation with virtually no boilerplate.
 
-Performance is on par with Minimal APIs. It's faster, uses less memory and does around [45k more requests per second](https://fast-endpoints.com/benchmarks) than a MVC Controller in our benchmarks.
+Performance is on par with Minimal APIs. It's faster, uses less memory and does around **[45k more requests per second](https://fast-endpoints.com/benchmarks)** than a MVC Controller in our benchmarks.
 
 ## Documentation: [https://fast-endpoints.com](https://fast-endpoints.com)
 

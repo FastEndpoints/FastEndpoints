@@ -14,12 +14,14 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>visual studio new item template | FastEndpoints </title>
+    <title>Class FromBodyAttribute
+   | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="visual studio new item template | FastEndpoints ">
+    <meta name="title" content="Class FromBodyAttribute
+   | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern">
-    <link rel="shortcut icon" href="../images/favicon.ico">
+    <link rel="shortcut icon" href="../images/favicon-32x32.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
     <link rel="stylesheet" href="../styles/docfx.css">
     <link rel="stylesheet" href="../styles/main.css">
@@ -50,7 +52,7 @@
               </button>
               
               <a class="navbar-brand" href="../index.html">
-                <img id="logo" class="svg" src="../images/icon.png" alt="">
+                <img id="logo" class="svg" src="../images/logo.png" alt="">
               </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar">
@@ -91,67 +93,26 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="">
-<h1 id="visual-studio-new-item-template">visual studio new item template</h1>
-
-<p>if you're doing vertical slice architecture and placing each individual feature in their own namespace, you can take advantage of <a href="https://marketplace.visualstudio.com/items?itemName=dj-nitehawk.FastEndpointsVSExtension">this vs extension</a> that will add a new item to the &quot;add new file&quot; dialog of visual studio to make it convenient for you to add feature file sets to your project.</p>
-<p>once installed, your visual studio add new item dialog will have <code>FastEndpoints Feature File Set</code> listed under <code>Installed &gt; Visual C#</code> node. then, instead of entering a file name, simply enter the namespace you want your new feature to be added to followed by <code>.cs</code></p>
-<p>a new feature file set will then be created in the folder you selected.</p>
-<p>there will be 4 new files created under the namespace you chose.</p>
-<p><strong>Data.cs</strong> - use this class to place all of your data access logic.</p>
-<p><strong>Models.cs</strong> - place your request, response dtos and the validator in this file.</p>
-<p><strong>Mapper.cs</strong> - domain entity mapping logic will live here.</p>
-<p><strong>Endpoint.cs</strong> - this will be your new endpoint definition.</p>
-<p><a href="https://github.com/dj-nitehawk/MiniDevTo/tree/main/Features/Author/Articles/SaveArticle">click here</a> for an example feature file set.</p>
-<hr>
-<a target="_blank" href="../images/vslice.gif">
-  <img src="../images/vslice.gif">
-</a>
-<h1 id="dotnet-new-template">dotnet new template</h1>
-<p>if you prefer working with the cli, you can use our <code>dotnet new</code> template to create a new feature file set.</p>
-<h2 id="installation">installation</h2>
-<pre><code class="lang-shell">dotnet new -i FastEndpoints.TemplatePack
-</code></pre>
-<h2 id="basic-usage">basic usage</h2>
-<p>the following command will use the namepsace <code>MyProject.Comments.Create</code></p>
-<p>method <code>POST</code></p>
-<p>route <code>api/comments</code></p>
-<p>files will be created in folder <code>Features/Comments/Create</code>:</p>
-<pre><code class="lang-shell">dotnet new feat --name MyProject.Comments.Create \
--m post \
--r api/comments \
--o Features/Comments/Create
-</code></pre>
-<h2 id="all-options">all options</h2>
-<pre><code class="lang-shell">&gt; dotnet new feat --help
-
-FastEndpoints Feature Fileset (C#)
-Author: @lazyboy1
-Options:
-  -t|--attributes  Whether to use attributes for endpoint configuration
-                   bool - Optional
-                   Default: false
-
-  -p|--mapper      Whether to use a mapper
-                   bool - Optional
-                   Default: true
-
-  -v|--validator   Whether to use a validator
-                   bool - Optional
-                   Default: true
-
-  -m|--method      Endpoint HTTP method
-                       GET
-                       POST
-                       PUT
-                       DELETE
-                       PATCH
-                   Default: GET
-
-  -r|--route       Endpoint path
-                   string - Optional
-                   Default: api/route/here
-</code></pre>
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.FromBodyAttribute">
+  
+  
+  <h1 id="FastEndpoints_FromBodyAttribute" data-uid="FastEndpoints.FromBodyAttribute" class="text-break">Class FromBodyAttribute
+  </h1>
+  <div class="markdown level0 summary"><p>properties decorated with this attribute will have their values auto bound from the incoming request's json body.</p>
+<p>HINT: no other binding sources will be used for binding that property.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">FromBodyAttribute</span></div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
+  <h5 id="FastEndpoints_FromBodyAttribute_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class FromBodyAttribute : Attribute</code></pre>
+  </div>
 </article>
           </div>
           

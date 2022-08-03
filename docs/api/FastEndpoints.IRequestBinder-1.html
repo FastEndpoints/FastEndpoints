@@ -14,12 +14,14 @@
     </script>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>endpoint rate limiting | FastEndpoints </title>
+    <title>Interface IRequestBinder&lt;TRequest&gt;
+   | FastEndpoints </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="endpoint rate limiting | FastEndpoints ">
+    <meta name="title" content="Interface IRequestBinder&lt;TRequest&gt;
+   | FastEndpoints ">
     <meta name="generator" content="docfx 2.58.4.0">
     <meta name="description" content="A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern">
-    <link rel="shortcut icon" href="../images/favicon.ico">
+    <link rel="shortcut icon" href="../images/favicon-32x32.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
     <link rel="stylesheet" href="../styles/docfx.css">
     <link rel="stylesheet" href="../styles/main.css">
@@ -50,7 +52,7 @@
               </button>
               
               <a class="navbar-brand" href="../index.html">
-                <img id="logo" class="svg" src="../images/icon.png" alt="">
+                <img id="logo" class="svg" src="../images/logo.png" alt="">
               </a>
             </div>
             <div class="collapse navbar-collapse" id="navbar">
@@ -91,32 +93,89 @@
         </div>
         <div class="article row grid-right">
           <div class="col-md-10">
-            <article class="content wrap" id="_content" data-uid="">
-<h1 id="endpoint-rate-limiting">endpoint rate limiting</h1>
-
-<p>it is possible to rate limit individual endpoints based on the presence of an http header in the incoming request like below:</p>
-<pre><code class="lang-csharp">public override void Configure()
-{
-    Post(&quot;/order/create&quot;);
-    Throttle(
-        hitLimit: 120,
-        durationSeconds: 60,
-        headerName: &quot;X-Client-Id&quot;); //this is optional
-}
-</code></pre>
-<h3 id="hit-limit--window-duration">hit limit &amp; window duration</h3>
-<p>the above for example will only allow 120 requests from each unique client (identified by the header value) within a 60 second window. if 121 requests are made by a client within 60 seconds, a <code>429 too many requests</code> response will be automatically sent for the 121st request. the counter is reset every 60 seconds and the client is able to make another 120 requests in the next 60 seconds, and so on.</p>
-<h3 id="header-name">header name</h3>
-<p>the header name can be set to anything you prefer. if it's not specified, the library will try to read the value of <code>X-Forwarded-For</code> header from the incoming request. if that's unsuccessful, it will try to read the <code>HttpContext.Connection.RemoteIpAddress</code> in order to uniquely identify the client making the request. if all attempts are unsuccessful, a <code>403 forbidden</code> response will be sent.</p>
-<h3 id="header-reliability">header reliability</h3>
-<p>both <code>X-Forwarded-For</code> and <code>HttpContext.Connection.RemoteIpAddress</code> could be unreliable for uniquely identifying clients if they are behind a NAT, reverse proxy, or anonymizing vpn/proxy etc. therefore, the recommended strategy is to generate a unique identifier such as a GUID in your client application and use that as the header value in each request for the entirety of the session/app cycle.</p>
-<h3 id="limitations--warnings">limitations &amp; warnings</h3>
-<ul>
-<li>should not be used for security or ddos protection. a malicious client can easily set a unique header value per request in order to circumvent the throttling.</li>
-<li>should be aware of the slight performance degradation due to resource allocation and amount of work being done.</li>
-<li>only per endpoint limits can be set. no global limits can be enforced. this won't ever be added due to performance reasons.</li>
-<li>consider a rate limiting solution that is out of process/ at the gateway level for better performance/security.</li>
-</ul>
+            <article class="content wrap" id="_content" data-uid="FastEndpoints.IRequestBinder`1">
+  
+  
+  <h1 id="FastEndpoints_IRequestBinder_1" data-uid="FastEndpoints.IRequestBinder`1" class="text-break">Interface IRequestBinder&lt;TRequest&gt;
+  </h1>
+  <div class="markdown level0 summary"><p>create custom request binders by implementing this interface. by registering a custom modelbinder for an endpoint will completely disable the built-in model binding and completely depend on your implementation of the custom binder to return a correctly populated request dto for the endpoint.</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="FastEndpoints.html">FastEndpoints</a></h6>
+  <h6><strong>Assembly</strong>: FastEndpoints.dll</h6>
+  <h5 id="FastEndpoints_IRequestBinder_1_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public interface IRequestBinder&lt;TRequest&gt;</code></pre>
+  </div>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TRequest</span></td>
+        <td><p>the type of the request dto</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  
+  
+  <a id="FastEndpoints_IRequestBinder_1_BindAsync_" data-uid="FastEndpoints.IRequestBinder`1.BindAsync*"></a>
+  <h4 id="FastEndpoints_IRequestBinder_1_BindAsync_FastEndpoints_BinderContext_CancellationToken_" data-uid="FastEndpoints.IRequestBinder`1.BindAsync(FastEndpoints.BinderContext,CancellationToken)">BindAsync(BinderContext, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>this method will be called by the library for binding the incoming request data and return a populated request dto object.
+access the incoming request data via the <code>RequestBinderContext</code> and populate a new request dto instance and return it from this method.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">ValueTask&lt;TRequest&gt; BindAsync(BinderContext ctx, CancellationToken ct)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="FastEndpoints.BinderContext.html">BinderContext</a></td>
+        <td><span class="parametername">ctx</span></td>
+        <td><p>request binder context encapsulating the incoming http request context, a list of validation failures for the endpoint, and an optional json serializer context.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">CancellationToken</span></td>
+        <td><span class="parametername">ct</span></td>
+        <td><p>cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">ValueTask</span>&lt;TRequest&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
 </article>
           </div>
           

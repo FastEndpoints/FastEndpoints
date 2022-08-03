@@ -1,5 +1,5 @@
-# [Documentation](wiki/)
-# [Benchmarks](wiki/Benchmarks.md)
+# [Documentation](https://fast-endpoints.com/docs/get-started)
+# [Benchmarks](https://fast-endpoints.com/benchmarks)
 # [Tutorial](https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d)
 # [Api Reference](api/)
 # [GitHub](https://github.com/dj-nitehawk/FastEndpoints)

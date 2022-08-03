@@ -107,6 +107,124 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.BaseEndpoint.Verbs
   nameWithType: BaseEndpoint.Verbs
+- uid: FastEndpoints.BinderContext
+  name: BinderContext
+  href: api/FastEndpoints.BinderContext.html
+  commentId: T:FastEndpoints.BinderContext
+  fullName: FastEndpoints.BinderContext
+  nameWithType: BinderContext
+- uid: FastEndpoints.BinderContext.#ctor(Microsoft.AspNetCore.Http.HttpContext,List{FluentValidation.Results.ValidationFailure},System.Text.Json.Serialization.JsonSerializerContext)
+  name: BinderContext(HttpContext, List<ValidationFailure>, JsonSerializerContext)
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext__ctor_Microsoft_AspNetCore_Http_HttpContext_List_FluentValidation_Results_ValidationFailure__System_Text_Json_Serialization_JsonSerializerContext_
+  commentId: M:FastEndpoints.BinderContext.#ctor(Microsoft.AspNetCore.Http.HttpContext,List{FluentValidation.Results.ValidationFailure},System.Text.Json.Serialization.JsonSerializerContext)
+  name.vb: BinderContext(HttpContext, List(Of ValidationFailure), JsonSerializerContext)
+  fullName: FastEndpoints.BinderContext.BinderContext(Microsoft.AspNetCore.Http.HttpContext, List<FluentValidation.Results.ValidationFailure>, System.Text.Json.Serialization.JsonSerializerContext)
+  fullName.vb: FastEndpoints.BinderContext.BinderContext(Microsoft.AspNetCore.Http.HttpContext, List(Of FluentValidation.Results.ValidationFailure), System.Text.Json.Serialization.JsonSerializerContext)
+  nameWithType: BinderContext.BinderContext(HttpContext, List<ValidationFailure>, JsonSerializerContext)
+  nameWithType.vb: BinderContext.BinderContext(HttpContext, List(Of ValidationFailure), JsonSerializerContext)
+- uid: FastEndpoints.BinderContext.#ctor*
+  name: BinderContext
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext__ctor_
+  commentId: Overload:FastEndpoints.BinderContext.#ctor
+  isSpec: "True"
+  fullName: FastEndpoints.BinderContext.BinderContext
+  nameWithType: BinderContext.BinderContext
+- uid: FastEndpoints.BinderContext.HttpContext
+  name: HttpContext
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_HttpContext
+  commentId: P:FastEndpoints.BinderContext.HttpContext
+  fullName: FastEndpoints.BinderContext.HttpContext
+  nameWithType: BinderContext.HttpContext
+- uid: FastEndpoints.BinderContext.HttpContext*
+  name: HttpContext
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_HttpContext_
+  commentId: Overload:FastEndpoints.BinderContext.HttpContext
+  isSpec: "True"
+  fullName: FastEndpoints.BinderContext.HttpContext
+  nameWithType: BinderContext.HttpContext
+- uid: FastEndpoints.BinderContext.JsonSerializerContext
+  name: JsonSerializerContext
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_JsonSerializerContext
+  commentId: P:FastEndpoints.BinderContext.JsonSerializerContext
+  fullName: FastEndpoints.BinderContext.JsonSerializerContext
+  nameWithType: BinderContext.JsonSerializerContext
+- uid: FastEndpoints.BinderContext.JsonSerializerContext*
+  name: JsonSerializerContext
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_JsonSerializerContext_
+  commentId: Overload:FastEndpoints.BinderContext.JsonSerializerContext
+  isSpec: "True"
+  fullName: FastEndpoints.BinderContext.JsonSerializerContext
+  nameWithType: BinderContext.JsonSerializerContext
+- uid: FastEndpoints.BinderContext.Resolve(Type)
+  name: Resolve(Type)
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_Resolve_Type_
+  commentId: M:FastEndpoints.BinderContext.Resolve(Type)
+  fullName: FastEndpoints.BinderContext.Resolve(Type)
+  nameWithType: BinderContext.Resolve(Type)
+- uid: FastEndpoints.BinderContext.Resolve*
+  name: Resolve
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_Resolve_
+  commentId: Overload:FastEndpoints.BinderContext.Resolve
+  isSpec: "True"
+  fullName: FastEndpoints.BinderContext.Resolve
+  nameWithType: BinderContext.Resolve
+- uid: FastEndpoints.BinderContext.Resolve``1
+  name: Resolve<TService>()
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_Resolve__1
+  commentId: M:FastEndpoints.BinderContext.Resolve``1
+  name.vb: Resolve(Of TService)()
+  fullName: FastEndpoints.BinderContext.Resolve<TService>()
+  fullName.vb: FastEndpoints.BinderContext.Resolve(Of TService)()
+  nameWithType: BinderContext.Resolve<TService>()
+  nameWithType.vb: BinderContext.Resolve(Of TService)()
+- uid: FastEndpoints.BinderContext.SerializerOptions
+  name: SerializerOptions
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_SerializerOptions
+  commentId: P:FastEndpoints.BinderContext.SerializerOptions
+  fullName: FastEndpoints.BinderContext.SerializerOptions
+  nameWithType: BinderContext.SerializerOptions
+- uid: FastEndpoints.BinderContext.SerializerOptions*
+  name: SerializerOptions
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_SerializerOptions_
+  commentId: Overload:FastEndpoints.BinderContext.SerializerOptions
+  isSpec: "True"
+  fullName: FastEndpoints.BinderContext.SerializerOptions
+  nameWithType: BinderContext.SerializerOptions
+- uid: FastEndpoints.BinderContext.TryResolve(Type)
+  name: TryResolve(Type)
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_TryResolve_Type_
+  commentId: M:FastEndpoints.BinderContext.TryResolve(Type)
+  fullName: FastEndpoints.BinderContext.TryResolve(Type)
+  nameWithType: BinderContext.TryResolve(Type)
+- uid: FastEndpoints.BinderContext.TryResolve*
+  name: TryResolve
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_TryResolve_
+  commentId: Overload:FastEndpoints.BinderContext.TryResolve
+  isSpec: "True"
+  fullName: FastEndpoints.BinderContext.TryResolve
+  nameWithType: BinderContext.TryResolve
+- uid: FastEndpoints.BinderContext.TryResolve``1
+  name: TryResolve<TService>()
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_TryResolve__1
+  commentId: M:FastEndpoints.BinderContext.TryResolve``1
+  name.vb: TryResolve(Of TService)()
+  fullName: FastEndpoints.BinderContext.TryResolve<TService>()
+  fullName.vb: FastEndpoints.BinderContext.TryResolve(Of TService)()
+  nameWithType: BinderContext.TryResolve<TService>()
+  nameWithType.vb: BinderContext.TryResolve(Of TService)()
+- uid: FastEndpoints.BinderContext.ValidationFailures
+  name: ValidationFailures
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_ValidationFailures
+  commentId: P:FastEndpoints.BinderContext.ValidationFailures
+  fullName: FastEndpoints.BinderContext.ValidationFailures
+  nameWithType: BinderContext.ValidationFailures
+- uid: FastEndpoints.BinderContext.ValidationFailures*
+  name: ValidationFailures
+  href: api/FastEndpoints.BinderContext.html#FastEndpoints_BinderContext_ValidationFailures_
+  commentId: Overload:FastEndpoints.BinderContext.ValidationFailures
+  isSpec: "True"
+  fullName: FastEndpoints.BinderContext.ValidationFailures
+  nameWithType: BinderContext.ValidationFailures
 - uid: FastEndpoints.BindFromAttribute
   name: BindFromAttribute
   href: api/FastEndpoints.BindFromAttribute.html
@@ -1060,6 +1178,24 @@ references:
   fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).Query(Of T)(System.String, System.Boolean)
   nameWithType: Endpoint<TRequest, TResponse>.Query<T>(String, Boolean)
   nameWithType.vb: Endpoint(Of TRequest, TResponse).Query(Of T)(String, Boolean)
+- uid: FastEndpoints.Endpoint`2.RequestBinder(FastEndpoints.IRequestBinder{`0})
+  name: RequestBinder(IRequestBinder<TRequest>)
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_RequestBinder_FastEndpoints_IRequestBinder__0__
+  commentId: M:FastEndpoints.Endpoint`2.RequestBinder(FastEndpoints.IRequestBinder{`0})
+  name.vb: RequestBinder(IRequestBinder(Of TRequest))
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.RequestBinder(FastEndpoints.IRequestBinder<TRequest>)
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).RequestBinder(FastEndpoints.IRequestBinder(Of TRequest))
+  nameWithType: Endpoint<TRequest, TResponse>.RequestBinder(IRequestBinder<TRequest>)
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).RequestBinder(IRequestBinder(Of TRequest))
+- uid: FastEndpoints.Endpoint`2.RequestBinder*
+  name: RequestBinder
+  href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_RequestBinder_
+  commentId: Overload:FastEndpoints.Endpoint`2.RequestBinder
+  isSpec: "True"
+  fullName: FastEndpoints.Endpoint<TRequest, TResponse>.RequestBinder
+  fullName.vb: FastEndpoints.Endpoint(Of TRequest, TResponse).RequestBinder
+  nameWithType: Endpoint<TRequest, TResponse>.RequestBinder
+  nameWithType.vb: Endpoint(Of TRequest, TResponse).RequestBinder
 - uid: FastEndpoints.Endpoint`2.Resolve(Type)
   name: Resolve(Type)
   href: api/FastEndpoints.Endpoint-2.html#FastEndpoints_Endpoint_2_Resolve_Type_
@@ -2751,6 +2887,12 @@ references:
   isSpec: "True"
   fullName: FastEndpoints.FromAttribute.FromAttribute
   nameWithType: FromAttribute.FromAttribute
+- uid: FastEndpoints.FromBodyAttribute
+  name: FromBodyAttribute
+  href: api/FastEndpoints.FromBodyAttribute.html
+  commentId: T:FastEndpoints.FromBodyAttribute
+  fullName: FastEndpoints.FromBodyAttribute
+  nameWithType: FromBodyAttribute
 - uid: FastEndpoints.FromClaimAttribute
   name: FromClaimAttribute
   href: api/FastEndpoints.FromClaimAttribute.html
@@ -3521,6 +3663,32 @@ references:
   fullName.vb: FastEndpoints.IPreProcessor(Of TRequest).PreProcessAsync
   nameWithType: IPreProcessor<TRequest>.PreProcessAsync
   nameWithType.vb: IPreProcessor(Of TRequest).PreProcessAsync
+- uid: FastEndpoints.IRequestBinder`1
+  name: IRequestBinder<TRequest>
+  href: api/FastEndpoints.IRequestBinder-1.html
+  commentId: T:FastEndpoints.IRequestBinder`1
+  name.vb: IRequestBinder(Of TRequest)
+  fullName: FastEndpoints.IRequestBinder<TRequest>
+  fullName.vb: FastEndpoints.IRequestBinder(Of TRequest)
+  nameWithType: IRequestBinder<TRequest>
+  nameWithType.vb: IRequestBinder(Of TRequest)
+- uid: FastEndpoints.IRequestBinder`1.BindAsync(FastEndpoints.BinderContext,CancellationToken)
+  name: BindAsync(BinderContext, CancellationToken)
+  href: api/FastEndpoints.IRequestBinder-1.html#FastEndpoints_IRequestBinder_1_BindAsync_FastEndpoints_BinderContext_CancellationToken_
+  commentId: M:FastEndpoints.IRequestBinder`1.BindAsync(FastEndpoints.BinderContext,CancellationToken)
+  fullName: FastEndpoints.IRequestBinder<TRequest>.BindAsync(FastEndpoints.BinderContext, CancellationToken)
+  fullName.vb: FastEndpoints.IRequestBinder(Of TRequest).BindAsync(FastEndpoints.BinderContext, CancellationToken)
+  nameWithType: IRequestBinder<TRequest>.BindAsync(BinderContext, CancellationToken)
+  nameWithType.vb: IRequestBinder(Of TRequest).BindAsync(BinderContext, CancellationToken)
+- uid: FastEndpoints.IRequestBinder`1.BindAsync*
+  name: BindAsync
+  href: api/FastEndpoints.IRequestBinder-1.html#FastEndpoints_IRequestBinder_1_BindAsync_
+  commentId: Overload:FastEndpoints.IRequestBinder`1.BindAsync
+  isSpec: "True"
+  fullName: FastEndpoints.IRequestBinder<TRequest>.BindAsync
+  fullName.vb: FastEndpoints.IRequestBinder(Of TRequest).BindAsync
+  nameWithType: IRequestBinder<TRequest>.BindAsync
+  nameWithType.vb: IRequestBinder(Of TRequest).BindAsync
 - uid: FastEndpoints.MainExtensions
   name: MainExtensions
   href: api/FastEndpoints.MainExtensions.html
@@ -3717,6 +3885,23 @@ references:
   fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).TryResolve(Of TService)()
   nameWithType: Mapper<TRequest, TResponse, TEntity>.TryResolve<TService>()
   nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).TryResolve(Of TService)()
+- uid: FastEndpoints.Mapper`3.UpdateEntity(`0,`2)
+  name: UpdateEntity(TRequest, TEntity)
+  href: api/FastEndpoints.Mapper-3.html#FastEndpoints_Mapper_3_UpdateEntity__0__2_
+  commentId: M:FastEndpoints.Mapper`3.UpdateEntity(`0,`2)
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.UpdateEntity(TRequest, TEntity)
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).UpdateEntity(TRequest, TEntity)
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.UpdateEntity(TRequest, TEntity)
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).UpdateEntity(TRequest, TEntity)
+- uid: FastEndpoints.Mapper`3.UpdateEntity*
+  name: UpdateEntity
+  href: api/FastEndpoints.Mapper-3.html#FastEndpoints_Mapper_3_UpdateEntity_
+  commentId: Overload:FastEndpoints.Mapper`3.UpdateEntity
+  isSpec: "True"
+  fullName: FastEndpoints.Mapper<TRequest, TResponse, TEntity>.UpdateEntity
+  fullName.vb: FastEndpoints.Mapper(Of TRequest, TResponse, TEntity).UpdateEntity
+  nameWithType: Mapper<TRequest, TResponse, TEntity>.UpdateEntity
+  nameWithType.vb: Mapper(Of TRequest, TResponse, TEntity).UpdateEntity
 - uid: FastEndpoints.Mode
   name: Mode
   href: api/FastEndpoints.Mode.html

@@ -1,9 +1,0 @@
-apiRules:
-- exclude:
-    hasAttribute:
-      uid: FastEndpoints.HideFromDocsAttribute
-- exclude:
-    hasAttribute:
-      uid: FastEndpoints.Security.HideFromDocsAttribute      
-- exclude:
-    uidRegex: ^FastEndpoints.AsyncEventHandler

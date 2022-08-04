@@ -24,7 +24,7 @@
 
     <ItemGroup>
         <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme" />
-        <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
+        <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
         <None Include="changelog.md" Link="Content\Changelog" Pack="false"/>
         <None Include="..\Directory.Build.props" Link="Content\BuildProps" Pack="false"/>
     </ItemGroup>

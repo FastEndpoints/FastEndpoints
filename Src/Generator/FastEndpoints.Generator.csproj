@@ -18,7 +18,7 @@
 
     <ItemGroup>
         <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-        <None Include="..\Documentation\images\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
+        <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
     </ItemGroup>
 
 </Project>

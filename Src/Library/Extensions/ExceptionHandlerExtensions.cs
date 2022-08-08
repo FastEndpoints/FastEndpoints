@@ -51,7 +51,8 @@ REASON: {error}
 
                     ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     ctx.Response.ContentType = "application/problem+json";
-                    await ctx.Response.WriteAsJsonAsync(new {
+                    await ctx.Response.WriteAsJsonAsync(new InternalErrorResponse
+                    {
                         Status = "Internal Server Error!",
                         Code = ctx.Response.StatusCode,
                         Reason = error,

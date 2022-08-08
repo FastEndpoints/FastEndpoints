@@ -7,6 +7,7 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <Authors>FastEndpoints</Authors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/FastEndpoints/Library.git</RepositoryUrl>

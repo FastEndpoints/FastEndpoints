@@ -35,6 +35,7 @@ namespace FastEndpoints.Swagger;
 
 public class ValidationSchemaProcessor : ISchemaProcessor
 {
+    private static Type[]? validatorTypes;
     private readonly FluentValidationRule[] _rules;
     private readonly IServiceProvider? _serviceProvider = IServiceResolver.ServiceProvider?.CreateScope().ServiceProvider;
     private readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
@@ -44,7 +45,23 @@ public class ValidationSchemaProcessor : ISchemaProcessor
     {
         _rules = CreateDefaultRules();
         _logger = _serviceProvider?.GetRequiredService<ILogger<ValidationSchemaProcessor>>();
+
+        if (validatorTypes is null && MainExtensions.Endpoints is null)
+        {
+            _logger?.LogError("MainExtensions.Endpoints is null");
+            return;
+        }
+
+        if (validatorTypes is null)
+        {
+            validatorTypes = MainExtensions.Endpoints.Found
+                .Where(e => e.ValidatorType != null)
+                .Select(e => e.ValidatorType!)
+                .ToArray();
+        }
     }
+
+    //todo: remove log messages if #173 is solved by caching validator types
 
     public void Process(SchemaProcessorContext context)
     {
@@ -53,28 +70,22 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             _logger?.LogError("SchemaProcessorContext is null");
             return;
         }
-        
-        if (MainExtensions.Endpoints is null)
+
+        if (validatorTypes?.Length == 0)
         {
-            _logger?.LogError("MainExtensions.Endpoints is null");
+            _logger?.LogError("No validator types to work with");
             return;
         }
-        
-        if (MainExtensions.Endpoints.Found is null)
-        {
-            _logger?.LogError("MainExtensions.Endpoints.Found is null");
-            return;
-        }
-        
+
         var tRequest = context.ContextualType;
 
-        foreach (var e in MainExtensions.Endpoints.Found)
+        foreach (var tValidator in validatorTypes!)
         {
             try
             {
-                if (e.ValidatorType?.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
+                if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
-                    var validator = _serviceProvider?.GetRequiredService(e.ValidatorType);
+                    var validator = _serviceProvider?.GetRequiredService(tValidator);
                     if (validator is null)
                         throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
 
@@ -84,11 +95,11 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             }
             catch (NullReferenceException nullEx)
             {
-                _logger?.LogError(nullEx, "NullReferenceException while processing {@endpointDefinition}", e);
+                _logger?.LogError(nullEx, "NullReferenceException while processing {@tValidator}", tValidator);
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Exception while processing {@endpointDefinition}", e);
+                _logger?.LogError(ex, "Exception while processing {@tValidator}", tValidator);
             }
         }
     }

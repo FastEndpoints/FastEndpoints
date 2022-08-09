@@ -18,6 +18,10 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
+    /// <summary>
+    /// WARNING: this data is only available for a few minutes after app startup. It is automatically cleared to release unneeded memory.
+    /// <para>DO NOT ACCESS AFTER APP STARTUP!!!</para>
+    /// </summary>
     internal static EndpointData Endpoints { get; private set; }
 
     /// <summary>

@@ -4,3 +4,4 @@
 
 ### IMPROVEMENTS
 - increase logging in validation schema processor #117
+- update dependencies to latest

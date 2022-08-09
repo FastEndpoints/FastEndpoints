@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Update="FluentResults.Extensions.FluentAssertions" Version="2.1.0" />
     <PackageReference Update="MartinCostello.Logging.XUnit" Version="0.3.0" />
     <PackageReference Update="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.7" />
     <PackageReference Update="NSubstitute" Version="4.4.0" />
+    <PackageReference Update="xunit" Version="2.4.2" />
   </ItemGroup>
 </Project>

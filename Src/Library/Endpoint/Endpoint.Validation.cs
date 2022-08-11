@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
 {
     /// <summary>
     /// adds a "GeneralError" to the current list of validation failures

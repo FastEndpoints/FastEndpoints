@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Runtime.Serialization;
 using System.Security.Claims;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
 {
     private Http? _httpMethod;
     private string _baseURL;
@@ -27,7 +28,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// the response that is sent to the client.
     /// </summary>
-    public TResponse Response { get => _response ??= new(); set => _response = value; }
+    public TResponse Response {
+        get => _response is null ? InitResponseDTO() : _response;
+        set => _response = value;
+    }
 
     /// <summary>
     /// gives access to the hosting environment
@@ -65,5 +69,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     public bool ResponseStarted {
         get => _httpContext.Response.HasStarted || _httpContext.Items.ContainsKey(Constants.ResponseSent);
         set => _httpContext.Items[Constants.ResponseSent] = null;
+    }
+
+    private TResponse InitResponseDTO()
+    {
+        _response = (TResponse)FormatterServices.GetUninitializedObject(tResponse);
+        rspDTOCtor?.Invoke(_response, null);
+        return _response;
     }
 }

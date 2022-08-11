@@ -1,15 +1,17 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
 {
     private static readonly Type tRequest = typeof(TRequest);
     private static readonly Type tResponse = typeof(TResponse);
+    private static readonly ConstructorInfo? rspDTOCtor = tResponse.GetConstructor(Type.EmptyTypes);
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
     private static readonly PropCacheEntry? bindFromBodyProp = ReqTypeCache<TRequest>.CachedFromBodyProp;

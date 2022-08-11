@@ -6,5 +6,6 @@
 - swagger schema becoming invalid overnight #173
 
 ### IMPROVEMENTS
+- remove the `new()` contraint on response dtos so a parameterless ctor is not needed on response classes #184
 - increase logging in validation schema processor #117
 - update dependencies to latest

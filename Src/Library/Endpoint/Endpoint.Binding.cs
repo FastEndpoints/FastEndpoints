@@ -111,10 +111,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             {
                 if (g.Key.Equals(prop.Identifier, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (prop.IsCollection || g.Count() > 1)
-                        claimVal = g.Select(v => v).ToArray();
-                    else
-                        claimVal = g.FirstOrDefault();
+                    claimVal =
+                        prop.IsCollection || g.Count() > 1
+                        ? g.Select(v => v).ToArray()
+                        : g.FirstOrDefault();
                 }
             }
 

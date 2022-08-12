@@ -125,8 +125,7 @@ public static class MainExtensions
                     epDef.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{finalRoute}";
-                    routeToHandlerCounts.TryGetValue(key, out var count);
-                    routeToHandlerCounts.AddOrUpdate(key, 1, (_, c) => c++);
+                    routeToHandlerCounts.AddOrUpdate(key, 1, (_, c) => c + 1);
                     totalEndpointCount++;
                 }
             }

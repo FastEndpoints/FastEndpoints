@@ -2,7 +2,6 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Constants;
 
@@ -10,25 +9,6 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
 {
-    private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, object? preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
-    {
-        if (ep.ValidatorType is null)
-            return;
-
-        var validator = (IValidator<TRequest>)ctx.RequestServices.GetRequiredService(ep.ValidatorType)!;
-
-        var valResult = await validator.ValidateAsync(req, cancellation);
-
-        if (!valResult.IsValid)
-            validationFailures.AddRange(valResult.Errors);
-
-        if (validationFailures.Count > 0 && ep.ThrowIfValidationFails)
-        {
-            await RunPreprocessors(preProcessors, req, ctx, validationFailures, cancellation);
-            throw new ValidationFailureException();
-        }
-    }
-
     private static async Task RunPostProcessors(object? postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         if (postProcessors is not null)

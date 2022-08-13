@@ -109,10 +109,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// disable auto validation failure responses (400 bad request with error details) for this endpoint
+    /// disable auto validation failure responses (400 bad request with error details) for this endpoint.
+    /// <para>HINT: this only applies to request dto validation.</para>
     /// </summary>
     protected void DontThrowIfValidationFails()
         => Definition.ThrowIfValidationFails = false;
+
+    /// <summary>
+    /// use this only if you have your own exception catching middleware.
+    /// if this method is called in config, an automatic error response will not be sent to the client by the library.
+    /// all exceptions will be thrown and it would be your exeception catching middleware to handle them.
+    /// </summary>
+    protected void DontCatchExceptions()
+        => Definition.DontCatchExceptions = true;
 
     /// <summary>
     /// configure custom model binding for this endpoint by supplying an IRequestBinder implementation.

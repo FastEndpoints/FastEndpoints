@@ -624,4 +624,18 @@ public class MiscTestCases : EndToEndTestBase
         res?.CustomerID.Should().Be("123");
         res?.Id.Should().Be(null);
     }
+
+    [Fact]
+    public async Task DontCatchExceptions()
+    {
+        try
+        {
+            await GuestClient.GetStringAsync("/api/test-cases/one");
+        }
+        catch { }
+
+        var res = await GuestClient.GetStringAsync("/api/test-cases/1");
+
+        res.Should().Be("1");
+    }
 }

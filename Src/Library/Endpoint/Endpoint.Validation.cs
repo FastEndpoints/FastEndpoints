@@ -49,7 +49,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     protected void ThrowIfAnyErrors()
     {
-        if (ValidationFailed) throw new ValidationFailureException();
+        if (ValidationFailed)
+            throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowIfAnyErrors)}() called");
     }
 
     /// <summary>
@@ -60,7 +61,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void ThrowError(string message)
     {
         AddError(message);
-        throw new ValidationFailureException();
+        throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowError)}() called!");
     }
 
     /// <summary>
@@ -72,7 +73,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
     {
         AddError(property, errorMessage);
-        throw new ValidationFailureException();
+        throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowError)}() called");
     }
 
     private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, object? preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
@@ -90,7 +91,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (validationFailures.Count > 0 && ep.ThrowIfValidationFails)
         {
             await RunPreprocessors(preProcessors, req, ctx, validationFailures, cancellation);
-            throw new ValidationFailureException();
+            throw new ValidationFailureException(validationFailures, "Request validation failed");
         }
     }
 }

@@ -65,7 +65,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             OnValidationFailed();
             await OnValidationFailedAsync(cancellation);
 
-            await SendErrorsAsync(ErrRespStatusCode, cancellation);
+            if (!epDef.DontCatchExceptions)
+                await SendErrorsAsync(ErrRespStatusCode, cancellation);
+            else
+                throw;
         }
     }
 

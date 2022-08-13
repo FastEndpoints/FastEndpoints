@@ -32,7 +32,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         return failures.Count == 0
                ? req
-               : throw new ValidationFailureException();
+               : throw new ValidationFailureException(failures, "Model binding failed");
     }
 
     private static async Task<TRequest> BindJsonBody(HttpContext ctx, JsonSerializerContext? serializerCtx, CancellationToken cancellation)

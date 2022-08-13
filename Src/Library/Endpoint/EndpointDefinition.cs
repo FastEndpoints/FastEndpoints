@@ -28,6 +28,7 @@ public sealed class EndpointDefinition
     public bool ScopedValidator { get; internal set; }
     public EndpointSummary? Summary { get; internal set; }
     public string[]? Tags { get; internal set; }
+    public bool DontCatchExceptions { get; internal set; }
     public bool ThrowIfValidationFails { get; internal set; } = true;
     public Type? ValidatorType { get; internal set; }
     public string[]? Verbs { get; internal set; }

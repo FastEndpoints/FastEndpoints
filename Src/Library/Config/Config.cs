@@ -12,7 +12,21 @@ namespace FastEndpoints;
 /// </summary>
 public class Config
 {
-    internal static JsonSerializerOptions SerializerOpts { get; set; } = new(); //should only be set from UseFastEndpoints() during startup
+    //todo: restructure and re-organize these into more *Options classes in next breaking version jump
+    // 1. ThrottleOptions
+    // 2. SerializationOptions
+    // 3. ErrorResponseOptions
+    // 4. EndpointRegistrationOptions
+    // 5. SecurityOptions
+    // 6. VersioningOptions
+
+    //should only be set from UseFastEndpoints() during startup
+    internal static JsonSerializerOptions SerializerOpts { get; set; } = new();
+
+    //the default value must match with FastEnpoints.Security.Constants.PermissionsClaimType.
+    //should never change from "permissions" or third party auth providers such as Auth0 won't work.
+    internal static string PermsClaimType { get; private set; } = "permissions";
+
     internal static bool ShortEpNames { get; private set; }
     internal static VersioningOptions? VersioningOpts { get; private set; }
     internal static ThrottleOptions? ThrottleOpts { get; private set; }
@@ -42,6 +56,14 @@ public class Config
     /// set to true if you'd like the endpoint names/ swagger operation ids to be just the endpoint class names instead of the full names including namespace.
     /// </summary>
     public bool ShortEndpointNames { set => ShortEpNames = value; }
+
+    /// <summary>
+    /// specify a custom claim type used to identify permissions of a user principal. defaults to `permission`.
+    /// <para>WARNING: the <c>FastEndpoints.Security</c> package should not be used if you're setting a custom permission claim type here.
+    /// do not change the default unless you fully comprehend what you're doing!!!
+    /// </para>
+    /// </summary>
+    public string PermissionsClaimType { set => PermsClaimType = value; }
 
     /// <summary>
     /// settings for configuring the json serializer

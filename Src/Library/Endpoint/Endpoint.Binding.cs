@@ -164,7 +164,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             var prop = cachedProps[i];
 
             var hasPerm = claims.Any(c =>
-               string.Equals(c.Type, PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(c.Type, PermsClaimType, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
 
             if (!hasPerm && prop.ForbidIfMissing)

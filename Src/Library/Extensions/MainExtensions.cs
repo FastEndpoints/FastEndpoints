@@ -269,7 +269,7 @@ public static class MainExtensions
                     {
                         b.RequireAssertion(x =>
                             x.User.Claims.Any(c =>
-                                string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                string.Equals(c.Type, PermsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                 ep.Permissions.Contains(c.Value, StringComparer.Ordinal)));
                     }
                     else
@@ -277,7 +277,7 @@ public static class MainExtensions
                         b.RequireAssertion(x =>
                             ep.Permissions.All(p =>
                                 x.User.Claims.Any(c =>
-                                    string.Equals(c.Type, Constants.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                    string.Equals(c.Type, PermsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                     string.Equals(c.Value, p, StringComparison.Ordinal))));
                     }
                 }

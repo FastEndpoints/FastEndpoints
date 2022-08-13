@@ -1,6 +1,7 @@
 ### NEW
 - add `ProducesProblemFE()` extension method for `RouteHandlerBuilder` [#info](https://discord.com/channels/933662816458645504/1004762111546769498)
 - add `DontCatchExceptions()` method to enable custom exception handler middleware #186
+- ability to customize permissions claim type #187
 - code snippets added to [visual studio extension](https://marketplace.visualstudio.com/items?itemName=dj-nitehawk.FastEndpoints)
 
 ### IMPROVEMENTS

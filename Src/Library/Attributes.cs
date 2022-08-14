@@ -16,7 +16,7 @@ public abstract class HttpAttribute : Attribute
 /// <summary>
 /// use this attribute to specify a GET route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
 public class HttpGetAttribute : HttpAttribute
 {
     /// <summary>

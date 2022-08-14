@@ -77,7 +77,7 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IEntityMapper, ISer
 /// </summary>
 /// <typeparam name="TRequest">the type of request dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class RequestMapper<TRequest, TEntity> : IEntityMapper, IServiceResolver where TRequest : notnull, new()
+public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServiceResolver where TRequest : notnull, new()
 {
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity
@@ -127,7 +127,7 @@ public abstract class RequestMapper<TRequest, TEntity> : IEntityMapper, IService
 /// </summary>
 /// <typeparam name="TResponse">the type of response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class ResponseMapper<TResponse, TEntity> : IEntityMapper, IServiceResolver where TResponse : notnull
+public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper, IServiceResolver where TResponse : notnull
 {
     /// <summary>
     /// override this method and place the logic for mapping a domain entity to a response dto

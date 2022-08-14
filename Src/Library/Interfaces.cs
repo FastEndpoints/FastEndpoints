@@ -46,6 +46,16 @@ public interface IPostProcessor<TRequest, TResponse>
 public interface IEntityMapper { }
 
 /// <summary>
+/// marker interface for request only mappers
+/// </summary>
+public interface IRequestMapper : IEntityMapper { }
+
+/// <summary>
+/// marker interface for response only mappers
+/// </summary>
+public interface IResponseMapper : IEntityMapper { }
+
+/// <summary>
 /// implement this interface on your request dto if you need to model bind the raw content body of an incoming http request
 /// </summary>
 public interface IPlainTextRequest

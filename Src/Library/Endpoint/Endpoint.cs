@@ -248,7 +248,7 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object>
 /// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
 /// </summary>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : notnull, new()
+public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : notnull
 {
     /// <summary>
     /// the handler method for the endpoint. this method is called for each request received.
@@ -281,7 +281,7 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 /// </summary>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class EndpointWithoutRequest<TResponse, TMapper> where TResponse : notnull where TMapper : notnull, IResponseMapper, new()
+public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWithoutRequest<TResponse> where TResponse : notnull where TMapper : notnull, IResponseMapper, new()
 {
     /// <summary>
     /// the entity mapper for the endpoint
@@ -296,7 +296,7 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> where TResponse
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity that will be mapped to/from</typeparam>
-public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull, new()
+public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull
 {
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity

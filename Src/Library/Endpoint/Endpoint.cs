@@ -11,62 +11,56 @@ namespace FastEndpoints;
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : notnull, new() where TResponse : notnull
 {
-    internal async override Task ExecAsync(HttpContext ctx, EndpointDefinition epDef, CancellationToken cancellation)
+    internal async override Task ExecAsync(CancellationToken ct)
     {
-        _httpContext = ctx;
-        Definition = epDef;
-        TRequest req;
         try
         {
-            req =
-                epDef.RequestBinder is null
-                ? await BindToModel(ctx, ValidationFailures, epDef.SerializerContext, epDef.DontBindFormData, cancellation)
-                : await ((IRequestBinder<TRequest>)epDef.RequestBinder).BindAsync(
-                    new(ctx, ValidationFailures, epDef.SerializerContext),
-                    cancellation);
+            var req = await ((IRequestBinder<TRequest>)Definition.RequestBinder).BindAsync(
+                new(HttpContext, ValidationFailures, Definition.SerializerContext, Definition.DontBindFormData),
+                ct);
 
             OnBeforeValidate(req);
-            await OnBeforeValidateAsync(req, cancellation);
+            await OnBeforeValidateAsync(req, ct);
 
             await ValidateRequest(
                 req,
-                ctx,
-                epDef,
-                epDef.PreProcessors,
+                HttpContext,
+                Definition,
+                Definition.PreProcessors,
                 ValidationFailures,
-                cancellation);
+                ct);
 
             OnAfterValidate(req);
-            await OnAfterValidateAsync(req, cancellation);
+            await OnAfterValidateAsync(req, ct);
 
-            await RunPreprocessors(epDef.PreProcessors, req, ctx, ValidationFailures, cancellation);
+            await RunPreprocessors(Definition.PreProcessors, req, HttpContext, ValidationFailures, ct);
 
             if (ResponseStarted) //HttpContext.Response.HasStarted doesn't work in AWS lambda!!!
                 return; //response already sent to client (most likely from a preprocessor)
 
             OnBeforeHandle(req);
-            await OnBeforeHandleAsync(req, cancellation);
+            await OnBeforeHandleAsync(req, ct);
 
-            if (epDef.ExecuteAsyncImplemented)
-                _response = await ExecuteAsync(req, cancellation);
+            if (Definition.ExecuteAsyncImplemented)
+                _response = await ExecuteAsync(req, ct);
             else
-                await HandleAsync(req, cancellation);
+                await HandleAsync(req, ct);
 
             if (!ResponseStarted)
-                await AutoSendResponse(ctx, _response, epDef.SerializerContext, cancellation);
+                await AutoSendResponse(HttpContext, _response, Definition.SerializerContext, ct);
 
             OnAfterHandle(req, Response);
-            await OnAfterHandleAsync(req, Response, cancellation);
+            await OnAfterHandleAsync(req, Response, ct);
 
-            await RunPostProcessors(epDef.PostProcessors, req, Response, ctx, ValidationFailures, cancellation);
+            await RunPostProcessors(Definition.PostProcessors, req, Response, HttpContext, ValidationFailures, ct);
         }
         catch (ValidationFailureException)
         {
             OnValidationFailed();
-            await OnValidationFailedAsync(cancellation);
+            await OnValidationFailedAsync(ct);
 
-            if (!epDef.DontCatchExceptions)
-                await SendErrorsAsync(ErrRespStatusCode, cancellation);
+            if (!Definition.DontCatchExceptions)
+                await SendErrorsAsync(ErrRespStatusCode, ct);
             else
                 throw;
         }

@@ -10,7 +10,7 @@ public class EndpointTests
         [Fact]
         public async Task execute_test()
         {
-            _httpContext = new DefaultHttpContext();
+            HttpContext = new DefaultHttpContext();
             Definition = new EndpointDefinition();
 
             await SendAsync(new Response
@@ -31,7 +31,7 @@ public class EndpointTests
         [Fact]
         public async Task execute_test()
         {
-            _httpContext = new DefaultHttpContext();
+            HttpContext = new DefaultHttpContext();
             Definition = new EndpointDefinition();
 
             await SendOkAsync(new Response
@@ -53,7 +53,7 @@ public class EndpointTests
         [Fact]
         public async Task execute_test()
         {
-            _httpContext = new DefaultHttpContext();
+            HttpContext = new DefaultHttpContext();
             Definition = new EndpointDefinition();
 
             await SendForbiddenAsync(CancellationToken.None);

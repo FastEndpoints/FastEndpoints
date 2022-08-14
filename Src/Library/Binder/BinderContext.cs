@@ -33,11 +33,26 @@ public struct BinderContext : IServiceResolver
     /// </summary>
     public JsonSerializerContext? JsonSerializerContext { get; init; }
 
-    public BinderContext(HttpContext httpContext, List<ValidationFailure> validationFailures, JsonSerializerContext? jsonSerializerContext)
+    /// <summary>
+    /// set 'true' to disable auto binding of form data which enables uploading and reading of large files without buffering to memory/disk.
+    /// you can access the multipart sections for reading via the FormFileSectionsAsync() method.
+    /// </summary>
+    public bool DontAutoBindForms { get; init; }
+
+    /// <summary>
+    /// constructor of the binder context
+    /// </summary>
+    /// <param name="httpContext">the http context of the current request</param>
+    /// <param name="validationFailures">the validation failure collection of the endpoint</param>
+    /// <param name="jsonSerializerContext">json serializer context of the endpoint if applicable</param>
+    /// <param name="dontAutoBindForms">whether or not to enable auto binding of form data</param>
+    public BinderContext(HttpContext httpContext, List<ValidationFailure> validationFailures,
+        JsonSerializerContext? jsonSerializerContext, bool dontAutoBindForms)
     {
         HttpContext = httpContext;
         ValidationFailures = validationFailures;
         JsonSerializerContext = jsonSerializerContext;
+        DontAutoBindForms = dontAutoBindForms;
     }
 
     /// <summary>

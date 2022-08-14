@@ -11,11 +11,10 @@ namespace FastEndpoints;
 
 public abstract class BaseEndpoint : IEndpoint
 {
-    internal HttpContext _httpContext; //this is set at the start of ExecAsync() method of each endpoint instance
     private List<ValidationFailure> _failures;
     private IConfiguration? _config;
 
-    internal abstract Task ExecAsync(HttpContext ctx, EndpointDefinition endpoint, CancellationToken ct);
+    internal abstract Task ExecAsync(CancellationToken ct);
 
     public virtual void Verbs(params Http[] methods) => throw new NotImplementedException();
 
@@ -28,14 +27,14 @@ public abstract class BaseEndpoint : IEndpoint
     /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <c>.AddFastEndpoints(config: builder.Configuration)</c>
     /// </summary>
     public IConfiguration? Config {
-        get => _config ??= _httpContext?.RequestServices.GetRequiredService<IConfiguration>();
+        get => _config ??= HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         internal set => _config = value;
     }
 
     /// <summary>
     /// the http context of the current request
     /// </summary>
-    public HttpContext HttpContext => _httpContext;
+    public HttpContext HttpContext { get; internal set; }
 
     /// <summary>
     /// the list of validation failures for the current request dto

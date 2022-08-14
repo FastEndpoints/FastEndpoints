@@ -9,12 +9,8 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
 {
-    private static readonly Type tRequest = typeof(TRequest);
     private static readonly Type tResponse = typeof(TResponse);
     private static readonly ConstructorInfo? rspDTOCtor = tResponse.GetConstructor(Type.EmptyTypes);
-    private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
-    private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
-    private static readonly PropCacheEntry? bindFromBodyProp = ReqTypeCache<TRequest>.CachedFromBodyProp;
 
     /// <summary>
     /// specify to listen for GET requests on one or more routes.
@@ -83,9 +79,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         Definition.Verbs = methods.Select(m => m.ToString()).ToArray();
 
-        //default openapi descriptions (it's here because we need access to TRequest/TResponse)
+        //note: this method is sealed to not allow user to override it because we neeed to perform
+        //      the following setup activities, which require access to TRequest/TResponse
+
+        //set default binder (unless already set by user - using RequestBinder() method)
+        if (Definition.RequestBinder is null)
+            Definition.RequestBinder = new RequestBinder<TRequest>();
+
+        //set default openapi descriptions
         Definition.InternalConfigAction = b =>
         {
+            var tRequest = typeof(TRequest);
+            var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
+
             if (isPlainTextRequest)
             {
                 b.Accepts<TRequest>("text/plain", "application/json");

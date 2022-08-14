@@ -15,7 +15,9 @@ internal class ExecutorMiddleware
     private readonly RequestDelegate _next;
 
     public ExecutorMiddleware(RequestDelegate next)
-        => _next = next ?? throw new ArgumentNullException(nameof(next));
+    {
+        _next = next ?? throw new ArgumentNullException(nameof(next));
+    }
 
     public Task Invoke(HttpContext ctx)
     {
@@ -56,13 +58,14 @@ internal class ExecutorMiddleware
             }
 
             var epInstance = (BaseEndpoint)ctx.RequestServices.GetRequiredService(epDef.EndpointType);
-
+            epInstance.Definition = epDef;
+            epInstance.HttpContext = ctx;
             ResolveServices(epInstance, ctx.RequestServices, epDef.ServiceBoundEpProps);
 
             ResponseCacheExecutor.Execute(ctx, endpoint.Metadata.GetMetadata<ResponseCacheAttribute>());
 
             //terminate middleware here. we're done executing
-            return epInstance.ExecAsync(ctx, epDef, ctx.RequestAborted);
+            return epInstance.ExecAsync(ctx.RequestAborted);
         }
 
         return _next(ctx); //this is not a fastendpoint, let next middleware handle it

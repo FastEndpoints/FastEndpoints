@@ -16,9 +16,9 @@ public class Request
     public string CustomerID { get; set; }
 }
 
-public class Binder : IRequestBinder<Request>
+public class Binder : RequestBinder<Request>
 {
-    public async ValueTask<Request> BindAsync(BinderContext ctx, CancellationToken ct)
+    public async override ValueTask<Request> BindAsync(BinderContext ctx, CancellationToken ct)
     {
         return new Request
         {

@@ -18,7 +18,7 @@ public static class Factory
         var ep = (BaseEndpoint)Activator.CreateInstance(typeof(TEndpoint), dependencies)!;
         ep.Definition = new();
         ep.Configure();
-        ep._httpContext = httContext;
+        ep.HttpContext = httContext;
         return (ep as TEndpoint)!;
     }
 

@@ -67,8 +67,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// get or set whether the response has started. you'd only use this if you're writing to the response stream by yourself.
     /// </summary>
     public bool ResponseStarted {
-        get => _httpContext.Response.HasStarted || _httpContext.Items.ContainsKey(Constants.ResponseSent);
-        set => _httpContext.Items[Constants.ResponseSent] = null;
+        get => HttpContext.Response.HasStarted || HttpContext.Items.ContainsKey(Constants.ResponseSent);
+        set => HttpContext.Items[Constants.ResponseSent] = null;
     }
 
     private TResponse InitResponseDTO()

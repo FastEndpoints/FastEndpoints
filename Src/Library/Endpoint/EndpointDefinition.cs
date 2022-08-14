@@ -37,7 +37,7 @@ public sealed class EndpointDefinition
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal Action<RouteHandlerBuilder>? UserConfigAction;
-    internal object? RequestBinder;
+    internal object RequestBinder;
     internal object? PreProcessors;
     internal object? PostProcessors;
     internal ResponseCacheAttribute? ResponseCacheSettings;

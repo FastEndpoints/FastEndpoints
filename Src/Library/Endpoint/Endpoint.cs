@@ -203,7 +203,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull where TMapper : notnull, IEntityMapper, new()
+public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull where TMapper : notnull, IMapper, new()
 {
     /// <summary>
     /// the entity mapper for the endpoint

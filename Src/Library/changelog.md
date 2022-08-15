@@ -12,6 +12,7 @@
 - built-in unhandled exception handler now sends a response of type `InternalErrorResponse`
 - `ValidationFailureException` class now has more details #186
 - increase logging in validation schema processor #117
+- add jetbrains external annotations #191
 - update dependencies to latest
 
 ### FIXES

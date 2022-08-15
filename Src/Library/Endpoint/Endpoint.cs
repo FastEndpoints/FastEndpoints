@@ -14,7 +14,7 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TReq
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object> where TRequest : notnull, new() where TMapper : notnull, IRequestMapper, new()
+public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object>, IHasMapper<TMapper> where TRequest : notnull, new() where TMapper : notnull, IRequestMapper, new()
 {
     /// <summary>
     /// the entity mapper for the endpoint
@@ -203,7 +203,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull where TMapper : notnull, IMapper, new()
+public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper> where TRequest : notnull, new() where TResponse : notnull where TMapper : notnull, IMapper, new()
 {
     /// <summary>
     /// the entity mapper for the endpoint
@@ -281,7 +281,7 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 /// </summary>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWithoutRequest<TResponse> where TResponse : notnull where TMapper : notnull, IResponseMapper, new()
+public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWithoutRequest<TResponse>, IHasMapper<TMapper> where TResponse : notnull where TMapper : notnull, IResponseMapper, new()
 {
     /// <summary>
     /// the entity mapper for the endpoint

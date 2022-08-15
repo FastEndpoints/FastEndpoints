@@ -56,6 +56,15 @@ public interface IRequestMapper : IMapper { }
 public interface IResponseMapper : IMapper { }
 
 /// <summary>
+/// marker/constraint for endpoints that have a mapper generic argument
+/// </summary>
+/// <typeparam name="TMapper"></typeparam>
+public interface IHasMapper<TMapper> where TMapper : notnull, IMapper, new()
+{
+    public static TMapper Map { get; }
+}
+
+/// <summary>
 /// implement this interface on your request dto if you need to model bind the raw content body of an incoming http request
 /// </summary>
 public interface IPlainTextRequest

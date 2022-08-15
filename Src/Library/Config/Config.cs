@@ -32,7 +32,7 @@ public class Config
     internal static ThrottleOptions? ThrottleOpts { get; private set; }
     internal static RoutingOptions? RoutingOpts { get; private set; }
     internal static Func<EndpointDefinition, bool>? EpRegFilterFunc { get; private set; }
-    internal static Action<EndpointDefinition, RouteHandlerBuilder>? GlobalEpOptsAction { get; private set; }
+    internal static Action<EndpointDefinition>? GlobalEpConfigAction { get; private set; }
     internal static Func<List<ValidationFailure>, int, object> ErrRespBldrFunc { get; private set; }
         = (failures, statusCode) => new ErrorResponse(failures, statusCode);
     internal static int ErrRespStatusCode { get; private set; } = 400;
@@ -111,13 +111,19 @@ public class Config
     public Func<EndpointDefinition, bool> EndpointRegistrationFilter { set => EpRegFilterFunc = value; }
 
     /// <summary>
-    /// an action to be performed on all endpoints during registration.
-    /// the action you set here will be executed for each endpoint during startup.
-    /// you can inspect the EndpointSettings to check what the current endpoint is, if needed.
-    /// NOTE: this action is executed before Options() and Describe() of each individual endpoint.
-    /// so, whatever you do here may get overridden or compounded by what you do in the Configure() method of each endpoint.
+    /// a configuration action to be performed on each endpoint definition during startup.
+    /// some of the same methods you use inside `Configure()` method are available to be called on the `EndpointDefinition` parameter.
+    /// this can be used to apply a set of common configuration settings globally to all endpoints.
+    /// i.e. apply globally applicable settings here and specify only the settings applicable to individual endpoints from within each endpoints' `Configure()` method.
+    /// <code>
+    /// app.UseFastEndpoints(c => c.GlobalEndpointConfig = ep =>
+    /// {
+    ///     ep.AllowAnonymous();
+    ///     ep.Description(b => b.Produces(301));
+    /// });
+    /// </code>
     /// </summary>
-    public Action<EndpointDefinition, RouteHandlerBuilder> GlobalEndpointOptions { set => GlobalEpOptsAction = value; }
+    public Action<EndpointDefinition> GlobalEndpointConfig { set => GlobalEpConfigAction = value; }
 
     /// <summary>
     /// this http status code will be used for all automatically sent validation failure responses. defaults to 400.

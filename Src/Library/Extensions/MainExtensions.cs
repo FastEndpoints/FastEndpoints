@@ -84,7 +84,7 @@ public static class MainExtensions
 
             foreach (var route in epDef.Routes)
             {
-                var finalRoute = routeBuilder.BuildRoute(epDef.Version.Current, route, epDef.RoutePrefixOverride);
+                var finalRoute = routeBuilder.BuildRoute(epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
                 IEndpoint.SetTestURL(epDef.EndpointType, finalRoute);
 
                 routeNum++;
@@ -102,6 +102,8 @@ public static class MainExtensions
 
                     epDef.InternalConfigAction(hb); //always do this first here
 
+                    GlobalEpConfigAction?.Invoke(epDef); //apply global ep settings next
+
                     if (epDef.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
@@ -110,17 +112,15 @@ public static class MainExtensions
                     if (epDef.ResponseCacheSettings is not null)
                         hb.WithMetadata(epDef.ResponseCacheSettings);
 
-                    if (epDef.AllowFormData)
+                    if (epDef.FormDataAllowed)
                         hb.Accepts(epDef.ReqDtoType, "multipart/form-data");
 
-                    if (epDef.Summary?.ProducesMetas.Count > 0)
+                    if (epDef.EndpointSummary?.ProducesMetas.Count > 0)
                     {
                         EndpointSummary.ClearDefaultProduces200Metadata(hb);
-                        foreach (var pMeta in epDef.Summary.ProducesMetas)
+                        foreach (var pMeta in epDef.EndpointSummary.ProducesMetas)
                             hb.WithMetadata(pMeta);
                     }
-
-                    GlobalEpOptsAction?.Invoke(epDef, hb);
 
                     epDef.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
 
@@ -230,10 +230,10 @@ public static class MainExtensions
         if (ep.PreBuiltUserPolicies?.Any() is true)
             policiesToAdd.AddRange(ep.PreBuiltUserPolicies);
 
-        if (ep.Permissions?.Any() is true ||
-            ep.ClaimTypes?.Any() is true ||
-            ep.Roles?.Any() is true ||
-            ep.AuthSchemes?.Any() is true)
+        if (ep.AllowedPermissions?.Any() is true ||
+            ep.AllowedClaimTypes?.Any() is true ||
+            ep.AllowedRoles?.Any() is true ||
+            ep.AuthSchemeNames?.Any() is true)
         {
             policiesToAdd.Add(ep.SecurityPolicyName);
         }
@@ -242,11 +242,11 @@ public static class MainExtensions
         {
             var attr = new AuthorizeAttribute { Policy = p, };
 
-            if (ep.AuthSchemes is not null)
-                attr.AuthenticationSchemes = string.Join(',', ep.AuthSchemes);
+            if (ep.AuthSchemeNames is not null)
+                attr.AuthenticationSchemes = string.Join(',', ep.AuthSchemeNames);
 
-            if (ep.Roles is not null)
-                attr.Roles = string.Join(',', ep.Roles);
+            if (ep.AllowedRoles is not null)
+                attr.Roles = string.Join(',', ep.AllowedRoles);
 
             return attr;
         }).ToArray();
@@ -256,44 +256,44 @@ public static class MainExtensions
     {
         foreach (var ep in Endpoints.Found)
         {
-            if (ep.Roles is null && ep.Permissions is null && ep.ClaimTypes is null && ep.AuthSchemes is null)
+            if (ep.AllowedRoles is null && ep.AllowedPermissions is null && ep.AllowedClaimTypes is null && ep.AuthSchemeNames is null)
                 continue;
 
             opts.AddPolicy(ep.SecurityPolicyName, b =>
             {
                 b.RequireAuthenticatedUser();
 
-                if (ep.Permissions?.Length > 0)
+                if (ep.AllowedPermissions?.Length > 0)
                 {
                     if (ep.AllowAnyPermission)
                     {
                         b.RequireAssertion(x =>
                             x.User.Claims.Any(c =>
                                 string.Equals(c.Type, PermsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                                ep.Permissions.Contains(c.Value, StringComparer.Ordinal)));
+                                ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
                     }
                     else
                     {
                         b.RequireAssertion(x =>
-                            ep.Permissions.All(p =>
+                            ep.AllowedPermissions.All(p =>
                                 x.User.Claims.Any(c =>
                                     string.Equals(c.Type, PermsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                     string.Equals(c.Value, p, StringComparison.Ordinal))));
                     }
                 }
 
-                if (ep.ClaimTypes?.Length > 0)
+                if (ep.AllowedClaimTypes?.Length > 0)
                 {
                     if (ep.AllowAnyClaim)
                     {
                         b.RequireAssertion(x =>
                             x.User.Claims.Any(c =>
-                                ep.ClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
+                                ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
                     }
                     else
                     {
                         b.RequireAssertion(x =>
-                            ep.ClaimTypes.All(t =>
+                            ep.AllowedClaimTypes.All(t =>
                                 x.User.Claims.Any(c =>
                                     string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
                     }

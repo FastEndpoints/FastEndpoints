@@ -37,7 +37,7 @@ internal class OperationSecurityProcessor : IOperationProcessor
                  "This may indicate an MvcController. Consider adding `[ApiExplorerSettings(IgnoreApi = true)]`");
         }
 
-        var epSchemes = epDef.AuthSchemes;
+        var epSchemes = epDef.AuthSchemeNames;
         if (epSchemes?.Contains(schemeName) == false)
             return true;
 

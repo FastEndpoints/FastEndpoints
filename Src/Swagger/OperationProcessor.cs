@@ -59,7 +59,7 @@ internal class OperationProcessor : IOperationProcessor
             op.OperationId = nameMetaData.EndpointName;
 
         //set operation tag
-        if (tagIndex > 0 && !epDef.DontAutoTag)
+        if (tagIndex > 0 && !epDef.DontAutoTagEndpoints)
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= tagIndex)
@@ -104,8 +104,8 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //set endpoint summary & description
-        op.Summary = epDef.Summary?.Summary;
-        op.Description = epDef.Summary?.Description;
+        op.Summary = epDef.EndpointSummary?.Summary;
+        op.Description = epDef.EndpointSummary?.Description;
 
         //set response descriptions (no xml comments support here, yet!)
         op.Responses
@@ -118,8 +118,8 @@ internal class OperationProcessor : IOperationProcessor
 
               var key = Convert.ToInt32(res.Key);
 
-              if (epDef.Summary?.Responses.ContainsKey(key) is true)
-                  res.Value.Description = epDef.Summary.Responses[key]; //then take values from summary object
+              if (epDef.EndpointSummary?.Responses.ContainsKey(key) is true)
+                  res.Value.Description = epDef.EndpointSummary.Responses[key]; //then take values from summary object
           });
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
@@ -140,9 +140,9 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //also add descriptions from user supplied summary request params overriding the above
-        if (epDef.Summary is not null)
+        if (epDef.EndpointSummary is not null)
         {
-            foreach (var param in epDef.Summary.Params)
+            foreach (var param in epDef.EndpointSummary.Params)
                 reqParamDescriptions[param.Key] = param.Value;
         }
 
@@ -291,13 +291,13 @@ internal class OperationProcessor : IOperationProcessor
         var tFromBodyProp = reqDtoProps?.Where(p => p.IsDefined(typeof(FromBodyAttribute), false)).FirstOrDefault()?.PropertyType;
 
         //set request example if provided by user
-        if (epDef.Summary?.ExampleRequest is not null)
+        if (epDef.EndpointSummary?.ExampleRequest is not null)
         {
             foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
             {
                 var jObj = JObject.Parse(
                     Newtonsoft.Json.JsonConvert.SerializeObject(
-                        epDef.Summary.ExampleRequest,
+                        epDef.EndpointSummary.ExampleRequest,
                         ctx.SchemaGenerator.Settings.ActualSerializerSettings));
 
                 foreach (var p in jObj.Properties().ToArray())

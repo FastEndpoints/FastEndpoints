@@ -223,23 +223,20 @@ internal sealed class EndpointData
                     }
                     if (att is AllowAnonymousAttribute)
                     {
-                        instance.Definition.AnonymousVerbs =
-                            instance.Definition.Verbs?.Length > 0
-                            ? instance.Definition.Verbs.Select(v => v).ToArray()
-                            : Enum.GetNames(Types.Http);
+                        instance.Definition.AllowAnonymous();
                     }
                     if (att is AuthorizeAttribute auth)
                     {
-                        instance.Definition.Roles = auth.Roles?.Split(',');
-                        instance.Definition.AuthSchemes = auth.AuthenticationSchemes?.Split(',');
-                        if (auth.Policy is not null) instance.Definition.PreBuiltUserPolicies = new[] { auth.Policy };
+                        instance.Definition.Roles(auth.Roles?.Split(','));
+                        instance.Definition.AuthSchemes(auth.AuthenticationSchemes?.Split(','));
+                        if (auth.Policy is not null) instance.Definition.Policies(new[] { auth.Policy });
                     }
                 }
             }
 
             if (instance.Definition.ValidatorType is not null)
             {
-                if (instance.Definition.ScopedValidator)
+                if (instance.Definition.ValidatorIsScoped)
                     services.AddScoped(instance.Definition.ValidatorType);
                 else
                     services.AddSingleton(instance.Definition.ValidatorType);
@@ -247,7 +244,7 @@ internal sealed class EndpointData
 
             if (summaryDict.TryGetValue(def.EndpointType, out var tSummary))
             {
-                def.Summary = (EndpointSummary?)Activator.CreateInstance(tSummary);
+                def.Summary((EndpointSummary?)Activator.CreateInstance(tSummary));
             }
 
             return def;

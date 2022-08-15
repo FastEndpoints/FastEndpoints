@@ -18,3 +18,16 @@
 ### FIXES
 - swagger schema becoming invalid overnight #173
 - oversight in duplicate route detection code
+
+### BREAKING CHANGES
+#### **1. reworked global endpoint configuration**
+the `GlobalEndpointOptions` was removed in favor or `GlobalEndpointConfig`.
+most of the same endpoint configuration methods are available for use on the `ep` (EndpointDefinition) argument as shown below:
+```cs
+app.UseFastEndpoints(c => c.GlobalEndpointConfig = ep =>
+{
+    ep.AllowAnonymous();
+    ep.Options(b => b.RequireHost("admin.domain.com"));
+    ep.Description(b => b.Produces<ErrorResponse>(400));
+});
+```

@@ -119,7 +119,7 @@ public class Config
     /// app.UseFastEndpoints(c => c.GlobalEndpointConfig = ep =>
     /// {
     ///     ep.AllowAnonymous();
-    ///     ep.Description(b => b.Produces(301));
+    ///     ep.Description(b => b.Produces&lt;ErrorResponse&gt;(400));
     /// });
     /// </code>
     /// </summary>

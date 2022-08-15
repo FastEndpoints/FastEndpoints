@@ -19,13 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ContentWithTargetPath  Include="Jetbrains\ExternalAnnotations.xml">
-            <TargetPath>$(AssemblyName).ExternalAnnotations.xml</TargetPath>
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </ContentWithTargetPath >
-    </ItemGroup>
-
-    <ItemGroup>
         <Folder Include="Properties\" />
     </ItemGroup>
 
@@ -34,6 +27,12 @@
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
         <None Include="changelog.md" Link="Content\Changelog" Pack="false" />
         <None Include="..\Directory.Build.props" Link="Content\BuildProps" Pack="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="JetBrains\FastEndpoints.ExternalAnnotations.xml" Pack="true" PackagePath="contentFiles/any/any">
+            <PackageCopyToOutput>true</PackageCopyToOutput>
+        </Content>
     </ItemGroup>
 
 </Project>

@@ -103,7 +103,7 @@ public class AdminTests : EndToEndTestBase
             EmptyRequest,
             int>(new());
 
-        resp.StatusCode.Should().Be(HttpStatusCode.OK);
+        resp?.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Should().Be(2);
     }
 }

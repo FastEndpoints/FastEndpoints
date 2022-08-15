@@ -140,7 +140,7 @@ public class MiscTestCases : EndToEndTestBase
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res?.Errors.Should().NotBeNull();
-        res.Errors.Should().ContainKey("OtherID");
+        res?.Errors.Should().ContainKey("OtherID");
     }
 
     [Fact]
@@ -400,10 +400,10 @@ public class MiscTestCases : EndToEndTestBase
             FirstName = ""
         });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().NotBeNull();
-        res.Errors.Count.Should().Be(2);
-        res.Errors["x"].First().Should().Be("blah");
+        rsp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res?.Errors.Should().NotBeNull();
+        res?.Errors.Count.Should().Be(2);
+        res?.Errors["x"].First().Should().Be("blah");
     }
 
     [Fact]
@@ -418,8 +418,8 @@ public class MiscTestCases : EndToEndTestBase
                 Verb = Http.DELETE
             });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Host.Should().Be("localhost");
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Host.Should().Be("localhost");
     }
 
     [Fact]
@@ -430,10 +430,10 @@ public class MiscTestCases : EndToEndTestBase
             Sales.Orders.Retrieve.Request,
             ErrorResponse>(new() { OrderID = "order1" });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().NotBeNull();
-        res.Errors.Count.Should().Be(1);
-        res.Errors.Should().ContainKey("MissingHeaders");
+        rsp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res?.Errors.Should().NotBeNull();
+        res?.Errors.Count.Should().Be(1);
+        res?.Errors.Should().ContainKey("MissingHeaders");
     }
 
     [Fact]
@@ -458,8 +458,8 @@ public class MiscTestCases : EndToEndTestBase
             Sales.Orders.Retrieve.Request,
             ErrorResponse>(new() { OrderID = "order1" });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Message.Should().Be("ok!");
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Message.Should().Be("ok!");
     }
 
     [Fact]
@@ -472,8 +472,8 @@ public class MiscTestCases : EndToEndTestBase
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
-        res.BodyContent.Should().Be("this is the body content");
-        res.Id.Should().Be(12345);
+        res?.BodyContent.Should().Be("this is the body content");
+        res?.Id.Should().Be(12345);
     }
 
     [Fact]
@@ -486,8 +486,8 @@ public class MiscTestCases : EndToEndTestBase
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
-        res.BodyContent.Should().Be("this is the body content");
-        res.Id.Should().Be(12345);
+        res?.BodyContent.Should().Be("this is the body content");
+        res?.Id.Should().Be(12345);
     }
 
     [Fact]
@@ -497,8 +497,8 @@ public class MiscTestCases : EndToEndTestBase
             "/api/sales/orders/retrieve/54321",
             new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Message.Should().Be("ok!");
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Message.Should().Be("ok!");
     }
 
     [Fact]

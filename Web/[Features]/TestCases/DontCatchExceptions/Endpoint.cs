@@ -9,7 +9,7 @@ public class Endpoint : Endpoint<Request>
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(Request r, CancellationToken c)
+    public async override Task HandleAsync(Request r, CancellationToken c)
     {
         await SendStringAsync(r.Number.ToString());
     }

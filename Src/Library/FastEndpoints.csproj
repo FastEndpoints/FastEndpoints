@@ -19,20 +19,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Properties\" />
-    </ItemGroup>
-
-    <ItemGroup>
         <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme" />
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
-        <None Include="changelog.md" Link="Content\Changelog" Pack="false" />
-        <None Include="..\Directory.Build.props" Link="Content\BuildProps" Pack="false" />
+        <None Include="changelog.md" Pack="false" Link="Content\Changelog" />
+        <None Include="..\Directory.Build.props" Pack="false" Link="Content\BuildProps" />
+        <None Include="JetBrains\ExternalAnnotations.xml" Pack="true" PackagePath="lib\$(TargetFramework)\$(AssemblyName).ExternalAnnotations.xml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
-
-    <ItemGroup>
-        <Content Include="JetBrains\FastEndpoints.ExternalAnnotations.xml" Pack="true" PackagePath="contentFiles/any/any">
-            <PackageCopyToOutput>true</PackageCopyToOutput>
-        </Content>
-    </ItemGroup>
-
 </Project>

@@ -19,6 +19,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ContentWithTargetPath  Include="Jetbrains\ExternalAnnotations.xml">
+            <TargetPath>$(AssemblyName).ExternalAnnotations.xml</TargetPath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </ContentWithTargetPath >
+    </ItemGroup>
+
+    <ItemGroup>
         <Folder Include="Properties\" />
     </ItemGroup>
 

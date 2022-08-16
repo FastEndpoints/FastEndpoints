@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
-using static FastEndpoints.Constants;
 using static FastEndpoints.Config;
+using static FastEndpoints.Constants;
 
 namespace FastEndpoints;
 

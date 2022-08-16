@@ -26,7 +26,7 @@ public struct BinderContext : IServiceResolver
     /// <summary>
     /// the configured json serializer options of the app, which was specified at app startup.
     /// </summary>
-    public JsonSerializerOptions SerializerOptions => Config.SerializerOpts;
+    public JsonSerializerOptions SerializerOptions => Config.SerOpts.Options;
 
     /// <summary>
     /// if the current endpoint is configured with a json serializer context, it will be provided to the custom request binder with this property.

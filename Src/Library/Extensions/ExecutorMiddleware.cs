@@ -37,7 +37,7 @@ internal class ExecutorMiddleware
 
             if (epDef.HitCounter is not null)
             {
-                var hdrName = epDef.HitCounter.HeaderName ?? ThrottleOpts?.HeaderName ?? "X-Forwarded-For";
+                var hdrName = epDef.HitCounter.HeaderName ?? ThrOpts.HeaderName ?? "X-Forwarded-For";
 
                 if (!ctx.Request.Headers.TryGetValue(hdrName, out var hdrVal))
                 {
@@ -53,7 +53,7 @@ internal class ExecutorMiddleware
                 if (epDef.HitCounter.LimitReached(hdrVal[0]))
                 {
                     ctx.Response.StatusCode = 429;
-                    return ctx.Response.WriteAsync(ThrottleOpts?.ThrottledResponse ?? "You are requesting this endpoint too frequently!");
+                    return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!");
                 }
             }
 

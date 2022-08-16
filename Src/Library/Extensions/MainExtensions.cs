@@ -65,7 +65,7 @@ public static class MainExtensions
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
         IServiceResolver.ServiceProvider = app.ServiceProvider;
-        SerializerOpts = IServiceResolver.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerializerOpts;
+        SerOpts.Options = IServiceResolver.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
@@ -75,9 +75,11 @@ public static class MainExtensions
 
         foreach (var epDef in Endpoints.Found)
         {
-            if (EpRegFilterFunc is not null && !EpRegFilterFunc(epDef)) continue;
+            if (EpOpts.Filter is not null && !EpOpts.Filter(epDef)) continue;
             if (epDef.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
             if (epDef.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
+
+            epDef.Version.Setup(); //this has to be done after config action is done by user. so, it goes here.
 
             var authorizeAttributes = BuildAuthorizeAttributes(epDef);
             var routeNum = 0;
@@ -102,7 +104,7 @@ public static class MainExtensions
 
                     epDef.InternalConfigAction(hb); //always do this first here
 
-                    GlobalEpConfigAction?.Invoke(epDef); //apply global ep settings next
+                    EpOpts.Configurator?.Invoke(epDef); //apply global ep settings to the definition next
 
                     if (epDef.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
@@ -176,14 +178,16 @@ public static class MainExtensions
         // {rPrfix}/{route}/{p}{ver}
         // mobile/customer/retrieve/v1
 
-        if (RoutingOpts?.Prefix is not null && prefixOverride != string.Empty)
+        //todo: test versioning
+
+        if (EpOpts.RoutePrefix is not null && prefixOverride != string.Empty)
         {
             builder.Append('/')
-                   .Append(prefixOverride ?? RoutingOpts.Prefix)
+                   .Append(prefixOverride ?? EpOpts.RoutePrefix)
                    .Append('/');
         }
 
-        if (VersioningOpts?.SuffixedVersion is false)
+        if (VerOpts.PrependToRoute is true)
             AppendVersion(builder, epVersion, trailingSlash: true);
 
         if (builder.Length > 0 && route.StartsWith('/'))
@@ -191,7 +195,7 @@ public static class MainExtensions
 
         builder.Append(route);
 
-        if (VersioningOpts?.SuffixedVersion is true)
+        if (VerOpts.PrependToRoute is not true)
             AppendVersion(builder, epVersion, trailingSlash: false);
 
         var final = builder.ToString();
@@ -200,23 +204,25 @@ public static class MainExtensions
 
         static void AppendVersion(StringBuilder builder, int epVersion, bool trailingSlash)
         {
+            var prefix = VerOpts.Prefix ?? "v";
+
             if (epVersion > 0)
             {
                 if (builder.Length > 0 && builder[^1] != '/')
                     builder.Append('/');
 
-                builder.Append(VersioningOpts!.Prefix)
+                builder.Append(prefix)
                        .Append(epVersion);
 
                 if (trailingSlash) builder.Append('/');
             }
-            else if (VersioningOpts?.DefaultVersion != 0)
+            else if (VerOpts.DefaultVersion != 0)
             {
                 if (builder.Length > 0 && builder[^1] != '/')
                     builder.Append('/');
 
-                builder.Append(VersioningOpts!.Prefix)
-                       .Append(VersioningOpts!.DefaultVersion);
+                builder.Append(prefix)
+                       .Append(VerOpts.DefaultVersion);
 
                 if (trailingSlash) builder.Append('/');
             }
@@ -269,7 +275,7 @@ public static class MainExtensions
                     {
                         b.RequireAssertion(x =>
                             x.User.Claims.Any(c =>
-                                string.Equals(c.Type, PermsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                 ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
                     }
                     else
@@ -277,7 +283,7 @@ public static class MainExtensions
                         b.RequireAssertion(x =>
                             ep.AllowedPermissions.All(p =>
                                 x.User.Claims.Any(c =>
-                                    string.Equals(c.Type, PermsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                    string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                     string.Equals(c.Value, p, StringComparison.Ordinal))));
                     }
                 }

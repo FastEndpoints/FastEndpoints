@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Constants;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -273,6 +274,12 @@ public sealed class EpVersion
 {
     public int Current { get; internal set; }
     public int DeprecatedAt { get; internal set; }
+
+    internal void Setup()
+    {
+        if (Current == 0)
+            Current = VerOpts.DefaultVersion;
+    }
 }
 
 internal sealed class ServiceBoundEpProp

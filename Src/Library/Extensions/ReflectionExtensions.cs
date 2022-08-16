@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -141,7 +142,7 @@ internal static class ReflectionExtensions
             // - ["one","two","three"] (as StringValues[0])
             // - [{id="1"},{id="2"}] (as StringValues[0])
 
-            return JsonSerializer.Deserialize(vals[0], tProp, Config.SerializerOpts);
+            return JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options);
         }
 
         // querystring: ?ids=one&ids=two
@@ -168,6 +169,6 @@ internal static class ReflectionExtensions
         }
         sb.Append(']');
 
-        return JsonSerializer.Deserialize(sb.ToString(), tProp, Config.SerializerOpts);
+        return JsonSerializer.Deserialize(sb.ToString(), tProp, SerOpts.Options);
     }
 }

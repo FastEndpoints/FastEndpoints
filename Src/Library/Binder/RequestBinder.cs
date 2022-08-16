@@ -94,13 +94,13 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static async Task<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
     {
         if (fromBodyProp is null)
-            return (TRequest?)await ReqDeserializerFunc(httpRequest, tRequest, serializerCtx, cancellation) ?? new();
+            return (TRequest?)await SerOpts.RequestDeserializer(httpRequest, tRequest, serializerCtx, cancellation) ?? new();
 
         var req = new TRequest();
 
         fromBodyProp.PropSetter(
             req,
-            (await ReqDeserializerFunc(httpRequest, fromBodyProp.PropType, serializerCtx, cancellation))!);
+            (await SerOpts.RequestDeserializer(httpRequest, fromBodyProp.PropType, serializerCtx, cancellation))!);
 
         return req;
     }
@@ -220,7 +220,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var prop = cachedProps[i];
 
             var hasPerm = claims.Any(c =>
-               string.Equals(c.Type, PermsClaimType, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
 
             if (!hasPerm && prop.ForbidIfMissing)

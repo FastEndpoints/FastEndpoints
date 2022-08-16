@@ -48,8 +48,8 @@ internal class OperationProcessor : IOperationProcessor
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!)}";//fix missing path parameters
         var apiVer = epDef.Version.Current;
-        var version = $"/{Config.VersioningOpts?.Prefix}{apiVer}";
-        var routePrefix = "/" + (Config.RoutingOpts?.Prefix ?? "_");
+        var version = $"/{Config.VerOpts.Prefix ?? "v"}{apiVer}";
+        var routePrefix = "/" + (Config.EpOpts.RoutePrefix ?? "_");
         var bareRoute = opPath.Remove(routePrefix).Remove(version);
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;

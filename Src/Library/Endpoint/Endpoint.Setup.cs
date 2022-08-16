@@ -270,16 +270,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="deprecateAt">the version group number starting at which this endpoint should not be included in swagger</param>
     protected void Version(int version, int? deprecateAt = null)
     {
-        Definition.Version.Current = GetVersion(version);
+        Definition.Version.Current = version;
         Definition.Version.DeprecatedAt = deprecateAt ?? 0;
-
-        static int GetVersion(int epVer)
-        {
-            return
-                epVer is 0 && VersioningOpts is not null
-                ? VersioningOpts.DefaultVersion
-                : epVer;
-        }
     }
 
     /// <summary>

@@ -79,7 +79,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             await OnValidationFailedAsync(ct);
 
             if (!Definition.DoNotCatchExceptions)
-                await SendErrorsAsync(ErrRespStatusCode, ct);
+                await SendErrorsAsync(ErrOpts.StatusCode, ct);
             else
                 throw;
         }

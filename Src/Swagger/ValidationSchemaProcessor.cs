@@ -35,7 +35,7 @@ namespace FastEndpoints.Swagger;
 
 public class ValidationSchemaProcessor : ISchemaProcessor
 {
-    private static Type[] validatorTypes = Array.Empty<Type>();
+    private static Type[]? validatorTypes;
     private readonly FluentValidationRule[] _rules;
     private readonly IServiceProvider? _serviceProvider = IServiceResolver.ServiceProvider?.CreateScope().ServiceProvider;
     private readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
@@ -46,7 +46,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         _rules = CreateDefaultRules();
         _logger = _serviceProvider?.GetRequiredService<ILogger<ValidationSchemaProcessor>>();
 
-        if (validatorTypes.Length == 0 && MainExtensions.Endpoints is null)
+        if (validatorTypes?.Length == 0 && MainExtensions.Endpoints is null)
         {
             _logger?.LogError("MainExtensions.Endpoints is null");
             return;
@@ -56,25 +56,27 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             .Where(e => e.ValidatorType != null)
             .Select(e => e.ValidatorType!)
             .ToArray();
+
+        if (validatorTypes?.Length is null or 0)
+        {
+            _logger?.LogInformation("No validators found in the system!");
+        }
     }
 
     public void Process(SchemaProcessorContext context)
     {
+        if (validatorTypes?.Length is null or 0)
+            return;
+
         if (context is null)
         {
             _logger?.LogError("SchemaProcessorContext is null");
             return;
         }
 
-        if (validatorTypes.Length == 0)
-        {
-            _logger?.LogInformation("No validator types to work with");
-            return;
-        }
-
         var tRequest = context.ContextualType;
 
-        foreach (var tValidator in validatorTypes)
+        foreach (var tValidator in validatorTypes!)
         {
             try
             {

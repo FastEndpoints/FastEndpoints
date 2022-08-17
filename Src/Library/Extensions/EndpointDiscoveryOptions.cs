@@ -32,4 +32,10 @@ public class EndpointDiscoveryOptions
     /// doing so will use the types discovered during source generation instead of reflection based type discovery.
     /// </summary>
     public Type[]? SourceGeneratorDiscoveredTypes { get; set; }
+    
+    /// <summary>
+    /// an optional list to allow the definition of what types should be handled as a validator.
+    /// if no types are defined here only validators that inherit from <see cref="Validator{TRequest}"/> are registered.
+    /// </summary>
+    public Type[]? CustomValidatorTypes { get; set; }
 }

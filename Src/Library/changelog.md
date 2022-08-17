@@ -11,6 +11,7 @@
 - remove the `new()` contraint on response dtos so a parameterless ctor is not needed on response classes #184
 - built-in unhandled exception handler now sends a response of type `InternalErrorResponse`
 - `ValidationFailureException` class now has the failure details #186
+- support for non-ascii chars in `Content-Disposition` header #[info](https://discord.com/channels/933662816458645504/1009356074983379004)
 - increase logging in validation schema processor #117
 - add jetbrains external annotations #191
 - update dependencies to latest

@@ -6,6 +6,7 @@ using NSwag;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
+using System.Collections;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -295,18 +296,25 @@ internal class OperationProcessor : IOperationProcessor
         {
             foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
             {
-                var jObj = JObject.Parse(
+                if (epDef.EndpointSummary.ExampleRequest.GetType().IsAssignableTo(typeof(IEnumerable)))
+                {
+                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(epDef.EndpointSummary.ExampleRequest);
+                }
+                else
+                {
+                    var jObj = JObject.Parse(
                     Newtonsoft.Json.JsonConvert.SerializeObject(
                         epDef.EndpointSummary.ExampleRequest,
                         ctx.SchemaGenerator.Settings.ActualSerializerSettings));
 
-                foreach (var p in jObj.Properties().ToArray())
-                {
-                    if (propsToRemoveFromExample.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
-                        p.Remove();
-                }
+                    foreach (var p in jObj.Properties().ToArray())
+                    {
+                        if (propsToRemoveFromExample.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                            p.Remove();
+                    }
 
-                requestBody.ActualSchema.Example = jObj;
+                    requestBody.ActualSchema.Example = jObj;
+                }
             }
         }
         else if (tFromBodyProp is not null) //user didn't provide example, but this dto has a prop with [FromBody] attribute

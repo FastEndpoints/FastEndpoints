@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly name="FastEndpoints">
+
+  <!-- <Endpoints> -->
+  <member name="T:FastEndpoints.Endpoint`1">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <member name="T:FastEndpoints.EndpointWithMapper`2">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <member name="T:FastEndpoints.Endpoint`2">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <member name="T:FastEndpoints.Endpoint`3">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <member name="T:FastEndpoints.EndpointWithoutRequest">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <member name="T:FastEndpoints.EndpointWithoutRequest`1">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <member name="T:FastEndpoints.EndpointWithoutRequest`2">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <member name="T:FastEndpoints.EndpointWithMapping`3">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <!-- </End...points> -->
+
+  <!-- <Validators> -->
+  <member name="T:FastEndpoints.Validator`1">
+    <attribute
+            ctor="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseTargetFlags)">
+      <argument>4</argument>
+    </attribute>
+  </member>
+  <!-- <Validators/>-->
+</assembly>

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace TestCases.FromBodyJsonBinding;
 
 public class Product

@@ -22,7 +22,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = statusCode;
-        return RespSerializerFunc(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+        return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public static class HttpResponseExtensions
 
         return responseBody is null
                ? rsp.StartAsync(cancellation.IfDefault(rsp))
-               : RespSerializerFunc(rsp, responseBody, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+               : SerOpts.ResponseSerializer(rsp, responseBody, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 200;
-        return RespSerializerFunc(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+        return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
     /// <summary>
@@ -127,9 +127,9 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = statusCode;
-        return RespSerializerFunc(
+        return SerOpts.ResponseSerializer(
             rsp,
-            ErrRespBldrFunc(failures, statusCode),
+            ErrOpts.ResponseBuilder(failures, statusCode),
             "application/problem+json",
             jsonSerializerContext,
             cancellation.IfDefault(rsp));
@@ -316,7 +316,7 @@ public static class HttpResponseExtensions
         {
             id++;
             await rsp.WriteAsync(
-                text: $"id:{id}\nevent: {eventName}\ndata: {JsonSerializer.Serialize(item, SerializerOpts)}\n\n",
+                text: $"id:{id}\nevent: {eventName}\ndata: {JsonSerializer.Serialize(item, SerOpts.Options)}\n\n",
                 cancellationToken: ct);
         }
     }
@@ -330,7 +330,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = 200;
-        return RespSerializerFunc(
+        return SerOpts.ResponseSerializer(
             rsp,
             new JsonObject(),
             "application/json",

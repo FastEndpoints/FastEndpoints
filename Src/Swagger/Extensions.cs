@@ -8,6 +8,7 @@ using NSwag.Generation.Processors.Security;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using static FastEndpoints.Config;
 
 [assembly: InternalsVisibleTo("FastEndpoints.Swagger.UnitTests")]
 [assembly: InternalsVisibleTo("FastEndpoints.Swagger.IntegrationTests")]
@@ -73,7 +74,7 @@ public static class Extensions
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
         {
-            var stjOpts = new JsonSerializerOptions(Config.SerializerOpts);
+            var stjOpts = new JsonSerializerOptions(SerOpts.Options);
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             serializerSettings?.Invoke(stjOpts);
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);

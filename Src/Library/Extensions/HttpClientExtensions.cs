@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -20,7 +21,7 @@ public static class HttpClientExtensions
     public static async Task<(HttpResponseMessage? response, TResponse? result)>
         POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.PostAsJsonAsync(requestUri, request, Config.SerializerOpts);
+        var res = await client.PostAsJsonAsync(requestUri, request, SerOpts.Options);
 
         if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
@@ -29,7 +30,7 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
         catch (JsonException)
         {
@@ -82,7 +83,7 @@ public static class HttpClientExtensions
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
     public static async Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.PutAsJsonAsync(requestUri, request, Config.SerializerOpts);
+        var res = await client.PutAsJsonAsync(requestUri, request, SerOpts.Options);
 
         if (typeof(TResponse) == Types.EmptyResponse)
             return (res, default(TResponse));
@@ -91,7 +92,7 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
         catch (JsonException)
         {
@@ -150,7 +151,7 @@ public static class HttpClientExtensions
                 RequestUri = new Uri(
                     client.BaseAddress!.ToString().TrimEnd('/') +
                     (requestUri.StartsWith('/') ? requestUri : "/" + requestUri)),
-                Content = new StringContent(JsonSerializer.Serialize(request, Config.SerializerOpts), Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
             });
 
         if (typeof(TResponse) == Types.EmptyResponse)
@@ -160,7 +161,7 @@ public static class HttpClientExtensions
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(Config.SerializerOpts);
+            body = await res.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
         catch (JsonException)
         {

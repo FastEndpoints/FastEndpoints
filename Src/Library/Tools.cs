@@ -10,9 +10,9 @@ internal static class MiscExtensions
     {
         var dict = new Dictionary<TKey, List<TValue>>();
 
-        for (int i = 0; i < items.Count; i++)
+        for (var i = 0; i < items.Count; i++)
         {
-            TItem item = items[i];
+            var item = items[i];
             var key = keySelector(item);
             if (!dict.TryGetValue(key, out List<TValue>? group))
             {
@@ -28,7 +28,7 @@ internal static class MiscExtensions
     internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
     {
         var vrb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
-        var ep = ShortEpNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
+        var ep = EpOpts.ShortNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
         return vrb + ep + routeNum.ToString();
     }
 }

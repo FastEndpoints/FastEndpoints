@@ -8,10 +8,10 @@ public class ThrottleOptions
     /// <summary>
     /// header used to track rate limits
     /// </summary>
-    public string? HeaderName { get; set; }
+    public string? HeaderName { internal get; set; }
 
     /// <summary>
-    /// custom error response for throttled requests
+    /// custom error response message for throttled requests
     /// </summary>
-    public string? ThrottledResponse { get; set; }
+    public string? Message { internal get; set; }
 }

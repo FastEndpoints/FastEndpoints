@@ -8,15 +8,15 @@ public class VersioningOptions
     /// <summary>
     /// the prefix used in front of the version (for example 'v' produces 'v{version}').
     /// </summary>
-    public string Prefix { get; set; } = "v";
+    public string? Prefix { internal get; set; }
 
     /// <summary>
     /// this value will be used on endpoints that does not specify a version
     /// </summary>
-    public int DefaultVersion { get; set; } = 0;
+    public int DefaultVersion { internal get; set; }
 
     /// <summary>
-    /// set to false if you'd like to prefix the version to the route instead of being suffixed
+    /// set to true if you'd like to prefix the version to the route instead of being suffixed which is the default
     /// </summary>
-    public bool SuffixedVersion { get; set; } = true;
+    public bool? PrependToRoute { internal get; set; }
 }

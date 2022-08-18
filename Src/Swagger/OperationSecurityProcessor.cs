@@ -30,14 +30,14 @@ internal class OperationSecurityProcessor : IOperationProcessor
         if (epDef == null)
         {
             if (epMeta.OfType<ControllerAttribute>().Any()) // it is an ApiController
-                return true; // TODO return false if the documentation of such ApiControllers is not wanted.
+                return true; // todo: return false if the documentation of such ApiControllers is not wanted.
 
             throw new InvalidOperationException(
                 $"Endpoint `{context.ControllerType.FullName}` is missing an endpoint description. " +
                  "This may indicate an MvcController. Consider adding `[ApiExplorerSettings(IgnoreApi = true)]`");
         }
 
-        var epSchemes = epDef.AuthSchemes;
+        var epSchemes = epDef.AuthSchemeNames;
         if (epSchemes?.Contains(schemeName) == false)
             return true;
 

@@ -63,28 +63,23 @@ app.UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseFastEndpoints(config =>
+app.UseFastEndpoints(c =>
 {
-    config.ShortEndpointNames = false;
-    config.SerializerOptions = o => o.PropertyNamingPolicy = null;
-    config.EndpointRegistrationFilter = ep => ep.Tags?.Contains("exclude") is not true;
-    config.GlobalEndpointOptions = (epDef, builder) =>
+    c.Serializer.Options.PropertyNamingPolicy = null;
+
+    c.Endpoints.RoutePrefix = "api";
+    c.Endpoints.ShortNames = false;
+    c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
+    c.Endpoints.Configurator = (ep) =>
     {
-        if (epDef.Tags?.Contains("orders") is true)
-            builder.Produces<ErrorResponse>(400, "application/problem+json");
+        if (ep.EndpointTags?.Contains("orders") is true)
+            ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
     };
-    config.RoutingOptions = o => o.Prefix = "api";
-    config.VersioningOptions = o =>
-    {
-        o.Prefix = "v";
-        //o.DefaultVersion = 1; 
-        //o.SuffixedVersion = false; 
-    };
-    config.ThrottleOptions = o =>
-    {
-        o.HeaderName = "X-Custom-Throttle-Header";
-        o.ThrottledResponse = "Custom Error Response";
-    };
+
+    c.Versioning.Prefix = "ver";
+
+    c.Throttle.HeaderName = "X-Custom-Throttle-Header";
+    c.Throttle.Message = "Custom Error Response";
 });
 
 //this must go after usefastendpoints (only if using endpoints)

@@ -6,7 +6,10 @@ namespace FastEndpoints.Swagger;
 internal class DocumentProcessor : IDocumentProcessor
 {
     private readonly int maxEpVer;
-    public DocumentProcessor(int maxEndpointVersion) => maxEpVer = maxEndpointVersion;
+    public DocumentProcessor(int maxEndpointVersion)
+    {
+        maxEpVer = maxEndpointVersion;
+    }
 
     public void Process(DocumentProcessorContext ctx)
     {

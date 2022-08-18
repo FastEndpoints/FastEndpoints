@@ -223,12 +223,12 @@ internal sealed class EndpointData
                         else
                         {
                             var verbs = instance.Definition.Verbs.Select(v => (Http)Enum.Parse(typeof(Http), v, true));
-                            instance.Verbs(new[] { http.Verb }.Concat(verbs).ToArray());
+                            instance.Verbs(new[] { http.Verb }.Concat(verbs).Distinct().ToArray());
                         }
 
                         instance.Definition.Routes = instance.Definition.Routes is null
                             ? new[] { http.Route }
-                            : instance.Definition.Routes.Concat(new[] { http.Route }).ToArray();
+                            : instance.Definition.Routes.Concat(new[] { http.Route }).Distinct().ToArray();
                     }
                     if (att is AllowAnonymousAttribute)
                     {

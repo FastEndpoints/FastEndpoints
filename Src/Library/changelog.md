@@ -18,6 +18,7 @@
 
 ### FIXES
 - swagger schema becoming invalid overnight #173
+- swagger example couldn't handle `IEnumerable` records #195
 - oversight in duplicate route detection code
 - minor issue in versioning system related to default version and swagger
 

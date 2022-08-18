@@ -265,6 +265,12 @@ public sealed class EndpointDefinition
     /// not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
     /// </param>
     public void Throttle(int hitLimit, double durationSeconds, string? headerName = null) => HitCounter = new(headerName, durationSeconds, hitLimit);
+
+    /// <summary>
+    /// validator that should be used for this endpoint
+    /// </summary>
+    /// <typeparam name="TValidator">the validator that will be used by this endpoint</typeparam>
+    public void Validator<TValidator>() => ValidatorType = typeof(TValidator);
 }
 
 /// <summary>

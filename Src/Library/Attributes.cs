@@ -29,7 +29,7 @@ public class HttpGetAttribute : HttpAttribute
 /// <summary>
 /// use this attribute to specify a POST route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
 public class HttpPostAttribute : HttpAttribute
 {
     /// <summary>
@@ -42,7 +42,7 @@ public class HttpPostAttribute : HttpAttribute
 /// <summary>
 /// use this attribute to specify a PUT route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
 public class HttpPutAttribute : HttpAttribute
 {
     /// <summary>
@@ -55,7 +55,7 @@ public class HttpPutAttribute : HttpAttribute
 /// <summary>
 /// use this attribute to specify a PATCH route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
 public class HttpPatchAttribute : HttpAttribute
 {
     /// <summary>
@@ -68,7 +68,7 @@ public class HttpPatchAttribute : HttpAttribute
 /// <summary>
 /// use this attribute to specify a DELETE route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
 public class HttpDeleteAttribute : HttpAttribute
 {
     /// <summary>

@@ -297,6 +297,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void ScopedValidator() => Definition.ScopedValidator();
 
     /// <summary>
+    /// specify the validator that is used for this endpoint.
+    /// if you want to specify the validator for each endpoint you will have to set <see cref="EndpointOptions.SkipValidatorDiscovery"/> to true.
+    /// </summary>
+    /// <typeparam name="TValidator"></typeparam>
+    protected void Validator<TValidator>() => Definition.Validator<TValidator>();
+
+    /// <summary>
     /// specify an override route prefix for this endpoint if a global route prefix is enabled.
     /// this is ignored if a global route prefix is not configured.
     /// global prefix can be ignored by setting <c>string.Empty</c>

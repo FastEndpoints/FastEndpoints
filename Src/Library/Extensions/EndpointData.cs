@@ -58,6 +58,8 @@ internal sealed class EndpointData
             "NJsonSchema",
             "Namotion"
         };
+        
+        var validationTypes = options?.CustomValidatorTypes ?? new [] { Types.IEndpointValidator} ;
 
         var discoveredTypes = options?.SourceGeneratorDiscoveredTypes ?? Enumerable.Empty<Type>();
 
@@ -77,6 +79,14 @@ internal sealed class EndpointData
             if (options?.AssemblyFilter is not null)
                 assemblies = assemblies.Where(options.AssemblyFilter);
 
+            var typesToRegister = new List<Type>() {
+                Types.IEndpoint,
+                Types.IEventHandler,
+                Types.ISummary
+            };
+            
+            typesToRegister.AddRange(validationTypes);
+            
             discoveredTypes = assemblies
                 .Where(a =>
                     !a.IsDynamic &&
@@ -86,12 +96,7 @@ internal sealed class EndpointData
                     !t.IsAbstract &&
                     !t.IsInterface &&
                     !t.IsGenericType &&
-                    t.GetInterfaces().Intersect(new[] {
-                        Types.IEndpoint,
-                        Types.IEndpointValidator,
-                        Types.IEventHandler,
-                        Types.ISummary
-                    }).Any());
+                    t.GetInterfaces().Intersect(typesToRegister).Any());
         }
 
         //Endpoint<TRequest>
@@ -118,7 +123,7 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface == Types.IEndpointValidator)
+                if (validationTypes.Contains(tInterface))
                 {
                     var tRequest = t.GetGenericArgumentsOfType(Types.ValidatorOf1)?[0]!;
                     valDict.Add(tRequest, t);

@@ -40,6 +40,7 @@ app.UseFastEndpoints(c =>
 - `EndpointWithMapper<TRequest, TMapper>` and `EndpointWithoutRequest<TResponse, TMapper>` classes #188
 - `ProducesProblemFE()` extension method for `RouteHandlerBuilder` [#info](https://discord.com/channels/933662816458645504/1004762111546769498)
 - ability to customize permissions claim type #187
+- multiple route support for http attributes #129
 
 ### IMPROVEMENTS
 - remove the `new()` contraint on response dtos so a parameterless ctor is not needed on response classes #184

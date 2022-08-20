@@ -4,78 +4,84 @@
 public abstract class HttpAttribute : Attribute
 {
     internal Http Verb { get; set; }
-    internal string Route { get; set; }
+    internal string[] Routes { get; set; }
 
     protected HttpAttribute(Http verb, string route)
     {
         Verb = verb;
-        Route = route;
+        Routes = new[] { route };
+    }
+
+    protected HttpAttribute(Http verb, params string[] routes)
+    {
+        Verb = verb;
+        Routes = routes;
     }
 }
 
 /// <summary>
 /// use this attribute to specify a GET route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public class HttpGetAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a GET route for an endpoint
     /// </summary>
-    /// <param name="route">the route for the endpoint</param>
-    public HttpGetAttribute(string route) : base(Http.GET, route) { }
+    /// <param name="routes">the routes for the endpoint</param>
+    public HttpGetAttribute(params string[] routes) : base(Http.GET, routes) { }
 }
 
 /// <summary>
 /// use this attribute to specify a POST route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public class HttpPostAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a POST route for an endpoint
     /// </summary>
-    /// <param name="route">the route for the endpoint</param>
-    public HttpPostAttribute(string route) : base(Http.POST, route) { }
+    /// <param name="routes">the routes for the endpoint</param>
+    public HttpPostAttribute(params string[] routes) : base(Http.POST, routes) { }
 }
 
 /// <summary>
 /// use this attribute to specify a PUT route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public class HttpPutAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a PUT route for an endpoint
     /// </summary>
-    /// <param name="route">the route for the endpoint</param>
-    public HttpPutAttribute(string route) : base(Http.PUT, route) { }
+    /// <param name="routes">the routes for the endpoint</param>
+    public HttpPutAttribute(params string[] routes) : base(Http.PUT, routes) { }
 }
 
 /// <summary>
 /// use this attribute to specify a PATCH route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public class HttpPatchAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a PATCH route for an endpoint
     /// </summary>
-    /// <param name="route">the route for the endpoint</param>
-    public HttpPatchAttribute(string route) : base(Http.PATCH, route) { }
+    /// <param name="routes">the routes for the endpoint</param>
+    public HttpPatchAttribute(params string[] routes) : base(Http.PATCH, routes) { }
 }
 
 /// <summary>
 /// use this attribute to specify a DELETE route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public class HttpDeleteAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a DELETE route for an endpoint
     /// </summary>
-    /// <param name="route">the route for the endpoint</param>
-    public HttpDeleteAttribute(string route) : base(Http.DELETE, route) { }
+    /// <param name="routes">the routes for the endpoint</param>
+    public HttpDeleteAttribute(params string[] routes) : base(Http.DELETE, routes) { }
 }
 
 /// <summary>

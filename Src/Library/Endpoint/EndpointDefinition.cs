@@ -15,7 +15,7 @@ public sealed class EndpointDefinition
     public Type EndpointType { get; internal set; }
     public Type ReqDtoType { get; internal set; }
     public Type? ValidatorType { get; internal set; }
-    public string[]? Verbs { get; internal set; }
+    public Http[]? Verbs { get; internal set; }
     public string[]? Routes { get; internal set; }
     public EpVersion Version { get; internal set; } = new();
 

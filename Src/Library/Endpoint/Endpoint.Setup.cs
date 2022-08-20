@@ -76,7 +76,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     public sealed override void Verbs(params Http[] methods)
     {
-        Definition.Verbs = methods.Select(m => m.ToString()).ToArray();
+        Definition.Verbs = methods;
 
         //note: this method is sealed to not allow user to override it because we neeed to perform
         //      the following setup activities, which require access to TRequest/TResponse

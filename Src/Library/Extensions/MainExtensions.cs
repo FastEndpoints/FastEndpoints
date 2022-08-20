@@ -93,11 +93,13 @@ public static class MainExtensions
 
                 foreach (var verb in epDef.Verbs)
                 {
-                    var hb = app.MapMethods(finalRoute, new[] { verb }, SendMisconfiguredPipelineMsg());
+                    var strVerb = verb.ToString();
+
+                    var hb = app.MapMethods(finalRoute, new[] { strVerb }, SendMisconfiguredPipelineMsg());
 
                     hb.WithName(
                         epDef.EndpointType.EndpointName(
-                            epDef.Verbs.Length > 1 ? verb : null,
+                            epDef.Verbs.Length > 1 ? strVerb : null,
                             epDef.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
 
                     hb.WithMetadata(epDef);
@@ -106,7 +108,7 @@ public static class MainExtensions
 
                     EpOpts.Configurator?.Invoke(epDef); //apply global ep settings to the definition next
 
-                    if (epDef.AnonymousVerbs?.Contains(verb) is true)
+                    if (epDef.AnonymousVerbs?.Contains(strVerb) is true)
                         hb.AllowAnonymous();
                     else
                         hb.RequireAuthorization(authorizeAttributes);

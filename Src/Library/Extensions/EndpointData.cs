@@ -220,29 +220,22 @@ internal sealed class EndpointData
             {
                 foreach (var att in epAttribs)
                 {
-                    if (att is HttpAttribute http)
+                    switch (att)
                     {
-                        if (instance.Definition.Verbs is null)
-                            instance.Verbs(http.Verb);
-                        else
-                        {
-                            var verbs = instance.Definition.Verbs.Select(v => (Http)Enum.Parse(typeof(Http), v, true));
-                            instance.Verbs(new[] { http.Verb }.Concat(verbs).Distinct().ToArray());
-                        }
+                        case HttpAttribute httpAttr:
+                            instance.Verbs(httpAttr.Verb);
+                            def.Routes = httpAttr.Routes;
+                            break;
 
-                        instance.Definition.Routes = instance.Definition.Routes is null
-                            ? new[] { http.Route }
-                            : instance.Definition.Routes.Concat(new[] { http.Route }).Distinct().ToArray();
-                    }
-                    if (att is AllowAnonymousAttribute)
-                    {
-                        def.AllowAnonymous();
-                    }
-                    if (att is AuthorizeAttribute auth)
-                    {
-                        def.Roles(auth.Roles?.Split(','));
-                        def.AuthSchemes(auth.AuthenticationSchemes?.Split(','));
-                        if (auth.Policy is not null) def.Policies(new[] { auth.Policy });
+                        case AllowAnonymousAttribute:
+                            def.AllowAnonymous();
+                            break;
+
+                        case AuthorizeAttribute authAttr:
+                            def.Roles(authAttr.Roles?.Split(','));
+                            def.AuthSchemes(authAttr.AuthenticationSchemes?.Split(','));
+                            if (authAttr.Policy is not null) def.Policies(new[] { authAttr.Policy });
+                            break;
                     }
                 }
             }

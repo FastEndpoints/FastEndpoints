@@ -16,7 +16,7 @@ internal sealed class EndpointData
 
     internal static Stopwatch Stopwatch { get; } = new();
 
-    internal EndpointData(IServiceCollection services, EndpointDiscoveryOptions? options, ConfigurationManager? config)
+    internal EndpointData(IServiceCollection services, EndpointDiscoveryOptions options, ConfigurationManager? config)
     {
         _endpoints = new(() =>
         {
@@ -32,10 +32,10 @@ internal sealed class EndpointData
         _ = _endpoints.Value;
     }
 
-    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services, EndpointDiscoveryOptions? options,
+    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services, EndpointDiscoveryOptions options,
         ConfigurationManager? config)
     {
-        if (options?.DisableAutoDiscovery is true && options.Assemblies?.Any() is false)
+        if (options.DisableAutoDiscovery && options.Assemblies?.Any() is false)
             throw new InvalidOperationException("If 'DisableAutoDiscovery' is true, a collection of `Assemblies` must be provided!");
 
         Stopwatch.Start();
@@ -58,35 +58,25 @@ internal sealed class EndpointData
             "NJsonSchema",
             "Namotion"
         };
-        
-        var validationTypes = options?.CustomValidatorTypes ?? new [] { Types.IEndpointValidator} ;
 
-        var discoveredTypes = options?.SourceGeneratorDiscoveredTypes ?? Enumerable.Empty<Type>();
+        var discoveredTypes = options.SourceGeneratorDiscoveredTypes ?? Enumerable.Empty<Type>();
 
         if (!discoveredTypes.Any())
         {
             var assemblies = Enumerable.Empty<Assembly>();
 
-            if (options?.Assemblies?.Any() is true)
+            if (options.Assemblies?.Any() is true)
             {
                 assemblies = options.Assemblies;
                 excludes = excludes.Except(options.Assemblies.Select(a => a.FullName?.Split('.')[0]!));
             }
 
-            if (options?.DisableAutoDiscovery != true)
+            if (!options.DisableAutoDiscovery)
                 assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
 
-            if (options?.AssemblyFilter is not null)
+            if (options.AssemblyFilter is not null)
                 assemblies = assemblies.Where(options.AssemblyFilter);
 
-            var typesToRegister = new List<Type>() {
-                Types.IEndpoint,
-                Types.IEventHandler,
-                Types.ISummary
-            };
-            
-            typesToRegister.AddRange(validationTypes);
-            
             discoveredTypes = assemblies
                 .Where(a =>
                     !a.IsDynamic &&
@@ -96,7 +86,12 @@ internal sealed class EndpointData
                     !t.IsAbstract &&
                     !t.IsInterface &&
                     !t.IsGenericType &&
-                    t.GetInterfaces().Intersect(typesToRegister).Any());
+                    t.GetInterfaces().Intersect(new[] {
+                        Types.IEndpoint,
+                        Types.IEventHandler,
+                        Types.ISummary,
+                        options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                    }).Any());
         }
 
         //Endpoint<TRequest>
@@ -104,8 +99,8 @@ internal sealed class EndpointData
 
         var epList = new List<(Type tEndpoint, Type tRequest)>();
 
-        //key: TRequest //val: TValidator
-        var valDict = new Dictionary<Type, Type>();
+        //key: TRequest
+        var valDict = new Dictionary<Type, ValDicItem>();
 
         //key: TEndpoint //val: TSummary
         var summaryDict = new Dictionary<Type, Type>();
@@ -123,10 +118,15 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (validationTypes.Contains(tInterface))
+                if (tInterface == Types.IValidator)
                 {
                     var tRequest = t.GetGenericArgumentsOfType(Types.ValidatorOf1)?[0]!;
-                    valDict.Add(tRequest, t);
+
+                    if (valDict.TryGetValue(tRequest, out var val))
+                        val.HasDuplicates = true;
+                    else
+                        valDict.Add(tRequest, new(t, false));
+
                     continue;
                 }
 
@@ -152,7 +152,6 @@ internal sealed class EndpointData
             var def = new EndpointDefinition()
             {
                 EndpointType = x.tEndpoint,
-                ValidatorType = valDict.GetValueOrDefault(x.tRequest),
                 ReqDtoType = x.tRequest,
             };
 
@@ -224,27 +223,35 @@ internal sealed class EndpointData
                     if (att is HttpAttribute http)
                     {
                         instance.Verbs(http.Verb);
-                        instance.Definition.Routes = new[] { http.Route };
+                        def.Routes = new[] { http.Route };
                     }
                     if (att is AllowAnonymousAttribute)
                     {
-                        instance.Definition.AllowAnonymous();
+                        def.AllowAnonymous();
                     }
                     if (att is AuthorizeAttribute auth)
                     {
-                        instance.Definition.Roles(auth.Roles?.Split(','));
-                        instance.Definition.AuthSchemes(auth.AuthenticationSchemes?.Split(','));
-                        if (auth.Policy is not null) instance.Definition.Policies(new[] { auth.Policy });
+                        def.Roles(auth.Roles?.Split(','));
+                        def.AuthSchemes(auth.AuthenticationSchemes?.Split(','));
+                        if (auth.Policy is not null) def.Policies(new[] { auth.Policy });
                     }
                 }
             }
 
-            if (instance.Definition.ValidatorType is not null)
+            if (def.ValidatorType is null && valDict.TryGetValue(def.ReqDtoType, out var val)) //user has not specified a validator type in the endpoint
             {
-                if (instance.Definition.ValidatorIsScoped)
-                    services.AddScoped(instance.Definition.ValidatorType);
+                if (val.HasDuplicates)
+                    throw new InvalidOperationException($"More than one validator was found for the request dto [{def.ReqDtoType.FullName}]. Specify the exact validator to register using the `Validator()` method in endpoint configuration.");
+
+                def.ValidatorType = val.ValidatorType;
+            }
+
+            if (def.ValidatorType is not null)
+            {
+                if (def.ValidatorIsScoped)
+                    services.AddScoped(def.ValidatorType);
                 else
-                    services.AddSingleton(instance.Definition.ValidatorType);
+                    services.AddSingleton(def.ValidatorType);
             }
 
             if (summaryDict.TryGetValue(def.EndpointType, out var tSummary))
@@ -254,5 +261,17 @@ internal sealed class EndpointData
 
             return def;
         }).ToArray();
+    }
+
+    private class ValDicItem
+    {
+        public Type ValidatorType;
+        public bool HasDuplicates;
+
+        public ValDicItem(Type validatorType, bool dupesFound)
+        {
+            ValidatorType = validatorType;
+            HasDuplicates = dupesFound;
+        }
     }
 }

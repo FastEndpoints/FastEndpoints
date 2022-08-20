@@ -39,15 +39,4 @@ public class EndpointOptions
     /// </code>
     /// </summary>
     public Action<EndpointDefinition>? Configurator { internal get; set; }
-
-    /// <summary>
-    /// set to true if you'd like to define the validator used by an endpoint 
-    /// </summary>
-    /// <code>
-    /// app.UseFastEndpoints(c =>
-    /// {
-    ///    c.Endpoints.SkipValidatorDiscovery = true;
-    /// }
-    /// </code>
-    public bool SkipValidatorDiscovery { internal get; set; }
 }

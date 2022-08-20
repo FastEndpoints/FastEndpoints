@@ -269,8 +269,14 @@ public sealed class EndpointDefinition
     /// <summary>
     /// validator that should be used for this endpoint
     /// </summary>
-    /// <typeparam name="TValidator">the validator that will be used by this endpoint</typeparam>
-    public void Validator<TValidator>() => ValidatorType = typeof(TValidator);
+    /// <typeparam name="TValidator">the type of the validator</typeparam>
+    /// <param name="isScoped">set to true if you want to register the validator as scoped instead of singleton. which will enable constructor injection at the cost of performance.</param>
+    public void Validator<TValidator>(bool isScoped = false)
+    {
+        ValidatorType = typeof(TValidator);
+        if (isScoped)
+            ScopedValidator();
+    }
 }
 
 /// <summary>

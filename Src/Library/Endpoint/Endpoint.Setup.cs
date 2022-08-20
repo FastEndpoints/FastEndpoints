@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
@@ -295,6 +296,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.
     /// </summary>
     protected void ScopedValidator() => Definition.ScopedValidator();
+
+    /// <summary>
+    /// specify the validator that should be used for this endpoint.
+    /// <para>TIP: you only need to call this method if you have more than one validator for the same request dto in the solution or if you just want to be explicit about what validator is used by the endpoint.</para>
+    /// </summary>
+    /// <typeparam name="TValidator">the type of the validator</typeparam>
+    /// <param name="isScoped">set to true if you want to register the validator as scoped instead of singleton. which will enable constructor injection at the cost of performance.</param>
+    protected void Validator<TValidator>(bool isScoped = false) where TValidator : IValidator => Definition.Validator<TValidator>(isScoped);
 
     /// <summary>
     /// specify an override route prefix for this endpoint if a global route prefix is enabled.

@@ -32,8 +32,8 @@ public static class MainExtensions
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options = null,
         ConfigurationManager? config = null)
     {
-        EndpointDiscoveryOptions? opts = null;
-        options?.Invoke(opts ??= new());
+        var opts = new EndpointDiscoveryOptions();
+        options?.Invoke(opts);
         Endpoints = new(services, opts, config);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();

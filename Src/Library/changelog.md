@@ -41,6 +41,7 @@ app.UseFastEndpoints(c =>
 - `ProducesProblemFE()` extension method for `RouteHandlerBuilder` [#info](https://discord.com/channels/933662816458645504/1004762111546769498)
 - ability to customize permissions claim type #187
 - multiple route support for http attributes #129
+- `FastEndpoints.ClientGen` package for c# and typescript client generation with `NSwag`
 
 ### IMPROVEMENTS
 - remove the `new()` contraint on response dtos so a parameterless ctor is not needed on response classes #184

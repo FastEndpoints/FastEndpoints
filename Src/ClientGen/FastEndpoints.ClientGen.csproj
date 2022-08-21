@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
-        <Description>Swagger support for FastEndpoints.</Description>
+        <Description>CSharp &amp; Typescript client generator for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
@@ -11,8 +11,9 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-        <PackageReference Include="NSwag.AspNetCore" Version="13.16.1" />
-        <ProjectReference Include="..\Library\FastEndpoints.csproj" />
+        <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.16.1" />
+        <PackageReference Include="NSwag.Generation" Version="13.16.1" />
+        <PackageReference Include="NSwag.Generation.AspNetCore" Version="13.16.1" />
     </ItemGroup>
 
     <ItemGroup>

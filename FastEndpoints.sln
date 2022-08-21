@@ -50,6 +50,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Generator", "Src\Generator\FastEndpoints.Generator.csproj", "{D7551B53-9C05-442D-B1E4-6C79FB81E91F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.ClientGen", "Src\ClientGen\FastEndpoints.ClientGen.csproj", "{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -194,6 +196,14 @@ Global
 		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Release|x86.ActiveCfg = Release|Any CPU
 		{D7551B53-9C05-442D-B1E4-6C79FB81E91F}.Release|x86.Build.0 = Release|Any CPU
+		{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}.Debug|x86.Build.0 = Debug|Any CPU
+		{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}.Release|x86.ActiveCfg = Release|Any CPU
+		{5CF1709B-9521-4064-B3A9-AC9B1EBA5ED5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

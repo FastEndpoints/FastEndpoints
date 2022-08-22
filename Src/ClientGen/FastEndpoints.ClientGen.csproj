@@ -12,6 +12,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="13.16.1" />
+        <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="13.16.1" />
         <PackageReference Include="NSwag.Generation" Version="13.16.1" />
         <PackageReference Include="NSwag.Generation.AspNetCore" Version="13.16.1" />
     </ItemGroup>

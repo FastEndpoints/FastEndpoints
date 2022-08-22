@@ -6,6 +6,7 @@
         <Description>Source generator library for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <IsRoslynComponent>true</IsRoslynComponent>
+        <DevelopmentDependency>true</DevelopmentDependency>
     </PropertyGroup>
 
     <ItemGroup>

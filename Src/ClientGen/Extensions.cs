@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using NSwag.CodeGeneration;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.TypeScript;
@@ -86,5 +87,48 @@ public static class Extensions
         })
         .ExcludeFromDescription();
         return builder;
+    }
+
+
+    public static async Task<bool> GenerateApiClientsAsync(this WebApplication app, string documentName, string destinationPath, Action<CSharpClientGeneratorSettings>? csSettings, Action<TypeScriptClientGeneratorSettings>? tsSettings)
+    {
+        if (app.Configuration["generateclients"] == "true")
+        {
+            if (tsSettings is null && csSettings is null)
+                throw new InvalidOperationException("Either csharp or typescript client generator settings must be provided!");
+
+            await app.StartAsync();
+
+            var docs = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
+            var doc = await docs.GenerateAsync(documentName);
+
+            if (csSettings is not null)
+            {
+                var csGenSettings = new CSharpClientGeneratorSettings()
+                {
+                    ClassName = "ApiClient",
+                    CSharpGeneratorSettings = { Namespace = "FastEndpoints" }
+                };
+                csSettings(csGenSettings);
+                var source = new CSharpClientGenerator(doc, csGenSettings).GenerateFile();
+                await File.WriteAllTextAsync(Path.Combine(destinationPath, csGenSettings.ClassName + ".cs"), source);
+            }
+
+            if (tsSettings is not null)
+            {
+                var tsGenSettings = new TypeScriptClientGeneratorSettings()
+                {
+                    ClassName = "ApiClient",
+                    TypeScriptGeneratorSettings = { Namespace = "FastEndpoints" }
+                };
+                tsSettings(tsGenSettings);
+                var source = new TypeScriptClientGenerator(doc, tsGenSettings).GenerateFile();
+                await File.WriteAllTextAsync(Path.Combine(destinationPath, tsGenSettings.ClassName + ".ts"), source);
+            }
+
+            await app.StopAsync();
+            return true;
+        }
+        return false;
     }
 }

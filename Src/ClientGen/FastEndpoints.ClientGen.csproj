@@ -7,7 +7,6 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <DevelopmentDependency>true</DevelopmentDependency>
     </PropertyGroup>
 
     <ItemGroup>

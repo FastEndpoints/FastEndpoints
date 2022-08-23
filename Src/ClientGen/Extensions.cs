@@ -92,7 +92,7 @@ public static class Extensions
 
     /// <summary>
     /// generates c# and/or typescript clients and saves them to disk if the application is run with the commandline argument <c>--generateclients true</c>
-    /// and exits the program with a non-zero exit code.
+    /// and exits the program with a zero exit code.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// </summary>
     /// <param name="documentName">the name of the swagger document to generate the clients for</param>

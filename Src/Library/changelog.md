@@ -13,6 +13,7 @@ app.UseFastEndpoints(c =>
     c.Versioning.Prefix = "V";
 });
 ```
+read the docs [here](https://fast-endpoints.com/docs/configuration-settings#customizing-functionality).
 
 #### **2. reworked global endpoint configuration**
 the `GlobalEndpointOptions` was removed in favor or `Endpoints.Configurator`. 
@@ -29,16 +30,17 @@ app.UseFastEndpoints(c =>
     });
 });
 ```
+read the docs [here](https://fast-endpoints.com/docs/configuration-settings#global-endpoint-options)
 
 ### NEW
-- code snippets added to [visual studio extension](https://marketplace.visualstudio.com/items?itemName=dj-nitehawk.FastEndpoints)
-- `FastEndpoints.ClientGen` package for c# and typescript client generation with `NSwag`
-- override default model binding logic by inheriting from `RequestBinder<TRequest>` class #189
-- global pre/post processor support [#info](https://discord.com/channels/933662816458645504/1011478168726683678)
+- code snippets added to visual studio extension #[info](https://fast-endpoints.com/docs/scaffolding#vs-code-snippets)
+- `FastEndpoints.ClientGen` package for c# and typescript client generation with `NSwag` #[info](https://fast-endpoints.com/docs/swagger-support#api-client-generation)
+- override default model binding logic by inheriting from `RequestBinder<TRequest>` class #[info](https://fast-endpoints.com/docs/model-binding#inherit-the-default-binder)
+- global pre/post processor support [#info](https://fast-endpoints.com/docs/pre-post-processors#global-processors)
 - `DontCatchExceptions()` method to enable custom exception handler middleware #186
-- `Validator<TValidafor>()` method for being explicit in the endpoint configuration #190
-- `IncludeAbstractValidators` startup flag for including validators inheriting `AbstractValidator<TRequest>` in auto registration #190
-- `RequestMapper<TRequest,TEntity>` and `ResponseMapper<TResponse,TEntity>` classes #188
+- `IncludeAbstractValidators` startup flag for including validators inheriting `AbstractValidator<TRequest>` in auto registration #[info](https://fast-endpoints.com/docs/validation#abstract-validator-classes)
+- `Validator<TValidafor>()` method for being explicit in the endpoint configuration #[info](https://fast-endpoints.com/docs/validation#abstract-validator-classes)
+- `RequestMapper<TRequest,TEntity>` and `ResponseMapper<TResponse,TEntity>` classes #[info](https://fast-endpoints.com/docs/domain-entity-mapping#mapping-logic-in-a-separate-class)
 - `EndpointWithMapper<TRequest, TMapper>` and `EndpointWithoutRequest<TResponse, TMapper>` classes #188
 - `ProducesProblemFE()` extension method for `RouteHandlerBuilder` [#info](https://discord.com/channels/933662816458645504/1004762111546769498)
 - ability to customize permissions claim type #187

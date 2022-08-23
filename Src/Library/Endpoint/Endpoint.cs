@@ -45,14 +45,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 req,
                 HttpContext,
                 Definition,
-                Definition.PreProcessors,
+                Definition.PreProcessorList,
                 ValidationFailures,
                 ct);
 
             OnAfterValidate(req);
             await OnAfterValidateAsync(req, ct);
 
-            await RunPreprocessors(Definition.PreProcessors, req, HttpContext, ValidationFailures, ct);
+            await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
 
             if (ResponseStarted) //HttpContext.Response.HasStarted doesn't work in AWS lambda!!!
                 return; //response already sent to client (most likely from a preprocessor)
@@ -71,7 +71,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             OnAfterHandle(req, Response);
             await OnAfterHandleAsync(req, Response, ct);
 
-            await RunPostProcessors(Definition.PostProcessors, req, Response, HttpContext, ValidationFailures, ct);
+            await RunPostProcessors(Definition.PostProcessorList, req, Response, HttpContext, ValidationFailures, ct);
         }
         catch (ValidationFailureException)
         {
@@ -80,8 +80,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
             if (!Definition.DoNotCatchExceptions)
                 await SendErrorsAsync(ErrOpts.StatusCode, ct);
-            else
-                throw;
+            else throw;
         }
     }
 

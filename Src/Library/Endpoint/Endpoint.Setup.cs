@@ -204,13 +204,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>
-    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => Definition.PreProcessors = preProcessors;
+    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => Definition.PreProcessorList.AddRange(preProcessors);
 
     /// <summary>
     /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
-    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => Definition.PostProcessors = postProcessors;
+    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => Definition.PostProcessorList.AddRange(postProcessors);
 
     /// <summary>
     /// specify response caching settings for this endpoint

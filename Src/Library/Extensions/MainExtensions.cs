@@ -180,8 +180,6 @@ public static class MainExtensions
         // {rPrfix}/{route}/{p}{ver}
         // mobile/customer/retrieve/v1
 
-        //todo: test versioning
-
         if (EpOpts.RoutePrefix is not null && prefixOverride != string.Empty)
         {
             builder.Append('/')

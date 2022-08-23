@@ -9,21 +9,35 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
 {
-    private static async Task RunPostProcessors(object? postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPostProcessors(List<object> postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        if (postProcessors is not null)
+        for (var i = 0; i < postProcessors.Count; i++)
         {
-            foreach (var pp in (IPostProcessor<TRequest, TResponse>[])postProcessors)
-                await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
+            switch (postProcessors[i])
+            {
+                case IGlobalPostProcessor gp:
+                    await gp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
+                    break;
+                case IPostProcessor<TRequest, TResponse> pp:
+                    await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
+                    break;
+            }
         }
     }
 
-    private static async Task RunPreprocessors(object? preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPreprocessors(List<object> preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        if (preProcessors is not null)
+        for (var i = 0; i < preProcessors.Count; i++)
         {
-            foreach (var p in (IPreProcessor<TRequest>[])preProcessors)
-                await p.PreProcessAsync(req, ctx, validationFailures, cancellation);
+            switch (preProcessors[i])
+            {
+                case IGlobalPreProcessor gp:
+                    await gp.PreProcessAsync(req, ctx, validationFailures, cancellation);
+                    break;
+                case IPreProcessor<TRequest> pr:
+                    await pr.PreProcessAsync(req, ctx, validationFailures, cancellation);
+                    break;
+            }
         }
     }
 

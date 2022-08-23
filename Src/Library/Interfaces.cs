@@ -31,6 +31,11 @@ public interface IPreProcessor<TRequest>
 }
 
 /// <summary>
+/// interface for defining global pre-processors to be executed before the main endpoint handler is called
+/// </summary>
+public interface IGlobalPreProcessor : IPreProcessor<object> { }
+
+/// <summary>
 /// interface for defining post-processors to be executed after the main endpoint handler is done
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
@@ -39,6 +44,11 @@ public interface IPostProcessor<TRequest, TResponse>
 {
     Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
 }
+
+/// <summary>
+/// interface for defining global post-processors to be executed after the main endpoint handler is done
+/// </summary>
+public interface IGlobalPostProcessor : IPostProcessor<object, object> { }
 
 /// <summary>
 /// marker interface for entity mappers

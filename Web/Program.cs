@@ -5,12 +5,13 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Localization;
 using NSwag;
 using System.Globalization;
+using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddCors();
 builder.Services.AddResponseCaching();
-builder.Services.AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All);
+builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -72,6 +73,7 @@ app.UseFastEndpoints(c =>
     c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
     c.Endpoints.Configurator = (ep) =>
     {
+        ep.PreProcessors(new AdminHeaderChecker());
         if (ep.EndpointTags?.Contains("orders") is true)
             ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
     };

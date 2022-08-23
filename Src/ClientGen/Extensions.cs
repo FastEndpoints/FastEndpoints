@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NSwag.CodeGeneration;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.TypeScript;
@@ -91,15 +92,14 @@ public static class Extensions
 
     /// <summary>
     /// generates c# and/or typescript clients and saves them to disk if the application is run with the commandline argument <c>--generateclients true</c>
-    /// and returns <c>true</c> if the app was run with the correct commandline argument.
-    /// <para>use the return value to determin whether the app was run with the intention of generating api clients or not and return control early in order to not let <c>app.Run()</c> execute.</para>
-    /// <para>HINT: make sure place the call after <c>app.UseFastEndpoints()</c></para>
+    /// and exits the program with a non-zero exit code.
+    /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// </summary>
     /// <param name="documentName">the name of the swagger document to generate the clients for</param>
     /// <param name="destinationPath">the folder path (without file name) where the client files will be save to</param>
     /// <param name="csSettings">client generator settings for c#</param>
     /// <param name="tsSettings">client generator settings for typescript</param>
-    public static async Task<bool> GenerateApiClientsAsync(this WebApplication app, string documentName, string destinationPath, Action<CSharpClientGeneratorSettings>? csSettings, Action<TypeScriptClientGeneratorSettings>? tsSettings)
+    public static async Task GenerateClientsAndExitAsync(this WebApplication app, string documentName, string destinationPath, Action<CSharpClientGeneratorSettings>? csSettings, Action<TypeScriptClientGeneratorSettings>? tsSettings)
     {
         if (app.Configuration["generateclients"] == "true")
         {
@@ -110,6 +110,9 @@ public static class Extensions
 
             var docs = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
             var doc = await docs.GenerateAsync(documentName);
+            var logger = app.Services.GetRequiredService<ILogger<Runner>>();
+
+            logger.LogInformation("Api client generation starting...");
 
             if (csSettings is not null)
             {
@@ -121,6 +124,7 @@ public static class Extensions
                 csSettings(csGenSettings);
                 var source = new CSharpClientGenerator(doc, csGenSettings).GenerateFile();
                 await File.WriteAllTextAsync(Path.Combine(destinationPath, csGenSettings.ClassName + ".cs"), source);
+                logger.LogInformation("C# api client generation successful!");
             }
 
             if (tsSettings is not null)
@@ -133,11 +137,13 @@ public static class Extensions
                 tsSettings(tsGenSettings);
                 var source = new TypeScriptClientGenerator(doc, tsGenSettings).GenerateFile();
                 await File.WriteAllTextAsync(Path.Combine(destinationPath, tsGenSettings.ClassName + ".ts"), source);
+                logger.LogInformation("TypeScript api client generation successful!");
             }
 
             await app.StopAsync();
-            return true;
+            Environment.Exit(0);
         }
-        return false;
     }
 }
+
+public class Runner { }

@@ -90,9 +90,9 @@ public static class Extensions
     }
 
     /// <summary>
-    /// generates either c# or typescript clients and saves them to disk if the application is run with the commandline argument <c>--generateclients true</c>
-    /// returns <c>true</c> if the app was run with the correct commandline argument.
-    /// use the return value to determin whether the app was run with the intention of generating api clients or not and return control early in order to not let <c>app.Run()</c> execute.
+    /// generates c# and/or typescript clients and saves them to disk if the application is run with the commandline argument <c>--generateclients true</c>
+    /// and returns <c>true</c> if the app was run with the correct commandline argument.
+    /// <para>use the return value to determin whether the app was run with the intention of generating api clients or not and return control early in order to not let <c>app.Run()</c> execute.</para>
     /// <para>HINT: make sure place the call after <c>app.UseFastEndpoints()</c></para>
     /// </summary>
     /// <param name="documentName">the name of the swagger document to generate the clients for</param>

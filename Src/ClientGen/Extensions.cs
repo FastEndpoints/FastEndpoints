@@ -89,7 +89,16 @@ public static class Extensions
         return builder;
     }
 
-
+    /// <summary>
+    /// generates either c# or typescript clients and saves them to disk if the application is run with the commandline argument <c>--generateclients true</c>
+    /// returns <c>true</c> if the app was run with the correct commandline argument.
+    /// use the return value to determin whether the app was run with the intention of generating api clients or not and return control early in order to not let <c>app.Run()</c> execute.
+    /// <para>HINT: make sure place the call after <c>app.UseFastEndpoints()</c></para>
+    /// </summary>
+    /// <param name="documentName">the name of the swagger document to generate the clients for</param>
+    /// <param name="destinationPath">the folder path (without file name) where the client files will be save to</param>
+    /// <param name="csSettings">client generator settings for c#</param>
+    /// <param name="tsSettings">client generator settings for typescript</param>
     public static async Task<bool> GenerateApiClientsAsync(this WebApplication app, string documentName, string destinationPath, Action<CSharpClientGeneratorSettings>? csSettings, Action<TypeScriptClientGeneratorSettings>? tsSettings)
     {
         if (app.Configuration["generateclients"] == "true")

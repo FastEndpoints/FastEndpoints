@@ -86,13 +86,13 @@ internal sealed class EndpointData
                     !t.IsAbstract &&
                     !t.IsInterface &&
                     !t.IsGenericType &&
-                    t.GetInterfaces().Intersect(new[] {
-                        Types.IEndpoint,
-                        Types.IEventHandler,
-                        Types.ISummary,
-                        options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                    }).Any())
-                .Where(t => options.Filter is null || options.Filter(t));
+                     t.GetInterfaces().Intersect(new[] {
+                         Types.IEndpoint,
+                         Types.IEventHandler,
+                         Types.ISummary,
+                         options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                     }).Any() &&
+                    (options.Filter is null || options.Filter(t)));
         }
 
         //Endpoint<TRequest>

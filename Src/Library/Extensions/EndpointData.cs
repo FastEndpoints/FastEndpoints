@@ -91,7 +91,8 @@ internal sealed class EndpointData
                         Types.IEventHandler,
                         Types.ISummary,
                         options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                    }).Any());
+                    }).Any())
+                .Where(t => options.Filter is null || options.Filter(t));
         }
 
         //Endpoint<TRequest>

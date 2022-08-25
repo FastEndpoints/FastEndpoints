@@ -39,4 +39,12 @@ public class EndpointDiscoveryOptions
     /// if you'd like to also include validators inheriting <see cref="AbstractValidator{T}"/>, set this to true.
     /// </summary>
     public bool IncludeAbstractValidators { internal get; set; }
+
+    /// <summary>
+    /// a function to filter out types from auto discovery.
+    /// the function you set here will be executed for each discovered type during startup.
+    /// return 'false' from the function if you want to exclude a type from discovery.
+    /// return 'true' to include.
+    /// </summary>
+    public Func<Type, bool>? Filter { internal get; set; }
 }

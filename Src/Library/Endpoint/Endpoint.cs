@@ -34,9 +34,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     {
         try
         {
-            var req = await ((IRequestBinder<TRequest>)Definition.RequestBinder).BindAsync(
-                new(HttpContext, ValidationFailures, Definition.SerializerContext, Definition.DontBindFormData),
-                ct);
+            var binderCtx = new BinderContext(HttpContext, ValidationFailures, Definition.SerializerContext, Definition.DontBindFormData);
+            var req = await ((IRequestBinder<TRequest>)Definition.RequestBinder).BindAsync(binderCtx, ct);
+            BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
 
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req, ct);

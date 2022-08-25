@@ -13,6 +13,7 @@ public class Config
     internal static SerializerOptions SerOpts = new();
     internal static ThrottleOptions ThrOpts = new();
     internal static VersioningOptions VerOpts = new();
+    internal static BindingOptions BndOpts = new();
 
     /// <summary>
     /// endpoint dicovery &amp; registration settings
@@ -43,4 +44,9 @@ public class Config
     /// endpoint versioning settings
     /// </summary>
     public VersioningOptions Versioning => VerOpts;
+
+    /// <summary>
+    /// request binding settings
+    /// </summary>
+    public BindingOptions Binding => BndOpts;
 }

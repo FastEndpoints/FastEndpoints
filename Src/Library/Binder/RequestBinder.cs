@@ -91,10 +91,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                : throw new ValidationFailureException(context.ValidationFailures, "Model binding failed");
     }
 
-    private static async Task<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
+    private static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
     {
         if (fromBodyProp is null)
-            return (TRequest?)await SerOpts.RequestDeserializer(httpRequest, tRequest, serializerCtx, cancellation) ?? new();
+            return (TRequest)(await SerOpts.RequestDeserializer(httpRequest, tRequest, serializerCtx, cancellation))! ?? new();
 
         var req = new TRequest();
 
@@ -105,7 +105,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return req;
     }
 
-    private static async Task<TRequest> BindPlainTextBody(Stream body)
+    private static async ValueTask<TRequest> BindPlainTextBody(Stream body)
     {
         var req = (IPlainTextRequest)new TRequest();
         using var streamReader = new StreamReader(body);

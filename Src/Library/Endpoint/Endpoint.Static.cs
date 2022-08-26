@@ -47,13 +47,4 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                ? ctx.Response.SendNoContentAsync(cancellation)
                : ctx.Response.SendAsync(responseDto, 200, jsonSerializerContext, cancellation);
     }
-
-    private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
-    {
-        b.Add(epBuilder =>
-        {
-            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
-                epBuilder.Metadata.Remove(m);
-        });
-    };
 }

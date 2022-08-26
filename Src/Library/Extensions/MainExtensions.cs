@@ -76,10 +76,12 @@ public static class MainExtensions
         foreach (var epDef in Endpoints.Found)
         {
             if (EpOpts.Filter is not null && !EpOpts.Filter(epDef)) continue;
+
             if (epDef.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
             if (epDef.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
 
-            epDef.Version.Setup(); //this has to be done after config action is done by user. so, it goes here.
+            EpOpts.Configurator?.Invoke(epDef); //apply global ep settings to the definition
+            epDef.Version.Setup(); //todo: move this to a more appropriate place
 
             var authorizeAttributes = BuildAuthorizeAttributes(epDef);
             var routeNum = 0;
@@ -105,8 +107,6 @@ public static class MainExtensions
                     hb.WithMetadata(epDef);
 
                     epDef.InternalConfigAction(hb); //always do this first here
-
-                    EpOpts.Configurator?.Invoke(epDef); //apply global ep settings to the definition next
 
                     if (epDef.AnonymousVerbs?.Contains(strVerb) is true)
                         hb.AllowAnonymous();

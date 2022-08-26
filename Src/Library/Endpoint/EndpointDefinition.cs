@@ -71,6 +71,7 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given permissions
+    /// <para>WARNING: setting permissions globally will make the endpoint level call ineffective. i.e. the endpoint level call will be ignored.</para>
     /// </summary>
     /// <param name="permissions">the permissions</param>
     public void Permissions(params string[] permissions)
@@ -81,6 +82,7 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// allows access if the claims principal has ALL of the given permissions
+    /// <para>WARNING: setting permissions globally will make the endpoint level call ineffective. i.e. the endpoint level call will be ignored.</para>
     /// </summary>
     /// <param name="permissions">the permissions</param>
     public void PermissionsAll(params string[] permissions)
@@ -91,6 +93,7 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given claim types
+    /// <para>WARNING: setting claims globally will make the endpoint level call ineffective. i.e. the endpoint level call will be ignored.</para>
     /// </summary>
     /// <param name="claimTypes">the claim types</param>
     public void Claims(params string[] claimTypes)
@@ -101,6 +104,7 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// allows access if the claims principal has ALL of the given claim types
+    /// <para>WARNING: setting claims globally will make the endpoint level call ineffective. i.e. the endpoint level call will be ignored.</para>
     /// </summary>
     /// <param name="claimTypes">the claim types</param>
     public void ClaimsAll(params string[] claimTypes)
@@ -123,6 +127,7 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// specify which authentication schemes to use for authenticating requests to this endpoint
+    /// <para>WARNING: setting auth schemes globally will make the endpoint level call ineffective. i.e. the endpoint level call will be ignored.</para>
     /// </summary>
     /// <param name="authSchemeNames">the authentication scheme names</param>
     public void AuthSchemes(params string[]? authSchemeNames) => AuthSchemeNames = authSchemeNames;
@@ -134,12 +139,14 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
+    /// <para>WARNING: setting policies globally will make the endpoint level call ineffective. i.e. the endpoint level call will be ignored.</para>
     /// </summary>
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
     public void Policies(params string[] policyNames) => PreBuiltUserPolicies = policyNames;
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given roles
+    /// <para>WARNING: setting roles globally will make the endpoint level call ineffective. i.e. the endpoint level call will be ignored.</para>
     /// </summary>
     /// <param name="rolesNames">one or more roles that has access</param>
     public void Roles(params string[]? rolesNames) => AllowedRoles = rolesNames;
@@ -148,6 +155,7 @@ public sealed class EndpointDefinition
     /// specify an override route prefix for this endpoint if a global route prefix is enabled.
     /// this is ignored if a global route prefix is not configured.
     /// global prefix can be ignored by setting <c>string.Empty</c>
+    /// <para>WARNING: setting a route prefix override globally makes the endpoint level override ineffective. i.e. RoutePrefixOverride() method call on endpoint level will be ignored.</para>
     /// </summary>
     /// <param name="routePrefix">route prefix value</param>
     public void RoutePrefixOverride(string routePrefix) => OverriddenRoutePrefix = routePrefix;

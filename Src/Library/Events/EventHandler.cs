@@ -68,4 +68,8 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent> where TEv
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     public object? TryResolveSingleton(Type typeOfService) => IServiceResolver.RootServiceProvider.GetService(typeOfService);
+
+    public override bool Equals(object? obj) => obj?.GetType() == GetType();
+
+    public override int GetHashCode() => GetType().GetHashCode();
 }

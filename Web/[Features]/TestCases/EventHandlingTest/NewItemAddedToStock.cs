@@ -16,7 +16,7 @@ public class NotifyCustomers : FastEventHandler<NewItemAddedToStock>
     }
 }
 
-public class UpdateInventoryLevel : FastEventHandler<NewItemAddedToStock>
+public class UpdateInventoryLevel : FastEndpoints.FastEventHandler<NewItemAddedToStock>
 {
     public override Task HandleAsync(NewItemAddedToStock eventModel, CancellationToken ct)
     {

@@ -125,7 +125,12 @@ internal interface IServiceResolver
 
 internal interface IEventHandler
 {
-    void Subscribe();
+
+}
+
+internal interface IEventHandler<TEvent> : IEventHandler
+{
+    Task HandleAsync(TEvent eventModel, CancellationToken ct);
 }
 
 [HideFromDocs]

@@ -142,7 +142,14 @@ internal sealed class EndpointData
 
                 if (tInterface == Types.IEventHandler)
                 {
-                    ((IEventHandler?)Activator.CreateInstance(t))?.Subscribe();
+                    var tEvent = t.GetGenericArgumentsOfType(Types.FastEventHandlerOf1)?[0]!;
+                    var handler = (IEventHandler)Activator.CreateInstance(t)!;
+
+                    if (EventBase.handlerDict.TryGetValue(tEvent, out var handlers))
+                        handlers.Add(handler);
+                    else
+                        EventBase.handlerDict[tEvent] = new() { handler };
+
                     continue;
                 }
             }

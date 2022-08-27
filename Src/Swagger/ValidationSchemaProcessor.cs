@@ -29,7 +29,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NJsonSchema;
 using NJsonSchema.Generation;
-using System;
 using System.Collections.ObjectModel;
 
 namespace FastEndpoints.Swagger;

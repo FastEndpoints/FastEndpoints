@@ -18,7 +18,7 @@ public class EndpointDataTests
         var sut = new EndpointData(serviceCollection, options, null);
         sut.Found.Should().HaveCount(1);
         sut.Found[0].Routes.Should().HaveCount(1);
-        sut.Found[0].Routes[0].Should().BeEquivalentTo(typename);
+        sut?.Found[0].Routes[0].Should().BeEquivalentTo(typename);
     }
 }
 

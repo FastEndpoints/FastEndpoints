@@ -15,6 +15,7 @@ internal static class Types
     internal static readonly Type EmptyResponse = typeof(EmptyResponse);
     internal static readonly Type EmptyRequest = typeof(EmptyRequest);
     internal static readonly Type EndpointOf2 = typeof(Endpoint<,>);
+    internal static readonly Type FastEventHandlerOf1 = typeof(FastEventHandler<>);
     internal static readonly Type Guid = typeof(Guid);
     internal static readonly Type Http = typeof(Http);
     internal static readonly Type IEndpoint = typeof(IEndpoint);

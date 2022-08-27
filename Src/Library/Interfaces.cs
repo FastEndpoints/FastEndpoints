@@ -112,9 +112,9 @@ public interface IRequestBinder<TRequest> where TRequest : notnull
 
 internal interface IServiceResolver
 {
-    static IServiceProvider ServiceProvider { get; set; } //set only from .UseFastEndpoints() during startup
+    static IServiceProvider RootServiceProvider { get; set; } //set only from .UseFastEndpoints() during startup
 
-    static IHttpContextAccessor HttpContextAccessor => ServiceProvider.GetRequiredService<IHttpContextAccessor>();
+    static IHttpContextAccessor HttpContextAccessor => RootServiceProvider.GetRequiredService<IHttpContextAccessor>();
 
     TService? TryResolve<TService>() where TService : class;
     object? TryResolve(Type typeOfService);

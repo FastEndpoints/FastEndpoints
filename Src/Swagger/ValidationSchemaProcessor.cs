@@ -29,6 +29,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NJsonSchema;
 using NJsonSchema.Generation;
+using System;
 using System.Collections.ObjectModel;
 
 namespace FastEndpoints.Swagger;
@@ -37,14 +38,13 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 {
     private static Type[]? validatorTypes;
     private readonly FluentValidationRule[] _rules;
-    private readonly IServiceProvider? _serviceProvider = IServiceResolver.ServiceProvider?.CreateScope().ServiceProvider;
     private readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
     private readonly ILogger<ValidationSchemaProcessor>? _logger;
 
     public ValidationSchemaProcessor()
     {
         _rules = CreateDefaultRules();
-        _logger = _serviceProvider?.GetRequiredService<ILogger<ValidationSchemaProcessor>>();
+        _logger = IServiceResolver.RootServiceProvider?.GetRequiredService<ILogger<ValidationSchemaProcessor>>();
 
         if (validatorTypes?.Length == 0 && MainExtensions.Endpoints is null)
         {
@@ -82,7 +82,8 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             {
                 if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
-                    var validator = _serviceProvider?.GetRequiredService(tValidator);
+                    using var scope = IServiceResolver.RootServiceProvider?.CreateScope();
+                    var validator = scope?.ServiceProvider.GetRequiredService(tValidator);
                     if (validator is null)
                         throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
 

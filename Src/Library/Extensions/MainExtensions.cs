@@ -64,8 +64,8 @@ public static class MainExtensions
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
-        IServiceResolver.ServiceProvider = app.ServiceProvider;
-        SerOpts.Options = IServiceResolver.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
+        IServiceResolver.RootServiceProvider = app.ServiceProvider;
+        SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
@@ -135,14 +135,14 @@ public static class MainExtensions
             }
         }
 
-        IServiceResolver.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
+        app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
             $"Registered {totalEndpointCount} endpoints in " +
             $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
         EndpointData.Stopwatch.Stop();
 
         var duplicatesDetected = false;
-        var logger = IServiceResolver.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
+        var logger = app.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
         foreach (var kvp in routeToHandlerCounts)
         {

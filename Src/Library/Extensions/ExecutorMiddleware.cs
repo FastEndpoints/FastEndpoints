@@ -75,7 +75,7 @@ internal class ExecutorMiddleware
     {
         if (props is null) return;
 
-        for (int i = 0; i < props.Length; i++)
+        for (var i = 0; i < props.Length; i++)
         {
             var p = props[i];
             p.PropSetter(epInstance, services.GetRequiredService(p.PropType));

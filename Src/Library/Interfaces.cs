@@ -1,6 +1,7 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.Runtime.Versioning;
 
 namespace FastEndpoints;
 
@@ -69,9 +70,9 @@ public interface IResponseMapper : IMapper { }
 /// marker/constraint for endpoints that have a mapper generic argument
 /// </summary>
 /// <typeparam name="TMapper"></typeparam>
-public interface IHasMapper<TMapper> where TMapper : notnull, IMapper, new()
+public interface IHasMapper<TMapper> where TMapper : notnull, IMapper
 {
-    public static TMapper Map { get; }
+    TMapper Map { get; }
 }
 
 /// <summary>
@@ -123,17 +124,11 @@ internal interface IServiceResolver
     object Resolve(Type typeOfService);
 }
 
-internal interface IEventHandler
-{
-
-}
+internal interface IEventHandler { }
 
 internal interface IEventHandler<TEvent> : IEventHandler
 {
     Task HandleAsync(TEvent eventModel, CancellationToken ct);
 }
 
-[HideFromDocs]
-internal interface IEndpointValidator
-{
-}
+internal interface IEndpointValidator { }

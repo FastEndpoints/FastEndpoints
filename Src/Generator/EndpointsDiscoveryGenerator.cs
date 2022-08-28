@@ -11,6 +11,7 @@ public class EndpointsDiscoveryGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext ctx)
     {
+        //also update FastEndpoints.EndpointData class if updating these
         var excludes = new[]
         {
             "Microsoft",
@@ -39,7 +40,8 @@ public class EndpointsDiscoveryGenerator : ISourceGenerator
                     new TypeDescription("FastEndpoints.IEndpoint"),
                     new TypeDescription("FluentValidation.IValidator"),
                     new TypeDescription("FastEndpoints.IEventHandler"),
-                    new TypeDescription("FastEndpoints.ISummary")
+                    new TypeDescription("FastEndpoints.ISummary"),
+                    new TypeDescription("FastEndpoints.IMapper")
                 }).Any());
 
         var sb = new StringBuilder(@"

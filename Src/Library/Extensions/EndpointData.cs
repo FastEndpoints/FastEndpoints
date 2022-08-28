@@ -40,7 +40,7 @@ internal sealed class EndpointData
 
         Stopwatch.Start();
 
-        //also update FastEndpoints.Generator if updating these
+        //also update FastEndpoints.Generator.EndpointsDiscoveryGenerator class if updating these
         IEnumerable<string> excludes = new[]
         {
             "Microsoft",
@@ -90,6 +90,7 @@ internal sealed class EndpointData
                          Types.IEndpoint,
                          Types.IEventHandler,
                          Types.ISummary,
+                         Types.IMapper,
                          options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
                      }).Any() &&
                     (options.Filter is null || options.Filter(t)));
@@ -138,6 +139,11 @@ internal sealed class EndpointData
                         t.GetGenericArgumentsOfType(Types.SummaryOf2)?[0]!;
                     summaryDict.Add(tEndpoint, t);
                     continue;
+                }
+
+                if (tInterface == Types.IMapper)
+                {
+                    services.AddSingleton(t);
                 }
 
                 if (tInterface == Types.IEventHandler)

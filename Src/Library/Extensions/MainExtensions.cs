@@ -37,6 +37,7 @@ public static class MainExtensions
         Endpoints = new(services, opts, config);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();
+        services.AddSingleton(typeof(Event<>));
         return services;
     }
 

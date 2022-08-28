@@ -136,7 +136,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     /// Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
     /// Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</returns>
     public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : class
-        => Event<TEvent>.PublishAsync(eventModel, waitMode, cancellation);
+        => HttpContext.RequestServices.GetRequiredService<Event<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     /// <summary>
     /// get the value of a given route parameter by specifying the resulting type and param name.

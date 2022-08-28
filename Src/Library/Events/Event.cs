@@ -16,15 +16,25 @@ public abstract class EventBase
 /// <typeparam name="TEvent">the type of notification event dto</typeparam>
 public class Event<TEvent> : EventBase where TEvent : notnull
 {
-    private static readonly List<IEventHandler<TEvent>>? handlers;
+    private readonly IEnumerable<IEventHandler<TEvent>> handlers;
 
-    static Event()
+    /// <summary>
+    /// WARNING: only call the default constructor when integration testing.
+    /// <para>use <see cref="Event{TEvent}.Event(IEnumerable{FastEventHandler{TEvent}})"/> for unit testing.</para>
+    /// </summary>
+    public Event()
     {
         if (handlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
-        {
-            handlers = new(hndlrs.Count);
-            handlers.AddRange(hndlrs.Cast<IEventHandler<TEvent>>());
-        }
+            handlers = hndlrs.Cast<IEventHandler<TEvent>>();
+    }
+
+    /// <summary>
+    /// instantiates an event bus for the given event dto type for the purpose of unit testing.
+    /// </summary>
+    /// <param name="eventHandlers">a collection of concrete event handler implementations that should receive notifications from this event bus</param>
+    public Event(IEnumerable<FastEventHandler<TEvent>> eventHandlers)
+    {
+        handlers = eventHandlers;
     }
 
     /// <summary>
@@ -37,9 +47,9 @@ public class Event<TEvent> : EventBase where TEvent : notnull
     /// <see cref="Mode.WaitForNone"/> returns an already completed Task (fire and forget).
     /// <see cref="Mode.WaitForAny"/> returns a Task that will complete when any of the subscribers complete their work.
     /// <see cref="Mode.WaitForAll"/> return a Task that will complete only when all of the subscribers complete their work.</returns>
-    public static Task PublishAsync(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
+    public Task PublishAsync(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
     {
-        if (handlers?.Count > 0)
+        if (handlers.Any())
         {
             switch (waitMode)
             {

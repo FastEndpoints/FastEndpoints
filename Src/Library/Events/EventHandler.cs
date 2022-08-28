@@ -4,6 +4,7 @@ namespace FastEndpoints;
 
 /// <summary>
 /// inherit this base class to handle events published by the notification system
+/// <para>WARNING: event handlers are singletons. DO NOT maintain state in them. Use the <c>Resolve*()</c> methods to obtain dependencies.</para>
 /// </summary>
 /// <typeparam name="TEvent">the type of the event to handle</typeparam>
 public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent> where TEvent : notnull
@@ -26,7 +27,7 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent> where TEv
     /// <see cref="Mode.WaitForAny"/> returns a Task that will complete when any of the subscribers complete their work.
     /// <see cref="Mode.WaitForAll"/> return a Task that will complete only when all of the subscribers complete their work.</returns>
     public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : class
-        => Event<TEventModel>.PublishAsync(eventModel, waitMode, cancellation);
+        => IServiceResolver.RootServiceProvider.GetRequiredService<Event<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
 
     /// <summary>
     /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
@@ -69,7 +70,14 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent> where TEv
     /// <param name="typeOfService">the type of the service to resolve</param>
     public object? TryResolveSingleton(Type typeOfService) => IServiceResolver.RootServiceProvider.GetService(typeOfService);
 
-    public override bool Equals(object? obj) => obj?.GetType() == GetType();
+    #region equality check
 
+    //equality will be checked when discovered concrete handlers are being added to EventBase.handlerDict HashSet<T>
+    //we need this check to be done on the type of the handler instead of the default instance equality check
+    //to prevent duplicate handlers being added to the hash set if/when multiple instances of the app are being run
+    //under the same app domain such as OrchardCore multi-tenancy. ex: https://github.com/FastEndpoints/Library/issues/208
+
+    public override bool Equals(object? obj) => obj?.GetType() == GetType();
     public override int GetHashCode() => GetType().GetHashCode();
+    #endregion
 }

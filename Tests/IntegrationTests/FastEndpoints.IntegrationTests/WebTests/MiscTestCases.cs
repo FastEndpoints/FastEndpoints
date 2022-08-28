@@ -310,9 +310,9 @@ public class MiscTestCases : EndToEndTestBase
         var event2 = new NewItemAddedToStock { ID = 2, Name = "two", Quantity = 20 };
         var event3 = new NewItemAddedToStock { ID = 3, Name = "three", Quantity = 30 };
 
-        await Event<NewItemAddedToStock>.PublishAsync(event3, Mode.WaitForAll);
-        await Event<NewItemAddedToStock>.PublishAsync(event2, Mode.WaitForAny);
-        await Event<NewItemAddedToStock>.PublishAsync(event1, Mode.WaitForNone);
+        await new Event<NewItemAddedToStock>().PublishAsync(event3, Mode.WaitForAll);
+        await new Event<NewItemAddedToStock>().PublishAsync(event2, Mode.WaitForAny);
+        await new Event<NewItemAddedToStock>().PublishAsync(event1, Mode.WaitForNone);
 
         event1.ID.Should().Be(0);
         event2.ID.Should().Be(0);

@@ -32,12 +32,18 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : notnull, new() where TResponse : notnull
 {
+    private readonly Type tGlobalRequestBinder = typeof(IRequestBinder<TRequest>);
+
     internal async override Task ExecAsync(CancellationToken ct)
     {
         try
         {
+            var binder = (IRequestBinder<TRequest>)
+                 (Definition.RequestBinder ??= HttpContext.RequestServices.GetRequiredService(typeof(IRequestBinder<TRequest>)));
+
             var binderCtx = new BinderContext(HttpContext, ValidationFailures, Definition.SerializerContext, Definition.DontBindFormData);
-            var req = await ((IRequestBinder<TRequest>)Definition.RequestBinder).BindAsync(binderCtx, ct);
+            var req = await binder.BindAsync(binderCtx, ct);
+
             BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
 
             OnBeforeValidate(req);

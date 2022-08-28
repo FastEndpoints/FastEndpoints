@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
@@ -37,6 +38,7 @@ public static class MainExtensions
         Endpoints = new(services, opts, config);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddHttpContextAccessor();
+        services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(Event<>));
         return services;
     }

@@ -77,14 +77,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     public sealed override void Verbs(params Http[] methods)
     {
-        Definition.Verbs = methods;
-
         //note: this method is sealed to not allow user to override it because we neeed to perform
         //      the following setup activities, which require access to TRequest/TResponse
 
-        //set default binder (unless already set by user - using RequestBinder() method)
-        if (Definition.RequestBinder is null)
-            Definition.RequestBinder = new RequestBinder<TRequest>();
+        Definition.Verbs = methods;
 
         //set default openapi descriptions
         Definition.InternalConfigAction = b =>

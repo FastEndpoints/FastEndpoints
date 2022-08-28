@@ -1,4 +1,5 @@
 ### NEW
+- global model binder support
 - global request binding modifier func support #202
 - startup type discovery filter #203
 - constructor injection support for mappers

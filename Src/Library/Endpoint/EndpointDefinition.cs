@@ -42,7 +42,7 @@ public sealed class EndpointDefinition
     //only accessible to internal code
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal Action<RouteHandlerBuilder> InternalConfigAction;
-    internal object RequestBinder;
+    internal object? RequestBinder;
     internal List<object> PreProcessorList = new();
     internal List<object> PostProcessorList = new();
     internal JsonSerializerContext? SerializerContext;

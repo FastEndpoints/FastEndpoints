@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
@@ -7,7 +8,7 @@ namespace FastEndpoints;
 /// <para>WARNING: event handlers are singletons. DO NOT maintain state in them. Use the <c>Resolve*()</c> methods to obtain dependencies.</para>
 /// </summary>
 /// <typeparam name="TEvent">the type of the event to handle</typeparam>
-public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent> where TEvent : notnull
+public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IServiceResolver where TEvent : notnull
 {
     /// <summary>
     /// this method will be called when an event of the specified type is published.
@@ -30,6 +31,28 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent> where TEv
         => IServiceResolver.RootServiceProvider.GetRequiredService<Event<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
 
     /// <summary>
+    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+    /// </summary>
+    /// <typeparam name="TService">the type of the service to resolve</typeparam>
+    public TService? TryResolve<TService>() where TService : class => IServiceResolver.RootServiceProvider.GetService<TService>();
+    /// <summary>
+    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+    /// </summary>
+    /// <param name="typeOfService">the type of the service to resolve</param>
+    public object? TryResolve(Type typeOfService) => IServiceResolver.RootServiceProvider.GetService(typeOfService);
+    /// <summary>
+    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+    /// </summary>
+    /// <typeparam name="TService">the type of the service to resolve</typeparam>
+    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+    public TService Resolve<TService>() where TService : class => IServiceResolver.RootServiceProvider.GetRequiredService<TService>();
+    /// <summary>
+    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+    /// </summary>
+    /// <param name="typeOfService">the type of the service to resolve</param>
+    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+    public object Resolve(Type typeOfService) => IServiceResolver.RootServiceProvider.GetRequiredService(typeOfService);
+    /// <summary>
     /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
     ///<para>
     /// <code>
@@ -39,36 +62,6 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent> where TEv
     /// </para>
     /// </summary>
     public IServiceScope CreateScope() => IServiceResolver.RootServiceProvider.CreateScope();
-
-    /// <summary>
-    /// resolve a singleton of the given type from the dependency injection container. will throw if unresolvable.
-    /// <para>WARNING: do not resolve scoped/transient dependancies using this method. use <see cref="CreateScope"/> instead.</para> 
-    /// </summary>
-    /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public TService ResolveSingleton<TService>() where TService : class => IServiceResolver.RootServiceProvider.GetRequiredService<TService>();
-
-    /// <summary>
-    /// resolve a singleton of the given type from the dependency injection container. will throw if unresolvable.
-    /// <para>WARNING: do not resolve scoped/transient dependancies using this method. use <see cref="CreateScope"/> instead.</para> 
-    /// </summary>
-    /// <param name="typeOfService">the type of the service to resolve</param>
-    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public object ResolveSingleton(Type typeOfService) => IServiceResolver.RootServiceProvider.GetRequiredService(typeOfService);
-
-    /// <summary>
-    /// try to resolve a singleton of the given type from the dependency injection container. will return null if unresolvable.
-    /// <para>WARNING: do not resolve scoped/transient dependancies using this method. use <see cref="CreateScope"/> instead.</para>
-    /// </summary>
-    /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    public TService? TryResolveSingleton<TService>() where TService : class => IServiceResolver.RootServiceProvider.GetService<TService>();
-
-    /// <summary>
-    /// try to resolve a singleton of the given type from the dependency injection container. will return null if unresolvable.
-    /// <para>WARNING: do not resolve scoped/transient dependancies using this method. use <see cref="CreateScope"/> instead.</para>
-    /// </summary>
-    /// <param name="typeOfService">the type of the service to resolve</param>
-    public object? TryResolveSingleton(Type typeOfService) => IServiceResolver.RootServiceProvider.GetService(typeOfService);
 
     #region equality check
 

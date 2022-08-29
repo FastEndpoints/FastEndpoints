@@ -116,6 +116,8 @@ internal interface IServiceResolver
 
     static IHttpContextAccessor HttpContextAccessor => RootServiceProvider.GetRequiredService<IHttpContextAccessor>();
 
+    IServiceScope CreateScope();
+
     TService? TryResolve<TService>() where TService : class;
     object? TryResolve(Type typeOfService);
 

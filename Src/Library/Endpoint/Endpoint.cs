@@ -32,8 +32,6 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : notnull, new() where TResponse : notnull
 {
-    private readonly Type tGlobalRequestBinder = typeof(IRequestBinder<TRequest>);
-
     internal async override Task ExecAsync(CancellationToken ct)
     {
         try
@@ -130,6 +128,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public object Resolve(Type typeOfService) => HttpContext.RequestServices.GetRequiredService(typeOfService);
+    /// <summary>
+    /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
+    ///<para>
+    /// <code>
+    /// using var scope = CreateScope();
+    /// var scopedService = scope.ServiceProvider.GetService(...);
+    /// </code>
+    /// </para>
+    /// </summary>
+    public IServiceScope CreateScope() => HttpContext.RequestServices.CreateScope();
 
     /// <summary>
     /// publish the given model/dto to all the subscribers of the event notification

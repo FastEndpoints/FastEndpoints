@@ -1,6 +1,6 @@
 ### NEW
-- global model binder support
-- global request binding modifier func support #202
+- global model binder support [#info](https://fast-endpoints.com/docs/model-binding#global-request-binder)
+- global request binding modifier func support [#info](https://fast-endpoints.com/docs/model-binding#binding-modifier-function)
 - startup type discovery filter #203
 - constructor injection support for mappers
 - unit testing support for event handlers

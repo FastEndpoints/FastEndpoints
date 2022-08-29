@@ -169,11 +169,7 @@ public sealed class EndpointDefinition
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
-    public void Summary(Action<EndpointSummary> endpointSummary)
-    {
-        EndpointSummary = new();
-        endpointSummary(EndpointSummary);
-    }
+    public void Summary(Action<EndpointSummary> endpointSummary) => endpointSummary(EndpointSummary ??= new());
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
@@ -181,7 +177,7 @@ public sealed class EndpointDefinition
     /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
     public void Summary<TRequest>(Action<EndpointSummary<TRequest>> endpointSummary) where TRequest : notnull, new()
     {
-        var summary = new EndpointSummary<TRequest>();
+        var summary = EndpointSummary as EndpointSummary<TRequest> ?? new EndpointSummary<TRequest>();
         endpointSummary(summary);
         EndpointSummary = summary;
     }
@@ -190,7 +186,7 @@ public sealed class EndpointDefinition
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an endpoint summary instance</param>
-    public void Summary(EndpointSummary? endpointSummary) => EndpointSummary = endpointSummary;
+    public void Summary(EndpointSummary endpointSummary) => EndpointSummary = endpointSummary;
 
     /// <summary>
     /// specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.

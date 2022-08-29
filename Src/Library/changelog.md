@@ -1,9 +1,9 @@
 ### NEW
 - global model binder support [#info](https://fast-endpoints.com/docs/model-binding#global-request-binder)
-- global request binding modifier func support [#info](https://fast-endpoints.com/docs/model-binding#binding-modifier-function)
-- startup type discovery filter #203
-- constructor injection support for mappers
+- global request binding modifier function [#info](https://fast-endpoints.com/docs/model-binding#binding-modifier-function)
+- constructor injection support for mappers [#info](https://fast-endpoints.com/docs/dependency-injection#entity-mapper-dependencies)
 - unit testing support for event handlers
+- startup type discovery filter #203
 
 ### FIX
 - global endpoint configurator ineffective for route prefix override and security related calls #207 [#info](https://discord.com/channels/933662816458645504/1012563507339857930)

@@ -16,13 +16,13 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TReq
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object>, IHasMapper<TMapper> where TRequest : notnull, new() where TMapper : notnull, IRequestMapper
 {
-    private TMapper? mapper;
+    private TMapper? _mapper;
 
     ///// <summary>
     ///// the entity mapper for the endpoint
     ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     ///// </summary>
-    public TMapper Map => mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
 }
 
 /// <summary>
@@ -220,13 +220,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper> where TRequest : notnull, new() where TResponse : notnull where TMapper : notnull, IMapper
 {
-    private TMapper? mapper;
+    private TMapper? _mapper;
 
     ///// <summary>
     ///// the entity mapper for the endpoint
     ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     ///// </summary>
-    public TMapper Map => mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
 }
 
 /// <summary>
@@ -300,13 +300,13 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWithoutRequest<TResponse>, IHasMapper<TMapper> where TResponse : notnull where TMapper : notnull, IResponseMapper
 {
-    private TMapper? mapper;
+    private TMapper? _mapper;
 
     ///// <summary>
     ///// the entity mapper for the endpoint
     ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     ///// </summary>
-    public TMapper Map => mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
 }
 
 /// <summary>

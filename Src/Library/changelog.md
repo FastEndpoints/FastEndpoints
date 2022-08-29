@@ -12,3 +12,6 @@
 - reworked event notification system
 - improve service provider scoping
 - optimize default request binder
+
+### CHANGES
+- deprecate ability to register validators as scoped in favor of `CreateScope()` method

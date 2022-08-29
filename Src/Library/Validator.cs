@@ -47,4 +47,6 @@ public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServic
     /// </summary>
     public IServiceScope CreateScope()
         => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.CreateScope();
+
+    //todo: switch to IServiceResolver.RootServiceProvider when removing ability to register validators as scoped
 }

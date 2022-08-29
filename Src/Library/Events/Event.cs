@@ -19,22 +19,15 @@ public class Event<TEvent> : EventBase where TEvent : notnull
     private readonly IEnumerable<IEventHandler<TEvent>> handlers;
 
     /// <summary>
-    /// WARNING: only call the default constructor when integration testing.
-    /// <para>use <see cref="Event{TEvent}.Event(IEnumerable{FastEventHandler{TEvent}})"/> for unit testing.</para>
-    /// </summary>
-    public Event()
-    {
-        if (handlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
-            handlers = hndlrs.Cast<IEventHandler<TEvent>>();
-    }
-
-    /// <summary>
-    /// instantiates an event bus for the given event dto type for the purpose of unit testing.
+    /// instantiates an event bus for the given event dto type.
     /// </summary>
     /// <param name="eventHandlers">a collection of concrete event handler implementations that should receive notifications from this event bus</param>
-    public Event(IEnumerable<FastEventHandler<TEvent>> eventHandlers)
+    public Event(IEnumerable<FastEventHandler<TEvent>>? eventHandlers = null)
     {
-        handlers = eventHandlers;
+        if (eventHandlers?.Any() is true)
+            handlers = eventHandlers;
+        else if (handlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
+            handlers = hndlrs.Cast<IEventHandler<TEvent>>();
     }
 
     /// <summary>

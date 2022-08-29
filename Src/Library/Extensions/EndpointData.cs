@@ -264,7 +264,7 @@ internal sealed class EndpointData
 
             if (def.ValidatorType is not null)
             {
-                if (def.ValidatorIsScoped)
+                if (def.ValidatorIsScoped) //todo: remove ability to make validators scoped in favor of CreateScope() method
                     services.AddScoped(def.ValidatorType);
                 else
                     services.AddSingleton(def.ValidatorType);

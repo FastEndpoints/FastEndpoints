@@ -37,6 +37,7 @@ public sealed class EndpointDefinition
     public string[]? PreBuiltUserPolicies { get; private set; }
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public bool ThrowIfValidationFails { get; private set; } = true;
+    [Obsolete("This property will be removed in the next major version!")] //todo: remove ability to make validators scoped in favor of CreateScope() method
     public bool ValidatorIsScoped { get; private set; }
 
     //only accessible to internal code
@@ -160,9 +161,8 @@ public sealed class EndpointDefinition
     /// <param name="routePrefix">route prefix value</param>
     public void RoutePrefixOverride(string routePrefix) => OverriddenRoutePrefix = routePrefix;
 
-    /// <summary>
-    /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.
-    /// </summary>
+    //todo: remove ability to make validators scoped in favor of CreateScope() method
+    [Obsolete("Ability to register validators as scoped will be removed in next major version. Use CreateScop() method instead.")]
     public void ScopedValidator() => ValidatorIsScoped = true;
 
     /// <summary>

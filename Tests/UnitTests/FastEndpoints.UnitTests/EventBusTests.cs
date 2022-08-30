@@ -6,7 +6,7 @@ namespace FastEndpoints.UnitTests;
 public class EventBusTests
 {
     [Fact]
-    public async Task TestEventHandling()
+    public async Task EventHandlersExecuteSuccessfully()
     {
         var event1 = new NewItemAddedToStock { ID = 1, Name = "one", Quantity = 10 };
         var event2 = new NewItemAddedToStock { ID = 2, Name = "two", Quantity = 20 };
@@ -25,5 +25,13 @@ public class EventBusTests
 
         event1.Name.Should().Be("pass");
         event2.Name.Should().Be("pass");
+    }
+
+    [Fact]
+    public async Task HandlerLogicThrowsException()
+    {
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async ()
+            => await new Event<NewItemAddedToStock>(new[] { new NotifyCustomers() })
+                .PublishAsync(new NewItemAddedToStock()));
     }
 }

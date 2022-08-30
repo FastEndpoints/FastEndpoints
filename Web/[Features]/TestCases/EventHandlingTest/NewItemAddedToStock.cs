@@ -11,6 +11,9 @@ public class NotifyCustomers : FastEventHandler<NewItemAddedToStock>
 {
     public override Task HandleAsync(NewItemAddedToStock eventModel, CancellationToken ct)
     {
+        if (eventModel.Quantity == 0)
+            throw new ArgumentOutOfRangeException(nameof(eventModel.Quantity), "quantity can't be zero");
+
         eventModel.ID = 0;
         return Task.CompletedTask;
     }

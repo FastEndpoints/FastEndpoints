@@ -2,7 +2,7 @@
 - global model binder support [#info](https://fast-endpoints.com/docs/model-binding#global-request-binder)
 - global request binding modifier function [#info](https://fast-endpoints.com/docs/model-binding#binding-modifier-function)
 - constructor injection support for mappers [#info](https://fast-endpoints.com/docs/dependency-injection#entity-mapper-dependencies)
-- unit testing support for event handlers
+- unit testing support for event handlers (successful execution only) [#info](https://github.com/FastEndpoints/Library/blob/main/Tests/UnitTests/FastEndpoints.UnitTests/EventBusTests.cs)
 - startup type discovery filter #203
 
 ### FIX

@@ -8,6 +8,7 @@
 ### FIX
 - global endpoint configurator ineffective for route prefix override and security related calls #207 [#info](https://discord.com/channels/933662816458645504/1012563507339857930)
 - global configurator overriding endpoint level summary object #210
+- empty schema in swagger doc if under namespace [#info](https://discord.com/channels/933662816458645504/1014025472792870992)
 
 ### IMPROVEMENTS
 - reworked event notification system

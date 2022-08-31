@@ -267,19 +267,12 @@ internal class OperationProcessor : IOperationProcessor
         foreach (var p in reqParams)
             op.Parameters.Add(p);
 
-        //remove request body & schema if there are no properties left after above operations
-        //otherwise there's gonna be an empty schema added in the swagger doc
+        //remove request body if there are no properties left after above operations
         if (op.RequestBody?.Content.SelectMany(c => c.Value.Schema.ActualSchema.ActualProperties).Any() == false &&
            !op.RequestBody.Content.Where(c => c.Value.Schema.ActualSchema.InheritedSchema is not null).SelectMany(c => c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties).Any() &&
            !op.RequestBody.Content.SelectMany(c => c.Value.Schema.ActualSchema.AllOf.SelectMany(s => s.Properties)).Any())
         {
             op.RequestBody = null;
-
-            foreach (var p in op.Parameters.Where(p => p.Kind == OpenApiParameterKind.Body))
-            {
-                if (ctx.Document.Components.Schemas.ContainsKey(p.Name))
-                    ctx.Document.Components.Schemas.Remove(p.Name);
-            }
         }
 
         //remove request body since this is a get request
@@ -287,6 +280,18 @@ internal class OperationProcessor : IOperationProcessor
         if (isGETRequest)
         {
             op.RequestBody = null;
+        }
+
+        //remove all empty schemas that has no props left in the whole inheritance chain
+        foreach (var s in ctx.Document.Components.Schemas)
+        {
+            var props = s.Value.ActualProperties
+                .Union(s.Value.AllInheritedSchemas
+                    .Select(s => s.ActualProperties)
+                    .SelectMany(s => s.Select(s => s)));
+
+            if (!props.Any())
+                ctx.Document.Components.Schemas.Remove(s.Key);
         }
 
         var tFromBodyProp = reqDtoProps?.Where(p => p.IsDefined(typeof(FromBodyAttribute), false)).FirstOrDefault()?.PropertyType;

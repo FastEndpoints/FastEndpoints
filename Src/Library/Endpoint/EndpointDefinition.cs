@@ -232,7 +232,7 @@ public sealed class EndpointDefinition
     /// set endpoint configurations options using an endpoint builder action ///
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
-    public void Options(Action<RouteHandlerBuilder> builder) => UserConfigAction = builder;
+    public void Options(Action<RouteHandlerBuilder> builder) => UserConfigAction = builder + UserConfigAction;
 
     /// <summary>
     /// describe openapi metadata for this endpoint. optionaly specify whether or not you want to clear the default Accepts/Produces metadata.
@@ -245,8 +245,8 @@ public sealed class EndpointDefinition
     public void Description(Action<RouteHandlerBuilder> builder, bool clearDefaults = false)
     {
         UserConfigAction = clearDefaults
-                                  ? ClearDefaultAcceptsProducesMetadata + builder
-                                  : builder;
+                                  ? ClearDefaultAcceptsProducesMetadata + builder + UserConfigAction
+                                  : builder + UserConfigAction;
     }
 
     private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>

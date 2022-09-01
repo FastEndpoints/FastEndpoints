@@ -282,6 +282,9 @@ internal class OperationProcessor : IOperationProcessor
         //remove all empty schemas that has no props left in the whole inheritance chain
         foreach (var s in ctx.Document.Components.Schemas)
         {
+            if (!s.Value.IsObject)
+                continue;
+
             var props = s.Value.ActualProperties
                 .Union(s.Value.AllInheritedSchemas
                     .Select(s => s.ActualProperties)

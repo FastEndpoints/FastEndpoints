@@ -86,7 +86,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
             if (!Definition.DoNotCatchExceptions)
                 await SendErrorsAsync(ErrOpts.StatusCode, ct);
-            else throw;
+            else
+                throw;
         }
     }
 

@@ -119,7 +119,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// use this only if you have your own exception catching middleware.
     /// if this method is called in config, an automatic error response will not be sent to the client by the library.
-    /// all exceptions will be thrown and it would be your exeception catching middleware to handle them.
+    /// all exceptions will be thrown and it would be the responsibility of your exeception catching middleware to handle them.
     /// </summary>
     protected void DontCatchExceptions() => Definition.DontCatchExceptions();
 

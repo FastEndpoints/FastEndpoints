@@ -34,13 +34,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 {
     internal async override Task ExecAsync(CancellationToken ct)
     {
+        TRequest req = default!;
+
         try
         {
             var binder = (IRequestBinder<TRequest>)
                  (Definition.RequestBinder ??= HttpContext.RequestServices.GetRequiredService(typeof(IRequestBinder<TRequest>)));
 
             var binderCtx = new BinderContext(HttpContext, ValidationFailures, Definition.SerializerContext, Definition.DontBindFormData);
-            var req = await binder.BindAsync(binderCtx, ct);
+            req = await binder.BindAsync(binderCtx, ct);
 
             BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
 
@@ -76,8 +78,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 
             OnAfterHandle(req, Response);
             await OnAfterHandleAsync(req, Response, ct);
-
-            await RunPostProcessors(Definition.PostProcessorList, req, Response, HttpContext, ValidationFailures, ct);
         }
         catch (ValidationFailureException)
         {
@@ -88,6 +88,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
                 await SendErrorsAsync(ErrOpts.StatusCode, ct);
             else
                 throw;
+        }
+        finally
+        {
+            await RunPostProcessors(Definition.PostProcessorList, req, Response, HttpContext, ValidationFailures, ct);
         }
     }
 

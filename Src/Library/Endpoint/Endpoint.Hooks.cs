@@ -13,7 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="req">the request dto</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task OnBeforeValidateAsync(TRequest req, CancellationToken ct = default) => Task.CompletedTask;
+    public virtual Task OnBeforeValidateAsync(TRequest req, CancellationToken ct) => Task.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do something to the request dto after it gets validated.
@@ -26,7 +26,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="req">the request dto</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task OnAfterValidateAsync(TRequest req, CancellationToken ct = default) => Task.CompletedTask;
+    public virtual Task OnAfterValidateAsync(TRequest req, CancellationToken ct) => Task.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do something to the request dto before the handler is executed.
@@ -39,7 +39,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="req">the request dto</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task OnBeforeHandleAsync(TRequest req, CancellationToken ct = default) => Task.CompletedTask;
+    public virtual Task OnBeforeHandleAsync(TRequest req, CancellationToken ct) => Task.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do something after the handler is executed.
@@ -54,7 +54,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="req">the request dto</param>
     /// <param name="res">the response dto that was sent to the client</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task OnAfterHandleAsync(TRequest req, TResponse res, CancellationToken ct = default) => Task.CompletedTask;
+    public virtual Task OnAfterHandleAsync(TRequest req, TResponse res, CancellationToken ct) => Task.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do something when a validation failure occurs.
@@ -65,5 +65,5 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// override this method if you'd like to do something when a validation failure occurs.
     /// </summary>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task OnValidationFailedAsync(CancellationToken ct = default) => Task.CompletedTask;
+    public virtual Task OnValidationFailedAsync(CancellationToken ct) => Task.CompletedTask;
 }

@@ -50,7 +50,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     public static Task<(HttpResponseMessage? response, TResponse? result)>
-        POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
+        POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => POSTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
@@ -59,7 +59,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
+    public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
         var (response, _) = await POSTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
         return response;
@@ -70,7 +70,7 @@ public static class HttpClientExtensions
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint
+    public static Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => POSTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
@@ -111,7 +111,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
+    public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => PUTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
@@ -120,7 +120,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
+    public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
         var (response, _) = await PUTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
         return response;
@@ -131,7 +131,7 @@ public static class HttpClientExtensions
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint
+    public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => PUTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
@@ -180,7 +180,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
+    public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => GETAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
@@ -189,7 +189,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
+    public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
         var (response, _) = await GETAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
         return response;
@@ -200,7 +200,7 @@ public static class HttpClientExtensions
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint
+    public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => GETAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
@@ -249,7 +249,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
+    public static Task<(HttpResponseMessage? response, TResponse? result)> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => DELETEAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
@@ -258,7 +258,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage?> DELETEAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : BaseEndpoint
+    public static async Task<HttpResponseMessage?> DELETEAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
         var (response, _) = await DELETEAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
         return response;
@@ -269,6 +269,6 @@ public static class HttpClientExtensions
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> DELETEAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : BaseEndpoint
+    public static Task<(HttpResponseMessage? response, TResponse? result)> DELETEAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => DELETEAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 }

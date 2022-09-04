@@ -170,4 +170,17 @@ public class InventoryTests : EndToEndTestBase
         rsp2?.StatusCode.Should().Be(HttpStatusCode.OK);
         res2?.LastModified.Should().Be(res1?.LastModified);
     }
+
+    [Fact]
+    public async Task DeleteProductSuccess()
+    {
+        var res = await AdminClient.DELETEAsync<
+            Inventory.Manage.Delete.Endpoint,
+            Inventory.Manage.Delete.Request>(new()
+            {
+                ItemID = Guid.NewGuid().ToString()
+            });
+
+        res?.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
 }

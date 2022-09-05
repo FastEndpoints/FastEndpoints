@@ -32,9 +32,12 @@ internal class OperationProcessor : IOperationProcessor
     };
 
     private readonly int tagIndex;
-    public OperationProcessor(int tagIndex)
+    private readonly bool removeEmptySchemas;
+
+    public OperationProcessor(int tagIndex, bool removeEmptySchemas)
     {
         this.tagIndex = tagIndex;
+        this.removeEmptySchemas = removeEmptySchemas;
     }
 
     public bool Process(OperationProcessorContext ctx)
@@ -279,19 +282,15 @@ internal class OperationProcessor : IOperationProcessor
                 op.Parameters.Remove(body);
         }
 
-        //remove all empty schemas that has no props left in the whole inheritance chain
-        foreach (var s in ctx.Document.Components.Schemas)
+        if (removeEmptySchemas)
         {
-            if (!s.Value.IsObject)
-                continue;
-
-            var props = s.Value.ActualProperties
-                .Union(s.Value.AllInheritedSchemas
-                    .Select(s => s.ActualProperties)
-                    .SelectMany(s => s.Select(s => s)));
-
-            if (!props.Any())
-                ctx.Document.Components.Schemas.Remove(s.Key);
+            //remove all empty schemas that has no props left
+            //these schemas have been flattened so no need to worry about inheritance
+            foreach (var s in ctx.Document.Components.Schemas)
+            {
+                if (s.Value.ActualProperties.Count == 0 && s.Value.IsObject)
+                    ctx.Document.Components.Schemas.Remove(s.Key);
+            }
         }
 
         var tFromBodyProp = reqDtoProps?.Where(p => p.IsDefined(typeof(FromBodyAttribute), false)).FirstOrDefault()?.PropertyType;

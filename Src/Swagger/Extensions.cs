@@ -31,12 +31,16 @@ public static class Extensions
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     /// <param name="shortSchemaNames">set to true to make schema names just the name of the class instead of full type name</param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion, bool shortSchemaNames)
+    /// <param name="removeEmptySchemas">
+    /// set to true for removing empty schemas from the swagger document.
+    /// <para>WARNING: enabling this also flattens the inheritance hierachy of the schmemas.</para>
+    /// </param>
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion, bool shortSchemaNames, bool removeEmptySchemas)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
         settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
-        settings.OperationProcessors.Add(new OperationProcessor(tagIndex));
+        settings.OperationProcessors.Add(new OperationProcessor(tagIndex, removeEmptySchemas));
         settings.DocumentProcessors.Add(new DocumentProcessor(maxEndpointVersion));
     }
 
@@ -63,13 +67,18 @@ public static class Extensions
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     /// <param name="shortSchemaNames">set to true if you'd like schema names to be the class name intead of the full name</param>
+    /// <param name="removeEmptySchemas">
+    /// set to true for removing empty schemas from the swagger document.
+    /// <para>WARNING: enabling this also flattens the inheritance hierachy of the schmemas.</para>
+    /// </param>
     public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
         Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
         Action<JsonSerializerOptions>? serializerSettings = null,
         bool addJWTBearerAuth = true,
         int tagIndex = 1,
         int maxEndpointVersion = 0,
-        bool shortSchemaNames = false)
+        bool shortSchemaNames = false,
+        bool removeEmptySchemas = false)
     {
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
@@ -78,9 +87,10 @@ public static class Extensions
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             serializerSettings?.Invoke(stjOpts);
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
-            s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames);
+            s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames, removeEmptySchemas);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
+            s.FlattenInheritanceHierarchy = removeEmptySchemas;
         });
 
         return services;

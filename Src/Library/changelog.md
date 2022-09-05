@@ -5,7 +5,7 @@
 - unit testing support for event handlers (successful execution & exceptions only) [#info](https://github.com/FastEndpoints/Library/blob/main/Tests/UnitTests/FastEndpoints.UnitTests/EventBusTests.cs)
 - startup type discovery filter #203
 - `DELETEAsync()` extension method for testing #216
-- `AddSwaggerDoc(removeEmptySchema:true)` parameter for removing empty schemas from swagger document #217
+- `AddSwaggerDoc(removeEmptySchema:true)` parameter for removing empty schemas from swagger document [#info](https://fast-endpoints.com/docs/swagger-support#removing-empty-schema)
 
 ### FIX
 - global endpoint configurator ineffective for route prefix override and security related calls #207 [#info](https://discord.com/channels/933662816458645504/1012563507339857930)

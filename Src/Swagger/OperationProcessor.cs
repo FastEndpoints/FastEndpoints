@@ -185,7 +185,7 @@ internal class OperationProcessor : IOperationProcessor
                 var pType = reqDtoProps?.SingleOrDefault(p =>
                 {
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-                    if (string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(pName, ActualParamName(m.Value), StringComparison.OrdinalIgnoreCase))
                     {
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                         defaultVal = p.GetCustomAttribute<DefaultValueAttribute>()?.Value;
@@ -344,7 +344,7 @@ internal class OperationProcessor : IOperationProcessor
 
     private static string ActualParamName(string input)
     {
-        var index = input.IndexOf(':');
+        var index = input.IndexOfAny(new[] { '=', ':' });
         index = index == -1 ? input.Length : index;
         var left = input[..index];
         return left.TrimEnd('?');

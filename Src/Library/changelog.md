@@ -16,9 +16,10 @@
 - post processors were not executed if validation error was thrown by user code
 
 ### IMPROVEMENTS
-- reworked event notification system
-- improve service provider scoping
+- reworked event notification system (no api change)
+- service provider scoping
 - optimize default request binder
+- route contraint handling and property type detection in swagger processor
 
 ### CHANGES
 - deprecate ability to register validators as scoped in favor of `CreateScope()` method

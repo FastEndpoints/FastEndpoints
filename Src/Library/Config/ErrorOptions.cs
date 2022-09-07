@@ -18,6 +18,6 @@ public class ErrorOptions
     /// this function will be run everytime an error response needs to be sent to the client.
     /// the arguments for the func will be a list of validation failures and an http status code.
     /// </summary>
-    public Func<List<ValidationFailure>, int, object> ResponseBuilder { internal get; set; }
+    public Func<List<ValidationFailure>, int, object> ResponseBuilder { internal get; set; } //todo: add httpcontext arg in v6.0
         = (failures, statusCode) => new ErrorResponse(failures, statusCode);
 }

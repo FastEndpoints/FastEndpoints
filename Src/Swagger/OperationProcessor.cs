@@ -293,7 +293,25 @@ internal class OperationProcessor : IOperationProcessor
             }
         }
 
-        var tFromBodyProp = reqDtoProps?.Where(p => p.IsDefined(typeof(FromBodyAttribute), false)).FirstOrDefault()?.PropertyType;
+        //replace body parameter if a dto property is marked with [FromBody]
+        var fromBodyProp = reqDtoProps?.Where(p => p.IsDefined(typeof(FromBodyAttribute), false)).FirstOrDefault();
+
+        if (fromBodyProp is not null)
+        {
+            foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
+            {
+                op.Parameters.Remove(body);
+                op.Parameters.Add(new OpenApiParameter
+                {
+                    Name = fromBodyProp.Name,
+                    IsRequired = true, //!fromBodyProp.IsNullable(),
+                    Schema = JsonSchema.FromType(fromBodyProp.PropertyType, schemaGeneratorSettings),
+                    Kind = OpenApiParameterKind.Body,
+                    Description = reqParamDescriptions.GetValueOrDefault(fromBodyProp.Name),
+                    Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value
+                });
+            }
+        }
 
         //set request example if provided by user
         if (epDef.EndpointSummary?.ExampleRequest is not null)
@@ -321,23 +339,6 @@ internal class OperationProcessor : IOperationProcessor
                 }
             }
         }
-        else if (tFromBodyProp is not null) //user didn't provide example, but this dto has a prop with [FromBody] attribute
-        {
-            foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
-            {
-                try
-                {
-                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
-                                        Activator.CreateInstance(tFromBodyProp),
-                                        ctx.SchemaGenerator.Settings.ActualSerializerSettings);
-                }
-                catch (Exception)
-                {
-                    requestBody.ActualSchema.Example = "Error: Please provide 'ExampleRequest' to see an example here!";
-                }
-            }
-        }
-
         return true;
     }
 

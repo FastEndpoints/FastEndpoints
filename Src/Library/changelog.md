@@ -12,6 +12,7 @@
 - global configurator overriding endpoint level summary object #210 #212
 - empty schema in swagger doc if under namespace [#info](https://discord.com/channels/933662816458645504/1014025472792870992)
 - incorrect client generation with nswag [#info](https://discord.com/channels/933662816458645504/1014300348275499058)
+- incorrect swagger doc/client generation when `[FromBody]` attribute was used [#info](https://discord.com/channels/933662816458645504/1017005911220428871)
 - post processors were not executed if validation error was thrown by user code
 
 ### IMPROVEMENTS

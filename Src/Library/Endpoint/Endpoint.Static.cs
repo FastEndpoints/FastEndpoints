@@ -6,11 +6,11 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
 {
-    private static async Task RunPostProcessors(List<object> postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPostProcessors(HashSet<object> postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        for (var i = 0; i < postProcessors.Count; i++)
+        foreach (var p in postProcessors)
         {
-            switch (postProcessors[i])
+            switch (p)
             {
                 case IGlobalPostProcessor gp:
                     await gp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
@@ -22,11 +22,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static async Task RunPreprocessors(List<object> preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPreprocessors(HashSet<object> preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        for (var i = 0; i < preProcessors.Count; i++)
+        foreach (var p in preProcessors)
         {
-            switch (preProcessors[i])
+            switch (p)
             {
                 case IGlobalPreProcessor gp:
                     await gp.PreProcessAsync(req, ctx, validationFailures, cancellation);

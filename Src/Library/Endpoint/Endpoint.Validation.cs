@@ -76,7 +76,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowError)}() called");
     }
 
-    private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, List<object> preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, HashSet<object> preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         if (ep.ValidatorType is null)
             return;

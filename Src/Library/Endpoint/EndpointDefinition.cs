@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 using static FastEndpoints.Constants;
@@ -44,8 +45,8 @@ public sealed class EndpointDefinition
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal object? RequestBinder;
-    internal List<object> PreProcessorList = new();
-    internal List<object> PostProcessorList = new();
+    internal HashSet<object> PreProcessorList = new(new TypeEqualityComparer());
+    internal HashSet<object> PostProcessorList = new(new TypeEqualityComparer());
     internal JsonSerializerContext? SerializerContext;
     internal bool ExecuteAsyncImplemented;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
@@ -286,13 +287,25 @@ public sealed class EndpointDefinition
     /// adds global pre-processors to this endpoint definition. these pre-processors are executed before the pre-processors configured at the endpoint level.
     /// </summary>
     /// <param name="preProcessors">the pre-processors to add</param>
-    public void PreProcessors(params IGlobalPreProcessor[] preProcessors) => PreProcessorList.AddRange(preProcessors.Where(p => !PreProcessorList.Any(x => x.GetType() == p.GetType())));
+    public void PreProcessors(params IGlobalPreProcessor[] preProcessors)
+    {
+        for (var i = 0; i < preProcessors.Length; i++)
+        {
+            PreProcessorList.Add(preProcessors[i]);
+        }
+    }
 
     /// <summary>
     /// adds global post-processors to this endpoint definition. these post-processors are executed before the post-processors configured at the endpoint level.
     /// </summary>
     /// <param name="postProcessors">the post-processors to add</param>
-    public void PostProcessors(params IGlobalPostProcessor[] postProcessors) => PostProcessorList.AddRange(postProcessors.Where(p => !PostProcessorList.Any(x => x.GetType() == p.GetType())));
+    public void PostProcessors(params IGlobalPostProcessor[] postProcessors)
+    {
+        for (var i = 0; i < postProcessors.Length; i++)
+        {
+            PostProcessorList.Add(postProcessors[i]);
+        }
+    }
 }
 
 /// <summary>
@@ -314,4 +327,10 @@ internal sealed class ServiceBoundEpProp
 {
     public Type PropType { get; set; }
     public Action<object, object> PropSetter { get; set; }
+}
+
+internal class TypeEqualityComparer : IEqualityComparer<object>
+{
+    public new bool Equals(object? x, object? y) => x?.GetType() == y?.GetType();
+    public int GetHashCode([DisallowNull] object obj) => obj.GetType().GetHashCode();
 }

@@ -114,8 +114,6 @@ internal interface IServiceResolver
 {
     static IServiceProvider RootServiceProvider { get; set; } //set only from .UseFastEndpoints() during startup
 
-    static IHttpContextAccessor HttpContextAccessor => RootServiceProvider.GetRequiredService<IHttpContextAccessor>();
-
     IServiceScope CreateScope();
 
     TService? TryResolve<TService>() where TService : class;

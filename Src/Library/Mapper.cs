@@ -45,27 +45,27 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IMapper, IServiceRe
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     public TService? TryResolve<TService>() where TService : class
-        => IServiceResolver.HttpContextAccessor.HttpContext?.RequestServices.GetService<TService>();
+        => IServiceResolver.RootServiceProvider.GetService<TService>();
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     public object? TryResolve(Type typeOfService)
-        => IServiceResolver.HttpContextAccessor.HttpContext?.RequestServices.GetService(typeOfService);
+        => IServiceResolver.RootServiceProvider.GetService(typeOfService);
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public TService Resolve<TService>() where TService : class
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.GetRequiredService<TService>();
+        => IServiceResolver.RootServiceProvider.GetRequiredService<TService>();
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public object Resolve(Type typeOfService)
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.GetRequiredService(typeOfService);
+        => IServiceResolver.RootServiceProvider.GetRequiredService(typeOfService);
     /// <summary>
     /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
     ///<para>
@@ -76,7 +76,7 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IMapper, IServiceRe
     /// </para>
     /// </summary>
     public IServiceScope CreateScope()
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.CreateScope();
+        => IServiceResolver.RootServiceProvider.CreateScope();
 }
 
 /// <summary>
@@ -103,27 +103,27 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServic
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     public TService? TryResolve<TService>() where TService : class
-        => IServiceResolver.HttpContextAccessor.HttpContext?.RequestServices.GetService<TService>();
+        => IServiceResolver.RootServiceProvider.GetService<TService>();
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     public object? TryResolve(Type typeOfService)
-        => IServiceResolver.HttpContextAccessor.HttpContext?.RequestServices.GetService(typeOfService);
+        => IServiceResolver.RootServiceProvider.GetService(typeOfService);
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public TService Resolve<TService>() where TService : class
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.GetRequiredService<TService>();
+        => IServiceResolver.RootServiceProvider.GetRequiredService<TService>();
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public object Resolve(Type typeOfService)
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.GetRequiredService(typeOfService);
+        => IServiceResolver.RootServiceProvider.GetRequiredService(typeOfService);
     /// <summary>
     /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
     ///<para>
@@ -134,7 +134,7 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServic
     /// </para>
     /// </summary>
     public IServiceScope CreateScope()
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.CreateScope();
+        => IServiceResolver.RootServiceProvider.CreateScope();
 }
 
 /// <summary>
@@ -161,27 +161,27 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper, ISer
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     public TService? TryResolve<TService>() where TService : class
-        => IServiceResolver.HttpContextAccessor.HttpContext?.RequestServices.GetService<TService>();
+        => IServiceResolver.RootServiceProvider.GetService<TService>();
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     public object? TryResolve(Type typeOfService)
-        => IServiceResolver.HttpContextAccessor.HttpContext?.RequestServices.GetService(typeOfService);
+        => IServiceResolver.RootServiceProvider.GetService(typeOfService);
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public TService Resolve<TService>() where TService : class
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.GetRequiredService<TService>();
+        => IServiceResolver.RootServiceProvider.GetRequiredService<TService>();
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public object Resolve(Type typeOfService)
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.GetRequiredService(typeOfService);
+        => IServiceResolver.RootServiceProvider.GetRequiredService(typeOfService);
     /// <summary>
     /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
     ///<para>
@@ -192,5 +192,5 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper, ISer
     /// </para>
     /// </summary>
     public IServiceScope CreateScope()
-        => IServiceResolver.HttpContextAccessor.HttpContext!.RequestServices.CreateScope();
+        => IServiceResolver.RootServiceProvider.CreateScope();
 }

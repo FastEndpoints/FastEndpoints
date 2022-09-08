@@ -3,9 +3,9 @@
 - global request binding modifier function [#info](https://fast-endpoints.com/docs/model-binding#binding-modifier-function)
 - constructor injection support for mappers [#info](https://fast-endpoints.com/docs/dependency-injection#entity-mapper-dependencies)
 - unit testing support for event handlers (successful execution & exceptions only) [#info](https://github.com/FastEndpoints/Library/blob/main/Tests/UnitTests/FastEndpoints.UnitTests/EventBusTests.cs)
-- startup type discovery filter #203
 - `DELETEAsync()` extension method for testing #216
 - `AddSwaggerDoc(removeEmptySchema:true)` parameter for removing empty schemas from swagger document [#info](https://fast-endpoints.com/docs/swagger-support#removing-empty-schema)
+- startup type discovery filter #203
 
 ### FIX
 - global endpoint configurator ineffective for route prefix override and security related calls #207 [#info](https://discord.com/channels/933662816458645504/1012563507339857930)
@@ -22,4 +22,4 @@
 - route contraint handling and property type detection in swagger processor
 
 ### CHANGES
-- deprecate ability to register validators as scoped in favor of `CreateScope()` method
+- deprecate ability to register validators as scoped in favor of `CreateScope()` method [#info](https://fast-endpoints.com/docs/dependency-injection#validator-dependencies)

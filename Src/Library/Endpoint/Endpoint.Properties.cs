@@ -78,11 +78,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private TResponse InitResponseDTO()
     {
         _response = JsonSerializer.Deserialize<TResponse>(
-            responseDTOIsCollection ? emptyArray : emptyObject,
+            isCollectionResponse ? emptyArray : emptyObject,
             SerOpts.Options)!;
 
-        if (_response is null) throw new NotSupportedException($"Unable to create an instance of the response DTO. Please create it yourself and assign to the [{nameof(Response)}] property!");
-
-        return _response;
+        return _response is null
+            ? throw new NotSupportedException($"Unable to create an instance of the response DTO. Please create it yourself and assign to the [{nameof(Response)}] property!")
+            : _response;
     }
 }

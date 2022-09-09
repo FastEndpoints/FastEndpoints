@@ -266,7 +266,7 @@ public sealed class EndpointDefinition
     /// <param name="durationSeconds">the frequency in seconds where the accrued hit count should be reset</param>
     /// <param name="headerName">
     /// the name of the request header used to uniquely identify clients.
-    /// header name can also be configured globally using <c>app.UseFastEndpoints(c=> c.ThrottleOptions...)</c>
+    /// header name can also be configured globally using <c>app.UseFastEndpoints(c=> c.Throttle...)</c>
     /// not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
     /// </param>
     public void Throttle(int hitLimit, double durationSeconds, string? headerName = null) => HitCounter = new(headerName, durationSeconds, hitLimit);

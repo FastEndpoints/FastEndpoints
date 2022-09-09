@@ -250,6 +250,10 @@ internal sealed class EndpointData
                             def.AuthSchemes(authAttr.AuthenticationSchemes?.Split(','));
                             if (authAttr.Policy is not null) def.Policies(new[] { authAttr.Policy });
                             break;
+
+                        case ThrottleAttribute thrtAttr:
+                            def.Throttle(thrtAttr.HitLimit, thrtAttr.DurationSeconds, thrtAttr.HeaderName);
+                            break;
                     }
                 }
             }

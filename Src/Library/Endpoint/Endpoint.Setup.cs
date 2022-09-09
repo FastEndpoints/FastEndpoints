@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
@@ -11,7 +10,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 {
     private static readonly Type tRequest = typeof(TRequest);
     private static readonly Type tResponse = typeof(TResponse);
-    private static readonly bool responseDTOIsCollection = tResponse.IsAssignableTo(Types.IEnumerable);
+    private static readonly bool isCollectionResponse = tResponse.IsAssignableTo(Types.IEnumerable);
 
     /// <summary>
     /// specify to listen for GET requests on one or more routes.

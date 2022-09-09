@@ -11,7 +11,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 {
     private static readonly Type tRequest = typeof(TRequest);
     private static readonly Type tResponse = typeof(TResponse);
-    private static readonly ConstructorInfo? rspDTOCtor = tResponse.GetConstructor(Type.EmptyTypes);
+    private static readonly bool responseDTOIsCollection = tResponse.IsAssignableTo(Types.IEnumerable);
 
     /// <summary>
     /// specify to listen for GET requests on one or more routes.

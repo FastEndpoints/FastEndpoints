@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Runtime.Serialization;
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -71,10 +73,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         set => HttpContext.Items[Constants.ResponseSent] = null;
     }
 
+    private static readonly JsonObject emptyObject = new();
+    private static readonly JsonArray emptyArray = new();
     private TResponse InitResponseDTO()
     {
-        _response = (TResponse)FormatterServices.GetUninitializedObject(tResponse);
-        rspDTOCtor?.Invoke(_response, null);
+        _response = JsonSerializer.Deserialize<TResponse>(
+            responseDTOIsCollection ? emptyArray : emptyObject,
+            SerOpts.Options)!;
+
+        if (_response is null) throw new NotSupportedException($"Unable to create an instance of the response DTO. Please create it yourself and assign to the [{nameof(Response)}] property!");
+
         return _response;
     }
 }

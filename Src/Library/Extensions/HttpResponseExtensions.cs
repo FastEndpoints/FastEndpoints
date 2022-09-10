@@ -20,7 +20,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : notnull
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
         return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
@@ -66,7 +66,7 @@ public static class HttpResponseExtensions
     {
         var linkGen = rsp.HttpContext.RequestServices.GetRequiredService<LinkGenerator>();
 
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 201;
         rsp.Headers.Location = generateAbsoluteUrl
                                ? linkGen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
@@ -86,7 +86,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendStringAsync(this HttpResponse rsp, string content, int statusCode = 200, string contentType = "text/plain", CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
         rsp.ContentType = contentType;
         return rsp.WriteAsync(content, cancellation.IfDefault(rsp));
@@ -98,7 +98,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -111,7 +111,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendOkAsync<TResponse>(this HttpResponse rsp, TResponse response, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : notnull
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
         return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
@@ -125,7 +125,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, int statusCode = 400, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
         return SerOpts.ResponseSerializer(
             rsp,
@@ -141,7 +141,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendNoContentAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 204;
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -152,7 +152,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendNotFoundAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 404;
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -163,7 +163,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendUnauthorizedAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 401;
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -174,7 +174,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendForbiddenAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 403;
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -187,7 +187,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendRedirectAsync(this HttpResponse rsp, string location, bool isPermanant, CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.Redirect(location, isPermanant);
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -201,7 +201,7 @@ public static class HttpResponseExtensions
     public static Task SendHeadersAsync(this HttpResponse rsp, Action<IHeaderDictionary> headers, int statusCode = 200, CancellationToken cancellation = default)
     {
         headers(rsp.Headers);
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -269,7 +269,7 @@ public static class HttpResponseExtensions
     {
         if (stream is null) throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
 
         using (stream)
@@ -304,7 +304,7 @@ public static class HttpResponseExtensions
     public static async Task SendEventStreamAsync<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream,
         CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
         rsp.ContentType = "text/event-stream";
         rsp.Headers.CacheControl = "no-cache";
@@ -328,7 +328,7 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendEmptyJsonObject(this HttpResponse rsp, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
-        rsp.HttpContext.Items[Constants.ResponseSent] = null;
+        rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
         return SerOpts.ResponseSerializer(
             rsp,

@@ -59,7 +59,7 @@ public class EndpointTests
             await SendForbiddenAsync(CancellationToken.None);
             Response.Should().NotBeNull();
             ValidationFailed.Should().BeFalse();
-            HttpContext.Items[Constants.ResponseSent].Should().BeNull();
+            HttpContext.Items[0].Should().BeNull();
             HttpContext.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
         }
     }

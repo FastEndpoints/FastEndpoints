@@ -69,8 +69,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// get or set whether the response has started. you'd only use this if you're writing to the response stream by yourself.
     /// </summary>
     public bool ResponseStarted {
-        get => HttpContext.Response.HasStarted || HttpContext.Items.ContainsKey(Constants.ResponseSent);
-        set => HttpContext.Items[Constants.ResponseSent] = null;
+        get => HttpContext.ResponseStarted();
+        set => HttpContext.MarkResponseStart();
     }
 
     private static readonly JsonObject emptyObject = new();

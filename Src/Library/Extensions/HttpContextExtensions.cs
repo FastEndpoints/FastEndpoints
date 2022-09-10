@@ -34,4 +34,17 @@ public static class HttpContextExtensions
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public static object Resolve(this HttpContext ctx, Type typeOfService)
         => ctx.RequestServices.GetRequiredService(typeOfService);
+
+    /// <summary>
+    /// marks the current response as started so that <see cref="ResponseStarted(HttpContext)"/> can return the correct result.
+    /// </summary>
+    /// <param name="ctx"></param>
+    public static void MarkResponseStart(this HttpContext ctx)
+        => ctx.Items[0] = null; //item must match below
+
+    /// <summary>
+    /// check if the current response has already started or not.
+    /// </summary>
+    public static bool ResponseStarted(this HttpContext ctx)
+        => ctx.Response.HasStarted || ctx.Items.ContainsKey(0); //item must match above
 }

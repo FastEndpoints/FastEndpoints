@@ -405,6 +405,22 @@ public class MiscTestCases : EndToEndTestBase
         res?.Errors.Count.Should().Be(2);
         res?.Errors["x"].First().Should().Be("blah");
     }
+    
+    [Fact]
+    public async Task PreProcessorWithResponseDoesNotFailOnValidationFailure()
+    {
+        var (rsp, res) = await AdminClient.POSTAsync<
+            TestCases.PreProcessorWithResponseDoesNotFailOnValidationFailure.Endpoint,
+            TestCases.PreProcessorWithResponseDoesNotFailOnValidationFailure.Request,
+            ErrorResponse>
+        (new()
+        {
+            FailureCount = 0,
+            FirstName = ""
+        });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
 
     [Fact]
     public async Task OnBeforeOnAfterValidation()

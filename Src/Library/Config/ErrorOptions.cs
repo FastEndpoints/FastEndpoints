@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
@@ -16,8 +17,8 @@ public class ErrorOptions
     /// a function for transforming validation errors to an error response dto.
     /// set it to any func that returns an object that can be serialized to json.
     /// this function will be run everytime an error response needs to be sent to the client.
-    /// the arguments for the func will be a list of validation failures and an http status code.
+    /// the arguments for the func will be a list of validation failures, the http context and an http status code.
     /// </summary>
-    public Func<List<ValidationFailure>, int, object> ResponseBuilder { internal get; set; } //todo: add httpcontext arg in v6.0
-        = (failures, statusCode) => new ErrorResponse(failures, statusCode);
+    public Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { internal get; set; }
+        = (failures, _, statusCode) => new ErrorResponse(failures, statusCode);
 }

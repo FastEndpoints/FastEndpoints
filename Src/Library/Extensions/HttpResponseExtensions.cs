@@ -129,7 +129,7 @@ public static class HttpResponseExtensions
         rsp.StatusCode = statusCode;
         return SerOpts.ResponseSerializer(
             rsp,
-            ErrOpts.ResponseBuilder(failures, statusCode),
+            ErrOpts.ResponseBuilder(failures, rsp.HttpContext, statusCode),
             "application/problem+json",
             jsonSerializerContext,
             cancellation.IfDefault(rsp));

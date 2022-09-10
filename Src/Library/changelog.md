@@ -1,3 +1,6 @@
+### CHANGE
+- the signature of the global error response builder has changed to include the `HttpContext` #220 #230
+
 ### NEW
 - `[Throttle(...)]` attribute for configuring endpoint #227
 

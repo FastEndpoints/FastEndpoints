@@ -6,6 +6,6 @@ public class MyPreProcessor : IPreProcessor<PreProcessorWithResponseDoesNotFailO
 {
     public Task PreProcessAsync(PreProcessorWithResponseDoesNotFailOnValidationFailure.Request req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
     {
-        return ctx.Response.SendForbiddenAsync(ct);
+        return ctx.Response.SendErrorsAsync(failures);
     }
 }

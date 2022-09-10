@@ -419,7 +419,10 @@ public class MiscTestCases : EndToEndTestBase
             FirstName = ""
         });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        rsp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res?.Errors.Should().NotBeNull();
+        res?.Errors.Count.Should().Be(1);
+        res?.Errors["FirstName"].First().Should().Be("not empty!");
     }
 
     [Fact]

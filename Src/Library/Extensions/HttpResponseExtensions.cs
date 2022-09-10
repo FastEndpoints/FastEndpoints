@@ -125,6 +125,11 @@ public static class HttpResponseExtensions
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, int statusCode = 400, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
+        if (rsp.HasStarted)
+        {
+            return Task.CompletedTask;
+        }
+        
         rsp.HttpContext.Items[Constants.ResponseSent] = null;
         rsp.StatusCode = statusCode;
         return SerOpts.ResponseSerializer(

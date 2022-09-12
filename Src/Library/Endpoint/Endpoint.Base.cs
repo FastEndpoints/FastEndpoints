@@ -48,6 +48,9 @@ public abstract class BaseEndpoint : IEndpoint
     [NotImplemented]
     public virtual void Configure() => throw new NotImplementedException();
 
+    public virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, EndpointGroup, new()
+        => throw new NotImplementedException();
+
     /// <summary>
     /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk as done with IFormFile
     /// </summary>

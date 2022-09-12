@@ -320,4 +320,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="routePrefix">route prefix value</param>
     protected void RoutePrefixOverride(string routePrefix) => Definition.RoutePrefixOverride(routePrefix);
+
+    public sealed override void Group<TEndpointGroup>()
+    {
+        if (Definition.Routes is null)
+        {
+            throw new InvalidOperationException($"Endpoint group can only be specified after the route has been configured in the [{Definition.EndpointType.FullName}] endpoint class!");
+        }
+        new TEndpointGroup().Action(Definition);
+    }
 }

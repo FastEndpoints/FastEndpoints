@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.2.0" />
+        <PackageReference Include="FluentValidation" Version="11.2.2" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>

@@ -305,8 +305,8 @@ internal class OperationProcessor : IOperationProcessor
                 op.Parameters.Add(new OpenApiParameter
                 {
                     Name = fromBodyProp.Name,
-                    IsRequired = true, //!fromBodyProp.IsNullable(),
-                    Schema = JsonSchema.FromType(fromBodyProp.PropertyType, schemaGeneratorSettings),
+                    IsRequired = true,
+                    Schema = ctx.SchemaResolver.GetSchema(fromBodyProp.PropertyType, false),
                     Kind = OpenApiParameterKind.Body,
                     Description = reqParamDescriptions.GetValueOrDefault(fromBodyProp.Name),
                     Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value

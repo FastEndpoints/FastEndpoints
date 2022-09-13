@@ -329,7 +329,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <typeparam name="TEndpointGroup">the type of your <see cref="EndpointGroup"/> concrete class</typeparam>
     /// <exception cref="InvalidOperationException">thrown if endpoint route hasn't yet been specified</exception>
-    public sealed override void Group<TEndpointGroup>()
+    protected sealed override void Group<TEndpointGroup>()
     {
         if (Definition.Routes is null)
         {

@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using NJsonSchema;
 using NJsonSchema.Generation;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
+using NSwag.Generation.Processors.Contexts;
 using NSwag.Generation.Processors.Security;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -135,6 +137,13 @@ public static class Extensions
     {
         var index = value.IndexOf(removeString, StringComparison.Ordinal);
         return index < 0 ? value : value.Remove(index, removeString.Length);
+    }
+
+    internal static JsonSchema ResolveSchema(this OperationProcessorContext ctx, Type propType)
+    {
+        return ctx.SchemaResolver.HasSchema(propType, false)
+            ? ctx.SchemaResolver.GetSchema(propType, false)
+            : JsonSchema.FromType(propType, ctx.SchemaGenerator.Settings);
     }
 
     private static readonly NullabilityInfoContext nullCtx = new();

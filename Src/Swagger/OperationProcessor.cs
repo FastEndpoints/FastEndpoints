@@ -306,7 +306,7 @@ internal class OperationProcessor : IOperationProcessor
                 {
                     Name = fromBodyProp.Name,
                     IsRequired = true,
-                    Schema = ctx.SchemaResolver.GetSchema(fromBodyProp.PropertyType, false),
+                    Schema = ctx.ResolveSchema(fromBodyProp.PropertyType),
                     Kind = OpenApiParameterKind.Body,
                     Description = reqParamDescriptions.GetValueOrDefault(fromBodyProp.Name),
                     Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value

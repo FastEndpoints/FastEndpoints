@@ -142,7 +142,10 @@ public static class Extensions
     internal static JsonSchema ResolveSchema(this OperationProcessorContext ctx, Type propType)
     {
         return ctx.SchemaResolver.HasSchema(propType, false)
-            ? ctx.SchemaResolver.GetSchema(propType, false)
+            ? new JsonSchema()
+            {
+                Reference = ctx.SchemaResolver.GetSchema(propType, false)
+            }
             : JsonSchema.FromType(propType, ctx.SchemaGenerator.Settings);
     }
 

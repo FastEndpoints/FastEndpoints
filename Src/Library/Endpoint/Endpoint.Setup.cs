@@ -322,12 +322,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void RoutePrefixOverride(string routePrefix) => Definition.RoutePrefixOverride(routePrefix);
 
     /// <summary>
-    /// if this endpoint is part of an endpoint group, specify the type of the <see cref="EndpointGroup"/> concrete class where the common configuration for the group is specified.
+    /// if this endpoint is part of an endpoint group, specify the type of the <see cref="FastEndpoints.Group"/> concrete class where the common configuration for the group is specified.
     /// <para>
     /// WARNING: this method can only be called after the endpoint route has been specified.
     /// </para>
     /// </summary>
-    /// <typeparam name="TEndpointGroup">the type of your <see cref="EndpointGroup"/> concrete class</typeparam>
+    /// <typeparam name="TEndpointGroup">the type of your <see cref="FastEndpoints.Group"/> concrete class</typeparam>
     /// <exception cref="InvalidOperationException">thrown if endpoint route hasn't yet been specified</exception>
     protected sealed override void Group<TEndpointGroup>()
     {

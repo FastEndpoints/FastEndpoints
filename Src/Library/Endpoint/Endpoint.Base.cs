@@ -48,7 +48,7 @@ public abstract class BaseEndpoint : IEndpoint
 
     public virtual void Verbs(params Http[] methods) => throw new NotImplementedException();
 
-    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, EndpointGroup, new() => throw new NotImplementedException();
+    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
 
     /// <summary>
     /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk as done with IFormFile

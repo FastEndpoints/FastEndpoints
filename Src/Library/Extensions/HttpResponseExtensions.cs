@@ -274,7 +274,7 @@ public static class HttpResponseExtensions
 
         using (stream)
         {
-            long? fileLength = fileLengthBytes;
+            var fileLength = fileLengthBytes;
 
             if (stream.CanSeek)
                 fileLength = stream.Length;

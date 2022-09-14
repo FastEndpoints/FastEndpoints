@@ -3,7 +3,7 @@
 /// <summary>
 /// common configuration for a group of endpoints can be specified by implementing this abstract class and calling <see cref="Configure(string, Action{EndpointDefinition})"/> in the constructor.
 /// </summary>
-public abstract class EndpointGroup
+public abstract class Group
 {
     internal Action<EndpointDefinition> Action { get; set; }
 
@@ -12,7 +12,7 @@ public abstract class EndpointGroup
     /// </summary>
     /// <param name="routePrefix">the route prefix for the group</param>
     /// <param name="ep">the configuration action to be performed on the <see cref="EndpointDefinition"/></param>
-    protected void Configure(string routePrefix, Action<EndpointDefinition> ep)
+    protected virtual void Configure(string routePrefix, Action<EndpointDefinition> ep)
         => Action = RouteModifier(routePrefix) + ep;
 
     private static Action<EndpointDefinition> RouteModifier(string routePrefix) => e =>
@@ -27,4 +27,18 @@ public abstract class EndpointGroup
             }
         }
     };
+}
+
+/// <summary>
+/// common configuration for a sub group of endpoints can be specified by implementing this abstract class and calling <see cref="Configure(string, Action{EndpointDefinition})"/> in the constructor.
+/// </summary>
+/// <typeparam name="TParent"></typeparam>
+public abstract class SubGroup<TParent> : Group where TParent : Group, new()
+{
+    ///<inheritdoc/>
+    protected sealed override void Configure(string routePrefix, Action<EndpointDefinition> ep)
+    {
+        base.Configure(routePrefix, ep);
+        Action += new TParent().Action;
+    }
 }

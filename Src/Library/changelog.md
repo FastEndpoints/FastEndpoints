@@ -4,6 +4,7 @@
 ### NEW
 - `[Throttle(...)]` attribute for configuring endpoint #227
 - `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
+- endpoint configuration with groups and sub/nested groups #214
 
 ### FIX
 - pre/post processor collection modification bug #224

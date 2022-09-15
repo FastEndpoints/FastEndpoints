@@ -164,7 +164,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 if (query.TryGetValue(nestedProp.Name.ToLower(), out var values))
                 {
                     var parser = nestedProp.PropertyType.ValueParser();
-                    if(parser != null)
+                    if (parser != null)
                     {
                         var (success, nestedValue) = parser(values);
                         if (success)
@@ -296,28 +296,25 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static bool SetFromQueryPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
         var attrib = propInfo.GetCustomAttribute<QueryParamAttribute>(false);
-        if (attrib is not null)
+        if (attrib is null
+            || propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable)
+            || propInfo.PropertyType.IsEnum
+            || propInfo.PropertyType == Types.Uri
+            || !propInfo.PropertyType.GetProperties().Any())
         {
-            if (propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable)
-                || propInfo.PropertyType.IsEnum
-                || propInfo.PropertyType == Types.Uri
-                || !propInfo.PropertyType.GetProperties().Any())
-            {
-                return false;
-            }
-
-            fromQueryProps.Add(new()
-            {
-                Identifier = propInfo.Name,
-                ForbidIfMissing = false,
-                PropType = propInfo.PropertyType,
-                IsCollection = false,
-                ValueParser = propInfo.PropertyType.ValueParser(),
-                PropSetter = compiledSetter,
-            });
-            return true;
+            return false;
         }
-        return false;
+
+        fromQueryProps.Add(new()
+        {
+            Identifier = propInfo.Name,
+            ForbidIfMissing = false,
+            PropType = propInfo.PropertyType,
+            IsCollection = false,
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter,
+        });
+        return true;
     }
 
     private static bool AddFromClaimPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)

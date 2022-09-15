@@ -79,7 +79,8 @@ internal static class ReflectionExtensions
         tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
 
         //note: the actual type of the `input` to the parser func can be
-        //      either [object] or [StringValues] 
+        //      either [object] or [StringValues]
+
         if (tProp == Types.String)
             return input => (true, input?.ToString()!);
 
@@ -88,7 +89,6 @@ internal static class ReflectionExtensions
 
         if (tProp == Types.Uri)
             return input => (Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res!);
-
 
         var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)

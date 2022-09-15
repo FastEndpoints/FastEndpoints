@@ -94,8 +94,8 @@ internal static class ReflectionExtensions
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
         {
             return tProp.GetInterfaces().Contains(Types.IEnumerable)
-                   ? (input => (true, DeserializeArrayString(input, tProp))!)
-                   : null;
+                   ? (input => (true, DeserializeJsonArrayString(input, tProp))!)
+                   : (input => (true, DeserializeJsonObjectString(input, tProp))!);
         }
 
         // The 'object' parameter passed into our delegate
@@ -126,10 +126,23 @@ internal static class ReflectionExtensions
         return Expression.Lambda<Func<object?, (bool, object)>>(
             block,
             inputParameter
-            ).Compile();
+        ).Compile();
     }
 
-    private static object? DeserializeArrayString(object? input, Type tProp)
+    private static object? DeserializeJsonObjectString(object? input, Type tProp)
+    {
+        if (input is not StringValues vals || vals.Count == 0)
+            return null;
+
+        if (vals.Count == 1 && vals[0].StartsWith('{') && vals[0].EndsWith('}'))
+        {
+            // {"name":"x","age":24}
+            return JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options);
+        }
+        return null;
+    }
+
+    private static object? DeserializeJsonArrayString(object? input, Type tProp)
     {
         if (input is not StringValues vals || vals.Count == 0)
             return null;

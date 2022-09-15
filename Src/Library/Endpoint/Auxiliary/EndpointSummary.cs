@@ -18,9 +18,7 @@ public class EndpointSummary
             foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata).ToArray())
             {
                 if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
-                {
                     epBuilder.Metadata.Remove(m);
-                }
             }
         });
     };

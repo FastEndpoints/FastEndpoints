@@ -1,9 +1,11 @@
-﻿namespace FastEndpoints;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// common configuration for a group of endpoints can be specified by implementing this abstract class and calling <see cref="Configure(string, Action{EndpointDefinition})"/> in the constructor.
 /// </summary>
-public abstract class Group
+public abstract class Group : IServiceResolver
 {
     internal Action<EndpointDefinition> Action { get; set; }
 
@@ -27,6 +29,44 @@ public abstract class Group
             }
         }
     };
+
+    /// <summary>
+    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+    /// </summary>
+    /// <typeparam name="TService">the type of the service to resolve</typeparam>
+    public TService? TryResolve<TService>() where TService : class
+        => IServiceResolver.RootServiceProvider.GetService<TService>();
+    /// <summary>
+    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+    /// </summary>
+    /// <param name="typeOfService">the type of the service to resolve</param>
+    public object? TryResolve(Type typeOfService)
+        => IServiceResolver.RootServiceProvider.GetService(typeOfService);
+    /// <summary>
+    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+    /// </summary>
+    /// <typeparam name="TService">the type of the service to resolve</typeparam>
+    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+    public TService Resolve<TService>() where TService : class
+        => IServiceResolver.RootServiceProvider.GetRequiredService<TService>();
+    /// <summary>
+    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+    /// </summary>
+    /// <param name="typeOfService">the type of the service to resolve</param>
+    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+    public object Resolve(Type typeOfService)
+        => IServiceResolver.RootServiceProvider.GetRequiredService(typeOfService);
+    /// <summary>
+    /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
+    ///<para>
+    /// <code>
+    /// using var scope = CreateScope();
+    /// var scopedService = scope.ServiceProvider.GetService(...);
+    /// </code>
+    /// </para>
+    /// </summary>
+    public IServiceScope CreateScope()
+        => IServiceResolver.RootServiceProvider.CreateScope();
 }
 
 /// <summary>

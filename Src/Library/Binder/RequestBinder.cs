@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
@@ -23,6 +25,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
     private static readonly List<SecondaryPropCacheEntry> hasPermissionProps = new();
+    private static readonly List<SecondaryPropCacheEntry> fromQueryProps = new();
 
     static RequestBinder()
     {
@@ -46,6 +49,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);
 
             if (SetFromBodyPropCache(propInfo, compiledSetter))
+                continue;
+
+            if (SetFromQueryPropCache(propInfo, compiledSetter))
                 continue;
 
             if (AddFromClaimPropCacheEntry(propInfo, compiledSetter))
@@ -149,7 +155,29 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures)
     {
         if (query.Count == 0) return;
-
+        var cachedProps = fromQueryProps;
+        foreach (var prop in cachedProps)
+        {
+            var dictionary = new Dictionary<string, object>();
+            foreach (var nestedProp in prop.PropType.GetProperties())
+            {
+                if (query.TryGetValue(nestedProp.Name.ToLower(), out var values))
+                {
+                    var parser = nestedProp.PropertyType.ValueParser();
+                    if(parser != null)
+                    {
+                        var (success, nestedValue) = parser(values);
+                        if (success)
+                        {
+                            dictionary.Add(nestedProp.Name, nestedValue);
+                        }
+                    }
+                }
+            }
+            var json = JsonSerializer.Serialize(dictionary);
+            var value = JsonSerializer.Deserialize(json, prop.PropType)!;
+            prop.PropSetter(req, value);
+        }
         foreach (var kvp in query)
             Bind(req, kvp, failures);
     }
@@ -260,6 +288,33 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 PropType = propInfo.PropertyType,
                 PropSetter = compiledSetter,
             };
+            return true;
+        }
+        return false;
+    }
+
+    private static bool SetFromQueryPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        var attrib = propInfo.GetCustomAttribute<QueryParamAttribute>(false);
+        if (attrib is not null)
+        {
+            if (propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable)
+                || propInfo.PropertyType.IsEnum
+                || propInfo.PropertyType == Types.Uri
+                || !propInfo.PropertyType.GetProperties().Any())
+            {
+                return false;
+            }
+
+            fromQueryProps.Add(new()
+            {
+                Identifier = propInfo.Name,
+                ForbidIfMissing = false,
+                PropType = propInfo.PropertyType,
+                IsCollection = false,
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter,
+            });
             return true;
         }
         return false;

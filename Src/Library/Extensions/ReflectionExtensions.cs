@@ -80,7 +80,6 @@ internal static class ReflectionExtensions
 
         //note: the actual type of the `input` to the parser func can be
         //      either [object] or [StringValues] 
-
         if (tProp == Types.String)
             return input => (true, input?.ToString()!);
 
@@ -90,12 +89,14 @@ internal static class ReflectionExtensions
         if (tProp == Types.Uri)
             return input => (Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res!);
 
+
         var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
         {
             return tProp.GetInterfaces().Contains(Types.IEnumerable)
                    ? (input => (true, DeserializeArrayString(input, tProp))!)
-                   : null;
+                   : (input =>
+                   (true, DeserializeObjectString(input, tProp))!);
         }
 
         // The 'object' parameter passed into our delegate
@@ -168,6 +169,17 @@ internal static class ReflectionExtensions
                 sb.Append(',');
         }
         sb.Append(']');
+
+        return JsonSerializer.Deserialize(sb.ToString(), tProp, SerOpts.Options);
+    }
+
+
+    private static object? DeserializeObjectString(object? input, Type tProp)
+    {
+        if (input is not StringValues vals || vals.Count == 0)
+            return null;
+
+        var sb = new StringBuilder("{");
 
         return JsonSerializer.Deserialize(sb.ToString(), tProp, SerOpts.Options);
     }

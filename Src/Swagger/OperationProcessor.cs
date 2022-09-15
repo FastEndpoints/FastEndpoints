@@ -200,7 +200,7 @@ internal class OperationProcessor : IOperationProcessor
                     Name = ActualParamName(m.Value),
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
-                    Schema = ctx.ResolveSchema(pType), //JsonSchema.FromType(pType, schemaGeneratorSettings),
+                    Schema = ctx.ResolveSchema(pType),
                     Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value)),
                     Default = defaultVal
                 };
@@ -220,7 +220,7 @@ internal class OperationProcessor : IOperationProcessor
                     {
                         Name = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name,
                         IsRequired = !p.IsNullable(),
-                        Schema = ctx.ResolveSchema(p.PropertyType),//JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
+                        Schema = ctx.ResolveSchema(p.PropertyType),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name),
                         Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
@@ -246,7 +246,7 @@ internal class OperationProcessor : IOperationProcessor
                         {
                             Name = pName,
                             IsRequired = hAttrib.IsRequired,
-                            Schema = ctx.ResolveSchema(p.PropertyType),//JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
+                            Schema = ctx.ResolveSchema(p.PropertyType),
                             Kind = OpenApiParameterKind.Header,
                             Description = reqParamDescriptions.GetValueOrDefault(pName),
                             Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value

@@ -158,10 +158,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         var cachedProps = fromQueryProps;
         foreach (var prop in cachedProps)
         {
-            var constructor = prop.PropType.GetConstructor(
-                  BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                  null, Type.EmptyTypes, null)!;
-            var value = constructor.Invoke(Array.Empty<object>());
+            var value = prop.ConstructorInfo!.Invoke(Array.Empty<object>());
             foreach (var nestedProp in prop.PropType.GetProperties())
             {
                 
@@ -298,24 +295,31 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static bool SetFromQueryPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
         var attrib = propInfo.GetCustomAttribute<QueryParamAttribute>(false);
-        if (attrib is null
-            || propInfo.PropertyType.ValueParser() is not null
-            || propInfo.PropertyType.GetConstructor(
+        if(attrib is not null)
+        {
+            var type = Nullable.GetUnderlyingType(propInfo.PropertyType) ?? propInfo.PropertyType;
+
+            if (type.GetInterfaces().Contains(Types.IEnumerable) || type == Types.Uri || type.IsEnum)
+                return false;
+
+            var constructor = type.GetConstructor(
                   BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                  null, Type.EmptyTypes, null) == null
-            || !propInfo.PropertyType.GetProperties().Any())
-        {
-            return false;
+                  null, Type.EmptyTypes, null);
+            if(constructor != null)
+            {
+                fromQueryProps.Add(new()
+                {
+                    Identifier = propInfo.Name,
+                    ForbidIfMissing = false,
+                    PropType = propInfo.PropertyType,
+                    IsCollection = false,
+                    PropSetter = compiledSetter,
+                    ConstructorInfo = constructor,
+                });
+                return true;
+            }
         }
-        fromQueryProps.Add(new()
-        {
-            Identifier = propInfo.Name,
-            ForbidIfMissing = false,
-            PropType = propInfo.PropertyType,
-            IsCollection = false,
-            PropSetter = compiledSetter,
-        });
-        return true;
+        return false;
     }
 
     private static bool AddFromClaimPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)

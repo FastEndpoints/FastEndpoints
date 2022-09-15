@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using System.Reflection;
+
+namespace FastEndpoints;
 
 internal class PropCache
 {
@@ -17,4 +19,5 @@ internal class SecondaryPropCacheEntry : PrimaryPropCacheEntry
     public bool ForbidIfMissing { get; init; }
     public string? PropName { get; set; }
     public bool IsCollection { get; set; }
+    public ConstructorInfo? ConstructorInfo { get; init; }
 }

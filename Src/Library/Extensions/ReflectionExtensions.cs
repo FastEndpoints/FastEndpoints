@@ -95,8 +95,7 @@ internal static class ReflectionExtensions
         {
             return tProp.GetInterfaces().Contains(Types.IEnumerable)
                    ? (input => (true, DeserializeArrayString(input, tProp))!)
-                   : (input =>
-                   (true, DeserializeObjectString(input, tProp))!);
+                   : null;
         }
 
         // The 'object' parameter passed into our delegate
@@ -169,17 +168,6 @@ internal static class ReflectionExtensions
                 sb.Append(',');
         }
         sb.Append(']');
-
-        return JsonSerializer.Deserialize(sb.ToString(), tProp, SerOpts.Options);
-    }
-
-
-    private static object? DeserializeObjectString(object? input, Type tProp)
-    {
-        if (input is not StringValues vals || vals.Count == 0)
-            return null;
-
-        var sb = new StringBuilder("{");
 
         return JsonSerializer.Deserialize(sb.ToString(), tProp, SerOpts.Options);
     }

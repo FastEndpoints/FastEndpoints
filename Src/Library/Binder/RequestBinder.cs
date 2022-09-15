@@ -297,21 +297,17 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         var attrib = propInfo.GetCustomAttribute<QueryParamAttribute>(false);
         if (attrib is null
-            || propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable)
-            || propInfo.PropertyType.IsEnum
-            || propInfo.PropertyType == Types.Uri
+            || propInfo.PropertyType.ValueParser() is not null
             || !propInfo.PropertyType.GetProperties().Any())
         {
             return false;
         }
-
         fromQueryProps.Add(new()
         {
             Identifier = propInfo.Name,
             ForbidIfMissing = false,
             PropType = propInfo.PropertyType,
             IsCollection = false,
-            ValueParser = propInfo.PropertyType.ValueParser(),
             PropSetter = compiledSetter,
         });
         return true;

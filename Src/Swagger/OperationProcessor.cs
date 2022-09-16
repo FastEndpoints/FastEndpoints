@@ -128,7 +128,8 @@ internal class OperationProcessor : IOperationProcessor
           });
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
-        var reqDtoProps = reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);
+        var reqDtoProps = reqDtoIsList is true ? null : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
         var isGETRequest = apiDescription.HttpMethod == "GET";
 
         //store unique request param description (from each consumes/content type) for later use.
@@ -232,6 +233,7 @@ internal class OperationProcessor : IOperationProcessor
                 reqParams.AddRange(qParams);
         }
 
+        //add request params depending on [From*] attribute annotations on dto props
         if (reqDtoProps is not null)
         {
             foreach (var p in reqDtoProps)
@@ -272,15 +274,19 @@ internal class OperationProcessor : IOperationProcessor
             op.Parameters.Add(p);
 
         //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body)
-        //or if there are no properties left after above operations
+        //or if there are no properties left on the request dto after above operations
+        //only if the request dto is not a list
         if (isGETRequest ||
            (op.RequestBody?.Content.SelectMany(c => c.Value.Schema.ActualSchema.ActualProperties).Any() == false &&
            !op.RequestBody.Content.Where(c => c.Value.Schema.ActualSchema.InheritedSchema is not null).SelectMany(c => c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties).Any() &&
            !op.RequestBody.Content.SelectMany(c => c.Value.Schema.ActualSchema.AllOf.SelectMany(s => s.Properties)).Any()))
         {
-            op.RequestBody = null;
-            foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
-                op.Parameters.Remove(body);
+            if (reqDtoIsList is false)
+            {
+                op.RequestBody = null;
+                foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
+                    op.Parameters.Remove(body);
+            }
         }
 
         if (removeEmptySchemas)

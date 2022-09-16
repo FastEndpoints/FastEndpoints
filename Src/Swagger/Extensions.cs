@@ -139,16 +139,6 @@ public static class Extensions
         return index < 0 ? value : value.Remove(index, removeString.Length);
     }
 
-    internal static JsonSchema ResolveSchema(this OperationProcessorContext ctx, Type propType)
-    {
-        return ctx.SchemaResolver.HasSchema(propType, false)
-            ? new JsonSchema()
-            {
-                Reference = ctx.SchemaResolver.GetSchema(propType, false)
-            }
-            : JsonSchema.FromType(propType, ctx.SchemaGenerator.Settings);
-    }
-
     private static readonly NullabilityInfoContext nullCtx = new();
     internal static bool IsNullable(this PropertyInfo p) => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
 }

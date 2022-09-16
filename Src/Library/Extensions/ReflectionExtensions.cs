@@ -153,7 +153,7 @@ internal static class ReflectionExtensions
             // possible inputs:
             // - [1,2,3] (as StringValues[0])
             // - ["one","two","three"] (as StringValues[0])
-            // - [{id="1"},{id="2"}] (as StringValues[0])
+            // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
 
             return JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options);
         }
@@ -166,16 +166,24 @@ internal static class ReflectionExtensions
         // - one,two,three (as StringValues)
         // - [1,2], 2, 3 (as StringValues)
         // - ["one","two"], three, four (as StringValues)
+        // - {"name":"x"}, {"name":"y"} (as StringValues) - from swagger ui
 
         var sb = new StringBuilder("[");
         for (var i = 0; i < vals.Count; i++)
         {
-            sb.Append('"')
-              .Append(
-                vals[i].Contains('"') //json strings with quotations must be escaped
-                ? vals[i].Replace("\"", "\\\"")
-                : vals[i])
-              .Append('"');
+            if (vals[i].StartsWith('{') && vals[i].EndsWith('}'))
+            {
+                sb.Append(vals[i]);
+            }
+            else
+            {
+                sb.Append('"')
+                  .Append(
+                    vals[i].Contains('"') //json strings with quotations must be escaped
+                    ? vals[i].Replace("\"", "\\\"")
+                    : vals[i])
+                  .Append('"');
+            }
 
             if (i < vals.Count - 1)
                 sb.Append(',');

@@ -250,12 +250,21 @@ public class MiscTestCases : EndToEndTestBase
         var (rsp, res) = await GuestClient
             .GETAsync<TestCases.DupeParamBindingForIEnumerableProps.Request, TestCases.DupeParamBindingForIEnumerableProps.Response>(
             "/api/test-cases/dupe-param-binding-for-ienumerable-props?" +
-            "doubles=123.45&doubles=543.21&" +
-            "dates=2022-01-01&dates=2022-02-02&" +
-            "guids=b01ec302-0adc-4a2b-973d-bbfe639ed9a5&guids=e08664a4-efd8-4062-a1e1-6169c6eac2ab&" +
-            "ints=1&ints=2&ints=3&" +
-            "strings=[1,2]&strings=three&" +
-            "morestrings=[\"one\",\"two\"]&morestrings=three",
+            "doubles=123.45&" +
+            "doubles=543.21&" +
+            "dates=2022-01-01&" +
+            "dates=2022-02-02&" +
+            "guids=b01ec302-0adc-4a2b-973d-bbfe639ed9a5&" +
+            "guids=e08664a4-efd8-4062-a1e1-6169c6eac2ab&" +
+            "ints=1&" +
+            "ints=2&" +
+            "ints=3&" +
+            "strings=[1,2]&" +
+            "strings=three&" +
+            "morestrings=[\"one\",\"two\"]&" +
+            "morestrings=three&" +
+            "persons={\"name\":\"john\",\"age\":45}&" +
+            "persons={\"name\":\"doe\",\"age\":55}",
             new());
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -271,6 +280,11 @@ public class MiscTestCases : EndToEndTestBase
         res?.Strings[0].Should().Be("[1,2]");
         res?.MoreStrings.Length.Should().Be(2);
         res?.MoreStrings[0].Should().Be("[\"one\",\"two\"]");
+        res?.Persons.Count().Should().Be(2);
+        res?.Persons.First().Name.Should().Be("john");
+        res?.Persons.First().Age.Should().Be(45);
+        res?.Persons.Last().Name.Should().Be("doe");
+        res?.Persons.Last().Age.Should().Be(55);
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
@@ -11,7 +12,7 @@ public interface IEndpoint
     List<ValidationFailure> ValidationFailures { get; } //also for extensibility
 
     //key: the type of the endpoint
-    private static Dictionary<Type, string> TestURLCache { get; } = new();
+    private static ConcurrentDictionary<Type, string> TestURLCache { get; } = new();
 
     internal static void SetTestURL(Type endpointType, string url) => TestURLCache[endpointType] = url;
 

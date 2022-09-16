@@ -72,7 +72,7 @@ public static class MainExtensions
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
-        var routeToHandlerCounts = new ConcurrentDictionary<string, int>(); //using concurrent dict due to: https://discord.com/channels/933662816458645504/992958014699077683
+        var routeToHandlerCounts = new ConcurrentDictionary<string, int>();
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 

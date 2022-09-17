@@ -5,7 +5,8 @@
 - endpoint configuration with groups and sub/nested groups #214
 - `[Throttle(...)]` attribute for configuring endpoint #227
 - `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
-- complex model binding from json object strings for route/query/forms/headers #238
+- complex object binding from json object strings for route/query/forms/headers #238
+- simple object binding from query parameters #238
 
 ### FIXES
 - pre/post processor collection modification bug #224

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
@@ -19,7 +21,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
     private static PropCache? fromBodyProp;
-    private static PropCache? bindObjectProp;
+    private static PropCache? fromQueryParamsProp;
     private static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
@@ -57,9 +59,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                         addPrimary = SetFromBodyPropCache(propInfo, compiledSetter);
                         break;
 
-                    case BindObjectAttribute:
-                        if (bindObjectProp is not null) throw new InvalidOperationException($"Only one [BindObject] attribute is allowed on [{tRequest.FullName}].");
-                        addPrimary = SetBindObjectPropCache(propInfo, compiledSetter);
+                    case FromQueryParamsAttribute:
+                        if (fromQueryParamsProp is not null) throw new InvalidOperationException($"Only one [BindObject] attribute is allowed on [{tRequest.FullName}].");
+                        addPrimary = SetFromQueryParamsPropCache(propInfo, compiledSetter);
                         break;
 
                     case FromClaimAttribute fcAtt:
@@ -81,7 +83,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             }
 
             if (addPrimary)
-                AddPropCacheEntry(fieldName, propInfo, compiledSetter);
+                AddPrimaryPropCacheEntry(fieldName, propInfo, compiledSetter);
         }
     }
 
@@ -174,17 +176,32 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         if (query.Count == 0) return;
 
-        foreach (var kvp in query)
-            Bind(req, kvp, failures);
+        if (fromQueryParamsProp is null)
+        {
+            foreach (var kvp in query)
+                Bind(req, kvp, failures);
+        }
+        else
+        {
+            var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
+
+            foreach (var kvp in query)
+            {
+                obj[kvp.Key] = kvp.Value[0];
+                //todo: parse sub properties (?address[street]=xyz)
+
+                Bind(req, kvp, failures);
+            }
+
+            fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
+        }
     }
 
     private static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
     {
-        var cachedProps = fromClaimProps;
-
-        for (var i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < fromClaimProps.Count; i++)
         {
-            var prop = cachedProps[i];
+            var prop = fromClaimProps[i];
             StringValues? claimVal = null;
 
             foreach (var g in claims.GroupBy(c => c.Type, c => c.Value))
@@ -214,11 +231,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     private static void BindHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
     {
-        var cachedProps = fromHeaderProps;
-
-        for (var i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < fromHeaderProps.Count; i++)
         {
-            var prop = cachedProps[i];
+            var prop = fromHeaderProps[i];
             var hdrVal = headers[prop.Identifier];
 
             if (hdrVal.Count == 0 && prop.ForbidIfMissing)
@@ -237,12 +252,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     private static void BindHasPermissionProps(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
     {
-        var cachedProps = hasPermissionProps;
-
-        for (var i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < hasPermissionProps.Count; i++)
         {
-            var prop = cachedProps[i];
-
+            var prop = hasPermissionProps[i];
             var hasPerm = claims.Any(c =>
                string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
@@ -328,9 +340,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false;
     }
 
-    private static bool SetBindObjectPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        bindObjectProp = new()
+        fromQueryParamsProp = new()
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter,
@@ -338,7 +350,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false;
     }
 
-    private static void AddPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
         primaryProps.Add(fieldName ?? propInfo.Name, new()
         {

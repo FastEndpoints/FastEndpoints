@@ -293,7 +293,8 @@ public class MiscTestCases : EndToEndTestBase
         var (rsp, res) = await GuestClient
             .POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
-                "?Bool=false&String=everything&XBlank=256",
+                "?Bool=false&String=everything&XBlank=256" +
+                "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7",
                 new()
                 {
                     Bool = false,
@@ -303,7 +304,8 @@ public class MiscTestCases : EndToEndTestBase
                     Int = 1,
                     Long = 1,
                     String = "nothing",
-                    Blank = 1
+                    Blank = 1,
+                    Person = new() { Age = 50, Name = "wrong" }
                 });
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -315,6 +317,10 @@ public class MiscTestCases : EndToEndTestBase
         res?.FromBody.Should().Be("from body value");
         res?.Decimal.Should().Be(123.45m);
         res?.Blank.Should().Be(256);
+        res?.Person.Should().NotBeNull();
+        res?.Person.Id.Should().Be(Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"));
+        res?.Person.Age.Should().Be(45);
+        res?.Person.Name.Should().Be("john");
     }
 
     [Fact]

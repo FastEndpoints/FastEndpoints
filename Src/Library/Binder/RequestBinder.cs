@@ -188,6 +188,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             foreach (var kvp in query)
             {
                 obj[kvp.Key] = kvp.Value[0];
+
                 //todo: parse sub properties (?address[street]=xyz)
 
                 Bind(req, kvp, failures);

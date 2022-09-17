@@ -45,6 +45,13 @@ public class CustomList : List<int>
     }
 }
 
+public class Person
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+
 public class Request
 {
     /// <summary>
@@ -64,6 +71,9 @@ public class Request
 
     [BindFrom("XBlank")]
     public int? Blank { get; set; }
+
+    [FromQueryParams]
+    public Person Person { get; set; }
 
     /// <summary>
     /// frm body xml comment
@@ -95,4 +105,5 @@ public class Response
     public string? Url { get; set; }
     public Custom Custom { get; set; }
     public CustomList CustomList { get; set; }
+    public Person Person { get; set; }
 }

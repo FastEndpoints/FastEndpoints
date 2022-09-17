@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
@@ -21,6 +19,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
     private static PropCache? fromBodyProp;
+    private static PropCache? bindObjectProp;
     private static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
@@ -45,21 +44,44 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (isPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
                 continue;
 
+            string? fieldName = null;
+            var addPrimary = true;
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);
 
-            if (SetFromBodyPropCache(propInfo, compiledSetter))
-                continue;
+            foreach (var att in propInfo.GetCustomAttributes()) //reduce allocations by doing this only once
+            {
+                switch (att)
+                {
+                    case FromBodyAttribute:
+                        if (fromBodyProp is not null) throw new InvalidOperationException($"Only one [FromBody] attribute is allowed on [{tRequest.FullName}].");
+                        addPrimary = SetFromBodyPropCache(propInfo, compiledSetter);
+                        break;
 
-            if (AddFromClaimPropCacheEntry(propInfo, compiledSetter))
-                continue;
+                    case BindObjectAttribute:
+                        if (bindObjectProp is not null) throw new InvalidOperationException($"Only one [BindObject] attribute is allowed on [{tRequest.FullName}].");
+                        addPrimary = SetBindObjectPropCache(propInfo, compiledSetter);
+                        break;
 
-            if (AddFromHeaderPropCacheEntry(propInfo, compiledSetter))
-                continue;
+                    case FromClaimAttribute fcAtt:
+                        addPrimary = AddFromClaimPropCacheEntry(fcAtt, propInfo, compiledSetter);
+                        break;
 
-            if (AddHasPermissionPropCacheEntry(propInfo, compiledSetter))
-                continue;
+                    case FromHeaderAttribute fhAtt:
+                        addPrimary = AddFromHeaderPropCacheEntry(fhAtt, propInfo, compiledSetter);
+                        break;
 
-            AddPropCacheEntry(propInfo, compiledSetter);
+                    case HasPermissionAttribute hpAtt:
+                        addPrimary = AddHasPermissionPropCacheEntry(hpAtt, propInfo, compiledSetter);
+                        break;
+
+                    case BindFromAttribute bfAtt:
+                        fieldName = bfAtt.Name;
+                        break;
+                }
+            }
+
+            if (addPrimary)
+                AddPropCacheEntry(fieldName, propInfo, compiledSetter);
         }
     }
 
@@ -252,94 +274,73 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
+    private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        fromClaimProps.Add(new()
+        {
+            Identifier = att.ClaimType ?? propInfo.Name,
+            ForbidIfMissing = att.IsRequired,
+            PropType = propInfo.PropertyType,
+            IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter,
+        });
+
+        return !att.IsRequired; //if claim is optional, return true so it will also be added as a PropCacheEntry
+    }
+
+    private static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        fromHeaderProps.Add(new()
+        {
+            Identifier = att.HeaderName ?? propInfo.Name,
+            ForbidIfMissing = att.IsRequired,
+            PropType = propInfo.PropertyType,
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter
+        });
+
+        return !att.IsRequired; //if header is optional, return true so it will also be added as a PropCacheEntry;
+    }
+
+    private static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        hasPermissionProps.Add(new()
+        {
+            Identifier = att.Permission ?? propInfo.Name,
+            ForbidIfMissing = att.IsRequired,
+            PropType = propInfo.PropertyType,
+            PropName = propInfo.Name,
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter
+        });
+
+        return false; // don't allow binding from any other sources
+    }
+
     private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        var attrib = propInfo.GetCustomAttribute<FromBodyAttribute>(false);
-        if (attrib is not null)
+        fromBodyProp = new()
         {
-            fromBodyProp = new()
-            {
-                PropType = propInfo.PropertyType,
-                PropSetter = compiledSetter,
-            };
-            return true;
-        }
+            PropType = propInfo.PropertyType,
+            PropSetter = compiledSetter,
+        };
         return false;
     }
 
-    private static bool AddFromClaimPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool SetBindObjectPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
-        if (attrib is not null)
+        bindObjectProp = new()
         {
-            var claimType = attrib.ClaimType ?? propInfo.Name;
-            var forbidIfMissing = attrib.IsRequired;
-
-            fromClaimProps.Add(new()
-            {
-                Identifier = claimType,
-                ForbidIfMissing = forbidIfMissing,
-                PropType = propInfo.PropertyType,
-                IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
-                ValueParser = propInfo.PropertyType.ValueParser(),
-                PropSetter = compiledSetter,
-            });
-
-            return forbidIfMissing; //if claim is optional, return false so it will also be added as a PropCacheEntry
-        }
+            PropType = propInfo.PropertyType,
+            PropSetter = compiledSetter,
+        };
         return false;
     }
 
-    private static bool AddFromHeaderPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static void AddPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        var attrib = propInfo.GetCustomAttribute<FromHeaderAttribute>(false);
-        if (attrib is not null)
-        {
-            var headerName = attrib.HeaderName ?? propInfo.Name;
-            var forbidIfMissing = attrib.IsRequired;
-
-            fromHeaderProps.Add(new()
-            {
-                Identifier = headerName,
-                ForbidIfMissing = forbidIfMissing,
-                PropType = propInfo.PropertyType,
-                ValueParser = propInfo.PropertyType.ValueParser(),
-                PropSetter = compiledSetter
-            });
-
-            return forbidIfMissing; //if header is optional, return false so it will also be added as a PropCacheEntry;
-        }
-        return false;
-    }
-
-    private static bool AddHasPermissionPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
-    {
-        var attrib = propInfo.GetCustomAttribute<HasPermissionAttribute>(false);
-        if (attrib is not null)
-        {
-            var permission = attrib.Permission ?? propInfo.Name;
-            var forbidIfMissing = attrib.IsRequired;
-
-            hasPermissionProps.Add(new()
-            {
-                Identifier = permission,
-                ForbidIfMissing = forbidIfMissing,
-                PropType = propInfo.PropertyType,
-                PropName = propInfo.Name,
-                ValueParser = propInfo.PropertyType.ValueParser(),
-                PropSetter = compiledSetter
-            });
-
-            return true; // don't allow binding from any other sources
-        }
-        return false;
-    }
-
-    private static void AddPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
-    {
-        var attrib = propInfo.GetCustomAttribute<BindFromAttribute>(false);
-
-        primaryProps.Add(attrib?.Name ?? propInfo.Name, new()
+        primaryProps.Add(fieldName ?? propInfo.Name, new()
         {
             PropType = propInfo.PropertyType,
             ValueParser = propInfo.PropertyType.ValueParser(),

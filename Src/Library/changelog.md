@@ -15,5 +15,6 @@
 - concurrent test execution bug #224
 
 ### IMPROVEMENTS
+- optimize default request binder by reducing allocations.
 - swagger schema resolving
 - json object array string binding of requests from swagger ui

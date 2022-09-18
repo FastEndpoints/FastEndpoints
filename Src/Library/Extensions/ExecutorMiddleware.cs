@@ -57,10 +57,9 @@ internal class ExecutorMiddleware
                 }
             }
 
-            var epInstance = (BaseEndpoint)ctx.RequestServices.GetRequiredService(epDef.EndpointType);
-            epInstance.Definition = epDef;
-            epInstance.HttpContext = ctx;
-            ResolveServices(epInstance, ctx.RequestServices, epDef.ServiceBoundEpProps);
+            var factory = ctx.RequestServices.GetRequiredService<IEndpointFactory>();
+
+            BaseEndpoint epInstance = factory.Create(endpoint, ctx);
 
             ResponseCacheExecutor.Execute(ctx, endpoint.Metadata.GetMetadata<ResponseCacheAttribute>());
 
@@ -69,17 +68,6 @@ internal class ExecutorMiddleware
         }
 
         return _next(ctx); //this is not a fastendpoint, let next middleware handle it
-    }
-
-    private static void ResolveServices(object epInstance, IServiceProvider services, ServiceBoundEpProp[]? props)
-    {
-        if (props is null) return;
-
-        for (var i = 0; i < props.Length; i++)
-        {
-            var p = props[i];
-            p.PropSetter(epInstance, services.GetRequiredService(p.PropType));
-        }
     }
 
     private static void ThrowAuthMiddlewareMissing(string epName)

@@ -40,6 +40,7 @@ public static class MainExtensions
         services.AddHttpContextAccessor();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(Event<>));
+        services.AddSingleton<IEndpointFactory, DefaultEndpointFactory>();
         return services;
     }
 

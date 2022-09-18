@@ -37,13 +37,18 @@ public static class Extensions
     /// set to true for removing empty schemas from the swagger document.
     /// <para>WARNING: enabling this also flattens the inheritance hierachy of the schmemas.</para>
     /// </param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, int maxEndpointVersion, bool shortSchemaNames, bool removeEmptySchemas)
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, 
+        int tagIndex, 
+        int maxEndpointVersion, 
+        int minEndpointVersion,
+        bool shortSchemaNames, 
+        bool removeEmptySchemas)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
         settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
         settings.OperationProcessors.Add(new OperationProcessor(tagIndex, removeEmptySchemas));
-        settings.DocumentProcessors.Add(new DocumentProcessor(maxEndpointVersion));
+        settings.DocumentProcessors.Add(new DocumentProcessor(maxEndpointVersion, minEndpointVersion));
     }
 
     /// <summary>
@@ -79,6 +84,7 @@ public static class Extensions
         bool addJWTBearerAuth = true,
         int tagIndex = 1,
         int maxEndpointVersion = 0,
+        int minEndpointVersion = 0,
         bool shortSchemaNames = false,
         bool removeEmptySchemas = false)
     {
@@ -89,7 +95,7 @@ public static class Extensions
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             serializerSettings?.Invoke(stjOpts);
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
-            s.EnableFastEndpoints(tagIndex, maxEndpointVersion, shortSchemaNames, removeEmptySchemas);
+            s.EnableFastEndpoints(tagIndex, maxEndpointVersion, minEndpointVersion, shortSchemaNames, removeEmptySchemas);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
             s.FlattenInheritanceHierarchy = removeEmptySchemas;

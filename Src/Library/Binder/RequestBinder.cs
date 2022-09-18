@@ -1,5 +1,7 @@
 ﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
@@ -184,18 +186,41 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         else
         {
             var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
-
             foreach (var kvp in query)
             {
-                obj[kvp.Key] = kvp.Value[0];
-
-                //todo: parse sub properties (?address[street]=xyz)
-
-                Bind(req, kvp, failures);
+                var startIndex = kvp.Key.IndexOf('[');
+                if(startIndex > 0 && kvp.Key[^1] == ']')
+                {
+                    var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
+                    var key = kvp.Key[..startIndex];
+                    if(obj[key] is null)
+                    {
+                        obj[key] = new JsonObject();
+                    }
+                    SetNestedJsonNode(nestedProps, obj[key]!, kvp.Value[0]);
+                } else
+                {
+                    obj[kvp.Key] = kvp.Value[0];
+                    Bind(req, kvp, failures);
+                }
             }
 
             fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
         }
+    }
+
+    private static void SetNestedJsonNode(string[] keys, JsonNode node, string value)
+    {
+        for(var i = 0; i< keys.Length-1; i++)
+        {
+            var key = keys[i];
+            if (node[key] is null)
+            {
+                node[key] ??= new JsonObject();
+            }
+            node = node[key]!;
+        }
+        node[keys[^1]] = value;
     }
 
     private static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)

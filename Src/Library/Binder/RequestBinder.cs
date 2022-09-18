@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using FastEndpoints.Extensions;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -197,11 +198,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                     {
                         obj[key] = new JsonObject();
                     }
-                    SetNestedJsonNode(nestedProps, obj[key]!, kvp.Value[0]);
+                    obj[key]!.AsObject().SetNestedValues(nestedProps, kvp.Value);
                 }
                 else
                 {
-                    obj[kvp.Key] = kvp.Value[0];
+                    obj[kvp.Key] = kvp.Value.Count > 1 ? new JsonArray().SetValues(kvp.Value) : kvp.Value[0];
                     Bind(req, kvp, failures);
                 }
             }
@@ -210,18 +211,18 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void SetNestedJsonNode(string[] keys, JsonNode node, string value)
+    private static void SetNestedJsonNode(KeyValuePair<string, StringValues>[] keys, JsonNode node, string value)
     {
         for (var i = 0; i < keys.Length - 1; i++)
         {
-            var key = keys[i];
+            var key = keys[i].Key;
             if (node[key] is null)
             {
                 node[key] ??= new JsonObject();
             }
             node = node[key]!;
         }
-        node[keys[^1]] = value;
+        node[keys[^1].Key] = value;
     }
 
     private static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)

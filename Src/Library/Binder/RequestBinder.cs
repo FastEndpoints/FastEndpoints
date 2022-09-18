@@ -189,16 +189,17 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             foreach (var kvp in query)
             {
                 var startIndex = kvp.Key.IndexOf('[');
-                if(startIndex > 0 && kvp.Key[^1] == ']')
+                if (startIndex > 0 && kvp.Key[^1] == ']')
                 {
                     var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
                     var key = kvp.Key[..startIndex];
-                    if(obj[key] is null)
+                    if (obj[key] is null)
                     {
                         obj[key] = new JsonObject();
                     }
                     SetNestedJsonNode(nestedProps, obj[key]!, kvp.Value[0]);
-                } else
+                }
+                else
                 {
                     obj[kvp.Key] = kvp.Value[0];
                     Bind(req, kvp, failures);
@@ -211,7 +212,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     private static void SetNestedJsonNode(string[] keys, JsonNode node, string value)
     {
-        for(var i = 0; i< keys.Length-1; i++)
+        for (var i = 0; i < keys.Length - 1; i++)
         {
             var key = keys[i];
             if (node[key] is null)

@@ -21,8 +21,6 @@ public class DefaultEndpointFactory : IEndpointFactory
     {
         var epDef = endpoint.Metadata.GetMetadata<EndpointDefinition>();
         var epInstance = (BaseEndpoint)ctx.RequestServices.GetRequiredService(epDef!.EndpointType);
-        epInstance.Definition = epDef;
-        epInstance.HttpContext = ctx;
         ResolveServices(epInstance, ctx.RequestServices, epDef.ServiceBoundEpProps);
         return epInstance;
     }

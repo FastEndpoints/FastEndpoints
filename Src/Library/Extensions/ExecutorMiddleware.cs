@@ -61,6 +61,9 @@ internal class ExecutorMiddleware
 
             BaseEndpoint epInstance = factory.Create(endpoint, ctx);
 
+            epInstance.Definition = epDef;
+            epInstance.HttpContext = ctx;
+
             ResponseCacheExecutor.Execute(ctx, endpoint.Metadata.GetMetadata<ResponseCacheAttribute>());
 
             //terminate middleware here. we're done executing

@@ -1,8 +1,5 @@
-﻿using FastEndpoints.Extensions;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
+﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
@@ -187,42 +184,29 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         else
         {
             var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
+
             foreach (var kvp in query)
             {
                 var startIndex = kvp.Key.IndexOf('[');
                 if (startIndex > 0 && kvp.Key[^1] == ']')
                 {
-                    var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
                     var key = kvp.Key[..startIndex];
-                    if (obj[key] is null)
-                    {
-                        obj[key] = new JsonObject();
-                    }
+                    if (!obj.ContainsKey(key)) obj[key] = new JsonObject();
+                    var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
                     obj[key]!.AsObject().SetNestedValues(nestedProps, kvp.Value);
                 }
                 else
                 {
-                    obj[kvp.Key] = kvp.Value.Count > 1 ? new JsonArray().SetValues(kvp.Value) : kvp.Value[0];
+                    obj[kvp.Key] =
+                        kvp.Value.Count > 1
+                        ? new JsonArray().SetValues(kvp.Value)
+                        : kvp.Value[0];
                     Bind(req, kvp, failures);
                 }
             }
 
             fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
         }
-    }
-
-    private static void SetNestedJsonNode(KeyValuePair<string, StringValues>[] keys, JsonNode node, string value)
-    {
-        for (var i = 0; i < keys.Length - 1; i++)
-        {
-            var key = keys[i].Key;
-            if (node[key] is null)
-            {
-                node[key] ??= new JsonObject();
-            }
-            node = node[key]!;
-        }
-        node[keys[^1].Key] = value;
     }
 
     private static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)

@@ -9,6 +9,7 @@
 - simple object binding from query parameters #238
 - min endpoint version support for `AddSwaggerDoc()` #244
 - ability to filter out non-fastendpoints from swagger docs #246
+- non-conforming DI container support #243
 
 ### FIXES
 - pre/post processor collection modification bug #224

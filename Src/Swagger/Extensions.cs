@@ -85,7 +85,8 @@ public static class Extensions
         int maxEndpointVersion = 0,
         int minEndpointVersion = 0,
         bool shortSchemaNames = false,
-        bool removeEmptySchemas = false)
+        bool removeEmptySchemas = false,
+        bool onlyOnlyFastEndpoints = false)
     {
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>

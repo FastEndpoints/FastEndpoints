@@ -44,8 +44,10 @@ builder.Services
         s.Title = "FastEndpoints Sandbox";
         s.Version = "v2.0";
     })
-    .AddSwaggerDoc(maxEndpointVersion: 3, minEndpointVersion: 3, settings: s =>
+    .AddSwaggerDoc(maxEndpointVersion: 3, minEndpointVersion: 3, onlyOnlyFastEndpoints: true, settings: s =>
     {
+        //this document will only contain endpoints with version 3 & only FastEndpoints's endpoints
+
         s.DocumentName = "Release 3.0";
         s.Title = "FastEndpoints Sandbox ver3 only";
         s.Version = "v3.0";

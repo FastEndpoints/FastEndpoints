@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using NJsonSchema;
 using NJsonSchema.Generation;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
-using NSwag.Generation.Processors.Contexts;
 using NSwag.Generation.Processors.Security;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -37,11 +35,11 @@ public static class Extensions
     /// set to true for removing empty schemas from the swagger document.
     /// <para>WARNING: enabling this also flattens the inheritance hierachy of the schmemas.</para>
     /// </param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, 
-        int tagIndex, 
-        int maxEndpointVersion, 
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
+        int tagIndex,
+        int maxEndpointVersion,
         int minEndpointVersion,
-        bool shortSchemaNames, 
+        bool shortSchemaNames,
         bool removeEmptySchemas)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
@@ -85,6 +83,7 @@ public static class Extensions
         int tagIndex = 1,
         int maxEndpointVersion = 0,
         int minEndpointVersion = 0,
+        bool onlyOnlyFastEndpoints = false,
         bool shortSchemaNames = false,
         bool removeEmptySchemas = false)
     {
@@ -97,6 +96,10 @@ public static class Extensions
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
             s.EnableFastEndpoints(tagIndex, maxEndpointVersion, minEndpointVersion, shortSchemaNames, removeEmptySchemas);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
+
+            if (onlyOnlyFastEndpoints)
+                s.OperationProcessors.Add(new OnlyFastEndpointsOperationProcessor());
+
             settings?.Invoke(s);
             s.FlattenInheritanceHierarchy = removeEmptySchemas;
         });

@@ -1,6 +1,6 @@
-﻿namespace Web._Features_.TestCases.DocOnlyGenVer3;
+﻿namespace TestCases.DocOnlyGenVer3;
 
-public class OnlyVer3Endpoint : FastEndpoints.EndpointWithoutRequest
+public class OnlyVer3Endpoint : EndpointWithoutRequest
 {
     public override void Configure()
     {
@@ -8,7 +8,6 @@ public class OnlyVer3Endpoint : FastEndpoints.EndpointWithoutRequest
         Get("OnlyVer3");
         Version(3, 4);
     }
-
 
     public async override Task HandleAsync(CancellationToken ct) => await SendOkAsync(ct);
 }

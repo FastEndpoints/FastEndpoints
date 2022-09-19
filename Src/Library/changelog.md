@@ -7,6 +7,7 @@
 - `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
 - complex object binding from json object strings for route/query/forms/headers #238
 - simple object binding from query parameters #238
+- min endpoint version support for `AddSwaggerDoc()` #244
 
 ### FIXES
 - pre/post processor collection modification bug #224

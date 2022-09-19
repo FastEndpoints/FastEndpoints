@@ -7,13 +7,14 @@ internal class DocumentProcessor : IDocumentProcessor
 {
     private readonly int maxEpVer;
     private readonly int minEpVer;
-    public DocumentProcessor(int maxEndpointVersion, int minEndpointVersion)
+
+    public DocumentProcessor(int minEndpointVersion, int maxEndpointVersion)
     {
-        maxEpVer = maxEndpointVersion;
         minEpVer = minEndpointVersion;
+        maxEpVer = maxEndpointVersion;
 
         if (maxEpVer < minEpVer)
-            throw new ArgumentException("maxEndpointVersion must be greater than or equal to minEndpointVersion");
+            throw new ArgumentException($"{nameof(maxEndpointVersion)} must be greater than or equal to {nameof(minEndpointVersion)}");
     }
 
     public void Process(DocumentProcessorContext ctx)
@@ -33,7 +34,7 @@ internal class DocumentProcessor : IDocumentProcessor
             })
             .GroupBy(x => x.route)
             .Select(g => new {
-                pathItm = g.Where(x => x.ver <= maxEpVer && x.ver >= minEpVer)
+                pathItm = g.Where(x => x.ver >= minEpVer && x.ver <= maxEpVer)
                            .OrderByDescending(x => x.ver)
                            .Take(1)
                            .Where(x => x.depVer == 0 || x.depVer > maxEpVer)

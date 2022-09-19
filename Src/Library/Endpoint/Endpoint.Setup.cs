@@ -96,7 +96,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
             if (tRequest != Types.EmptyRequest)
             {
-                if (methods.Any(m => m is Http.GET or Http.HEAD))
+                if (methods.Any(m => m is Http.GET or Http.HEAD or Http.DELETE))
                     b.Accepts<TRequest>("*/*", "application/json");
                 else
                     b.Accepts<TRequest>("application/json");

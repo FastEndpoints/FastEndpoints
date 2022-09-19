@@ -8,6 +8,7 @@
 - complex object binding from json object strings for route/query/forms/headers #238
 - simple object binding from query parameters #238
 - min endpoint version support for `AddSwaggerDoc()` #244
+- ability to filter out non-fastendpoints from swagger docs #246
 
 ### FIXES
 - pre/post processor collection modification bug #224

@@ -39,6 +39,7 @@ public static class Extensions
     public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
         int tagIndex,
         int minEndpointVersion,
+        int maxEndpointVersion,
         bool shortSchemaNames,
         bool removeEmptySchemas)
     {
@@ -83,7 +84,6 @@ public static class Extensions
         int tagIndex = 1,
         int maxEndpointVersion = 0,
         int minEndpointVersion = 0,
-        bool onlyOnlyFastEndpoints = false,
         bool shortSchemaNames = false,
         bool removeEmptySchemas = false)
     {

@@ -7,6 +7,8 @@
 - `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
 - complex object binding from json object strings for route/query/forms/headers #238
 - simple object binding from query parameters #238
+- min endpoint version support for `AddSwaggerDoc()` #244
+- ability to filter out non-fastendpoints from swagger docs #246
 
 ### FIXES
 - pre/post processor collection modification bug #224
@@ -14,6 +16,7 @@
 - unable to instantiate validators for unit tests [#info](https://discord.com/channels/933662816458645504/1017889876521267263)
 - nested schema resolving in nswag operation processor [#info](https://discord.com/channels/933662816458645504/1018565805555863572)
 - concurrent test execution bug #224
+- workaround for grpc wildcard route match conflict [#info](https://discord.com/channels/933662816458645504/1020806973689696388)
 
 ### IMPROVEMENTS
 - optimize default request binder by reducing allocations.

@@ -12,10 +12,12 @@ internal class ExecutorMiddleware
 {
     private const string authInvoked = "__AuthorizationMiddlewareWithEndpointInvoked";
     private const string corsInvoked = "__CorsMiddlewareWithEndpointInvoked";
+    private readonly IEndpointFactory _epFactory;
     private readonly RequestDelegate _next;
 
-    public ExecutorMiddleware(RequestDelegate next)
+    public ExecutorMiddleware(IEndpointFactory epFactory, RequestDelegate next)
     {
+        _epFactory = epFactory;
         _next = next ?? throw new ArgumentNullException(nameof(next));
     }
 
@@ -57,10 +59,9 @@ internal class ExecutorMiddleware
                 }
             }
 
-            var epInstance = (BaseEndpoint)ctx.RequestServices.GetRequiredService(epDef.EndpointType);
+            var epInstance = _epFactory.Create(epDef, ctx);
             epInstance.Definition = epDef;
             epInstance.HttpContext = ctx;
-            ResolveServices(epInstance, ctx.RequestServices, epDef.ServiceBoundEpProps);
 
             ResponseCacheExecutor.Execute(ctx, endpoint.Metadata.GetMetadata<ResponseCacheAttribute>());
 
@@ -69,17 +70,6 @@ internal class ExecutorMiddleware
         }
 
         return _next(ctx); //this is not a fastendpoint, let next middleware handle it
-    }
-
-    private static void ResolveServices(object epInstance, IServiceProvider services, ServiceBoundEpProp[]? props)
-    {
-        if (props is null) return;
-
-        for (var i = 0; i < props.Length; i++)
-        {
-            var p = props[i];
-            p.PropSetter(epInstance, services.GetRequiredService(p.PropType));
-        }
     }
 
     private static void ThrowAuthMiddlewareMissing(string epName)

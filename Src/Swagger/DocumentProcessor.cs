@@ -6,9 +6,15 @@ namespace FastEndpoints.Swagger;
 internal class DocumentProcessor : IDocumentProcessor
 {
     private readonly int maxEpVer;
-    public DocumentProcessor(int maxEndpointVersion)
+    private readonly int minEpVer;
+
+    public DocumentProcessor(int minEndpointVersion, int maxEndpointVersion)
     {
+        minEpVer = minEndpointVersion;
         maxEpVer = maxEndpointVersion;
+
+        if (maxEpVer < minEpVer)
+            throw new ArgumentException($"{nameof(maxEndpointVersion)} must be greater than or equal to {nameof(minEndpointVersion)}");
     }
 
     public void Process(DocumentProcessorContext ctx)
@@ -28,7 +34,7 @@ internal class DocumentProcessor : IDocumentProcessor
             })
             .GroupBy(x => x.route)
             .Select(g => new {
-                pathItm = g.Where(x => x.ver <= maxEpVer)
+                pathItm = g.Where(x => x.ver >= minEpVer && x.ver <= maxEpVer)
                            .OrderByDescending(x => x.ver)
                            .Take(1)
                            .Where(x => x.depVer == 0 || x.depVer > maxEpVer)

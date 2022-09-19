@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using TestCases.EventHandlingTest;
+using TestCases.RouteBindingTest;
 using Xunit;
 using Xunit.Abstractions;
 using MediaTypeHeaderValue = System.Net.Http.Headers.MediaTypeHeaderValue;
@@ -147,7 +148,7 @@ public class MiscTestCases : EndToEndTestBase
     public async Task RouteValueBinding()
     {
         var (rsp, res) = await GuestClient
-            .POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
+            .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12&CustomList=1;2",
                 new()
                 {
@@ -179,7 +180,7 @@ public class MiscTestCases : EndToEndTestBase
     public async Task RouteValueBindingFromQueryParams()
     {
         var (rsp, res) = await GuestClient
-            .POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
+            .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                 "?Bool=false&String=everything",
                 new()
@@ -291,10 +292,14 @@ public class MiscTestCases : EndToEndTestBase
     public async Task BindingFromAttributeUse()
     {
         var (rsp, res) = await GuestClient
-            .POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
+            .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                 "?Bool=false&String=everything&XBlank=256" +
-                "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7",
+                "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                "&child[name]=child name&child[age]=-22" +
+                "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
                 new()
                 {
                     Bool = false,
@@ -305,7 +310,11 @@ public class MiscTestCases : EndToEndTestBase
                     Long = 1,
                     String = "nothing",
                     Blank = 1,
-                    Person = new() { Age = 50, Name = "wrong" }
+                    Person = new()
+                    {
+                        Age = 50,
+                        Name = "wrong",
+                    }
                 });
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -318,9 +327,23 @@ public class MiscTestCases : EndToEndTestBase
         res?.Decimal.Should().Be(123.45m);
         res?.Blank.Should().Be(256);
         res?.Person.Should().NotBeNull();
-        res?.Person.Id.Should().Be(Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"));
-        res?.Person.Age.Should().Be(45);
-        res?.Person.Name.Should().Be("john");
+        res?.Person.Should().BeEquivalentTo(new Person
+        {
+            Age = 45,
+            Name = "john",
+            Id = Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"),
+            Child = new()
+            {
+                Age = -22,
+                Name = "child name",
+                Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
+                Strings = new()
+                {
+                    "string1", "string2", "", "strangeString"
+                }
+            },
+            Numbers = new() { 0, 1, -222, 1000, 22 }
+        });
     }
 
     [Fact]

@@ -197,6 +197,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 }
                 else
                 {
+                    // TO DO: Implement support for arrays with single element
                     obj[kvp.Key] =
                         kvp.Value.Count > 1
                         ? new JsonArray().SetValues(kvp.Value)

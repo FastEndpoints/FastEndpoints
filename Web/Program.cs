@@ -53,8 +53,6 @@ builder.Services
         s.Version = "v3.0";
     });
 
-
-
 var app = builder.Build();
 
 var supportedCultures = new[] { new CultureInfo("en-US") };

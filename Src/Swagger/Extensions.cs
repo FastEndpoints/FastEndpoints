@@ -29,6 +29,7 @@ public static class Extensions
     /// enable support for FastEndpoints in swagger
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
+    /// <param name="minEndpointVersion">endpoints lower than this vesion will not be included in the swagger doc</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     /// <param name="shortSchemaNames">set to true to make schema names just the name of the class instead of full type name</param>
     /// <param name="removeEmptySchemas">
@@ -37,7 +38,6 @@ public static class Extensions
     /// </param>
     public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
         int tagIndex,
-        int maxEndpointVersion,
         int minEndpointVersion,
         bool shortSchemaNames,
         bool removeEmptySchemas)
@@ -46,7 +46,7 @@ public static class Extensions
         settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
         settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
         settings.OperationProcessors.Add(new OperationProcessor(tagIndex, removeEmptySchemas));
-        settings.DocumentProcessors.Add(new DocumentProcessor(maxEndpointVersion, minEndpointVersion));
+        settings.DocumentProcessors.Add(new DocumentProcessor(minEndpointVersion, maxEndpointVersion));
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public static class Extensions
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             serializerSettings?.Invoke(stjOpts);
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
-            s.EnableFastEndpoints(tagIndex, maxEndpointVersion, minEndpointVersion, shortSchemaNames, removeEmptySchemas);
+            s.EnableFastEndpoints(tagIndex, minEndpointVersion, maxEndpointVersion, shortSchemaNames, removeEmptySchemas);
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
 
             if (onlyOnlyFastEndpoints)

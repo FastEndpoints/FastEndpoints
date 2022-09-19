@@ -9,6 +9,9 @@ using System.Runtime.CompilerServices;
 
 namespace FastEndpoints;
 
+/// <summary>
+/// the base class all fast endpoints inherit from
+/// </summary>
 public abstract class BaseEndpoint : IEndpoint
 {
     private List<ValidationFailure> _failures;

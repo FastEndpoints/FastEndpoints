@@ -12,10 +12,12 @@ internal class ExecutorMiddleware
 {
     private const string authInvoked = "__AuthorizationMiddlewareWithEndpointInvoked";
     private const string corsInvoked = "__CorsMiddlewareWithEndpointInvoked";
+    private readonly IEndpointFactory _epFactory;
     private readonly RequestDelegate _next;
 
-    public ExecutorMiddleware(RequestDelegate next)
+    public ExecutorMiddleware(IEndpointFactory epFactory, RequestDelegate next)
     {
+        _epFactory = epFactory;
         _next = next ?? throw new ArgumentNullException(nameof(next));
     }
 
@@ -57,10 +59,7 @@ internal class ExecutorMiddleware
                 }
             }
 
-            var factory = ctx.RequestServices.GetRequiredService<IEndpointFactory>();
-
-            BaseEndpoint epInstance = factory.Create(endpoint, ctx);
-
+            var epInstance = _epFactory.Create(epDef, ctx);
             epInstance.Definition = epDef;
             epInstance.HttpContext = ctx;
 

@@ -10,6 +10,7 @@
 - min endpoint version support for `AddSwaggerDoc()` #244
 - ability to filter out non-fastendpoints from swagger docs #246
 - non-conforming DI container support #243
+- endpoint unit testing support for attribute based config [#info](https://discord.com/channels/933662816458645504/1021479855130427442)
 
 ### FIXES
 - pre/post processor collection modification bug #224

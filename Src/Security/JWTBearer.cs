@@ -1,6 +1,7 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace FastEndpoints.Security;
@@ -17,19 +18,22 @@ public static class JWTBearer
     /// <param name="expireAt">the expiry date</param>
     /// <param name="permissions">one or more permissions to assign to the user principal</param>
     /// <param name="roles">one or more roles to assign the user principal</param>
+    /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
     /// <param name="claims">one or more claims to assign to the user principal</param>
     public static string CreateToken(
         string signingKey,
         DateTime? expireAt = null,
         IEnumerable<string>? permissions = null,
         IEnumerable<string>? roles = null,
+        TokenSigningStyle signingStyle = TokenSigningStyle.Symmetric,
         params (string claimType, string claimValue)[] claims)
             => CreateToken(
                 signingKey,
                 expireAt,
                 permissions,
                 roles,
-                claims.Select(c => new Claim(c.claimType, c.claimValue)));
+                claims.Select(c => new Claim(c.claimType, c.claimValue)),
+                signingStyle: signingStyle);
 
     /// <summary>
     /// generate a jwt token with the supplied parameters
@@ -40,6 +44,7 @@ public static class JWTBearer
     /// <param name="expireAt">the expiry date</param>
     /// <param name="permissions">one or more permissions to assign to the user principal</param>
     /// <param name="roles">one or more roles to assign the user principal</param>
+    /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
     /// <param name="claims">one or more claims to assign to the user principal</param>
     public static string CreateToken(
         string signingKey,
@@ -48,6 +53,7 @@ public static class JWTBearer
         DateTime? expireAt = null,
         IEnumerable<string>? permissions = null,
         IEnumerable<string>? roles = null,
+        TokenSigningStyle signingStyle = TokenSigningStyle.Symmetric,
         params (string claimType, string claimValue)[] claims)
             => CreateToken(
                 signingKey,
@@ -56,7 +62,8 @@ public static class JWTBearer
                 roles,
                 claims.Select(c => new Claim(c.claimType, c.claimValue)),
                 issuer,
-                audience);
+                audience,
+                signingStyle);
 
     /// <summary>
     /// generate a jwt token with the supplied parameters
@@ -68,6 +75,7 @@ public static class JWTBearer
     /// <param name="claims">one or more claims to assign to the user principal</param>
     /// <param name="issuer">the issuer</param>
     /// <param name="audience">the audience</param>
+    /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
     public static string CreateToken(
         string signingKey,
         DateTime? expireAt = null,
@@ -75,7 +83,8 @@ public static class JWTBearer
         IEnumerable<string>? roles = null,
         IEnumerable<Claim>? claims = null,
         string? issuer = null,
-        string? audience = null)
+        string? audience = null,
+        TokenSigningStyle signingStyle = TokenSigningStyle.Symmetric)
     {
         var claimList = new List<Claim>();
 
@@ -95,12 +104,31 @@ public static class JWTBearer
             IssuedAt = DateTime.UtcNow,
             Subject = new ClaimsIdentity(claimList),
             Expires = expireAt,
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(signingKey)),
-                SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = GetSigningCredentials(signingKey, signingStyle)
         };
 
         var handler = new JwtSecurityTokenHandler();
         return handler.WriteToken(handler.CreateToken(descriptor));
+    }
+
+    private static SigningCredentials GetSigningCredentials(string key, TokenSigningStyle style)
+    {
+        if (style == TokenSigningStyle.Asymmetric)
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportRSAPrivateKey(Convert.FromBase64String(key), out _);
+            return new SigningCredentials(
+                new RsaSecurityKey(rsa),
+                SecurityAlgorithms.RsaSha256);
+        }
+        return new SigningCredentials(
+            new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+            SecurityAlgorithms.HmacSha256Signature);
+    }
+
+    public enum TokenSigningStyle
+    {
+        Symmetric,
+        Asymmetric
     }
 }

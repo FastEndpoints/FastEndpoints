@@ -74,6 +74,7 @@ public class Endpoint : Endpoint<Request, Response>
                 expiryDate,
                 userPermissions,
                 userRoles,
+                JWTBearer.TokenSigningStyle.Symmetric,
                 userClaims);
 
             return SendAsync(new Response()

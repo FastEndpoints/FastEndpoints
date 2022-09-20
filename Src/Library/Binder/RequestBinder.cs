@@ -187,11 +187,23 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             foreach (var kvp in query)
             {
-                obj[kvp.Key] = kvp.Value[0];
-
-                //todo: parse sub properties (?address[street]=xyz)
-
-                Bind(req, kvp, failures);
+                var startIndex = kvp.Key.IndexOf('[');
+                if (startIndex > 0 && kvp.Key[^1] == ']')
+                {
+                    var key = kvp.Key[..startIndex];
+                    if (!obj.ContainsKey(key)) obj[key] = new JsonObject();
+                    var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
+                    obj[key]!.AsObject().SetNestedValues(nestedProps, kvp.Value);
+                }
+                else
+                {
+                    // TO DO: Implement support for arrays with single element
+                    obj[kvp.Key] =
+                        kvp.Value.Count > 1
+                        ? new JsonArray().SetValues(kvp.Value)
+                        : kvp.Value[0];
+                    Bind(req, kvp, failures);
+                }
             }
 
             fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);

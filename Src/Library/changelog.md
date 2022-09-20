@@ -3,10 +3,11 @@
 
 ### NEW
 - endpoint configuration with groups and sub/nested groups #214
-- `[Throttle(...)]` attribute for configuring endpoint #227
+- `[Throttle(...)]` attribute for configuring endpoints #227
 - `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
 - complex object binding from json object strings for route/query/forms/headers #238
 - simple object binding from query parameters #238
+- nested object binding from query parameters #245
 - min endpoint version support for `AddSwaggerDoc()` #244
 - ability to filter out non-fastendpoints from swagger docs #246
 - non-conforming DI container support #243

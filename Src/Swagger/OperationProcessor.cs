@@ -209,15 +209,23 @@ internal class OperationProcessor : IOperationProcessor
             .ToList();
 
         //add query params for properties marked with [QueryParam] or for all props if it's a GET request
-        if (reqDtoType is not null)
+        if (reqDtoType is not null && reqDtoProps is not null)
         {
-            var qParams = reqDtoProps?
+            var qDtoProps = reqDtoProps
                 .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest))
-                .Select(p =>
-                {
-                    RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                .ToList();
+            foreach(var prop in qDtoProps)
+            {
+                RemovePropFromRequestBodyContent(prop.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+            }
 
-                    return new OpenApiParameter
+            var propsToSpit = qDtoProps.Where(x => x.IsDefined(typeof(FromQueryParamsAttribute), false));
+            var splittedProps = propsToSpit.SelectMany(x => x.PropertyType.GetProperties());
+
+            var qParams = qDtoProps
+                .Except(propsToSpit)
+                .Union(splittedProps)
+                .Select(p => new OpenApiParameter
                     {
                         Name = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name,
                         IsRequired = !p.IsNullable(),
@@ -225,9 +233,8 @@ internal class OperationProcessor : IOperationProcessor
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name),
                         Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
-                    };
-                })
-                .ToList();
+                    }
+                ).ToList();
 
             if (qParams?.Count > 0)
                 reqParams.AddRange(qParams);

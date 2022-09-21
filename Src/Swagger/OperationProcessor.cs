@@ -236,7 +236,7 @@ internal class OperationProcessor : IOperationProcessor
                     }
                 ).ToList();
 
-            if (qParams?.Count > 0)
+            if (qParams.Count > 0)
                 reqParams.AddRange(qParams);
         }
 

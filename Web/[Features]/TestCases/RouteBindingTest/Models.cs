@@ -50,6 +50,8 @@ public class Person
     public Guid Id { get; set; }
     public string Name { get; set; }
     public int Age { get; set; }
+    public DayOfWeek FavoriteDay { get; set; }
+    public bool IsHidden { get; set; }
     public NestedPerson Child { get; set; }
     public List<int> Numbers { get; set; }
 }
@@ -58,6 +60,8 @@ public class NestedPerson
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
+    public bool IsHidden { get; set; }
+    public DayOfWeek FavoriteDay { get; set; }
     public int Age { get; set; }
     public List<string> Strings { get; set; }
 }

@@ -5,7 +5,11 @@ public class OnlyVer3Endpoint : EndpointWithoutRequest
     public override void Configure()
     {
         AllowAnonymous();
-        Get("OnlyVer3");
+
+        //Get("OnlyVer3");
+        Routes("OnlyVer3");
+        Verbs(Http.POST | Http.GET);
+
         Version(3, 4);
     }
 

@@ -49,7 +49,7 @@ public abstract class BaseEndpoint : IEndpoint
     [NotImplemented]
     public virtual void Configure() => throw new NotImplementedException();
 
-    public virtual void Verbs(params Http[] methods) => throw new NotImplementedException();
+    public virtual void Verbs(Http methods) => throw new NotImplementedException();
 
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
 

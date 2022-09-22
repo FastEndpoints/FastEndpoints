@@ -83,7 +83,7 @@ public static class MainExtensions
         {
             if (EpOpts.Filter is not null && !EpOpts.Filter(epDef)) continue;
 
-            if (epDef.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
+            if (epDef.Verbs is null) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
             if (epDef.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
 
             EpOpts.Configurator?.Invoke(epDef); //apply global ep settings to the definition
@@ -99,7 +99,8 @@ public static class MainExtensions
 
                 routeNum++;
 
-                foreach (var verb in epDef.Verbs)
+                var verbs = epDef.Verbs?.SplitEnum()!;
+                foreach (var verb in verbs)
                 {
                     var strVerb = verb.ToString();
 
@@ -107,7 +108,7 @@ public static class MainExtensions
 
                     hb.WithName(
                         epDef.EndpointType.EndpointName(
-                            epDef.Verbs.Length > 1 ? strVerb : null,
+                            verbs.Count > 1 ? strVerb : null,
                             epDef.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
 
                     hb.WithMetadata(epDef);

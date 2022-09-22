@@ -72,9 +72,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void Routes(params string[] patterns) => Definition.Routes = patterns;
 
     /// <summary>
+    /// eg. Http.GET | Http.POST 
     /// specify one or more http method verbs this endpoint should be accepting requests for
+    /// an enumeration can be treated as a bit field; that is, a set of flags. 
     /// </summary>
-    public sealed override void Verbs(params Http[] methods)
+    public sealed override void Verbs(Http methods)
     {
         //note: this method is sealed to not allow user to override it because we neeed to perform
         //      the following setup activities, which require access to TRequest/TResponse
@@ -96,10 +98,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
             if (tRequest != Types.EmptyRequest)
             {
-                if (methods.Any(m => m is Http.GET or Http.HEAD or Http.DELETE))
+                if (methods.HasFlag(Http.GET) || methods.HasFlag(Http.HEAD) || methods.HasFlag(Http.DELETE))
+                {
                     b.Accepts<TRequest>("*/*", "application/json");
+                }
                 else
+                {
                     b.Accepts<TRequest>("application/json");
+                }
+                //if (methods.Any(m => m is Http.GET or Http.HEAD or Http.DELETE))
+                //    b.Accepts<TRequest>("*/*", "application/json");
+                //else
+                //    b.Accepts<TRequest>("application/json");
             }
 
             if (tResponse == Types.Object || tResponse == Types.EmptyResponse)

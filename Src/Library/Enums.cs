@@ -3,6 +3,8 @@
 /// <summary>
 /// enum for specifying a http verb
 /// </summary>
+
+[Flags]
 public enum Http
 {
     /// <summary>
@@ -18,22 +20,22 @@ public enum Http
     /// <summary>
     /// replace a record
     /// </summary>
-    PUT = 3,
+    PUT = 4,
 
     /// <summary>
     /// partially update a record
     /// </summary>
-    PATCH = 4,
+    PATCH = 8,
 
     /// <summary>
     /// remove a record
     /// </summary>
-    DELETE = 5,
+    DELETE = 16,
 
     /// <summary>
     /// retrieve only headers
     /// </summary>
-    HEAD = 6
+    HEAD = 32
 }
 
 /// <summary>

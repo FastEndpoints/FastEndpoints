@@ -4,7 +4,7 @@ public class Endpoint : Endpoint<Request>
 {
     public override void Configure()
     {
-        Verbs(Http.POST, Http.PUT);
+        Verbs(Http.POST | Http.PUT);
         AllowAnonymous(Http.POST);
         Routes("uploads/image/save-typed");
         Permissions(Allow.Image_Update);

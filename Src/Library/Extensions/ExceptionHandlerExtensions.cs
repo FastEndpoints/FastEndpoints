@@ -23,7 +23,7 @@ public static class ExceptionHandlerExtensions
     /// </summary>
     /// <param name="logger">an optional logger instance</param>
     /// <param name="logStructuredException">set to true if you'd like to log the error in a structured manner</param>
-    public static void UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null, bool logStructuredException = false)
+    public static IApplicationBuilder UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null, bool logStructuredException = false)
     {
         app.UseExceptionHandler(errApp =>
         {
@@ -61,5 +61,7 @@ REASON: {error}
                 }
             });
         });
+
+        return app;
     }
 }

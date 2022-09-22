@@ -20,6 +20,7 @@
 - nested schema resolving in nswag operation processor [#info](https://discord.com/channels/933662816458645504/1018565805555863572)
 - concurrent test execution bug #224
 - workaround for grpc wildcard route match conflict [#info](https://discord.com/channels/933662816458645504/1020806973689696388)
+- plain text request fails if request contains json content type [#info](https://discord.com/channels/933662816458645504/1021819753016328253)
 
 ### IMPROVEMENTS
 - optimize default request binder by reducing allocations.

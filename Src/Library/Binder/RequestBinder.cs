@@ -40,11 +40,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
-            if (!propInfo.CanRead || !propInfo.CanWrite)
+            if (!propInfo.CanWrite || !propInfo.CanRead)
                 continue;
 
             if (isPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
-                continue;
+                continue; //allow other properties other than `Content` property if this is a plaintext request
 
             string? fieldName = null;
             var addPrimary = true;
@@ -90,31 +90,33 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     /// <summary>
     /// override this method to customize the request binding logic
     /// </summary>
-    /// <param name="context">the request binder context which holds all the data required for binding the incoming request</param>
+    /// <param name="ctx">the request binder context which holds all the data required for binding the incoming request</param>
     /// <param name="cancellation">cancellation token</param>
     /// <exception cref="ValidationFailureException">thrown if any failures occur during the binding process</exception>
-    public async virtual ValueTask<TRequest> BindAsync(BinderContext context, CancellationToken cancellation)
+    public async virtual ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken cancellation)
     {
         if (skipModelBinding)
             return new TRequest();
 
-        var req =
-            context.HttpContext.Request.HasJsonContentType()
-            ? await BindJsonBody(context.HttpContext.Request, context.JsonSerializerContext, cancellation)
-            : isPlainTextRequest
-              ? await BindPlainTextBody(context.HttpContext.Request.Body)
-              : new TRequest();
+        TRequest req;
 
-        BindFormValues(req, context.HttpContext.Request, context.ValidationFailures, context.DontAutoBindForms);
-        BindRouteValues(req, context.HttpContext.Request.RouteValues, context.ValidationFailures);
-        BindQueryParams(req, context.HttpContext.Request.Query, context.ValidationFailures);
-        BindUserClaims(req, context.HttpContext.User.Claims, context.ValidationFailures);
-        BindHeaders(req, context.HttpContext.Request.Headers, context.ValidationFailures);
-        BindHasPermissionProps(req, context.HttpContext.User.Claims, context.ValidationFailures);
+        if (!isPlainTextRequest && ctx.HttpContext.Request.HasJsonContentType())
+            req = await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation);
+        else if (isPlainTextRequest)
+            req = await BindPlainTextBody(ctx.HttpContext.Request.Body);
+        else
+            req = new TRequest();
 
-        return context.ValidationFailures.Count == 0
+        BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
+        BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
+        BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
+        BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+        BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
+        BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+
+        return ctx.ValidationFailures.Count == 0
                ? req
-               : throw new ValidationFailureException(context.ValidationFailures, "Model binding failed");
+               : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed");
     }
 
     private static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)

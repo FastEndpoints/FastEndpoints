@@ -47,17 +47,17 @@ public static class MainExtensions
 
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
-    /// <para>HINT: this is the combination of <c>app.UseFastEndpointsMiddleware()</c> and <c>app.MapFastEndpoints()</c>.
+    /// <para>HINT: this is the combination of <see cref="UseFastEndpoints(IApplicationBuilder, Action{Config}?)"/> and <see cref="MapFastEndpoints(IEndpointRouteBuilder, Action{Config}?)"/>.
     /// you can use those two methods separately if you have some special requirement such as using "Startup.cs", etc.
     /// </para>
     /// </summary>
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
-    /// <exception cref="InvalidOperationException"></exception>
-    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="InvalidCastException">thrown when the <c>app</c> cannot be cast to <see cref="IEndpointRouteBuilder"/></exception>
     public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, Action<Config>? configAction = null)
     {
         UseFastEndpointsMiddleware(app);
-        if (app is not IEndpointRouteBuilder routeBuilder) throw new InvalidCastException($"Cannot cast {nameof(app)} to IEndpointRouteBuilder");
+        if (app is not IEndpointRouteBuilder routeBuilder)
+            throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
         MapFastEndpoints(routeBuilder, configAction);
         return app;
     }

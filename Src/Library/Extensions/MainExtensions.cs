@@ -54,10 +54,11 @@ public static class MainExtensions
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="ArgumentException"></exception>
-    public static WebApplication UseFastEndpoints(this WebApplication app, Action<Config>? configAction = null)
+    public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, Action<Config>? configAction = null)
     {
         UseFastEndpointsMiddleware(app);
-        MapFastEndpoints(app, configAction);
+        if (app is not IEndpointRouteBuilder routeBuilder) throw new InvalidCastException($"Cannot cast {nameof(app)} to IEndpointRouteBuilder");
+        MapFastEndpoints(routeBuilder, configAction);
         return app;
     }
 

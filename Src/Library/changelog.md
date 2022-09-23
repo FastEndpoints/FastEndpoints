@@ -13,6 +13,7 @@
 - non-conforming DI container support #243
 - endpoint unit testing support for attribute based config [#info](https://discord.com/channels/933662816458645504/1021479855130427442)
 - asymmertic jwt signing support in `FastEndpoints.Security` pkg #249
+- add `EndpointVersion()` method to `EndpointDefinition` for use with global config #209
 
 ### FIXES
 - pre/post processor collection modification bug #224

@@ -15,10 +15,9 @@ public sealed class EndpointDefinition
     //these can only be set from internal code but accessible for user
     public Type EndpointType { get; internal set; }
     public Type ReqDtoType { get; internal set; }
+    public string[]? Routes { get; internal set; }
     public Type? ValidatorType { get; internal set; }
     public Http[]? Verbs { get; internal set; }
-    public string[]? Routes { get; internal set; }
-    public EpVersion Version { get; internal set; } = new();
 
     //these props can be changed in global config using methods below
     public bool AllowAnyPermission { get; private set; }
@@ -38,20 +37,21 @@ public sealed class EndpointDefinition
     public string[]? PreBuiltUserPolicies { get; private set; }
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public bool ThrowIfValidationFails { get; private set; } = true;
+    public EpVersion Version { get; } = new();
     [Obsolete("This property will be removed in the next major version!")] //todo: remove ability to make validators scoped in favor of CreateScope() method
     public bool ValidatorIsScoped { get; private set; }
 
     //only accessible to internal code
-    internal ServiceBoundEpProp[]? ServiceBoundEpProps;
+    internal bool ExecuteAsyncImplemented;
+    internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal object? RequestBinder;
     internal HashSet<object> PreProcessorList = new(new TypeEqualityComparer());
     internal HashSet<object> PostProcessorList = new(new TypeEqualityComparer());
+    internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal JsonSerializerContext? SerializerContext;
-    internal bool ExecuteAsyncImplemented;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
-    internal HitCounter? HitCounter { get; private set; }
 
     /// <summary>
     /// enable file uploads with multipart/form-data content type
@@ -163,7 +163,7 @@ public sealed class EndpointDefinition
     public void RoutePrefixOverride(string routePrefix) => OverriddenRoutePrefix = routePrefix;
 
     //todo: remove ability to make validators scoped in favor of CreateScope() method
-    [Obsolete("Ability to register validators as scoped will be removed in next major version. Use CreateScop() method instead.")]
+    [Obsolete("Ability to register validators as scoped will be removed in next major version. Use CreateScope() method instead.")]
     public void ScopedValidator() => ValidatorIsScoped = true;
 
     /// <summary>
@@ -305,6 +305,17 @@ public sealed class EndpointDefinition
         {
             PostProcessorList.Add(postProcessors[i]);
         }
+    }
+
+    /// <summary>
+    /// specify the version of the endpoint if versioning is enabled
+    /// </summary>
+    /// <param name="version">the version of this endpoint</param>
+    /// <param name="deprecateAt">the version group number starting at which this endpoint should not be included in swagger document</param>
+    public void EndpointVersion(int version, int? deprecateAt = null)
+    {
+        Version.Current = version;
+        Version.DeprecatedAt = deprecateAt ?? 0;
     }
 }
 

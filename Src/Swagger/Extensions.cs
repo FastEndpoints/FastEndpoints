@@ -37,11 +37,11 @@ public static class Extensions
     /// <para>WARNING: enabling this also flattens the inheritance hierachy of the schmemas.</para>
     /// </param>
     public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
-        int tagIndex,
-        int minEndpointVersion,
-        int maxEndpointVersion,
-        bool shortSchemaNames,
-        bool removeEmptySchemas)
+                                           int tagIndex,
+                                           int minEndpointVersion,
+                                           int maxEndpointVersion,
+                                           bool shortSchemaNames,
+                                           bool removeEmptySchemas)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
@@ -80,15 +80,15 @@ public static class Extensions
     /// </param>
     /// <param name="excludeNonFastEndpoints">if set to true, only FastEndpoints will show up in the swagger doc</param>
     public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
-        Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
-        Action<JsonSerializerOptions>? serializerSettings = null,
-        bool addJWTBearerAuth = true,
-        int tagIndex = 1,
-        int minEndpointVersion = 0,
-        int maxEndpointVersion = 0,
-        bool shortSchemaNames = false,
-        bool removeEmptySchemas = false,
-        bool excludeNonFastEndpoints = false)
+                                                   Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
+                                                   Action<JsonSerializerOptions>? serializerSettings = null,
+                                                   bool addJWTBearerAuth = true,
+                                                   int tagIndex = 1,
+                                                   int minEndpointVersion = 0,
+                                                   int maxEndpointVersion = 0,
+                                                   bool shortSchemaNames = false,
+                                                   bool removeEmptySchemas = false,
+                                                   bool excludeNonFastEndpoints = false)
     {
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(s =>
@@ -130,7 +130,10 @@ public static class Extensions
     /// <param name="securityScheme">an open api security scheme object</param>
     /// <param name="globalScopeNames">a collection of global scope names</param>
     /// <returns></returns>
-    public static OpenApiDocumentGeneratorSettings AddAuth(this OpenApiDocumentGeneratorSettings s, string schemeName, OpenApiSecurityScheme securityScheme, IEnumerable<string>? globalScopeNames = null)
+    public static OpenApiDocumentGeneratorSettings AddAuth(this OpenApiDocumentGeneratorSettings s,
+                                                           string schemeName,
+                                                           OpenApiSecurityScheme securityScheme,
+                                                           IEnumerable<string>? globalScopeNames = null)
     {
         if (globalScopeNames is null)
             s.DocumentProcessors.Add(new SecurityDefinitionAppender(schemeName, securityScheme));
@@ -141,6 +144,14 @@ public static class Extensions
 
         return s;
     }
+
+    /// <summary>
+    /// specify a function to filter out endpoints from the swagger document.
+    /// this function will be run against every fast endpoint discovered. return true to include the endpoint and return false to exclude the endpoint from the swagger doc.
+    /// </summary>
+    /// <param name="filter">a function to use for filtering endpoints</param>
+    public static void EndpointFilter(this AspNetCoreOpenApiDocumentGeneratorSettings x, Func<EndpointDefinition, bool> filter)
+        => x.OperationProcessors.Insert(0, new EndpointFilter(filter));
 
     internal static string Remove(this string value, string removeString)
     {

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
 

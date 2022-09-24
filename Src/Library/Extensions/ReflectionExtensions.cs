@@ -61,16 +61,20 @@ internal static class ReflectionExtensions
     }
 
     private static readonly ConcurrentDictionary<Type, Func<object?, (bool isSuccess, object value)>?> parsers = new();
-    internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type) =>
+    internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type)
+    {
         //we're only ever compiling a value parser for a given type once.
         //if a parser is requested for a type a second time, it will be returned from the dictionary instead of paying the compiling cost again.
         //the parser we return from here is then cached in ReqTypeCache<TRequest> avoiding the need to do an additional dictionary lookup here.
-        parsers.GetOrAdd(type, GetCompiledValueParser);
+        return parsers.GetOrAdd(type, GetCompiledValueParser);
+    }
 
     private static readonly ConcurrentDictionary<Type, Func<StringValues, JsonNode?>> queryParsers = new();
-    internal static Func<StringValues, JsonNode?> QueryValueParser(this Type type) =>
+    internal static Func<StringValues, JsonNode?> QueryValueParser(this Type type)
+    {
         // almost the same parser logic but for nested query params
-        queryParsers.GetOrAdd(type, GetCompiledQueryValueParser);
+        return queryParsers.GetOrAdd(type, GetCompiledQueryValueParser);
+    }
 
     private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
     private static readonly ConstructorInfo valueTupleConstructor = typeof(ValueTuple<bool, object>).GetConstructor(new[] { Types.Bool, Types.Object })!;
@@ -143,7 +147,8 @@ internal static class ReflectionExtensions
             return input => bool.TryParse(input[0], out var res) ? res : input[0];
 
         if (tProp.IsEnum)
-            return input => Enum.TryParse(tProp, input[0], true, out var res) ? (int)res!  : input[0];
+            return input => Enum.TryParse(tProp, input[0], true, out var res) ? (int)res! : input[0];
+
         if (tProp.GetInterfaces().Contains(Types.IEnumerable))
         {
             var elementType = tProp.GetGenericArguments().FirstOrDefault();

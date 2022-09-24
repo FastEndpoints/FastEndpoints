@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -68,6 +69,13 @@ internal static class ReflectionExtensions
         return parsers.GetOrAdd(type, GetCompiledValueParser);
     }
 
+    private static readonly ConcurrentDictionary<Type, Func<StringValues, JsonNode?>> queryParsers = new();
+    internal static Func<StringValues, JsonNode?> QueryValueParser(this Type type)
+    {
+        // almost the same parser logic but for nested query params
+        return queryParsers.GetOrAdd(type, GetCompiledQueryValueParser);
+    }
+
     private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
     private static readonly ConstructorInfo valueTupleConstructor = typeof(ValueTuple<bool, object>).GetConstructor(new[] { Types.Bool, Types.Object })!;
     private static Func<object?, (bool isSuccess, object value)>? GetCompiledValueParser(Type tProp)
@@ -127,6 +135,30 @@ internal static class ReflectionExtensions
             block,
             inputParameter
         ).Compile();
+    }
+
+    private static Func<StringValues, JsonNode?> GetCompiledQueryValueParser(Type tProp)
+    {
+        tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
+        if (tProp == Types.String)
+            return input => input[0];
+
+        if (tProp == Types.Bool)
+            return input => bool.TryParse(input[0], out var res) ? res : input[0];
+
+        if (tProp.IsEnum)
+            return input => Enum.TryParse(tProp, input[0], true, out var res) ? (int)res! : input[0];
+
+        if (tProp.GetInterfaces().Contains(Types.IEnumerable))
+        {
+            var elementType = tProp.GetGenericArguments().FirstOrDefault();
+            var parser = elementType?.QueryValueParser();
+            return parser is null
+                ? input => new JsonArray().SetValues(input.Cast<JsonNode>())
+                : input => new JsonArray().SetValues(input.Select(x => parser(x)));
+        }
+        return input => input[0];
+
     }
 
     private static object? DeserializeJsonObjectString(object? input, Type tProp)

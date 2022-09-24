@@ -1,30 +1,24 @@
-﻿using Microsoft.Extensions.Primitives;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
 
-public static class JsonExtensions
+internal static class JsonExtensions
 {
-    public static JsonArray SetValues(this JsonArray array, StringValues values)
+    internal static JsonArray SetValues(this JsonArray array, IEnumerable<JsonNode?> values)
     {
-        for (var i = 0; i < values.Count; i++)
-            array.Add((string?)values[i]);
+        foreach (var value in values)
+        {
+            array.Add(value);
+        }
         return array;
     }
 
-    public static void SetNestedValues(this JsonObject obj, string[] keys, StringValues values)
+    internal static JsonNode GetOrCreateLastNode(this JsonNode node, string[] keys)
     {
-        JsonNode node = obj;
-
         for (var i = 0; i < keys.Length - 1; i++)
         {
-            var key = keys[i];
-            node = node[key] ??= new JsonObject();
+            node = node[keys[i]] ??= new JsonObject();
         }
-
-        node[keys[^1]] =
-            values.Count > 1
-            ? new JsonArray().SetValues(values)
-            : values[0];
+        return node;
     }
 }

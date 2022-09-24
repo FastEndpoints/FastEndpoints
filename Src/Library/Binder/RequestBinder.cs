@@ -21,7 +21,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
     private static PropCache? fromBodyProp;
-    private static PropCache? fromQueryParamsProp;
+    private static QueryPropCacheEntry? fromQueryParamsProp;
     private static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
@@ -60,7 +60,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                         break;
 
                     case FromQueryParamsAttribute:
-                        if (fromQueryParamsProp is not null) throw new InvalidOperationException($"Only one [BindObject] attribute is allowed on [{tRequest.FullName}].");
+                        if (fromQueryParamsProp is not null) throw new InvalidOperationException($"Only one [FromQueryParams] attribute is allowed on [{tRequest.FullName}].");
                         addPrimary = SetFromQueryParamsPropCache(propInfo, compiledSetter);
                         break;
 
@@ -98,14 +98,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (skipModelBinding)
             return new TRequest();
 
-        TRequest req;
-
-        if (!isPlainTextRequest && ctx.HttpContext.Request.HasJsonContentType())
-            req = await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation);
-        else if (isPlainTextRequest)
-            req = await BindPlainTextBody(ctx.HttpContext.Request.Body);
-        else
-            req = new TRequest();
+        var req = !isPlainTextRequest && ctx.HttpContext.Request.HasJsonContentType()
+                  ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
+                  : isPlainTextRequest
+                    ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
+                    : new TRequest();
 
         BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
         BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
@@ -116,7 +113,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         return ctx.ValidationFailures.Count == 0
                ? req
-               : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed");
+               : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed!");
     }
 
     private static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
@@ -189,21 +186,23 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             foreach (var kvp in query)
             {
+                if (!fromQueryParamsProp.Properties.TryGetValue(kvp.Key, out var type))
+                {
+                    Bind(req, kvp, failures);
+                    continue;
+                }
+                var parser = type.QueryValueParser();
                 var startIndex = kvp.Key.IndexOf('[');
                 if (startIndex > 0 && kvp.Key[^1] == ']')
                 {
                     var key = kvp.Key[..startIndex];
                     if (!obj.ContainsKey(key)) obj[key] = new JsonObject();
                     var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
-                    obj[key]!.AsObject().SetNestedValues(nestedProps, kvp.Value);
+                    obj[key]!.GetOrCreateLastNode(nestedProps)[nestedProps[^1]] = parser(kvp.Value);
                 }
                 else
                 {
-                    obj[kvp.Key] =
-                        kvp.Value.Count > 1
-                        ? new JsonArray().SetValues(kvp.Value)
-                        : kvp.Value[0];
-                    Bind(req, kvp, failures);
+                    obj[kvp.Key] = parser(kvp.Value);
                 }
             }
 
@@ -344,6 +343,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false; // don't allow binding from any other sources
     }
 
+    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        primaryProps.Add(fieldName ?? propInfo.Name, new()
+        {
+            PropType = propInfo.PropertyType,
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter
+        });
+    }
+
     private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
         fromBodyProp = new()
@@ -360,17 +369,36 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter,
+            Properties = GetExpectedQueryParams(propInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy), null)
         };
         return false;
     }
 
-    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static Dictionary<string, Type> GetExpectedQueryParams(PropertyInfo[] propertyInfos, string? parentName)
     {
-        primaryProps.Add(fieldName ?? propInfo.Name, new()
+        var dictionary = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var prop in propertyInfos)
         {
-            PropType = propInfo.PropertyType,
-            ValueParser = propInfo.PropertyType.ValueParser(),
-            PropSetter = compiledSetter
-        });
+            var propName = parentName == null ? prop.Name : $"{parentName}[{prop.Name}]";
+            var type = prop.PropertyType;
+            var nestedProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+            if (!type.IsEnum &&
+                 type != Types.String &&
+                 type != Types.Bool &&
+                !type.GetInterfaces().Contains(Types.IEnumerable) &&
+                 nestedProps.Length > 0)
+            {
+                foreach (var nestedProp in GetExpectedQueryParams(nestedProps, propName))
+                    dictionary.Add(nestedProp.Key, nestedProp.Value);
+            }
+            else
+            {
+                dictionary.Add(propName, type);
+            }
+        }
+        return dictionary;
     }
+
 }

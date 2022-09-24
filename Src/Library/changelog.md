@@ -6,12 +6,14 @@
 - `[Throttle(...)]` attribute for configuring endpoints #227
 - `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
 - complex object binding from json object strings for route/query/forms/headers #238
-- simple object binding from query parameters #238
-- nested object binding from query parameters #245
+- complex object binding from query parameters #238 #245 #254
 - min endpoint version support for `AddSwaggerDoc()` #244
 - ability to filter out non-fastendpoints from swagger docs #246
 - non-conforming DI container support #243
 - endpoint unit testing support for attribute based config [#info](https://discord.com/channels/933662816458645504/1021479855130427442)
+- asymmertic jwt signing support in `FastEndpoints.Security` pkg #249
+- add `EndpointVersion()` method to `EndpointDefinition` for use with global config #209
+- filtering (endpoint inclusion) for swagger documents #252
 
 ### FIXES
 - pre/post processor collection modification bug #224

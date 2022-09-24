@@ -347,6 +347,59 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
+    public async Task BindingObjectFormQueryUse()
+    {
+        var (rsp, res) = await GuestClient
+            .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
+                "api/test-cases/query-object-binding-test" +
+                "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
+                "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                "&favoriteDay=Friday&IsHidden=FALSE" +
+                "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                "&child[name]=child name&child[age]=-22" +
+                "&CHILD[FavoriteDays]=1&ChiLD[FavoriteDays]=Saturday&CHILD[ISHiddeN]=TruE" +
+                "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
+                new()
+                {
+                });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Should().BeEquivalentTo(
+            new TestCases.QueryObjectBindingTest.Request
+            {
+                Double = 2232.12,
+                Bool = true,
+                Enum = DayOfWeek.Wednesday,
+                String = "everything",
+                Int = 99,
+                Long = 483752874564876,
+                Person = new()
+                {
+                    Age = 45,
+                    Name = "john",
+                    Id = Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"),
+                    FavoriteDay = DayOfWeek.Friday,
+                    IsHidden = false,
+                    Child = new()
+                    {
+                        Age = -22,
+                        Name = "child name",
+                        Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
+                        Strings = new()
+                        {
+                            "string1", "string2", "", "strangeString"
+                        },
+                        FavoriteDays = new() { DayOfWeek.Monday, DayOfWeek.Saturday },
+                        IsHidden = true
+                    },
+                    Numbers = new() { 0, 1, -222, 1000, 22 }
+                }
+            }
+            );
+    }
+
+    [Fact]
     public async Task TestEventHandling()
     {
         var event1 = new NewItemAddedToStock { ID = 1, Name = "one", Quantity = 10 };

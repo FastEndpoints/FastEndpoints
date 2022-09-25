@@ -1,5 +1,5 @@
 ### CHANGES
-- the signature of the global error response builder has changed to include the `HttpContext` #220 #230
+- signature of global error response builder func has changed to include the `HttpContext` #220 #230
 
 ### NEW
 - endpoint configuration with groups and sub/nested groups #214
@@ -26,6 +26,7 @@
 - nre when publishing an event and no handlers are registered #259
 
 ### IMPROVEMENTS
+- upgrade solution/build pipeline to .net 7.0
 - optimize default request binder by reducing allocations.
 - swagger schema resolving
 - json object array string binding of requests from swagger ui

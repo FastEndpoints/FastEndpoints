@@ -143,6 +143,7 @@ internal sealed class EndpointData
                 if (tInterface == Types.IMapper)
                 {
                     services.AddSingleton(t);
+                    continue;
                 }
 
                 if (tInterface == Types.IEventHandler)

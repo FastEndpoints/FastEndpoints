@@ -16,7 +16,7 @@ public abstract class EventBase
 /// <typeparam name="TEvent">the type of notification event dto</typeparam>
 public class Event<TEvent> : EventBase where TEvent : notnull
 {
-    private readonly IEnumerable<IEventHandler<TEvent>> handlers;
+    private readonly IEnumerable<IEventHandler<TEvent>> handlers = Enumerable.Empty<IEventHandler<TEvent>>();
 
     /// <summary>
     /// instantiates an event bus for the given event dto type.

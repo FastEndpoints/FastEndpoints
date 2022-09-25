@@ -15,11 +15,7 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: 7.x
-          include-prerelease: true #remove after net7.0 final
-
-      #remove after net7.0 final
-      - name: Restore Packages
-        run: dotnet restore
+          include-prerelease: true #remove after net7.0 final and add back generator project to the solution
 
       - name: Run Tests
         run: dotnet test FastEndpoints.sln --configuration Release --verbosity minimal

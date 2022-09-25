@@ -23,6 +23,7 @@
 - concurrent test execution bug #224
 - workaround for grpc wildcard route match conflict [#info](https://discord.com/channels/933662816458645504/1020806973689696388)
 - plain text request fails if request contains json content type [#info](https://discord.com/channels/933662816458645504/1021819753016328253)
+- nre when publishing an event and no handlers are registered #259
 
 ### IMPROVEMENTS
 - optimize default request binder by reducing allocations.

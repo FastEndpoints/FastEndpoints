@@ -70,7 +70,7 @@ public class Endpoint : Endpoint<Request, Response>
                     Role.Staff };
 
             var token = JWTBearer.CreateToken(
-                _config["TokenKey"],
+                _config["TokenKey"]!,
                 expiryDate,
                 userPermissions,
                 userRoles,

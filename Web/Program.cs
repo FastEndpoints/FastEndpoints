@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder();
 builder.Services.AddCors();
 builder.Services.AddResponseCaching();
 builder.Services.AddFastEndpoints();
-builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
+builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]!);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
 

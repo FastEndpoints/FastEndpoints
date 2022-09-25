@@ -51,7 +51,7 @@ internal class ExecutorMiddleware
                     }
                 }
 
-                if (epDef.HitCounter.LimitReached(hdrVal[0]))
+                if (epDef.HitCounter.LimitReached(hdrVal[0]!))
                 {
                     ctx.Response.StatusCode = 429;
                     return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!");

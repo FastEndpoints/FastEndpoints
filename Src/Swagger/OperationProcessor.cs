@@ -88,11 +88,21 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //fix response content-types not displaying correctly
+        //also set user provided response example
         if (op.Responses.Count > 0)
         {
             var metas = metaData
              .OfType<IProducesResponseTypeMetadata>()
-             .GroupBy(m => m.StatusCode, (k, g) => new { key = k.ToString(), cTypes = g.Last().ContentTypes })
+             .GroupBy(m => m.StatusCode, (k, g) =>
+             {
+                 object? example = null;
+                 var _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
+                 return new {
+                     key = k.ToString(),
+                     cTypes = g.Last().ContentTypes,
+                     example = (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example
+                 };
+             })
              .ToDictionary(x => x.key);
 
             if (metas.Count > 0)
@@ -101,6 +111,7 @@ internal class OperationProcessor : IOperationProcessor
                 {
                     var cTypes = metas[resp.Key].cTypes;
                     var mediaType = resp.Value.Content.FirstOrDefault().Value;
+                    mediaType.Example = metas[resp.Key].example;
                     resp.Value.Content.Clear();
                     foreach (var ct in cTypes)
                         resp.Value.Content.Add(new(ct, mediaType));

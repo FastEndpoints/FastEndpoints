@@ -14,6 +14,7 @@
 - asymmertic jwt signing support in `FastEndpoints.Security` pkg #249
 - add `EndpointVersion()` method to `EndpointDefinition` for use with global config #209
 - filtering (endpoint inclusion) for swagger documents #252
+- specify response examples with `EndpointSummary` #205
 
 ### FIXES
 - pre/post processor collection modification bug #224

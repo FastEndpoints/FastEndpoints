@@ -44,6 +44,11 @@ public class EndpointSummary
     public Dictionary<int, string> Responses { get; set; } = new();
 
     /// <summary>
+    /// the response examples for each status code
+    /// </summary>
+    public Dictionary<int, object> ResponseExamples { get; set; } = new();
+
+    /// <summary>
     /// the descriptions for endpoint paramaters. you can add descriptions for route/query params and request dto properties.
     /// what you specify here will take precedence over xml comments of dto classes (if they are also specified).
     /// </summary>
@@ -66,13 +71,15 @@ public class EndpointSummary
     /// <param name="statusCode">http status code</param>
     /// <param name="description">the description of the response</param>
     /// <param name="contentType">the media/content type of the response</param>
-    public void Response<TResponse>(int statusCode = 200, string? description = null, string contentType = "application/json")
+    /// <param name="example">and example response dto instance</param>
+    public void Response<TResponse>(int statusCode = 200, string? description = null, string contentType = "application/json", TResponse? example = default)
     {
         ProducesMetas.Add(new ProducesResponseTypeMetadata
         {
             ContentTypes = new[] { contentType },
             StatusCode = statusCode,
-            Type = typeof(TResponse)
+            Type = typeof(TResponse),
+            Example = example
         });
 
         if (description is not null)
@@ -128,4 +135,6 @@ internal class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
     public int StatusCode { get; set; }
 
     public IEnumerable<string> ContentTypes { get; set; }
+
+    public object? Example { get; set; }
 }

@@ -30,7 +30,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : notnull, new() where TResponse : notnull
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolver where TRequest : notnull, new()
 {
     internal async override Task ExecAsync(CancellationToken ct)
     {
@@ -223,7 +223,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper> where TRequest : notnull, new() where TResponse : notnull where TMapper : notnull, IMapper
+public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper> where TRequest : notnull, new() where TMapper : notnull, IMapper
 {
     private TMapper? _mapper;
 
@@ -270,7 +270,7 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object>
 /// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
 /// </summary>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse> where TResponse : notnull
+public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse>
 {
     /// <summary>
     /// the handler method for the endpoint. this method is called for each request received.
@@ -320,7 +320,7 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity that will be mapped to/from</typeparam>
-public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : notnull, new() where TResponse : notnull
+public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : notnull, new()
 {
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity

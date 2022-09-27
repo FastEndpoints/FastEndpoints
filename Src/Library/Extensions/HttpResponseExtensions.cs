@@ -18,7 +18,11 @@ public static class HttpResponseExtensions
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendAsync<TResponse>(this HttpResponse rsp, TResponse response, int statusCode = 200, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : notnull
+    public static Task SendAsync<TResponse>(this HttpResponse rsp,
+                                            TResponse response,
+                                            int statusCode = 200,
+                                            JsonSerializerContext? jsonSerializerContext = null,
+                                            CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
@@ -38,8 +42,14 @@ public static class HttpResponseExtensions
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp, object? routeValues, object? responseBody, Http? verb = null,
-        int? routeNumber = null, JsonSerializerContext? jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp,
+                                                     object? routeValues,
+                                                     object? responseBody,
+                                                     Http? verb = null,
+                                                     int? routeNumber = null,
+                                                     JsonSerializerContext? jsonSerializerContext = null,
+                                                     bool generateAbsoluteUrl = false,
+                                                     CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
         return SendCreatedAtAsync(
             rsp,
@@ -61,8 +71,13 @@ public static class HttpResponseExtensions
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendCreatedAtAsync(this HttpResponse rsp, string endpointName, object? routeValues, object? responseBody,
-        JsonSerializerContext? jsonSerializerContext = null, bool generateAbsoluteUrl = false, CancellationToken cancellation = default)
+    public static Task SendCreatedAtAsync(this HttpResponse rsp,
+                                          string endpointName,
+                                          object? routeValues,
+                                          object? responseBody,
+                                          JsonSerializerContext? jsonSerializerContext = null,
+                                          bool generateAbsoluteUrl = false,
+                                          CancellationToken cancellation = default)
     {
         var linkGen = rsp.HttpContext.RequestServices.GetRequiredService<LinkGenerator>();
 
@@ -84,7 +99,11 @@ public static class HttpResponseExtensions
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="contentType">optional content type header value</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendStringAsync(this HttpResponse rsp, string content, int statusCode = 200, string contentType = "text/plain", CancellationToken cancellation = default)
+    public static Task SendStringAsync(this HttpResponse rsp,
+                                       string content,
+                                       int statusCode = 200,
+                                       string contentType = "text/plain",
+                                       CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
@@ -109,7 +128,10 @@ public static class HttpResponseExtensions
     /// <param name="response">the object to serialize to json</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendOkAsync<TResponse>(this HttpResponse rsp, TResponse response, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default) where TResponse : notnull
+    public static Task SendOkAsync<TResponse>(this HttpResponse rsp,
+                                              TResponse response,
+                                              JsonSerializerContext? jsonSerializerContext = null,
+                                              CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
@@ -123,7 +145,11 @@ public static class HttpResponseExtensions
     /// <param name="statusCode">the http status code for the error response</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendErrorsAsync(this HttpResponse rsp, List<ValidationFailure> failures, int statusCode = 400, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
+    public static Task SendErrorsAsync(this HttpResponse rsp,
+                                       List<ValidationFailure> failures,
+                                       int statusCode = 400,
+                                       JsonSerializerContext? jsonSerializerContext = null,
+                                       CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
@@ -198,7 +224,10 @@ public static class HttpResponseExtensions
     /// <param name="headers">an action to be performed on the headers dictionary of the response</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendHeadersAsync(this HttpResponse rsp, Action<IHeaderDictionary> headers, int statusCode = 200, CancellationToken cancellation = default)
+    public static Task SendHeadersAsync(this HttpResponse rsp,
+                                        Action<IHeaderDictionary> headers,
+                                        int statusCode = 200,
+                                        CancellationToken cancellation = default)
     {
         headers(rsp.Headers);
         rsp.HttpContext.MarkResponseStart();
@@ -215,8 +244,12 @@ public static class HttpResponseExtensions
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static async Task SendBytesAsync(this HttpResponse rsp,
-        byte[] bytes, string? fileName = null, string contentType = "application/octet-stream", DateTimeOffset? lastModified = null,
-        bool enableRangeProcessing = false, CancellationToken cancellation = default)
+                                            byte[] bytes,
+                                            string? fileName = null,
+                                            string contentType = "application/octet-stream",
+                                            DateTimeOffset? lastModified = null,
+                                            bool enableRangeProcessing = false,
+                                            CancellationToken cancellation = default)
     {
         using var memoryStream = new MemoryStream(bytes);
         await SendStreamAsync(
@@ -239,8 +272,11 @@ public static class HttpResponseExtensions
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendFileAsync(this HttpResponse rsp,
-        FileInfo fileInfo, string contentType = "application/octet-stream", DateTimeOffset? lastModified = null,
-        bool enableRangeProcessing = false, CancellationToken cancellation = default)
+                                     FileInfo fileInfo,
+                                     string contentType = "application/octet-stream",
+                                     DateTimeOffset? lastModified = null,
+                                     bool enableRangeProcessing = false,
+                                     CancellationToken cancellation = default)
     {
         return SendStreamAsync(
             rsp,
@@ -263,9 +299,14 @@ public static class HttpResponseExtensions
     /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static async Task SendStreamAsync(this HttpResponse rsp, Stream stream, string? fileName = null, long? fileLengthBytes = null,
-        string contentType = "application/octet-stream", DateTimeOffset? lastModified = null, bool enableRangeProcessing = false,
-        CancellationToken cancellation = default)
+    public static async Task SendStreamAsync(this HttpResponse rsp,
+                                             Stream stream,
+                                             string? fileName = null,
+                                             long? fileLengthBytes = null,
+                                             string contentType = "application/octet-stream",
+                                             DateTimeOffset? lastModified = null,
+                                             bool enableRangeProcessing = false,
+                                             CancellationToken cancellation = default)
     {
         if (stream is null) throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 
@@ -301,8 +342,10 @@ public static class HttpResponseExtensions
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static async Task SendEventStreamAsync<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream,
-        CancellationToken cancellation = default)
+    public static async Task SendEventStreamAsync<T>(this HttpResponse rsp,
+                                                     string eventName,
+                                                     IAsyncEnumerable<T> eventStream,
+                                                     CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
@@ -326,7 +369,9 @@ public static class HttpResponseExtensions
     /// </summary>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendEmptyJsonObject(this HttpResponse rsp, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
+    public static Task SendEmptyJsonObject(this HttpResponse rsp,
+                                           JsonSerializerContext? jsonSerializerContext = null,
+                                           CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;

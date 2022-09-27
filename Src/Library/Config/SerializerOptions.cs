@@ -49,10 +49,14 @@ public class SerializerOptions
     /// };
     /// </code>
     /// </summary>
-    public Func<HttpResponse, object, string, JsonSerializerContext?, CancellationToken, Task> ResponseSerializer { internal get; set; }
+    public Func<HttpResponse, object?, string, JsonSerializerContext?, CancellationToken, Task> ResponseSerializer { internal get; set; }
         = (rsp, dto, contentType, jCtx, cancellation) =>
         {
             rsp.ContentType = contentType;
+
+            if (dto is null)
+                return Task.CompletedTask;
+
             return jCtx == null
                    ? JsonSerializer.SerializeAsync(rsp.Body, dto, dto.GetType(), SerOpts.Options, cancellation)
                    : JsonSerializer.SerializeAsync(rsp.Body, dto, dto.GetType(), jCtx, cancellation);

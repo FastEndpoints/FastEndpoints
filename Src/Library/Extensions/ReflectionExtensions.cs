@@ -147,7 +147,7 @@ internal static class ReflectionExtensions
             return input => bool.TryParse(input[0], out var res) ? res : input[0];
 
         if (tProp.IsEnum)
-            return input => Enum.TryParse(tProp, input[0], true, out var res) ? JsonValue.Create(res)  : input[0];
+            return input => Enum.TryParse(tProp, input[0], true, out var res) ? JsonValue.Create(res) : input[0];
         if (tProp.GetInterfaces().Contains(Types.IEnumerable))
         {
             var elementType = tProp.GetGenericArguments().FirstOrDefault();

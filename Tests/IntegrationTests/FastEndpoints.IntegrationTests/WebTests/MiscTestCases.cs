@@ -355,7 +355,7 @@ public class MiscTestCases : EndToEndTestBase
                 "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
                 "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
                 "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
-                "&favoriteDay=Friday&IsHidden=FALSE" +
+                "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
                 "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
                 "&child[name]=child name&child[age]=-22" +
                 "&CHILD[FavoriteDays]=1&ChiLD[FavoriteDays]=Saturday&CHILD[ISHiddeN]=TruE" +
@@ -380,6 +380,7 @@ public class MiscTestCases : EndToEndTestBase
                     Name = "john",
                     Id = Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"),
                     FavoriteDay = DayOfWeek.Friday,
+                    ByteEnum = TestCases.QueryObjectBindingTest.ByteEnum.AnotherCheck,
                     IsHidden = false,
                     Child = new()
                     {

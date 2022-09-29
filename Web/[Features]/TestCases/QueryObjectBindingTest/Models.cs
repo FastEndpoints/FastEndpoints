@@ -8,6 +8,7 @@ public class Person
     public NestedPerson Child { get; set; }
     public List<int> Numbers { get; set; }
     public DayOfWeek FavoriteDay { get; set; }
+    public ByteEnum ByteEnum { get; set; }
     public bool IsHidden { get; set; }
 }
 
@@ -46,4 +47,11 @@ public class Response
     public double Double { get; set; }
     public DayOfWeek Enum { get; set; }
     public Person Person { get; set; }
+}
+
+public enum ByteEnum : byte
+{
+    Check,
+    Test,
+    AnotherCheck
 }

@@ -77,6 +77,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private static readonly JsonArray emptyArray = new();
     private TResponse InitResponseDTO()
     {
+        if (isStringResponse) //otherwise strings are detected as IEnumerable of chars
+            return default!;
+
         _response = JsonSerializer.Deserialize<TResponse>(
             isCollectionResponse ? emptyArray : emptyObject,
             SerOpts.Options)!;

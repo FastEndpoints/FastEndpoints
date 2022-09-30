@@ -19,12 +19,14 @@ public static class AuthExtensions
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
     /// <param name="issuer">validates issuer if set</param>
     /// <param name="audience">validates audience if set</param>
-    /// <param name="tokenSigningStyle">specify the toke signing style</param>
+    /// <param name="tokenSigningStyle">specify the token signing style</param>
+    /// <param name="tokenValidationConfiguration">Configuration Action to specify additional Token Validation parameters</param>
     public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services,
                                                                 string tokenSigningKey,
                                                                 string? issuer = null,
                                                                 string? audience = null,
-                                                                TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric)
+                                                                TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric, 
+                                                                Action<TokenValidationParameters>? tokenValidationConfiguration = null)
     {
         services.AddAuthentication(o =>
         {
@@ -53,10 +55,31 @@ public static class AuthExtensions
                 ValidIssuer = issuer,
                 IssuerSigningKey = key,
             };
+
+            if(tokenValidationConfiguration is not null)
+            {
+                tokenValidationConfiguration.Invoke(o.TokenValidationParameters);
+            }
         });
 
         return services;
     }
+
+    /// <summary>
+    /// configure and enable jwt bearer authentication
+    /// </summary>
+    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
+    /// <param name="tokenValidationConfiguration">configuration Action to specify additional Token Validation parameters</param>
+    public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services,
+                                                                string tokenSigningKey,
+                                                                Action<TokenValidationParameters> tokenValidationConfiguration)
+        => AddAuthenticationJWTBearer(services,
+                                      tokenSigningKey,
+                                      null,
+                                      null,
+                                      TokenSigningStyle.Symmetric,
+                                      tokenValidationConfiguration);
+
 
     /// <summary>
     /// returns true of the current user principal has a given permission code.

@@ -20,12 +20,12 @@ public static class AuthExtensions
     /// <param name="issuer">validates issuer if set</param>
     /// <param name="audience">validates audience if set</param>
     /// <param name="tokenSigningStyle">specify the token signing style</param>
-    /// <param name="tokenValidationConfiguration">Configuration Action to specify additional Token Validation parameters</param>
+    /// <param name="tokenValidationConfiguration">configuration action to specify additional token validation parameters</param>
     public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services,
                                                                 string tokenSigningKey,
                                                                 string? issuer = null,
                                                                 string? audience = null,
-                                                                TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric, 
+                                                                TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric,
                                                                 Action<TokenValidationParameters>? tokenValidationConfiguration = null)
     {
         services.AddAuthentication(o =>
@@ -56,10 +56,7 @@ public static class AuthExtensions
                 IssuerSigningKey = key,
             };
 
-            if(tokenValidationConfiguration is not null)
-            {
-                tokenValidationConfiguration.Invoke(o.TokenValidationParameters);
-            }
+            tokenValidationConfiguration?.Invoke(o.TokenValidationParameters);
         });
 
         return services;
@@ -69,16 +66,19 @@ public static class AuthExtensions
     /// configure and enable jwt bearer authentication
     /// </summary>
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
-    /// <param name="tokenValidationConfiguration">configuration Action to specify additional Token Validation parameters</param>
+    /// <param name="tokenValidationConfiguration">configuration action to specify additional token validation parameters</param>
     public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services,
                                                                 string tokenSigningKey,
                                                                 Action<TokenValidationParameters> tokenValidationConfiguration)
-        => AddAuthenticationJWTBearer(services,
-                                      tokenSigningKey,
-                                      null,
-                                      null,
-                                      TokenSigningStyle.Symmetric,
-                                      tokenValidationConfiguration);
+    {
+        return AddAuthenticationJWTBearer(
+            services,
+            tokenSigningKey,
+            null,
+            null,
+            TokenSigningStyle.Symmetric,
+            tokenValidationConfiguration);
+    }
 
 
     /// <summary>

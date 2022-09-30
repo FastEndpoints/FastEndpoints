@@ -76,8 +76,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             if (!ResponseStarted)
                 await AutoSendResponse(HttpContext, _response, Definition.SerializerContext, ct);
 
-            OnAfterHandle(req, Response);
-            await OnAfterHandleAsync(req, Response, ct);
+            OnAfterHandle(req, _response);
+            await OnAfterHandleAsync(req, _response, ct);
         }
         catch (ValidationFailureException)
         {
@@ -91,7 +91,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         }
         finally
         {
-            await RunPostProcessors(Definition.PostProcessorList, req, Response, HttpContext, ValidationFailures, ct);
+            await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, ValidationFailures, ct);
         }
     }
 

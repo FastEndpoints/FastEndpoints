@@ -10,7 +10,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="response">the object to serialize to json</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendAsync(TResponse? response, int statusCode = 200, CancellationToken cancellation = default)
+    protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
     {
         Response = response;
         return HttpContext.Response.SendAsync(response, statusCode, Definition.SerializerContext, cancellation);
@@ -29,7 +29,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues,
-                                                 TResponse? responseBody,
+                                                 TResponse responseBody,
                                                  Http? verb = null,
                                                  int? routeNumber = null,
                                                  bool generateAbsoluteUrl = false,
@@ -59,7 +59,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     protected Task SendCreatedAtAsync(string endpointName,
                                       object? routeValues,
-                                      TResponse? responseBody,
+                                      TResponse responseBody,
                                       bool generateAbsoluteUrl = false,
                                       CancellationToken cancellation = default)
     {
@@ -95,7 +95,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="response">the object to serialize to json</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendOkAsync(TResponse? response, CancellationToken cancellation = default)
+    protected Task SendOkAsync(TResponse response, CancellationToken cancellation = default)
     {
         Response = response;
         return HttpContext.Response.SendOkAsync(response, Definition.SerializerContext, cancellation);

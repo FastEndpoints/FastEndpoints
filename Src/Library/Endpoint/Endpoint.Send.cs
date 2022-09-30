@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new()
 {
     /// <summary>
     /// send the supplied response dto serialized as json to the client.
@@ -10,7 +10,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="response">the object to serialize to json</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
+    protected Task SendAsync(TResponse? response, int statusCode = 200, CancellationToken cancellation = default)
     {
         Response = response;
         return HttpContext.Response.SendAsync(response, statusCode, Definition.SerializerContext, cancellation);
@@ -28,8 +28,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
     /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues, TResponse? responseBody, Http? verb = null, int? routeNumber = null,
-        bool generateAbsoluteUrl = false, CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues,
+                                                 TResponse? responseBody,
+                                                 Http? verb = null,
+                                                 int? routeNumber = null,
+                                                 bool generateAbsoluteUrl = false,
+                                                 CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
         if (responseBody is not null)
             Response = responseBody;
@@ -53,8 +57,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendCreatedAtAsync(string endpointName, object? routeValues, TResponse? responseBody, bool generateAbsoluteUrl = false,
-        CancellationToken cancellation = default)
+    protected Task SendCreatedAtAsync(string endpointName,
+                                      object? routeValues,
+                                      TResponse? responseBody,
+                                      bool generateAbsoluteUrl = false,
+                                      CancellationToken cancellation = default)
     {
         if (responseBody is not null)
             Response = responseBody;
@@ -75,7 +82,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="contentType">optional content type header value</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendStringAsync(string content, int statusCode = 200, string contentType = "text/plain", CancellationToken cancellation = default)
+    protected Task SendStringAsync(string content,
+                                   int statusCode = 200,
+                                   string contentType = "text/plain",
+                                   CancellationToken cancellation = default)
     {
         return HttpContext.Response.SendStringAsync(content, statusCode, contentType, cancellation);
     }
@@ -85,7 +95,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="response">the object to serialize to json</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendOkAsync(TResponse response, CancellationToken cancellation = default)
+    protected Task SendOkAsync(TResponse? response, CancellationToken cancellation = default)
     {
         Response = response;
         return HttpContext.Response.SendOkAsync(response, Definition.SerializerContext, cancellation);
@@ -176,8 +186,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendBytesAsync(byte[] bytes, string? fileName = null, string contentType = "application/octet-stream",
-        DateTimeOffset? lastModified = null, bool enableRangeProcessing = false, CancellationToken cancellation = default)
+    protected Task SendBytesAsync(byte[] bytes,
+                                  string? fileName = null,
+                                  string contentType = "application/octet-stream",
+                                  DateTimeOffset? lastModified = null,
+                                  bool enableRangeProcessing = false,
+                                  CancellationToken cancellation = default)
     {
         return HttpContext.Response.SendBytesAsync(bytes, fileName, contentType, lastModified, enableRangeProcessing, cancellation);
     }
@@ -190,8 +204,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendFileAsync(FileInfo fileInfo, string contentType = "application/octet-stream", DateTimeOffset? lastModified = null,
-        bool enableRangeProcessing = false, CancellationToken cancellation = default)
+    protected Task SendFileAsync(FileInfo fileInfo,
+                                 string contentType = "application/octet-stream",
+                                 DateTimeOffset? lastModified = null,
+                                 bool enableRangeProcessing = false,
+                                 CancellationToken cancellation = default)
     {
         return HttpContext.Response.SendFileAsync(fileInfo, contentType, lastModified, enableRangeProcessing, cancellation);
     }
@@ -206,11 +223,22 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendStreamAsync(Stream stream, string? fileName = null, long? fileLengthBytes = null,
-        string contentType = "application/octet-stream", DateTimeOffset? lastModified = null, bool enableRangeProcessing = false,
-        CancellationToken cancellation = default)
+    protected Task SendStreamAsync(Stream stream,
+                                   string? fileName = null,
+                                   long? fileLengthBytes = null,
+                                   string contentType = "application/octet-stream",
+                                   DateTimeOffset? lastModified = null,
+                                   bool enableRangeProcessing = false,
+                                   CancellationToken cancellation = default)
     {
-        return HttpContext.Response.SendStreamAsync(stream, fileName, fileLengthBytes, contentType, lastModified, enableRangeProcessing, cancellation);
+        return HttpContext.Response.SendStreamAsync(
+            stream,
+            fileName,
+            fileLengthBytes,
+            contentType,
+            lastModified,
+            enableRangeProcessing,
+            cancellation);
     }
 
     /// <summary>

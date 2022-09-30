@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;
@@ -144,6 +143,7 @@ internal sealed class EndpointData
                 if (tInterface == Types.IMapper)
                 {
                     services.AddSingleton(t);
+                    continue;
                 }
 
                 if (tInterface == Types.IEventHandler)
@@ -182,40 +182,39 @@ internal sealed class EndpointData
             if (serviceBoundEpProps.Length > 0)
                 def.ServiceBoundEpProps = serviceBoundEpProps;
 
-            var implementsConfigureMethod = false;
+            var implementsConfigure = false;
             var implementsHandleAsync = false;
             var implementsExecuteAsync = false;
 
             foreach (var m in x.tEndpoint.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
             {
-                if (m.Name == "Configure" && !m.IsDefined(Types.NotImplementedAttribute, false))
-                    implementsConfigureMethod = true;
+                if (m.Name == nameof(BaseEndpoint.Configure) && !m.IsDefined(Types.NotImplementedAttribute, false))
+                    implementsConfigure = true;
 
-                if (m.Name == "HandleAsync" && !m.IsDefined(Types.NotImplementedAttribute, false))
+                if (m.Name == nameof(Endpoint<object>.HandleAsync) && !m.IsDefined(Types.NotImplementedAttribute, false))
                     implementsHandleAsync = true;
 
-                if (m.Name == "ExecuteAsync" && !m.IsDefined(Types.NotImplementedAttribute, false))
+                if (m.Name == nameof(Endpoint<object>.ExecuteAsync) && !m.IsDefined(Types.NotImplementedAttribute, false))
+                {
                     implementsExecuteAsync = true;
+                    def.ExecuteAsyncImplemented = true;
+                }
             }
 
-            var epAttribs = x.tEndpoint
-                .GetCustomAttributes(true)
-                .Where(a => a is HttpAttribute or AllowAnonymousAttribute or AuthorizeAttribute)
-                .ToArray();
+            var epAttribs = x.tEndpoint.GetCustomAttributes(true);
+            var hashttpAttrib = epAttribs.Any(a => a is HttpAttribute);
 
-            if (implementsConfigureMethod && epAttribs.Length > 0)
+            if (implementsConfigure && hashttpAttrib)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
 
-            if (epAttribs.Length > 0 && !epAttribs.Any(a => a is HttpAttribute))
-                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] should have at least one http method attribute such as [HttpGet(...)]");
+            if (!implementsConfigure && !hashttpAttrib)
+                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] should either override the Configure() method or decorate the class with a [Http*(...)] attribute!");
 
             if (!implementsHandleAsync && !implementsExecuteAsync)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
 
             if (implementsHandleAsync && implementsExecuteAsync)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
-
-            def.ExecuteAsyncImplemented = implementsExecuteAsync;
 
             //create an endpoint instance and run the Configure() method in order to get the def object populated
             var instance =
@@ -226,37 +225,7 @@ internal sealed class EndpointData
             instance.Definition = def;
             instance.Config = config;
 
-            if (implementsConfigureMethod)
-            {
-                instance.Configure();
-            }
-            else
-            {
-                foreach (var att in epAttribs)
-                {
-                    switch (att)
-                    {
-                        case HttpAttribute httpAttr:
-                            instance.Verbs(httpAttr.Verb);
-                            def.Routes = httpAttr.Routes;
-                            break;
-
-                        case AllowAnonymousAttribute:
-                            def.AllowAnonymous();
-                            break;
-
-                        case AuthorizeAttribute authAttr:
-                            def.Roles(authAttr.Roles?.Split(','));
-                            def.AuthSchemes(authAttr.AuthenticationSchemes?.Split(','));
-                            if (authAttr.Policy is not null) def.Policies(new[] { authAttr.Policy });
-                            break;
-
-                        case ThrottleAttribute thrtAttr:
-                            def.Throttle(thrtAttr.HitLimit, thrtAttr.DurationSeconds, thrtAttr.HeaderName);
-                            break;
-                    }
-                }
-            }
+            def.Configure(instance, implementsConfigure, epAttribs);
 
             if (def.ValidatorType is null && valDict.TryGetValue(def.ReqDtoType, out var val)) //user has not specified a validator type in the endpoint
             {
@@ -276,7 +245,7 @@ internal sealed class EndpointData
 
             if (summaryDict.TryGetValue(def.EndpointType, out var tSummary))
             {
-                def.Summary((EndpointSummary?)Activator.CreateInstance(tSummary));
+                def.Summary((EndpointSummary)Activator.CreateInstance(tSummary)!);
             }
 
             return def;

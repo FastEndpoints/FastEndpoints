@@ -1,9 +1,9 @@
 <Project>
     <PropertyGroup>
 
-        <Version>5.2.0-beta4</Version>
+        <Version>5.2.0-beta21</Version>
 
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>

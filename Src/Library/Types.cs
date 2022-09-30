@@ -16,6 +16,7 @@ internal static class Types
     internal static readonly Type EndpointOf2 = typeof(Endpoint<,>);
     internal static readonly Type FastEventHandlerOf1 = typeof(FastEventHandler<>);
     internal static readonly Type Http = typeof(Http);
+    internal static readonly Type HttpAttribute = typeof(HttpAttribute);
     internal static readonly Type IEndpoint = typeof(IEndpoint);
     internal static readonly Type IEndpointFeature = typeof(IEndpointFeature);
     internal static readonly Type IEndpointValidator = typeof(IEndpointValidator);

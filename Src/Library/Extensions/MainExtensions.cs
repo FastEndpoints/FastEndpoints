@@ -30,14 +30,16 @@ public static class MainExtensions
     /// </summary>
     /// <param name="options">optionally specify the endpoint discovery options</param>
     /// <param name="config">optionally specify the IConfiguration/ConfigurationManager if you need to access it from within endpoint Configure() method</param>
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options = null,
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services,
+        Action<EndpointDiscoveryOptions>? options = null,
         ConfigurationManager? config = null)
     {
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
         Endpoints = new(services, opts, config);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
-        services.AddHttpContextAccessor();
+        services.AddHttpContextAccessor(); //todo: remove after removing scoped validator support.
+        services.AddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(Event<>));
         return services;
@@ -45,17 +47,18 @@ public static class MainExtensions
 
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
-    /// <para>HINT: this is the combination of <c>app.UseFastEndpointsMiddleware()</c> and <c>app.MapFastEndpoints()</c>.
+    /// <para>HINT: this is the combination of <see cref="UseFastEndpoints(IApplicationBuilder, Action{Config}?)"/> and <see cref="MapFastEndpoints(IEndpointRouteBuilder, Action{Config}?)"/>.
     /// you can use those two methods separately if you have some special requirement such as using "Startup.cs", etc.
     /// </para>
     /// </summary>
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
-    /// <exception cref="InvalidOperationException"></exception>
-    /// <exception cref="ArgumentException"></exception>
-    public static WebApplication UseFastEndpoints(this WebApplication app, Action<Config>? configAction = null)
+    /// <exception cref="InvalidCastException">thrown when the <c>app</c> cannot be cast to <see cref="IEndpointRouteBuilder"/></exception>
+    public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, Action<Config>? configAction = null)
     {
         UseFastEndpointsMiddleware(app);
-        MapFastEndpoints(app, configAction);
+        if (app is not IEndpointRouteBuilder routeBuilder)
+            throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
+        MapFastEndpoints(routeBuilder, configAction);
         return app;
     }
 
@@ -72,7 +75,7 @@ public static class MainExtensions
         configAction?.Invoke(new Config());
 
         //key: {verb}:{route}
-        var routeToHandlerCounts = new ConcurrentDictionary<string, int>(); //using concurrent dict due to: https://discord.com/channels/933662816458645504/992958014699077683
+        var routeToHandlerCounts = new ConcurrentDictionary<string, int>();
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 

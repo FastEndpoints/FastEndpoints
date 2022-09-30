@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder();
 builder.Services.AddCors();
 builder.Services.AddResponseCaching();
 builder.Services.AddFastEndpoints();
-builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]);
+builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]!);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
 
@@ -43,6 +43,14 @@ builder.Services
         s.DocumentName = "Release 2.0";
         s.Title = "FastEndpoints Sandbox";
         s.Version = "v2.0";
+    })
+
+    //only ver3 & only FastEndpoints
+    .AddSwaggerDoc(minEndpointVersion: 3, maxEndpointVersion: 3, excludeNonFastEndpoints: true, settings: s =>
+    {
+        s.DocumentName = "Release 3.0";
+        s.Title = "FastEndpoints Sandbox ver3 only";
+        s.Version = "v3.0";
     });
 
 var app = builder.Build();

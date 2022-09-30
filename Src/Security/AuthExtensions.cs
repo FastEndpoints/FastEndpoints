@@ -2,7 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using static FastEndpoints.Security.JWTBearer;
 
 namespace FastEndpoints.Security;
 
@@ -17,8 +19,12 @@ public static class AuthExtensions
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
     /// <param name="issuer">validates issuer if set</param>
     /// <param name="audience">validates audience if set</param>
-    public static IServiceCollection AddAuthenticationJWTBearer(
-        this IServiceCollection services, string tokenSigningKey, string? issuer = null, string? audience = null)
+    /// <param name="tokenSigningStyle">specify the toke signing style</param>
+    public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services,
+                                                                string tokenSigningKey,
+                                                                string? issuer = null,
+                                                                string? audience = null,
+                                                                TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric)
     {
         services.AddAuthentication(o =>
         {
@@ -27,6 +33,17 @@ public static class AuthExtensions
         })
         .AddJwtBearer(o =>
         {
+            SecurityKey key;
+            if (tokenSigningStyle == TokenSigningStyle.Symmetric)
+            {
+                key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey));
+            }
+            else
+            {
+                using var rsa = RSA.Create();
+                rsa.ImportRSAPublicKey(Convert.FromBase64String(tokenSigningKey), out _);
+                key = new RsaSecurityKey(rsa);
+            }
             o.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -34,7 +51,7 @@ public static class AuthExtensions
                 ValidAudience = audience,
                 ValidateIssuer = issuer is not null,
                 ValidIssuer = issuer,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey))
+                IssuerSigningKey = key,
             };
         });
 

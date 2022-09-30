@@ -40,6 +40,7 @@ public class Endpoint : Endpoint<Request, Response>
             Url = r.Url?.ToString(),
             Custom = r.Custom,
             CustomList = r.CustomList,
+            Person = r.Person
         });
     }
 }

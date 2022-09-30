@@ -16,6 +16,7 @@ public class Endpoint : Endpoint<Request, Response>
         Response.Ints = r.Ints;
         Response.Strings = r.Strings;
         Response.MoreStrings = r.MoreStrings;
+        Response.Persons = r.Persons;
         return Task.CompletedTask;
     }
 }

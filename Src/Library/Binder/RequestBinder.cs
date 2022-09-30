@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
@@ -19,6 +21,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
     private static PropCache? fromBodyProp;
+    private static QueryPropCacheEntry? fromQueryParamsProp;
     private static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
@@ -37,58 +40,80 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
         {
-            if (!propInfo.CanRead || !propInfo.CanWrite)
+            if (!propInfo.CanWrite || !propInfo.CanRead)
                 continue;
 
             if (isPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
-                continue;
+                continue; //allow other properties other than `Content` property if this is a plaintext request
 
+            string? fieldName = null;
+            var addPrimary = true;
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);
 
-            if (SetFromBodyPropCache(propInfo, compiledSetter))
-                continue;
+            foreach (var att in propInfo.GetCustomAttributes()) //reduce allocations by doing this only once
+            {
+                switch (att)
+                {
+                    case FromBodyAttribute:
+                        if (fromBodyProp is not null) throw new InvalidOperationException($"Only one [FromBody] attribute is allowed on [{tRequest.FullName}].");
+                        addPrimary = SetFromBodyPropCache(propInfo, compiledSetter);
+                        break;
 
-            if (AddFromClaimPropCacheEntry(propInfo, compiledSetter))
-                continue;
+                    case FromQueryParamsAttribute:
+                        if (fromQueryParamsProp is not null) throw new InvalidOperationException($"Only one [FromQueryParams] attribute is allowed on [{tRequest.FullName}].");
+                        addPrimary = SetFromQueryParamsPropCache(propInfo, compiledSetter);
+                        break;
 
-            if (AddFromHeaderPropCacheEntry(propInfo, compiledSetter))
-                continue;
+                    case FromClaimAttribute fcAtt:
+                        addPrimary = AddFromClaimPropCacheEntry(fcAtt, propInfo, compiledSetter);
+                        break;
 
-            if (AddHasPermissionPropCacheEntry(propInfo, compiledSetter))
-                continue;
+                    case FromHeaderAttribute fhAtt:
+                        addPrimary = AddFromHeaderPropCacheEntry(fhAtt, propInfo, compiledSetter);
+                        break;
 
-            AddPropCacheEntry(propInfo, compiledSetter);
+                    case HasPermissionAttribute hpAtt:
+                        addPrimary = AddHasPermissionPropCacheEntry(hpAtt, propInfo, compiledSetter);
+                        break;
+
+                    case BindFromAttribute bfAtt:
+                        fieldName = bfAtt.Name;
+                        break;
+                }
+            }
+
+            if (addPrimary)
+                AddPrimaryPropCacheEntry(fieldName, propInfo, compiledSetter);
         }
     }
 
     /// <summary>
     /// override this method to customize the request binding logic
     /// </summary>
-    /// <param name="context">the request binder context which holds all the data required for binding the incoming request</param>
+    /// <param name="ctx">the request binder context which holds all the data required for binding the incoming request</param>
     /// <param name="cancellation">cancellation token</param>
     /// <exception cref="ValidationFailureException">thrown if any failures occur during the binding process</exception>
-    public async virtual ValueTask<TRequest> BindAsync(BinderContext context, CancellationToken cancellation)
+    public async virtual ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken cancellation)
     {
         if (skipModelBinding)
             return new TRequest();
 
-        var req =
-            context.HttpContext.Request.HasJsonContentType()
-            ? await BindJsonBody(context.HttpContext.Request, context.JsonSerializerContext, cancellation)
-            : isPlainTextRequest
-              ? await BindPlainTextBody(context.HttpContext.Request.Body)
-              : new TRequest();
+        var req = !isPlainTextRequest && ctx.HttpContext.Request.HasJsonContentType()
+                  ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
+                  : isPlainTextRequest
+                    ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
+                    : new TRequest();
 
-        BindFormValues(req, context.HttpContext.Request, context.ValidationFailures, context.DontAutoBindForms);
-        BindRouteValues(req, context.HttpContext.Request.RouteValues, context.ValidationFailures);
-        BindQueryParams(req, context.HttpContext.Request.Query, context.ValidationFailures);
-        BindUserClaims(req, context.HttpContext.User.Claims, context.ValidationFailures);
-        BindHeaders(req, context.HttpContext.Request.Headers, context.ValidationFailures);
-        BindHasPermissionProps(req, context.HttpContext.User.Claims, context.ValidationFailures);
+        BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
+        BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
+        BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
+        BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+        BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
+        BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
 
-        return context.ValidationFailures.Count == 0
+        return ctx.ValidationFailures.Count == 0
                ? req
-               : throw new ValidationFailureException(context.ValidationFailures, "Model binding failed");
+               : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed!");
     }
 
     private static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
@@ -150,17 +175,46 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         if (query.Count == 0) return;
 
-        foreach (var kvp in query)
-            Bind(req, kvp, failures);
+        if (fromQueryParamsProp is null)
+        {
+            foreach (var kvp in query)
+                Bind(req, kvp, failures);
+        }
+        else
+        {
+            var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
+
+            foreach (var kvp in query)
+            {
+                if (!fromQueryParamsProp.Properties.TryGetValue(kvp.Key, out var type))
+                {
+                    Bind(req, kvp, failures);
+                    continue;
+                }
+                var parser = type.QueryValueParser();
+                var startIndex = kvp.Key.IndexOf('[');
+                if (startIndex > 0 && kvp.Key[^1] == ']')
+                {
+                    var key = kvp.Key[..startIndex];
+                    if (!obj.ContainsKey(key)) obj[key] = new JsonObject();
+                    var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
+                    obj[key]!.GetOrCreateLastNode(nestedProps)[nestedProps[^1]] = parser(kvp.Value);
+                }
+                else
+                {
+                    obj[kvp.Key] = parser(kvp.Value);
+                }
+            }
+
+            fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
+        }
     }
 
     private static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
     {
-        var cachedProps = fromClaimProps;
-
-        for (var i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < fromClaimProps.Count; i++)
         {
-            var prop = cachedProps[i];
+            var prop = fromClaimProps[i];
             StringValues? claimVal = null;
 
             foreach (var g in claims.GroupBy(c => c.Type, c => c.Value))
@@ -190,11 +244,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     private static void BindHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
     {
-        var cachedProps = fromHeaderProps;
-
-        for (var i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < fromHeaderProps.Count; i++)
         {
-            var prop = cachedProps[i];
+            var prop = fromHeaderProps[i];
             var hdrVal = headers[prop.Identifier];
 
             if (hdrVal.Count == 0 && prop.ForbidIfMissing)
@@ -213,12 +265,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     private static void BindHasPermissionProps(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
     {
-        var cachedProps = hasPermissionProps;
-
-        for (var i = 0; i < cachedProps.Count; i++)
+        for (var i = 0; i < hasPermissionProps.Count; i++)
         {
-            var prop = cachedProps[i];
-
+            var prop = hasPermissionProps[i];
             var hasPerm = claims.Any(c =>
                string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
@@ -250,98 +299,105 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        var attrib = propInfo.GetCustomAttribute<FromBodyAttribute>(false);
-        if (attrib is not null)
+        fromClaimProps.Add(new()
         {
-            fromBodyProp = new()
-            {
-                PropType = propInfo.PropertyType,
-                PropSetter = compiledSetter,
-            };
-            return true;
-        }
-        return false;
+            Identifier = att.ClaimType ?? propInfo.Name,
+            ForbidIfMissing = att.IsRequired,
+            PropType = propInfo.PropertyType,
+            IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter,
+        });
+
+        return !att.IsRequired; //if claim is optional, return true so it will also be added as a PropCacheEntry
     }
 
-    private static bool AddFromClaimPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        var attrib = propInfo.GetCustomAttribute<FromClaimAttribute>(false);
-        if (attrib is not null)
+        fromHeaderProps.Add(new()
         {
-            var claimType = attrib.ClaimType ?? propInfo.Name;
-            var forbidIfMissing = attrib.IsRequired;
+            Identifier = att.HeaderName ?? propInfo.Name,
+            ForbidIfMissing = att.IsRequired,
+            PropType = propInfo.PropertyType,
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter
+        });
 
-            fromClaimProps.Add(new()
-            {
-                Identifier = claimType,
-                ForbidIfMissing = forbidIfMissing,
-                PropType = propInfo.PropertyType,
-                IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
-                ValueParser = propInfo.PropertyType.ValueParser(),
-                PropSetter = compiledSetter,
-            });
-
-            return forbidIfMissing; //if claim is optional, return false so it will also be added as a PropCacheEntry
-        }
-        return false;
+        return !att.IsRequired; //if header is optional, return true so it will also be added as a PropCacheEntry;
     }
 
-    private static bool AddFromHeaderPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        var attrib = propInfo.GetCustomAttribute<FromHeaderAttribute>(false);
-        if (attrib is not null)
+        hasPermissionProps.Add(new()
         {
-            var headerName = attrib.HeaderName ?? propInfo.Name;
-            var forbidIfMissing = attrib.IsRequired;
+            Identifier = att.Permission ?? propInfo.Name,
+            ForbidIfMissing = att.IsRequired,
+            PropType = propInfo.PropertyType,
+            PropName = propInfo.Name,
+            ValueParser = propInfo.PropertyType.ValueParser(),
+            PropSetter = compiledSetter
+        });
 
-            fromHeaderProps.Add(new()
-            {
-                Identifier = headerName,
-                ForbidIfMissing = forbidIfMissing,
-                PropType = propInfo.PropertyType,
-                ValueParser = propInfo.PropertyType.ValueParser(),
-                PropSetter = compiledSetter
-            });
-
-            return forbidIfMissing; //if header is optional, return false so it will also be added as a PropCacheEntry;
-        }
-        return false;
+        return false; // don't allow binding from any other sources
     }
 
-    private static bool AddHasPermissionPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object> compiledSetter)
     {
-        var attrib = propInfo.GetCustomAttribute<HasPermissionAttribute>(false);
-        if (attrib is not null)
-        {
-            var permission = attrib.Permission ?? propInfo.Name;
-            var forbidIfMissing = attrib.IsRequired;
-
-            hasPermissionProps.Add(new()
-            {
-                Identifier = permission,
-                ForbidIfMissing = forbidIfMissing,
-                PropType = propInfo.PropertyType,
-                PropName = propInfo.Name,
-                ValueParser = propInfo.PropertyType.ValueParser(),
-                PropSetter = compiledSetter
-            });
-
-            return true; // don't allow binding from any other sources
-        }
-        return false;
-    }
-
-    private static void AddPropCacheEntry(PropertyInfo propInfo, Action<object, object> compiledSetter)
-    {
-        var attrib = propInfo.GetCustomAttribute<BindFromAttribute>(false);
-
-        primaryProps.Add(attrib?.Name ?? propInfo.Name, new()
+        primaryProps.Add(fieldName ?? propInfo.Name, new()
         {
             PropType = propInfo.PropertyType,
             ValueParser = propInfo.PropertyType.ValueParser(),
             PropSetter = compiledSetter
         });
+    }
+
+    private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        fromBodyProp = new()
+        {
+            PropType = propInfo.PropertyType,
+            PropSetter = compiledSetter,
+        };
+        return false;
+    }
+
+    private static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    {
+        fromQueryParamsProp = new()
+        {
+            PropType = propInfo.PropertyType,
+            PropSetter = compiledSetter,
+            Properties = GetExpectedQueryParams(propInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy), null)
+        };
+        return false;
+    }
+
+    private static Dictionary<string, Type> GetExpectedQueryParams(PropertyInfo[] propertyInfos, string? parentName)
+    {
+        var dictionary = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var prop in propertyInfos)
+        {
+            var propName = parentName == null ? prop.Name : $"{parentName}[{prop.Name}]";
+            var type = prop.PropertyType;
+            var nestedProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+            if (!type.IsEnum &&
+                 type != Types.String &&
+                 type != Types.Bool &&
+                !type.GetInterfaces().Contains(Types.IEnumerable) &&
+                 nestedProps.Length > 0)
+            {
+                foreach (var nestedProp in GetExpectedQueryParams(nestedProps, propName))
+                    dictionary.Add(nestedProp.Key, nestedProp.Value);
+            }
+            else
+            {
+                dictionary.Add(propName, type);
+            }
+        }
+        return dictionary;
     }
 }

@@ -9,14 +9,15 @@ using System.Runtime.CompilerServices;
 
 namespace FastEndpoints;
 
+/// <summary>
+/// the base class all fast endpoints inherit from
+/// </summary>
 public abstract class BaseEndpoint : IEndpoint
 {
     private List<ValidationFailure> _failures;
     private IConfiguration? _config;
 
     internal abstract Task ExecAsync(CancellationToken ct);
-
-    public virtual void Verbs(params Http[] methods) => throw new NotImplementedException();
 
     /// <summary>
     /// gets the endpoint definition which contains all the configuration info for the endpoint
@@ -48,8 +49,9 @@ public abstract class BaseEndpoint : IEndpoint
     [NotImplemented]
     public virtual void Configure() => throw new NotImplementedException();
 
-    public virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, EndpointGroup, new()
-        => throw new NotImplementedException();
+    public virtual void Verbs(params Http[] methods) => throw new NotImplementedException();
+
+    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
 
     /// <summary>
     /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk as done with IFormFile

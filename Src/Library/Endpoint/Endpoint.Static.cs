@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new() where TResponse : notnull
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new()
 {
-    private static async Task RunPostProcessors(HashSet<object> postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPostProcessors(HashSet<object> postProcessors, TRequest req, TResponse? resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         foreach (var p in postProcessors)
         {

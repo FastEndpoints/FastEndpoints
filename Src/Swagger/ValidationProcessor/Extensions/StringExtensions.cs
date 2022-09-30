@@ -61,26 +61,25 @@ internal class IgnoreAllStringComparer : StringComparer
     public static readonly StringComparer Instance = new IgnoreAllStringComparer();
 
     /// <inheritdoc />
-    public override int Compare(string left, string right)
+    public override int Compare(string? left, string? right)
     {
         var leftIndex = 0;
         var rightIndex = 0;
-        var compare = 0;
-        while (true)
+        int compare;
+        do
         {
             GetNextSymbol(left, ref leftIndex, out var leftSymbol);
             GetNextSymbol(right, ref rightIndex, out var rightSymbol);
 
             compare = leftSymbol.CompareTo(rightSymbol);
-            if (compare != 0 || leftIndex < 0 || rightIndex < 0)
-                break;
         }
+        while (compare == 0 && leftIndex >= 0 && rightIndex >= 0);
 
         return compare;
     }
 
     /// <inheritdoc />
-    public override bool Equals(string left, string right)
+    public override bool Equals(string? left, string? right)
     {
         if (left == null || right == null)
             return false;
@@ -88,6 +87,7 @@ internal class IgnoreAllStringComparer : StringComparer
         var leftIndex = 0;
         var rightIndex = 0;
         bool equals;
+
         while (true)
         {
             var hasLeftSymbol = GetNextSymbol(left, ref leftIndex, out var leftSymbol);
@@ -115,9 +115,9 @@ internal class IgnoreAllStringComparer : StringComparer
         }
     }
 
-    internal static bool GetNextSymbol(string value, ref int startIndex, out char symbol)
+    internal static bool GetNextSymbol(string? value, ref int startIndex, out char symbol)
     {
-        while (startIndex >= 0 && startIndex < value.Length)
+        while (startIndex >= 0 && startIndex < value?.Length)
         {
             var current = value[startIndex++];
             if (char.IsLetterOrDigit(current))

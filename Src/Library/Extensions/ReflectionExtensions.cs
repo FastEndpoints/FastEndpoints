@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -68,6 +69,13 @@ internal static class ReflectionExtensions
         return parsers.GetOrAdd(type, GetCompiledValueParser);
     }
 
+    private static readonly ConcurrentDictionary<Type, Func<StringValues, JsonNode?>> queryParsers = new();
+    internal static Func<StringValues, JsonNode?> QueryValueParser(this Type type)
+    {
+        // almost the same parser logic but for nested query params
+        return queryParsers.GetOrAdd(type, GetCompiledQueryValueParser);
+    }
+
     private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
     private static readonly ConstructorInfo valueTupleConstructor = typeof(ValueTuple<bool, object>).GetConstructor(new[] { Types.Bool, Types.Object })!;
     private static Func<object?, (bool isSuccess, object value)>? GetCompiledValueParser(Type tProp)
@@ -79,7 +87,7 @@ internal static class ReflectionExtensions
         tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
 
         //note: the actual type of the `input` to the parser func can be
-        //      either [object] or [StringValues] 
+        //      either [object] or [StringValues]
 
         if (tProp == Types.String)
             return input => (true, input?.ToString()!);
@@ -94,8 +102,8 @@ internal static class ReflectionExtensions
         if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
         {
             return tProp.GetInterfaces().Contains(Types.IEnumerable)
-                   ? (input => (true, DeserializeArrayString(input, tProp))!)
-                   : null;
+                   ? (input => (true, DeserializeJsonArrayString(input, tProp))!)
+                   : (input => (true, DeserializeJsonObjectString(input, tProp))!);
         }
 
         // The 'object' parameter passed into our delegate
@@ -126,10 +134,46 @@ internal static class ReflectionExtensions
         return Expression.Lambda<Func<object?, (bool, object)>>(
             block,
             inputParameter
-            ).Compile();
+        ).Compile();
     }
 
-    private static object? DeserializeArrayString(object? input, Type tProp)
+    private static Func<StringValues, JsonNode?> GetCompiledQueryValueParser(Type tProp)
+    {
+        tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
+        if (tProp == Types.String)
+            return input => input[0];
+
+        if (tProp == Types.Bool)
+            return input => bool.TryParse(input[0], out var res) ? res : input[0];
+
+        if (tProp.IsEnum)
+            return input => Enum.TryParse(tProp, input[0], true, out var res) ? JsonValue.Create(res) : input[0];
+        if (tProp.GetInterfaces().Contains(Types.IEnumerable))
+        {
+            var elementType = tProp.GetGenericArguments().FirstOrDefault();
+            var parser = elementType?.QueryValueParser();
+            return parser is null
+                ? input => new JsonArray().SetValues(input.Cast<JsonNode>())
+                : input => new JsonArray().SetValues(input.Select(x => parser(x)));
+        }
+        return input => input[0];
+
+    }
+
+    private static object? DeserializeJsonObjectString(object? input, Type tProp)
+    {
+        if (input is not StringValues vals || vals.Count == 0)
+            return null;
+
+        if (vals.Count == 1 && vals[0].StartsWith('{') && vals[0].EndsWith('}'))
+        {
+            // {"name":"x","age":24}
+            return JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options);
+        }
+        return null;
+    }
+
+    private static object? DeserializeJsonArrayString(object? input, Type tProp)
     {
         if (input is not StringValues vals || vals.Count == 0)
             return null;
@@ -140,7 +184,7 @@ internal static class ReflectionExtensions
             // possible inputs:
             // - [1,2,3] (as StringValues[0])
             // - ["one","two","three"] (as StringValues[0])
-            // - [{id="1"},{id="2"}] (as StringValues[0])
+            // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
 
             return JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options);
         }
@@ -153,16 +197,24 @@ internal static class ReflectionExtensions
         // - one,two,three (as StringValues)
         // - [1,2], 2, 3 (as StringValues)
         // - ["one","two"], three, four (as StringValues)
+        // - {"name":"x"}, {"name":"y"} (as StringValues) - from swagger ui
 
         var sb = new StringBuilder("[");
         for (var i = 0; i < vals.Count; i++)
         {
-            sb.Append('"')
-              .Append(
-                vals[i].Contains('"') //json strings with quotations must be escaped
-                ? vals[i].Replace("\"", "\\\"")
-                : vals[i])
-              .Append('"');
+            if (vals[i].StartsWith('{') && vals[i].EndsWith('}'))
+            {
+                sb.Append(vals[i]);
+            }
+            else
+            {
+                sb.Append('"')
+                  .Append(
+                    vals[i].Contains('"') //json strings with quotations must be escaped
+                    ? vals[i].Replace("\"", "\\\"")
+                    : vals[i])
+                  .Append('"');
+            }
 
             if (i < vals.Count - 1)
                 sb.Append(',');

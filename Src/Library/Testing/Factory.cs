@@ -15,10 +15,18 @@ public static class Factory
     /// <param name="dependencies">the dependencies of the endpoint if it has injected dependencies</param>
     public static TEndpoint Create<TEndpoint>(DefaultHttpContext httContext, params object?[]? dependencies) where TEndpoint : class, IEndpoint
     {
-        var ep = (BaseEndpoint)Activator.CreateInstance(typeof(TEndpoint), dependencies)!;
-        ep.Definition = new();
-        ep.Configure();
+        var tEndpoint = typeof(TEndpoint);
+        var ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, dependencies)!;
         ep.HttpContext = httContext;
+        ep.Definition = new()
+        {
+            EndpointType = tEndpoint,
+            ReqDtoType = tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest,
+        };
+        ep.Definition.Configure(
+            instance: ep,
+            implementsConfigure: !tEndpoint.IsDefined(Types.HttpAttribute, true),
+            epAttribs: tEndpoint.GetCustomAttributes(true));
         return (ep as TEndpoint)!;
     }
 

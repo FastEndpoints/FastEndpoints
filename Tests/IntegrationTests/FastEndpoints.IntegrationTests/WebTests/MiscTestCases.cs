@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using TestCases.EventHandlingTest;
+using TestCases.RouteBindingTest;
 using Xunit;
 using Xunit.Abstractions;
 using MediaTypeHeaderValue = System.Net.Http.Headers.MediaTypeHeaderValue;
@@ -147,7 +148,7 @@ public class MiscTestCases : EndToEndTestBase
     public async Task RouteValueBinding()
     {
         var (rsp, res) = await GuestClient
-            .POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
+            .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12&CustomList=1;2",
                 new()
                 {
@@ -179,7 +180,7 @@ public class MiscTestCases : EndToEndTestBase
     public async Task RouteValueBindingFromQueryParams()
     {
         var (rsp, res) = await GuestClient
-            .POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
+            .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                 "?Bool=false&String=everything",
                 new()
@@ -250,12 +251,21 @@ public class MiscTestCases : EndToEndTestBase
         var (rsp, res) = await GuestClient
             .GETAsync<TestCases.DupeParamBindingForIEnumerableProps.Request, TestCases.DupeParamBindingForIEnumerableProps.Response>(
             "/api/test-cases/dupe-param-binding-for-ienumerable-props?" +
-            "doubles=123.45&doubles=543.21&" +
-            "dates=2022-01-01&dates=2022-02-02&" +
-            "guids=b01ec302-0adc-4a2b-973d-bbfe639ed9a5&guids=e08664a4-efd8-4062-a1e1-6169c6eac2ab&" +
-            "ints=1&ints=2&ints=3&" +
-            "strings=[1,2]&strings=three&" +
-            "morestrings=[\"one\",\"two\"]&morestrings=three",
+            "doubles=123.45&" +
+            "doubles=543.21&" +
+            "dates=2022-01-01&" +
+            "dates=2022-02-02&" +
+            "guids=b01ec302-0adc-4a2b-973d-bbfe639ed9a5&" +
+            "guids=e08664a4-efd8-4062-a1e1-6169c6eac2ab&" +
+            "ints=1&" +
+            "ints=2&" +
+            "ints=3&" +
+            "strings=[1,2]&" +
+            "strings=three&" +
+            "morestrings=[\"one\",\"two\"]&" +
+            "morestrings=three&" +
+            "persons={\"name\":\"john\",\"age\":45}&" +
+            "persons={\"name\":\"doe\",\"age\":55}",
             new());
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -271,15 +281,25 @@ public class MiscTestCases : EndToEndTestBase
         res?.Strings[0].Should().Be("[1,2]");
         res?.MoreStrings.Length.Should().Be(2);
         res?.MoreStrings[0].Should().Be("[\"one\",\"two\"]");
+        res?.Persons.Count().Should().Be(2);
+        res?.Persons.First().Name.Should().Be("john");
+        res?.Persons.First().Age.Should().Be(45);
+        res?.Persons.Last().Name.Should().Be("doe");
+        res?.Persons.Last().Age.Should().Be(55);
     }
 
     [Fact]
     public async Task BindingFromAttributeUse()
     {
         var (rsp, res) = await GuestClient
-            .POSTAsync<TestCases.RouteBindingTest.Request, TestCases.RouteBindingTest.Response>(
+            .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
-                "?Bool=false&String=everything&XBlank=256",
+                "?Bool=false&String=everything&XBlank=256" +
+                "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                "&child[name]=child name&child[age]=-22" +
+                "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
                 new()
                 {
                     Bool = false,
@@ -289,7 +309,12 @@ public class MiscTestCases : EndToEndTestBase
                     Int = 1,
                     Long = 1,
                     String = "nothing",
-                    Blank = 1
+                    Blank = 1,
+                    Person = new()
+                    {
+                        Age = 50,
+                        Name = "wrong",
+                    }
                 });
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -301,6 +326,78 @@ public class MiscTestCases : EndToEndTestBase
         res?.FromBody.Should().Be("from body value");
         res?.Decimal.Should().Be(123.45m);
         res?.Blank.Should().Be(256);
+        res?.Person.Should().NotBeNull();
+        res?.Person.Should().BeEquivalentTo(new Person
+        {
+            Age = 45,
+            Name = "john",
+            Id = Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"),
+            Child = new()
+            {
+                Age = -22,
+                Name = "child name",
+                Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
+                Strings = new()
+                {
+                    "string1", "string2", "", "strangeString"
+                }
+            },
+            Numbers = new() { 0, 1, -222, 1000, 22 }
+        });
+    }
+
+    [Fact]
+    public async Task BindingObjectFormQueryUse()
+    {
+        var (rsp, res) = await GuestClient
+            .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
+                "api/test-cases/query-object-binding-test" +
+                "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
+                "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
+                "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                "&child[name]=child name&child[age]=-22" +
+                "&CHILD[FavoriteDays]=1&ChiLD[FavoriteDays]=Saturday&CHILD[ISHiddeN]=TruE" +
+                "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
+                new()
+                {
+                });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Should().BeEquivalentTo(
+            new TestCases.QueryObjectBindingTest.Request
+            {
+                Double = 2232.12,
+                Bool = true,
+                Enum = DayOfWeek.Wednesday,
+                String = "everything",
+                Int = 99,
+                Long = 483752874564876,
+                Person = new()
+                {
+                    Age = 45,
+                    Name = "john",
+                    Id = Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"),
+                    FavoriteDay = DayOfWeek.Friday,
+                    ByteEnum = TestCases.QueryObjectBindingTest.ByteEnum.AnotherCheck,
+                    IsHidden = false,
+                    Child = new()
+                    {
+                        Age = -22,
+                        Name = "child name",
+                        Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
+                        Strings = new()
+                        {
+                            "string1", "string2", "", "strangeString"
+                        },
+                        FavoriteDays = new() { DayOfWeek.Monday, DayOfWeek.Saturday },
+                        IsHidden = true
+                    },
+                    Numbers = new() { 0, 1, -222, 1000, 22 }
+                }
+            }
+            );
     }
 
     [Fact]

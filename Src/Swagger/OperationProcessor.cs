@@ -88,11 +88,21 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //fix response content-types not displaying correctly
+        //also set user provided response example
         if (op.Responses.Count > 0)
         {
             var metas = metaData
              .OfType<IProducesResponseTypeMetadata>()
-             .GroupBy(m => m.StatusCode, (k, g) => new { key = k.ToString(), cTypes = g.Last().ContentTypes })
+             .GroupBy(m => m.StatusCode, (k, g) =>
+             {
+                 object? example = null;
+                 var _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
+                 return new {
+                     key = k.ToString(),
+                     cTypes = g.Last().ContentTypes,
+                     example = (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example
+                 };
+             })
              .ToDictionary(x => x.key);
 
             if (metas.Count > 0)
@@ -101,6 +111,7 @@ internal class OperationProcessor : IOperationProcessor
                 {
                     var cTypes = metas[resp.Key].cTypes;
                     var mediaType = resp.Value.Content.FirstOrDefault().Value;
+                    mediaType.Example = metas[resp.Key].example;
                     resp.Value.Content.Clear();
                     foreach (var ct in cTypes)
                         resp.Value.Content.Add(new(ct, mediaType));
@@ -128,7 +139,8 @@ internal class OperationProcessor : IOperationProcessor
           });
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
-        var reqDtoProps = reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);
+        var reqDtoProps = reqDtoIsList is true ? null : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
         var isGETRequest = apiDescription.HttpMethod == "GET";
 
         //store unique request param description (from each consumes/content type) for later use.
@@ -200,7 +212,7 @@ internal class OperationProcessor : IOperationProcessor
                     Name = ActualParamName(m.Value),
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
-                    Schema = JsonSchema.FromType(pType, schemaGeneratorSettings),
+                    Schema = ctx.SchemaGenerator.Generate(pType, ctx.SchemaResolver),
                     Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value)),
                     Default = defaultVal
                 };
@@ -220,7 +232,7 @@ internal class OperationProcessor : IOperationProcessor
                     {
                         Name = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name,
                         IsRequired = !p.IsNullable(),
-                        Schema = JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
+                        Schema = ctx.SchemaGenerator.Generate(p.PropertyType, ctx.SchemaResolver),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name),
                         Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
@@ -232,6 +244,7 @@ internal class OperationProcessor : IOperationProcessor
                 reqParams.AddRange(qParams);
         }
 
+        //add request params depending on [From*] attribute annotations on dto props
         if (reqDtoProps is not null)
         {
             foreach (var p in reqDtoProps)
@@ -246,7 +259,7 @@ internal class OperationProcessor : IOperationProcessor
                         {
                             Name = pName,
                             IsRequired = hAttrib.IsRequired,
-                            Schema = JsonSchema.FromType(p.PropertyType, schemaGeneratorSettings),
+                            Schema = ctx.SchemaGenerator.Generate(p.PropertyType, ctx.SchemaResolver),
                             Kind = OpenApiParameterKind.Header,
                             Description = reqParamDescriptions.GetValueOrDefault(pName),
                             Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
@@ -272,15 +285,19 @@ internal class OperationProcessor : IOperationProcessor
             op.Parameters.Add(p);
 
         //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body)
-        //or if there are no properties left after above operations
+        //or if there are no properties left on the request dto after above operations
+        //only if the request dto is not a list
         if (isGETRequest ||
            (op.RequestBody?.Content.SelectMany(c => c.Value.Schema.ActualSchema.ActualProperties).Any() == false &&
            !op.RequestBody.Content.Where(c => c.Value.Schema.ActualSchema.InheritedSchema is not null).SelectMany(c => c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties).Any() &&
            !op.RequestBody.Content.SelectMany(c => c.Value.Schema.ActualSchema.AllOf.SelectMany(s => s.Properties)).Any()))
         {
-            op.RequestBody = null;
-            foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
-                op.Parameters.Remove(body);
+            if (reqDtoIsList is false)
+            {
+                op.RequestBody = null;
+                foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
+                    op.Parameters.Remove(body);
+            }
         }
 
         if (removeEmptySchemas)
@@ -306,7 +323,7 @@ internal class OperationProcessor : IOperationProcessor
                 {
                     Name = fromBodyProp.Name,
                     IsRequired = true,
-                    Schema = ctx.ResolveSchema(fromBodyProp.PropertyType),
+                    Schema = ctx.SchemaGenerator.Generate(fromBodyProp.PropertyType, ctx.SchemaResolver),
                     Kind = OpenApiParameterKind.Body,
                     Description = reqParamDescriptions.GetValueOrDefault(fromBodyProp.Name),
                     Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value

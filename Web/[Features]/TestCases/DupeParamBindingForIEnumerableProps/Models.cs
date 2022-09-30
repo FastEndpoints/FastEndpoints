@@ -8,6 +8,13 @@ public class Request
     public IEnumerable<int> Ints { get; set; }
     public List<Guid> Guids { get; set; }
     public ICollection<DateTime> Dates { get; set; }
+    public IEnumerable<Person> Persons { get; set; }
+
+    public class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
 }
 
 public class Response : Request

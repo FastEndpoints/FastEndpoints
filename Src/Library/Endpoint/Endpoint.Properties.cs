@@ -15,7 +15,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private string _baseURL;
     private ILogger _logger;
     private IWebHostEnvironment _env;
-    private TResponse? _response;
+    private TResponse _response;
 
     /// <summary>
     /// indicates if there are any validation failures for the current request
@@ -30,7 +30,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// the response that is sent to the client.
     /// </summary>
-    public TResponse? Response {
+    public TResponse Response {
         get => _response is null ? InitResponseDTO() : _response;
         set => _response = value;
     }
@@ -77,6 +77,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private static readonly JsonArray emptyArray = new();
     private TResponse InitResponseDTO()
     {
+        if (isStringResponse) //otherwise strings are detected as IEnumerable of chars
+            return default!;
+
         _response = JsonSerializer.Deserialize<TResponse>(
             isCollectionResponse ? emptyArray : emptyObject,
             SerOpts.Options)!;

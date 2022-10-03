@@ -16,6 +16,7 @@
 - add `EndpointVersion()` method to `EndpointDefinition` for use with global config #209
 - filtering (endpoint inclusion) for swagger documents #252
 - specify response examples with `EndpointSummary` #205
+- `TokenValidationParameters` config action argument for `AddAuthenticationJWTBearer()` method #268
 
 ### FIXES
 - pre/post processor collection modification bug #224

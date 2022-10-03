@@ -10,6 +10,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 {
     private static readonly Type tRequest = typeof(TRequest);
     private static readonly Type tResponse = typeof(TResponse);
+    private static readonly bool isStringResponse = tResponse.IsAssignableFrom(Types.String);
     private static readonly bool isCollectionResponse = tResponse.IsAssignableTo(Types.IEnumerable);
 
     /// <summary>

@@ -67,15 +67,9 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         if (validatorTypes?.Length is null or 0)
             return;
 
-        if (context is null)
-        {
-            _logger?.LogError("SchemaProcessorContext is null");
-            return;
-        }
-
         var tRequest = context.ContextualType;
 
-        foreach (var tValidator in validatorTypes!)
+        foreach (var tValidator in validatorTypes)
         {
             try
             {
@@ -156,7 +150,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             {
                 // Get underlying validator using reflection
                 var validatorTypeObj = propertyValidator.GetType()
-                    ?.GetProperty("ValidatorType")
+                    .GetProperty("ValidatorType")
                     ?.GetValue(propertyValidator);
                 // Check if something went wrong
                 if (validatorTypeObj is null || validatorTypeObj is not Type validatorType)
@@ -195,8 +189,6 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Apply = context =>
             {
                 var schema = context.Schema;
-                if (schema == null)
-                    return;
                 if (!schema.RequiredProperties.Contains(context.PropertyKey))
                     schema.RequiredProperties.Add(context.PropertyKey);
             }

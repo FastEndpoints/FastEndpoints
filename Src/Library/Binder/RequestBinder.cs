@@ -183,28 +183,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         else
         {
             var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
-            foreach (var kvp in query.OrderBy(kvp => kvp.Key))
-            {
-                if (!fromQueryParamsProp.Properties.TryGetValue(kvp.Key, out var type))
-                {
-                    Bind(req, kvp, failures);
-                    continue;
-                }
-                var parser = type.QueryValueParser();
-                var startIndex = kvp.Key.IndexOf('.');
-                if (startIndex > 0)
-                {
-                    var key = kvp.Key[..startIndex];
-                    if (!obj.ContainsKey(key)) obj[key] = new JsonObject();
-                    var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 1).Split('.');
-                    obj[key]!.GetOrCreateLastNode(nestedProps)[nestedProps[^1]] = parser(kvp.Value);
-                }
-                else
-                {
-                    obj[kvp.Key] = parser(kvp.Value);
-                }
-            }
-
+            var sortedDic = new SortedDictionary<string, StringValues>(query.ToDictionary(x => x.Key, x => x.Value), StringComparer.OrdinalIgnoreCase);
+            fromQueryParamsProp.JsonSetter(sortedDic, obj);
             fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
         }
     }
@@ -368,36 +348,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter,
-            Properties = GetExpectedQueryParams(
-                propInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy), null)
+            JsonSetter = propInfo.PropertyType.QueryObjectSetter()
         };
         return false;
     }
 
-    private static IReadOnlyDictionary<string, Type> GetExpectedQueryParams(PropertyInfo[] propertyInfos, string? parentName)
-    {
-        var dictionary = new SortedDictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var prop in propertyInfos)
-        {
-            var propName = parentName == null ? prop.Name : $"{parentName}.{prop.Name}";
-            var type = prop.PropertyType;
-            var nestedProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-
-            if (!type.IsEnum &&
-                 type != Types.String &&
-                 type != Types.Bool &&
-                !type.GetInterfaces().Contains(Types.IEnumerable) &&
-                 nestedProps.Length > 0)
-            {
-                foreach (var nestedProp in GetExpectedQueryParams(nestedProps, propName))
-                    dictionary.Add(nestedProp.Key, nestedProp.Value);
-            }
-            else
-            {
-                dictionary.Add(propName, type);
-            }
-        }
-        return dictionary;
-    }
 }

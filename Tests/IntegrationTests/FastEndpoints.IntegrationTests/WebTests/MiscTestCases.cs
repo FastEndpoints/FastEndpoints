@@ -296,10 +296,10 @@ public class MiscTestCases : EndToEndTestBase
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                 "?Bool=false&String=everything&XBlank=256" +
                 "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
-                "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                "&numbers[0]=0&numbers[1]=1&numbers[2]=-222&numbers[3]=1000&numbers[4]=22" +
                 "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
                 "&child.name=child name&child.age=-22" +
-                "&child.strings=string1&child.strings=string2&child.strings=&child.strings=strangeString",
+                "&child.strings[0]=string1&child.strings[1]=string2&child.strings[2]=&child.strings[3]=strangeString",
                 new()
                 {
                     Bool = false,
@@ -354,12 +354,12 @@ public class MiscTestCases : EndToEndTestBase
                 "api/test-cases/query-object-binding-test" +
                 "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
                 "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
-                "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                "&numbers[0]=0&numbers[1]=1&numbers[2]=-222&numbers[3]=1000&numbers[5]=22" +
                 "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
                 "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
                 "&child.name=child name&child.age=-22" +
-                "&CHILD.FavoriteDays=1&ChiLD.FavoriteDays=Saturday&CHILD.ISHiddeN=TruE" +
-                "&child.strings=string1&child.strings=string2&child.strings=&child.strings=strangeString",
+                "&CHILD.FavoriteDays[0]=1&ChiLD.FavoriteDays[1]=Saturday&CHILD.ISHiddeN=TruE" +
+                "&child.strings[0]=string1&child.strings[1]=string2&child.strings[2]=&child.strings[3]=strangeString",
                 new()
                 {
                 });

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -69,8 +70,23 @@ internal static class ReflectionExtensions
         return parsers.GetOrAdd(type, GetCompiledValueParser);
     }
 
-    private static readonly ConcurrentDictionary<Type, Func<StringValues, JsonNode?>> queryParsers = new();
-    internal static Func<StringValues, JsonNode?> QueryValueParser(this Type type)
+    private static readonly ConcurrentDictionary<Type, Action<IDictionary<string, StringValues>, JsonObject>> queryObjects = new();
+    internal static Action<IDictionary<string, StringValues>, JsonObject> QueryObjectSetter(this Type type)
+    {
+
+        var props = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+        var setters = props.Select(prop => prop.PropertyType.GetCompiledQueryObjectSetter(prop.Name)).ToArray();
+        Action<IDictionary<string, StringValues>, JsonObject>  action = (queryString, obj) =>
+        {
+            foreach (var setter in setters)
+            {
+                setter(queryString, obj, null);
+            }
+        };
+        return queryObjects.GetOrAdd(type, action);
+    }
+    private static readonly ConcurrentDictionary<Type, Func<string, JsonNode?>> queryParsers = new();
+    private static Func<string, JsonNode?> QueryValueParser(this Type type)
     {
         // almost the same parser logic but for nested query params
         return queryParsers.GetOrAdd(type, GetCompiledQueryValueParser);
@@ -137,27 +153,116 @@ internal static class ReflectionExtensions
         ).Compile();
     }
 
-    private static Func<StringValues, JsonNode?> GetCompiledQueryValueParser(Type tProp)
+    private static Action<IDictionary<string, StringValues>, JsonObject, string?> GetCompiledQueryObjectSetter(this Type tProp, string propName)
     {
         tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
-        if (tProp == Types.String)
-            return input => input[0];
+        if (!tProp.IsEnum && tProp != Types.String && tProp != Types.Bool)
+        {
+            if (tProp.GetInterfaces().Contains(Types.IEnumerable))
+            {
+                var arraySetter = tProp.GetCompiledQueryArraySetter();
+                if (arraySetter != null)
+                {
+                    return (queryString, parent, route) =>
+                    {
+                        var array = new JsonArray();
+                        parent[propName] = array;
+                        route = route != null ? $"{route}.{propName}" : propName;
+                        var keysCount = queryString.Count(x => x.Key.StartsWith(route + "[", StringComparison.OrdinalIgnoreCase));
+                        if (keysCount > 0)
+                        {
+                            for(var i=0; i < keysCount; i++)
+                            {
+                                arraySetter(queryString, array, i, route);
+                            }
+                        }
+                    };
+                }
+            }
+            var props = tProp.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+            if (props.Any())
+            {
+                var setters = props.Select(prop => prop.PropertyType.GetCompiledQueryObjectSetter(prop.Name)).ToArray();
 
+                return (queryString, parent, route) =>
+                {
+                    var obj = new JsonObject();
+                    parent[propName] = obj;
+                    foreach (var setter in setters)
+                    {
+                        setter(queryString, obj, route != null ? $"{route}.{propName}" : propName);
+                    }
+                };
+            }
+
+        }
+        var parser = tProp.QueryValueParser();
+
+        return (queryString, parent, route) => parent[propName] = queryString.TryGetValue(route != null ? $"{route}.{propName}" : propName, out var values)
+            ? parser(values[0]!) : null;
+
+    }
+    private static Func<string, JsonNode?> GetCompiledQueryValueParser(Type tProp)
+    {
         if (tProp == Types.Bool)
-            return input => bool.TryParse(input[0], out var res) ? res : input[0];
+            return input => bool.TryParse(input, out var res) ? res : input;
 
         if (tProp.IsEnum)
-            return input => Enum.TryParse(tProp, input[0], true, out var res) ? JsonValue.Create(res) : input[0];
-        if (tProp.GetInterfaces().Contains(Types.IEnumerable))
-        {
-            var elementType = tProp.GetGenericArguments().FirstOrDefault();
-            var parser = elementType?.QueryValueParser();
-            return parser is null
-                ? input => new JsonArray().SetValues(input.Cast<JsonNode>())
-                : input => new JsonArray().SetValues(input.Select(x => parser(x)));
-        }
-        return input => input[0];
+            return input => Enum.TryParse(tProp, input, true, out var res) ? JsonValue.Create(res) : input;
+        return input => input;
+    }
 
+    private static Action<IDictionary<string, StringValues>, JsonArray, int, string>? GetCompiledQueryArraySetter(this Type tProp)
+    {
+        var elType = tProp.GetGenericArguments().FirstOrDefault();
+        if (elType == null)
+            return null;
+
+        if (!elType.IsEnum && elType != Types.String && elType != Types.Bool)
+        {
+            if (elType.GetInterfaces().Contains(Types.IEnumerable))
+            {
+                var setter = GetCompiledQueryArraySetter(elType);
+                if (setter == null)
+                    return null;
+                return (queryString, parent, index, route) =>
+                {
+                    var array = new JsonArray();
+                    parent.Add(array);
+                    route += $"[{index}]";
+                    var keysCount = queryString.Count(x => x.Key.StartsWith(route, StringComparison.OrdinalIgnoreCase));
+                    if (keysCount > 0)
+                    {
+                        for (var i = 0; i < keysCount; i++)
+                        {
+                            setter(queryString, array, i++, route);
+                        }
+                    }
+                };
+            }
+            var props = tProp.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+            if (props.Any())
+            {
+                var setters = props.Select(prop => prop.PropertyType.GetCompiledQueryObjectSetter(prop.Name)).ToArray();
+
+                return (queryString, parent, index, route) =>
+                {
+                    var obj = new JsonObject();
+                    parent.Add(obj);
+                    foreach (var setter in setters)
+                    {
+                        setter(queryString, obj, route);
+                    }
+                };
+            }
+        }
+        return (queryString, parent, index, route) =>
+        {
+            if (queryString.TryGetValue($"{route}[{index}]", out var values))
+            {
+                parent.Add(values[0]);
+            }
+        };
     }
 
     private static object? DeserializeJsonObjectString(object? input, Type tProp)

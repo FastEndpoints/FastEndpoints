@@ -175,14 +175,12 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         if (query.Count == 0) return;
 
-        if (fromQueryParamsProp is null)
+        foreach (var kvp in query)
+            Bind(req, kvp, failures);
+
+        if (fromQueryParamsProp is not null)
         {
-            foreach (var kvp in query)
-                Bind(req, kvp, failures);
-        }
-        else
-        {
-            var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
+            var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true }) ;
             var sortedDic = new SortedDictionary<string, StringValues>(query.ToDictionary(x => x.Key, x => x.Value), StringComparer.OrdinalIgnoreCase);
             fromQueryParamsProp.JsonSetter(sortedDic, obj);
             fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);

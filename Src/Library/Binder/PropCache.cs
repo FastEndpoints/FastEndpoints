@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
+﻿using Microsoft.Extensions.Primitives;
 using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
@@ -12,7 +11,7 @@ internal class PropCache
 
 internal class QueryPropCacheEntry : PropCache
 {
-    public Action<IDictionary<string, StringValues>, JsonObject> JsonSetter { get; init; }
+    public Action<IReadOnlyDictionary<string, StringValues>, JsonObject> JsonSetter { get; init; }
 }
 
 internal class PrimaryPropCacheEntry : PropCache

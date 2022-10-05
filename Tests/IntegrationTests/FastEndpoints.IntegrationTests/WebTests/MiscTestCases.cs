@@ -347,14 +347,14 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
-    public async Task BindingObjectFormQueryUse()
+    public async Task BindingObjectFromQueryUse()
     {
         var (rsp, res) = await GuestClient
             .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
                 "api/test-cases/query-object-binding-test" +
                 "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
                 "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
-                "&numbers[0]=0&numbers[1]=1&numbers[2]=-222&numbers[3]=1000&numbers[5]=22" +
+                "&numbers[0]=0&numbers[1]=1&numbers[2]=-222&numbers[3]=1000&numbers[4]=22" +
                 "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
                 "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
                 "&child.name=child name&child.age=-22" +

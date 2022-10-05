@@ -180,18 +180,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         if (fromQueryParamsProp is not null)
         {
-            try
-            {
-
-                var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
-                var sortedDic = new SortedDictionary<string, StringValues>(query.ToDictionary(x => x.Key, x => x.Value), StringComparer.OrdinalIgnoreCase);
-                fromQueryParamsProp.JsonSetter(sortedDic, obj);
-                fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
-            }
-            catch (Exception ex)
-            {
-
-            }
+            var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
+            var sortedDic = new SortedDictionary<string, StringValues>(query.ToDictionary(x => x.Key, x => x.Value), StringComparer.OrdinalIgnoreCase);
+            fromQueryParamsProp.JsonSetter(sortedDic, obj);
+            fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
         }
     }
 

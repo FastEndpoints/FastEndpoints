@@ -23,6 +23,7 @@
 using FastEndpoints.Swagger.ValidationProcessor;
 using FastEndpoints.Swagger.ValidationProcessor.Extensions;
 using FluentValidation;
+using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -100,6 +101,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         // Create dict of rules for this validator
         var rulesDict = validator.GetDictionaryOfRules();
         ApplyRulesToSchema(schema, rulesDict, propertyPrefix);
+        ApplyRulesFromIncludedValidators(schema, validator);
     }
 
     private void ApplyRulesToSchema(JsonSchema? schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict, string propertyPrefix)
@@ -116,6 +118,37 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 
         // Add properties from base class
         ApplyRulesToSchema(schema.InheritedSchema, rulesDict, propertyPrefix);
+    }
+
+    private void ApplyRulesFromIncludedValidators(JsonSchema schema, IValidator validator)
+    {
+        if (validator is not IEnumerable<IValidationRule> rules) return;
+
+        // Note: IValidatorDescriptor doesn't return IncludeRules so we need to get validators manually.
+        var childAdapters = rules
+           .Where(rule => rule.HasNoCondition() && rule is IIncludeRule)
+           .SelectMany(includeRule => includeRule.Components.Select(c => c.Validator))
+           .Where(x => x.GetType().IsGenericType && x.GetType().GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>))
+           .ToList();
+
+        foreach (var adapter in childAdapters)
+        {
+            var adapterMethod = adapter.GetType().GetMethod("GetValidator");
+            if (adapterMethod == null) continue;
+
+            // Create validation context of generic type
+            var validationContext = Activator.CreateInstance(
+                adapterMethod.GetParameters().First().ParameterType, new object[] { null! }
+            );
+
+            if (adapterMethod.Invoke(adapter, new[] { validationContext, null! }) is not IValidator includeValidator)
+            {
+                break;
+            }
+
+            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(), string.Empty);
+            ApplyRulesFromIncludedValidators(schema, includeValidator);
+        }
     }
 
     private void TryApplyValidation(JsonSchema schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,

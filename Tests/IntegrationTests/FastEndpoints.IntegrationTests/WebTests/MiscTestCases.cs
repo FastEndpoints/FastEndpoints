@@ -400,6 +400,117 @@ public class MiscTestCases : EndToEndTestBase
             );
     }
 
+
+
+    [Fact]
+    public async Task BindingFromAttributeUseSwaggerUiStyle()
+    {
+        var (rsp, res) = await GuestClient
+            .POSTAsync<Request, Response>(
+                "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
+                "?Bool=false&String=everything&XBlank=256" +
+                "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                "&child[name]=child name&child[age]=-22" +
+                "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
+                new()
+                {
+                    Bool = false,
+                    DecimalNumber = 1,
+                    Double = 1,
+                    FromBody = "from body value",
+                    Int = 1,
+                    Long = 1,
+                    String = "nothing",
+                    Blank = 1,
+                    Person = new()
+                    {
+                        Age = 50,
+                        Name = "wrong",
+                    }
+                });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.String.Should().Be("everything");
+        res?.Bool.Should().BeFalse();
+        res?.Int.Should().Be(99);
+        res?.Long.Should().Be(483752874564876);
+        res?.Double.Should().Be(2232.12);
+        res?.FromBody.Should().Be("from body value");
+        res?.Decimal.Should().Be(123.45m);
+        res?.Blank.Should().Be(256);
+        res?.Person.Should().NotBeNull();
+        res?.Person.Should().BeEquivalentTo(new Person
+        {
+            Age = 45,
+            Name = "john",
+            Id = Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"),
+            Child = new()
+            {
+                Age = -22,
+                Name = "child name",
+                Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
+                Strings = new()
+                {
+                    "string1", "string2", "", "strangeString"
+                }
+            },
+            Numbers = new() { 0, 1, -222, 1000, 22 }
+        });
+    }
+
+    [Fact]
+    public async Task BindingObjectFromQueryUseSwaggerUiStyle()
+    {
+        var (rsp, res) = await GuestClient
+            .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
+                "api/test-cases/query-object-binding-test" +
+                "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
+                "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
+                "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                "&child[name]=child name&child[age]=-22" +
+                "&CHILD[FavoriteDays]=1&ChiLD[FavoriteDays]=Saturday&CHILD[ISHiddeN]=TruE" +
+                "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
+                new());
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Should().BeEquivalentTo(
+            new TestCases.QueryObjectBindingTest.Request
+            {
+                Double = 2232.12,
+                Bool = true,
+                Enum = DayOfWeek.Wednesday,
+                String = "everything",
+                Int = 99,
+                Long = 483752874564876,
+                Person = new()
+                {
+                    Age = 45,
+                    Name = "john",
+                    Id = Guid.Parse("10c225a6-9195-4596-92f5-c1234cee4de7"),
+                    FavoriteDay = DayOfWeek.Friday,
+                    ByteEnum = TestCases.QueryObjectBindingTest.ByteEnum.AnotherCheck,
+                    IsHidden = false,
+                    Child = new()
+                    {
+                        Age = -22,
+                        Name = "child name",
+                        Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
+                        Strings = new()
+                        {
+                            "string1", "string2", "", "strangeString"
+                        },
+                        FavoriteDays = new() { DayOfWeek.Monday, DayOfWeek.Saturday },
+                        IsHidden = true
+                    },
+                    Numbers = new() { 0, 1, -222, 1000, 22 }
+                }
+            }
+            );
+    }
     [Fact]
     public async Task TestEventHandling()
     {

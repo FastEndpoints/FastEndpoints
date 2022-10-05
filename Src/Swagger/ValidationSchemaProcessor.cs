@@ -178,7 +178,8 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         {
             var propertyValidator = ruleComponent.Validator;
 
-            // 1. If the propertyValidator is a ChildValidatorAdaptor (RuleFor(....).SetValidator(new MyChildValidator())), we need to get the underlying validator
+            // 1. If the propertyValidator is a ChildValidatorAdaptor we need to get the underlying validator
+            // i.e. for RuleFor().SetValidator() or RuleForEach().SetValidator()
             if (propertyValidator.Name == "ChildValidatorAdaptor")
             {
                 // Get underlying validator using reflection
@@ -186,7 +187,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
                     .GetProperty("ValidatorType")
                     ?.GetValue(propertyValidator);
                 // Check if something went wrong
-                if (validatorTypeObj is null || validatorTypeObj is not Type validatorType)
+                if (validatorTypeObj is not Type validatorType)
                     throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
 
                 // Retrieve or create an instance of the validator
@@ -194,7 +195,10 @@ public class ValidationSchemaProcessor : ISchemaProcessor
                     childValidator = _childAdaptorValidators[validatorType.FullName!] = (IValidator)Activator.CreateInstance(validatorType)!;
 
                 // Apply the validator to the schema. Again, recursively
-                ApplyValidator(schema.ActualProperties[propertyName].ActualSchema, childValidator, "");
+                var childSchema = schema.ActualProperties[propertyName].ActualSchema;
+                // Check if it is an array (RuleForEach()). In this case we need to apply validator to an Item Schema
+                childSchema = childSchema.Type == JsonObjectType.Array ? childSchema.Item.ActualSchema : childSchema;
+                ApplyValidator(childSchema, childValidator, string.Empty);
 
                 continue;
             }

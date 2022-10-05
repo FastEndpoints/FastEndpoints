@@ -273,10 +273,12 @@ internal static class ReflectionExtensions
                 {
                     var obj = new JsonObject();
                     parent.Add(obj);
-                    foreach (var setter in setters)
-                    {
-                        setter(queryString, obj, route, swaggerStyle);
-                    }
+
+                    var keysCount = queryString.Count(x => x.Key.StartsWith(route, StringComparison.OrdinalIgnoreCase));
+                    if (keysCount > 0)
+                        for (var i = 0; i < keysCount; i++)
+                            foreach (var setter in setters)
+                                setter(queryString, obj, $"{route}[{i}]", swaggerStyle);
                 };
             }
         }
@@ -299,7 +301,6 @@ internal static class ReflectionExtensions
         {
             if (swaggerStyle)
             {
-
                 if (queryString.TryGetValue(route, out var values))
                     foreach (var value in values)
                         parent.Add(parser(value));

@@ -401,6 +401,107 @@ public class MiscTestCases : EndToEndTestBase
     }
 
 
+    [Fact]
+    public async Task BindingArraysOfObjectsFromQueryUse()
+    {
+        var (rsp, res) = await GuestClient
+            .GETAsync<TestCases.QueryObjectWithObjectsArrayBindingTest.Request, TestCases.QueryObjectWithObjectsArrayBindingTest.Response>(
+                "api/test-cases/query-arrays-of-objects-binding-test" +
+                "?ArraysOfObjects[0][0].String=test&ArraysOfObjects[0][0].Bool=true&ArraysOfObjects[0][0].Double=22.22&ArraysOfObjects[0][0].Enum=4" +
+                "&ArraysOfObjects[0][0].Int=31&ArraysOfObjects[0][0].Long=22" +
+                "&ArraysOfObjects[0][1].String=test2&ArraysOfObjects[0][1].Enum=Wednesday" +
+                "&ArraysOfObjects[1][0].String=test2&ArraysOfObjects[1][0].Enum=3" +
+                "&Child.Objects[0].String=test&Child.Objects[0].Bool=true&Child.Objects[0].Double=22.22&Child.Objects[0].Enum=4" +
+                "&Child.Objects[0].Int=31&Child.Objects[0].Long=22" +
+                "&Child.Objects[1].String=test2&Child.Objects[1].Enum=Wednesday" +
+                "&Objects[0].String=test&Objects[0].Bool=true&Objects[0].Double=22.22&Objects[0].Enum=4" +
+                "&Objects[0].Int=31&Objects[0].Long=22" +
+                "&Objects[1].String=test2&Objects[1].Enum=Wednesday",
+                
+                new()
+                {
+                });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Should().BeEquivalentTo(
+            new TestCases.QueryObjectWithObjectsArrayBindingTest.Request
+            {
+                Person = new()
+                {
+                    ArraysOfObjects = new()
+                    {
+                        new TestCases.QueryObjectWithObjectsArrayBindingTest.ObjectInArray[]
+                        {
+                            new()
+                            {
+                                String = "test",
+                                Bool = true,
+                                Double = 22.22,
+                                Enum = DayOfWeek.Thursday,
+                                Int = 31,
+                                Long = 22
+                            },
+
+                            new()
+                            {
+                                String = "test2",
+                                Enum = DayOfWeek.Wednesday
+                            }
+                        },
+
+                        new TestCases.QueryObjectWithObjectsArrayBindingTest.ObjectInArray[]
+                        {
+                            new()
+                            {
+                                String = "test2",
+                                Enum = DayOfWeek.Wednesday
+                            }
+                        }
+                    },
+                    Child = new()
+                    {
+                        Objects = new()
+                        {
+                            new()
+                            {
+                                String = "test",
+                                Bool = true,
+                                Double = 22.22,
+                                Enum = DayOfWeek.Thursday,
+                                Int = 31,
+                                Long = 22
+                            },
+
+                            new()
+                            {
+                                String = "test2",
+                                Enum = DayOfWeek.Wednesday
+                            }
+                        }
+                    },
+                    Objects = new()
+                    {
+
+                            new()
+                            {
+                                String = "test",
+                                Bool = true,
+                                Double = 22.22,
+                                Enum = DayOfWeek.Thursday,
+                                Int = 31,
+                                Long = 22
+                            },
+
+                            new()
+                            {
+                                String = "test2",
+                                Enum = DayOfWeek.Wednesday
+                            }
+                    }
+                }
+            }
+        );
+    }
 
     [Fact]
     public async Task BindingFromAttributeUseSwaggerUiStyle()

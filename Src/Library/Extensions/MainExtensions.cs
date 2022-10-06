@@ -275,7 +275,7 @@ public static class MainExtensions
             {
                 b.RequireAuthenticatedUser();
 
-                if (ep.AllowedPermissions?.Length > 0)
+                if (ep.AllowedPermissions?.Count > 0)
                 {
                     if (ep.AllowAnyPermission)
                     {
@@ -294,7 +294,7 @@ public static class MainExtensions
                     }
                 }
 
-                if (ep.AllowedClaimTypes?.Length > 0)
+                if (ep.AllowedClaimTypes?.Count > 0)
                 {
                     if (ep.AllowAnyClaim)
                     {

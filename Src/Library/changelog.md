@@ -34,3 +34,4 @@
 - json object array string binding of requests from swagger ui
 - remove `notnull` constraint from `TResponse` generic argument of endpoint class
 - `Logger` endpoint property now uses `ILoggerFactory` to create loggers
+- apply validation rules from included validators #270

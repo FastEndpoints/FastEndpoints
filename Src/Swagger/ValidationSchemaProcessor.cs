@@ -23,6 +23,7 @@
 using FastEndpoints.Swagger.ValidationProcessor;
 using FastEndpoints.Swagger.ValidationProcessor.Extensions;
 using FluentValidation;
+using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,15 +68,9 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         if (validatorTypes?.Length is null or 0)
             return;
 
-        if (context is null)
-        {
-            _logger?.LogError("SchemaProcessorContext is null");
-            return;
-        }
-
         var tRequest = context.ContextualType;
 
-        foreach (var tValidator in validatorTypes!)
+        foreach (var tValidator in validatorTypes)
         {
             try
             {
@@ -106,6 +101,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         // Create dict of rules for this validator
         var rulesDict = validator.GetDictionaryOfRules();
         ApplyRulesToSchema(schema, rulesDict, propertyPrefix);
+        ApplyRulesFromIncludedValidators(schema, validator);
     }
 
     private void ApplyRulesToSchema(JsonSchema? schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict, string propertyPrefix)
@@ -122,6 +118,37 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 
         // Add properties from base class
         ApplyRulesToSchema(schema.InheritedSchema, rulesDict, propertyPrefix);
+    }
+
+    private void ApplyRulesFromIncludedValidators(JsonSchema schema, IValidator validator)
+    {
+        if (validator is not IEnumerable<IValidationRule> rules) return;
+
+        // Note: IValidatorDescriptor doesn't return IncludeRules so we need to get validators manually.
+        var childAdapters = rules
+           .Where(rule => rule.HasNoCondition() && rule is IIncludeRule)
+           .SelectMany(includeRule => includeRule.Components.Select(c => c.Validator))
+           .Where(x => x.GetType().IsGenericType && x.GetType().GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>))
+           .ToList();
+
+        foreach (var adapter in childAdapters)
+        {
+            var adapterMethod = adapter.GetType().GetMethod("GetValidator");
+            if (adapterMethod == null) continue;
+
+            // Create validation context of generic type
+            var validationContext = Activator.CreateInstance(
+                adapterMethod.GetParameters().First().ParameterType, new object[] { null! }
+            );
+
+            if (adapterMethod.Invoke(adapter, new[] { validationContext, null! }) is not IValidator includeValidator)
+            {
+                break;
+            }
+
+            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(), string.Empty);
+            ApplyRulesFromIncludedValidators(schema, includeValidator);
+        }
     }
 
     private void TryApplyValidation(JsonSchema schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
@@ -151,15 +178,16 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         {
             var propertyValidator = ruleComponent.Validator;
 
-            // 1. If the propertyValidator is a ChildValidatorAdaptor (RuleFor(....).SetValidator(new MyChildValidator())), we need to get the underlying validator
+            // 1. If the propertyValidator is a ChildValidatorAdaptor we need to get the underlying validator
+            // i.e. for RuleFor().SetValidator() or RuleForEach().SetValidator()
             if (propertyValidator.Name == "ChildValidatorAdaptor")
             {
                 // Get underlying validator using reflection
                 var validatorTypeObj = propertyValidator.GetType()
-                    ?.GetProperty("ValidatorType")
+                    .GetProperty("ValidatorType")
                     ?.GetValue(propertyValidator);
                 // Check if something went wrong
-                if (validatorTypeObj is null || validatorTypeObj is not Type validatorType)
+                if (validatorTypeObj is not Type validatorType)
                     throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
 
                 // Retrieve or create an instance of the validator
@@ -167,7 +195,10 @@ public class ValidationSchemaProcessor : ISchemaProcessor
                     childValidator = _childAdaptorValidators[validatorType.FullName!] = (IValidator)Activator.CreateInstance(validatorType)!;
 
                 // Apply the validator to the schema. Again, recursively
-                ApplyValidator(schema.ActualProperties[propertyName].ActualSchema, childValidator, "");
+                var childSchema = schema.ActualProperties[propertyName].ActualSchema;
+                // Check if it is an array (RuleForEach()). In this case we need to apply validator to an Item Schema
+                childSchema = childSchema.Type == JsonObjectType.Array ? childSchema.Item.ActualSchema : childSchema;
+                ApplyValidator(childSchema, childValidator, string.Empty);
 
                 continue;
             }
@@ -195,8 +226,6 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             Apply = context =>
             {
                 var schema = context.Schema;
-                if (schema == null)
-                    return;
                 if (!schema.RequiredProperties.Contains(context.PropertyKey))
                     schema.RequiredProperties.Add(context.PropertyKey);
             }

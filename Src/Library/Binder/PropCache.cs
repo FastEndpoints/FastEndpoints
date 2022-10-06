@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-using System.Text.Json.Nodes;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 internal class PropCache
 {
@@ -9,10 +6,12 @@ internal class PropCache
     public Action<object, object> PropSetter { get; init; }
 }
 
-internal class QueryPropCacheEntry : PropCache
-{
-    public Action<IReadOnlyDictionary<string, StringValues>, JsonObject> JsonSetter { get; init; }
-}
+//NOTE: no point in caching because all reflection happens on each request everytime with this implementation
+
+//internal class QueryPropCacheEntry : PropCache
+//{
+//    public Action<IReadOnlyDictionary<string, StringValues>, JsonObject> JsonSetter { get; init; }
+//}
 
 internal class PrimaryPropCacheEntry : PropCache
 {

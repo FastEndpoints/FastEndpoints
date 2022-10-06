@@ -401,7 +401,7 @@ public class MiscTestCases : EndToEndTestBase
     }
 
 
-    [Fact]
+    //[Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
         var (rsp, res) = await GuestClient
@@ -417,7 +417,7 @@ public class MiscTestCases : EndToEndTestBase
                 "&Objects[0].String=test&Objects[0].Bool=true&Objects[0].Double=22.22&Objects[0].Enum=4" +
                 "&Objects[0].Int=31&Objects[0].Long=22" +
                 "&Objects[1].String=test2&Objects[1].Enum=Wednesday",
-                
+
                 new()
                 {
                 });

@@ -21,7 +21,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
     private static PropCache? fromBodyProp;
-    private static QueryPropCacheEntry? fromQueryParamsProp;
+    private static PropCache? fromQueryParamsProp;
     private static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
@@ -180,18 +180,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         if (fromQueryParamsProp is not null)
         {
+            var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
+            var sortedDic = new SortedDictionary<string, StringValues>(
+                query.ToDictionary(x => x.Key, x => x.Value),
+                StringComparer.OrdinalIgnoreCase);
+            fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj);
             try
             {
-
-                var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
-                var sortedDic = new SortedDictionary<string, StringValues>(query.ToDictionary(x => x.Key, x => x.Value), StringComparer.OrdinalIgnoreCase);
-                fromQueryParamsProp.JsonSetter(sortedDic, obj);
                 fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
             }
-            catch (Exception ex)
-            {
-
-            }
+            catch { }
         }
     }
 
@@ -354,9 +352,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter,
-            JsonSetter = propInfo.PropertyType.QueryObjectSetter()
+            //JsonSetter = propInfo.PropertyType.QueryObjectSetter()
         };
         return false;
     }
-
 }

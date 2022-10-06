@@ -1,5 +1,6 @@
 ### CHANGES
 - signature of global error response builder func has changed to include the `HttpContext` #220 #230
+- security related methods such as `ep.Roles(...)` in global config will now compound what's being done in the endpoint config [#info](https://discord.com/channels/933662816458645504/951481851980177418/1027626501975322694)
 
 ### NEW
 - support .net 7.0 via multi targetting
@@ -33,3 +34,5 @@
 - swagger schema resolving
 - json object array string binding of requests from swagger ui
 - remove `notnull` constraint from `TResponse` generic argument of endpoint class
+- `Logger` endpoint property now uses `ILoggerFactory` to create loggers
+- apply validation rules from included validators #270

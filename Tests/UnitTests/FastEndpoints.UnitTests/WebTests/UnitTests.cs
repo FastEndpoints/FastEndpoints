@@ -19,8 +19,8 @@ public class UnitTests
             {
                 var services = new ServiceCollection();
 
-                var logger = A.Fake<ILogger<Endpoint<Customers.Create.Request, object>>>();
-                services.AddSingleton(logger);
+                var loggerFactory = A.Fake<ILoggerFactory>();
+                services.AddSingleton(loggerFactory);
 
                 ctx.RequestServices = services.BuildServiceProvider();
             }

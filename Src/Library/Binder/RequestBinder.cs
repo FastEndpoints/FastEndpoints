@@ -185,11 +185,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 query.ToDictionary(x => x.Key, x => x.Value),
                 StringComparer.OrdinalIgnoreCase);
             fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj);
-            try
-            {
-                fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
-            }
-            catch { }
+            fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
         }
     }
 

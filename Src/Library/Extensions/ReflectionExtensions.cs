@@ -158,7 +158,7 @@ internal static class ReflectionExtensions
         {
             if (tProp.GetInterfaces().Contains(Types.IEnumerable))
             {
-                var arraySetter = tProp.GetQueryArraySetter();
+                var arraySetter = tProp.QueryArraySetter();
                 if (arraySetter != null)
                 {
                     return (queryString, parent, route, swaggerStyle) =>
@@ -233,7 +233,18 @@ internal static class ReflectionExtensions
         return null;
     }
 
-    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? GetQueryArraySetter(this Type type)
+    private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>?> queryArrays = new();
+
+    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? QueryArraySetter(this Type type)
+    {
+        if(queryArrays.TryGetValue(type, out var setter))
+        {
+            return setter;
+        }
+        setter = GetQueryArraySetter(type);
+        return queryArrays.GetOrAdd(type, setter);
+    }
+    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? GetQueryArraySetter(Type type)
     {
         var tProp = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
 
@@ -246,7 +257,7 @@ internal static class ReflectionExtensions
         {
             if (tProp.GetInterfaces().Contains(Types.IEnumerable))
             {
-                var setter = GetQueryArraySetter(tProp);
+                var setter = tProp.QueryArraySetter();
 
                 if (setter == null)
                     return null;

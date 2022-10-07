@@ -401,7 +401,7 @@ public class MiscTestCases : EndToEndTestBase
     }
 
 
-    //[Fact]
+    [Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
         var (rsp, res) = await GuestClient

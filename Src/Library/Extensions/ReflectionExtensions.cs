@@ -69,34 +69,26 @@ internal static class ReflectionExtensions
         return parsers.GetOrAdd(type, GetCompiledValueParser);
     }
 
-    //private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject>> queryObjects = new();
+    private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject>> queryObjects = new();
     internal static Action<IReadOnlyDictionary<string, StringValues>, JsonObject> QueryObjectSetter(this Type type)
     {
-        //NOTES: caching this action in queryObjects dictionary is pointless because the following reflection use is gonna run on each request.
-        //TODO: this method can now become a static void. no need to allocate a delegate.
-
-        return (queryString, obj) =>
+        if (queryObjects.TryGetValue(type, out var setter))
         {
-            //NOTES: moved here to avoid allocation of a closure
-            var setters = type
-                .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
-                .Select(prop => prop.PropertyType.GetQueryObjectSetter(prop.Name));
+            return setter;
+        }
+        var setters = type
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
+            .Select(prop => prop.PropertyType.GetQueryObjectSetter(prop.Name));
 
-            var swaggerStyle = !queryString.Any(x => x.Key.Contains('.'));
+        setter = (queryString, obj) =>
+        {
+            var swaggerStyle = !queryString.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
 
             foreach (var setter in setters)
                 setter(queryString, obj, null, swaggerStyle);
         };
+        return queryObjects.GetOrAdd(type, setter);
     }
-
-    //NOTES: no point in caching in a dictionary because no expression compiling is done inside the func
-
-    //private static readonly ConcurrentDictionary<Type, Func<string, JsonNode?>?> queryParsers = new();
-    //private static Func<string, JsonNode?>? QueryValueParser(this Type type)
-    //{
-    //    // almost the same parser logic but for nested query params
-    //    return queryParsers.GetOrAdd(type, GetCompiledQueryValueParser);
-    //}
 
     private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
     private static readonly ConstructorInfo valueTupleConstructor = typeof(ValueTuple<bool, object>).GetConstructor(new[] { Types.Bool, Types.Object })!;
@@ -182,7 +174,7 @@ internal static class ReflectionExtensions
                                 ? $"{route}[{propName}]"
                                 : $"{route}.{propName}"
                             : propName;
-                        arraySetter(queryString, array, route, swaggerStyle);
+                        arraySetter(queryString, array, route ?? propName, swaggerStyle);
                     };
                 }
             }
@@ -247,9 +239,7 @@ internal static class ReflectionExtensions
 
     private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? GetQueryArraySetter(this Type type)
     {
-        //TODO: same story as above. convert to a static void.
-
-        var tProp = type.GetGenericArguments().FirstOrDefault();
+        var tProp = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
 
         if (tProp == null)
             return null;
@@ -267,15 +257,20 @@ internal static class ReflectionExtensions
 
                 return (queryString, parent, route, swaggerStyle) =>
                 {
-                    var array = new JsonArray();
-                    parent.Add(array);
                     if (swaggerStyle)
                         return;
-                    var keysCount = queryString.Count(x => x.Key.StartsWith(route, StringComparison.OrdinalIgnoreCase));
-                    if (keysCount > 0)
+
+                    var i = 0;
+                    var newRoute = $"{route}[0]";
+
+                    while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
                     {
-                        for (var i = 0; i < keysCount; i++)
-                            setter(queryString, array, $"{route}[{i}]", swaggerStyle);
+
+                        var array = new JsonArray();
+                        parent.Add(array);
+
+                        setter(queryString, array, newRoute, swaggerStyle);
+                        newRoute = $"{route}[{++i}]";
                     }
                 };
             }
@@ -286,17 +281,18 @@ internal static class ReflectionExtensions
 
                 return (queryString, parent, route, swaggerStyle) =>
                 {
-                    var obj = new JsonObject();
-                    parent.Add(obj);
+                    if (swaggerStyle)
+                        return;
+                    var i = 0;
+                    var newRoute = $"{route}[0]";
 
-                    var keysCount = queryString.Count(x => x.Key.StartsWith(route, StringComparison.OrdinalIgnoreCase));
-                    if (keysCount > 0)
-                    {
-                        for (var i = 0; i < keysCount; i++)
-                        {
-                            foreach (var setter in setters)
-                                setter(queryString, obj, $"{route}[{i}]", swaggerStyle);
-                        }
+                    while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase))){
+
+                        var obj = new JsonObject();
+                        parent.Add(obj);
+                        foreach (var setter in setters)
+                            setter(queryString, obj, newRoute, swaggerStyle);
+                        newRoute = $"{route}[{++i}]";
                     }
                 };
             }

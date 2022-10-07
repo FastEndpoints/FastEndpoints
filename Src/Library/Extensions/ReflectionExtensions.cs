@@ -153,10 +153,6 @@ internal static class ReflectionExtensions
 
     private static Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, bool> GetQueryObjectSetter(this Type tProp, string propName)
     {
-        //TODO: should convert to just a static void. since no point in this being a action.
-        //      all reflection below gonna run on each iteration anyway.
-        //      caching only makes sense if we're compiling expressions and what's being done is not doing reflection stuff.
-
         tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
         if (!tProp.IsEnum && tProp != Types.String && tProp != Types.Bool)
         {

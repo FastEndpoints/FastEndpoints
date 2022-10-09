@@ -101,9 +101,8 @@ public static class Extensions
             if (excludeNonFastEndpoints) s.OperationProcessors.Insert(0, new FastEndpointsFilter());
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
-            s.FlattenInheritanceHierarchy = removeEmptySchemas;
+            if (removeEmptySchemas) s.FlattenInheritanceHierarchy = removeEmptySchemas; //gotta force this here even if user asks not to flatten
         });
-
         return services;
     }
 

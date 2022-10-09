@@ -21,7 +21,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
     private static PropCache? fromBodyProp;
-    private static QueryPropCacheEntry? fromQueryParamsProp;
+    private static PropCache? fromQueryParamsProp;
     private static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
@@ -175,38 +175,19 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         if (query.Count == 0) return;
 
-        if (fromQueryParamsProp is null)
-        {
-            foreach (var kvp in query)
-                Bind(req, kvp, failures);
-        }
-        else
+        foreach (var kvp in query)
+            Bind(req, kvp, failures);
+
+        if (fromQueryParamsProp is not null)
         {
             var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
+            var sortedDic = new SortedDictionary<string, StringValues>(
+                query.ToDictionary(x => x.Key, x => x.Value),
+                StringComparer.OrdinalIgnoreCase);
+            var swaggerStyle = !sortedDic.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
 
-            foreach (var kvp in query)
-            {
-                if (!fromQueryParamsProp.Properties.TryGetValue(kvp.Key, out var type))
-                {
-                    Bind(req, kvp, failures);
-                    continue;
-                }
-                var parser = type.QueryValueParser();
-                var startIndex = kvp.Key.IndexOf('[');
-                if (startIndex > 0 && kvp.Key[^1] == ']')
-                {
-                    var key = kvp.Key[..startIndex];
-                    if (!obj.ContainsKey(key)) obj[key] = new JsonObject();
-                    var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
-                    obj[key]!.GetOrCreateLastNode(nestedProps)[nestedProps[^1]] = parser(kvp.Value);
-                }
-                else
-                {
-                    obj[kvp.Key] = parser(kvp.Value);
-                }
-            }
-
-            fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
+            fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);
+            fromQueryParamsProp.PropSetter(req, obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
         }
     }
 
@@ -369,35 +350,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter,
-            Properties = GetExpectedQueryParams(propInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy), null)
         };
         return false;
-    }
-
-    private static Dictionary<string, Type> GetExpectedQueryParams(PropertyInfo[] propertyInfos, string? parentName)
-    {
-        var dictionary = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var prop in propertyInfos)
-        {
-            var propName = parentName == null ? prop.Name : $"{parentName}[{prop.Name}]";
-            var type = prop.PropertyType;
-            var nestedProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-
-            if (!type.IsEnum &&
-                 type != Types.String &&
-                 type != Types.Bool &&
-                !type.GetInterfaces().Contains(Types.IEnumerable) &&
-                 nestedProps.Length > 0)
-            {
-                foreach (var nestedProp in GetExpectedQueryParams(nestedProps, propName))
-                    dictionary.Add(nestedProp.Key, nestedProp.Value);
-            }
-            else
-            {
-                dictionary.Add(propName, type);
-            }
-        }
-        return dictionary;
     }
 }

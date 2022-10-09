@@ -350,7 +350,6 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter,
-            //JsonSetter = propInfo.PropertyType.QueryObjectSetter()
         };
         return false;
     }

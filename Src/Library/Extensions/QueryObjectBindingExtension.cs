@@ -99,19 +99,13 @@ internal static class QueryObjectBindingExtension
     }
 
     private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>?> queryArrays = new();
-
     private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? QueryArraySetter(this Type type)
     {
-        if (queryArrays.TryGetValue(type, out var setter))
+        return queryArrays.GetOrAdd(type, GetQueryArraySetter(type));
+
+        static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? GetQueryArraySetter(Type type)
         {
-            return setter;
-        }
-        setter = GetQueryArraySetter(type);
-        return queryArrays.GetOrAdd(type, setter);
-    }
-    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? GetQueryArraySetter(Type type)
-    {
-        var tProp = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
+            var tProp = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
 
             if (tProp == null)
                 return null;
@@ -125,13 +119,13 @@ internal static class QueryObjectBindingExtension
                     if (tProp.QueryArraySetter() is null)
                         return null;
 
-                return (queryString, parent, route, swaggerStyle) =>
-                {
-                    if (swaggerStyle)
-                        return;
+                    return (queryString, parent, route, swaggerStyle) =>
+                    {
+                        if (swaggerStyle)
+                            return;
 
-                    var i = 0;
-                    var newRoute = $"{route}[0]";
+                        var i = 0;
+                        var newRoute = $"{route}[0]";
 
                         while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
                         {
@@ -146,7 +140,6 @@ internal static class QueryObjectBindingExtension
 
                 if (tProp.AllProperties().Length > 0)
                 {
-
                     return (queryString, parent, route, swaggerStyle) =>
                     {
                         if (swaggerStyle)
@@ -159,13 +152,10 @@ internal static class QueryObjectBindingExtension
                         {
                             var obj = new JsonObject();
                             parent.Add(obj);
-
                             foreach (var p in tProp.AllProperties())
-                            {
                                 p.PropertyType.QueryObjectSetter()(queryString, obj, newRoute, p.Name, swaggerStyle);
-                            }
                             i++;
-                            newRoute = $"{route}[" + i.ToString() + "]";
+                            newRoute = string.Concat(route, "[", i, "]");
                         }
                     };
                 }
@@ -207,5 +197,4 @@ internal static class QueryObjectBindingExtension
             };
         }
     }
-
-
+}

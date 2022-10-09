@@ -1,35 +1,27 @@
 ﻿using Microsoft.Extensions.Primitives;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 
-namespace FastEndpoints.Extensions;
+namespace FastEndpoints;
+
 internal static class QueryObjectBindingExtension
 {
+    private static readonly ConcurrentDictionary<Type, PropertyInfo[]?> propCache = new();
+    private static PropertyInfo[] AllProperties(this Type type)
+        => propCache.GetOrAdd(type, type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy) ?? Array.Empty<PropertyInfo>())!;
 
     private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool>> queryObjects = new();
     internal static Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool> QueryObjectSetter(this Type type)
     {
-        if (queryObjects.TryGetValue(type, out var setter))
-        {
-            return setter;
-        }
         return queryObjects.GetOrAdd(type, GetQueryObjectSetter(type));
-    }
-    private static Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool> GetQueryObjectSetter(Type tProp)
-    {
-        tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
-        if (!tProp.IsEnum && tProp != Types.String && tProp != Types.Bool)
+
+        static Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool> GetQueryObjectSetter(Type tProp)
         {
-            if (tProp.GetInterfaces().Contains(Types.IEnumerable))
+            tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
+            if (!tProp.IsEnum && tProp != Types.String && tProp != Types.Bool)
             {
-                var arraySetter = tProp.QueryArraySetter();
-                if (arraySetter != null)
+                if (tProp.GetInterfaces().Contains(Types.IEnumerable))
                 {
                     return (queryString, parent, route, propName, swaggerStyle) =>
                     {
@@ -38,69 +30,61 @@ internal static class QueryObjectBindingExtension
                         parent[propName] = array;
                         route = route != null
                                 ? swaggerStyle
+                                  ? $"{route}[{propName}]"
+                                  : $"{route}.{propName}"
+                                : propName;
+                        tProp.QueryArraySetter()?.Invoke(queryString, array, route, swaggerStyle);
+                    };
+                }
+
+                if (tProp.AllProperties().Length > 0)
+                {
+                    return (queryString, parent, route, propName, swaggerStyle) =>
+                    {
+                        var obj = new JsonObject();
+                        var usePropName = propName != null;
+                        parent[usePropName ? propName! : Constants.QueryJsonNodeName] = obj;
+                        route = usePropName
+                                ? route != null
+                                  ? swaggerStyle
                                     ? $"{route}[{propName}]"
                                     : $"{route}.{propName}"
-                                : propName;
-                        arraySetter(queryString, array, route, swaggerStyle);
+                                  : propName
+                                : null;
+
+                        var props = tProp.AllProperties();
+                        for (var i = 0; i < props?.Length; i++)
+                            props[i].PropertyType.QueryObjectSetter()(queryString, obj, route, props[i].Name, swaggerStyle);
                     };
                 }
             }
-            var props = tProp.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-            if (props.Length > 0)
-            {
-                var setters = props.Select(prop => new { Setter = prop.PropertyType.QueryObjectSetter(), PropName = prop.Name }).ToArray();
 
+            if (tProp != Types.Bool && !tProp.IsEnum)
+            {
                 return (queryString, parent, route, propName, swaggerStyle) =>
                 {
-                    var obj = new JsonObject();
-                    var usePropName = propName != null;
-                    parent[usePropName ? propName! : Constants.QueryJsonNodeName] = obj;
-                    route = usePropName
-                        ? route != null
+                    route = route != null
                             ? swaggerStyle
-                                ? $"{route}[{propName}]"
-                                : $"{route}.{propName}"
-                            : propName
-                        : null;
-
-                    foreach (var setter in setters)
-                    {
-                        setter.Setter(
-                            queryString,
-                            obj,
-                            route,
-                            setter.PropName,
-                            swaggerStyle
-                        );
-                    }
+                              ? $"{route}[{propName}]"
+                              : $"{route}.{propName}"
+                            : propName;
+                    if (queryString.TryGetValue(route!, out var values))
+                        parent[propName!] = values[0];
                 };
             }
-        }
-        var parser = tProp == Types.Bool || tProp.IsEnum ? tProp.QueryValueParser() : null;
-        if (parser == null)
-        {
+
             return (queryString, parent, route, propName, swaggerStyle) =>
             {
                 route = route != null
                         ? swaggerStyle
-                            ? $"{route}[{propName}]"
-                            : $"{route}.{propName}"
+                          ? $"{route}[{propName}]"
+                          : $"{route}.{propName}"
                         : propName;
+
                 if (queryString.TryGetValue(route!, out var values))
-                    parent[propName!] = values[0];
+                    parent[propName!] = tProp.QueryValueParser()!.Invoke(values[0]);
             };
         }
-
-        return (queryString, parent, route, propName, swaggerStyle) =>
-        {
-            route = route != null
-                    ? swaggerStyle
-                        ? $"{route}[{propName}]"
-                        : $"{route}.{propName}"
-                    : propName;
-            if (queryString.TryGetValue(route!, out var values))
-                parent[propName!] = parser(values[0]);
-        };
     }
 
     private static Func<string?, JsonNode?>? QueryValueParser(this Type tProp)
@@ -110,6 +94,7 @@ internal static class QueryObjectBindingExtension
 
         if (tProp.IsEnum)
             return input => Enum.TryParse(tProp, input, true, out var res) ? JsonValue.Create(res) : input;
+
         return null;
     }
 
@@ -128,19 +113,17 @@ internal static class QueryObjectBindingExtension
     {
         var tProp = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
 
-        if (tProp == null)
-            return null;
+            if (tProp == null)
+                return null;
 
-        tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
+            tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
 
-        if (!tProp.IsEnum && tProp != Types.String && tProp != Types.Bool)
-        {
-            if (tProp.GetInterfaces().Contains(Types.IEnumerable))
+            if (!tProp.IsEnum && tProp != Types.String && tProp != Types.Bool)
             {
-                var setter = tProp.QueryArraySetter();
-
-                if (setter == null)
-                    return null;
+                if (tProp.GetInterfaces().Contains(Types.IEnumerable))
+                {
+                    if (tProp.QueryArraySetter() is null)
+                        return null;
 
                 return (queryString, parent, route, swaggerStyle) =>
                 {
@@ -150,44 +133,63 @@ internal static class QueryObjectBindingExtension
                     var i = 0;
                     var newRoute = $"{route}[0]";
 
-                    while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
+                        while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var array = new JsonArray();
+                            parent.Add(array);
+                            tProp.QueryArraySetter()?.Invoke(queryString, array, newRoute, swaggerStyle);
+                            i++;
+                            newRoute = $"{route}[" + i.ToString() + "]";
+                        }
+                    };
+                }
+
+                if (tProp.AllProperties().Length > 0)
+                {
+
+                    return (queryString, parent, route, swaggerStyle) =>
                     {
+                        if (swaggerStyle)
+                            return;
 
-                        var array = new JsonArray();
-                        parent.Add(array);
+                        var i = 0;
+                        var newRoute = $"{route}[0]";
 
-                        setter(queryString, array, newRoute, swaggerStyle);
-                        newRoute = $"{route}[{++i}]";
-                    }
-                };
+                        while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var obj = new JsonObject();
+                            parent.Add(obj);
+
+                            foreach (var p in tProp.AllProperties())
+                            {
+                                p.PropertyType.QueryObjectSetter()(queryString, obj, newRoute, p.Name, swaggerStyle);
+                            }
+                            i++;
+                            newRoute = $"{route}[" + i.ToString() + "]";
+                        }
+                    };
+                }
             }
-            var props = tProp.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-            if (props.Length > 0)
-            {
-                var setters = props.Select(prop => new { Setter = prop.PropertyType.QueryObjectSetter(), PropName = prop.Name }).ToArray();
 
+            if (tProp != Types.Bool && !tProp.IsEnum)
+            {
                 return (queryString, parent, route, swaggerStyle) =>
                 {
                     if (swaggerStyle)
-                        return;
-                    var i = 0;
-                    var newRoute = $"{route}[0]";
-
-                    while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
                     {
-
-                        var obj = new JsonObject();
-                        parent.Add(obj);
-                        foreach (var setter in setters)
-                            setter.Setter(queryString, obj, newRoute, setter.PropName, swaggerStyle);
-                        newRoute = $"{route}[{++i}]";
+                        if (queryString.TryGetValue(route, out var values))
+                        {
+                            foreach (var value in values)
+                                parent.Add(value);
+                        }
+                        return;
                     }
+
+                    for (var i = 0; queryString.TryGetValue($"{route}[" + i.ToString() + "]", out var svalues); i++)
+                        parent.Add(svalues[0]);
                 };
             }
-        }
-        var parser = tProp == Types.Bool || tProp.IsEnum ? tProp.QueryValueParser() : null;
-        if (parser == null)
-        {
+
             return (queryString, parent, route, swaggerStyle) =>
             {
                 if (swaggerStyle)
@@ -195,33 +197,15 @@ internal static class QueryObjectBindingExtension
                     if (queryString.TryGetValue(route, out var values))
                     {
                         foreach (var value in values)
-                            parent.Add(value);
+                            parent.Add(tProp.QueryValueParser()?.Invoke(value));
                     }
                     return;
                 }
 
-                for (var i = 0; queryString.TryGetValue($"{route}[{i}]", out var svalues); i++)
-                    parent.Add(svalues[0]);
+                for (var i = 0; queryString.TryGetValue($"{route}[" + i.ToString() + "]", out var svalues); i++)
+                    parent.Add(tProp.QueryValueParser()?.Invoke(svalues[0]));
             };
         }
-
-        return (queryString, parent, route, swaggerStyle) =>
-        {
-            if (swaggerStyle)
-            {
-                if (queryString.TryGetValue(route, out var values))
-                {
-                    foreach (var value in values)
-                        parent.Add(parser(value));
-                }
-                return;
-            }
-
-            for (var i = 0; queryString.TryGetValue($"{route}[{i}]", out var svalues); i++)
-                parent.Add(parser(svalues[0]));
-        };
     }
 
 
-
-}

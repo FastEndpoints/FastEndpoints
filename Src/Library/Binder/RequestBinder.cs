@@ -184,9 +184,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var sortedDic = new SortedDictionary<string, StringValues>(
                 query.ToDictionary(x => x.Key, x => x.Value),
                 StringComparer.OrdinalIgnoreCase);
-            var swaggerStyle = !sortedDic.Keys.Any(x => x.Contains('.') || x.Contains("[0"));
+            var swaggerStyle = !sortedDic.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
 
-            fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle); ;
+            fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);
             fromQueryParamsProp.PropSetter(req, obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
         }
     }
@@ -350,7 +350,6 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter,
-            //JsonSetter = propInfo.PropertyType.QueryObjectSetter()
         };
         return false;
     }

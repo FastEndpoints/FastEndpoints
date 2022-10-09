@@ -6,13 +6,6 @@ internal class PropCache
     public Action<object, object> PropSetter { get; init; }
 }
 
-//NOTE: no point in caching because all reflection happens on each request everytime with this implementation
-
-//internal class QueryPropCacheEntry : PropCache
-//{
-//    public Action<IReadOnlyDictionary<string, StringValues>, JsonObject> JsonSetter { get; init; }
-//}
-
 internal class PrimaryPropCacheEntry : PropCache
 {
     public Func<object?, (bool isSuccess, object value)>? ValueParser { get; init; }

@@ -1,5 +1,4 @@
-﻿using FastEndpoints.Extensions;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
@@ -27,6 +26,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
     private static readonly List<SecondaryPropCacheEntry> hasPermissionProps = new();
+
     static RequestBinder()
     {
         if (skipModelBinding)
@@ -184,9 +184,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var sortedDic = new SortedDictionary<string, StringValues>(
                 query.ToDictionary(x => x.Key, x => x.Value),
                 StringComparer.OrdinalIgnoreCase);
-            var swaggerStyle = !query.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
+            var swaggerStyle = !sortedDic.Keys.Any(x => x.Contains('.') || x.Contains("[0"));
 
-            fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);;
+            fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle); ;
             fromQueryParamsProp.PropSetter(req, obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
         }
     }

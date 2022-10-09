@@ -8,7 +8,7 @@
 - `[Throttle(...)]` attribute for configuring endpoints #227
 - `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
 - complex object binding from json object strings for route/query/forms/headers #238
-- complex object binding from query parameters #238 #245 #254
+- complex object binding from query parameters #238 #245 #254 #266
 - min endpoint version support for `AddSwaggerDoc()` #244
 - ability to filter out non-fastendpoints from swagger docs #246
 - non-conforming DI container support #243

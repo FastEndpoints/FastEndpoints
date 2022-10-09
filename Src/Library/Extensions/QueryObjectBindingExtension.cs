@@ -87,17 +87,6 @@ internal static class QueryObjectBindingExtension
         }
     }
 
-    private static Func<string?, JsonNode?>? QueryValueParser(this Type tProp)
-    {
-        if (tProp == Types.Bool)
-            return input => bool.TryParse(input, out var res) ? res : input;
-
-        if (tProp.IsEnum)
-            return input => Enum.TryParse(tProp, input, true, out var res) ? JsonValue.Create(res) : input;
-
-        return null;
-    }
-
     private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>?> queryArrays = new();
     private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? QueryArraySetter(this Type type)
     {
@@ -196,5 +185,16 @@ internal static class QueryObjectBindingExtension
                     parent.Add(tProp.QueryValueParser()?.Invoke(svalues[0]));
             };
         }
+    }
+
+    private static Func<string?, JsonNode?>? QueryValueParser(this Type tProp)
+    {
+        if (tProp == Types.Bool)
+            return input => bool.TryParse(input, out var res) ? res : input;
+
+        if (tProp.IsEnum)
+            return input => Enum.TryParse(tProp, input, true, out var res) ? JsonValue.Create(res) : input;
+
+        return null;
     }
 }

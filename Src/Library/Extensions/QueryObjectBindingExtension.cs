@@ -41,7 +41,7 @@ internal static class QueryObjectBindingExtension
                                     ? $"{route}[{propName}]"
                                     : $"{route}.{propName}"
                                 : propName;
-                        arraySetter(queryString, array, route, propName, swaggerStyle);
+                        arraySetter(queryString, array, route, swaggerStyle);
                     };
                 }
             }
@@ -113,9 +113,9 @@ internal static class QueryObjectBindingExtension
         return null;
     }
 
-    private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string?, string, bool>?> queryArrays = new();
+    private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>?> queryArrays = new();
 
-    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string?, string, bool>? QueryArraySetter(this Type type)
+    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? QueryArraySetter(this Type type)
     {
         if (queryArrays.TryGetValue(type, out var setter))
         {
@@ -124,7 +124,7 @@ internal static class QueryObjectBindingExtension
         setter = GetQueryArraySetter(type);
         return queryArrays.GetOrAdd(type, setter);
     }
-    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string?, string, bool>? GetQueryArraySetter(Type type)
+    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? GetQueryArraySetter(Type type)
     {
         var tProp = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
 
@@ -142,13 +142,13 @@ internal static class QueryObjectBindingExtension
                 if (setter == null)
                     return null;
 
-                return (queryString, parent, route, paramName, swaggerStyle) =>
+                return (queryString, parent, route, swaggerStyle) =>
                 {
                     if (swaggerStyle)
                         return;
 
                     var i = 0;
-                    var newRoute = $"{route ?? paramName}[0]";
+                    var newRoute = $"{route}[0]";
 
                     while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -156,8 +156,8 @@ internal static class QueryObjectBindingExtension
                         var array = new JsonArray();
                         parent.Add(array);
 
-                        setter(queryString, array, newRoute, paramName, swaggerStyle);
-                        newRoute = $"{route ?? paramName}[{++i}]";
+                        setter(queryString, array, newRoute, swaggerStyle);
+                        newRoute = $"{route}[{++i}]";
                     }
                 };
             }
@@ -166,12 +166,12 @@ internal static class QueryObjectBindingExtension
             {
                 var setters = props.Select(prop => new { Setter = prop.PropertyType.QueryObjectSetter(), PropName = prop.Name }).ToArray();
 
-                return (queryString, parent, route, paramName, swaggerStyle) =>
+                return (queryString, parent, route, swaggerStyle) =>
                 {
                     if (swaggerStyle)
                         return;
                     var i = 0;
-                    var newRoute = $"{route ?? paramName}[0]";
+                    var newRoute = $"{route}[0]";
 
                     while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -180,7 +180,7 @@ internal static class QueryObjectBindingExtension
                         parent.Add(obj);
                         foreach (var setter in setters)
                             setter.Setter(queryString, obj, newRoute, setter.PropName, swaggerStyle);
-                        newRoute = $"{route ?? paramName}[{++i}]";
+                        newRoute = $"{route}[{++i}]";
                     }
                 };
             }
@@ -188,11 +188,11 @@ internal static class QueryObjectBindingExtension
         var parser = tProp == Types.Bool || tProp.IsEnum ? tProp.QueryValueParser() : null;
         if (parser == null)
         {
-            return (queryString, parent, route, paramName, swaggerStyle) =>
+            return (queryString, parent, route, swaggerStyle) =>
             {
                 if (swaggerStyle)
                 {
-                    if (queryString.TryGetValue(route ?? paramName, out var values))
+                    if (queryString.TryGetValue(route, out var values))
                     {
                         foreach (var value in values)
                             parent.Add(value);
@@ -200,16 +200,16 @@ internal static class QueryObjectBindingExtension
                     return;
                 }
 
-                for (var i = 0; queryString.TryGetValue($"{route ?? paramName}[{i}]", out var svalues); i++)
+                for (var i = 0; queryString.TryGetValue($"{route}[{i}]", out var svalues); i++)
                     parent.Add(svalues[0]);
             };
         }
 
-        return (queryString, parent, route, paramName, swaggerStyle) =>
+        return (queryString, parent, route, swaggerStyle) =>
         {
             if (swaggerStyle)
             {
-                if (queryString.TryGetValue(route ?? paramName, out var values))
+                if (queryString.TryGetValue(route, out var values))
                 {
                     foreach (var value in values)
                         parent.Add(parser(value));
@@ -217,7 +217,7 @@ internal static class QueryObjectBindingExtension
                 return;
             }
 
-            for (var i = 0; queryString.TryGetValue($"{route ?? paramName}[{i}]", out var svalues); i++)
+            for (var i = 0; queryString.TryGetValue($"{route}[{i}]", out var svalues); i++)
                 parent.Add(parser(svalues[0]));
         };
     }

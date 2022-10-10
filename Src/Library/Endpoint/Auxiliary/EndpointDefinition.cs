@@ -215,6 +215,7 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// adds global post-processors to this endpoint definition. these post-processors are executed before the post-processors configured at the endpoint level.
+    /// <para>HINT: these post-processors will be applied in addition to endpoint level post-processors if there's any</para>
     /// </summary>
     /// <param name="postProcessors">the post-processors to add</param>
     public void PostProcessors(params IGlobalPostProcessor[] postProcessors)
@@ -225,6 +226,7 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// adds global pre-processors to this endpoint definition. these pre-processors are executed before the pre-processors configured at the endpoint level.
+    /// <para>HINT: these pre-processors will be applied in addition to endpoint level pre-processors if there's any</para>
     /// </summary>
     /// <param name="preProcessors">the pre-processors to add</param>
     public void PreProcessors(params IGlobalPreProcessor[] preProcessors)

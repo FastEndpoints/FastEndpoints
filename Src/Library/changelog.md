@@ -1,9 +1,9 @@
 ### CHANGES
-- signature of global error response builder func has changed to include the `HttpContext` #220 #230
-- security related methods such as `ep.Roles(...)` in global config will now compound what's being done in the endpoint config [#info](https://discord.com/channels/933662816458645504/951481851980177418/1027626501975322694)
+- signature of global error response builder func has changed to include the `HttpContext` [#docs](https://fast-endpoints.com/docs/configuration-settings#customizing-error-responses) #220 #230
+- security related methods such as `ep.Roles(...)` in global config will now compound what's being done in the endpoint config [#docs](https://fast-endpoints.com/docs/configuration-settings#global-endpoint-options)
 
 ### NEW
-- support .net 7.0 via multi targetting
+- support .net 7.0 via multi targeting
 - endpoint configuration with groups and sub/nested groups #214
 - `[Throttle(...)]` attribute for configuring endpoints #227
 - `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
@@ -13,7 +13,7 @@
 - ability to filter out non-fastendpoints from swagger docs #246
 - non-conforming DI container support #243
 - endpoint unit testing support for attribute based config [#info](https://discord.com/channels/933662816458645504/1021479855130427442)
-- asymmertic jwt signing support in `FastEndpoints.Security` pkg #249
+- asymmetric jwt signing support in `FastEndpoints.Security` pkg #249
 - add `EndpointVersion()` method to `EndpointDefinition` for use with global config #209
 - filtering (endpoint inclusion) for swagger documents #252
 - specify response examples with `EndpointSummary` #205

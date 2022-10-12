@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Namotion.Reflection;
 using NJsonSchema.Generation;
 using NSwag;
 using NSwag.AspNetCore;
@@ -160,4 +161,16 @@ public static class Extensions
 
     private static readonly NullabilityInfoContext nullCtx = new();
     internal static bool IsNullable(this PropertyInfo p) => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
+
+    internal static string? GetExample(this PropertyInfo p)
+    {
+        var example = p.GetXmlDocsTag("example");
+        return string.IsNullOrEmpty(example) ? null : example;
+    }
+
+    internal static string? GetExample(this Type p)
+    {
+        var example = p.GetXmlDocsTag("example");
+        return string.IsNullOrEmpty(example) ? null : example;
+    }
 }

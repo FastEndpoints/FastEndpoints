@@ -214,7 +214,8 @@ internal class OperationProcessor : IOperationProcessor
                     IsRequired = true,
                     Schema = ctx.SchemaGenerator.Generate(pType, ctx.SchemaResolver),
                     Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value)),
-                    Default = defaultVal
+                    Default = defaultVal,
+                    Example = pType.GetExample()
                 };
             })
             .ToList();
@@ -227,7 +228,6 @@ internal class OperationProcessor : IOperationProcessor
                 .Select(p =>
                 {
                     RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
-
                     return new OpenApiParameter
                     {
                         Name = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name,
@@ -235,7 +235,8 @@ internal class OperationProcessor : IOperationProcessor
                         Schema = ctx.SchemaGenerator.Generate(p.PropertyType, ctx.SchemaResolver),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name),
-                        Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
+                        Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value,
+                        Example = p.GetExample()
                     };
                 })
                 .ToList();
@@ -262,7 +263,8 @@ internal class OperationProcessor : IOperationProcessor
                             Schema = ctx.SchemaGenerator.Generate(p.PropertyType, ctx.SchemaResolver),
                             Kind = OpenApiParameterKind.Header,
                             Description = reqParamDescriptions.GetValueOrDefault(pName),
-                            Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
+                            Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value,
+                            Example = p.GetExample()
                         });
 
                         //remove corresponding json body field if it's required. allow binding only from header.
@@ -326,7 +328,8 @@ internal class OperationProcessor : IOperationProcessor
                     Schema = ctx.SchemaGenerator.Generate(fromBodyProp.PropertyType, ctx.SchemaResolver),
                     Kind = OpenApiParameterKind.Body,
                     Description = reqParamDescriptions.GetValueOrDefault(fromBodyProp.Name),
-                    Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value
+                    Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value,
+                    Example = fromBodyProp.GetExample()
                 });
             }
         }

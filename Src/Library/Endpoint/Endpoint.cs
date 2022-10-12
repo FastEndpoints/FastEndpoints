@@ -9,6 +9,7 @@ namespace FastEndpoints;
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull, new() { };
+
 /// <summary>
 /// use this base class for defining endpoints that only use a request dto and don't use a response dto but uses a request mapper.
 /// </summary>
@@ -217,6 +218,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         return default;// not required and retrieval failed
     }
 }
+
 /// <summary>
 /// use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity using a seperate entity mapper.
 /// </summary>
@@ -298,6 +300,7 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
     [NotImplemented]
     public sealed override Task<TResponse> ExecuteAsync(EmptyRequest _, CancellationToken ct) => ExecuteAsync(ct);
 }
+
 /// <summary>
 /// use this base class for defining endpoints that doesn't need a request dto but return a response dto and uses a response mapper.
 /// </summary>

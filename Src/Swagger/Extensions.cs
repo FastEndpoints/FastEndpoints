@@ -173,4 +173,16 @@ public static class Extensions
         var example = p.GetXmlDocsTag("example");
         return string.IsNullOrEmpty(example) ? null : example;
     }
+
+    internal static string? GetSummary(this Type p)
+    {
+        var summary = p.GetXmlDocsSummary();
+        return string.IsNullOrEmpty(summary) ? null : summary;
+    }
+
+    internal static string? GetDescription(this Type p)
+    {
+        var remarks = p.GetXmlDocsRemarks();
+        return string.IsNullOrEmpty(remarks) ? null : remarks;
+    }
 }

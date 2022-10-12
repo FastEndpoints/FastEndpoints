@@ -120,8 +120,8 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //set endpoint summary & description
-        op.Summary = epDef.EndpointSummary?.Summary;
-        op.Description = epDef.EndpointSummary?.Description;
+        op.Summary = epDef.EndpointSummary?.Summary ?? epDef.EndpointType.GetSummary();
+        op.Description = epDef.EndpointSummary?.Description ?? epDef.EndpointType.GetDescription();
 
         //set response descriptions (no xml comments support here, yet!)
         op.Responses

@@ -17,7 +17,8 @@
 - add `EndpointVersion()` method to `EndpointDefinition` for use with global config #209
 - filtering (endpoint inclusion) for swagger documents #252
 - specify response examples with `EndpointSummary` #205
-- specify dto property level examples with xml comments #276 
+- specify dto property level examples with xml comments #276
+- specify endpoint summary and description with xml comments [#info](https://fast-endpoints.com/docs/swagger-support#enabling-xml-documentation)
 - `TokenValidationParameters` config action argument for `AddAuthenticationJWTBearer()` method #268
 
 ### FIXES

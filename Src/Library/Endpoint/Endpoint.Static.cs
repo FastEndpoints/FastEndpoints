@@ -8,6 +8,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 {
     private static async Task RunPostProcessors(HashSet<object> postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
+
+        if (validationFailures.Any())
+        {
+            return;
+        }
+
         foreach (var p in postProcessors)
         {
             switch (p)
@@ -24,6 +30,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     private static async Task RunPreprocessors(HashSet<object> preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
+        if (validationFailures.Any())
+        {
+            return;
+        }
         foreach (var p in preProcessors)
         {
             switch (p)

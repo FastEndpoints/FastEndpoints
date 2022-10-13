@@ -19,11 +19,14 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 {
     private TMapper? _mapper;
 
-    ///// <summary>
-    ///// the entity mapper for the endpoint
-    ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
-    ///// </summary>
-    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    /// <summary>
+    /// the entity mapper for the endpoint
+    /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
+    /// </summary>
+    public TMapper Map {
+        get => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+        set => _mapper = value;
+    }
 }
 
 /// <summary>
@@ -229,11 +232,14 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
 {
     private TMapper? _mapper;
 
-    ///// <summary>
-    ///// the entity mapper for the endpoint
-    ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
-    ///// </summary>
-    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    /// <summary>
+    /// the entity mapper for the endpoint
+    /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
+    /// </summary>
+    public TMapper Map {
+        get => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+        set => _mapper = value;
+    }
 }
 
 /// <summary>
@@ -310,11 +316,14 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
 {
     private TMapper? _mapper;
 
-    ///// <summary>
-    ///// the entity mapper for the endpoint
-    ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
-    ///// </summary>
-    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    /// <summary>
+    /// the entity mapper for the endpoint
+    /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
+    /// </summary>
+    public TMapper Map {
+        get => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+        set => _mapper = value;
+    }
 }
 
 /// <summary>

@@ -3,8 +3,11 @@
 /// <summary>
 /// marker/constraint for endpoints that have a mapper generic argument
 /// </summary>
-/// <typeparam name="TMapper"></typeparam>
+/// <typeparam name="TMapper">the type of the mapper</typeparam>
 public interface IHasMapper<TMapper> where TMapper : notnull, IMapper
 {
-    TMapper Map { get; }
+    /// <summary>
+    /// the mapper property
+    /// </summary>
+    TMapper Map { get; set; }
 }

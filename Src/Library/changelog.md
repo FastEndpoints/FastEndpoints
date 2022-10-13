@@ -1,14 +1,13 @@
 ### CHANGES
-- signature of global error response builder func has changed to include the `HttpContext` [#docs](https://fast-endpoints.com/docs/configuration-settings#customizing-error-responses) #220 #230
+- signature of global error response builder func has changed to include the `HttpContext` [#docs](https://fast-endpoints.com/docs/configuration-settings#customizing-error-responses)
 - security related methods such as `ep.Roles(...)` in global config will now compound what's being done in the endpoint config [#docs](https://fast-endpoints.com/docs/configuration-settings#global-endpoint-options)
 
 ### NEW
 - support .net 7.0 via multi targeting
-- endpoint configuration with groups and sub/nested groups #214
-- `[Throttle(...)]` attribute for configuring endpoints #227
-- `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
-- complex object binding from json object strings for route/query/forms/headers #238
+- endpoint configuration with groups and sub/nested groups [#docs](https://fast-endpoints.com/docs/configuration-settings#endpoint-configuration-groups)
+- complex object binding from json object strings for query/forms/claims/headers [#docs](https://fast-endpoints.com/docs/model-binding#json-objects)
 - complex object binding from query parameters #238 #245 #254 #266
+- `[Throttle(...)]` attribute for configuring endpoints #227
 - min endpoint version support for `AddSwaggerDoc()` #244
 - ability to filter out non-fastendpoints from swagger docs #246
 - non-conforming DI container support #243
@@ -20,6 +19,7 @@
 - specify dto property level examples with xml comments #276
 - specify endpoint summary and description with xml comments [#info](https://fast-endpoints.com/docs/swagger-support#enabling-xml-documentation)
 - `TokenValidationParameters` config action argument for `AddAuthenticationJWTBearer()` method #268
+- `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
 
 ### FIXES
 - pre/post processor collection modification bug #224
@@ -32,9 +32,9 @@
 - nre when publishing an event and no handlers are registered #259
 
 ### IMPROVEMENTS
-- optimize default request binder by reducing allocations.
-- swagger schema resolving
-- json object array string binding of requests from swagger ui
 - remove `notnull` constraint from `TResponse` generic argument of endpoint class
 - `Logger` endpoint property now uses `ILoggerFactory` to create loggers
 - apply validation rules from included/foreach validators #270
+- json object array string binding of requests from swagger ui
+- optimize default request binder by reducing allocations
+- better swagger schema resolving

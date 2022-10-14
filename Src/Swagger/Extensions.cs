@@ -66,6 +66,20 @@ public static class Extensions
     }
 
     /// <summary>
+    /// add <see cref="OpenApiTag"/>s to a swagger document in order to provide tag descriptions
+    /// </summary>
+    /// <param name="documentTags">the <see cref="OpenApiTag"/>s to be added to the swagger doc</param>
+    public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings, params OpenApiTag[] documentTags)
+    {
+        settings.AddOperationFilter(ctx =>
+        {
+            foreach (var t in documentTags)
+                ctx.Document.Tags.Add(t);
+            return true;
+        });
+    }
+
+    /// <summary>
     /// enable swagger support for FastEndpoints with a single call.
     /// </summary>
     /// <param name="settings">swaggergen config settings</param>

@@ -80,7 +80,6 @@ public static class AuthExtensions
             tokenValidationConfiguration);
     }
 
-
     /// <summary>
     /// returns true of the current user principal has a given permission code.
     /// </summary>

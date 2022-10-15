@@ -29,8 +29,8 @@ internal static class EndpointExtensions
                         break;
 
                     case AuthorizeAttribute authAttr:
-                        def.Roles(authAttr.Roles?.Split(','));
-                        def.AuthSchemes(authAttr.AuthenticationSchemes?.Split(','));
+                        def.Roles(authAttr.Roles?.Split(',') ?? Array.Empty<string>());
+                        def.AuthSchemes(authAttr.AuthenticationSchemes?.Split(',') ?? Array.Empty<string>());
                         if (authAttr.Policy is not null) def.Policies(new[] { authAttr.Policy });
                         break;
 

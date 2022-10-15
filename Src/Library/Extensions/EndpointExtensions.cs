@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using System.Linq.Expressions;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FastEndpoints;
 
@@ -40,5 +43,27 @@ internal static class EndpointExtensions
                 }
             }
         }
+    }
+
+    private static readonly Regex rgx = new("(@[\\w]*)", RegexOptions.Compiled);
+    internal static string BuildRoute<TRequest>(this Expression<Func<TRequest, object>> expr, string pattern) where TRequest : notnull
+    {
+        var sb = new StringBuilder(pattern);
+        var matches = rgx.Matches(pattern);
+        var i = 0;
+        foreach (var prop in expr.PropNames())
+        {
+            if (i > matches.Count - 1)
+                break;
+
+            sb.Replace(matches[i].Value, prop);
+
+            i++;
+        }
+
+        if (i == 0 || i != matches.Count)
+            throw new ArgumentException($"Failed to build route: [{sb}] due to incorrect number of replacements!");
+
+        return sb.ToString();
     }
 }

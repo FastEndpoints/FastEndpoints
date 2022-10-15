@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
@@ -61,6 +62,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// specify a DELETE route pattern using a replacement expression. 
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para><c>/invoice/{@id}/soft-delete</c></para></param>
+    /// <param name="members"><c>r => new { r.InvoiceID }</c></param>
+    protected void Delete(string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.DELETE);
+        Routes(members.BuildRoute(routePattern));
+    }
+
+    /// <summary>
     /// describe openapi metadata for this endpoint. optionaly specify whether or not you want to clear the default Accepts/Produces metadata.
     /// <para>
     /// EXAMPLE: <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
@@ -98,6 +113,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// specify a GET route pattern using a replacement expression. 
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para><c>/invoice/{@id}/print/{@pageNum}</c></para></param>
+    /// <param name="members"><c>r => new { r.InvoiceID, r.PageNumber }</c></param>
+    protected void Get(string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.GET);
+        Routes(members.BuildRoute(routePattern));
+    }
+
+    /// <summary>
     /// if this endpoint is part of an endpoint group, specify the type of the <see cref="FastEndpoints.Group"/> concrete class where the common configuration for the group is specified.
     /// <para>
     /// WARNING: this method can only be called after the endpoint route has been specified.
@@ -124,6 +153,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// specify a HEAD route pattern using a replacement expression. 
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para><c>/invoice/{@id}/print/{@pageNum}</c></para></param>
+    /// <param name="members"><c>r => new { r.InvoiceID, r.PageNumber }</c></param>
+    protected void Head(string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.HEAD);
+        Routes(members.BuildRoute(routePattern));
+    }
+
+    /// <summary>
     /// set endpoint configurations options using an endpoint builder action ///
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
@@ -136,6 +179,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         Verbs(Http.PATCH);
         Routes(routePatterns);
+    }
+
+    /// <summary>
+    /// specify a PATCH route pattern using a replacement expression. 
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para><c>/invoice/{@id}</c></para></param>
+    /// <param name="members"><c>r => new { r.InvoiceID }</c></param>
+    protected void Patch(string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.PATCH);
+        Routes(members.BuildRoute(routePattern));
     }
 
     /// <summary>
@@ -163,6 +220,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         Verbs(Http.POST);
         Routes(routePatterns);
+    }
+
+    /// <summary>
+    /// specify a POST route pattern using a replacement expression. 
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para><c>/invoice/{@id}/page/{@pageNum}</c></para></param>
+    /// <param name="members"><c>r => new { r.InvoiceID, r.PageNumber }</c></param>
+    protected void Post(string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.POST);
+        Routes(members.BuildRoute(routePattern));
     }
 
     /// <summary>
@@ -196,6 +267,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         Verbs(Http.PUT);
         Routes(routePatterns);
+    }
+
+    /// <summary>
+    /// specify a PUT route pattern using a replacement expression. 
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para><c>/invoice/{@id}/page/{@pageNum}</c></para></param>
+    /// <param name="members"><c>r => new { r.InvoiceID, r.PageNumber }</c></param>
+    protected void Put(string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.PUT);
+        Routes(members.BuildRoute(routePattern));
     }
 
     /// <summary>

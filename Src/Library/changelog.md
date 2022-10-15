@@ -1,5 +1,2 @@
-### HOTFIX
-- authorize attribute related NRE #281
-
 ### NEW
-- `x.TagDescriptions()` method for swagger to supply tag descriptions #278
+- type safety for the shortcut http verb methods such as `Get()`, `Post()`, etc. [#info](https://fast-endpoints.com/docs/misc-conveniences#shorthand-route-configuration)

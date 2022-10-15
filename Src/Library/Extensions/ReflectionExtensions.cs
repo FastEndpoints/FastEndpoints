@@ -10,6 +10,13 @@ namespace FastEndpoints;
 
 internal static class ReflectionExtensions
 {
+    internal static IEnumerable<string> PropNames<T>(this Expression<Func<T, object>> expression)
+    {
+        if (expression?.Body is not NewExpression newExp)
+            throw new NotSupportedException($"[{expression}] is not a valid `new` expression!");
+        return newExp.Arguments.Select(a => a.ToString().Split('.')[1]);
+    }
+
     internal static string PropertyName<T>(this Expression<T> expression) => (
         expression.Body switch
         {

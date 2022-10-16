@@ -188,6 +188,15 @@ internal class OperationProcessor : IOperationProcessor
         var reqParams = new List<OpenApiParameter>();
         var propsToRemoveFromExample = new List<string>();
 
+        if (reqDtoProps != null)
+        {
+            //Remove the readonly properties from the request body
+            foreach (var p in reqDtoProps.Where(p => !p.CanWrite))
+            {
+                RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+            }
+        }
+
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
         reqParams = regex
             .Matches(apiDescription?.RelativePath!)

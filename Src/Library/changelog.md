@@ -3,3 +3,6 @@
 
 ### IMPROVEMENTS
 - remove read-only properties from swagger request body #283
+
+### FIXES
+- swagger response examples not honoring serializer settings #280

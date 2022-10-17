@@ -88,7 +88,7 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //fix response content-types not displaying correctly
-        //also set user provided response example
+        //also set user provided response examples
         if (op.Responses.Count > 0)
         {
             var metas = metaData
@@ -96,25 +96,28 @@ internal class OperationProcessor : IOperationProcessor
              .GroupBy(m => m.StatusCode, (k, g) =>
              {
                  object? example = null;
-                 var _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
+                 _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
                  return new {
                      key = k.ToString(),
                      cTypes = g.Last().ContentTypes,
-                     example = (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example
+                     example = (g.Last() as ProducesResponseTypeMetadata)?.Example ??
+                        Newtonsoft.Json.JsonConvert.SerializeObject(
+                            example,
+                            ctx.SchemaGenerator.Settings.ActualSerializerSettings)
                  };
              })
              .ToDictionary(x => x.key);
 
             if (metas.Count > 0)
             {
-                foreach (var resp in op.Responses)
+                foreach (var rsp in op.Responses)
                 {
-                    var cTypes = metas[resp.Key].cTypes;
-                    var mediaType = resp.Value.Content.FirstOrDefault().Value;
-                    mediaType.Example = metas[resp.Key].example;
-                    resp.Value.Content.Clear();
+                    var cTypes = metas[rsp.Key].cTypes;
+                    var mediaType = rsp.Value.Content.FirstOrDefault().Value;
+                    mediaType.Example = metas[rsp.Key].example;
+                    rsp.Value.Content.Clear();
                     foreach (var ct in cTypes)
-                        resp.Value.Content.Add(new(ct, mediaType));
+                        rsp.Value.Content.Add(new(ct, mediaType));
                 }
             }
         }
@@ -350,7 +353,9 @@ internal class OperationProcessor : IOperationProcessor
             {
                 if (epDef.EndpointSummary.ExampleRequest.GetType().IsAssignableTo(typeof(IEnumerable)))
                 {
-                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(epDef.EndpointSummary.ExampleRequest);
+                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
+                        epDef.EndpointSummary.ExampleRequest,
+                        ctx.SchemaGenerator.Settings.ActualSerializerSettings);
                 }
                 else
                 {

@@ -16,4 +16,10 @@ public class BindingOptions
     /// <para>WARNING: be mindful of the performance cost of using reflection to modify the request dto object</para>
     /// </summary>
     public Action<object, Type, BinderContext, CancellationToken>? Modifier;
+
+    /// <summary>
+    /// An optional custom parsers dictionary. It can be used to register a binder function for a certain type.
+    /// The binder will look in this dictionary before searching for the TryParse method in the targeted type.
+    /// </summary>
+    public Dictionary<Type, Func<object?, (bool isSuccess, object value)>?> CustomParsers { get; } = new();
 }

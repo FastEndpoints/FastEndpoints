@@ -96,6 +96,10 @@ internal static class ReflectionExtensions
             if (tProp == Types.Uri)
                 return input => (Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res!);
 
+            var customParser = Config.BndOpts.CustomParsers.FirstOrDefault(p => p.Key == tProp);
+            if (customParser.Value != null)
+                return customParser.Value;
+
             var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {

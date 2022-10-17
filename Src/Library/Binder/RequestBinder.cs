@@ -214,10 +214,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             if (claimVal is not null && prop.ValueParser is not null)
             {
-                var (success, value) = prop.ValueParser(claimVal);
-                prop.PropSetter(req, value);
+                var res = prop.ValueParser(claimVal);
+                prop.PropSetter(req, res.Value);
 
-                if (!success)
+                if (!res.IsSuccess)
                     failures.Add(new(prop.Identifier, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
             }
         }
@@ -235,10 +235,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             if (hdrVal.Count > 0 && prop.ValueParser is not null)
             {
-                var (success, value) = prop.ValueParser(hdrVal);
-                prop.PropSetter(req, value);
+                var res = prop.ValueParser(hdrVal);
+                prop.PropSetter(req, res.Value);
 
-                if (!success)
+                if (!res.IsSuccess)
                     failures.Add(new(prop.Identifier, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
             }
         }
@@ -258,10 +258,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             if (hasPerm && prop.ValueParser is not null)
             {
-                var (success, value) = prop.ValueParser(hasPerm);
-                prop.PropSetter(req, value);
+                var res = prop.ValueParser(hasPerm);
+                prop.PropSetter(req, res.Value);
 
-                if (!success)
+                if (!res.IsSuccess)
                     failures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
             }
         }
@@ -271,16 +271,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         if (primaryProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
         {
-            var (success, value) = prop.ValueParser(kvp.Value);
+            var res = prop.ValueParser(kvp.Value);
 
-            if (success)
-                prop.PropSetter(req, value);
+            if (res.IsSuccess)
+                prop.PropSetter(req, res.Value);
             else
                 failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.ActualName()}] property!"));
         }
     }
 
-    private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromClaimProps.Add(new()
         {
@@ -295,7 +295,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if claim is optional, return true so it will also be added as a PropCacheEntry
     }
 
-    private static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromHeaderProps.Add(new()
         {
@@ -309,7 +309,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if header is optional, return true so it will also be added as a PropCacheEntry;
     }
 
-    private static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         hasPermissionProps.Add(new()
         {
@@ -324,7 +324,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false; // don't allow binding from any other sources
     }
 
-    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         primaryProps.Add(fieldName ?? propInfo.Name, new()
         {
@@ -334,7 +334,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         });
     }
 
-    private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromBodyProp = new()
         {
@@ -344,7 +344,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false;
     }
 
-    private static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromQueryParamsProp = new()
         {

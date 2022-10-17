@@ -175,8 +175,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         {
             var res = typeof(T).ValueParser()?.Invoke(val);
 
-            if (res?.isSuccess is true)
-                return (T?)res?.value;
+            if (res?.IsSuccess is true)
+                return (T?)res?.Value;
 
             if (isRequired)
                 ValidationFailures.Add(new(paramName, "Unable to read value of route parameter!"));
@@ -205,8 +205,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         {
             var res = typeof(T).ValueParser()?.Invoke(val);
 
-            if (res?.isSuccess is true)
-                return (T?)res?.value;
+            if (res?.IsSuccess is true)
+                return (T?)res?.Value;
 
             if (isRequired)
                 ValidationFailures.Add(new(paramName, "Unable to read value of query parameter!"));

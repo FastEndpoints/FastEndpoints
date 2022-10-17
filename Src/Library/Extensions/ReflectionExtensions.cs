@@ -36,7 +36,7 @@ internal static class ReflectionExtensions
         return Expression.Lambda<Func<object, object>>(convertProp, parent).Compile();
     }
 
-    internal static Action<object, object> SetterForProp(this Type source, string propertyName)
+    internal static Action<object, object?> SetterForProp(this Type source, string propertyName)
     {
         //(object parent, object value) => ((TParent)parent).property = (TProp)value;
 
@@ -45,7 +45,7 @@ internal static class ReflectionExtensions
         var property = Expression.Property(Expression.Convert(parent, source), propertyName);
         var body = Expression.Assign(property, Expression.Convert(value, property.Type));
 
-        return Expression.Lambda<Action<object, object>>(body, parent, value).Compile();
+        return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();
     }
 
     internal static Type[]? GetGenericArgumentsOfType(this Type source, Type targetGeneric)
@@ -66,17 +66,18 @@ internal static class ReflectionExtensions
         return null;
     }
 
-    private static readonly ConcurrentDictionary<Type, Func<object?, (bool isSuccess, object value)>?> parsers = new();
+    internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>?> ParserFuncCache = new();
     private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
-    private static readonly ConstructorInfo valueTupleConstructor = typeof(ValueTuple<bool, object>).GetConstructor(new[] { Types.Bool, Types.Object })!;
-    internal static Func<object?, (bool isSuccess, object value)>? ValueParser(this Type type)
+    private static readonly ConstructorInfo parseResultCtor = Types.ParseResult.GetConstructor(new[] { Types.Bool, Types.Object })!;
+    internal static Func<object?, ParseResult>? ValueParser(this Type type)
     {
         //we're only ever compiling a value parser for a given type once.
         //if a parser is requested for a type a second time, it will be returned from the dictionary instead of paying the compiling cost again.
-        //the parser we return from here is then cached in ReqTypeCache<TRequest> avoiding the need to do an additional dictionary lookup here.
-        return parsers.GetOrAdd(type, GetCompiledValueParser);
+        //the parser we return from here is then cached in RequestBinder PropCache entries avoiding the need to do repeated dictionary lookups here.
+        //it is also possible that the user has already registered a parser func via config at startup.
+        return ParserFuncCache.GetOrAdd(type, GetCompiledValueParser);
 
-        static Func<object?, (bool isSuccess, object value)>? GetCompiledValueParser(Type tProp)
+        static Func<object?, ParseResult>? GetCompiledValueParser(Type tProp)
         {
             // this method was contributed by: https://stackoverflow.com/users/1086121/canton7
             // as an answer to a stackoverflow question: https://stackoverflow.com/questions/71220157
@@ -88,20 +89,20 @@ internal static class ReflectionExtensions
             //      either [object] or [StringValues]
 
             if (tProp == Types.String)
-                return input => (true, input?.ToString()!);
+                return input => new(true, input?.ToString());
 
             if (tProp.IsEnum)
-                return input => (Enum.TryParse(tProp, input?.ToString(), true, out var res), res!);
+                return input => new(Enum.TryParse(tProp, input?.ToString(), true, out var res), res);
 
             if (tProp == Types.Uri)
-                return input => (Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res!);
+                return input => new(Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res);
 
             var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {
                 return tProp.GetInterfaces().Contains(Types.IEnumerable)
-                       ? (input => (true, DeserializeJsonArrayString(input, tProp))!)
-                       : (input => (true, DeserializeJsonObjectString(input, tProp))!);
+                       ? (input => new(true, DeserializeJsonArrayString(input, tProp)))
+                       : (input => new(true, DeserializeJsonObjectString(input, tProp)));
             }
 
             // The 'object' parameter passed into our delegate
@@ -121,15 +122,15 @@ internal static class ReflectionExtensions
 
             // To finish off, we need to following sequence of statements:
             //  - isSuccess = TryParse(input.ToString(), res)
-            //  - new ValueTuple<bool, object>(isSuccess, (object)res)
+            //  - new ParseResult(isSuccess, (object)res)
             // A sequence of statements is done using a block, and the result of the final
             // statement is the result of the block
             var tryParseCall = Expression.Call(tryParseMethod, toStringConversion, resultVar);
             var block = Expression.Block(new[] { resultVar, isSuccessVar },
                 Expression.Assign(isSuccessVar, tryParseCall),
-                Expression.New(valueTupleConstructor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
+                Expression.New(parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 
-            return Expression.Lambda<Func<object?, (bool, object)>>(
+            return Expression.Lambda<Func<object?, ParseResult>>(
                 block,
                 inputParameter
             ).Compile();

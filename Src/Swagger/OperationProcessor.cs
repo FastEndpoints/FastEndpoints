@@ -100,10 +100,9 @@ internal class OperationProcessor : IOperationProcessor
                  return new {
                      key = k.ToString(),
                      cTypes = g.Last().ContentTypes,
-                     example = (g.Last() as ProducesResponseTypeMetadata)?.Example ??
-                        Newtonsoft.Json.JsonConvert.SerializeObject(
-                            example,
-                            ctx.SchemaGenerator.Settings.ActualSerializerSettings)
+                     example = Newtonsoft.Json.JsonConvert.SerializeObject(
+                         (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example,
+                         ctx.SchemaGenerator.Settings.ActualSerializerSettings)
                  };
              })
              .ToDictionary(x => x.key);
@@ -114,7 +113,11 @@ internal class OperationProcessor : IOperationProcessor
                 {
                     var cTypes = metas[rsp.Key].cTypes;
                     var mediaType = rsp.Value.Content.FirstOrDefault().Value;
-                    mediaType.Example = metas[rsp.Key].example;
+                    if (metas.TryGetValue(rsp.Key, out var x) && x.example is not "null")
+                    {
+                        mediaType.Example = x.example;
+                    }
+
                     rsp.Value.Content.Clear();
                     foreach (var ct in cTypes)
                         rsp.Value.Content.Add(new(ct, mediaType));

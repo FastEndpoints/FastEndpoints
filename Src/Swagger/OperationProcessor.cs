@@ -208,29 +208,26 @@ internal class OperationProcessor : IOperationProcessor
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
-                object? defaultVal = null;
-
-                var pType = reqDtoProps?.SingleOrDefault(p =>
+                var pInfo = reqDtoProps?.SingleOrDefault(p =>
                 {
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
                     if (string.Equals(pName, ActualParamName(m.Value), StringComparison.OrdinalIgnoreCase))
                     {
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
-                        defaultVal = p.GetCustomAttribute<DefaultValueAttribute>()?.Value;
                         return true;
                     }
                     return false;
-                })?.PropertyType ?? Types.String;
+                });
 
                 return new OpenApiParameter
                 {
                     Name = ActualParamName(m.Value),
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
-                    Schema = ctx.SchemaGenerator.Generate(pType, ctx.SchemaResolver),
+                    Schema = ctx.SchemaGenerator.Generate(pInfo?.PropertyType ?? Types.String, ctx.SchemaResolver),
                     Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value)),
-                    Default = defaultVal,
-                    Example = pType.GetExample()
+                    Default = pInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value,
+                    Example = pInfo?.GetExample()
                 };
             })
             .ToList();

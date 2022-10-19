@@ -182,12 +182,6 @@ public static class Extensions
         return string.IsNullOrEmpty(example) ? null : example;
     }
 
-    internal static string? GetExample(this Type p)
-    {
-        var example = p.GetXmlDocsTag("example");
-        return string.IsNullOrEmpty(example) ? null : example;
-    }
-
     internal static string? GetSummary(this Type p)
     {
         var summary = p.GetXmlDocsSummary();

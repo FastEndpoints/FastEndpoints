@@ -8,3 +8,4 @@
 
 ### FIXES
 - swagger response examples not honoring serializer settings #280
+- swagger request property xml examples not picked up for route params #287 

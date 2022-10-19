@@ -44,4 +44,32 @@ public class BindingOptions
     /// </param>
     public bool ValueParserFor<T>(Func<object?, ParseResult>? parser)
         => ReflectionExtensions.ParserFuncCache.TryAdd(typeof(T), parser);
+
+    /// <summary>
+    /// add a custom value parser function for any given type which the default model binder will use to parse values when model binding request dto properties from query/route/forms/headers/claims.
+    /// this is an alternative approach to adding a `TryParse()` function to your types that need model binding support from the abovementioned binding sources.
+    /// once you register a parser function here for a type, any `TryParse()` method on the type will not be used for parsing.
+    /// also, these parser functions do not apply to JSON deserialization done by STJ and can be considered the equivalent to registering a custom converter in STJ when it comes to query/route/forms/headers/claims binding sources.
+    /// </summary>
+    /// <param name="type">the type of the class which this parser function will target</param>
+    /// <param name="parser">a function that takes in a nullable object and returns a <see cref="ParseResult"/> as the output.
+    /// <code>
+    ///app.UseFastEndpoints(c =>
+    ///{
+    ///    c.Binding.ValueParserFor(typeof(Guid), MyParsers.GuidParser);
+    ///});
+    ///
+    ///public static class MyParsers
+    ///{
+    ///    public static ParseResult GuidParser(object? input)
+    ///    {
+    ///        Guid result;
+    ///        bool success = Guid.TryParse(input?.ToString(), out result);
+    ///        return new(success, result);
+    ///    }
+    ///}
+    /// </code>
+    /// </param>
+    public bool ValueParserFor(Type type, Func<object?, ParseResult>? parser)
+        => ReflectionExtensions.ParserFuncCache.TryAdd(type, parser);
 }

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
@@ -15,6 +16,7 @@ public sealed class EndpointDefinition
 {
     //these can only be set from internal code but accessible for user
     public Type EndpointType { get; internal set; }
+    public ObjectFactory EndpointCreator { get; set; }
     public Type ReqDtoType { get; internal set; }
     public string[]? Routes { get; internal set; }
     public Type? ValidatorType { get; internal set; }

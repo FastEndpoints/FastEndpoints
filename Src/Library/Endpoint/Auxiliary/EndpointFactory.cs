@@ -11,7 +11,7 @@ public class EndpointFactory : IEndpointFactory
 {
     public BaseEndpoint Create(EndpointDefinition definition, HttpContext ctx)
     {
-        var epInstance = (BaseEndpoint)ctx.RequestServices.GetRequiredService(definition.EndpointType);
+        var epInstance = (BaseEndpoint)definition.EndpointCreator(ctx.RequestServices, null);
 
         for (var i = 0; i < definition.ServiceBoundEpProps?.Length; i++)
         {

@@ -114,7 +114,6 @@ internal sealed class EndpointData
                 {
                     var tRequest = t.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest;
 
-                    services.AddTransient(t);
                     epList.Add((t, tRequest));
                     continue;
                 }
@@ -166,6 +165,7 @@ internal sealed class EndpointData
             var def = new EndpointDefinition()
             {
                 EndpointType = x.tEndpoint,
+                EndpointCreator = ActivatorUtilities.CreateFactory(x.tEndpoint, Type.EmptyTypes),
                 ReqDtoType = x.tRequest,
             };
 

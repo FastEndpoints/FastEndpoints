@@ -165,13 +165,13 @@ internal sealed class EndpointData
             var def = new EndpointDefinition()
             {
                 EndpointType = x.tEndpoint,
-                EndpointCreator = ActivatorUtilities.CreateFactory(x.tEndpoint, Type.EmptyTypes),
+                EpInstanceCreator = ActivatorUtilities.CreateFactory(x.tEndpoint, Type.EmptyTypes),
                 ReqDtoType = x.tRequest,
             };
 
             var serviceBoundEpProps = def.EndpointType
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .Where(p => p.CanRead && p.CanWrite)
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                .Where(p => p.CanRead && p.CanWrite && !p.IsDefined(Types.DontInjectAttribute))
                 .Select(p => new ServiceBoundEpProp()
                 {
                     PropSetter = def.EndpointType.SetterForProp(p.Name),

@@ -16,7 +16,6 @@ public sealed class EndpointDefinition
 {
     //these can only be set from internal code but accessible for user
     public Type EndpointType { get; internal set; }
-    public ObjectFactory EndpointCreator { get; set; }
     public Type ReqDtoType { get; internal set; }
     public string[]? Routes { get; internal set; }
     public Type? ValidatorType { get; internal set; }
@@ -45,6 +44,7 @@ public sealed class EndpointDefinition
     public bool ValidatorIsScoped { get; private set; }
 
     //only accessible to internal code
+    internal ObjectFactory EpInstanceCreator;
     internal bool ExecuteAsyncImplemented;
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;

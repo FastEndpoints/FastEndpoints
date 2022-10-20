@@ -22,6 +22,7 @@ public abstract class BaseEndpoint : IEndpoint
     /// <summary>
     /// gets the endpoint definition which contains all the configuration info for the endpoint
     /// </summary>
+    [DontInject]
     public EndpointDefinition Definition { get; internal set; }
 
     /// <summary>
@@ -35,6 +36,7 @@ public abstract class BaseEndpoint : IEndpoint
     /// <summary>
     /// the http context of the current request
     /// </summary>
+    [DontInject]
     public HttpContext HttpContext { get; internal set; }
 
     /// <summary>

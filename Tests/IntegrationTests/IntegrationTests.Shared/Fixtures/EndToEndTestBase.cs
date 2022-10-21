@@ -27,25 +27,13 @@ public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
     {
         EndToEndTestFixture = endToEndTestFixture;
 
-        AdminClient = EndToEndTestFixture.CreateNewClient(services =>
-        {
-            services.AddSingleton<IEmailService, MockEmailService>();
-        });
+        AdminClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, MockEmailService>());
 
-        GuestClient = EndToEndTestFixture.CreateNewClient(services =>
-        {
-            services.AddSingleton<IEmailService, EmailService>();
-        });
+        GuestClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
 
-        CustomerClient = EndToEndTestFixture.CreateNewClient(services =>
-        {
-            services.AddSingleton<IEmailService, EmailService>();
-        });
+        CustomerClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
 
-        RangeClient = EndToEndTestFixture.CreateNewClient(services =>
-        {
-            services.AddSingleton<IEmailService, EmailService>();
-        });
+        RangeClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
 
         EndToEndTestFixture.SetOutputHelper(outputHelper);
         ServiceProvider = EndToEndTestFixture.ServiceProvider;

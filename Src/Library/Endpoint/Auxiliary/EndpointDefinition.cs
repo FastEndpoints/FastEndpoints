@@ -49,8 +49,8 @@ public sealed class EndpointDefinition
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal object? RequestBinder;
-    internal HashSet<object> PreProcessorList = new(new TypeEqualityComparer());
-    internal HashSet<object> PostProcessorList = new(new TypeEqualityComparer());
+    internal List<object> PreProcessorList = new();
+    internal List<object> PostProcessorList = new();
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
@@ -216,25 +216,47 @@ public sealed class EndpointDefinition
     }
 
     /// <summary>
-    /// adds global post-processors to this endpoint definition. these post-processors are executed before the post-processors configured at the endpoint level.
-    /// <para>HINT: these post-processors will be applied in addition to endpoint level post-processors if there's any</para>
+    /// adds global post-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
+    /// <param name="order">set to <see cref="Order.Before"/> if the global post-processors should be executed before endpoint post-processors. <see cref="Order.After"/> will execute global processors after endpoint level processors</param>
     /// <param name="postProcessors">the post-processors to add</param>
-    public void PostProcessors(params IGlobalPostProcessor[] postProcessors)
+    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors)
     {
+        var pos = 0;
         for (var i = 0; i < postProcessors.Length; i++)
-            PostProcessorList.Add(postProcessors[i]);
+        {
+            var p = postProcessors[i];
+            if (!PostProcessorList.Contains(p, TypeEqualityComparer.Instance))
+            {
+                if (order == Order.Before)
+                    PostProcessorList.Insert(pos, p);
+                else
+                    PostProcessorList.Add(p);
+                pos++;
+            }
+        }
     }
 
     /// <summary>
-    /// adds global pre-processors to this endpoint definition. these pre-processors are executed before the pre-processors configured at the endpoint level.
-    /// <para>HINT: these pre-processors will be applied in addition to endpoint level pre-processors if there's any</para>
+    /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
+    /// <param name="order">set to <see cref="Order.Before"/> if the global pre-processors should be executed before endpoint pre-processors. <see cref="Order.After"/> will execute global processors after endpoint level processors</param>
     /// <param name="preProcessors">the pre-processors to add</param>
-    public void PreProcessors(params IGlobalPreProcessor[] preProcessors)
+    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
     {
+        var pos = 0;
         for (var i = 0; i < preProcessors.Length; i++)
-            PreProcessorList.Add(preProcessors[i]);
+        {
+            var p = preProcessors[i];
+            if (!PreProcessorList.Contains(p, TypeEqualityComparer.Instance))
+            {
+                if (order == Order.Before)
+                    PreProcessorList.Insert(pos, p);
+                else
+                    PreProcessorList.Add(p);
+                pos++;
+            }
+        }
     }
 
     /// <summary>
@@ -364,6 +386,8 @@ internal sealed class ServiceBoundEpProp
 
 internal class TypeEqualityComparer : IEqualityComparer<object>
 {
+    internal static readonly TypeEqualityComparer Instance = new();
+
     public new bool Equals(object? x, object? y) => x?.GetType() == y?.GetType();
     public int GetHashCode([DisallowNull] object obj) => obj.GetType().GetHashCode();
 }

@@ -62,7 +62,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// specify a DELETE route pattern using a replacement expression. 
+    /// specify a DELETE route pattern using a replacement expression.
     /// </summary>
     /// <param name="routePattern">
     /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
@@ -113,7 +113,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// specify a GET route pattern using a replacement expression. 
+    /// specify a GET route pattern using a replacement expression.
     /// </summary>
     /// <param name="routePattern">
     /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
@@ -153,7 +153,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// specify a HEAD route pattern using a replacement expression. 
+    /// specify a HEAD route pattern using a replacement expression.
     /// </summary>
     /// <param name="routePattern">
     /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
@@ -182,7 +182,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// specify a PATCH route pattern using a replacement expression. 
+    /// specify a PATCH route pattern using a replacement expression.
     /// </summary>
     /// <param name="routePattern">
     /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
@@ -223,7 +223,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// specify a POST route pattern using a replacement expression. 
+    /// specify a POST route pattern using a replacement expression.
     /// </summary>
     /// <param name="routePattern">
     /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
@@ -270,7 +270,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// specify a PUT route pattern using a replacement expression. 
+    /// specify a PUT route pattern using a replacement expression.
     /// </summary>
     /// <param name="routePattern">
     /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.

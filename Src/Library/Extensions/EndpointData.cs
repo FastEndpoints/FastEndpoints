@@ -114,13 +114,15 @@ internal sealed class EndpointData
                     var tRequest = t.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest;
                     epList.Add((t, tRequest));
 
-                    var tMapper =
-                        t.GetGenericArgumentsOfType(Types.EndpointOf3)?[2] ??
-                        t.GetGenericArgumentsOfType(Types.EndpointWithMapperOf2)?[1] ??
-                        t.GetGenericArgumentsOfType(Types.EndpointWithOutRequestOf2)?[1];
-                    if (Types.IMapper.IsAssignableFrom(tMapper))
-                        mapperDict[t] = tMapper;
-
+                    if (Types.IHasMapper.IsAssignableFrom(t))
+                    {
+                        var tMapper =
+                            t.GetGenericArgumentsOfType(Types.EndpointOf3)?[2] ??
+                            t.GetGenericArgumentsOfType(Types.EndpointWithMapperOf2)?[1] ??
+                            t.GetGenericArgumentsOfType(Types.EndpointWithOutRequestOf2)?[1];
+                        if (Types.IMapper.IsAssignableFrom(tMapper))
+                            mapperDict[t] = tMapper;
+                    }
                     continue;
                 }
 

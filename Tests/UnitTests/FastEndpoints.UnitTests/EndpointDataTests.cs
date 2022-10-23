@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+﻿using Xunit;
 
 namespace FastEndpoints.UnitTests;
 public class EndpointDataTests
@@ -8,14 +7,19 @@ public class EndpointDataTests
     public void ItCanFilterTypes()
     {
         const string typename = "foo";
-        var serviceCollection = new ServiceCollection();
         var options = new EndpointDiscoveryOptions
         {
             Filter = t => t.Name.Contains(typename, StringComparison.OrdinalIgnoreCase),
             Assemblies = new[] { GetType().Assembly }
         };
 
-        var sut = new EndpointData(serviceCollection, options, null);
+        var sut = new EndpointData(options);
+        var ep = new Foo
+        {
+            Definition = sut.Found[0]
+        };
+        sut.Found[0].Initialize(ep, null);
+
         sut.Found.Should().HaveCount(1);
         sut.Found[0].Routes.Should().HaveCount(1);
         sut?.Found[0]?.Routes?[0].Should().BeEquivalentTo(typename);

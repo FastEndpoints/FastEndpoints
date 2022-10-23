@@ -14,8 +14,8 @@ public class UnitTests
     {
         //arrange
         var logger = A.Fake<ILogger<TestCases.MapperTest.Endpoint>>();
-        var mapper = new TestCases.MapperTest.Mapper();
-        var ep = Factory.Create<TestCases.MapperTest.Endpoint>(logger, mapper);
+        var ep = Factory.Create<TestCases.MapperTest.Endpoint>(logger);
+        ep.Map = new TestCases.MapperTest.Mapper();
         var req = new TestCases.MapperTest.Request
         {
             FirstName = "john",

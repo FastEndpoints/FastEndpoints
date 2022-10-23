@@ -4,9 +4,8 @@ public class Endpoint : Endpoint<Request, Response, Mapper>
 {
     private readonly ILogger _logger;
 
-    public Endpoint(ILogger<Endpoint> logger, Mapper mapper)
+    public Endpoint(ILogger<Endpoint> logger)
     {
-        Map = mapper;
         _logger = logger;
     }
 

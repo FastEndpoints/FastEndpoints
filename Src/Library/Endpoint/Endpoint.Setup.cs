@@ -320,11 +320,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void Routes(params string[] patterns) => Definition.Routes = patterns;
 
     /// <summary>
-    /// register the validator for this endpoint as scoped instead of singleton. which will enable constructor injection at the cost of performance.
-    /// </summary>
-    protected void ScopedValidator() => Definition.ScopedValidator();
-
-    /// <summary>
     /// specify the json serializer context if code generation for request/response dtos is being used
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
@@ -372,8 +367,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <para>TIP: you only need to call this method if you have more than one validator for the same request dto in the solution or if you just want to be explicit about what validator is used by the endpoint.</para>
     /// </summary>
     /// <typeparam name="TValidator">the type of the validator</typeparam>
-    /// <param name="isScoped">set to true if you want to register the validator as scoped instead of singleton. which will enable constructor injection at the cost of performance.</param>
-    protected void Validator<TValidator>(bool isScoped = false) where TValidator : IValidator => Definition.Validator<TValidator>(isScoped);
+    protected void Validator<TValidator>() where TValidator : IValidator => Definition.Validator<TValidator>();
 
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for

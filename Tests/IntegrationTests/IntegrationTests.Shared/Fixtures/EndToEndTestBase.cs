@@ -10,14 +10,7 @@ namespace IntegrationTests.Shared.Fixtures;
 
 public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
 {
-    protected CancellationTokenSource CancellationTokenSource { get; } = new(TimeSpan.FromSeconds(10));
-    protected IServiceProvider ServiceProvider { get; }
-    protected IServiceScope Scope { get; }
     protected EndToEndTestFixture EndToEndTestFixture { get; }
-
-    protected CancellationToken CancellationToken => CancellationTokenSource.Token;
-    protected TextWriter TextWriter => Scope.ServiceProvider.GetRequiredService<TextWriter>();
-
     protected HttpClient AdminClient { get; }
     protected HttpClient GuestClient { get; }
     protected HttpClient CustomerClient { get; }
@@ -36,8 +29,6 @@ public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
         RangeClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
 
         EndToEndTestFixture.SetOutputHelper(outputHelper);
-        ServiceProvider = EndToEndTestFixture.ServiceProvider;
-        Scope = ServiceProvider.CreateScope();
 
         var (_, result) = GuestClient.POSTAsync<
                 Admin.Login.Endpoint,

@@ -55,6 +55,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         validatorTypes ??= MainExtensions.Endpoints.Found
             .Where(e => e.ValidatorType != null)
             .Select(e => e.ValidatorType!)
+            .Distinct()
             .ToArray();
 
         if (validatorTypes?.Length is null or 0)
@@ -70,24 +71,23 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 
         var tRequest = context.ContextualType;
 
+        using var scope = IServiceResolver.RootServiceProvider?.CreateScope();
+        if (scope is null)
+            throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
+
         foreach (var tValidator in validatorTypes)
         {
             try
             {
                 if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
-                    using var scope = IServiceResolver.RootServiceProvider?.CreateScope();
-                    var validator = scope?.ServiceProvider.GetRequiredService(tValidator);
+                    var validator = ActivatorUtilities.CreateInstance(scope.ServiceProvider, tValidator);
                     if (validator is null)
-                        throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
+                        throw new InvalidOperationException("Unable to instantiate validator!");
 
                     ApplyValidator(context.Schema, (IValidator)validator, "");
                     break;
                 }
-            }
-            catch (NullReferenceException nullEx)
-            {
-                _logger?.LogError(nullEx, "NullReferenceException while processing {@tValidator}", tValidator);
             }
             catch (Exception ex)
             {
@@ -104,7 +104,9 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         ApplyRulesFromIncludedValidators(schema, validator);
     }
 
-    private void ApplyRulesToSchema(JsonSchema? schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict, string propertyPrefix)
+    private void ApplyRulesToSchema(JsonSchema? schema,
+                                    ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
+                                    string propertyPrefix)
     {
         if (schema is null)
             return;
@@ -151,8 +153,10 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         }
     }
 
-    private void TryApplyValidation(JsonSchema schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
-        string propertyName, string parameterPrefix)
+    private void TryApplyValidation(JsonSchema schema,
+                                    ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
+                                    string propertyName,
+                                    string parameterPrefix)
     {
         // Build the full propertyname with composition route: request.child.property
         var fullPropertyName = $"{parameterPrefix}{propertyName}";

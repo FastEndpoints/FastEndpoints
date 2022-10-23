@@ -1,8 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace FastEndpoints;
 
@@ -15,11 +13,11 @@ internal sealed class EndpointData
 
     internal static Stopwatch Stopwatch { get; } = new();
 
-    internal EndpointData(IServiceCollection services, EndpointDiscoveryOptions options, ConfigurationManager? config)
+    internal EndpointData(EndpointDiscoveryOptions options)
     {
         _endpoints = new(() =>
         {
-            var endpoints = BuildEndpointDefinitions(services, options, config);
+            var endpoints = BuildEndpointDefinitions(options);
 
             return endpoints.Length == 0
                    ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
@@ -31,8 +29,7 @@ internal sealed class EndpointData
         _ = _endpoints.Value;
     }
 
-    private static EndpointDefinition[] BuildEndpointDefinitions(IServiceCollection services, EndpointDiscoveryOptions options,
-        ConfigurationManager? config)
+    private static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options)
     {
         if (options.DisableAutoDiscovery && options.Assemblies?.Any() is false)
             throw new InvalidOperationException("If 'DisableAutoDiscovery' is true, a collection of `Assemblies` must be provided!");
@@ -89,7 +86,6 @@ internal sealed class EndpointData
                          Types.IEndpoint,
                          Types.IEventHandler,
                          Types.ISummary,
-                         Types.IMapper,
                          options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
                      }).Any() &&
                     (options.Filter is null || options.Filter(t)));
@@ -103,6 +99,9 @@ internal sealed class EndpointData
         //key: TRequest
         var valDict = new Dictionary<Type, ValDicItem>();
 
+        //key: TEndpoint //val: TMapper
+        var mapperDict = new Dictionary<Type, Type>();
+
         //key: TEndpoint //val: TSummary
         var summaryDict = new Dictionary<Type, Type>();
 
@@ -113,8 +112,15 @@ internal sealed class EndpointData
                 if (tInterface == Types.IEndpoint)
                 {
                     var tRequest = t.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest;
-
                     epList.Add((t, tRequest));
+
+                    var tMapper =
+                        t.GetGenericArgumentsOfType(Types.EndpointOf3)?[2] ??
+                        t.GetGenericArgumentsOfType(Types.EndpointWithMapperOf2)?[1] ??
+                        t.GetGenericArgumentsOfType(Types.EndpointWithOutRequestOf2)?[1];
+                    if (Types.IMapper.IsAssignableFrom(tMapper))
+                        mapperDict[t] = tMapper;
+
                     continue;
                 }
 
@@ -139,12 +145,6 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface == Types.IMapper)
-                {
-                    services.AddSingleton(t);
-                    continue;
-                }
-
                 if (tInterface == Types.IEventHandler)
                 {
                     var tEvent = t.GetGenericArgumentsOfType(Types.FastEventHandlerOf1)?[0]!;
@@ -154,7 +154,6 @@ internal sealed class EndpointData
                         handlers.Add(handler);
                     else
                         EventBase.handlerDict[tEvent] = new() { handler };
-
                     continue;
                 }
             }
@@ -168,6 +167,9 @@ internal sealed class EndpointData
                 EpInstanceCreator = ActivatorUtilities.CreateFactory(x.tEndpoint, Type.EmptyTypes),
                 ReqDtoType = x.tRequest,
             };
+
+            if (mapperDict.TryGetValue(x.tEndpoint, out var mapper))
+                def.MapperType = mapper;
 
             var serviceBoundEpProps = def.EndpointType
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
@@ -201,8 +203,9 @@ internal sealed class EndpointData
                 }
             }
 
-            var epAttribs = x.tEndpoint.GetCustomAttributes(true);
-            var hashttpAttrib = epAttribs.Any(a => a is HttpAttribute);
+            def.ImplementsConfigure = implementsConfigure;
+            def.EpAttributes = x.tEndpoint.GetCustomAttributes(true);
+            var hashttpAttrib = def.EpAttributes.Any(a => a is HttpAttribute);
 
             if (implementsConfigure && hashttpAttrib)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
@@ -216,17 +219,6 @@ internal sealed class EndpointData
             if (implementsHandleAsync && implementsExecuteAsync)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
 
-            //create an endpoint instance and run the Configure() method in order to get the def object populated
-            var instance =
-                x.tEndpoint.GetConstructor(Type.EmptyTypes) is null
-                ? (BaseEndpoint)FormatterServices.GetUninitializedObject(x.tEndpoint)! //this is an endpoint with ctor arguments
-                : (BaseEndpoint)Activator.CreateInstance(x.tEndpoint)!; //endpoint which has a default ctor
-
-            instance.Definition = def;
-            instance.Config = config;
-
-            def.Configure(instance, implementsConfigure, epAttribs);
-
             if (def.ValidatorType is null && valDict.TryGetValue(def.ReqDtoType, out var val)) //user has not specified a validator type in the endpoint
             {
                 if (val.HasDuplicates)
@@ -235,18 +227,8 @@ internal sealed class EndpointData
                 def.ValidatorType = val.ValidatorType;
             }
 
-            if (def.ValidatorType is not null)
-            {
-                if (def.ValidatorIsScoped) //todo: remove ability to make validators scoped in favor of CreateScope() method
-                    services.AddScoped(def.ValidatorType);
-                else
-                    services.AddSingleton(def.ValidatorType);
-            }
-
             if (summaryDict.TryGetValue(def.EndpointType, out var tSummary))
-            {
                 def.Summary((EndpointSummary)Activator.CreateInstance(tSummary)!);
-            }
 
             return def;
         }).ToArray();

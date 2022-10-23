@@ -23,8 +23,9 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
     /// the entity mapper for the endpoint
     /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     /// </summary>
+    [DontInject]
     public TMapper Map {
-        get => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+        get => _mapper ??= (TMapper)Definition.MapperInstance!;
         set => _mapper = value;
     }
 }
@@ -236,8 +237,9 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
     /// the entity mapper for the endpoint
     /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     /// </summary>
+    [DontInject]
     public TMapper Map {
-        get => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+        get => _mapper ??= (TMapper)Definition.MapperInstance!;
         set => _mapper = value;
     }
 }
@@ -320,8 +322,9 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
     /// the entity mapper for the endpoint
     /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     /// </summary>
+    [DontInject]
     public TMapper Map {
-        get => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+        get => _mapper ??= (TMapper)Definition.MapperInstance!;
         set => _mapper = value;
     }
 }

@@ -16,11 +16,12 @@ public sealed class EndpointDefinition
 {
     //these can only be set from internal code but accessible for user
     public Type EndpointType { get; internal set; }
+    public Type? MapperType { get; internal set; }
     public Type ReqDtoType { get; internal set; }
     public string[]? Routes { get; internal set; }
+    public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public Type? ValidatorType { get; internal set; }
     public Http[]? Verbs { get; internal set; }
-    public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public EpVersion Version { get; } = new();
 
     //these props can be changed in global config using methods below
@@ -40,14 +41,15 @@ public sealed class EndpointDefinition
     public string? OverriddenRoutePrefix { get; private set; }
     public List<string>? PreBuiltUserPolicies { get; private set; }
     public bool ThrowIfValidationFails { get; private set; } = true;
-    [Obsolete("This property will be removed in the next major version!")] //todo: remove ability to make validators scoped in favor of CreateScope() method
-    public bool ValidatorIsScoped { get; private set; }
 
     //only accessible to internal code
+    internal object[]? EpAttributes;
     internal ObjectFactory EpInstanceCreator;
     internal bool ExecuteAsyncImplemented;
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
+    internal bool ImplementsConfigure;
+    internal object? MapperInstance;
     internal object? RequestBinder;
     internal List<object> PreProcessorList = new();
     internal List<object> PostProcessorList = new();
@@ -55,6 +57,7 @@ public sealed class EndpointDefinition
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
+    internal object? ValidatorInstance;
 
     private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
     {
@@ -299,10 +302,6 @@ public sealed class EndpointDefinition
     /// <param name="routePrefix">route prefix value</param>
     public void RoutePrefixOverride(string routePrefix) => OverriddenRoutePrefix = routePrefix;
 
-    //todo: remove ability to make validators scoped in favor of CreateScope() method
-    [Obsolete("Ability to register validators as scoped will be removed in next major version. Use CreateScope() method instead.")]
-    public void ScopedValidator() => ValidatorIsScoped = true;
-
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
@@ -354,12 +353,9 @@ public sealed class EndpointDefinition
     /// validator that should be used for this endpoint
     /// </summary>
     /// <typeparam name="TValidator">the type of the validator</typeparam>
-    /// <param name="isScoped">set to true if you want to register the validator as scoped instead of singleton. which will enable constructor injection at the cost of performance.</param>
-    public void Validator<TValidator>(bool isScoped = false) where TValidator : IValidator
+    public void Validator<TValidator>() where TValidator : IValidator
     {
         ValidatorType = typeof(TValidator);
-        if (isScoped)
-            ScopedValidator();
     }
 }
 

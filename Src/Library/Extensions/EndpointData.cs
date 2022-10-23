@@ -107,14 +107,16 @@ internal sealed class EndpointData
 
         foreach (var t in discoveredTypes)
         {
-            foreach (var tInterface in t.GetInterfaces())
+            var tInterfaces = t.GetInterfaces();
+
+            foreach (var tInterface in tInterfaces)
             {
                 if (tInterface == Types.IEndpoint)
                 {
                     var tRequest = t.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest;
                     epList.Add((t, tRequest));
 
-                    if (Types.IHasMapper.IsAssignableFrom(t))
+                    if (tInterfaces.Contains(Types.IHasMapper))
                     {
                         var tMapper =
                             t.GetGenericArgumentsOfType(Types.EndpointOf3)?[2] ??

@@ -19,6 +19,7 @@ internal static class Types
     internal static readonly Type EndpointWithMapperOf2 = typeof(EndpointWithMapper<,>);
     internal static readonly Type EndpointWithOutRequestOf2 = typeof(EndpointWithoutRequest<,>);
     internal static readonly Type FastEventHandlerOf1 = typeof(FastEventHandler<>);
+    internal static readonly Type FastRequestHandlerOf2 = typeof(FastRequestHandler<,>);
     internal static readonly Type Http = typeof(Http);
     internal static readonly Type HttpAttribute = typeof(HttpAttribute);
     internal static readonly Type IEndpoint = typeof(IEndpoint);
@@ -26,6 +27,7 @@ internal static class Types
     internal static readonly Type IEndpointValidator = typeof(IEndpointValidator);
     internal static readonly Type IEnumerable = typeof(IEnumerable);
     internal static readonly Type IEventHandler = typeof(IEventHandler);
+    internal static readonly Type IRequestHandler = typeof(IRequestHandler);
     internal static readonly Type IFormFile = typeof(IFormFile);
     internal static readonly Type IHasMapper = typeof(IHasMapper);
     internal static readonly Type IMapper = typeof(IMapper);

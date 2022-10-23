@@ -85,6 +85,7 @@ internal sealed class EndpointData
                      t.GetInterfaces().Intersect(new[] {
                          Types.IEndpoint,
                          Types.IEventHandler,
+                         Types.IRequestHandler,
                          Types.ISummary,
                          options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
                      }).Any() &&
@@ -158,6 +159,20 @@ internal sealed class EndpointData
                         handlers.Add(handler);
                     else
                         EventBase.handlerDict[tEvent] = new() { handler };
+                    continue;
+                }
+
+                if (tInterface == Types.IRequestHandler)
+                {
+                    var tRequest = t.GetGenericArgumentsOfType(Types.FastRequestHandlerOf2)?[0]!;
+                    var handler = (IRequestHandler)Activator.CreateInstance(t)!;
+
+                    if (RequestBase.handlersDictionary.TryGetValue(tRequest, out _))
+                        throw new Exception($"There is an already registered handler for the request '{tRequest.Name}'. " +
+                                            "Only one handler is allowed when you use Req/Res pattern. " +
+                                            "Consider using Events Pub/Sub pattern in-case you need more than one handler!.");
+                    RequestBase.handlersDictionary.Add(tRequest, handler);
+
                     continue;
                 }
             }

@@ -88,7 +88,7 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //fix response content-types not displaying correctly
-        //also set user provided response example
+        //also set user provided response examples
         if (op.Responses.Count > 0)
         {
             var metas = metaData
@@ -96,32 +96,38 @@ internal class OperationProcessor : IOperationProcessor
              .GroupBy(m => m.StatusCode, (k, g) =>
              {
                  object? example = null;
-                 var _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
+                 _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
                  return new {
                      key = k.ToString(),
                      cTypes = g.Last().ContentTypes,
-                     example = (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example
+                     example = Newtonsoft.Json.JsonConvert.SerializeObject(
+                         (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example,
+                         ctx.SchemaGenerator.Settings.ActualSerializerSettings)
                  };
              })
              .ToDictionary(x => x.key);
 
             if (metas.Count > 0)
             {
-                foreach (var resp in op.Responses)
+                foreach (var rsp in op.Responses)
                 {
-                    var cTypes = metas[resp.Key].cTypes;
-                    var mediaType = resp.Value.Content.FirstOrDefault().Value;
-                    mediaType.Example = metas[resp.Key].example;
-                    resp.Value.Content.Clear();
+                    var cTypes = metas[rsp.Key].cTypes;
+                    var mediaType = rsp.Value.Content.FirstOrDefault().Value;
+                    if (metas.TryGetValue(rsp.Key, out var x) && x.example is not "null")
+                    {
+                        mediaType.Example = x.example;
+                    }
+
+                    rsp.Value.Content.Clear();
                     foreach (var ct in cTypes)
-                        resp.Value.Content.Add(new(ct, mediaType));
+                        rsp.Value.Content.Add(new(ct, mediaType));
                 }
             }
         }
 
         //set endpoint summary & description
-        op.Summary = epDef.EndpointSummary?.Summary;
-        op.Description = epDef.EndpointSummary?.Description;
+        op.Summary = epDef.EndpointSummary?.Summary ?? epDef.EndpointType.GetSummary();
+        op.Description = epDef.EndpointSummary?.Description ?? epDef.EndpointType.GetDescription();
 
         //set response descriptions (no xml comments support here, yet!)
         op.Responses
@@ -188,33 +194,40 @@ internal class OperationProcessor : IOperationProcessor
         var reqParams = new List<OpenApiParameter>();
         var propsToRemoveFromExample = new List<string>();
 
+        if (reqDtoProps != null)
+        {
+            //Remove the readonly properties from the request body
+            foreach (var p in reqDtoProps.Where(p => !p.CanWrite))
+            {
+                RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+            }
+        }
+
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
         reqParams = regex
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
-                object? defaultVal = null;
-
-                var pType = reqDtoProps?.SingleOrDefault(p =>
+                var pInfo = reqDtoProps?.SingleOrDefault(p =>
                 {
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
                     if (string.Equals(pName, ActualParamName(m.Value), StringComparison.OrdinalIgnoreCase))
                     {
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
-                        defaultVal = p.GetCustomAttribute<DefaultValueAttribute>()?.Value;
                         return true;
                     }
                     return false;
-                })?.PropertyType ?? Types.String;
+                });
 
                 return new OpenApiParameter
                 {
                     Name = ActualParamName(m.Value),
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
-                    Schema = ctx.SchemaGenerator.Generate(pType, ctx.SchemaResolver),
+                    Schema = ctx.SchemaGenerator.Generate(pInfo?.PropertyType ?? Types.String, ctx.SchemaResolver),
                     Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value)),
-                    Default = defaultVal
+                    Default = pInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value,
+                    Example = pInfo?.GetExample()
                 };
             })
             .ToList();
@@ -227,7 +240,6 @@ internal class OperationProcessor : IOperationProcessor
                 .Select(p =>
                 {
                     RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
-
                     return new OpenApiParameter
                     {
                         Name = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name,
@@ -235,7 +247,8 @@ internal class OperationProcessor : IOperationProcessor
                         Schema = ctx.SchemaGenerator.Generate(p.PropertyType, ctx.SchemaResolver),
                         Kind = OpenApiParameterKind.Query,
                         Description = reqParamDescriptions.GetValueOrDefault(p.Name),
-                        Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
+                        Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value,
+                        Example = p.GetExample()
                     };
                 })
                 .ToList();
@@ -262,7 +275,8 @@ internal class OperationProcessor : IOperationProcessor
                             Schema = ctx.SchemaGenerator.Generate(p.PropertyType, ctx.SchemaResolver),
                             Kind = OpenApiParameterKind.Header,
                             Description = reqParamDescriptions.GetValueOrDefault(pName),
-                            Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value
+                            Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value,
+                            Example = p.GetExample()
                         });
 
                         //remove corresponding json body field if it's required. allow binding only from header.
@@ -326,7 +340,8 @@ internal class OperationProcessor : IOperationProcessor
                     Schema = ctx.SchemaGenerator.Generate(fromBodyProp.PropertyType, ctx.SchemaResolver),
                     Kind = OpenApiParameterKind.Body,
                     Description = reqParamDescriptions.GetValueOrDefault(fromBodyProp.Name),
-                    Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value
+                    Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value,
+                    Example = fromBodyProp.GetExample()
                 });
             }
         }
@@ -338,7 +353,9 @@ internal class OperationProcessor : IOperationProcessor
             {
                 if (epDef.EndpointSummary.ExampleRequest.GetType().IsAssignableTo(typeof(IEnumerable)))
                 {
-                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(epDef.EndpointSummary.ExampleRequest);
+                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
+                        epDef.EndpointSummary.ExampleRequest,
+                        ctx.SchemaGenerator.Settings.ActualSerializerSettings);
                 }
                 else
                 {

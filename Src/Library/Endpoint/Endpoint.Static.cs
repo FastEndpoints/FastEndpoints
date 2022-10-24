@@ -6,11 +6,11 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new()
 {
-    private static async Task RunPostProcessors(HashSet<object> postProcessors, TRequest req, TResponse? resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPostProcessors(List<object> postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        foreach (var p in postProcessors)
+        for (var i = 0; i < postProcessors.Count; i++)
         {
-            switch (p)
+            switch (postProcessors[i])
             {
                 case IGlobalPostProcessor gp:
                     await gp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
@@ -22,11 +22,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static async Task RunPreprocessors(HashSet<object> preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPreprocessors(List<object> preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        foreach (var p in preProcessors)
+        for (var i = 0; i < preProcessors.Count; i++)
         {
-            switch (p)
+            switch (preProcessors[i])
             {
                 case IGlobalPreProcessor gp:
                     await gp.PreProcessAsync(req, ctx, validationFailures, cancellation);
@@ -38,7 +38,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static Task AutoSendResponse(HttpContext ctx, TResponse? responseDto, JsonSerializerContext? jsonSerializerContext, CancellationToken cancellation)
+    private static Task AutoSendResponse(HttpContext ctx, TResponse responseDto, JsonSerializerContext? jsonSerializerContext, CancellationToken cancellation)
     {
         return responseDto is null
                ? ctx.Response.SendNoContentAsync(cancellation)

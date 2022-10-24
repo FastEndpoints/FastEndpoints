@@ -18,7 +18,6 @@ public class Endpoint : Endpoint<Request, Response>
         Verbs(Http.POST, Http.PUT, Http.PATCH);
         Routes("admin/login");
         AllowAnonymous();
-        ScopedValidator();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         Description(b => b
             .Accepts<Request>("application/json")

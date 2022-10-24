@@ -46,7 +46,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="req">the request dto</param>
     /// <param name="res">the response dto that was sent to the client</param>
-    public virtual void OnAfterHandle(TRequest req, TResponse? res) { }
+    public virtual void OnAfterHandle(TRequest req, TResponse res) { }
 
     /// <summary>
     /// override this method if you'd like to do something after the handler is executed.
@@ -54,7 +54,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="req">the request dto</param>
     /// <param name="res">the response dto that was sent to the client</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task OnAfterHandleAsync(TRequest req, TResponse? res, CancellationToken ct) => Task.CompletedTask;
+    public virtual Task OnAfterHandleAsync(TRequest req, TResponse res, CancellationToken ct) => Task.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do something when a validation failure occurs.

@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
-        <NoWarn>1701;1702;CS1591;CS1573,CA2254;RCS1079;CS8618</NoWarn>
+        <NoWarn>1701;1702;CS1591;CS1573,CA2254;RCS1079;CS8618;IDE0022</NoWarn>
         <Description>A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -13,6 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj" />
         <PackageReference Include="FluentValidation" Version="11.2.2" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

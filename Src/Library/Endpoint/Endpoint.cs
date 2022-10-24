@@ -9,6 +9,7 @@ namespace FastEndpoints;
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull, new() { };
+
 /// <summary>
 /// use this base class for defining endpoints that only use a request dto and don't use a response dto but uses a request mapper.
 /// </summary>
@@ -18,11 +19,15 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 {
     private TMapper? _mapper;
 
-    ///// <summary>
-    ///// the entity mapper for the endpoint
-    ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
-    ///// </summary>
-    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    /// <summary>
+    /// the entity mapper for the endpoint
+    /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
+    /// </summary>
+    [DontInject]
+    public TMapper Map {
+        get => _mapper ??= (TMapper)Definition.MapperInstance!;
+        set => _mapper = value;
+    }
 }
 
 /// <summary>
@@ -76,8 +81,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
             if (!ResponseStarted)
                 await AutoSendResponse(HttpContext, _response, Definition.SerializerContext, ct);
 
-            OnAfterHandle(req, Response);
-            await OnAfterHandleAsync(req, Response, ct);
+            OnAfterHandle(req, _response);
+            await OnAfterHandleAsync(req, _response, ct);
         }
         catch (ValidationFailureException)
         {
@@ -91,7 +96,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         }
         finally
         {
-            await RunPostProcessors(Definition.PostProcessorList, req, Response, HttpContext, ValidationFailures, ct);
+            await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, ValidationFailures, ct);
         }
     }
 
@@ -171,8 +176,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         {
             var res = typeof(T).ValueParser()?.Invoke(val);
 
-            if (res?.isSuccess is true)
-                return (T?)res?.value;
+            if (res?.IsSuccess is true)
+                return (T?)res?.Value;
 
             if (isRequired)
                 ValidationFailures.Add(new(paramName, "Unable to read value of route parameter!"));
@@ -201,8 +206,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         {
             var res = typeof(T).ValueParser()?.Invoke(val);
 
-            if (res?.isSuccess is true)
-                return (T?)res?.value;
+            if (res?.IsSuccess is true)
+                return (T?)res?.Value;
 
             if (isRequired)
                 ValidationFailures.Add(new(paramName, "Unable to read value of query parameter!"));
@@ -217,6 +222,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
         return default;// not required and retrieval failed
     }
 }
+
 /// <summary>
 /// use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity using a seperate entity mapper.
 /// </summary>
@@ -227,11 +233,15 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
 {
     private TMapper? _mapper;
 
-    ///// <summary>
-    ///// the entity mapper for the endpoint
-    ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
-    ///// </summary>
-    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    /// <summary>
+    /// the entity mapper for the endpoint
+    /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
+    /// </summary>
+    [DontInject]
+    public TMapper Map {
+        get => _mapper ??= (TMapper)Definition.MapperInstance!;
+        set => _mapper = value;
+    }
 }
 
 /// <summary>
@@ -298,6 +308,7 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
     [NotImplemented]
     public sealed override Task<TResponse> ExecuteAsync(EmptyRequest _, CancellationToken ct) => ExecuteAsync(ct);
 }
+
 /// <summary>
 /// use this base class for defining endpoints that doesn't need a request dto but return a response dto and uses a response mapper.
 /// </summary>
@@ -307,11 +318,15 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
 {
     private TMapper? _mapper;
 
-    ///// <summary>
-    ///// the entity mapper for the endpoint
-    ///// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
-    ///// </summary>
-    public TMapper Map => _mapper ??= HttpContext.RequestServices.GetRequiredService<TMapper>();
+    /// <summary>
+    /// the entity mapper for the endpoint
+    /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
+    /// </summary>
+    [DontInject]
+    public TMapper Map {
+        get => _mapper ??= (TMapper)Definition.MapperInstance!;
+        set => _mapper = value;
+    }
 }
 
 /// <summary>

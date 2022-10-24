@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Namotion.Reflection;
 using NJsonSchema.Generation;
 using NSwag;
 using NSwag.AspNetCore;
@@ -58,9 +59,23 @@ public static class Extensions
         settings.AddAuth("JWTBearerAuth", new OpenApiSecurityScheme
         {
             Type = OpenApiSecuritySchemeType.Http,
-            Scheme = "bearer",
+            Scheme = "Bearer",
             BearerFormat = "JWT",
             Description = "Enter a JWT token to authorize the requests..."
+        });
+    }
+
+    /// <summary>
+    /// add <see cref="OpenApiTag"/>s to a swagger document in order to provide tag descriptions
+    /// </summary>
+    /// <param name="documentTags">the <see cref="OpenApiTag"/>s to be added to the swagger doc</param>
+    public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings, params OpenApiTag[] documentTags)
+    {
+        settings.AddOperationFilter(ctx =>
+        {
+            foreach (var t in documentTags)
+                ctx.Document.Tags.Add(t);
+            return true;
         });
     }
 
@@ -101,9 +116,8 @@ public static class Extensions
             if (excludeNonFastEndpoints) s.OperationProcessors.Insert(0, new FastEndpointsFilter());
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
-            s.FlattenInheritanceHierarchy = removeEmptySchemas;
+            if (removeEmptySchemas) s.FlattenInheritanceHierarchy = removeEmptySchemas; //gotta force this here even if user asks not to flatten
         });
-
         return services;
     }
 
@@ -161,4 +175,22 @@ public static class Extensions
 
     private static readonly NullabilityInfoContext nullCtx = new();
     internal static bool IsNullable(this PropertyInfo p) => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
+
+    internal static string? GetExample(this PropertyInfo p)
+    {
+        var example = p.GetXmlDocsTag("example");
+        return string.IsNullOrEmpty(example) ? null : example;
+    }
+
+    internal static string? GetSummary(this Type p)
+    {
+        var summary = p.GetXmlDocsSummary();
+        return string.IsNullOrEmpty(summary) ? null : summary;
+    }
+
+    internal static string? GetDescription(this Type p)
+    {
+        var remarks = p.GetXmlDocsRemarks();
+        return string.IsNullOrEmpty(remarks) ? null : remarks;
+    }
 }

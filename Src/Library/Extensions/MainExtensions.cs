@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -29,16 +28,13 @@ public static class MainExtensions
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
     /// </summary>
     /// <param name="options">optionally specify the endpoint discovery options</param>
-    /// <param name="config">optionally specify the IConfiguration/ConfigurationManager if you need to access it from within endpoint Configure() method</param>
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services,
-        Action<EndpointDiscoveryOptions>? options = null,
-        ConfigurationManager? config = null)
+                                                          Action<EndpointDiscoveryOptions>? options = null)
     {
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
-        Endpoints = new(services, opts, config);
+        Endpoints = new(opts);
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
-        services.AddHttpContextAccessor(); //todo: remove after removing scoped validator support.
         services.AddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(Event<>));
@@ -55,9 +51,9 @@ public static class MainExtensions
     /// <exception cref="InvalidCastException">thrown when the <c>app</c> cannot be cast to <see cref="IEndpointRouteBuilder"/></exception>
     public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, Action<Config>? configAction = null)
     {
-        UseFastEndpointsMiddleware(app);
         if (app is not IEndpointRouteBuilder routeBuilder)
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
+        UseFastEndpointsMiddleware(app);
         MapFastEndpoints(routeBuilder, configAction);
         return app;
     }
@@ -74,65 +70,69 @@ public static class MainExtensions
         SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
         configAction?.Invoke(new Config());
 
-        //key: {verb}:{route}
-        var routeToHandlerCounts = new ConcurrentDictionary<string, int>();
+        var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
+        using var scope = app.ServiceProvider.CreateScope();
+        var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
+        var routeToHandlerCounts = new ConcurrentDictionary<string, int>();//key: {verb}:{route}
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 
-        foreach (var epDef in Endpoints.Found)
+        foreach (var def in Endpoints.Found)
         {
-            if (EpOpts.Filter is not null && !EpOpts.Filter(epDef)) continue;
+            var ep = epFactory.Create(def, httpCtx);
+            def.Initialize(ep, httpCtx);
 
-            if (epDef.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{epDef.EndpointType.FullName}]");
-            if (epDef.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{epDef.EndpointType.FullName}]");
+            if (EpOpts.Filter is not null && !EpOpts.Filter(def)) continue;
+            if (def.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{def.EndpointType.FullName}]");
+            if (def.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
-            EpOpts.Configurator?.Invoke(epDef); //apply global ep settings to the definition
-            epDef.Version.Setup(); //todo: move this to a more appropriate place
+            EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
+            def.Version.Setup(); //todo: move this to a more appropriate place
 
-            var authorizeAttributes = BuildAuthorizeAttributes(epDef);
+            var authorizeAttributes = BuildAuthorizeAttributes(def);
             var routeNum = 0;
 
-            foreach (var route in epDef.Routes)
+            foreach (var route in def.Routes)
             {
-                var finalRoute = routeBuilder.BuildRoute(epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
-                IEndpoint.SetTestURL(epDef.EndpointType, finalRoute);
+                var finalRoute = routeBuilder.BuildRoute(def.Version.Current, route, def.OverriddenRoutePrefix);
+                IEndpoint.SetTestURL(def.EndpointType, finalRoute);
 
                 routeNum++;
 
-                foreach (var verb in epDef.Verbs)
+                foreach (var verb in def.Verbs)
                 {
                     var strVerb = verb.ToString();
 
                     var hb = app.MapMethods(finalRoute, new[] { strVerb }, SendMisconfiguredPipelineMsg());
 
                     hb.WithName(
-                        epDef.EndpointType.EndpointName(
-                            epDef.Verbs.Length > 1 ? strVerb : null,
-                            epDef.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
+                        def.EndpointType.EndpointName(
+                            def.Verbs.Length > 1 ? strVerb : null,
+                            def.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
 
-                    hb.WithMetadata(epDef);
+                    hb.WithMetadata(def);
 
-                    epDef.InternalConfigAction(hb); //always do this first here
+                    def.InternalConfigAction(hb); //always do this first here
 
-                    if (epDef.AnonymousVerbs?.Contains(strVerb) is true)
+                    if (def.AnonymousVerbs?.Contains(strVerb) is true)
                         hb.AllowAnonymous();
                     else
                         hb.RequireAuthorization(authorizeAttributes);
 
-                    if (epDef.ResponseCacheSettings is not null)
-                        hb.WithMetadata(epDef.ResponseCacheSettings);
+                    if (def.ResponseCacheSettings is not null)
+                        hb.WithMetadata(def.ResponseCacheSettings);
 
-                    if (epDef.FormDataAllowed)
-                        hb.Accepts(epDef.ReqDtoType, "multipart/form-data");
+                    if (def.FormDataAllowed)
+                        hb.Accepts(def.ReqDtoType, "multipart/form-data");
 
-                    if (epDef.EndpointSummary?.ProducesMetas.Count > 0)
+                    if (def.EndpointSummary?.ProducesMetas.Count > 0)
                     {
                         EndpointSummary.ClearDefaultProduces200Metadata(hb);
-                        foreach (var pMeta in epDef.EndpointSummary.ProducesMetas)
+                        foreach (var pMeta in def.EndpointSummary.ProducesMetas)
                             hb.WithMetadata(pMeta);
                     }
 
-                    epDef.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
+                    def.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{finalRoute}";
                     routeToHandlerCounts.AddOrUpdate(key, 1, (_, c) => c + 1);
@@ -275,7 +275,7 @@ public static class MainExtensions
             {
                 b.RequireAuthenticatedUser();
 
-                if (ep.AllowedPermissions?.Length > 0)
+                if (ep.AllowedPermissions?.Count > 0)
                 {
                     if (ep.AllowAnyPermission)
                     {
@@ -294,7 +294,7 @@ public static class MainExtensions
                     }
                 }
 
-                if (ep.AllowedClaimTypes?.Length > 0)
+                if (ep.AllowedClaimTypes?.Count > 0)
                 {
                     if (ep.AllowAnyClaim)
                     {

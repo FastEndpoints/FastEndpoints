@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+        <NoWarn>1701;1702;CS1591;CS1573;IDE0022</NoWarn>
         <Description>Security library for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
     </ItemGroup>
 
     <ItemGroup>

@@ -15,7 +15,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private string _baseURL;
     private ILogger _logger;
     private IWebHostEnvironment _env;
-    private TResponse? _response;
+    private TResponse _response;
 
     /// <summary>
     /// indicates if there are any validation failures for the current request
@@ -30,7 +30,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// the response that is sent to the client.
     /// </summary>
-    public TResponse? Response {
+    [DontInject]
+    public TResponse Response {
         get => _response is null ? InitResponseDTO() : _response;
         set => _response = value;
     }
@@ -43,7 +44,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// the logger for the current endpoint type
     /// </summary>
-    public ILogger Logger => _logger ??= HttpContext.RequestServices.GetRequiredService<ILogger<Endpoint<TRequest, TResponse>>>();
+    public ILogger Logger => _logger ??= HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(Definition.EndpointType);
 
     /// <summary>
     /// the base url of the current request
@@ -68,6 +69,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// get or set whether the response has started. you'd only use this if you're writing to the response stream by yourself.
     /// </summary>
+    [DontInject]
     public bool ResponseStarted {
         get => HttpContext.ResponseStarted();
         set => HttpContext.MarkResponseStart();
@@ -77,6 +79,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private static readonly JsonArray emptyArray = new();
     private TResponse InitResponseDTO()
     {
+        if (isStringResponse) //otherwise strings are detected as IEnumerable of chars
+            return default!;
+
         _response = JsonSerializer.Deserialize<TResponse>(
             isCollectionResponse ? emptyArray : emptyObject,
             SerOpts.Options)!;

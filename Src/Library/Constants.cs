@@ -7,4 +7,6 @@ internal static class Constants
 
     //must match Microsoft.AspNetCore.Http.Metadata.AcceptsMetadata sealed class
     internal const string AcceptsMetaData = "AcceptsMetadata";
+
+    internal const string QueryJsonNodeName = "QueryNode";
 }

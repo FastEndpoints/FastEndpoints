@@ -21,7 +21,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
     private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
     private static PropCache? fromBodyProp;
-    private static QueryPropCacheEntry? fromQueryParamsProp;
+    private static PropCache? fromQueryParamsProp;
     private static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
@@ -125,7 +125,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         fromBodyProp.PropSetter(
             req,
-            (await SerOpts.RequestDeserializer(httpRequest, fromBodyProp.PropType, serializerCtx, cancellation))!);
+            await SerOpts.RequestDeserializer(httpRequest, fromBodyProp.PropType, serializerCtx, cancellation));
 
         return req;
     }
@@ -175,38 +175,19 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         if (query.Count == 0) return;
 
-        if (fromQueryParamsProp is null)
-        {
-            foreach (var kvp in query)
-                Bind(req, kvp, failures);
-        }
-        else
+        foreach (var kvp in query)
+            Bind(req, kvp, failures);
+
+        if (fromQueryParamsProp is not null)
         {
             var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
+            var sortedDic = new SortedDictionary<string, StringValues>(
+                query.ToDictionary(x => x.Key, x => x.Value),
+                StringComparer.OrdinalIgnoreCase);
+            var swaggerStyle = !sortedDic.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
 
-            foreach (var kvp in query)
-            {
-                if (!fromQueryParamsProp.Properties.TryGetValue(kvp.Key, out var type))
-                {
-                    Bind(req, kvp, failures);
-                    continue;
-                }
-                var parser = type.QueryValueParser();
-                var startIndex = kvp.Key.IndexOf('[');
-                if (startIndex > 0 && kvp.Key[^1] == ']')
-                {
-                    var key = kvp.Key[..startIndex];
-                    if (!obj.ContainsKey(key)) obj[key] = new JsonObject();
-                    var nestedProps = kvp.Key.Substring(startIndex + 1, kvp.Key.Length - startIndex - 2).Split("][");
-                    obj[key]!.GetOrCreateLastNode(nestedProps)[nestedProps[^1]] = parser(kvp.Value);
-                }
-                else
-                {
-                    obj[kvp.Key] = parser(kvp.Value);
-                }
-            }
-
-            fromQueryParamsProp.PropSetter(req, obj.Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)!);
+            fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);
+            fromQueryParamsProp.PropSetter(req, obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, SerOpts.Options));
         }
     }
 
@@ -233,10 +214,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             if (claimVal is not null && prop.ValueParser is not null)
             {
-                var (success, value) = prop.ValueParser(claimVal);
-                prop.PropSetter(req, value);
+                var res = prop.ValueParser(claimVal);
+                prop.PropSetter(req, res.Value);
 
-                if (!success)
+                if (!res.IsSuccess)
                     failures.Add(new(prop.Identifier, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
             }
         }
@@ -254,10 +235,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             if (hdrVal.Count > 0 && prop.ValueParser is not null)
             {
-                var (success, value) = prop.ValueParser(hdrVal);
-                prop.PropSetter(req, value);
+                var res = prop.ValueParser(hdrVal);
+                prop.PropSetter(req, res.Value);
 
-                if (!success)
+                if (!res.IsSuccess)
                     failures.Add(new(prop.Identifier, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
             }
         }
@@ -277,10 +258,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             if (hasPerm && prop.ValueParser is not null)
             {
-                var (success, value) = prop.ValueParser(hasPerm);
-                prop.PropSetter(req, value);
+                var res = prop.ValueParser(hasPerm);
+                prop.PropSetter(req, res.Value);
 
-                if (!success)
+                if (!res.IsSuccess)
                     failures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
             }
         }
@@ -290,16 +271,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         if (primaryProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
         {
-            var (success, value) = prop.ValueParser(kvp.Value);
+            var res = prop.ValueParser(kvp.Value);
 
-            if (success)
-                prop.PropSetter(req, value);
+            if (res.IsSuccess)
+                prop.PropSetter(req, res.Value);
             else
                 failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.ActualName()}] property!"));
         }
     }
 
-    private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromClaimProps.Add(new()
         {
@@ -314,7 +295,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if claim is optional, return true so it will also be added as a PropCacheEntry
     }
 
-    private static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromHeaderProps.Add(new()
         {
@@ -328,7 +309,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if header is optional, return true so it will also be added as a PropCacheEntry;
     }
 
-    private static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         hasPermissionProps.Add(new()
         {
@@ -343,7 +324,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false; // don't allow binding from any other sources
     }
 
-    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         primaryProps.Add(fieldName ?? propInfo.Name, new()
         {
@@ -353,7 +334,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         });
     }
 
-    private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromBodyProp = new()
         {
@@ -363,41 +344,13 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false;
     }
 
-    private static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object> compiledSetter)
+    private static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromQueryParamsProp = new()
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter,
-            Properties = GetExpectedQueryParams(propInfo.PropertyType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy), null)
         };
         return false;
-    }
-
-    private static Dictionary<string, Type> GetExpectedQueryParams(PropertyInfo[] propertyInfos, string? parentName)
-    {
-        var dictionary = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var prop in propertyInfos)
-        {
-            var propName = parentName == null ? prop.Name : $"{parentName}[{prop.Name}]";
-            var type = prop.PropertyType;
-            var nestedProps = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-
-            if (!type.IsEnum &&
-                 type != Types.String &&
-                 type != Types.Bool &&
-                !type.GetInterfaces().Contains(Types.IEnumerable) &&
-                 nestedProps.Length > 0)
-            {
-                foreach (var nestedProp in GetExpectedQueryParams(nestedProps, propName))
-                    dictionary.Add(nestedProp.Key, nestedProp.Value);
-            }
-            else
-            {
-                dictionary.Add(propName, type);
-            }
-        }
-        return dictionary;
     }
 }

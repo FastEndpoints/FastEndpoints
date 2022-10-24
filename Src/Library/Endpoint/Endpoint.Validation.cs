@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
@@ -76,12 +75,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowError)}() called");
     }
 
-    private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, HashSet<object> preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, List<object> preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        if (ep.ValidatorType is null)
+        if (ep.ValidatorInstance is null)
             return;
 
-        var validator = (IValidator<TRequest>)ctx.RequestServices.GetRequiredService(ep.ValidatorType)!;
+        var validator = (IValidator<TRequest>)ep.ValidatorInstance;
 
         var valResult = await validator.ValidateAsync(req, cancellation);
 

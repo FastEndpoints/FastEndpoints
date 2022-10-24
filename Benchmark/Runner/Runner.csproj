@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
@@ -23,7 +23,7 @@
 
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.10" />
     </ItemGroup>
 
     <ItemGroup>

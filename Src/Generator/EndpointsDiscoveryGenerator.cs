@@ -40,8 +40,7 @@ public class EndpointsDiscoveryGenerator : ISourceGenerator
                     new TypeDescription("FastEndpoints.IEndpoint"),
                     new TypeDescription("FluentValidation.IValidator"),
                     new TypeDescription("FastEndpoints.IEventHandler"),
-                    new TypeDescription("FastEndpoints.ISummary"),
-                    new TypeDescription("FastEndpoints.IMapper")
+                    new TypeDescription("FastEndpoints.ISummary")
                 }).Any());
 
         var sb = new StringBuilder(@"

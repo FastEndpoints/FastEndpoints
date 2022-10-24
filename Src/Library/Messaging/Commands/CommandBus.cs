@@ -17,7 +17,7 @@ public abstract class CommandBase
 /// <typeparam name="TResult">the type of the Response result dto</typeparam>
 public class Command<TCommand, TResult> : CommandBase where TCommand : notnull, ICommand<TResult>
 {
-    private readonly ICommandHandler<TCommand, TResult> _handler = null;
+    private readonly ICommandHandler<TCommand, TResult>? _handler = null;
 
     /// <summary>
     /// instantiates an command facade for the given command dto type.
@@ -49,7 +49,7 @@ public class Command<TCommand, TResult> : CommandBase where TCommand : notnull, 
 /// <typeparam name="TCommand">the type of notification command dto</typeparam>
 public class Command<TCommand> : CommandBase where TCommand : notnull, ICommand
 {
-    private readonly ICommandHandler<TCommand> _handler = null;
+    private readonly ICommandHandler<TCommand>? _handler = null;
 
     /// <summary>
     /// instantiates an command facade for the given command dto type.

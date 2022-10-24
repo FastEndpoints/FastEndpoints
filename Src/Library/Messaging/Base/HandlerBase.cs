@@ -1,4 +1,5 @@
-﻿using FastEndpoints.Extensions;
+﻿#pragma warning disable CA1822
+using FastEndpoints.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -7,7 +8,7 @@ namespace FastEndpoints;
 /// This class will contains the basic functionality and helpers methods to be used in the EventHandler and CommandHandler classes 
 /// <para>WARNING: handlers are singletons. DO NOT maintain state in them. Use the <c>Resolve*()</c> methods to obtain dependencies.</para>
 /// </summary>
-public abstract class FastBaseHandler
+public abstract class HandlerBase
 {
     /// <summary>
     /// publish the given model/dto to all the subscribers of the event notification
@@ -73,12 +74,10 @@ public abstract class FastBaseHandler
     public IServiceScope CreateScope() => IServiceResolver.RootServiceProvider.CreateScope();
 
     #region equality check
-
     //equality will be checked when discovered concrete handlers are being added to EventBase.handlerDict HashSet<T>
     //we need this check to be done on the type of the handler instead of the default instance equality check
     //to prevent duplicate handlers being added to the hash set if/when multiple instances of the app are being run
     //under the same app domain such as OrchardCore multi-tenancy. ex: https://github.com/FastEndpoints/Library/issues/208
-
     public override bool Equals(object? obj) => obj?.GetType() == GetType();
     public override int GetHashCode() => GetType().GetHashCode();
     #endregion

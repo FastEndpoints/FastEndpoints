@@ -22,12 +22,13 @@ public abstract class BaseEndpoint : IEndpoint
     /// <summary>
     /// gets the endpoint definition which contains all the configuration info for the endpoint
     /// </summary>
+    [DontInject]
     public EndpointDefinition Definition { get; internal set; }
 
     /// <summary>
     /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <c>.AddFastEndpoints(config: builder.Configuration)</c>
     /// </summary>
-    public IConfiguration? Config {
+    public IConfiguration Config {
         get => _config ??= HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         internal set => _config = value;
     }
@@ -35,6 +36,7 @@ public abstract class BaseEndpoint : IEndpoint
     /// <summary>
     /// the http context of the current request
     /// </summary>
+    [DontInject]
     public HttpContext HttpContext { get; internal set; }
 
     /// <summary>

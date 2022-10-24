@@ -65,19 +65,6 @@ public class Benchmarks
     }
 
     [Benchmark]
-    public Task FastEndpointsScopedValidator()
-    {
-        var msg = new HttpRequestMessage()
-        {
-            Method = HttpMethod.Post,
-            RequestUri = new Uri($"{FEScopedValidatorClient.BaseAddress}benchmark/scoped-validator/123"),
-            Content = Payload
-        };
-
-        return FEScopedValidatorClient.SendAsync(msg);
-    }
-
-    [Benchmark]
     public Task MinimalApi()
     {
         var msg = new HttpRequestMessage()

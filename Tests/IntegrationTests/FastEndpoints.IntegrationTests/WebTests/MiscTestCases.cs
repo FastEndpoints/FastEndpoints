@@ -400,7 +400,6 @@ public class MiscTestCases : EndToEndTestBase
             );
     }
 
-
     [Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
@@ -481,7 +480,6 @@ public class MiscTestCases : EndToEndTestBase
                     },
                     Objects = new()
                     {
-
                             new()
                             {
                                 String = "test",
@@ -853,7 +851,7 @@ public class MiscTestCases : EndToEndTestBase
     {
         HttpResponseMessage? response = null;
 
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
         {
             var request = new HttpRequestMessage
             {
@@ -876,7 +874,7 @@ public class MiscTestCases : EndToEndTestBase
     {
         HttpResponseMessage? response = null;
 
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             var request = new HttpRequestMessage
             {

@@ -82,7 +82,7 @@ app.UseFastEndpoints(c =>
     c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
     c.Endpoints.Configurator = (ep) =>
     {
-        ep.PreProcessors(new AdminHeaderChecker());
+        ep.PreProcessors(Order.Before, new AdminHeaderChecker());
         if (ep.EndpointTags?.Contains("orders") is true)
             ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
     };

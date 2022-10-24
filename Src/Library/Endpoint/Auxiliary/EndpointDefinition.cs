@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
@@ -15,11 +16,12 @@ public sealed class EndpointDefinition
 {
     //these can only be set from internal code but accessible for user
     public Type EndpointType { get; internal set; }
+    public Type? MapperType { get; internal set; }
     public Type ReqDtoType { get; internal set; }
     public string[]? Routes { get; internal set; }
+    public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public Type? ValidatorType { get; internal set; }
     public Http[]? Verbs { get; internal set; }
-    public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public EpVersion Version { get; } = new();
 
     //these props can be changed in global config using methods below
@@ -39,20 +41,23 @@ public sealed class EndpointDefinition
     public string? OverriddenRoutePrefix { get; private set; }
     public List<string>? PreBuiltUserPolicies { get; private set; }
     public bool ThrowIfValidationFails { get; private set; } = true;
-    [Obsolete("This property will be removed in the next major version!")] //todo: remove ability to make validators scoped in favor of CreateScope() method
-    public bool ValidatorIsScoped { get; private set; }
 
     //only accessible to internal code
+    internal object[]? EpAttributes;
+    internal ObjectFactory EpInstanceCreator;
     internal bool ExecuteAsyncImplemented;
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
+    internal bool ImplementsConfigure;
+    internal object? MapperInstance;
     internal object? RequestBinder;
-    internal HashSet<object> PreProcessorList = new(new TypeEqualityComparer());
-    internal HashSet<object> PostProcessorList = new(new TypeEqualityComparer());
+    internal List<object> PreProcessorList = new();
+    internal List<object> PostProcessorList = new();
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
+    internal object? ValidatorInstance;
 
     private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
     {
@@ -214,23 +219,47 @@ public sealed class EndpointDefinition
     }
 
     /// <summary>
-    /// adds global post-processors to this endpoint definition. these post-processors are executed before the post-processors configured at the endpoint level.
+    /// adds global post-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
+    /// <param name="order">set to <see cref="Order.Before"/> if the global post-processors should be executed before endpoint post-processors. <see cref="Order.After"/> will execute global processors after endpoint level processors</param>
     /// <param name="postProcessors">the post-processors to add</param>
-    public void PostProcessors(params IGlobalPostProcessor[] postProcessors)
+    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors)
     {
+        var pos = 0;
         for (var i = 0; i < postProcessors.Length; i++)
-            PostProcessorList.Add(postProcessors[i]);
+        {
+            var p = postProcessors[i];
+            if (!PostProcessorList.Contains(p, TypeEqualityComparer.Instance))
+            {
+                if (order == Order.Before)
+                    PostProcessorList.Insert(pos, p);
+                else
+                    PostProcessorList.Add(p);
+                pos++;
+            }
+        }
     }
 
     /// <summary>
-    /// adds global pre-processors to this endpoint definition. these pre-processors are executed before the pre-processors configured at the endpoint level.
+    /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
+    /// <param name="order">set to <see cref="Order.Before"/> if the global pre-processors should be executed before endpoint pre-processors. <see cref="Order.After"/> will execute global processors after endpoint level processors</param>
     /// <param name="preProcessors">the pre-processors to add</param>
-    public void PreProcessors(params IGlobalPreProcessor[] preProcessors)
+    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
     {
+        var pos = 0;
         for (var i = 0; i < preProcessors.Length; i++)
-            PreProcessorList.Add(preProcessors[i]);
+        {
+            var p = preProcessors[i];
+            if (!PreProcessorList.Contains(p, TypeEqualityComparer.Instance))
+            {
+                if (order == Order.Before)
+                    PreProcessorList.Insert(pos, p);
+                else
+                    PreProcessorList.Add(p);
+                pos++;
+            }
+        }
     }
 
     /// <summary>
@@ -272,10 +301,6 @@ public sealed class EndpointDefinition
     /// </summary>
     /// <param name="routePrefix">route prefix value</param>
     public void RoutePrefixOverride(string routePrefix) => OverriddenRoutePrefix = routePrefix;
-
-    //todo: remove ability to make validators scoped in favor of CreateScope() method
-    [Obsolete("Ability to register validators as scoped will be removed in next major version. Use CreateScope() method instead.")]
-    public void ScopedValidator() => ValidatorIsScoped = true;
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
@@ -328,12 +353,9 @@ public sealed class EndpointDefinition
     /// validator that should be used for this endpoint
     /// </summary>
     /// <typeparam name="TValidator">the type of the validator</typeparam>
-    /// <param name="isScoped">set to true if you want to register the validator as scoped instead of singleton. which will enable constructor injection at the cost of performance.</param>
-    public void Validator<TValidator>(bool isScoped = false) where TValidator : IValidator
+    public void Validator<TValidator>() where TValidator : IValidator
     {
         ValidatorType = typeof(TValidator);
-        if (isScoped)
-            ScopedValidator();
     }
 }
 
@@ -360,6 +382,8 @@ internal sealed class ServiceBoundEpProp
 
 internal class TypeEqualityComparer : IEqualityComparer<object>
 {
+    internal static readonly TypeEqualityComparer Instance = new();
+
     public new bool Equals(object? x, object? y) => x?.GetType() == y?.GetType();
     public int GetHashCode([DisallowNull] object obj) => obj.GetType().GetHashCode();
 }

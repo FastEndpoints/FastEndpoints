@@ -1,42 +1,6 @@
 ﻿namespace FastEndpoints;
 
 /// <summary>
-/// enum for specifying a http verb
-/// </summary>
-public enum Http
-{
-    /// <summary>
-    /// retrieve a record
-    /// </summary>
-    GET = 1,
-
-    /// <summary>
-    /// create a record
-    /// </summary>
-    POST = 2,
-
-    /// <summary>
-    /// replace a record
-    /// </summary>
-    PUT = 3,
-
-    /// <summary>
-    /// partially update a record
-    /// </summary>
-    PATCH = 4,
-
-    /// <summary>
-    /// remove a record
-    /// </summary>
-    DELETE = 5,
-
-    /// <summary>
-    /// retrieve only headers
-    /// </summary>
-    HEAD = 6
-}
-
-/// <summary>
 /// enum for specifying the waiting mode for event notifications
 /// </summary>
 public enum Mode
@@ -55,4 +19,20 @@ public enum Mode
     /// return a Task that will complete only when all of the subscribers complete their work
     /// </summary>
     WaitForAll = 2
+}
+
+/// <summary>
+/// enum used to specify whether to execute global pre/post processors before endpoint level processors
+/// </summary>
+public enum Order
+{
+    /// <summary>
+    /// execute global processors before the endpoint level processors
+    /// </summary>
+    Before = 0,
+
+    /// <summary>
+    /// execute global processors after the endpoint level processors
+    /// </summary>
+    After = 1
 }

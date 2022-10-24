@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +12,6 @@ namespace IntegrationTests.Shared.Fixtures;
 public class CustomWebApplicationFactory<TEntryPoint> : WebApplicationFactory<TEntryPoint>
     where TEntryPoint : class
 {
-    public IConfiguration Configuration => Services.GetRequiredService<IConfiguration>();
     public ITestOutputHelper? OutputHelper { get; set; }
     public Action<IServiceCollection>? TestRegistrationServices { get; set; }
 

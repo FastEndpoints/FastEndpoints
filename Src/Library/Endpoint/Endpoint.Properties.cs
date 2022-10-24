@@ -30,6 +30,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// the response that is sent to the client.
     /// </summary>
+    [DontInject]
     public TResponse Response {
         get => _response is null ? InitResponseDTO() : _response;
         set => _response = value;
@@ -68,6 +69,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// get or set whether the response has started. you'd only use this if you're writing to the response stream by yourself.
     /// </summary>
+    [DontInject]
     public bool ResponseStarted {
         get => HttpContext.ResponseStarted();
         set => HttpContext.MarkResponseStart();

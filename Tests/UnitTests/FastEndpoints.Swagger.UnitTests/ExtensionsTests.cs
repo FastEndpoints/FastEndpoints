@@ -1,6 +1,3 @@
 namespace FastEndpoints.Swagger.UnitTests;
 
-public class ExtensionsTests
-{
-
-}
+public class ExtensionsTests { }

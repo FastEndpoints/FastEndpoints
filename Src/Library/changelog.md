@@ -1,38 +1,20 @@
-### CHANGES
-- signature of global error response builder func has changed to include the `HttpContext` #220 #230
-- security related methods such as `ep.Roles(...)` in global config will now compound what's being done in the endpoint config [#info](https://discord.com/channels/933662816458645504/951481851980177418/1027626501975322694)
+# DOCS TO DO:
+- since mappers are singletons, any deps injected in ctor also become singletons. even deps registered as scoped/transient.
 
 ### NEW
-- support .net 7.0 via multi targetting
-- endpoint configuration with groups and sub/nested groups #214
-- `[Throttle(...)]` attribute for configuring endpoints #227
-- `HttpContext.MarkResponseStart()` and `HttpContext.ResponseStarted()` extension methods #230
-- complex object binding from json object strings for route/query/forms/headers #238
-- complex object binding from query parameters #238 #245 #254 #266
-- min endpoint version support for `AddSwaggerDoc()` #244
-- ability to filter out non-fastendpoints from swagger docs #246
-- non-conforming DI container support #243
-- endpoint unit testing support for attribute based config [#info](https://discord.com/channels/933662816458645504/1021479855130427442)
-- asymmertic jwt signing support in `FastEndpoints.Security` pkg #249
-- add `EndpointVersion()` method to `EndpointDefinition` for use with global config #209
-- filtering (endpoint inclusion) for swagger documents #252
-- specify response examples with `EndpointSummary` #205
-- `TokenValidationParameters` config action argument for `AddAuthenticationJWTBearer()` method #268
-
-### FIXES
-- pre/post processor collection modification bug #224
-- response dto initialization not working with array types #225
-- unable to instantiate validators for unit tests [#info](https://discord.com/channels/933662816458645504/1017889876521267263)
-- nested schema resolving in nswag operation processor [#info](https://discord.com/channels/933662816458645504/1018565805555863572)
-- concurrent test execution bug #224
-- workaround for grpc wildcard route match conflict [#info](https://discord.com/channels/933662816458645504/1020806973689696388)
-- plain text request fails if request contains json content type [#info](https://discord.com/channels/933662816458645504/1021819753016328253)
-- nre when publishing an event and no handlers are registered #259
+- dependency resolving support for endpoint `Configure()` method
+- type safety for the shortcut http verb methods such as `Get()`, `Post()`, etc. [#info](https://fast-endpoints.com/docs/misc-conveniences#shorthand-route-configuration)
+- custom value parser registration at startup for any given type #285
+- specify whether to execute global pre/post processors before or after endpoint level processors #291
+- `[DontInject]` attribute for preventing property injection of endpoint properties
 
 ### IMPROVEMENTS
-- optimize default request binder by reducing allocations.
-- swagger schema resolving
-- json object array string binding of requests from swagger ui
-- remove `notnull` constraint from `TResponse` generic argument of endpoint class
-- `Logger` endpoint property now uses `ILoggerFactory` to create loggers
-- apply validation rules from included validators #270
+- remove read-only properties from swagger request body #283
+- move attribute classes to a separate package `FastEndpoints.Attributes` [#info](https://discord.com/channels/933662816458645504/955771546654359553/1032020804671647854)
+- non-conforming DI container support #289
+- remove previously deprecated scoped validator support
+
+### FIXES
+- swagger response examples not honoring serializer settings #280
+- swagger request property xml examples not picked up for route params #287 
+- property injection not working on sub-classes #292

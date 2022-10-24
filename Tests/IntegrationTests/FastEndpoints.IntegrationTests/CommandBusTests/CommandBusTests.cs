@@ -1,5 +1,6 @@
 ﻿using FastEndpoints.Extensions;
 using IntegrationTests.Shared.Fixtures;
+using TestCases.CommandBusTest;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -15,7 +16,12 @@ public class CommandBusTests : EndToEndTestBase
     [Fact]
     public async Task CommandGetsHandled()
     {
-        var res = await new TestCases.CommandBusTest.TestCommand { FirstName = "johnny", LastName = "lawrence" }.ExecuteAsync();
+        var res = await new TestCommand
+        {
+            FirstName = "johnny",
+            LastName = "lawrence"
+        }
+        .ExecuteAsync();
 
         res.Should().Be("johnny lawrence");
     }

@@ -7,7 +7,7 @@ public abstract class CommandBase
 {
     //key: TCommand 
     //val: a concrete command handler instance (subscriber)
-    internal static readonly Dictionary<Type, ICommandHandler> handlersDictionary = new();
+    internal static readonly Dictionary<Type, ICommandHandler> handlerDict = new();
 }
 
 /// <summary>
@@ -24,7 +24,7 @@ public class Command<TCommand, TResult> : CommandBase where TCommand : notnull, 
     /// </summary>
     public Command()
     {
-        if (handlersDictionary.TryGetValue(typeof(TCommand), out var handler))
+        if (handlerDict.TryGetValue(typeof(TCommand), out var handler))
             _handler = handler as ICommandHandler<TCommand, TResult>;
     }
 
@@ -56,7 +56,7 @@ public class Command<TCommand> : CommandBase where TCommand : notnull, ICommand
     /// </summary>
     public Command()
     {
-        if (handlersDictionary.TryGetValue(typeof(TCommand), out var handler))
+        if (handlerDict.TryGetValue(typeof(TCommand), out var handler))
             _handler = handler as ICommandHandler<TCommand>;
     }
 

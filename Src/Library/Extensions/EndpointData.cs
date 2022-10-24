@@ -168,14 +168,14 @@ internal sealed class EndpointData
 
                     var handler = (ICommandHandler)Activator.CreateInstance(t)!;
 
-                    if (CommandBase.handlersDictionary.ContainsKey(tCommand))
+                    if (CommandBase.handlerDict.ContainsKey(tCommand))
                     {
-                        throw new Exception($"There is an already registered handler for the command '{tCommand.Name}'. " +
-                                            "Only one handler is allowed when you use Commands 'Req/Res pattern'. " +
-                                            "Consider using Events Pub/Sub pattern in-case you need more than one handler!.");
+                        throw new Exception($"Multiple handlers found for the command [{tCommand.FullName}]. " +
+                                             "Only one handler can exist for a single command. " +
+                                             "Consider using Event Pub/Sub pattern instead!");
                     }
 
-                    CommandBase.handlersDictionary.Add(tCommand, handler);
+                    CommandBase.handlerDict.Add(tCommand, handler);
 
                     continue;
                 }

@@ -28,7 +28,7 @@ public abstract class BaseEndpoint : IEndpoint
     /// <summary>
     /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <c>.AddFastEndpoints(config: builder.Configuration)</c>
     /// </summary>
-    public IConfiguration? Config {
+    public IConfiguration Config {
         get => _config ??= HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         internal set => _config = value;
     }

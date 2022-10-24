@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints.Extensions;
 
-public static class RequestExtensions
+public static class CommandExtensions
 {
     public static Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> commandModel, CancellationToken cancellation = default)
     {

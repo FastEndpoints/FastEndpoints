@@ -10,6 +10,7 @@ builder.Services
 
 var app = builder.Build();
 app.UseAuthorization();
+
 app.MapPost("/benchmark/ok/{id}", async (
     [FromRoute] int id,
     [FromBody] Request req,

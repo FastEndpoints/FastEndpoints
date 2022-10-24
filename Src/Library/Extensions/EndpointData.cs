@@ -18,7 +18,6 @@ internal sealed class EndpointData
         _endpoints = new(() =>
         {
             var endpoints = BuildEndpointDefinitions(options);
-
             return endpoints.Length == 0
                    ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
                    : endpoints;
@@ -164,14 +163,18 @@ internal sealed class EndpointData
 
                 if (tInterface == Types.ICommandHandler)
                 {
-                    var tCommand = t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf2)?[0]
-                                   ?? t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf1)?[0]!;
+                    var tCommand = t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf2)?[0] ??
+                                   t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf1)?[0]!;
+
                     var handler = (ICommandHandler)Activator.CreateInstance(t)!;
 
-                    if (CommandBase.handlersDictionary.TryGetValue(tCommand, out _))
+                    if (CommandBase.handlersDictionary.ContainsKey(tCommand))
+                    {
                         throw new Exception($"There is an already registered handler for the command '{tCommand.Name}'. " +
                                             "Only one handler is allowed when you use Commands 'Req/Res pattern'. " +
                                             "Consider using Events Pub/Sub pattern in-case you need more than one handler!.");
+                    }
+
                     CommandBase.handlersDictionary.Add(tCommand, handler);
 
                     continue;

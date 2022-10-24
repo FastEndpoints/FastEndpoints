@@ -11,9 +11,9 @@ public abstract class FastCommandHandler<TCommand, TResult> : HandlerBase, IComm
     /// <summary>
     /// this method will be called when an command of the specified type is executed.
     /// </summary>
-    /// <param name="commandModel">the command model/dto received</param>
+    /// <param name="cmd">the command model/dto received</param>
     /// <param name="ct">an optional cancellation token</param>
-    public abstract Task<TResult> ExecuteAsync(TCommand commandModel, CancellationToken ct);
+    public abstract Task<TResult> ExecuteAsync(TCommand cmd, CancellationToken ct);
 }
 
 /// <summary>
@@ -26,7 +26,7 @@ public abstract class FastCommandHandler<TCommand> : HandlerBase, ICommandHandle
     /// <summary>
     /// this method will be called when an command of the specified type is published.
     /// </summary>
-    /// <param name="commandModel">the command model/dto received</param>
+    /// <param name="cmd">the command model/dto received</param>
     /// <param name="ct">an optional cancellation token</param>
-    public abstract Task ExecuteAsync(TCommand commandModel, CancellationToken ct);
+    public abstract Task ExecuteAsync(TCommand cmd, CancellationToken ct);
 }

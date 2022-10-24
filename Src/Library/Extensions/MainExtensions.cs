@@ -33,7 +33,7 @@ public static class MainExtensions
     {
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
-        Endpoints = new(opts);
+        Endpoints ??= new(opts); //prevent duplicate runs
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));

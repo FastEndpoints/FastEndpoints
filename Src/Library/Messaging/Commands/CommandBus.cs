@@ -37,7 +37,7 @@ public class Command<TCommand, TResult> : CommandBase where TCommand : notnull, 
     public Task<TResult> ExecuteAsync(TCommand commandModel, CancellationToken cancellation = default)
     {
         if (_handler == null)
-            throw new Exception($"Couldn't find a registered handler for the command of type '{typeof(TCommand).Name}'");
+            throw new InvalidOperationException($"Couldn't find a registered handler for the command of type '{typeof(TCommand).Name}'");
 
         return _handler.ExecuteAsync(commandModel, cancellation);
     }
@@ -69,7 +69,7 @@ public class Command<TCommand> : CommandBase where TCommand : notnull, ICommand
     public Task ExecuteAsync(TCommand commandModel, CancellationToken cancellation = default)
     {
         if (_handler == null)
-            throw new Exception($"Couldn't find a registered handler for the command of type '{typeof(TCommand).Name}'");
+            throw new InvalidOperationException($"Couldn't find a registered handler for the command of type '{typeof(TCommand).Name}'");
 
         return _handler.ExecuteAsync(commandModel, cancellation);
     }

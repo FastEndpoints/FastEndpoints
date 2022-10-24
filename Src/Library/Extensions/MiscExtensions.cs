@@ -1,6 +1,4 @@
-﻿using static FastEndpoints.Config;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 internal static class MiscExtensions
 {
@@ -23,12 +21,5 @@ internal static class MiscExtensions
         }
 
         return dict;
-    }
-
-    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
-    {
-        var vrb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
-        var ep = EpOpts.ShortNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
-        return vrb + ep + routeNum.ToString();
     }
 }

@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MvcControllers;
@@ -49,10 +48,8 @@ public class QueryBindingController : ControllerBase
 {
     [AllowAnonymous]
     [HttpGet("/benchmark/query-binding")]
-    public IActionResult Index(
-        [FromQuery] QueryRequest req)
+    public IActionResult Index([FromQuery] QueryRequest req)
     {
-
         return Ok(new QueryResponse()
         {
             Id = req.Id,

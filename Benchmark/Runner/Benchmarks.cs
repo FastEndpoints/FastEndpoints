@@ -21,7 +21,6 @@ public class Benchmarks
     private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient FECodeGenClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient FEThrottleClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
-    private static HttpClient FEScopedValidatorClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
     private static readonly StringContent Payload = new(
@@ -38,7 +37,7 @@ public class Benchmarks
             }
         }), Encoding.UTF8, "application/json");
 
-    [Benchmark(Baseline = true)]
+    //[Benchmark(Baseline = true)]
     public Task FastEndpoints()
     {
         var msg = new HttpRequestMessage()
@@ -51,7 +50,7 @@ public class Benchmarks
         return FastEndpointClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task FastEndpointsCodeGen()
     {
         var msg = new HttpRequestMessage()
@@ -64,7 +63,7 @@ public class Benchmarks
         return FECodeGenClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task MinimalApi()
     {
         var msg = new HttpRequestMessage()
@@ -91,7 +90,7 @@ public class Benchmarks
         return FEThrottleClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task AspNetCoreMVC()
     {
         var msg = new HttpRequestMessage()
@@ -112,30 +111,17 @@ public class Benchmarks
             Method = HttpMethod.Get,
             RequestUri = new Uri($"{FastEndpointClient.BaseAddress}benchmark/query-binding{QueryObjectParamsFE}")
         };
-        return  FastEndpointClient.SendAsync(msg);
+        return FastEndpointClient.SendAsync(msg);
     }
 
-
-    [Benchmark]
-    public Task MinimalApiQueryBinding()
-    {
-        var msg = new HttpRequestMessage()
-        {
-            Method = HttpMethod.Get,
-            RequestUri = new Uri($"{MinimalClient.BaseAddress}benchmark/query-binding{QueryObjectParams}"),
-        };
-
-        return MinimalClient.SendAsync(msg);
-    }
-
-    [Benchmark]
-    public  Task AspNetCoreMVCQueryBinding()
+    [Benchmark(Baseline = true)]
+    public Task AspNetCoreMVCQueryBinding()
     {
         var msg = new HttpRequestMessage()
         {
             Method = HttpMethod.Get,
             RequestUri = new Uri($"{MvcClient.BaseAddress}benchmark/query-binding{QueryObjectParams}"),
         };
-      return MvcClient.SendAsync(msg);
+        return MvcClient.SendAsync(msg);
     }
 }

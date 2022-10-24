@@ -10,19 +10,7 @@ builder.Services
 
 var app = builder.Build();
 app.UseAuthorization();
-app.MapGet("/benchmark/query-binding", ([FromQuery] QueryRequest req) =>
-    {
-        return Results.Ok(new QueryResponse()
-        {
-            Id = req.Id,
-            Name = req.FirstName + " " + req.LastName,
-            Age = req.Age,
-            PhoneNumber = req.PhoneNumbers?.FirstOrDefault(),
-            NestedQueryObject = req.NestedQueryObject
-        });
-    })
-    .RequireAuthorization()
-    .AllowAnonymous();
+
 app.MapPost("/benchmark/ok/{id}", async (
     [FromRoute] int id,
     [FromBody] Request req,
@@ -77,43 +65,4 @@ namespace MinimalApi
         public int Age { get; set; }
         public string? PhoneNumber { get; set; }
     }
-
-    public class QueryRequest
-    {
-        public int Id { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public int Age { get; set; }
-        public IEnumerable<string>? PhoneNumbers { get; set; }
-        public NestedQueryObject? NestedQueryObject { get; set; }
-
-    }
-    public class NestedQueryObject
-    {
-        public int Id { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public int Age { get; set; }
-        public IEnumerable<string>? PhoneNumbers { get; set; }
-        public MoreNestedQueryObject? MoreNestedQueryObject { get; set; }
-    }
-
-    public class MoreNestedQueryObject
-    {
-        public int Id { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public int Age { get; set; }
-        public IEnumerable<string>? PhoneNumbers { get; set; }
-    }
-
-    public class QueryResponse
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public int Age { get; set; }
-        public string? PhoneNumber { get; set; }
-        public NestedQueryObject? NestedQueryObject { get; set; }
-    }
-
 }

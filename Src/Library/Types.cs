@@ -19,7 +19,7 @@ internal static class Types
     internal static readonly Type EndpointWithMapperOf2 = typeof(EndpointWithMapper<,>);
     internal static readonly Type EndpointWithOutRequestOf2 = typeof(EndpointWithoutRequest<,>);
     internal static readonly Type FastEventHandlerOf1 = typeof(FastEventHandler<>);
-    internal static readonly Type FastCommandHandlerOf = typeof(FastCommandHandler<>);
+    internal static readonly Type FastCommandHandlerOf1 = typeof(FastCommandHandler<>);
     internal static readonly Type FastCommandHandlerOf2 = typeof(FastCommandHandler<,>);
     internal static readonly Type Http = typeof(Http);
     internal static readonly Type HttpAttribute = typeof(HttpAttribute);

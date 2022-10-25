@@ -7,6 +7,7 @@
 - custom value parser registration at startup for any given type #285
 - specify whether to execute global pre/post processors before or after endpoint level processors #291
 - `[DontInject]` attribute for preventing property injection of endpoint properties
+- command bus pattern request/response messaging (independant of endpoints) #294
 
 ### IMPROVEMENTS
 - remove read-only properties from swagger request body #283

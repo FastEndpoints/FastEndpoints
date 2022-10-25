@@ -4,11 +4,26 @@ namespace FastEndpoints.Extensions;
 
 public static class CommandExtensions
 {
+    internal static readonly Dictionary<Type, HandlerDefinition> handlerCache = new();
+
+    internal class HandlerDefinition
+    {
+        internal Type HandlerType { get; set; }
+        internal ObjectFactory? HandlerCreator { get; set; }
+        internal object? ExecuteMethod { get; set; }
+
+        internal HandlerDefinition(Type handlerType, ObjectFactory? handlerCreator)
+        {
+            HandlerType = handlerType;
+            HandlerCreator = handlerCreator;
+        }
+    }
+
     public static async Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default)
     {
         var tCommand = command.GetType();
 
-        if (CommandBase.HandlerCache.TryGetValue(tCommand, out var hndDef))
+        if (handlerCache.TryGetValue(tCommand, out var hndDef))
         {
             hndDef.HandlerCreator ??= ActivatorUtilities.CreateFactory(hndDef.HandlerType, Type.EmptyTypes);
             var handler = hndDef.HandlerCreator(IServiceResolver.RootServiceProvider, null);
@@ -20,15 +35,17 @@ public static class CommandExtensions
 
     public static Task ExecuteAsync(this ICommand commandModel, CancellationToken cancellation = default)
     {
-        var requestType = typeof(Command<>);
-        Type[] typeArgs = { commandModel.GetType() };
+        return Task.CompletedTask;
 
-        var requestGenericType = requestType.MakeGenericType(typeArgs);
-        var request = Activator.CreateInstance(requestGenericType);
-        if (request == null)
-            throw new Exception($"Couldn't create an instance of the command '{requestGenericType.Name}'!.");
+        //var requestType = typeof(Command<>);
+        //Type[] typeArgs = { commandModel.GetType() };
 
-        var sendMethod = request.GetType().GetMethod("ExecuteAsync")!;
-        return (Task)sendMethod.Invoke(request, new object[] { commandModel, cancellation })!;
+        //var requestGenericType = requestType.MakeGenericType(typeArgs);
+        //var request = Activator.CreateInstance(requestGenericType);
+        //if (request == null)
+        //    throw new Exception($"Couldn't create an instance of the command '{requestGenericType.Name}'!.");
+
+        //var sendMethod = request.GetType().GetMethod("ExecuteAsync")!;
+        //return (Task)sendMethod.Invoke(request, new object[] { commandModel, cancellation })!;
     }
 }

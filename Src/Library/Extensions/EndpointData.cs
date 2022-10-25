@@ -1,3 +1,4 @@
+using FastEndpoints.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;
@@ -166,14 +167,14 @@ internal sealed class EndpointData
                     var tCommand = t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf2)?[0] ??
                                    t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf1)?[0]!;
 
-                    if (CommandBase.HandlerCache.ContainsKey(tCommand))
+                    if (CommandExtensions.handlerCache.ContainsKey(tCommand))
                     {
                         throw new Exception($"Multiple handlers found for the command [{tCommand.FullName}]. " +
                                              "Only one handler can exist for a single command. " +
                                              "Consider using Event Pub/Sub pattern instead!");
                     }
 
-                    CommandBase.HandlerCache.Add(tCommand, new(t, null));
+                    CommandExtensions.handlerCache.Add(tCommand, new(t, null));
 
                     continue;
                 }

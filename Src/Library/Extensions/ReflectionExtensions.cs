@@ -212,7 +212,9 @@ internal static class ReflectionExtensions
         var methodCall = Expression.Call(instance, execMethod, Expression.Convert(cmdParam, tCommand), ctParam);
 
         return Expression.Lambda<Func<object, CancellationToken, Task<TResult>>>(
-            methodCall, cmdParam, ctParam
+            methodCall,
+            cmdParam,
+            ctParam
         ).Compile();
     }
 }

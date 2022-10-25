@@ -203,7 +203,7 @@ internal static class ReflectionExtensions
 
     internal static Func<object, CancellationToken, Task<TResult>> HandlerExecutor<TResult>(this Type tHandler, Type tCommand, object handler)
     {
-        //ExecuteAsync((tCommand)cmd, ct);
+        //Task<TResult> ExecuteAsync((TCommand)cmd, ct);
 
         var instance = Expression.Constant(handler);
         var execMethod = tHandler.GetMethod("ExecuteAsync", BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)!;
@@ -220,7 +220,7 @@ internal static class ReflectionExtensions
 
     internal static Func<object, CancellationToken, Task> HandlerExecutor(this Type tHandler, Type tCommand, object handler)
     {
-        //ExecuteAsync((tCommand)cmd, ct);
+        //Task ExecuteAsync((TCommand)cmd, ct);
 
         var instance = Expression.Constant(handler);
         var execMethod = tHandler.GetMethod("ExecuteAsync", BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)!;

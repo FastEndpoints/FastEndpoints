@@ -1,9 +1,5 @@
 ﻿namespace FastEndpoints;
 
-public interface ICommand<out TResult> { }
-
-public interface ICommand { }
-
 internal interface ICommandHandler { }
 
 internal interface ICommandHandler<in TCommand, TResult> : ICommandHandler where TCommand : ICommand<TResult>

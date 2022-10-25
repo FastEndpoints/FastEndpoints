@@ -1,5 +1,4 @@
-﻿using FastEndpoints.Extensions;
-using IntegrationTests.Shared.Fixtures;
+﻿using IntegrationTests.Shared.Fixtures;
 using TestCases.CommandBusTest;
 using Xunit;
 using Xunit.Abstractions;

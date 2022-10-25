@@ -1,4 +1,3 @@
-using FastEndpoints.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;

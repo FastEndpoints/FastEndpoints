@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace FastEndpoints.Extensions;
+namespace FastEndpoints;
 
 public static class CommandExtensions
 {
@@ -25,7 +25,8 @@ public static class CommandExtensions
         if (handlerCache.TryGetValue(tCommand, out var hndDef))
         {
             hndDef.HandlerCreator ??= ActivatorUtilities.CreateFactory(hndDef.HandlerType, Type.EmptyTypes);
-            var handler = hndDef.HandlerCreator(IServiceResolver.RootServiceProvider, null);
+            using var scope = IServiceResolver.RootServiceProvider.CreateScope();
+            var handler = hndDef.HandlerCreator(scope.ServiceProvider, null);
             hndDef.ExecuteMethod ??= hndDef.HandlerType.HandlerExecutor<TResult>(tCommand, handler);
             return ((Func<object, CancellationToken, Task<TResult>>)hndDef.ExecuteMethod)(command, ct);
         }
@@ -39,7 +40,8 @@ public static class CommandExtensions
         if (handlerCache.TryGetValue(tCommand, out var hndDef))
         {
             hndDef.HandlerCreator ??= ActivatorUtilities.CreateFactory(hndDef.HandlerType, Type.EmptyTypes);
-            var handler = hndDef.HandlerCreator(IServiceResolver.RootServiceProvider, null);
+            using var scope = IServiceResolver.RootServiceProvider.CreateScope();
+            var handler = hndDef.HandlerCreator(scope.ServiceProvider, null);
             hndDef.ExecuteMethod ??= hndDef.HandlerType.HandlerExecutor(tCommand, handler);
             return ((Func<object, CancellationToken, Task>)hndDef.ExecuteMethod)(command, ct);
         }

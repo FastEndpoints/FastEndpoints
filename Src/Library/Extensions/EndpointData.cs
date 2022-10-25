@@ -162,10 +162,9 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface == Types.ICommandHandler)
+                if (tInterface.IsGenericType && tInterface.IsAssignableTo(Types.ICommandHandler))
                 {
-                    var tCommand = t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf2)?[0] ??
-                                   t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf1)?[0]!;
+                    var tCommand = tInterface.GetGenericArguments()[0];
 
                     if (CommandExtensions.handlerCache.ContainsKey(tCommand))
                     {

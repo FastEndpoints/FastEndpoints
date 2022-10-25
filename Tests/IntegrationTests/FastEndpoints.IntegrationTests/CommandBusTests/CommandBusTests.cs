@@ -10,7 +10,6 @@ public class CommandBusTests : EndToEndTestBase
 {
     public CommandBusTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
     {
-        //endToEndTestFixture.RegisterTestServices(services => services.AddScoped<.>());
     }
 
     [Fact]

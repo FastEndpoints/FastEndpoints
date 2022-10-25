@@ -1,4 +1,6 @@
-﻿namespace TestCases.CommandBusTest;
+﻿using Web.Services;
+
+namespace TestCases.CommandBusTest;
 
 public class TestCommand : ICommand<string>
 {
@@ -8,9 +10,10 @@ public class TestCommand : ICommand<string>
 
 public class TestCommandHandler : FastCommandHandler<TestCommand, string>
 {
-    public TestCommandHandler(ILogger<TestCommandHandler> logger)
+    public TestCommandHandler(ILogger<TestCommandHandler> logger, IEmailService emailService)
     {
         logger.LogError("command handling works!");
+        _ = emailService.SendEmail(); //scoped service
     }
 
     public override Task<string> ExecuteAsync(TestCommand cmd, CancellationToken ct)

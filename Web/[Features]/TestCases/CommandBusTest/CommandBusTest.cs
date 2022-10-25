@@ -13,3 +13,19 @@ public class TestCommandHandler : FastCommandHandler<TestCommand, string>
         return Task.FromResult(cmd.FirstName + " " + cmd.LastName);
     }
 }
+
+public class TestVoidCommand : ICommand
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+}
+
+public class TestVoidCommandHandler : FastCommandHandler<TestVoidCommand>
+{
+    public override Task ExecuteAsync(TestVoidCommand cmd, CancellationToken ct)
+    {
+        cmd.FirstName = "pass";
+        cmd.LastName = "pass";
+        return Task.CompletedTask;
+    }
+}

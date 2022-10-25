@@ -12,14 +12,13 @@ public static class CommandExtensions
         internal ObjectFactory? HandlerCreator { get; set; }
         internal object? ExecuteMethod { get; set; }
 
-        internal HandlerDefinition(Type handlerType, ObjectFactory? handlerCreator)
+        internal HandlerDefinition(Type handlerType)
         {
             HandlerType = handlerType;
-            HandlerCreator = handlerCreator;
         }
     }
 
-    public static async Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default)
+    public static Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default)
     {
         var tCommand = command.GetType();
 
@@ -28,24 +27,22 @@ public static class CommandExtensions
             hndDef.HandlerCreator ??= ActivatorUtilities.CreateFactory(hndDef.HandlerType, Type.EmptyTypes);
             var handler = hndDef.HandlerCreator(IServiceResolver.RootServiceProvider, null);
             hndDef.ExecuteMethod ??= hndDef.HandlerType.HandlerExecutor<TResult>(tCommand, handler);
-            return await ((Func<object, CancellationToken, Task<TResult>>)hndDef.ExecuteMethod)(command, ct);
+            return ((Func<object, CancellationToken, Task<TResult>>)hndDef.ExecuteMethod)(command, ct);
         }
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
     }
 
-    public static Task ExecuteAsync(this ICommand commandModel, CancellationToken cancellation = default)
+    public static Task ExecuteAsync(this ICommand command, CancellationToken ct = default)
     {
-        return Task.CompletedTask;
+        var tCommand = command.GetType();
 
-        //var requestType = typeof(Command<>);
-        //Type[] typeArgs = { commandModel.GetType() };
-
-        //var requestGenericType = requestType.MakeGenericType(typeArgs);
-        //var request = Activator.CreateInstance(requestGenericType);
-        //if (request == null)
-        //    throw new Exception($"Couldn't create an instance of the command '{requestGenericType.Name}'!.");
-
-        //var sendMethod = request.GetType().GetMethod("ExecuteAsync")!;
-        //return (Task)sendMethod.Invoke(request, new object[] { commandModel, cancellation })!;
+        if (handlerCache.TryGetValue(tCommand, out var hndDef))
+        {
+            hndDef.HandlerCreator ??= ActivatorUtilities.CreateFactory(hndDef.HandlerType, Type.EmptyTypes);
+            var handler = hndDef.HandlerCreator(IServiceResolver.RootServiceProvider, null);
+            hndDef.ExecuteMethod ??= hndDef.HandlerType.HandlerExecutor(tCommand, handler);
+            return ((Func<object, CancellationToken, Task>)hndDef.ExecuteMethod)(command, ct);
+        }
+        throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
     }
 }

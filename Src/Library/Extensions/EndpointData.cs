@@ -174,7 +174,7 @@ internal sealed class EndpointData
                                              "Consider using Event Pub/Sub pattern instead!");
                     }
 
-                    CommandExtensions.handlerCache.Add(tCommand, new(t, null));
+                    CommandExtensions.handlerCache.Add(tCommand, new(t));
 
                     continue;
                 }

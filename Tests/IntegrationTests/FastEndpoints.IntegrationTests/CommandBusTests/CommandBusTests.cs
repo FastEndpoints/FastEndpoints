@@ -10,11 +10,10 @@ public class CommandBusTests : EndToEndTestBase
 {
     public CommandBusTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
     {
-        endToEndTestFixture.RegisterTestServices(services => { });
     }
 
     [Fact]
-    public async Task CommandGetsHandled()
+    public async Task CommandThatReturnsAResult()
     {
         var res = await new TestCommand
         {
@@ -24,5 +23,20 @@ public class CommandBusTests : EndToEndTestBase
         .ExecuteAsync();
 
         res.Should().Be("johnny lawrence");
+    }
+
+    [Fact]
+    public async Task CommandThatReturnsVoid()
+    {
+        var cmd = new TestVoidCommand
+        {
+            FirstName = "johnny",
+            LastName = "lawrence"
+        };
+
+        await cmd.ExecuteAsync();
+
+        cmd.FirstName.Should().Be("pass");
+        cmd.LastName.Should().Be("pass");
     }
 }

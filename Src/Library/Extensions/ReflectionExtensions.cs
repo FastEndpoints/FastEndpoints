@@ -217,4 +217,21 @@ internal static class ReflectionExtensions
             ctParam
         ).Compile();
     }
+
+    internal static Func<object, CancellationToken, Task> HandlerExecutor(this Type tHandler, Type tCommand, object handler)
+    {
+        //ExecuteAsync((tCommand)cmd, ct);
+
+        var instance = Expression.Constant(handler);
+        var execMethod = tHandler.GetMethod("ExecuteAsync", BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)!;
+        var cmdParam = Expression.Parameter(Types.Object, "cmd");
+        var ctParam = Expression.Parameter(typeof(CancellationToken), "ct");
+        var methodCall = Expression.Call(instance, execMethod, Expression.Convert(cmdParam, tCommand), ctParam);
+
+        return Expression.Lambda<Func<object, CancellationToken, Task>>(
+            methodCall,
+            cmdParam,
+            ctParam
+        ).Compile();
+    }
 }

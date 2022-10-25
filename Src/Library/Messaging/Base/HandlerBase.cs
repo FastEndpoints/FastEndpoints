@@ -1,21 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿#pragma warning disable CA1822
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
 /// <summary>
-/// inherit this base class to handle events published by the notification system
-/// <para>WARNING: event handlers are singletons. DO NOT maintain state in them. Use the <c>Resolve*()</c> methods to obtain dependencies.</para>
+/// This class will contains the basic functionality and helpers methods to be used in the EventHandler and CommandHandler classes 
+/// <para>WARNING: handlers are singletons. DO NOT maintain state in them. Use the <c>Resolve*()</c> methods to obtain dependencies.</para>
 /// </summary>
-/// <typeparam name="TEvent">the type of the event to handle</typeparam>
-public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IServiceResolver where TEvent : notnull
+public abstract class HandlerBase
 {
-    /// <summary>
-    /// this method will be called when an event of the specified type is published.
-    /// </summary>
-    /// <param name="eventModel">the event model/dto received</param>
-    /// <param name="ct">an optional cancellation token</param>
-    public abstract Task HandleAsync(TEvent eventModel, CancellationToken ct);
-
     /// <summary>
     /// publish the given model/dto to all the subscribers of the event notification
     /// </summary>
@@ -63,12 +56,10 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IService
     public IServiceScope CreateScope() => IServiceResolver.RootServiceProvider.CreateScope();
 
     #region equality check
-
     //equality will be checked when discovered concrete handlers are being added to EventBase.handlerDict HashSet<T>
     //we need this check to be done on the type of the handler instead of the default instance equality check
     //to prevent duplicate handlers being added to the hash set if/when multiple instances of the app are being run
     //under the same app domain such as OrchardCore multi-tenancy. ex: https://github.com/FastEndpoints/Library/issues/208
-
     public override bool Equals(object? obj) => obj?.GetType() == GetType();
     public override int GetHashCode() => GetType().GetHashCode();
     #endregion

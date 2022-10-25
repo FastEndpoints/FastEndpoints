@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -81,5 +82,12 @@ internal static class EndpointExtensions
             throw new ArgumentException($"Failed to build route: [{sb}] due to incorrect number of replacements!");
 
         return sb.ToString();
+    }
+
+    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
+    {
+        var vrb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
+        var ep = EpOpts.ShortNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
+        return vrb + ep + routeNum.ToString();
     }
 }

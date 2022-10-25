@@ -1,3 +1,4 @@
+using FastEndpoints.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;
@@ -18,7 +19,6 @@ internal sealed class EndpointData
         _endpoints = new(() =>
         {
             var endpoints = BuildEndpointDefinitions(options);
-
             return endpoints.Length == 0
                    ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
                    : endpoints;
@@ -85,6 +85,7 @@ internal sealed class EndpointData
                      t.GetInterfaces().Intersect(new[] {
                          Types.IEndpoint,
                          Types.IEventHandler,
+                         Types.ICommandHandler,
                          Types.ISummary,
                          options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
                      }).Any() &&
@@ -158,6 +159,23 @@ internal sealed class EndpointData
                         handlers.Add(handler);
                     else
                         EventBase.handlerDict[tEvent] = new() { handler };
+                    continue;
+                }
+
+                if (tInterface == Types.ICommandHandler)
+                {
+                    var tCommand = t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf2)?[0] ??
+                                   t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf1)?[0]!;
+
+                    if (CommandExtensions.handlerCache.ContainsKey(tCommand))
+                    {
+                        throw new Exception($"Multiple handlers found for the command [{tCommand.FullName}]. " +
+                                             "Only one handler can exist for a single command. " +
+                                             "Consider using Event Pub/Sub pattern instead!");
+                    }
+
+                    CommandExtensions.handlerCache.Add(tCommand, new(t));
+
                     continue;
                 }
             }

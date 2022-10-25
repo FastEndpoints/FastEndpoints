@@ -28,12 +28,11 @@ public static class MainExtensions
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
     /// </summary>
     /// <param name="options">optionally specify the endpoint discovery options</param>
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services,
-                                                          Action<EndpointDiscoveryOptions>? options = null)
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options = null)
     {
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
-        Endpoints = new(opts);
+        Endpoints ??= new(opts); //prevent duplicate runs
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
         services.AddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));

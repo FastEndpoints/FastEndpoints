@@ -1,22 +1,21 @@
-﻿namespace FastEndpoints.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace FastEndpoints.Extensions;
 
 public static class CommandExtensions
 {
-    public static Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> commandModel, CancellationToken cancellation = default)
+    public static async Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default)
     {
-        //TODO: need to optimize these as reflection use per execution is bad for performance
-        //      specially Activator.CreateInstance() and MethodInfo.Invoke() are known to be slow
+        var tCommand = command.GetType();
 
-        var requestType = typeof(Command<,>);
-        Type[] typeArgs = { commandModel.GetType(), typeof(TResult) };
-
-        var requestGenericType = requestType.MakeGenericType(typeArgs);
-        var request = Activator.CreateInstance(requestGenericType);
-        if (request == null)
-            throw new Exception($"Couldn't create an instance of the command '{requestGenericType.Name}'!.");
-
-        var sendMethod = request.GetType().GetMethod("ExecuteAsync")!;
-        return (Task<TResult>)sendMethod.Invoke(request, new object[] { commandModel, cancellation })!;
+        if (CommandBase.HandlerCache.TryGetValue(tCommand, out var hndDef))
+        {
+            hndDef.HandlerCreator ??= ActivatorUtilities.CreateFactory(hndDef.HandlerType, Type.EmptyTypes);
+            var handler = hndDef.HandlerCreator(IServiceResolver.RootServiceProvider, null);
+            hndDef.ExecuteMethod ??= hndDef.HandlerType.HandlerExecutor<TResult>(tCommand, handler);
+            return await ((Func<object, CancellationToken, Task<TResult>>)hndDef.ExecuteMethod)(command, ct);
+        }
+        throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
     }
 
     public static Task ExecuteAsync(this ICommand commandModel, CancellationToken cancellation = default)

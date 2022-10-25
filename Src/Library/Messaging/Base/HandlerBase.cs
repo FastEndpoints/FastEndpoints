@@ -1,5 +1,4 @@
 ﻿#pragma warning disable CA1822
-using FastEndpoints.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -23,22 +22,22 @@ public abstract class HandlerBase
     public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : class
         => IServiceResolver.RootServiceProvider.GetRequiredService<Event<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
 
-    /// <summary>
-    /// send the given model/dto to the registered handler of the command
-    /// </summary>
-    /// <param name="commandModel">the command model/dto to handle</param>
-    ///<param name="cancellation">an optional cancellation token</param>
-    /// <returns/>a Task of the response result that matches the command type.
-    public Task<TResult> ExecuteAsync<TResult>(ICommand<TResult> commandModel, CancellationToken cancellation = default)
-        => commandModel.ExecuteAsync(cancellation);
+    ///// <summary>
+    ///// send the given model/dto to the registered handler of the command
+    ///// </summary>
+    ///// <param name="commandModel">the command model/dto to handle</param>
+    /////<param name="cancellation">an optional cancellation token</param>
+    ///// <returns/>a Task of the response result that matches the command type.
+    //public Task<TResult> ExecuteAsync<TResult>(ICommand<TResult> commandModel, CancellationToken cancellation = default)
+    //    => commandModel.ExecuteAsync(cancellation);
 
-    /// <summary>
-    /// send the given model/dto to the registered handler of the command
-    /// </summary>
-    /// <param name="commandModel">the command model/dto to handle</param>
-    ///<param name="cancellation">an optional cancellation token</param>
-    public Task ExecuteAsync(ICommand commandModel, CancellationToken cancellation = default)
-        => commandModel.ExecuteAsync(cancellation);
+    ///// <summary>
+    ///// send the given model/dto to the registered handler of the command
+    ///// </summary>
+    ///// <param name="commandModel">the command model/dto to handle</param>
+    /////<param name="cancellation">an optional cancellation token</param>
+    //public Task ExecuteAsync(ICommand commandModel, CancellationToken cancellation = default)
+    //    => commandModel.ExecuteAsync(cancellation);
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.

@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// base class for the command bus
@@ -6,8 +8,21 @@
 public abstract class CommandBase
 {
     //key: TCommand 
-    //val: a concrete command handler instance (subscriber)
-    internal static readonly Dictionary<Type, ICommandHandler> handlerDict = new();
+    //val: handler definition
+    internal static readonly Dictionary<Type, HandlerDefinition> HandlerCache = new();
+
+    internal class HandlerDefinition
+    {
+        internal Type HandlerType { get; set; }
+        internal ObjectFactory? HandlerCreator { get; set; }
+        internal object? ExecuteMethod { get; set; }
+
+        internal HandlerDefinition(Type handlerType, ObjectFactory? handlerCreator)
+        {
+            HandlerType = handlerType;
+            HandlerCreator = handlerCreator;
+        }
+    }
 }
 
 /// <summary>
@@ -24,7 +39,7 @@ public class Command<TCommand, TResult> : CommandBase where TCommand : notnull, 
     /// </summary>
     public Command()
     {
-        if (handlerDict.TryGetValue(typeof(TCommand), out var handler))
+        if (HandlerCache.TryGetValue(typeof(TCommand), out var handler))
             _handler = handler as ICommandHandler<TCommand, TResult>;
     }
 
@@ -56,7 +71,7 @@ public class Command<TCommand> : CommandBase where TCommand : notnull, ICommand
     /// </summary>
     public Command()
     {
-        if (handlerDict.TryGetValue(typeof(TCommand), out var handler))
+        if (HandlerCache.TryGetValue(typeof(TCommand), out var handler))
             _handler = handler as ICommandHandler<TCommand>;
     }
 

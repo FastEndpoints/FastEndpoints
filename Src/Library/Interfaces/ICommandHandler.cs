@@ -14,8 +14,8 @@ internal interface ICommandHandler<in TCommand> : ICommandHandler where TCommand
     Task ExecuteAsync(TCommand command, CancellationToken ct);
 }
 
-public interface ICommand<out TResult>
+public interface ICommand<out TResult> : ICommand
 {
 }
 
-public interface ICommand : ICommand<int> { }
+public interface ICommand { } // ICommand<int> { }

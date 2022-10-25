@@ -166,16 +166,14 @@ internal sealed class EndpointData
                     var tCommand = t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf2)?[0] ??
                                    t.GetGenericArgumentsOfType(Types.FastCommandHandlerOf1)?[0]!;
 
-                    var handler = (ICommandHandler)Activator.CreateInstance(t)!;
-
-                    if (CommandBase.handlerDict.ContainsKey(tCommand))
+                    if (CommandBase.HandlerCache.ContainsKey(tCommand))
                     {
                         throw new Exception($"Multiple handlers found for the command [{tCommand.FullName}]. " +
                                              "Only one handler can exist for a single command. " +
                                              "Consider using Event Pub/Sub pattern instead!");
                     }
 
-                    CommandBase.handlerDict.Add(tCommand, handler);
+                    CommandBase.HandlerCache.Add(tCommand, new(t, null));
 
                     continue;
                 }

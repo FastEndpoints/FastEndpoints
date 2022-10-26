@@ -1,6 +1,3 @@
-# DOCS TO DO:
-- since mappers are singletons, any deps injected in ctor also become singletons. even deps registered as scoped/transient.
-
 ### NEW
 - dependency resolving support for endpoint `Configure()` method
 - type safety for the shortcut http verb methods such as `Get()`, `Post()`, etc. [#info](https://fast-endpoints.com/docs/misc-conveniences#shorthand-route-configuration)

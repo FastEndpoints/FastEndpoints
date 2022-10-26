@@ -14,8 +14,7 @@ public abstract class Group : IServiceResolverBase
     /// </summary>
     /// <param name="routePrefix">the route prefix for the group</param>
     /// <param name="ep">the configuration action to be performed on the <see cref="EndpointDefinition"/></param>
-    protected virtual void Configure(string routePrefix, Action<EndpointDefinition> ep)
-        => Action = RouteModifier(routePrefix) + ep;
+    protected virtual void Configure(string routePrefix, Action<EndpointDefinition> ep) => Action = RouteModifier(routePrefix) + ep;
 
     private static Action<EndpointDefinition> RouteModifier(string routePrefix) => e =>
     {
@@ -31,20 +30,15 @@ public abstract class Group : IServiceResolverBase
     };
 
     ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class
-        => Config.ServiceResolver.TryResolve<TService>();
+    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
     ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService)
-        => Config.ServiceResolver.TryResolve(typeOfService);
+    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
     ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class
-        => Config.ServiceResolver.Resolve<TService>();
+    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
     ///<inheritdoc/>
-    public object Resolve(Type typeOfService)
-        => Config.ServiceResolver.Resolve(typeOfService);
+    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
-    public IServiceScope CreateScope()
-        => Config.ServiceResolver.CreateScope();
+    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
 }
 
 /// <summary>

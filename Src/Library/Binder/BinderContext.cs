@@ -46,8 +46,10 @@ public struct BinderContext : IServiceResolverBase
     /// <param name="validationFailures">the validation failure collection of the endpoint</param>
     /// <param name="jsonSerializerContext">json serializer context of the endpoint if applicable</param>
     /// <param name="dontAutoBindForms">whether or not to enable auto binding of form data</param>
-    public BinderContext(HttpContext httpContext, List<ValidationFailure> validationFailures,
-        JsonSerializerContext? jsonSerializerContext, bool dontAutoBindForms)
+    public BinderContext(HttpContext httpContext,
+                         List<ValidationFailure> validationFailures,
+                         JsonSerializerContext? jsonSerializerContext,
+                         bool dontAutoBindForms)
     {
         HttpContext = httpContext;
         ValidationFailures = validationFailures;
@@ -56,18 +58,13 @@ public struct BinderContext : IServiceResolverBase
     }
 
     ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class
-        => Config.ServiceResolver.TryResolve<TService>();
+    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
     ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService)
-        => Config.ServiceResolver.TryResolve(typeOfService);
+    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
     ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class
-        => Config.ServiceResolver.Resolve<TService>();
+    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
     ///<inheritdoc/>
-    public object Resolve(Type typeOfService)
-        => Config.ServiceResolver.Resolve(typeOfService);
+    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
-    public IServiceScope CreateScope()
-        => Config.ServiceResolver.CreateScope();
+    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
 }

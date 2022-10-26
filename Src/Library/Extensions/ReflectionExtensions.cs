@@ -100,9 +100,15 @@ internal static class ReflectionExtensions
             var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {
-                return tProp.GetInterfaces().Contains(Types.IEnumerable)
-                       ? (input => new(true, DeserializeJsonArrayString(input, tProp)))
-                       : (input => new(true, DeserializeJsonObjectString(input, tProp)));
+                if (tProp.GetInterfaces().Contains(Types.IEnumerable))
+                {
+                    return (tProp.GetElementType()
+                        ?? tProp.GetGenericArguments().FirstOrDefault()
+                    ) == Types.Byte
+                    ? input => new(true, DeserializeByteArray(input))
+                    : input => new(true, DeserializeJsonArrayString(input, tProp));
+                }
+                return input => new(true, DeserializeJsonObjectString(input, tProp));
             }
 
             // The 'object' parameter passed into our delegate
@@ -137,13 +143,25 @@ internal static class ReflectionExtensions
 
             static object? DeserializeJsonObjectString(object? input, Type tProp)
             {
-                if (input is not StringValues vals || vals.Count == 0)
+                if (input is not StringValues vals || vals.Count != 1)
                     return null;
 
-                if (vals.Count == 1 && vals[0].StartsWith('{') && vals[0].EndsWith('}'))
+                if (vals[0].StartsWith('{') && vals[0].EndsWith('}'))
                 {
                     // {"name":"x","age":24}
                     return JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options);
+                }
+                return null;
+            }
+
+            static object? DeserializeByteArray(object? input)
+            {
+                if (input is not StringValues vals || vals.Count != 1)
+                    return null;
+
+                if (vals.Count == 1)
+                {
+                    return Convert.FromBase64String(vals[0]);
                 }
                 return null;
             }

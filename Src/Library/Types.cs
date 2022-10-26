@@ -11,6 +11,7 @@ internal static class Types
     //it's only there to make code more readable and save a few keystrokes.
 
     internal static readonly Type Bool = typeof(bool);
+    internal static readonly Type Byte = typeof(byte);
     internal static readonly Type DontInjectAttribute = typeof(DontInjectAttribute);
     internal static readonly Type EmptyRequest = typeof(EmptyRequest);
     internal static readonly Type EmptyResponse = typeof(EmptyResponse);

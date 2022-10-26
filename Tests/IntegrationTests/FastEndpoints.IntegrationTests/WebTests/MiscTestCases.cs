@@ -401,6 +401,22 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
+    public async Task ByteArrayQueryParamBindingTestUse()
+    {
+        var (rsp, res) = await GuestClient
+            .GETAsync<TestCases.ByteArrayQueryParamBindingTest.Request, TestCases.ByteArrayQueryParamBindingTest.Response>(
+                "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D",
+
+                new()
+                {
+                });
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        System.Text.Json.JsonSerializer.Serialize(res!.Timestamp)
+            .Should()
+            .BeEquivalentTo("\"AAAAAAAAw1U=\"");
+    }
+    [Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
         var (rsp, res) = await GuestClient

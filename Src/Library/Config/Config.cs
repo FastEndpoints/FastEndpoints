@@ -7,13 +7,20 @@ namespace FastEndpoints;
 /// </summary>
 public class Config
 {
+    internal static IServiceResolver ServiceResolver;
+
+    internal static BindingOptions BndOpts = new();
     internal static EndpointOptions EpOpts = new();
     internal static ErrorOptions ErrOpts = new();
     internal static SecurityOptions SecOpts = new();
     internal static SerializerOptions SerOpts = new();
     internal static ThrottleOptions ThrOpts = new();
     internal static VersioningOptions VerOpts = new();
-    internal static BindingOptions BndOpts = new();
+
+    /// <summary>
+    /// request binding settings
+    /// </summary>
+    public BindingOptions Binding => BndOpts;
 
     /// <summary>
     /// endpoint dicovery &amp; registration settings
@@ -44,9 +51,4 @@ public class Config
     /// endpoint versioning settings
     /// </summary>
     public VersioningOptions Versioning => VerOpts;
-
-    /// <summary>
-    /// request binding settings
-    /// </summary>
-    public BindingOptions Binding => BndOpts;
 }

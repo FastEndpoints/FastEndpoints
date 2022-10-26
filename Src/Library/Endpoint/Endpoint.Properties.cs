@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using System.Text.Json;
@@ -39,12 +38,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// gives access to the hosting environment
     /// </summary>
-    public IWebHostEnvironment Env => _env ??= HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
+    public IWebHostEnvironment Env => _env ??= FastEndpoints.Config.ServiceResolver.Resolve<IWebHostEnvironment>();
 
     /// <summary>
     /// the logger for the current endpoint type
     /// </summary>
-    public ILogger Logger => _logger ??= HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger(Definition.EndpointType);
+    public ILogger Logger => _logger ??= FastEndpoints.Config.ServiceResolver.Resolve<ILoggerFactory>().CreateLogger(Definition.EndpointType);
 
     /// <summary>
     /// the base url of the current request

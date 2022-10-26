@@ -184,7 +184,6 @@ internal sealed class EndpointData
             var def = new EndpointDefinition()
             {
                 EndpointType = x.tEndpoint,
-                EpInstanceCreator = ActivatorUtilities.CreateFactory(x.tEndpoint, Type.EmptyTypes),
                 ReqDtoType = x.tRequest,
             };
 

@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
@@ -44,7 +43,6 @@ public sealed class EndpointDefinition
 
     //only accessible to internal code
     internal object[]? EpAttributes;
-    internal ObjectFactory EpInstanceCreator;
     internal bool ExecuteAsyncImplemented;
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;

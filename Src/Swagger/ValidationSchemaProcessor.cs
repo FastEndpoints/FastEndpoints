@@ -26,7 +26,6 @@ using FluentValidation;
 using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NJsonSchema;
 using NJsonSchema.Generation;
@@ -44,7 +43,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
     public ValidationSchemaProcessor()
     {
         _rules = CreateDefaultRules();
-        _logger = IServiceResolver.RootServiceProvider?.GetRequiredService<ILogger<ValidationSchemaProcessor>>();
+        _logger = Config.ServiceResolver.Resolve<ILogger<ValidationSchemaProcessor>>();
 
         if (validatorTypes?.Length == 0 && MainExtensions.Endpoints is null)
         {
@@ -71,7 +70,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 
         var tRequest = context.ContextualType;
 
-        using var scope = IServiceResolver.RootServiceProvider?.CreateScope();
+        using var scope = Config.ServiceResolver.CreateScope();
         if (scope is null)
             throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
 
@@ -81,7 +80,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
             {
                 if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
-                    var validator = ActivatorUtilities.CreateInstance(scope.ServiceProvider, tValidator);
+                    var validator = Config.ServiceResolver.CreateInstance(tValidator, scope.ServiceProvider);
                     if (validator is null)
                         throw new InvalidOperationException("Unable to instantiate validator!");
 

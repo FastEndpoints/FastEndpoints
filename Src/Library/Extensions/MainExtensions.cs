@@ -34,7 +34,9 @@ public static class MainExtensions
         options?.Invoke(opts);
         Endpoints ??= new(opts); //prevent duplicate runs
         services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
-        services.AddSingleton<IEndpointFactory, EndpointFactory>();
+        services.AddHttpContextAccessor();
+        services.TryAddSingleton<IServiceResolver, ServiceResolver>();
+        services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(Event<>));
         return services;
@@ -52,6 +54,7 @@ public static class MainExtensions
     {
         if (app is not IEndpointRouteBuilder routeBuilder)
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
+        Config.ServiceResolver = app.ApplicationServices.GetRequiredService<IServiceResolver>();
         UseFastEndpointsMiddleware(app);
         MapFastEndpoints(routeBuilder, configAction);
         return app;
@@ -65,7 +68,6 @@ public static class MainExtensions
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
-        IServiceResolver.RootServiceProvider = app.ServiceProvider;
         SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
         configAction?.Invoke(new Config());
 

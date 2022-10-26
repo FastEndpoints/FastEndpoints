@@ -14,14 +14,23 @@ public class CommandBusTests : EndToEndTestBase
     [Fact]
     public async Task CommandThatReturnsAResult()
     {
-        var res = await new TestCommand
+        var res1 = await new TestCommand
         {
             FirstName = "johnny",
             LastName = "lawrence"
         }
         .ExecuteAsync();
 
-        res.Should().Be("johnny lawrence");
+        res1.Should().Be("johnny lawrence");
+
+        var res2 = await new TestCommand
+        {
+            FirstName = "jo",
+            LastName = "law"
+        }
+        .ExecuteAsync();
+
+        res2.Should().Be("jo law");
     }
 
     [Fact]

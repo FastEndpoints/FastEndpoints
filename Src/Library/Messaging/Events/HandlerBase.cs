@@ -7,7 +7,7 @@ namespace FastEndpoints;
 /// This class will contains the basic functionality and helpers methods to be used in the EventHandler and CommandHandler classes 
 /// <para>WARNING: handlers are singletons. DO NOT maintain state in them. Use the <c>Resolve*()</c> methods to obtain dependencies.</para>
 /// </summary>
-public abstract class HandlerBase
+public abstract class HandlerBase : IServiceResolverBase
 {
     /// <summary>
     /// publish the given model/dto to all the subscribers of the event notification
@@ -20,40 +20,18 @@ public abstract class HandlerBase
     /// <see cref="Mode.WaitForAny"/> returns a Task that will complete when any of the subscribers complete their work.
     /// <see cref="Mode.WaitForAll"/> return a Task that will complete only when all of the subscribers complete their work.</returns>
     public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : class
-        => IServiceResolver.RootServiceProvider.GetRequiredService<Event<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
+        => Config.ServiceResolver.Resolve<Event<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
 
-    /// <summary>
-    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
-    /// </summary>
-    /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    public TService? TryResolve<TService>() where TService : class => IServiceResolver.RootServiceProvider.GetService<TService>();
-    /// <summary>
-    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
-    /// </summary>
-    /// <param name="typeOfService">the type of the service to resolve</param>
-    public object? TryResolve(Type typeOfService) => IServiceResolver.RootServiceProvider.GetService(typeOfService);
-    /// <summary>
-    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
-    /// </summary>
-    /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public TService Resolve<TService>() where TService : class => IServiceResolver.RootServiceProvider.GetRequiredService<TService>();
-    /// <summary>
-    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
-    /// </summary>
-    /// <param name="typeOfService">the type of the service to resolve</param>
-    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public object Resolve(Type typeOfService) => IServiceResolver.RootServiceProvider.GetRequiredService(typeOfService);
-    /// <summary>
-    /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
-    ///<para>
-    /// <code>
-    /// using var scope = CreateScope();
-    /// var scopedService = scope.ServiceProvider.GetService(...);
-    /// </code>
-    /// </para>
-    /// </summary>
-    public IServiceScope CreateScope() => IServiceResolver.RootServiceProvider.CreateScope();
+    ///<inheritdoc/>
+    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
+    ///<inheritdoc/>
+    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
+    ///<inheritdoc/>
+    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
+    ///<inheritdoc/>
+    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
+    ///<inheritdoc/>
+    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
 
     #region equality check
     //equality will be checked when discovered concrete handlers are being added to EventBase.handlerDict HashSet<T>

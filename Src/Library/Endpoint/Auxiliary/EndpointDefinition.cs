@@ -79,6 +79,14 @@ public sealed class EndpointDefinition
     }
 
     /// <summary>
+    /// allow unauthenticated requests to this endpoint for a specified set of http verbs.
+    /// </summary>
+    public void AllowAnonymous(string[] verbs)
+    {
+        AnonymousVerbs = verbs;
+    }
+
+    /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
     /// <param name="dontAutoBindFormData">

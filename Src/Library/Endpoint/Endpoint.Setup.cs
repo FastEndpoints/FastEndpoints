@@ -21,6 +21,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void AllowAnonymous(params Http[] verbs) => Definition.AllowAnonymous(verbs);
 
     /// <summary>
+    /// allow unauthenticated requests to this endpoint for a specified set of http verbs.
+    /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require authentication.
+    /// </summary>
+    protected void AllowAnonymous(string[] verbs) => Definition.AllowAnonymous(verbs);
+
+    /// <summary>
     /// enable file uploads with multipart/form-data content type
     /// </summary>
     /// <param name="dontAutoBindFormData">

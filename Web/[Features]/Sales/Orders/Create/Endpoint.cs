@@ -30,7 +30,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
             FirstName = "x",
             LastName = "y"
         }
-        .ExecuteAsync(HttpContext.RequestServices);
+        .ExecuteAsync(t);
 
         var userType = User.ClaimValue(Claim.UserType);
 

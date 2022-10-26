@@ -30,6 +30,7 @@ public static class MainExtensions
     /// <param name="options">optionally specify the endpoint discovery options</param>
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options = null)
     {
+        services.AddHttpContextAccessor();
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
         Endpoints ??= new(opts); //prevent duplicate runs
@@ -66,6 +67,7 @@ public static class MainExtensions
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
         IServiceResolver.RootServiceProvider = app.ServiceProvider;
+        CommandExtensions.ServiceProviderFactory = () => app.ServiceProvider.GetService<IHttpContextAccessor>()?.HttpContext?.RequestServices?? app.ServiceProvider;
         SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
         configAction?.Invoke(new Config());
 
@@ -316,6 +318,7 @@ public static class MainExtensions
         }
     }
 }
+
 
 internal class StartupTimer { }
 internal class DuplicateHandlerRegistration { }

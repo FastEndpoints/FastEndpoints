@@ -9,15 +9,10 @@ namespace Runner;
 [MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 10, invocationCount: 10000)]
 public class Benchmarks
 {
-    private const string QueryObjectParamsFE = "?id=101&FirstName=Name&LastName=LastName&Age=23&phoneNumbers=223422&phonenumbers=11144" +
-            "&NestedQueryObject[id]=101&NestedQueryObject[FirstName]=Name&NestedQueryObject[LastName]=LastName&NestedQueryObject[Age]=23&NestedQueryObject[phoneNumbers]=223422&NestedQueryObject[phonenumbers]=1114" +
-            "&NestedQueryObject[MoreNestedQueryObject][id]=101&NestedQueryObject[MoreNestedQueryObject][FirstName]=Name&NestedQueryObject[MoreNestedQueryObject][LastName]=LastName" +
-            "&NestedQueryObject[MoreNestedQueryObject][Age]=23&NestedQueryObject[MoreNestedQueryObject][phoneNumbers]=223422&NestedQueryObject[MoreNestedQueryObject][phonenumbers]=1114";
-
-    private const string QueryObjectParams = "?id=101&FirstName=Name&LastName=LastName&Age=23&phoneNumbers=223422&phonenumbers=11144" +
-            "&NestedQueryObject.id=101&NestedQueryObject.FirstName=Name&NestedQueryObject.LastName=LastName&NestedQueryObject.Age=23&NestedQueryObject.phoneNumbers=223422&NestedQueryObject.phonenumbers=1114" +
+    private const string QueryObjectParams = "?id=101&FirstName=Name&LastName=LastName&Age=23&phoneNumbers[0]=223422&phonenumbers[1]=11144" +
+            "&NestedQueryObject.id=101&NestedQueryObject.FirstName=Name&NestedQueryObject.LastName=LastName&NestedQueryObject.Age=23&NestedQueryObject.phoneNumbers[0]=223422&NestedQueryObject.phonenumbers[1]=1114" +
             "&NestedQueryObject.MoreNestedQueryObject.id=101&NestedQueryObject.MoreNestedQueryObject.FirstName=Name&NestedQueryObject.MoreNestedQueryObject.LastName=LastName" +
-            "&NestedQueryObject.MoreNestedQueryObject.Age=23&NestedQueryObject.MoreNestedQueryObject.phoneNumbers=223422&NestedQueryObject.MoreNestedQueryObject.phonenumbers=1114";
+            "&NestedQueryObject.MoreNestedQueryObject.Age=23&NestedQueryObject.MoreNestedQueryObject.phoneNumbers[0]=223422&NestedQueryObject.MoreNestedQueryObject.phonenumbers[1]=1114";
     private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient FECodeGenClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient FEThrottleClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
@@ -109,7 +104,7 @@ public class Benchmarks
         var msg = new HttpRequestMessage()
         {
             Method = HttpMethod.Get,
-            RequestUri = new Uri($"{FastEndpointClient.BaseAddress}benchmark/query-binding{QueryObjectParamsFE}")
+            RequestUri = new Uri($"{FastEndpointClient.BaseAddress}benchmark/query-binding{QueryObjectParams}")
         };
         return FastEndpointClient.SendAsync(msg);
     }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
+using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -52,12 +52,12 @@ internal static class EndpointExtensions
             }
         }
 
-        if (ctx?.RequestServices is not null)
+        if (Config.ServiceResolver is not null)
         {
             if (def.ValidatorInstance is null && def.ValidatorType is not null)
-                def.ValidatorInstance = ActivatorUtilities.CreateInstance(ctx.RequestServices, def.ValidatorType);
+                def.ValidatorInstance = Config.ServiceResolver.CreateSingleton(def.ValidatorType);
             if (def.MapperInstance is null && def.MapperType is not null)
-                def.MapperInstance = ActivatorUtilities.CreateInstance(ctx.RequestServices, def.MapperType);
+                def.MapperInstance = Config.ServiceResolver.CreateSingleton(def.MapperType);
         }
     }
 
@@ -81,5 +81,12 @@ internal static class EndpointExtensions
             throw new ArgumentException($"Failed to build route: [{sb}] due to incorrect number of replacements!");
 
         return sb.ToString();
+    }
+
+    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
+    {
+        var vrb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
+        var ep = EpOpts.ShortNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
+        return vrb + ep + routeNum.ToString();
     }
 }

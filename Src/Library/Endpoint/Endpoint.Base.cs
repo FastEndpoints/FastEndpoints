@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 
@@ -29,7 +28,7 @@ public abstract class BaseEndpoint : IEndpoint
     /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <c>.AddFastEndpoints(config: builder.Configuration)</c>
     /// </summary>
     public IConfiguration Config {
-        get => _config ??= HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        get => _config ??= FastEndpoints.Config.ServiceResolver.Resolve<IConfiguration>();
         internal set => _config = value;
     }
 

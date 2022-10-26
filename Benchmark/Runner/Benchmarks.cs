@@ -32,7 +32,7 @@ public class Benchmarks
             }
         }), Encoding.UTF8, "application/json");
 
-    //[Benchmark(Baseline = true)]
+    [Benchmark(Baseline = true)]
     public Task FastEndpoints()
     {
         var msg = new HttpRequestMessage()
@@ -58,7 +58,7 @@ public class Benchmarks
         return FECodeGenClient.SendAsync(msg);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public Task MinimalApi()
     {
         var msg = new HttpRequestMessage()
@@ -98,7 +98,7 @@ public class Benchmarks
         return MvcClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task FastEndpointsQueryBinding()
     {
         var msg = new HttpRequestMessage()
@@ -109,7 +109,7 @@ public class Benchmarks
         return FastEndpointClient.SendAsync(msg);
     }
 
-    [Benchmark(Baseline = true)]
+    //[Benchmark(Baseline = true)]
     public Task AspNetCoreMVCQueryBinding()
     {
         var msg = new HttpRequestMessage()

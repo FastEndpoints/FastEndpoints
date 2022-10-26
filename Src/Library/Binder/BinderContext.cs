@@ -11,7 +11,7 @@ namespace FastEndpoints;
 /// <summary>
 /// binder context supplied to custom request binders.
 /// </summary>
-public struct BinderContext : IServiceResolver
+public struct BinderContext : IServiceResolverBase
 {
     /// <summary>
     /// the http context of the current request
@@ -46,8 +46,10 @@ public struct BinderContext : IServiceResolver
     /// <param name="validationFailures">the validation failure collection of the endpoint</param>
     /// <param name="jsonSerializerContext">json serializer context of the endpoint if applicable</param>
     /// <param name="dontAutoBindForms">whether or not to enable auto binding of form data</param>
-    public BinderContext(HttpContext httpContext, List<ValidationFailure> validationFailures,
-        JsonSerializerContext? jsonSerializerContext, bool dontAutoBindForms)
+    public BinderContext(HttpContext httpContext,
+                         List<ValidationFailure> validationFailures,
+                         JsonSerializerContext? jsonSerializerContext,
+                         bool dontAutoBindForms)
     {
         HttpContext = httpContext;
         ValidationFailures = validationFailures;
@@ -55,41 +57,14 @@ public struct BinderContext : IServiceResolver
         DontAutoBindForms = dontAutoBindForms;
     }
 
-    /// <summary>
-    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
-    /// </summary>
-    /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    public TService? TryResolve<TService>() where TService : class
-        => HttpContext.RequestServices.GetService<TService>();
-    /// <summary>
-    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
-    /// </summary>
-    /// <param name="typeOfService">the type of the service to resolve</param>
-    public object? TryResolve(Type typeOfService)
-        => HttpContext.RequestServices.GetService(typeOfService);
-    /// <summary>
-    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
-    /// </summary>
-    /// <typeparam name="TService">the type of the service to resolve</typeparam>
-    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public TService Resolve<TService>() where TService : class
-        => HttpContext.RequestServices.GetRequiredService<TService>();
-    /// <summary>
-    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
-    /// </summary>
-    /// <param name="typeOfService">the type of the service to resolve</param>
-    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
-    public object Resolve(Type typeOfService)
-        => HttpContext.RequestServices.GetRequiredService(typeOfService);
-    /// <summary>
-    /// if you'd like to resolve scoped or transient services from the DI container, obtain a service scope from this method and dispose the scope when the work is complete.
-    ///<para>
-    /// <code>
-    /// using var scope = CreateScope();
-    /// var scopedService = scope.ServiceProvider.GetService(...);
-    /// </code>
-    /// </para>
-    /// </summary>
-    public IServiceScope CreateScope()
-        => HttpContext.RequestServices.CreateScope();
+    ///<inheritdoc/>
+    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
+    ///<inheritdoc/>
+    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
+    ///<inheritdoc/>
+    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
+    ///<inheritdoc/>
+    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
+    ///<inheritdoc/>
+    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
 }

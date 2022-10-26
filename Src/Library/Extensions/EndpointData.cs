@@ -18,7 +18,6 @@ internal sealed class EndpointData
         _endpoints = new(() =>
         {
             var endpoints = BuildEndpointDefinitions(options);
-
             return endpoints.Length == 0
                    ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
                    : endpoints;
@@ -85,6 +84,7 @@ internal sealed class EndpointData
                      t.GetInterfaces().Intersect(new[] {
                          Types.IEndpoint,
                          Types.IEventHandler,
+                         Types.ICommandHandler,
                          Types.ISummary,
                          options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
                      }).Any() &&
@@ -160,6 +160,22 @@ internal sealed class EndpointData
                         EventBase.handlerDict[tEvent] = new() { handler };
                     continue;
                 }
+
+                if (tInterface.IsGenericType && tInterface.IsAssignableTo(Types.ICommandHandler))
+                {
+                    var tCommand = tInterface.GetGenericArguments()[0];
+
+                    if (CommandExtensions.handlerCache.ContainsKey(tCommand))
+                    {
+                        throw new Exception($"Multiple handlers found for the command [{tCommand.FullName}]. " +
+                                             "Only one handler can exist for a single command. " +
+                                             "Consider using Event Pub/Sub pattern instead!");
+                    }
+
+                    CommandExtensions.handlerCache.Add(tCommand, new(t));
+
+                    continue;
+                }
             }
         }
 
@@ -168,7 +184,6 @@ internal sealed class EndpointData
             var def = new EndpointDefinition()
             {
                 EndpointType = x.tEndpoint,
-                EpInstanceCreator = ActivatorUtilities.CreateFactory(x.tEndpoint, Type.EmptyTypes),
                 ReqDtoType = x.tRequest,
             };
 

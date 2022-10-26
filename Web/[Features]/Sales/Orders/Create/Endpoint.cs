@@ -1,4 +1,5 @@
-﻿using Web.PipelineBehaviors.PostProcessors;
+﻿using TestCases.CommandBusTest;
+using Web.PipelineBehaviors.PostProcessors;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 using Web.SystemEvents;
@@ -7,6 +8,8 @@ namespace Sales.Orders.Create;
 
 public class Endpoint : Endpoint<Request, Response, MyMapper>
 {
+    public IEmailService Emailer { get; set; }
+
     public override void Configure()
     {
         Verbs(Http.POST);
@@ -22,13 +25,20 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
 
     public async override Task HandleAsync(Request r, CancellationToken t)
     {
+        var fullName = new TestCommand
+        {
+            FirstName = "x",
+            LastName = "y"
+        }
+        .ExecuteAsync();
+
         var userType = User.ClaimValue(Claim.UserType);
 
         var saleNotification = new NewOrderCreated
         {
-            CustomerName = $"new customer ({userType})",
+            CustomerName = $"new customer ({fullName}) ({userType})",
             OrderID = Random.Shared.Next(0, 10000),
-            OrderTotal = 12345.67m
+            OrderTotal = 12345.67m,
         };
 
         await PublishAsync(saleNotification, Mode.WaitForNone);

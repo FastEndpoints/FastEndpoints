@@ -1,7 +1,6 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -79,7 +78,7 @@ public static class HttpResponseExtensions
                                           bool generateAbsoluteUrl = false,
                                           CancellationToken cancellation = default)
     {
-        var linkGen = rsp.HttpContext.RequestServices.GetRequiredService<LinkGenerator>();
+        var linkGen = Config.ServiceResolver.Resolve<LinkGenerator>();
 
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 201;

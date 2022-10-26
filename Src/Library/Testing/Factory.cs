@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
@@ -15,6 +17,10 @@ public static class Factory
     /// <param name="dependencies">the dependencies of the endpoint if it has injected dependencies</param>
     public static TEndpoint Create<TEndpoint>(DefaultHttpContext httpContext, params object?[]? dependencies) where TEndpoint : class, IEndpoint
     {
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        var provider = services.BuildServiceProvider();
+        Config.ServiceResolver ??= new ServiceResolver(provider, new HttpContextAccessor());
         var tEndpoint = typeof(TEndpoint);
         var ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, dependencies)!;
         ep.Definition = new()

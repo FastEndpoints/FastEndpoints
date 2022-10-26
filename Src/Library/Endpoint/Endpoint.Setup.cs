@@ -244,7 +244,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         for (var i = 0; i < postProcessors.Length; i++)
         {
-            Definition.PostProcessorList.Add(postProcessors[i]);
+            var p = postProcessors[i];
+
+            if (!Definition.PostProcessorList.Contains(p, TypeEqualityComparer.Instance))
+                Definition.PostProcessorList.Add(p);
         }
     }
 
@@ -256,7 +259,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         for (var i = 0; i < preProcessors.Length; i++)
         {
-            Definition.PreProcessorList.Add(preProcessors[i]);
+            var p = preProcessors[i];
+
+            if (!Definition.PreProcessorList.Contains(p, TypeEqualityComparer.Instance))
+                Definition.PreProcessorList.Add(p);
         }
     }
 

@@ -378,7 +378,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
-    public sealed override void Verbs(params Http[] methods)
+    protected void Verbs(params Http[] methods)
+    {
+        Verbs(methods.Select(m => m.ToString()).ToArray());
+    }
+
+    /// <summary>
+    /// specify one or more http method verbs this endpoint should be accepting requests for
+    /// </summary>
+    public sealed override void Verbs(params string[] methods)
     {
         //note: this method is sealed to not allow user to override it because we neeed to perform
         //      the following setup activities, which require access to TRequest/TResponse
@@ -400,7 +408,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
             if (tRequest != Types.EmptyRequest)
             {
-                if (methods.Any(m => m is Http.GET or Http.HEAD or Http.DELETE))
+                if (methods.Any(m => m is "GET" or "HEAD" or "DELETE"))
                     b.Accepts<TRequest>("*/*", "application/json");
                 else
                     b.Accepts<TRequest>("application/json");

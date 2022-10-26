@@ -5,6 +5,7 @@
 - specify whether to execute global pre/post processors before or after endpoint level processors #291
 - `[DontInject]` attribute for preventing property injection of endpoint properties
 - command bus pattern request/response messaging (independant of endpoints) #294
+- add `Verbs(...)` overload that can take any string #299
 
 ### IMPROVEMENTS
 - remove read-only properties from swagger request body #283

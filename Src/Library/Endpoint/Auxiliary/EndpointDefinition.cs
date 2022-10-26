@@ -20,7 +20,7 @@ public sealed class EndpointDefinition
     public string[]? Routes { get; internal set; }
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public Type? ValidatorType { get; internal set; }
-    public Http[]? Verbs { get; internal set; }
+    public string[]? Verbs { get; internal set; }
     public EpVersion Version { get; } = new();
 
     //these props can be changed in global config using methods below

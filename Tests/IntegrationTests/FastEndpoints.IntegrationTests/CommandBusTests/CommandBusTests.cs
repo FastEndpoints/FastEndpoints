@@ -21,8 +21,6 @@ public class CommandBusTests : EndToEndTestBase
         }
         .ExecuteAsync();
 
-        res1.Should().Be("johnny lawrence");
-
         var res2 = await new TestCommand
         {
             FirstName = "jo",
@@ -30,6 +28,7 @@ public class CommandBusTests : EndToEndTestBase
         }
         .ExecuteAsync();
 
+        res1.Should().Be("johnny lawrence");
         res2.Should().Be("jo law");
     }
 

@@ -156,14 +156,9 @@ internal static class ReflectionExtensions
 
             static object? DeserializeByteArray(object? input)
             {
-                if (input is not StringValues vals || vals.Count != 1)
-                    return null;
-
-                if (vals.Count == 1)
-                {
-                    return Convert.FromBase64String(vals[0]);
-                }
-                return null;
+                return input is not StringValues vals || vals.Count != 1
+                    ? null
+                    : Convert.FromBase64String(vals[0]);
             }
 
             static object? DeserializeJsonArrayString(object? input, Type tProp)

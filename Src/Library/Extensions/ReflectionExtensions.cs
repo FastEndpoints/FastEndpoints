@@ -100,15 +100,11 @@ internal static class ReflectionExtensions
             var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {
-                if (tProp.GetInterfaces().Contains(Types.IEnumerable))
-                {
-                    return (tProp.GetElementType()
-                        ?? tProp.GetGenericArguments().FirstOrDefault()
-                    ) == Types.Byte
-                    ? input => new(true, DeserializeByteArray(input))
-                    : input => new(true, DeserializeJsonArrayString(input, tProp));
-                }
-                return input => new(true, DeserializeJsonObjectString(input, tProp));
+                return tProp.GetInterfaces().Contains(Types.IEnumerable)
+                        ? (tProp.GetElementType() ?? tProp.GetGenericArguments().FirstOrDefault()) == Types.Byte
+                           ? input => new(true, DeserializeByteArray(input))
+                           : input => new(true, DeserializeJsonArrayString(input, tProp))
+                        : (input => new(true, DeserializeJsonObjectString(input, tProp)));
             }
 
             // The 'object' parameter passed into our delegate
@@ -136,10 +132,9 @@ internal static class ReflectionExtensions
                 Expression.Assign(isSuccessVar, tryParseCall),
                 Expression.New(parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 
-            return Expression.Lambda<Func<object?, ParseResult>>(
-                block,
-                inputParameter
-            ).Compile();
+            return Expression
+                .Lambda<Func<object?, ParseResult>>(block, inputParameter)
+                .Compile();
 
             static object? DeserializeJsonObjectString(object? input, Type tProp)
             {
@@ -157,8 +152,8 @@ internal static class ReflectionExtensions
             static object? DeserializeByteArray(object? input)
             {
                 return input is not StringValues vals || vals.Count != 1
-                    ? null
-                    : Convert.FromBase64String(vals[0]);
+                        ? null
+                        : Convert.FromBase64String(vals[0]);
             }
 
             static object? DeserializeJsonArrayString(object? input, Type tProp)

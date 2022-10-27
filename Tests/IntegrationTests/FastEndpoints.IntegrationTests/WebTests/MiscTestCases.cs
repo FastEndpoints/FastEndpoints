@@ -214,7 +214,8 @@ public class MiscTestCases : EndToEndTestBase
             "doubles=[123.45,543.21]&" +
             "dates=[\"2022-01-01\",\"2022-02-02\"]&" +
             "guids=[\"b01ec302-0adc-4a2b-973d-bbfe639ed9a5\",\"e08664a4-efd8-4062-a1e1-6169c6eac2ab\"]&" +
-            "ints=[1,2,3]",
+            "ints=[1,2,3]&" +
+            "steven={\"age\":12,\"name\":\"steven\"}",
             new());
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -226,6 +227,12 @@ public class MiscTestCases : EndToEndTestBase
         res?.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
         res?.Ints.Count().Should().Be(3);
         res?.Ints.First().Should().Be(1);
+        res?.Steven.Should().BeEquivalentTo(
+            new TestCases.JsonArrayBindingForIEnumerableProps.Request.Person
+            {
+                Age = 12,
+                Name = "steven"
+            });
     }
 
     [Fact]
@@ -416,6 +423,7 @@ public class MiscTestCases : EndToEndTestBase
             .Should()
             .BeEquivalentTo("\"AAAAAAAAw1U=\"");
     }
+
     [Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
@@ -576,6 +584,7 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
+
     public async Task BindingObjectFromQueryUseSwaggerUiStyle()
     {
         var (rsp, res) = await GuestClient
@@ -626,6 +635,7 @@ public class MiscTestCases : EndToEndTestBase
             }
             );
     }
+
     [Fact]
     public async Task TestEventHandling()
     {

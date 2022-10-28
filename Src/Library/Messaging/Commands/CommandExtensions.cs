@@ -1,19 +1,11 @@
-﻿namespace FastEndpoints;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+
+namespace FastEndpoints;
 
 public static class CommandExtensions
 {
     internal static readonly Dictionary<Type, HandlerDefinition> handlerCache = new();
-
-    internal class HandlerDefinition
-    {
-        internal Type HandlerType { get; set; }
-        internal object? ExecuteMethod { get; set; }
-
-        internal HandlerDefinition(Type handlerType)
-        {
-            HandlerType = handlerType;
-        }
-    }
 
     /// <summary>
     /// executes the command and returns a result
@@ -52,5 +44,50 @@ public static class CommandExtensions
             return ((Func<object, CancellationToken, Task>)def.ExecuteMethod)(command, ct);
         }
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+    }
+
+    private static Func<object, CancellationToken, Task<TResult>> HandlerExecutor<TResult>(this Type tHandler, Type tCommand, object handler)
+    {
+        //Task<TResult> ExecuteAsync((TCommand)cmd, ct);
+
+        var instance = Expression.Constant(handler);
+        var execMethod = tHandler.GetMethod("ExecuteAsync", BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)!;
+        var cmdParam = Expression.Parameter(Types.Object, "cmd");
+        var ctParam = Expression.Parameter(typeof(CancellationToken), "ct");
+        var methodCall = Expression.Call(instance, execMethod, Expression.Convert(cmdParam, tCommand), ctParam);
+
+        return Expression.Lambda<Func<object, CancellationToken, Task<TResult>>>(
+            methodCall,
+            cmdParam,
+            ctParam
+        ).Compile();
+    }
+
+    private static Func<object, CancellationToken, Task> HandlerExecutor(this Type tHandler, Type tCommand, object handler)
+    {
+        //Task ExecuteAsync((TCommand)cmd, ct);
+
+        var instance = Expression.Constant(handler);
+        var execMethod = tHandler.GetMethod("ExecuteAsync", BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)!;
+        var cmdParam = Expression.Parameter(Types.Object, "cmd");
+        var ctParam = Expression.Parameter(typeof(CancellationToken), "ct");
+        var methodCall = Expression.Call(instance, execMethod, Expression.Convert(cmdParam, tCommand), ctParam);
+
+        return Expression.Lambda<Func<object, CancellationToken, Task>>(
+            methodCall,
+            cmdParam,
+            ctParam
+        ).Compile();
+    }
+
+    internal class HandlerDefinition
+    {
+        internal Type HandlerType { get; set; }
+        internal object? ExecuteMethod { get; set; }
+
+        internal HandlerDefinition(Type handlerType)
+        {
+            HandlerType = handlerType;
+        }
     }
 }

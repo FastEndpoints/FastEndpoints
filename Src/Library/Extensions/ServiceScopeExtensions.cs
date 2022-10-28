@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-public static class ServiceResolverExtensions
+public static class ServiceScopeExtensions
 {
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.

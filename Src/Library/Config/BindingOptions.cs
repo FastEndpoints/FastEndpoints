@@ -1,4 +1,5 @@
-﻿namespace FastEndpoints;
+﻿#pragma warning disable CA1822
+namespace FastEndpoints;
 
 /// <summary>
 /// request binding options
@@ -43,7 +44,7 @@ public class BindingOptions
     /// </code>
     /// </param>
     public bool ValueParserFor<T>(Func<object?, ParseResult>? parser)
-        => ReflectionExtensions.ParserFuncCache.TryAdd(typeof(T), parser);
+        => BinderExtensions.ParserFuncCache.TryAdd(typeof(T), parser);
 
     /// <summary>
     /// add a custom value parser function for any given type which the default model binder will use to parse values when model binding request dto properties from query/route/forms/headers/claims.
@@ -71,5 +72,5 @@ public class BindingOptions
     /// </code>
     /// </param>
     public bool ValueParserFor(Type type, Func<object?, ParseResult>? parser)
-        => ReflectionExtensions.ParserFuncCache.TryAdd(type, parser);
+        => BinderExtensions.ParserFuncCache.TryAdd(type, parser);
 }

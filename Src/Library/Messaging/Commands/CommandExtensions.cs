@@ -5,7 +5,7 @@ namespace FastEndpoints;
 
 public static class CommandExtensions
 {
-    internal static readonly Dictionary<Type, HandlerDefinition> handlerCache = new();
+    internal static readonly Dictionary<Type, CommandHandlerDefinition> handlerCache = new();
 
     /// <summary>
     /// executes the command and returns a result
@@ -80,12 +80,12 @@ public static class CommandExtensions
         ).Compile();
     }
 
-    internal class HandlerDefinition
+    internal class CommandHandlerDefinition
     {
         internal Type HandlerType { get; set; }
         internal object? ExecuteMethod { get; set; }
 
-        internal HandlerDefinition(Type handlerType)
+        internal CommandHandlerDefinition(Type handlerType)
         {
             HandlerType = handlerType;
         }

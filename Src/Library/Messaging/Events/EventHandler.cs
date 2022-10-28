@@ -39,13 +39,4 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IService
     public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
     public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
-
-    #region equality check
-    //equality will be checked when discovered concrete handlers are being added to EventBase.handlerDict HashSet<T>
-    //we need this check to be done on the type of the handler instead of the default instance equality check
-    //to prevent duplicate handlers being added to the hash set if/when multiple instances of the app are being run
-    //under the same app domain such as OrchardCore multi-tenancy. ex: https://github.com/FastEndpoints/Library/issues/208
-    public override bool Equals(object? obj) => obj?.GetType() == GetType();
-    public override int GetHashCode() => GetType().GetHashCode();
-    #endregion
 }

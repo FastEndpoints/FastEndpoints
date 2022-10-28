@@ -22,7 +22,7 @@ public class Event<TEvent> : EventBase where TEvent : notnull
     /// instantiates an event bus for the given event dto type.
     /// </summary>
     /// <param name="eventHandlers">a collection of concrete event handler implementations that should receive notifications from this event bus</param>
-    public Event(IEnumerable<FastEventHandler<TEvent>>? eventHandlers = null)
+    public Event(IEnumerable<IEventHandler<TEvent>>? eventHandlers = null)
     {
         if (eventHandlers?.Any() is true)
             handlers = eventHandlers;

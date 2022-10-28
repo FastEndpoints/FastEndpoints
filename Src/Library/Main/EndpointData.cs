@@ -149,15 +149,15 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface == Types.IEventHandler)
+                if (tInterface.IsGenericType && tInterface.IsAssignableTo(Types.IEventHandler))
                 {
-                    var tEvent = t.GetGenericArgumentsOfType(Types.FastEventHandlerOf1)?[0]!;
+                    var tEvent = tInterface.GetGenericArguments()[0];
                     var handler = (IEventHandler)Activator.CreateInstance(t)!;
 
                     if (EventBase.handlerDict.TryGetValue(tEvent, out var handlers))
                         handlers.Add(handler);
                     else
-                        EventBase.handlerDict[tEvent] = new() { handler };
+                        EventBase.handlerDict[tEvent] = new(TypeEqualityComparer.Instance) { handler };
                     continue;
                 }
 

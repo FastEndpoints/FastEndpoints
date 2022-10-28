@@ -12,6 +12,7 @@
 - move attribute classes to a separate package `FastEndpoints.Attributes` [#info](https://discord.com/channels/933662816458645504/955771546654359553/1032020804671647854)
 - non-conforming DI container support #289
 - remove previously deprecated scoped validator support
+- make `IEventHandler<TEvent>` public and remove requirement of `FastEventHandler<TEvent>`
 
 ### FIXES
 - swagger response examples not honoring serializer settings #280

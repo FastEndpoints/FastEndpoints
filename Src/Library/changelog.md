@@ -1,7 +1,8 @@
 ### NEW
 - command bus pattern request/response messaging (independant of endpoints) #294
-- dependency resolving support for endpoint `Configure()` method
 - constructor injection support for event handlers
+- ability to publish events from anywhere
+- dependency resolving support for endpoint `Configure()` method
 - type safety for the shortcut http verb methods such as `Get()`, `Post()`, etc. [#info](https://fast-endpoints.com/docs/misc-conveniences#shorthand-route-configuration)
 - custom value parser registration at startup for any given type #285
 - specify whether to execute global pre/post processors before or after endpoint level processors #291

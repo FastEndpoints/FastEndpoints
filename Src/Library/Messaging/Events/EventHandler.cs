@@ -7,7 +7,7 @@ namespace FastEndpoints;
 /// <para>WARNING: event handlers are singletons. DO NOT maintain state in them. Use the <c>Resolve*()</c> methods to obtain dependencies.</para>
 /// </summary>
 /// <typeparam name="TEvent">the type of the event to handle</typeparam>
-public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IServiceResolverBase where TEvent : notnull
+public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IEventBus, IServiceResolverBase where TEvent : notnull
 {
     /// <summary>
     /// this method will be called when an event of the specified type is published.
@@ -16,17 +16,8 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IService
     /// <param name="ct">an optional cancellation token</param>
     public abstract Task HandleAsync(TEvent eventModel, CancellationToken ct);
 
-    /// <summary>
-    /// publish the given model/dto to all the subscribers of the event notification
-    /// </summary>
-    /// <param name="eventModel">the notification event model/dto to publish</param>
-    /// <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
-    ///<param name="cancellation">an optional cancellation token</param>
-    /// <returns>a Task that matches the wait mode specified.
-    /// <see cref="Mode.WaitForNone"/> returns an already completed Task (fire and forget).
-    /// <see cref="Mode.WaitForAny"/> returns a Task that will complete when any of the subscribers complete their work.
-    /// <see cref="Mode.WaitForAll"/> return a Task that will complete only when all of the subscribers complete their work.</returns>
-    public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : class
+    ///<inheritdoc/>
+    public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : notnull
         => Config.ServiceResolver.Resolve<Event<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
 
     ///<inheritdoc/>

@@ -34,7 +34,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IServiceResolverBase where TRequest : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEventBus, IServiceResolverBase where TRequest : notnull, new()
 {
     internal async override Task ExecAsync(CancellationToken ct)
     {
@@ -126,17 +126,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, ISer
     ///<inheritdoc/>
     public IServiceScope CreateScope() => FastEndpoints.Config.ServiceResolver.CreateScope();
 
-    /// <summary>
-    /// publish the given model/dto to all the subscribers of the event notification
-    /// </summary>
-    /// <param name="eventModel">the notification event model/dto to publish</param>
-    /// <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
-    ///<param name="cancellation">an optional cancellation token</param>
-    /// <returns>a Task that matches the wait mode specified.
-    /// Mode.WaitForNone returns an already completed Task (fire and forget).
-    /// Mode.WaitForAny returns a Task that will complete when any of the subscribers complete their work.
-    /// Mode.WaitForAll return a Task that will complete only when all of the subscribers complete their work.</returns>
-    public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : class
+    ///<inheritdoc/>
+    public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : notnull
         => FastEndpoints.Config.ServiceResolver.Resolve<Event<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     /// <summary>

@@ -1,10 +1,11 @@
 ### NEW
+- command bus pattern request/response messaging (independant of endpoints) #294
 - dependency resolving support for endpoint `Configure()` method
+- constructor injection support for event handlers
 - type safety for the shortcut http verb methods such as `Get()`, `Post()`, etc. [#info](https://fast-endpoints.com/docs/misc-conveniences#shorthand-route-configuration)
 - custom value parser registration at startup for any given type #285
 - specify whether to execute global pre/post processors before or after endpoint level processors #291
 - `[DontInject]` attribute for preventing property injection of endpoint properties
-- command bus pattern request/response messaging (independant of endpoints) #294
 - add `Verbs(...)` overload that can take any string #299
 
 ### IMPROVEMENTS

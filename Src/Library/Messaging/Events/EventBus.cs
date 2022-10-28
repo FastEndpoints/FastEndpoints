@@ -6,8 +6,8 @@
 public abstract class EventBase
 {
     //key: TEvent 
-    //val: unique list of concrete event handler instances (subscribers)
-    internal static readonly Dictionary<Type, HashSet<IEventHandler>> handlerDict = new();
+    //val: unique list of event handler types (subscribers)
+    internal static readonly Dictionary<Type, HashSet<Type>> handlerDict = new();
 }
 
 /// <summary>
@@ -27,7 +27,7 @@ public class Event<TEvent> : EventBase where TEvent : notnull
         if (eventHandlers?.Any() is true)
             handlers = eventHandlers;
         else if (handlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
-            handlers = hndlrs.Cast<IEventHandler<TEvent>>();
+            handlers = hndlrs.Select(ht => Config.ServiceResolver.CreateSingleton(ht)).Cast<IEventHandler<TEvent>>();
     }
 
     /// <summary>

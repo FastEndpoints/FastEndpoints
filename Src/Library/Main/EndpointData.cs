@@ -155,9 +155,9 @@ internal sealed class EndpointData
                     var handler = (IEventHandler)Activator.CreateInstance(t)!;
 
                     if (EventBase.handlerDict.TryGetValue(tEvent, out var handlers))
-                        handlers.Add(handler);
+                        handlers.Add(t);
                     else
-                        EventBase.handlerDict[tEvent] = new(TypeEqualityComparer.Instance) { handler };
+                        EventBase.handlerDict[tEvent] = new() { t };
                     continue;
                 }
 

@@ -1,5 +1,5 @@
 ### NEW
-- command bus pattern request/response messaging (independant of endpoints) #294
+- command bus pattern request/response messaging (independent of endpoints) #294
 - constructor injection support for event handlers
 - ability to publish events from anywhere
 - dependency resolving support for endpoint `Configure()` method

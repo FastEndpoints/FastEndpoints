@@ -9,6 +9,9 @@ namespace FastEndpoints;
 /// <typeparam name="TEvent">the type of the event to handle</typeparam>
 public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IEventBus, IServiceResolverBase where TEvent : notnull
 {
+    //todo: this class can be deprecated in the future as no longer mentioned in the docs
+    //      currently only here to not break existing consumers
+
     /// <summary>
     /// this method will be called when an event of the specified type is published.
     /// </summary>

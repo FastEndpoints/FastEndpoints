@@ -77,6 +77,8 @@ app.UseFastEndpoints(c =>
 {
     c.Serializer.Options.PropertyNamingPolicy = null;
 
+    c.Binding.ValueParserFor<Guid>(x => new(Guid.TryParse(x?.ToString(), out var res), res));
+
     c.Endpoints.RoutePrefix = "api";
     c.Endpoints.ShortNames = false;
     c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;

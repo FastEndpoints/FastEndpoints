@@ -95,7 +95,8 @@ internal static class BinderExtensions
             // A sequence of statements is done using a block, and the result of the final
             // statement is the result of the block
             var tryParseCall = Expression.Call(tryParseMethod, toStringConversion, resultVar);
-            var block = Expression.Block(new[] { resultVar, isSuccessVar },
+            var block = Expression.Block(
+                new[] { resultVar, isSuccessVar },
                 Expression.Assign(isSuccessVar, tryParseCall),
                 Expression.New(parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 
@@ -105,15 +106,11 @@ internal static class BinderExtensions
 
             static object? DeserializeJsonObjectString(object? input, Type tProp)
             {
-                if (input is not StringValues vals || vals.Count != 1)
-                    return null;
-
-                if (vals[0].StartsWith('{') && vals[0].EndsWith('}'))
-                {
-                    // {"name":"x","age":24}
-                    return JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options);
-                }
-                return null;
+                return input is not StringValues vals || vals.Count != 1
+                        ? null
+                        : vals[0].StartsWith('{') && vals[0].EndsWith('}') // check if it's a json object
+                           ? JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options)
+                           : null;
             }
 
             static object? DeserializeByteArray(object? input)
@@ -161,8 +158,8 @@ internal static class BinderExtensions
                         sb.Append('"')
                           .Append(
                             vals[i].Contains('"') //json strings with quotations must be escaped
-                            ? vals[i].Replace("\"", "\\\"")
-                            : vals[i])
+                             ? vals[i].Replace("\"", "\\\"")
+                             : vals[i])
                           .Append('"');
                     }
 

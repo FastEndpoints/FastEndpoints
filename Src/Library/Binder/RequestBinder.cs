@@ -99,10 +99,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             return new TRequest();
 
         var req = !isPlainTextRequest && ctx.HttpContext.Request.HasJsonContentType()
-                  ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
-                  : isPlainTextRequest
-                    ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
-                    : new TRequest();
+                   ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
+                   : isPlainTextRequest
+                     ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
+                     : new TRequest();
 
         BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
         BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
@@ -112,8 +112,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
 
         return ctx.ValidationFailures.Count == 0
-               ? req
-               : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed!");
+                ? req
+                : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed!");
     }
 
     private static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
@@ -204,8 +204,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 {
                     claimVal =
                         prop.IsCollection || g.Count() > 1
-                        ? g.Select(v => v).ToArray()
-                        : g.FirstOrDefault();
+                         ? g.Select(v => v).ToArray()
+                         : g.FirstOrDefault();
                 }
             }
 

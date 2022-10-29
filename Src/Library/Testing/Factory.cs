@@ -21,6 +21,7 @@ public static class Factory
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         var provider = services.BuildServiceProvider();
         Config.ServiceResolver ??= new ServiceResolver(provider, new HttpContextAccessor());
+
         var tEndpoint = typeof(TEndpoint);
         var ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, dependencies)!;
         ep.Definition = new()

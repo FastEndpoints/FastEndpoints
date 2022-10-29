@@ -1,9 +1,9 @@
 ### NEW
-- command bus pattern request/response messaging [#info](https://fast-endpoints.com/docs/command-bus)
-- constructor injection support for event handlers [#info](https://fast-endpoints.com/docs/dependency-injection#event-handler-dependencies)
+- command bus pattern messaging [#info](https://fast-endpoints.com/docs/command-bus)
 - ability to publish events from anywhere [#info](https://fast-endpoints.com/docs/event-bus#publish-from-anywhere)
-- dependency resolving support for endpoint `Configure()` method via constructor injection
+- constructor injection support for event handlers [#info](https://fast-endpoints.com/docs/dependency-injection#event-handler-dependencies)
 - type safety for the shortcut http verb methods such as `Get()`, `Post()`, etc. [#info](https://fast-endpoints.com/docs/misc-conveniences#strongly-typed-route-parameters)
+- dependency resolving support for endpoint `Configure()` method
 - custom value parser registration at startup for any given type [#info](https://fast-endpoints.com/docs/model-binding#custom-value-parsers)
 - specify whether to execute global pre/post processors before or after endpoint level processors [#info](https://fast-endpoints.com/docs/pre-post-processors#global-processors)
 - `[DontInject]` attribute for preventing property injection of endpoint properties

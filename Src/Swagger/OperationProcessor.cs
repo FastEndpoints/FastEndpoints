@@ -197,7 +197,12 @@ internal class OperationProcessor : IOperationProcessor
         if (reqDtoProps != null)
         {
             //Remove the readonly properties from the request body
-            foreach (var p in reqDtoProps.Where(p => !p.CanWrite))
+            foreach (var p in reqDtoProps.Where(p =>
+            {
+                // property has no publically accessible setter
+                var setMethod = p.GetSetMethod();
+                return setMethod == null || !setMethod.IsPublic;
+            }))
             {
                 RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
             }
@@ -387,7 +392,9 @@ internal class OperationProcessor : IOperationProcessor
 
     private static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGETRequest)
     {
-        if (!prop.CanWrite)
+        // property has no publically accessible setter
+        var setMethod = prop.GetSetMethod();
+        if (setMethod == null || !setMethod.IsPublic)
             return false;
 
         var paramName = prop.Name;

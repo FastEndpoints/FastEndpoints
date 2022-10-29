@@ -46,7 +46,10 @@ public interface IServiceResolverBase
     object Resolve(Type typeOfService);
 }
 
-///<inheritdoc/>
+/// <summary>
+/// interface used by fastendpoints for resolving services from the DI container.
+/// implement this interface and register the implementation in MS DI for customizing service resolving.
+/// </summary>
 public interface IServiceResolver : IServiceResolverBase
 {
     /// <summary>

@@ -106,7 +106,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
         BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
-        BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
+        BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures, ctx.JsonSerializerContext);
         BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
         BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
         BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
@@ -171,7 +171,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures)
+    private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
     {
         if (query.Count == 0) return;
 
@@ -187,7 +187,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var swaggerStyle = !sortedDic.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
 
             fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);
-            fromQueryParamsProp.PropSetter(req, obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, SerOpts.Options));
+            fromQueryParamsProp.PropSetter(req,
+                serializerCtx == null
+                ? obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)
+                : obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, serializerCtx));
         }
     }
 

@@ -146,7 +146,7 @@ internal class OperationProcessor : IOperationProcessor
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);
-        var reqDtoProps = reqDtoIsList is true ? null : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var reqDtoProps = reqDtoIsList is true ? null : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).ToList();
         var isGETRequest = apiDescription.HttpMethod == "GET";
 
         //store unique request param description (from each consumes/content type) for later use.
@@ -196,15 +196,10 @@ internal class OperationProcessor : IOperationProcessor
 
         if (reqDtoProps != null)
         {
-            //Remove the readonly properties from the request body
-            foreach (var p in reqDtoProps.Where(p =>
-            {
-                // property has no publically accessible setter
-                var setMethod = p.GetSetMethod();
-                return setMethod == null || !setMethod.IsPublic;
-            }))
+            foreach (var p in reqDtoProps.Where(p => p.GetSetMethod()?.IsPublic is not true).ToArray()) //prop has no public setter
             {
                 RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                reqDtoProps.Remove(p);
             }
         }
 
@@ -392,11 +387,6 @@ internal class OperationProcessor : IOperationProcessor
 
     private static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGETRequest)
     {
-        // property has no publically accessible setter
-        var setMethod = prop.GetSetMethod();
-        if (setMethod == null || !setMethod.IsPublic)
-            return false;
-
         var paramName = prop.Name;
 
         foreach (var attribute in prop.GetCustomAttributes())

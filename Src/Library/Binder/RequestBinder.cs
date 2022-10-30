@@ -38,11 +38,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (tRequest.IsGenericType && tRequest.GetInterfaces().Contains(Types.IEnumerable))
             return;
 
-        foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+        foreach (var propInfo in tRequest.BindableProps())
         {
-            if (!propInfo.CanWrite || !propInfo.CanRead)
-                continue;
-
             if (isPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
                 continue; //allow other properties other than `Content` property if this is a plaintext request
 

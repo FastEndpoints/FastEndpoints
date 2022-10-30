@@ -8,6 +8,7 @@ using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 using System.Collections;
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -15,6 +16,7 @@ namespace FastEndpoints.Swagger;
 
 internal class OperationProcessor : IOperationProcessor
 {
+    private static readonly TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
     private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> defaultDescriptions = new()
     {
@@ -68,7 +70,7 @@ internal class OperationProcessor : IOperationProcessor
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= tagIndex)
-                op.Tags.Add(segments[tagIndex - 1]);
+                op.Tags.Add(textInfo.ToTitleCase(segments[tagIndex - 1]));
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.

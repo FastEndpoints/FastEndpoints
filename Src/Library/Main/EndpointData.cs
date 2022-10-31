@@ -152,7 +152,6 @@ internal sealed class EndpointData
                 if (tInterface.IsGenericType && tInterface.IsAssignableTo(Types.IEventHandler))
                 {
                     var tEvent = tInterface.GetGenericArguments()[0];
-                    var handler = (IEventHandler)Activator.CreateInstance(t)!;
 
                     if (EventBase.handlerDict.TryGetValue(tEvent, out var handlers))
                         handlers.Add(t);

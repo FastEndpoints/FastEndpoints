@@ -46,7 +46,7 @@ internal class OperationProcessor : IOperationProcessor
     public bool Process(OperationProcessorContext ctx)
     {
         var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
-        var epDef = metaData.OfType<EndpointDefinition>().SingleOrDefault();
+        var epDef = metaData.OfType<EndpointDefinition>().SingleOrDefault(); //use shortcut `ctx.GetEndpointDefinition()` for your own processors
         var schemaGeneratorSettings = ctx.SchemaGenerator.Settings;
 
         if (epDef is null)

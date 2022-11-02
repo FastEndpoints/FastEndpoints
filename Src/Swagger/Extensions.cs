@@ -5,6 +5,7 @@ using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
+using NSwag.Generation.Processors.Contexts;
 using NSwag.Generation.Processors.Security;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -166,6 +167,17 @@ public static class Extensions
     /// <param name="filter">a function to use for filtering endpoints</param>
     public static void EndpointFilter(this AspNetCoreOpenApiDocumentGeneratorSettings x, Func<EndpointDefinition, bool> filter)
         => x.OperationProcessors.Insert(0, new EndpointFilter(filter));
+
+    /// <summary>
+    /// gets the <see cref="EndpointDefinition"/> from the nwag operation processor context if this is a FastEndpoint operation. otherwise returns null.
+    /// </summary>
+    public static EndpointDefinition? GetEndpointDefinition(this OperationProcessorContext ctx)
+        => ((AspNetCoreOperationProcessorContext)ctx)
+            .ApiDescription
+            .ActionDescriptor
+            .EndpointMetadata
+            .OfType<EndpointDefinition>()
+            .SingleOrDefault();
 
     internal static string Remove(this string value, string removeString)
     {

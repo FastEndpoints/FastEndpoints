@@ -60,6 +60,7 @@ internal class OperationProcessor : IOperationProcessor
         var bareRoute = opPath.Remove(routePrefix).Remove(version);
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;
+        var serializer = Newtonsoft.Json.JsonSerializer.Create(ctx.SchemaGenerator.Settings.ActualSerializerSettings);
 
         //set operation id if user has specified
         if (nameMetaData is not null)
@@ -99,12 +100,12 @@ internal class OperationProcessor : IOperationProcessor
              {
                  object? example = null;
                  _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
+                 example = (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example;
+                 example = example is not null ? JToken.FromObject(example, serializer) : null;
                  return new {
                      key = k.ToString(),
                      cTypes = g.Last().ContentTypes,
-                     example = Newtonsoft.Json.JsonConvert.SerializeObject(
-                         (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example,
-                         ctx.SchemaGenerator.Settings.ActualSerializerSettings)
+                     example = example
                  };
              })
              .ToDictionary(x => x.key);
@@ -115,7 +116,7 @@ internal class OperationProcessor : IOperationProcessor
                 {
                     var cTypes = metas[rsp.Key].cTypes;
                     var mediaType = rsp.Value.Content.FirstOrDefault().Value;
-                    if (metas.TryGetValue(rsp.Key, out var x) && x.example is not "null")
+                    if (metas.TryGetValue(rsp.Key, out var x) && x.example is not null)
                     {
                         mediaType.Example = x.example;
                     }
@@ -355,16 +356,11 @@ internal class OperationProcessor : IOperationProcessor
             {
                 if (epDef.EndpointSummary.ExampleRequest.GetType().IsAssignableTo(typeof(IEnumerable)))
                 {
-                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
-                        epDef.EndpointSummary.ExampleRequest,
-                        ctx.SchemaGenerator.Settings.ActualSerializerSettings);
+                    requestBody.ActualSchema.Example = JToken.FromObject(epDef.EndpointSummary.ExampleRequest, serializer);
                 }
                 else
                 {
-                    var jObj = JObject.Parse(
-                    Newtonsoft.Json.JsonConvert.SerializeObject(
-                        epDef.EndpointSummary.ExampleRequest,
-                        ctx.SchemaGenerator.Settings.ActualSerializerSettings));
+                    var jObj = JObject.FromObject(epDef.EndpointSummary.ExampleRequest, serializer);
 
                     foreach (var p in jObj.Properties().ToArray())
                     {

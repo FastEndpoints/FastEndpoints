@@ -16,9 +16,9 @@ namespace FastEndpoints.Swagger;
 
 internal class OperationProcessor : IOperationProcessor
 {
-    private static readonly TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
-    private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
-    private static readonly Dictionary<string, string> defaultDescriptions = new()
+    private readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
+    private readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
+    private readonly Dictionary<string, string> defaultDescriptions = new()
     {
         { "200", "Success" },
         { "201", "Created" },

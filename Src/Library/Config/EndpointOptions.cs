@@ -13,7 +13,7 @@ public class EndpointOptions
     /// <summary>
     /// prefix for all routes (example 'api').
     /// </summary>
-    public string? RoutePrefix { internal get; set; }
+    public string? RoutePrefix { get; set; }
 
     /// <summary>
     /// a function to filter out endpoints from auto registration.

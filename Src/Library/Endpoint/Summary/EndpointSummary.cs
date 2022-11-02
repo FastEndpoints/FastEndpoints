@@ -128,7 +128,7 @@ public abstract class Summary<TEndpoint> : EndpointSummary, ISummary where TEndp
 ///<typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Summary<TEndpoint, TRequest> : EndpointSummary<TRequest>, ISummary where TEndpoint : IEndpoint where TRequest : new() { }
 
-internal class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
+public class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
 {
     public Type? Type { get; set; }
 

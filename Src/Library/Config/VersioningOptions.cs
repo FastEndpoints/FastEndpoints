@@ -8,7 +8,7 @@ public class VersioningOptions
     /// <summary>
     /// the prefix used in front of the version (for example 'v' produces 'v{version}').
     /// </summary>
-    public string? Prefix { internal get; set; }
+    public string? Prefix { get; set; }
 
     /// <summary>
     /// this value will be used on endpoints that does not specify a version

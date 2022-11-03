@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.Extensions.DependencyInjection;
 using Namotion.Reflection;
 using NJsonSchema.Generation;
 using NSwag;
@@ -178,6 +179,12 @@ public static class Extensions
             .EndpointMetadata
             .OfType<EndpointDefinition>()
             .SingleOrDefault();
+
+    /// <summary>
+    /// gets the example object if any, from a given <see cref="ProducesResponseTypeMetadata"/> internal class
+    /// </summary>
+    public static object? GetExampleFromMetaData(this IProducesResponseTypeMetadata metadata)
+        => (metadata as ProducesResponseTypeMetadata)?.Example;
 
     internal static string Remove(this string value, string removeString)
     {

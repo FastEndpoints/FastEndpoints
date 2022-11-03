@@ -16,7 +16,7 @@ public class BindingOptions
     /// <para><see cref="CancellationToken"/>: a cancellation token</para>
     /// <para>WARNING: be mindful of the performance cost of using reflection to modify the request dto object</para>
     /// </summary>
-    public Action<object, Type, BinderContext, CancellationToken>? Modifier;
+    public Action<object, Type, BinderContext, CancellationToken>? Modifier { internal get; set; }
 
     /// <summary>
     /// add a custom value parser function for any given type which the default model binder will use to parse values when model binding request dto properties from query/route/forms/headers/claims.

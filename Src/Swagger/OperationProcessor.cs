@@ -55,8 +55,8 @@ internal class OperationProcessor : IOperationProcessor
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!)}";//fix missing path parameters
         var apiVer = epDef.Version.Current;
-        var version = $"/{Config.VerOpts.Prefix ?? "v"}{apiVer}";
-        var routePrefix = "/" + (Config.EpOpts.RoutePrefix ?? "_");
+        var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{apiVer}";
+        var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");
         var bareRoute = opPath.Remove(routePrefix).Remove(version);
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;
@@ -100,7 +100,7 @@ internal class OperationProcessor : IOperationProcessor
              {
                  object? example = null;
                  _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
-                 example = (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example;
+                 example = g.Last().GetExampleFromMetaData() ?? example;
                  example = example is not null ? JToken.FromObject(example, serializer) : null;
                  return new {
                      key = k.ToString(),

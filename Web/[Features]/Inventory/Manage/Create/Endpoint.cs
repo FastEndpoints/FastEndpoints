@@ -36,7 +36,7 @@ public class Endpoint : Endpoint<Request>
         };
         await eventdto.PublishAsync();
 
-        if (eventdto.Name != "pass")
+        if (eventdto.Name != "pass" && HttpContext.Response.Body is null) //response body is null in a unit test
             AddError("event publish failed!");
 
         ThrowIfAnyErrors();

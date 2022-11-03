@@ -17,10 +17,13 @@ public static class Factory
     /// <param name="dependencies">the dependencies of the endpoint if it has injected dependencies</param>
     public static TEndpoint Create<TEndpoint>(DefaultHttpContext httpContext, params object?[]? dependencies) where TEndpoint : class, IEndpoint
     {
-        var services = new ServiceCollection();
-        services.AddSingleton<ILoggerFactory, LoggerFactory>();
-        var provider = services.BuildServiceProvider();
-        Config.ServiceResolver ??= new ServiceResolver(provider, new HttpContextAccessor());
+        if (Config.ServiceResolver is null)
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton<ILoggerFactory, LoggerFactory>();
+            services.AddSingleton(typeof(Event<>));
+            Config.ServiceResolver = new ServiceResolver(services.BuildServiceProvider(), new HttpContextAccessor());
+        }
 
         var tEndpoint = typeof(TEndpoint);
         var ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, dependencies)!;

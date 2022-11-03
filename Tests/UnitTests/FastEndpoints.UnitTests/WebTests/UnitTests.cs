@@ -1,7 +1,9 @@
 using FakeItEasy;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Web.Services;
 using Xunit;
 
@@ -119,5 +121,27 @@ public class UnitTests
         res?.Customers?.Count().Should().Be(3);
         res?.Customers?.First().Key.Should().Be("ryan gunner");
         res?.Customers?.Last().Key.Should().Be(res?.Customers?.Last().Key);
+    }
+
+    [Fact]
+    public async Task created_at_success()
+    {
+        var linkgen = A.Fake<LinkGenerator>();
+
+        var ep = Factory.Create<Inventory.Manage.Create.Endpoint>(ctx =>
+        {
+            var services = new ServiceCollection();
+            services.AddSingleton(linkgen);
+            ctx.RequestServices = services.BuildServiceProvider();
+        });
+
+        await ep.HandleAsync(new()
+        {
+            Name = "Grape Juice",
+            Description = "description",
+            ModifiedBy = "me",
+            Price = 100,
+            GenerateFullUrl = false
+        }, default);
     }
 }

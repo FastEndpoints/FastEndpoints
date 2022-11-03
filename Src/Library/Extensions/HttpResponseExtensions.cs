@@ -1,6 +1,7 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -78,7 +79,9 @@ public static class HttpResponseExtensions
                                           bool generateAbsoluteUrl = false,
                                           CancellationToken cancellation = default)
     {
-        var linkGen = Config.ServiceResolver.Resolve<LinkGenerator>();
+        var linkGen = Config.ServiceResolver.TryResolve<LinkGenerator>() ?? //this is null for unit tests
+                      rsp.HttpContext.RequestServices?.GetRequiredService<LinkGenerator>() ?? //so get it from httpcontext
+                      throw new InvalidOperationException("Service provider is null on the current HttpContext! Set it yourself for unit tests.");
 
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 201;

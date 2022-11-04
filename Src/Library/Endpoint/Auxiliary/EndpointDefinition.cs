@@ -47,7 +47,7 @@ public sealed class EndpointDefinition
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal bool ImplementsConfigure;
-    internal object? MapperInstance;
+
     internal object? RequestBinder;
     internal List<object> PreProcessorList = new();
     internal List<object> PostProcessorList = new();
@@ -56,6 +56,15 @@ public sealed class EndpointDefinition
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
     internal object? ValidatorInstance;
+
+    private object? mapper;
+    internal object? GetMapper()
+    {
+        if (mapper is null && MapperType is not null)
+            mapper = Config.ServiceResolver.CreateSingleton(MapperType);
+
+        return mapper;
+    }
 
     private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
     {

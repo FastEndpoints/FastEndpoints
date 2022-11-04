@@ -21,43 +21,32 @@ internal static class EndpointExtensions
         {
             instance.Configure();
         }
-        else
+        else if (def.EpAttributes is not null)
         {
-            if (def.EpAttributes is not null)
+            foreach (var att in def.EpAttributes)
             {
-                foreach (var att in def.EpAttributes)
+                switch (att)
                 {
-                    switch (att)
-                    {
-                        case HttpAttribute httpAttr:
-                            instance.Verbs(httpAttr.Verb.ToString());
-                            def.Routes = httpAttr.Routes;
-                            break;
+                    case HttpAttribute httpAttr:
+                        instance.Verbs(httpAttr.Verb.ToString());
+                        def.Routes = httpAttr.Routes;
+                        break;
 
-                        case AllowAnonymousAttribute:
-                            def.AllowAnonymous();
-                            break;
+                    case AllowAnonymousAttribute:
+                        def.AllowAnonymous();
+                        break;
 
-                        case AuthorizeAttribute authAttr:
-                            def.Roles(authAttr.Roles?.Split(',') ?? Array.Empty<string>());
-                            def.AuthSchemes(authAttr.AuthenticationSchemes?.Split(',') ?? Array.Empty<string>());
-                            if (authAttr.Policy is not null) def.Policies(new[] { authAttr.Policy });
-                            break;
+                    case AuthorizeAttribute authAttr:
+                        def.Roles(authAttr.Roles?.Split(',') ?? Array.Empty<string>());
+                        def.AuthSchemes(authAttr.AuthenticationSchemes?.Split(',') ?? Array.Empty<string>());
+                        if (authAttr.Policy is not null) def.Policies(new[] { authAttr.Policy });
+                        break;
 
-                        case ThrottleAttribute thrtAttr:
-                            def.Throttle(thrtAttr.HitLimit, thrtAttr.DurationSeconds, thrtAttr.HeaderName);
-                            break;
-                    }
+                    case ThrottleAttribute thrtAttr:
+                        def.Throttle(thrtAttr.HitLimit, thrtAttr.DurationSeconds, thrtAttr.HeaderName);
+                        break;
                 }
             }
-        }
-
-        if (Config.ServiceResolver is not null)
-        {
-            //if (def.ValidatorInstance is null && def.ValidatorType is not null)
-            //    def.ValidatorInstance = Config.ServiceResolver.CreateSingleton(def.ValidatorType);
-            if (def.MapperInstance is null && def.MapperType is not null)
-                def.MapperInstance = Config.ServiceResolver.CreateSingleton(def.MapperType);
         }
     }
 

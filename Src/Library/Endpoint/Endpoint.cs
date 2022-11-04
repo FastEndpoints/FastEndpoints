@@ -24,8 +24,8 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
     /// </summary>
     [DontInject]
     public TMapper Map {
-        get => _mapper ??= (TMapper)Definition.MapperInstance!;
-        set => _mapper = value;
+        get => _mapper ??= (TMapper)Definition.GetMapper()!;
+        set => _mapper = value; //allow unit tests to set mapper from outside
     }
 }
 
@@ -207,8 +207,8 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
     /// </summary>
     [DontInject]
     public TMapper Map {
-        get => _mapper ??= (TMapper)Definition.MapperInstance!;
-        set => _mapper = value;
+        get => _mapper ??= (TMapper)Definition.GetMapper()!;
+        set => _mapper = value; //allow unit tests to set mapper from outside
     }
 }
 
@@ -292,8 +292,8 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
     /// </summary>
     [DontInject]
     public TMapper Map {
-        get => _mapper ??= (TMapper)Definition.MapperInstance!;
-        set => _mapper = value;
+        get => _mapper ??= (TMapper)Definition.GetMapper()!;
+        set => _mapper = value; //allow unit tests to set mapper from outside
     }
 }
 

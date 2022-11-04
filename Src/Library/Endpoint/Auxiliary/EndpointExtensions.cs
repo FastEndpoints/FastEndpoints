@@ -54,8 +54,8 @@ internal static class EndpointExtensions
 
         if (Config.ServiceResolver is not null)
         {
-            if (def.ValidatorInstance is null && def.ValidatorType is not null)
-                def.ValidatorInstance = Config.ServiceResolver.CreateSingleton(def.ValidatorType);
+            //if (def.ValidatorInstance is null && def.ValidatorType is not null)
+            //    def.ValidatorInstance = Config.ServiceResolver.CreateSingleton(def.ValidatorType);
             if (def.MapperInstance is null && def.MapperType is not null)
                 def.MapperInstance = Config.ServiceResolver.CreateSingleton(def.MapperType);
         }

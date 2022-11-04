@@ -389,7 +389,7 @@ public sealed class EpVersion
     public int Current { get; internal set; }
     public int DeprecatedAt { get; internal set; }
 
-    internal void Setup()
+    internal void Init()
     {
         if (Current == 0)
             Current = VerOpts.DefaultVersion;

@@ -88,7 +88,7 @@ public static class MainExtensions
             if (def.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
             EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
-            def.Version.Setup(); //todo: move this to a more appropriate place
+            def.Version.Init(); //todo: move this to a more appropriate place
 
             var authorizeAttributes = BuildAuthorizeAttributes(def);
             var routeNum = 0;
@@ -102,20 +102,18 @@ public static class MainExtensions
 
                 foreach (var verb in def.Verbs)
                 {
-                    var strVerb = verb.ToString();
-
-                    var hb = app.MapMethods(finalRoute, new[] { strVerb }, SendMisconfiguredPipelineMsg());
+                    var hb = app.MapMethods(finalRoute, new[] { verb }, SendMisconfiguredPipelineMsg());
 
                     hb.WithName(
                         def.EndpointType.EndpointName(
-                            def.Verbs.Length > 1 ? strVerb : null,
+                            def.Verbs.Length > 1 ? verb : null,
                             def.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
 
                     hb.WithMetadata(def);
 
                     def.InternalConfigAction(hb); //always do this first here
 
-                    if (def.AnonymousVerbs?.Contains(strVerb) is true)
+                    if (def.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
                         hb.RequireAuthorization(authorizeAttributes);

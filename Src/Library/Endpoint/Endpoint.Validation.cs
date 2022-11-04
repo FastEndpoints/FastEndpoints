@@ -80,9 +80,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         if (def.ValidatorType is null)
             return;
 
-        def.ValidatorInstance ??= FastEndpoints.Config.ServiceResolver.CreateSingleton(def.ValidatorType);
-
-        var valResult = await ((IValidator<TRequest>)def.ValidatorInstance).ValidateAsync(req, cancellation);
+        var valResult = await ((IValidator<TRequest>)def.GetValidator()!).ValidateAsync(req, cancellation);
 
         if (!valResult.IsValid)
             validationFailures.AddRange(valResult.Errors);

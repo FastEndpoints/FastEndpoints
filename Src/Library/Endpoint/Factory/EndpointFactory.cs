@@ -23,6 +23,7 @@ public class EndpointFactory : IEndpointFactory
         for (var i = 0; i < definition.ServiceBoundEpProps?.Length; i++)
         {
             var prop = definition.ServiceBoundEpProps[i];
+            prop.PropSetter ??= definition.EndpointType.SetterForProp(prop.PropName);
             prop.PropSetter(epInstance, ctx.RequestServices.GetRequiredService(prop.PropType));
         }
 

@@ -194,7 +194,7 @@ internal sealed class EndpointData
                 .Where(p => p.CanRead && p.CanWrite && !p.IsDefined(Types.DontInjectAttribute))
                 .Select(p => new ServiceBoundEpProp()
                 {
-                    PropSetter = def.EndpointType.SetterForProp(p.Name),
+                    PropName = p.Name,
                     PropType = p.PropertyType,
                 })
                 .ToArray();

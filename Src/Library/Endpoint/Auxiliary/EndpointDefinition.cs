@@ -382,8 +382,9 @@ public sealed class EpVersion
 
 internal sealed class ServiceBoundEpProp
 {
+    public string PropName { get; set; }
     public Type PropType { get; set; }
-    public Action<object, object> PropSetter { get; set; }
+    public Action<object, object>? PropSetter { get; set; }
 }
 
 internal class TypeEqualityComparer : IEqualityComparer<object>

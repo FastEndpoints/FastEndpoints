@@ -73,20 +73,6 @@ internal static class QueryObjectBindingExtension
                         parent[propName!] = tProp.GetRequiredNumericParser()(values[0]);
                 };
             }
-            if (tProp != Types.Bool && !tProp.IsEnum)
-            {
-                return (queryString, parent, route, propName, swaggerStyle) =>
-                {
-                    route = route != null
-                            ? swaggerStyle
-                              ? $"{route}[{propName}]"
-                              : $"{route}.{propName}"
-                            : propName;
-                    if (queryString.TryGetValue(route!, out var values))
-                        parent[propName!] = values[0];
-                };
-            }
-
             return (queryString, parent, route, propName, swaggerStyle) =>
             {
                 route = route != null
@@ -94,10 +80,10 @@ internal static class QueryObjectBindingExtension
                           ? $"{route}[{propName}]"
                           : $"{route}.{propName}"
                         : propName;
-
                 if (queryString.TryGetValue(route!, out var values))
-                    parent[propName!] = tProp.QueryValueParser()!.Invoke(values[0]);
+                    parent[propName!] = values[0];
             };
+
         }
     }
 
@@ -183,55 +169,21 @@ internal static class QueryObjectBindingExtension
                         parent.Add(parser(svalues[0]));
                 };
             }
-            if (tProp != Types.Bool && !tProp.IsEnum)
-            {
-                return (queryString, parent, route, swaggerStyle) =>
-                {
-                    if (swaggerStyle)
-                    {
-                        if (queryString.TryGetValue(route, out var values))
-                        {
-                            foreach (var value in values)
-                                parent.Add(value);
-                        }
-                        return;
-                    }
-
-                    for (var i = 0; queryString.TryGetValue($"{route}[" + i.ToString() + "]", out var svalues); i++)
-                        parent.Add(svalues[0]);
-                };
-            }
-
             return (queryString, parent, route, swaggerStyle) =>
             {
-                var parser = tProp.QueryValueParser();
-                if (parser == null)
-                    return;
-                
                 if (swaggerStyle)
                 {
                     if (queryString.TryGetValue(route, out var values))
                     {
                         foreach (var value in values)
-                            parent.Add(parser(value));
+                            parent.Add(value);
                     }
                     return;
                 }
 
                 for (var i = 0; queryString.TryGetValue($"{route}[" + i.ToString() + "]", out var svalues); i++)
-                    parent.Add(parser(svalues[0]));
+                    parent.Add(svalues[0]);
             };
         }
-    }
-
-    private static Func<string?, JsonNode?>? QueryValueParser(this Type tProp)
-    {
-        if (tProp == Types.Bool)
-            return input => bool.TryParse(input, out var res) ? res : input;
-
-        if (tProp.IsEnum)
-            return input => Enum.TryParse(tProp, input, true, out var res) ? JsonValue.Create(res) : input;
-
-        return null;
     }
 }

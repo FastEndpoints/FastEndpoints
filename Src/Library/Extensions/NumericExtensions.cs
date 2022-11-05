@@ -50,12 +50,17 @@ internal static class NumericExtensions
         {
             typeof(float),
             value => float.TryParse(value, out var result) ? result : null
+        },
+        {
+            typeof(bool),
+            value => bool.TryParse(value, out var result) ? result : null
         }
     };
-
-    public static Func<string?, JsonNode?>? GetNumericParser(this Type myType)
+    public static Func<string?, JsonNode?>? GetNumericParser(this Type tProp)
     {
-        return NumericParsers.TryGetValue(myType, out var parser) ? parser : null;
+        if (tProp.IsEnum)
+            return input => Enum.TryParse(tProp, input, true, out var res) ? JsonValue.Create(res) : input;
+        return NumericParsers.TryGetValue(tProp, out var parser) ? parser : null;
     }
 
     public static Func<string?, JsonNode?> GetRequiredNumericParser(this Type myType)

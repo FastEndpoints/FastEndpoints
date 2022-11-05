@@ -59,6 +59,20 @@ internal static class QueryObjectBindingExtension
                 }
             }
 
+            if (tProp.GetNumericParser() != null)
+            {
+                return (queryString, parent, route, propName, swaggerStyle) =>
+                {
+                    route = route != null
+                            ? swaggerStyle
+                              ? $"{route}[{propName}]"
+                              : $"{route}.{propName}"
+                            : propName;
+
+                    if (queryString.TryGetValue(route!, out var values))
+                        parent[propName!] = tProp.GetRequiredNumericParser()(values[0]);
+                };
+            }
             if (tProp != Types.Bool && !tProp.IsEnum)
             {
                 return (queryString, parent, route, propName, swaggerStyle) =>
@@ -150,6 +164,25 @@ internal static class QueryObjectBindingExtension
                 }
             }
 
+            if (tProp.GetNumericParser() != null)
+            {
+                return (queryString, parent, route, swaggerStyle) =>
+                {
+                    var parser = tProp.GetRequiredNumericParser();
+                    if (swaggerStyle)
+                    {
+                        if (queryString.TryGetValue(route, out var values))
+                        {
+                            foreach (var value in values)
+                                parent.Add(parser(value));
+                        }
+                        return;
+                    }
+
+                    for (var i = 0; queryString.TryGetValue($"{route}[" + i.ToString() + "]", out var svalues); i++)
+                        parent.Add(parser(svalues[0]));
+                };
+            }
             if (tProp != Types.Bool && !tProp.IsEnum)
             {
                 return (queryString, parent, route, swaggerStyle) =>
@@ -171,18 +204,22 @@ internal static class QueryObjectBindingExtension
 
             return (queryString, parent, route, swaggerStyle) =>
             {
+                var parser = tProp.QueryValueParser();
+                if (parser == null)
+                    return;
+                
                 if (swaggerStyle)
                 {
                     if (queryString.TryGetValue(route, out var values))
                     {
                         foreach (var value in values)
-                            parent.Add(tProp.QueryValueParser()?.Invoke(value));
+                            parent.Add(parser(value));
                     }
                     return;
                 }
 
                 for (var i = 0; queryString.TryGetValue($"{route}[" + i.ToString() + "]", out var svalues); i++)
-                    parent.Add(tProp.QueryValueParser()?.Invoke(svalues[0]));
+                    parent.Add(parser(svalues[0]));
             };
         }
     }

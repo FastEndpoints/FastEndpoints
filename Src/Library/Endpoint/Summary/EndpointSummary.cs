@@ -58,7 +58,7 @@ public class EndpointSummary
     /// <summary>
     /// the descriptions for endpoint response you can add descriptions for response dto properties.
     /// </summary>
-    public Dictionary<int, Dictionary<string, string>> ResponseParams { get; set; } = new();
+    private Dictionary<int, Dictionary<string, string>> ResponseParams { get; set; } = new();
 
     /// <summary>
     /// add a description for a given property of the response dto

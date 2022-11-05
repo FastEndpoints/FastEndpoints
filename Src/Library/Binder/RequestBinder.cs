@@ -185,9 +185,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);
             fromQueryParamsProp.PropSetter(req,
-                serializerCtx == null
-                ? obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, SerOpts.Options)
-                : obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, serializerCtx));
+                obj[Constants.QueryJsonNodeName].Deserialize(
+                    fromQueryParamsProp.PropType,
+                    serializerCtx == null ? SerOpts.Options : serializerCtx.Options));
         }
     }
 

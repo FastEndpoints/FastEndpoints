@@ -26,9 +26,7 @@ public class SerializerOptions
     public Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> RequestDeserializer { internal get; set; }
         = (req, tReqDto, jCtx, cancellation) =>
         {
-            return jCtx == null
-               ? JsonSerializer.DeserializeAsync(req.Body, tReqDto, SerOpts.Options, cancellation)
-               : JsonSerializer.DeserializeAsync(req.Body, tReqDto, jCtx, cancellation);
+            return req.ReadFromJsonAsync(tReqDto, jCtx == null ? SerOpts.Options : jCtx.Options, cancellation);
         };
 
     /// <summary>
@@ -57,8 +55,6 @@ public class SerializerOptions
             if (dto is null)
                 return Task.CompletedTask;
 
-            return jCtx == null
-                   ? JsonSerializer.SerializeAsync(rsp.Body, dto, dto.GetType(), SerOpts.Options, cancellation)
-                   : JsonSerializer.SerializeAsync(rsp.Body, dto, dto.GetType(), jCtx, cancellation);
+            return rsp.WriteAsJsonAsync(dto, dto.GetType(), jCtx == null ? SerOpts.Options : jCtx.Options, cancellation );
         };
 }

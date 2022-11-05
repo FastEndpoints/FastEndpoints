@@ -412,7 +412,7 @@ public class MiscTestCases : EndToEndTestBase
     {
         var (rsp, res) = await GuestClient
             .GETAsync<TestCases.ByteArrayQueryParamBindingTest.Request, TestCases.ByteArrayQueryParamBindingTest.Response>(
-                "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D",
+                "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D&timestamps=AAAAAAAAw1U%3D",
 
                 new()
                 {
@@ -420,6 +420,14 @@ public class MiscTestCases : EndToEndTestBase
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
         System.Text.Json.JsonSerializer.Serialize(res!.Timestamp)
+            .Should()
+            .BeEquivalentTo("\"AAAAAAAAw1U=\"");
+
+        System.Text.Json.JsonSerializer.Serialize(res!.ObjectWithByteArrays.Timestamp)
+            .Should()
+            .BeEquivalentTo("\"AAAAAAAAw1U=\"");
+
+        System.Text.Json.JsonSerializer.Serialize(res!.ObjectWithByteArrays.Timestamps[0])
             .Should()
             .BeEquivalentTo("\"AAAAAAAAw1U=\"");
     }

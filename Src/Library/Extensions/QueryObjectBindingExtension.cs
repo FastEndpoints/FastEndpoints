@@ -23,6 +23,20 @@ internal static class QueryObjectBindingExtension
             {
                 if (tProp.GetInterfaces().Contains(Types.IEnumerable))
                 {
+                    if ((tProp.GetElementType() ?? tProp.GetGenericArguments().FirstOrDefault()) == Types.Byte)
+                    {
+                        return (queryString, parent, route, propName, swaggerStyle) =>
+                        {
+                            route = route != null
+                                    ? swaggerStyle
+                                      ? $"{route}[{propName}]"
+                                      : $"{route}.{propName}"
+                                    : propName;
+
+                            if (queryString.TryGetValue(route!, out var values))
+                                parent[propName!] = values[0];
+                        };
+                    }
                     return (queryString, parent, route, propName, swaggerStyle) =>
                     {
                         var array = new JsonArray();
@@ -105,6 +119,17 @@ internal static class QueryObjectBindingExtension
             {
                 if (tProp.GetInterfaces().Contains(Types.IEnumerable))
                 {
+                    if ((tProp.GetElementType() ?? tProp.GetGenericArguments().FirstOrDefault()) == Types.Byte)
+                    {
+                        return (queryString, parent, route, swaggerStyle) =>
+                        {
+                            if (queryString.TryGetValue(route, out var values))
+                            {
+                                foreach (var value in values)
+                                    parent.Add(value);
+                            }
+                        };
+                    }
                     if (tProp.QueryArraySetter() is null)
                         return null;
 
@@ -120,7 +145,7 @@ internal static class QueryObjectBindingExtension
                         {
                             var array = new JsonArray();
                             parent.Add(array);
-                            tProp.QueryArraySetter()?.Invoke(queryString, array, newRoute, swaggerStyle);
+                            tProp.QueryArraySetter()!(queryString, array, newRoute, swaggerStyle);
                             i++;
                             newRoute = $"{route}[" + i.ToString() + "]";
                         }

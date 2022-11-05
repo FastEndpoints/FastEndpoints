@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
 internal static class NumericExtensions

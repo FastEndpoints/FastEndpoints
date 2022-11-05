@@ -145,7 +145,28 @@ internal class OperationProcessor : IOperationProcessor
 
               if (epDef.EndpointSummary?.Responses.ContainsKey(key) is true)
                   res.Value.Description = epDef.EndpointSummary.Responses[key]; //then take values from summary object
+
+              if (epDef.EndpointSummary?.ResponseParams.ContainsKey(key) is true)
+              {
+                  var responseDescriptions = epDef.EndpointSummary.ResponseParams[key];
+                  var responseSchema = res.Value.Schema.ActualSchema;
+                  foreach (var prop in responseSchema.ActualProperties)
+                  {
+                      if (responseDescriptions.ContainsKey(prop.Key))
+                          prop.Value.Description = responseDescriptions[prop.Key];
+                  }
+
+                  if (responseSchema.InheritedSchema is not null)
+                  {
+                      foreach (var prop in responseSchema.InheritedSchema.ActualProperties)
+                      {
+                          if (responseDescriptions.ContainsKey(prop.Key))
+                              prop.Value.Description = responseDescriptions[prop.Key];
+                      }
+                  }
+              }
           });
+
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);

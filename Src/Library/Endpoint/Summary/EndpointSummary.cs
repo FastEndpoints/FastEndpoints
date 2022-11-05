@@ -54,6 +54,33 @@ public class EndpointSummary
     /// </summary>
     public Dictionary<string, string> Params { get; set; } = new();
 
+
+    /// <summary>
+    /// the descriptions for endpoint response you can add descriptions for response dto properties.
+    /// </summary>
+    public Dictionary<int, Dictionary<string, string>> ResponseParams { get; set; } = new();
+
+    /// <summary>
+    /// add a description for a given property of the response dto
+    /// </summary>
+    /// <param name="statusCode">the status code of the response you want to add description</param>
+    /// <param name="property">a member expression for specifying which property the description is for</param>
+    /// <param name="description">the description text</param>
+    public void ResponseParam<TResponse>(int statusCode, Expression<Func<TResponse, object>> property, string description)
+    {
+        if (!ResponseParams.ContainsKey(statusCode))
+            ResponseParams[statusCode] = new();
+        ResponseParams[statusCode][property.PropertyName()] = description;
+    }
+
+    /// <summary>
+    /// add a description for a given property of the response dto
+    /// </summary>
+    /// <param name="property">a member expression for specifying which property the description is for</param>
+    /// <param name="description">the description text</param>
+    public void ResponseParam<TResponse>(Expression<Func<TResponse, object>> property, string description)
+        => ResponseParam(200, property, description);
+
     /// <summary>
     /// indexer for the response descriptions
     /// </summary>
@@ -104,6 +131,7 @@ public class EndpointSummary
         if (description is not null)
             Responses[statusCode] = description;
     }
+
 }
 
 ///<inheritdoc/>

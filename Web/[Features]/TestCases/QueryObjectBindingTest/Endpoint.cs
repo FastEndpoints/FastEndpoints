@@ -14,6 +14,8 @@ public class Endpoint : Endpoint<Request, Response>
         {
             s.Description = "descr";
             s.Summary = "summary";
+            s.ResponseParam<Response>(200, s => s.String, "Some string property");
+            s.ResponseParam<Response>(s => s.Bool, "Some bool property");
         });
     }
 

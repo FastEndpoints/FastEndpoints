@@ -43,7 +43,7 @@ public class BindingOptions
     ///}
     /// </code>
     /// </param>
-    public bool ValueParserFor<T>(Func<object?, ParseResult>? parser)
+    public bool ValueParserFor<T>(Func<object?, ParseResult> parser)
         => BinderExtensions.ParserFuncCache.TryAdd(typeof(T), parser);
 
     /// <summary>
@@ -71,6 +71,6 @@ public class BindingOptions
     ///}
     /// </code>
     /// </param>
-    public bool ValueParserFor(Type type, Func<object?, ParseResult>? parser)
+    public bool ValueParserFor(Type type, Func<object?, ParseResult> parser)
         => BinderExtensions.ParserFuncCache.TryAdd(type, parser);
 }

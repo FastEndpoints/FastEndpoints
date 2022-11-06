@@ -159,8 +159,11 @@ internal static class QueryObjectBindingExtension
                 if (swaggerStyle)
                 {
                     if (queryString.TryGetValue(route, out var values))
+                    {
                         foreach (var value in values)
                             parent.Add(JsonValue.Create(parser(value).Value));
+                    }
+
                     return;
                 }
 

@@ -7,3 +7,4 @@
 ### IMPROVEMENTS
 - reduce startup time
 - validate swagger startup config order
+- optimize value parser functionality

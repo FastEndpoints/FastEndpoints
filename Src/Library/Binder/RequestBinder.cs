@@ -214,7 +214,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (claimVal is null && prop.ForbidIfMissing)
                 failures.Add(new(prop.Identifier, "User doesn't have this claim type!"));
 
-            if (claimVal is not null && prop.ValueParser is not null)
+            if (claimVal is not null)
             {
                 var res = prop.ValueParser(claimVal);
                 prop.PropSetter(req, res.Value);
@@ -235,7 +235,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (hdrVal.Count == 0 && prop.ForbidIfMissing)
                 failures.Add(new(prop.Identifier, "This header is missing from the request!"));
 
-            if (hdrVal.Count > 0 && prop.ValueParser is not null)
+            if (hdrVal.Count > 0)
             {
                 var res = prop.ValueParser(hdrVal);
                 prop.PropSetter(req, res.Value);
@@ -258,7 +258,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (!hasPerm && prop.ForbidIfMissing)
                 failures.Add(new(prop.Identifier, "User doesn't have this permission!"));
 
-            if (hasPerm && prop.ValueParser is not null)
+            if (hasPerm)
             {
                 var res = prop.ValueParser(hasPerm);
                 prop.PropSetter(req, res.Value);
@@ -271,7 +271,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     private static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures)
     {
-        if (primaryProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
+        if (primaryProps.TryGetValue(kvp.Key, out var prop))
         {
             var res = prop.ValueParser(kvp.Value);
 

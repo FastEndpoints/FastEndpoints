@@ -39,10 +39,10 @@ internal static class BinderExtensions
         return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();
     }
 
-    internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>?> ParserFuncCache = new();
+    internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = new();
     private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
     private static readonly ConstructorInfo parseResultCtor = Types.ParseResult.GetConstructor(new[] { Types.Bool, Types.Object })!;
-    internal static Func<object?, ParseResult>? ValueParser(this Type type)
+    internal static Func<object?, ParseResult> ValueParser(this Type type)
     {
         //we're only ever compiling a value parser for a given type once.
         //if a parser is requested for a type a second time, it will be returned from the dictionary instead of paying the compiling cost again.
@@ -50,7 +50,7 @@ internal static class BinderExtensions
         //it is also possible that the user has already registered a parser func via config at startup.
         return ParserFuncCache.GetOrAdd(type, GetCompiledValueParser);
 
-        static Func<object?, ParseResult>? GetCompiledValueParser(Type tProp)
+        static Func<object?, ParseResult> GetCompiledValueParser(Type tProp)
         {
             // this method was contributed by: https://stackoverflow.com/users/1086121/canton7
             // as an answer to a stackoverflow question: https://stackoverflow.com/questions/71220157

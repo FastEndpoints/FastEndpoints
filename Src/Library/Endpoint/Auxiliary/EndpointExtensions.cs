@@ -37,9 +37,15 @@ internal static class EndpointExtensions
                         break;
 
                     case AuthorizeAttribute authAttr:
-                        def.Roles(authAttr.Roles?.Split(',') ?? Array.Empty<string>());
-                        def.AuthSchemes(authAttr.AuthenticationSchemes?.Split(',') ?? Array.Empty<string>());
-                        if (authAttr.Policy is not null) def.Policies(new[] { authAttr.Policy });
+                        if (authAttr.Roles is not null)
+                            def.Roles(authAttr.Roles.Split(','));
+
+                        if (authAttr.AuthenticationSchemes is not null)
+                            def.AuthSchemes(authAttr.AuthenticationSchemes.Split(','));
+
+                        if (authAttr.Policy is not null)
+                            def.Policies(new[] { authAttr.Policy });
+
                         break;
 
                     case ThrottleAttribute thrtAttr:

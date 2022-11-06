@@ -1,10 +1,10 @@
 namespace TestCases.ByteArrayQueryParamBindingTest;
 
-
 public class Request
 {
     [QueryParam]
     public byte[] Timestamp { get; init; }
+
     [FromQueryParams]
     public ObjectWithByteArrays ObjectWithByteArrays { get; init; }
 }

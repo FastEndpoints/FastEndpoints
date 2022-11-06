@@ -184,10 +184,12 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var swaggerStyle = !sortedDic.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
 
             fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);
-            fromQueryParamsProp.PropSetter(req,
+
+            fromQueryParamsProp.PropSetter(
+                req,
                 obj[Constants.QueryJsonNodeName].Deserialize(
                     fromQueryParamsProp.PropType,
-                    serializerCtx == null ? SerOpts.Options : serializerCtx.Options));
+                    serializerCtx?.Options ?? SerOpts.Options));
         }
     }
 

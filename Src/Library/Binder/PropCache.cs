@@ -8,7 +8,7 @@ internal class PropCache
 
 internal class PrimaryPropCacheEntry : PropCache
 {
-    public Func<object?, ParseResult>? ValueParser { get; init; }
+    public Func<object?, ParseResult> ValueParser { get; init; }
 }
 
 internal class SecondaryPropCacheEntry : PrimaryPropCacheEntry

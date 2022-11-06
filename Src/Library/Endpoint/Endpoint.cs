@@ -142,10 +142,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     {
         if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
         {
-            var res = typeof(T).ValueParser()?.Invoke(val);
+            var res = typeof(T).ValueParser()(val);
 
-            if (res?.IsSuccess is true)
-                return (T?)res?.Value;
+            if (res.IsSuccess is true)
+                return (T?)res.Value;
 
             if (isRequired)
                 ValidationFailures.Add(new(paramName, "Unable to read value of route parameter!"));
@@ -172,10 +172,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     {
         if (HttpContext.Request.Query.TryGetValue(paramName, out var val))
         {
-            var res = typeof(T).ValueParser()?.Invoke(val);
+            var res = typeof(T).ValueParser()(val);
 
-            if (res?.IsSuccess is true)
-                return (T?)res?.Value;
+            if (res.IsSuccess)
+                return (T?)res.Value;
 
             if (isRequired)
                 ValidationFailures.Add(new(paramName, "Unable to read value of query parameter!"));

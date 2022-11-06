@@ -36,7 +36,6 @@ internal static class QueryObjectBindingExtension
                             if (queryString.TryGetValue(route!, out var values))
                                 parent[propName!] = values[0];
                         };
-
                     return (queryString, parent, route, propName, swaggerStyle) =>
                     {
                         var array = new JsonArray();
@@ -47,7 +46,7 @@ internal static class QueryObjectBindingExtension
                                   ? $"{route}[{propName}]"
                                   : $"{route}.{propName}"
                                 : propName;
-                        tProp.QueryArraySetter()?.Invoke(queryString, array, route, swaggerStyle);
+                        tProp.QueryArraySetter()(queryString, array, route, swaggerStyle);
                     };
                 }
 
@@ -79,18 +78,18 @@ internal static class QueryObjectBindingExtension
                           : $"{route}.{propName}"
                         : propName;
                 if (queryString.TryGetValue(route!, out var values))
-                    parent[propName!] = JsonValue.Create(tProp.ValueParser()?.Invoke(values[0]).Value);
+                    parent[propName!] = JsonValue.Create(tProp.ValueParser()(values[0]).Value);
             };
 
         }
     }
 
-    private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>?> queryArrays = new();
-    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? QueryArraySetter(this Type type)
+    private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>> queryArrays = new();
+    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool> QueryArraySetter(this Type type)
     {
         return queryArrays.GetOrAdd(type, GetQueryArraySetter(type));
 
-        static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? GetQueryArraySetter(Type type)
+        static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool> GetQueryArraySetter(Type type)
         {
             var tProp = type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault();
 
@@ -156,16 +155,17 @@ internal static class QueryObjectBindingExtension
 
             return (queryString, parent, route, swaggerStyle) =>
             {
+                var parser = tProp.ValueParser();
                 if (swaggerStyle)
                 {
                     if (queryString.TryGetValue(route, out var values))
                         foreach (var value in values)
-                            parent.Add(JsonValue.Create(tProp.ValueParser()?.Invoke(value).Value));
+                            parent.Add(JsonValue.Create(parser(value).Value));
                     return;
                 }
 
                 for (var i = 0; queryString.TryGetValue($"{route}[" + i.ToString() + "]", out var svalues); i++)
-                    parent.Add(JsonValue.Create(tProp.ValueParser()?.Invoke(svalues[0]).Value));
+                    parent.Add(JsonValue.Create(parser(svalues[0]).Value));
             };
         }
     }

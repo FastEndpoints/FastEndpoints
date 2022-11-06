@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Metadata;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Namotion.Reflection;
 using NJsonSchema.Generation;
@@ -121,6 +122,21 @@ public static class Extensions
             if (removeEmptySchemas) s.FlattenInheritanceHierarchy = removeEmptySchemas; //gotta force this here even if user asks not to flatten
         });
         return services;
+    }
+
+    /// <summary>
+    /// enables the open-api/swagger middleware for fastendpoints.
+    /// this method is simply a shortcut for the two calls [<c>app.UseOpenApi()</c>] and [<c>app.UseSwaggerUi3(c => c.ConfigureDefaults())</c>]
+    /// </summary>
+    /// <param name="config">optional config action for the open-api middleware</param>
+    /// <param name="uiConfig">optional config action for the swagger-ui</param>
+    public static IApplicationBuilder UseSwaggerGen(this IApplicationBuilder app,
+                                                    Action<OpenApiDocumentMiddlewareSettings>? config = null,
+                                                    Action<SwaggerUi3Settings>? uiConfig = null)
+    {
+        app.UseOpenApi(config);
+        app.UseSwaggerUi3((c => c.ConfigureDefaults()) + uiConfig);
+        return app;
     }
 
     /// <summary>

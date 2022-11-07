@@ -5,7 +5,7 @@ namespace FastEndpoints;
 
 public static class CommandExtensions
 {
-    internal static readonly Dictionary<Type, CommandHandlerDefinition> handlerCache = new();
+    internal static readonly Dictionary<Type, Type> handlerCache = new();
 
     /// <summary>
     /// executes the command and returns a result
@@ -18,12 +18,13 @@ public static class CommandExtensions
     {
         var tCommand = command.GetType();
 
-        if (handlerCache.TryGetValue(tCommand, out var def))
+        if (handlerCache.TryGetValue(tCommand, out var handlerType))
         {
-            var handler = Config.ServiceResolver.CreateInstance(def.HandlerType);
-            def.ExecuteMethod ??= def.HandlerType.HandlerExecutor<TResult>(tCommand, handler);
-            return ((Func<object, CancellationToken, Task<TResult>>)def.ExecuteMethod)(command, ct);
+            var handler = Config.ServiceResolver.CreateInstance(handlerType);
+            var executeMethod = handlerType.HandlerExecutor<TResult>(tCommand, handler);
+            return executeMethod(command, ct);
         }
+
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
     }
 
@@ -37,11 +38,11 @@ public static class CommandExtensions
     {
         var tCommand = command.GetType();
 
-        if (handlerCache.TryGetValue(tCommand, out var def))
+        if (handlerCache.TryGetValue(tCommand, out var handlerType))
         {
-            var handler = Config.ServiceResolver.CreateInstance(def.HandlerType);
-            def.ExecuteMethod ??= def.HandlerType.HandlerExecutor(tCommand, handler);
-            return ((Func<object, CancellationToken, Task>)def.ExecuteMethod)(command, ct);
+            var handler = Config.ServiceResolver.CreateInstance(handlerType);
+            var executeMethod = handlerType.HandlerExecutor(tCommand, handler);
+            return executeMethod(command, ct);
         }
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
     }
@@ -78,16 +79,5 @@ public static class CommandExtensions
             cmdParam,
             ctParam
         ).Compile();
-    }
-
-    internal class CommandHandlerDefinition
-    {
-        internal Type HandlerType { get; set; }
-        internal object? ExecuteMethod { get; set; }
-
-        internal CommandHandlerDefinition(Type handlerType)
-        {
-            HandlerType = handlerType;
-        }
     }
 }

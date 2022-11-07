@@ -60,6 +60,21 @@ public static class MainExtensions
         return app;
     }
 
+    /// <summary>
+    /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
+    /// </summary>
+    /// <param name="routeBuilder">routeBuilder to configure FastEndpoints</param>
+    /// <param name="serviceProvider">serviceProvider to configure FastEndpoints</param>
+    /// <param name="configAction">an optional action to configure FastEndpoints</param>
+    /// 
+    public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, IEndpointRouteBuilder routeBuilder, IServiceProvider serviceProvider, Action<Config>? configAction = null)
+    {
+        Config.ServiceResolver = serviceProvider.GetRequiredService<IServiceResolver>();
+        UseFastEndpointsMiddleware(app);
+        MapFastEndpoints(routeBuilder, configAction);
+        return app;
+    }
+
     public static IApplicationBuilder UseFastEndpointsMiddleware(this IApplicationBuilder app)
     {
         app.UseMiddleware<ExecutorMiddleware>();

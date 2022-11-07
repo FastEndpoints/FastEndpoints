@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 public static partial class CommandExtensions
 {
@@ -20,10 +18,8 @@ public static partial class CommandExtensions
 
         if (handlerCache.TryGetValue(tCommand, out var def))
         {
-            //todo: figure out how to replace methodinfo.invoke() with a compiled expression
-            var handler = Config.ServiceResolver.CreateInstance(def.HandlerType);
-            def.ExecuteMethod ??= def.HandlerType.GetMethod("ExecuteAsync", BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)!;
-            return (Task<TResult>)def.ExecuteMethod.Invoke(handler, new object[] { command, ct })!;
+            var handler = (dynamic)Config.ServiceResolver.CreateInstance(def.HandlerType);
+            return (Task<TResult>)handler.ExecuteAsync((dynamic)command, ct);
         }
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
     }

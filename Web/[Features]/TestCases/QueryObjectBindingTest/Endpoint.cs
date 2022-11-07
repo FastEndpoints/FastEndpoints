@@ -17,7 +17,7 @@ public class Endpoint : Endpoint<Request, Response>
             s.ResponseParam<Response>(200, s => s.String, "Some string property");
             s.ResponseParam<Response>(s => s.Bool, "Some bool property");
         });
-        SerializerContext(ApiSerializerContext.Default);
+        //SerializerContext(ApiSerializerContext.Default);
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)

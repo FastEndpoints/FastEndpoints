@@ -132,7 +132,7 @@ internal class OperationProcessor : IOperationProcessor
         op.Summary = epDef.EndpointSummary?.Summary ?? epDef.EndpointType.GetSummary();
         op.Description = epDef.EndpointSummary?.Description ?? epDef.EndpointType.GetDescription();
 
-        //set response descriptions (no xml comments support here, yet!)
+        //set response descriptions
         op.Responses
           .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
           .ToList()
@@ -166,7 +166,6 @@ internal class OperationProcessor : IOperationProcessor
                   }
               }
           });
-
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);

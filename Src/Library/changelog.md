@@ -4,6 +4,7 @@
 
 ### FIXES
 - roles requirement issue with attribute based config [#info](https://discord.com/channels/933662816458645504/1038735848167968798)
+- bug in command handlers and scoped service resolving #324
 
 ### IMPROVEMENTS
 - reduce startup time

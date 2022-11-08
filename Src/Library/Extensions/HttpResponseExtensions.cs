@@ -80,7 +80,7 @@ public static class HttpResponseExtensions
                                           CancellationToken cancellation = default)
     {
         var linkGen = Config.ServiceResolver.TryResolve<LinkGenerator>() ?? //this is null for unit tests
-                      rsp.HttpContext.RequestServices?.GetRequiredService<LinkGenerator>() ?? //so get it from httpcontext
+                      rsp.HttpContext.RequestServices?.GetService<LinkGenerator>() ?? //so get it from httpcontext (only applies to unit tests). do not change to Resolve<T>() here
                       throw new InvalidOperationException("Service provider is null on the current HttpContext! Set it yourself for unit tests.");
 
         rsp.HttpContext.MarkResponseStart();

@@ -10,3 +10,4 @@
 - reduce startup time
 - validate swagger startup config order
 - optimize value parser functionality
+- service resolver refactors

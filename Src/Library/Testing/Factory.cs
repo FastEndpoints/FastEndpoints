@@ -22,7 +22,7 @@ public static class Factory
             var services = new ServiceCollection();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
             services.AddSingleton(typeof(Event<>));
-            Config.ServiceResolver = new ServiceResolver(services.BuildServiceProvider(), new HttpContextAccessor());
+            Config.ServiceResolver = new ServiceResolver(services.BuildServiceProvider());
         }
 
         var tEndpoint = typeof(TEndpoint);

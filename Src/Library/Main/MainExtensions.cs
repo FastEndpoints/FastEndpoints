@@ -54,16 +54,6 @@ public static class MainExtensions
     {
         if (app is not IEndpointRouteBuilder routeBuilder)
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
-        Config.ServiceResolver = app.ApplicationServices.GetRequiredService<IServiceResolver>();
-        UseFastEndpointsMiddleware(app);
-        MapFastEndpoints(routeBuilder, configAction);
-        return app;
-    }
-
-    [HideFromDocs]
-    public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, IEndpointRouteBuilder routeBuilder, IServiceProvider serviceProvider, Action<Config>? configAction = null)
-    {
-        Config.ServiceResolver = serviceProvider.GetRequiredService<IServiceResolver>();
         UseFastEndpointsMiddleware(app);
         MapFastEndpoints(routeBuilder, configAction);
         return app;
@@ -77,11 +67,12 @@ public static class MainExtensions
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
-        SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
+        Config.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
+        SerOpts.Options = Config.ServiceResolver.Resolve<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
         configAction?.Invoke(new Config());
 
-        var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
-        using var scope = app.ServiceProvider.CreateScope();
+        var epFactory = Config.ServiceResolver.Resolve<IEndpointFactory>();
+        using var scope = Config.ServiceResolver.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
         var routeToHandlerCounts = new ConcurrentDictionary<string, int>();//key: {verb}:{route}
         var totalEndpointCount = 0;
@@ -149,14 +140,14 @@ public static class MainExtensions
             }
         }
 
-        app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
+        Config.ServiceResolver.Resolve<ILogger<StartupTimer>>().LogInformation(
             $"Registered {totalEndpointCount} endpoints in " +
             $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
         EndpointData.Stopwatch.Stop();
 
         var duplicatesDetected = false;
-        var logger = app.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
+        var logger = Config.ServiceResolver.Resolve<ILogger<DuplicateHandlerRegistration>>();
 
         foreach (var kvp in routeToHandlerCounts)
         {

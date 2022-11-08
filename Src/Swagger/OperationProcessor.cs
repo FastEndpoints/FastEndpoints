@@ -14,11 +14,21 @@ using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Swagger;
 
+/// <summary>
+/// enum values for swagger tag naming strategy
+/// </summary>
+public enum TagCase
+{
+    None = 0,
+    TitleCase = 1,
+    LowerCase = 2
+}
+
 internal class OperationProcessor : IOperationProcessor
 {
-    private readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
-    private readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
-    private readonly Dictionary<string, string> defaultDescriptions = new()
+    private static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
+    private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
+    private static readonly Dictionary<string, string> defaultDescriptions = new()
     {
         { "200", "Success" },
         { "201", "Created" },
@@ -36,11 +46,13 @@ internal class OperationProcessor : IOperationProcessor
 
     private readonly int tagIndex;
     private readonly bool removeEmptySchemas;
+    private readonly TagCase tagCase;
 
-    public OperationProcessor(int tagIndex, bool removeEmptySchemas)
+    public OperationProcessor(int tagIndex, bool removeEmptySchemas, TagCase tagCase)
     {
         this.tagIndex = tagIndex;
         this.removeEmptySchemas = removeEmptySchemas;
+        this.tagCase = tagCase;
     }
 
     public bool Process(OperationProcessorContext ctx)
@@ -71,7 +83,7 @@ internal class OperationProcessor : IOperationProcessor
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= tagIndex)
-                op.Tags.Add(textInfo.ToTitleCase(segments[tagIndex - 1]));
+                op.Tags.Add(TagName(segments[tagIndex - 1], tagCase));
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
@@ -479,5 +491,16 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         return string.Join("/", parts);
+    }
+
+    private static string TagName(string input, TagCase tagCase)
+    {
+        return tagCase switch
+        {
+            TagCase.None => input,
+            TagCase.TitleCase => textInfo.ToTitleCase(input),
+            TagCase.LowerCase => textInfo.ToLower(input),
+            _ => input,
+        };
     }
 }

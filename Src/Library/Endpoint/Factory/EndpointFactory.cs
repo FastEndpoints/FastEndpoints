@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
@@ -19,11 +20,17 @@ public class EndpointFactory : IEndpointFactory
 
         var epInstance = (BaseEndpoint)Config.ServiceResolver.CreateInstance(definition.EndpointType, ctx.RequestServices);
 
+        var isAppStartup = ctx.Connection.Id == null;
+
         for (var i = 0; i < definition.ServiceBoundEpProps?.Length; i++)
         {
             var prop = definition.ServiceBoundEpProps[i];
             prop.PropSetter ??= definition.EndpointType.SetterForProp(prop.PropName);
-            prop.PropSetter(epInstance, ctx.Resolve(prop.PropType));
+            prop.PropSetter(
+                epInstance,
+                isAppStartup
+                 ? ctx.RequestServices.GetRequiredService(prop.PropType)
+                 : ctx.Resolve(prop.PropType));
         }
 
         return epInstance;

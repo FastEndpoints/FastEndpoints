@@ -1,12 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿namespace FastEndpoints;
 
-namespace FastEndpoints;
-
-public static partial class CommandExtensions
+public static class CommandExtensions
 {
     //key: tCommand //val: handler definition
-    internal static readonly Dictionary<Type, Type> handlerCache = new();
-    private static readonly ConcurrentDictionary<Type, CommandHandlerBase> commandHandlers = new();
+    internal static readonly Dictionary<Type, CommandHandlerDefinition> handlerCache = new();
 
     /// <summary>
     /// executes the command that does not return a result
@@ -19,9 +16,9 @@ public static partial class CommandExtensions
     {
         var tCommand = command.GetType();
 
-        if (handlerCache.TryGetValue(tCommand, out var handlerType))
+        if (handlerCache.TryGetValue(tCommand, out var def))
         {
-            var handler = Config.ServiceResolver.CreateInstance(handlerType);
+            var handler = Config.ServiceResolver.CreateInstance(def.HandlerType);
             return ((ICommandHandler<TCommand>)handler).ExecuteAsync(command, ct);
         }
 
@@ -38,14 +35,18 @@ public static partial class CommandExtensions
     public static Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default)
     {
         var tCommand = command.GetType();
-        if (handlerCache.TryGetValue(tCommand, out var handlerType))
+
+        if (handlerCache.TryGetValue(tCommand, out var def))
         {
-            var handler = (CommandHandlerWrapper<TResult>)commandHandlers.GetOrAdd(tCommand,
-                static t => (CommandHandlerWrapper<TResult>)(Activator.CreateInstance(typeof(CommandHandlerWrapperImpl<,>).MakeGenericType(t, typeof(TResult)))
-                                                             ?? throw new InvalidOperationException($"Unable to create an instance of the handler for command [{t.FullName}]")));
-            return handler.Handle(command, handlerType, ct);
+            def.HandlerWrapper ??= CreateHandlerWrapper(tCommand);
+            return ((CommandHandlerExecutorBase<TResult>)def.HandlerWrapper).Execute(command, def.HandlerType, ct);
         }
 
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+
+        static CommandHandlerExecutorBase<TResult> CreateHandlerWrapper(Type tCommand)
+            => (CommandHandlerExecutorBase<TResult>)
+                Config.ServiceResolver.CreateSingleton(
+                    Types.CommandHandlerWrapperOf2.MakeGenericType(tCommand, typeof(TResult)));
     }
 }

@@ -19,7 +19,6 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
         PostProcessors(
             new MyResponseLogger<Request, Response>());
         Tags("orders");
-        AllowAnonymous();
     }
 
     public async override Task HandleAsync(Request r, CancellationToken t)
@@ -42,12 +41,13 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
 
         await PublishAsync(saleNotification, Mode.WaitForNone, t);
 
-        await SendAsync(new Response {
+        await SendAsync(new Response
+        {
             Message = "order created!",
             AnotherMsg = Map.ToEntity(r),
             OrderID = 54321,
             GuidTest = r.GuidTest
-        }, cancellation: t);
+        });
     }
 }
 

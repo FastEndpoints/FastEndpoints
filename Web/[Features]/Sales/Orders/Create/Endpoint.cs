@@ -8,8 +8,6 @@ namespace Sales.Orders.Create;
 
 public class Endpoint : Endpoint<Request, Response, MyMapper>
 {
-    public IEmailService Emailer { get; set; }
-
     public override void Configure()
     {
         Verbs(Http.POST);

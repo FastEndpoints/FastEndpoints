@@ -38,8 +38,8 @@ public static class CommandExtensions
 
         if (handlerCache.TryGetValue(tCommand, out var def))
         {
-            def.HandlerWrapper ??= CreateHandlerWrapper(tCommand);
-            return ((CommandHandlerExecutorBase<TResult>)def.HandlerWrapper).Execute(command, def.HandlerType, ct);
+            def.HandlerExecutor ??= CreateHandlerWrapper(tCommand);
+            return ((CommandHandlerExecutorBase<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
         }
 
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
@@ -47,6 +47,6 @@ public static class CommandExtensions
         static CommandHandlerExecutorBase<TResult> CreateHandlerWrapper(Type tCommand)
             => (CommandHandlerExecutorBase<TResult>)
                 Config.ServiceResolver.CreateSingleton(
-                    Types.CommandHandlerWrapperOf2.MakeGenericType(tCommand, typeof(TResult)));
+                    Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
     }
 }

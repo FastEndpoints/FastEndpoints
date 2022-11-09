@@ -33,6 +33,7 @@ public static class Extensions
     /// enable support for FastEndpoints in swagger
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
+    /// <param name="tagCase">the casing strategy to use on endpoint tags</param>
     /// <param name="minEndpointVersion">endpoints lower than this vesion will not be included in the swagger doc</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     /// <param name="shortSchemaNames">set to true to make schema names just the name of the class instead of full type name</param>
@@ -42,6 +43,7 @@ public static class Extensions
     /// </param>
     public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
                                            int tagIndex,
+                                           TagCase tagCase,
                                            int minEndpointVersion,
                                            int maxEndpointVersion,
                                            bool shortSchemaNames,
@@ -50,7 +52,7 @@ public static class Extensions
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
         settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
-        settings.OperationProcessors.Add(new OperationProcessor(tagIndex, removeEmptySchemas));
+        settings.OperationProcessors.Add(new OperationProcessor(tagIndex, removeEmptySchemas, tagCase));
         settings.DocumentProcessors.Add(new DocumentProcessor(minEndpointVersion, maxEndpointVersion));
     }
 
@@ -89,6 +91,7 @@ public static class Extensions
     /// <param name="serializerSettings">json serializer options</param>
     /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
+    /// <param name="tagCase">the casing strategy to use on endpoint tags</param>
     /// <param name="minEndpointVersion">endpoints lower than this vesion will not be included in the swagger doc</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     /// <param name="shortSchemaNames">set to true if you'd like schema names to be the class name intead of the full name</param>
@@ -102,6 +105,7 @@ public static class Extensions
                                                    Action<JsonSerializerOptions>? serializerSettings = null,
                                                    bool addJWTBearerAuth = true,
                                                    int tagIndex = 1,
+                                                   TagCase tagCase = TagCase.TitleCase,
                                                    int minEndpointVersion = 0,
                                                    int maxEndpointVersion = 0,
                                                    bool shortSchemaNames = false,
@@ -115,7 +119,7 @@ public static class Extensions
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             serializerSettings?.Invoke(stjOpts);
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
-            s.EnableFastEndpoints(tagIndex, minEndpointVersion, maxEndpointVersion, shortSchemaNames, removeEmptySchemas);
+            s.EnableFastEndpoints(tagIndex, tagCase, minEndpointVersion, maxEndpointVersion, shortSchemaNames, removeEmptySchemas);
             if (excludeNonFastEndpoints) s.OperationProcessors.Insert(0, new FastEndpointsFilter());
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);

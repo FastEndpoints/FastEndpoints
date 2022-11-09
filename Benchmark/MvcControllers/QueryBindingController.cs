@@ -12,7 +12,6 @@ public class QueryRequest
     public int Age { get; set; }
     public IEnumerable<string>? PhoneNumbers { get; set; }
     public NestedQueryObject? NestedQueryObject { get; set; }
-
 }
 public class NestedQueryObject
 {

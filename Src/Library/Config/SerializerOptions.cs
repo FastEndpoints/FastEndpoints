@@ -24,10 +24,11 @@ public class SerializerOptions
     /// <para><see cref="CancellationToken"/> : a cancellation token</para>
     /// </summary>
     public Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> RequestDeserializer { internal get; set; }
-        = (req, tReqDto, jCtx, cancellation) =>
-        {
-            return req.ReadFromJsonAsync(tReqDto, jCtx?.Options ?? SerOpts.Options, cancellation);
-        };
+        = (req, tReqDto, jCtx, cancellation)
+            => req.ReadFromJsonAsync(
+                type: tReqDto,
+                options: jCtx?.Options ?? SerOpts.Options,
+                cancellationToken: cancellation);
 
     /// <summary>
     /// a function for writing serialized response dtos to the response body.
@@ -52,10 +53,12 @@ public class SerializerOptions
         = (rsp, dto, contentType, jCtx, cancellation) =>
         {
             rsp.ContentType = contentType;
-
-            if (dto is null)
-                return Task.CompletedTask;
-
-            return rsp.WriteAsJsonAsync(dto, dto.GetType(), jCtx?.Options ?? SerOpts.Options, cancellation);
+            return dto is null
+                    ? Task.CompletedTask
+                    : rsp.WriteAsJsonAsync(
+                        value: dto,
+                        type: dto.GetType(),
+                        options: jCtx?.Options ?? SerOpts.Options,
+                        cancellationToken: cancellation);
         };
 }

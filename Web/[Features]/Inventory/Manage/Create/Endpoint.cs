@@ -21,7 +21,7 @@ public class Endpoint : Endpoint<Request>
             clearDefaults: true);
     }
 
-    public override async Task HandleAsync(Request req, CancellationToken ct)
+    public async override Task HandleAsync(Request req, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(req.Description))
             AddError(x => x.Description!, "Please enter a product descriptions!");

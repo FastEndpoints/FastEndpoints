@@ -72,10 +72,9 @@ internal static class EndpointExtensions
             i++;
         }
 
-        if (i == 0 || i != matches.Count)
-            throw new ArgumentException($"Failed to build route: [{sb}] due to incorrect number of replacements!");
-
-        return sb.ToString();
+        return i == 0 || i != matches.Count
+                ? throw new ArgumentException($"Failed to build route: [{sb}] due to incorrect number of replacements!")
+                : sb.ToString();
     }
 
     internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)

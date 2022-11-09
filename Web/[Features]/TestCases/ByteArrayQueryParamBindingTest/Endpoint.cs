@@ -23,7 +23,7 @@ public class Endpoint : Endpoint<Request, Response>
         return SendAsync(new Response
         {
             Timestamp = r.Timestamp,
-            ObjectWithByteArrays= r.ObjectWithByteArrays
+            ObjectWithByteArrays = r.ObjectWithByteArrays
         });
     }
 }

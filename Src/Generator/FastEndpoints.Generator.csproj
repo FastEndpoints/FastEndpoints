@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>Source generator library for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
     </ItemGroup>
 

@@ -18,7 +18,7 @@ public class Endpoint : Endpoint<Request, Response>
             s.ResponseParam<Response>(s => s.Bool, "Some bool property");
         });
         //SerializerContext(ApiSerializerContext.Default);
-        //todo: fix sourcegen support here
+        //next: fix sourcegen support here + FastEndpoints.Generator for .net 7
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)

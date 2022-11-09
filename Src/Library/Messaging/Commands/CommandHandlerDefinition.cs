@@ -1,17 +1,12 @@
-﻿using System.Reflection;
+﻿namespace FastEndpoints;
 
-namespace FastEndpoints;
-
-public static partial class CommandExtensions
+internal class CommandHandlerDefinition
 {
-    internal class CommandHandlerDefinition
-    {
-        internal Type HandlerType { get; init; }
-        internal MethodInfo? ExecuteMethod { get; set; }
+    internal Type HandlerType { get; init; }
+    internal object? HandlerWrapper { get; set; }
 
-        internal CommandHandlerDefinition(Type handlerType)
-        {
-            HandlerType = handlerType;
-        }
+    internal CommandHandlerDefinition(Type handlerType)
+    {
+        HandlerType = handlerType;
     }
 }

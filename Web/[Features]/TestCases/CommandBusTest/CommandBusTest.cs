@@ -12,7 +12,7 @@ public class TestCommandHandler : ICommandHandler<TestCommand, string>
 {
     public TestCommandHandler(ILogger<TestCommandHandler> logger, IEmailService emailService)
     {
-        logger.LogError("command handling works!");
+        logger.LogInformation("command handling works!");
         _ = emailService.SendEmail(); //scoped service
     }
 

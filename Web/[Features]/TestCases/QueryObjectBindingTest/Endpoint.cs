@@ -18,6 +18,7 @@ public class Endpoint : Endpoint<Request, Response>
             s.ResponseParam<Response>(s => s.Bool, "Some bool property");
         });
         //SerializerContext(ApiSerializerContext.Default);
+        //todo: fix sourcegen support here
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)

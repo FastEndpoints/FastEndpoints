@@ -158,10 +158,12 @@ internal class OperationProcessor : IOperationProcessor
               if (epDef.EndpointSummary?.Responses.ContainsKey(key) is true)
                   res.Value.Description = epDef.EndpointSummary.Responses[key]; //then take values from summary object
 
-              if (epDef.EndpointSummary?.ResponseParams.ContainsKey(key) is true)
+              if (epDef.EndpointSummary?.ResponseParams.ContainsKey(key) is true && res.Value.Schema is not null)
               {
-                  var responseDescriptions = epDef.EndpointSummary.ResponseParams[key];
+                  //set response dto property descriptions
+
                   var responseSchema = res.Value.Schema.ActualSchema;
+                  var responseDescriptions = epDef.EndpointSummary.ResponseParams[key];
                   foreach (var prop in responseSchema.ActualProperties)
                   {
                       if (responseDescriptions.ContainsKey(prop.Key))

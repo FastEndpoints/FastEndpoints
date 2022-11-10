@@ -73,7 +73,7 @@ public class EndpointSummary
     public void ResponseParam<TResponse>(int statusCode, Expression<Func<TResponse, object>> property, string description)
     {
         if (!ResponseParams.ContainsKey(statusCode))
-            ResponseParams[statusCode] = new();
+            ResponseParams[statusCode] = new(StringComparer.OrdinalIgnoreCase);
         ResponseParams[statusCode][property.PropertyName()] = description;
     }
 

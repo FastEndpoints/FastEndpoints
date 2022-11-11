@@ -24,7 +24,8 @@ builder.Services
         s.Version = "v0.0";
     },
     serializerSettings: x => x.PropertyNamingPolicy = null,
-    tagCase: TagCase.TitleCase)
+    tagCase: TagCase.TitleCase,
+    removeEmptySchemas: false)
 
     .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
      {
@@ -37,7 +38,8 @@ builder.Services
              In = OpenApiSecurityApiKeyLocation.Header,
              Type = OpenApiSecuritySchemeType.ApiKey,
          });
-     })
+     },
+    removeEmptySchemas: false)
 
     .AddSwaggerDoc(maxEndpointVersion: 2, settings: s =>
     {

@@ -14,16 +14,6 @@ using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Swagger;
 
-/// <summary>
-/// enum values for swagger tag naming strategy
-/// </summary>
-public enum TagCase
-{
-    None = 0,
-    TitleCase = 1,
-    LowerCase = 2
-}
-
 internal class OperationProcessor : IOperationProcessor
 {
     private static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;

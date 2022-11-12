@@ -15,6 +15,7 @@ public class Benchmarks
             "&NestedQueryObject.MoreNestedQueryObject.Age=23&NestedQueryObject.MoreNestedQueryObject.phoneNumbers[0]=223422&NestedQueryObject.MoreNestedQueryObject.phonenumbers[1]=1114";
     private static HttpClient FastEndpointClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient FECodeGenClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    private static HttpClient FEScopedValidatorClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient FEThrottleClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
     private static HttpClient MinimalClient { get; } = new WebApplicationFactory<MinimalApi.Program>().CreateClient();
     private static HttpClient MvcClient { get; } = new WebApplicationFactory<MvcControllers.Program>().CreateClient();
@@ -45,7 +46,20 @@ public class Benchmarks
         return FastEndpointClient.SendAsync(msg);
     }
 
-    //[Benchmark]
+    [Benchmark]
+    public Task FastEndpointsScopedValidator()
+    {
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{FEScopedValidatorClient.BaseAddress}benchmark/scoped-validator/123"),
+            Content = Payload
+        };
+
+        return FEScopedValidatorClient.SendAsync(msg);
+    }
+
+    [Benchmark]
     public Task FastEndpointsCodeGen()
     {
         var msg = new HttpRequestMessage()
@@ -71,7 +85,7 @@ public class Benchmarks
         return MinimalClient.SendAsync(msg);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public Task FastEndpointsThrottling()
     {
         var msg = new HttpRequestMessage()
@@ -85,7 +99,7 @@ public class Benchmarks
         return FEThrottleClient.SendAsync(msg);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public Task AspNetCoreMVC()
     {
         var msg = new HttpRequestMessage()

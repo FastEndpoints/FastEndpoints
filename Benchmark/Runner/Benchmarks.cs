@@ -46,20 +46,20 @@ public class Benchmarks
         return FastEndpointClient.SendAsync(msg);
     }
 
-    //[Benchmark]
-    public Task FastEndpointsScopedValidator()
+    [Benchmark]
+    public Task MinimalApi()
     {
         var msg = new HttpRequestMessage()
         {
             Method = HttpMethod.Post,
-            RequestUri = new Uri($"{FEScopedValidatorClient.BaseAddress}benchmark/scoped-validator/123"),
+            RequestUri = new Uri($"{MinimalClient.BaseAddress}benchmark/ok/123"),
             Content = Payload
         };
 
-        return FEScopedValidatorClient.SendAsync(msg);
+        return MinimalClient.SendAsync(msg);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public Task FastEndpointsCodeGen()
     {
         var msg = new HttpRequestMessage()
@@ -73,16 +73,29 @@ public class Benchmarks
     }
 
     [Benchmark]
-    public Task MinimalApi()
+    public Task FastEndpointsScopedValidator()
     {
         var msg = new HttpRequestMessage()
         {
             Method = HttpMethod.Post,
-            RequestUri = new Uri($"{MinimalClient.BaseAddress}benchmark/ok/123"),
+            RequestUri = new Uri($"{FEScopedValidatorClient.BaseAddress}benchmark/scoped-validator/123"),
             Content = Payload
         };
 
-        return MinimalClient.SendAsync(msg);
+        return FEScopedValidatorClient.SendAsync(msg);
+    }
+
+    [Benchmark]
+    public Task AspNetCoreMVC()
+    {
+        var msg = new HttpRequestMessage()
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new Uri($"{MvcClient.BaseAddress}benchmark/ok/123"),
+            Content = Payload
+        };
+
+        return MvcClient.SendAsync(msg);
     }
 
     //[Benchmark]
@@ -97,19 +110,6 @@ public class Benchmarks
         msg.Headers.Add("X-Forwarded-For", $"000.000.000.{Random.Shared.NextInt64(100, 200)}");
 
         return FEThrottleClient.SendAsync(msg);
-    }
-
-    //[Benchmark]
-    public Task AspNetCoreMVC()
-    {
-        var msg = new HttpRequestMessage()
-        {
-            Method = HttpMethod.Post,
-            RequestUri = new Uri($"{MvcClient.BaseAddress}benchmark/ok/123"),
-            Content = Payload
-        };
-
-        return MvcClient.SendAsync(msg);
     }
 
     //[Benchmark]

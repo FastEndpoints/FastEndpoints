@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <NoWarn>RCS1163;IDE0060</NoWarn>
+        <TieredPGO>true</TieredPGO>        
     </PropertyGroup>
 
     <ItemGroup>

@@ -46,7 +46,7 @@ public class Benchmarks
         return FastEndpointClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task FastEndpointsScopedValidator()
     {
         var msg = new HttpRequestMessage()
@@ -59,7 +59,7 @@ public class Benchmarks
         return FEScopedValidatorClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task FastEndpointsCodeGen()
     {
         var msg = new HttpRequestMessage()
@@ -85,7 +85,7 @@ public class Benchmarks
         return MinimalClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task FastEndpointsThrottling()
     {
         var msg = new HttpRequestMessage()
@@ -99,7 +99,7 @@ public class Benchmarks
         return FEThrottleClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task AspNetCoreMVC()
     {
         var msg = new HttpRequestMessage()

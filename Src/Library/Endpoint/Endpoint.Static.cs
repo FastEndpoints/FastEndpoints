@@ -42,6 +42,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     {
         return responseDto is null
                ? ctx.Response.SendNoContentAsync(cancellation)
-               : ctx.Response.SendAsync(responseDto, 200, jsonSerializerContext, cancellation);
+               : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
     }
 }

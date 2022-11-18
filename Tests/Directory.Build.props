@@ -1,4 +1,3 @@
-<!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/customize-your-build -->
 <Project>
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
@@ -10,12 +9,10 @@
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions.Web" Version="1.2.4" />
-        <PackageReference Include="FluentResults.Extensions.FluentAssertions" Version="2.1.0" />
         <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
-        <PackageReference Include="Microsoft.VisualStudio.TestPlatform" Version="14.0.0" />
-        <PackageReference Include="NSubstitute" Version="4.4.0" />               
+        <PackageReference Include="Microsoft.VisualStudio.TestPlatform" Version="14.0.0" />             
         <PackageReference Include="xunit" Version="2.4.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
             <PrivateAssets>all</PrivateAssets>
@@ -30,8 +27,6 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>        
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup Label="Implicit usings">

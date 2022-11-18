@@ -22,6 +22,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Library\FastEndpoints.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" />
     </ItemGroup>
 

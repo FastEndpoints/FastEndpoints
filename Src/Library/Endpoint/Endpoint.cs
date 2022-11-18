@@ -189,6 +189,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
         return default;// not required and retrieval failed
     }
+
+    /// <summary>
+    /// create the access/refresh token pair response with a given refresh-token service.
+    /// </summary>
+    /// <typeparam name="TService"></typeparam>
+    /// <param name="userId">the id of the user for which the tokens will be generated for</param>
+    /// <param name="userPriviledges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
+    protected virtual Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPriviledges> userPriviledges) where TService : IRefreshTokenService<TResponse>
+    {
+        return ((IRefreshTokenService<TResponse>)FastEndpoints.Config.ServiceResolver.CreateInstance(
+            typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPriviledges);
+    }
 }
 
 /// <summary>

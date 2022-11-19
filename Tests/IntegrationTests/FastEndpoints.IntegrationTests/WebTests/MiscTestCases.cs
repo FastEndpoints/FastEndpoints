@@ -651,17 +651,18 @@ public class MiscTestCases : EndToEndTestBase
         var event2 = new NewItemAddedToStock { ID = 2, Name = "two", Quantity = 20 };
         var event3 = new NewItemAddedToStock { ID = 3, Name = "three", Quantity = 30 };
 
-        await new Event<NewItemAddedToStock>().PublishAsync(event3, Mode.WaitForAll);
-        await new Event<NewItemAddedToStock>().PublishAsync(event2, Mode.WaitForAny);
         await new Event<NewItemAddedToStock>().PublishAsync(event1, Mode.WaitForNone);
+        await new Event<NewItemAddedToStock>().PublishAsync(event2, Mode.WaitForAny);
+        await new Event<NewItemAddedToStock>().PublishAsync(event3, Mode.WaitForAll);
+
+        event3.ID.Should().Be(0);
+        event3.Name.Should().Be("pass");
+
+        event2.ID.Should().Be(0);
+        event2.Name.Should().Be("pass");
 
         event1.ID.Should().Be(0);
-        event2.ID.Should().Be(0);
-        event3.ID.Should().Be(0);
-
         event1.Name.Should().Be("pass");
-        event2.Name.Should().Be("pass");
-        event3.Name.Should().Be("pass");
     }
 
     [Fact]

@@ -24,11 +24,11 @@ public class EventBusTests
         await new Event<NewItemAddedToStock>(handlers).PublishAsync(event1, Mode.WaitForNone);
         await new Event<NewItemAddedToStock>(handlers).PublishAsync(event2, Mode.WaitForAny);
 
-        event1.ID.Should().Be(0);
         event2.ID.Should().Be(0);
-
-        event1.Name.Should().Be("pass");
         event2.Name.Should().Be("pass");
+
+        event1.ID.Should().Be(0);
+        event1.Name.Should().Be("pass");
     }
 
     [Fact]

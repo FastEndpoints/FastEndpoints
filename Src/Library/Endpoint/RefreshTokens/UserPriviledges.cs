@@ -5,7 +5,7 @@ namespace FastEndpoints;
 /// <summary>
 /// the priviledges of the user which will be embedded in the jwt
 /// </summary>
-public class UserPriviledges
+public class UserPrivileges
 {
     /// <summary>
     /// claims of the user

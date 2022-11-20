@@ -71,7 +71,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
 
         Response = await ((IRefreshTokenService<TResponse>)this).CreateToken(
             r.UserId,
-            async p => await UserPriviledgesForRenewalAsync(r, ref p));
+            async p => await UserPrivilegesForRenewalAsync(r, ref p));
     }
 
     /// <summary>
@@ -90,21 +90,21 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     public abstract Task<bool> TokenIsValidAsync(TRequest request);
 
     /// <summary>
-    /// specify the user priviledges to be embeded in the jwt when a refresh request is received and verification has passed in the <see cref="TokenIsValidAsync(TRequest)"/> method.
+    /// specify the user privileges to be embeded in the jwt when a refresh request is received and verification has passed in the <see cref="TokenIsValidAsync(TRequest)"/> method.
     /// this only applies to renewal/refresh requests received to this endpoint and not the initial jwt creation.
     /// </summary>
     /// <param name="request">the request dto received from the client</param>
-    /// <param name="priviledges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
-    public abstract Task UserPriviledgesForRenewalAsync(TRequest request, ref UserPriviledges priviledges);
+    /// <param name="privileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
+    public abstract Task UserPrivilegesForRenewalAsync(TRequest request, ref UserPrivileges privileges);
 
     [HideFromDocs]
-    async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPriviledges> userPriviledges)
+    async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPrivileges> userPrivileges)
     {
         if (TokenSigningKey is null)
             throw new ArgumentNullException($"{nameof(TokenSigningKey)} must be specified for [{Definition.EndpointType.FullName}]");
 
-        var privs = new UserPriviledges();
-        userPriviledges(privs);
+        var privs = new UserPrivileges();
+        userPrivileges(privs);
 
         var accessExpiry = DateTime.UtcNow.Add(AccessTokenValidity);
         var refreshExpiry = DateTime.UtcNow.Add(RefreshTokenValidity);
@@ -132,7 +132,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
 
 #pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
     [Obsolete("This method is not supported in this class!", true), HideFromDocs]
-    protected sealed override Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPriviledges> userPriviledges)
+    protected sealed override Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPriviledges)
         => throw new NotSupportedException();
 #pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
 }

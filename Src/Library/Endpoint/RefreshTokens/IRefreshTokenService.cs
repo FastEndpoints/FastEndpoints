@@ -3,5 +3,5 @@
 [HideFromDocs]
 public interface IRefreshTokenService<TResponse>
 {
-    internal Task<TResponse> CreateToken(string userId, Action<UserPriviledges> userPriviledges);
+    internal Task<TResponse> CreateToken(string userId, Action<UserPrivileges> userPriviledges);
 }

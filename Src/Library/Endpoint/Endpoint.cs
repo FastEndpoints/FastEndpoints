@@ -195,11 +195,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// </summary>
     /// <typeparam name="TService"></typeparam>
     /// <param name="userId">the id of the user for which the tokens will be generated for</param>
-    /// <param name="userPriviledges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
-    protected virtual Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPriviledges> userPriviledges) where TService : IRefreshTokenService<TResponse>
+    /// <param name="userPrivileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
+    protected virtual Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges) where TService : IRefreshTokenService<TResponse>
     {
         return ((IRefreshTokenService<TResponse>)FastEndpoints.Config.ServiceResolver.CreateInstance(
-            typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPriviledges);
+            typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges);
     }
 }
 

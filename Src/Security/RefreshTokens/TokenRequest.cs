@@ -1,7 +1,7 @@
 ﻿namespace FastEndpoints.Security;
 
 /// <summary>
-/// base dto for refresh token renewal requests
+/// base dto for access/refresh token renewal requests
 /// </summary>
 public class TokenRequest
 {

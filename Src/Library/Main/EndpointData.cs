@@ -22,10 +22,6 @@ internal sealed class EndpointData
                    ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
                    : endpoints;
         });
-
-        //need this here to cause the lazy factory to run now.
-        //because the endpoints are being added to DI container within the factory
-        _ = _endpoints.Value;
     }
 
     private static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options)

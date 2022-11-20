@@ -24,5 +24,6 @@ public interface IEndpoint
 
     internal static void SetTestURL(Type endpointType, string url) => TestURLCache[endpointType] = url;
 
+    //don't change to internal. this is unofficially exposed to public.
     public static string TestURLFor<TEndpoint>() => TestURLCache[typeof(TEndpoint)];
 }

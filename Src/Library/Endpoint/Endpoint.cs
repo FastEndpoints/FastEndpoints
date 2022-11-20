@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 
 namespace FastEndpoints;
 
@@ -42,13 +46,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
         try
         {
-            var binder = (IRequestBinder<TRequest>)
-                 (Definition.RequestBinder ??= FastEndpoints.Config.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
-
-            var binderCtx = new BinderContext(HttpContext, ValidationFailures, Definition.SerializerContext, Definition.DontBindFormData);
-            req = await binder.BindAsync(binderCtx, ct);
-
-            FastEndpoints.Config.BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
+            req = await BindRequest<TRequest>(tRequest, ct);
 
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req, ct);
@@ -126,10 +124,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     ///<inheritdoc/>
     public IServiceScope CreateScope() => FastEndpoints.Config.ServiceResolver.CreateScope();
 
-    ///<inheritdoc/>
-    public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : notnull
-        => FastEndpoints.Config.ServiceResolver.Resolve<Event<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
-
     /// <summary>
     /// get the value of a given route parameter by specifying the resulting type and param name.
     /// NOTE: an automatic validation error is sent to the client when value retrieval is not successful.
@@ -191,12 +185,33 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     }
 
     /// <summary>
+    /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk as done with IFormFile
+    /// </summary>
+    /// <param name="cancellation">optional cancellation token</param>
+    public async IAsyncEnumerable<FileMultipartSection?> FormFileSectionsAsync([EnumeratorCancellation] CancellationToken cancellation = default)
+    {
+        var reader = new MultipartReader(HttpContext.Request.GetMultipartBoundary(), HttpContext.Request.Body);
+
+        MultipartSection? section;
+
+        while ((section = await reader.ReadNextSectionAsync(cancellation)) is not null)
+        {
+            if (section.GetContentDispositionHeader()?.IsFileDisposition() is true)
+                yield return section.AsFileSection();
+        }
+    }
+
+    ///<inheritdoc/>
+    public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : notnull
+        => FastEndpoints.Config.ServiceResolver.Resolve<Event<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
+
+    /// <summary>
     /// create the access/refresh token pair response with a given refresh-token service.
     /// </summary>
     /// <typeparam name="TService"></typeparam>
     /// <param name="userId">the id of the user for which the tokens will be generated for</param>
     /// <param name="userPrivileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
-    protected virtual Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges) where TService : IRefreshTokenService<TResponse>
+    protected Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges) where TService : IRefreshTokenService<TResponse>
     {
         return ((IRefreshTokenService<TResponse>)FastEndpoints.Config.ServiceResolver.CreateInstance(
             typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges);

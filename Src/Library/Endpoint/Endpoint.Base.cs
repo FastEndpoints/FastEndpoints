@@ -1,10 +1,5 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 
 namespace FastEndpoints;
 
@@ -14,7 +9,6 @@ namespace FastEndpoints;
 public abstract class BaseEndpoint : IEndpoint
 {
     private List<ValidationFailure> _failures;
-    private IConfiguration? _config;
 
     internal abstract Task ExecAsync(CancellationToken ct);
 
@@ -23,15 +17,6 @@ public abstract class BaseEndpoint : IEndpoint
     /// </summary>
     [DontInject]
     public EndpointDefinition Definition { get; internal set; }
-
-    /// <summary>
-    /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <c>.AddFastEndpoints(config: builder.Configuration)</c>
-    /// </summary>
-    [DontInject]
-    public IConfiguration Config {
-        get => _config ??= FastEndpoints.Config.ServiceResolver.Resolve<IConfiguration>();
-        internal set => _config = value;
-    }
 
     /// <summary>
     /// the http context of the current request
@@ -53,22 +38,18 @@ public abstract class BaseEndpoint : IEndpoint
 
     public virtual void Verbs(params string[] methods) => throw new NotImplementedException();
 
-    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
-
-    /// <summary>
-    /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk as done with IFormFile
-    /// </summary>
-    /// <param name="cancellation">optional cancellation token</param>
-    public async IAsyncEnumerable<FileMultipartSection?> FormFileSectionsAsync([EnumeratorCancellation] CancellationToken cancellation = default)
+    protected internal async ValueTask<TRequest> BindRequest<TRequest>(Type tRequest, CancellationToken ct) where TRequest : notnull, new()
     {
-        var reader = new MultipartReader(HttpContext.Request.GetMultipartBoundary(), HttpContext.Request.Body);
+        var binder = (IRequestBinder<TRequest>)
+            (Definition.RequestBinder ??= Config.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
 
-        MultipartSection? section;
+        var binderCtx = new BinderContext(HttpContext, ValidationFailures, Definition.SerializerContext, Definition.DontBindFormData);
+        var req = await binder.BindAsync(binderCtx, ct);
 
-        while ((section = await reader.ReadNextSectionAsync(cancellation)) is not null)
-        {
-            if (section.GetContentDispositionHeader()?.IsFileDisposition() is true)
-                yield return section.AsFileSection();
-        }
+        Config.BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
+        return req;
     }
+
+    //this is here just so the derived endpoint class can seal it.
+    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
 }

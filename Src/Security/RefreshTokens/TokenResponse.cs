@@ -3,7 +3,7 @@
 namespace FastEndpoints.Security;
 
 /// <summary>
-/// 
+/// base dto for access/refresh token responses
 /// </summary>
 public class TokenResponse : TokenRequest
 {

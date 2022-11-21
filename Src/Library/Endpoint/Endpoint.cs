@@ -46,7 +46,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
         try
         {
-            req = await BindRequest<TRequest>(tRequest, ct);
+            req = await BindRequestAsync(
+                Definition,
+                HttpContext,
+                ValidationFailures,
+                ct);
 
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req, ct);

@@ -12,21 +12,15 @@ public abstract class BaseEndpoint : IEndpoint
 
     internal abstract Task ExecAsync(CancellationToken ct);
 
-    /// <summary>
-    /// gets the endpoint definition which contains all the configuration info for the endpoint
-    /// </summary>
+    ///<inheritdoc/>
     [DontInject]
     public EndpointDefinition Definition { get; internal set; }
 
-    /// <summary>
-    /// the http context of the current request
-    /// </summary>
+    ///<inheritdoc/>
     [DontInject]
     public HttpContext HttpContext { get; internal set; }
 
-    /// <summary>
-    /// the list of validation failures for the current request dto
-    /// </summary>
+    ///<inheritdoc/>
     public List<ValidationFailure> ValidationFailures => _failures ??= new();
 
     /// <summary>
@@ -37,18 +31,6 @@ public abstract class BaseEndpoint : IEndpoint
     public virtual void Configure() => throw new NotImplementedException();
 
     public virtual void Verbs(params string[] methods) => throw new NotImplementedException();
-
-    protected internal async ValueTask<TRequest> BindRequest<TRequest>(Type tRequest, CancellationToken ct) where TRequest : notnull, new()
-    {
-        var binder = (IRequestBinder<TRequest>)
-            (Definition.RequestBinder ??= Config.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
-
-        var binderCtx = new BinderContext(HttpContext, ValidationFailures, Definition.SerializerContext, Definition.DontBindFormData);
-        var req = await binder.BindAsync(binderCtx, ct);
-
-        Config.BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
-        return req;
-    }
 
     //this is here just so the derived endpoint class can seal it.
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();

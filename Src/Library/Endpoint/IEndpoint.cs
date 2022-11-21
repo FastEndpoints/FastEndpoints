@@ -19,6 +19,11 @@ public interface IEndpoint
     /// </summary>
     List<ValidationFailure> ValidationFailures { get; } //also for extensibility
 
+    /// <summary>
+    /// gets the endpoint definition which contains all the configuration info for the endpoint
+    /// </summary>
+    EndpointDefinition Definition { get; } //also for extensibility
+
     //key: the type of the endpoint
     private static ConcurrentDictionary<Type, string> TestURLCache { get; } = new();
 

@@ -109,7 +109,7 @@ internal static class QueryObjectBindingExtension
                               {
                                   if (queryString.TryGetValue(route, out var values))
                                       foreach (var value in values)
-                                  parent.Add(value);
+                                          parent.Add(value);
                               })
                             : tProp.QueryArraySetter() is null
                                ? null

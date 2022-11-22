@@ -14,6 +14,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <summary>
     /// WARNING: do not call this method!
     /// </summary>
+    [HideFromDocs]
     public sealed override void Configure()
     {
         if (opts is null)
@@ -25,6 +26,10 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         AllowAnonymous();
     }
 
+    /// <summary>
+    /// WARNING: do not call this method!
+    /// </summary>
+    [HideFromDocs]
     public async sealed override Task HandleAsync(TRequest req, CancellationToken ct)
     {
         await RefreshRequestValidationAsync(req);

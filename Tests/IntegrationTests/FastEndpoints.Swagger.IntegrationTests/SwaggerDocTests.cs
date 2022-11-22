@@ -10,7 +10,7 @@ namespace FastEndpoints.Swagger.IntegrationTests;
 
 public class SwaggerDocTests : EndToEndTestBase
 {
-    private IServiceProvider serviceProvider;
+    private readonly IServiceProvider serviceProvider;
 
     public SwaggerDocTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
     {

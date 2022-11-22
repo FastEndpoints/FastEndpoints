@@ -333,6 +333,59 @@
         }
       }
     },
+    "/api/tokens/login": {
+      "get": {
+        "tags": [
+          "Tokens"
+        ],
+        "operationId": "TestCasesRefreshTokensTestLoginEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsSecurityTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tokens/refresh-token": {
+      "post": {
+        "tags": [
+          "Tokens"
+        ],
+        "operationId": "TestCasesRefreshTokensTestTokenService",
+        "requestBody": {
+          "x-name": "TokenRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FastEndpointsSecurityTokenRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsSecurityTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/global-throttle-error-response": {
       "get": {
         "tags": [
@@ -2581,6 +2634,39 @@
             "description": "optional other id",
             "format": "int32",
             "nullable": true
+          }
+        }
+      },
+      "FastEndpointsSecurityTokenResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FastEndpointsSecurityTokenRequest"
+          },
+          {
+            "type": "object",
+            "description": "base dto for access/refresh token responses",
+            "additionalProperties": false,
+            "properties": {
+              "AccessToken": {
+                "type": "string",
+                "description": "the jwt access token which will be valid for the duration specified by AccessExpiry"
+              }
+            }
+          }
+        ]
+      },
+      "FastEndpointsSecurityTokenRequest": {
+        "type": "object",
+        "description": "base dto for access/refresh token renewal requests",
+        "additionalProperties": false,
+        "properties": {
+          "UserId": {
+            "type": "string",
+            "description": "unique identifier of a user"
+          },
+          "RefreshToken": {
+            "type": "string",
+            "description": "a single-use refresh token which will be valid for the duration specified by RefreshExpiry"
           }
         }
       },

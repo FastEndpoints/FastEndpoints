@@ -3,3 +3,4 @@
 
 ### IMPROVEMENTS
 - tighten up even handling to support long-running processes
+- upgrade fluentvalidations pkg to latest

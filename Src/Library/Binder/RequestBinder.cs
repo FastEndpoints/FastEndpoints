@@ -84,6 +84,43 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
+    private readonly bool bindJsonBody;
+    private readonly bool bindFormFields;
+    private readonly bool bindRouteValues;
+    private readonly bool bindQueryParams;
+    private readonly bool bindUserClaims;
+    private readonly bool bindHeaders;
+    private readonly bool bindPermissions;
+
+    /// <summary>
+    /// default constructor which enables all binding sources
+    /// </summary>
+    public RequestBinder()
+    {
+        bindJsonBody = true;
+        bindFormFields = true;
+        bindRouteValues = true;
+        bindQueryParams = true;
+        bindUserClaims = true;
+        bindHeaders = true;
+        bindPermissions = true;
+    }
+
+    /// <summary>
+    /// constructor accepting a bitwise combination of enums which enables only the specified binding sources
+    /// </summary>
+    /// <param name="enabledSources">a bitwise combination of enum values</param>
+    public RequestBinder(BindingSource enabledSources)
+    {
+        bindJsonBody = enabledSources.HasFlag(BindingSource.JsonBody);
+        bindFormFields = enabledSources.HasFlag(BindingSource.FormFields);
+        bindRouteValues = enabledSources.HasFlag(BindingSource.RouteValues);
+        bindQueryParams = enabledSources.HasFlag(BindingSource.QueryParams);
+        bindUserClaims = enabledSources.HasFlag(BindingSource.UserClaims);
+        bindHeaders = enabledSources.HasFlag(BindingSource.Headers);
+        bindPermissions = enabledSources.HasFlag(BindingSource.Permissions);
+    }
+
     /// <summary>
     /// override this method to customize the request binding logic
     /// </summary>
@@ -95,18 +132,18 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (skipModelBinding)
             return new TRequest();
 
-        var req = !isPlainTextRequest && ctx.HttpContext.Request.HasJsonContentType()
+        var req = !isPlainTextRequest && bindJsonBody && ctx.HttpContext.Request.HasJsonContentType()
                    ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
                    : isPlainTextRequest
                      ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
                      : new TRequest();
 
-        BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
-        BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
-        BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures, ctx.JsonSerializerContext);
-        BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
-        BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
-        BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+        if (bindFormFields) BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
+        if (bindRouteValues) BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
+        if (bindQueryParams) BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures, ctx.JsonSerializerContext);
+        if (bindUserClaims) BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+        if (bindHeaders) BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
+        if (bindPermissions) BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
 
         return ctx.ValidationFailures.Count == 0
                 ? req

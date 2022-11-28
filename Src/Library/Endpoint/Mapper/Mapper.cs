@@ -20,7 +20,7 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IMapper, IServiceRe
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto to map from</param>
-    public virtual Task<TEntity> ToEntityAsync(TRequest r) => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
+    public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
 
     /// <summary>
     /// override this method and place the logic for mapping a domain entity to a response dto
@@ -31,7 +31,7 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IMapper, IServiceRe
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
-    public virtual Task<TResponse> FromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
+    public virtual Task<TResponse> FromEntityAsync(TEntity e, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
 
     /// <summary>
     /// override this method and place the logic for mapping the updated request dto to the desired domain entity
@@ -69,7 +69,7 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServic
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto to map from</param>
-    public virtual Task<TEntity> ToEntityAsync(TRequest r) => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
+    public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
 
     ///<inheritdoc/>
     public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
@@ -100,7 +100,7 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper, ISer
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
-    public virtual Task<TResponse> FromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
+    public virtual Task<TResponse> FromEntityAsync(TEntity e, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
 
     ///<inheritdoc/>
     public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();

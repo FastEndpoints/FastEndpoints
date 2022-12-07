@@ -33,7 +33,7 @@ public static class MainExtensions
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
         Endpoints ??= new(opts); //prevent duplicate runs
-        services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
+        services.AddAuthorization(async o => await BuildSecurityPoliciesForEndpoints(o)); //this method doesn't block
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
@@ -263,10 +263,15 @@ public static class MainExtensions
         }).ToArray();
     }
 
-    private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
+    private static async Task BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
         foreach (var ep in Endpoints.Found)
         {
+            while (!ep.IsInitiazlied) //this usually won't happen unless somehow this method is executed before MapFastEndpoints()
+            {
+                await Task.Delay(100);
+            }
+
             if (ep.AllowedRoles is null && ep.AllowedPermissions is null && ep.AllowedClaimTypes is null && ep.AuthSchemeNames is null)
                 continue;
 

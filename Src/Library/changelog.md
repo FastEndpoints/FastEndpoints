@@ -6,3 +6,4 @@
 ### IMPROVEMENTS
 - tighten up even handling to support long-running processes
 - upgrade fluentvalidations pkg to latest
+- add safeguard against security policiy builder execution order change

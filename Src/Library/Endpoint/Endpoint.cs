@@ -345,7 +345,8 @@ public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoi
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto to map from</param>
-    public virtual Task<TEntity> MapToEntityAsync(TRequest r) => throw new NotImplementedException($"Please override the {nameof(MapToEntityAsync)} method!");
+    /// <param name="ct">a cancellation token</param>
+    public virtual Task<TEntity> MapToEntityAsync(TRequest r, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(MapToEntityAsync)} method!");
 
     /// <summary>
     /// override this method and place the logic for mapping a domain entity to a response dto
@@ -356,5 +357,6 @@ public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoi
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
-    public virtual Task<TResponse> MapFromEntityAsync(TEntity e) => throw new NotImplementedException($"Please override the {nameof(MapFromEntityAsync)} method!");
+    /// <param name="ct">a cancellation token</param>
+    public virtual Task<TResponse> MapFromEntityAsync(TEntity e, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(MapFromEntityAsync)} method!");
 }

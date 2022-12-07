@@ -267,7 +267,7 @@ public static class MainExtensions
     {
         foreach (var ep in Endpoints.Found)
         {
-            while (!ep.IsInitiazlied) //this usually won't happen unless somehow this method is executed before MapFastEndpoints()
+            while (!ep.IsInitialized) //this usually won't happen unless somehow this method is executed before MapFastEndpoints()
             {
                 await Task.Delay(100);
             }

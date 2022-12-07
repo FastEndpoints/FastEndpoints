@@ -47,7 +47,7 @@ public sealed class EndpointDefinition
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal bool ImplementsConfigure;
-    internal bool IsInitiazlied;
+    internal bool IsInitialized;
     internal object? RequestBinder;
     internal List<object> PreProcessorList = new();
     internal List<object> PostProcessorList = new();

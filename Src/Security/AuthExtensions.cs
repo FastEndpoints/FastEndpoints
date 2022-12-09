@@ -53,6 +53,8 @@ public static class AuthExtensions
                 ValidAudience = audience,
                 ValidateIssuer = issuer is not null,
                 ValidIssuer = issuer,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromSeconds(60),
                 IssuerSigningKey = key,
             };
 

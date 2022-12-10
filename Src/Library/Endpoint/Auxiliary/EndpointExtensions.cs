@@ -9,7 +9,7 @@ namespace FastEndpoints;
 
 internal static class EndpointExtensions
 {
-    internal static string ActualName(this Type type)
+    internal static string ActualTypeName(this Type type)
         => (Nullable.GetUnderlyingType(type) ?? type).Name;
 
     internal static void Initialize(this EndpointDefinition def, BaseEndpoint instance, HttpContext? ctx)

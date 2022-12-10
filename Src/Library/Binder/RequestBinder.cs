@@ -315,7 +315,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (res.IsSuccess)
                 prop.PropSetter(req, res.Value);
             else
-                failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.ActualName()}] property!"));
+                failures.Add(new(kvp.Key, BndOpts.FailureMessage(prop.PropType, kvp.Key, kvp.Value)));
         }
     }
 

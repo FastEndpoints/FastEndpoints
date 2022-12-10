@@ -1,4 +1,6 @@
 ﻿#pragma warning disable CA1822
+using Microsoft.Extensions.Primitives;
+
 namespace FastEndpoints;
 
 /// <summary>
@@ -6,6 +8,17 @@ namespace FastEndpoints;
 /// </summary>
 public class BindingOptions
 {
+    /// <summary>
+    /// a function used to construct the failure message when a supplied value cannot be succesfully bound to a dto property during model binding.
+    /// the following arguments are supplied to the function.
+    /// <para><see cref="Type"/>: the type of the property which failed to bind</para>
+    /// <para><see cref="string"/>: the name of the property which failed to bind</para>
+    /// <para><see cref="StringValues"/>: the value that was attempted which resulted in the failure</para>
+    /// use these input parameters and construct your own error message string and return it from the function.
+    /// </summary>
+    public Func<Type, string, StringValues, string> FailureMessage { internal get; set; } = (tProp, propName, attemptedValue)
+        => $"Value [{attemptedValue}] is not valid for a [{tProp.ActualTypeName()}] property!";
+
     /// <summary>
     /// an optional action to be run after the endpoint level request binding has occured.
     /// it is intended as a way to perform common model binding logic that applies to all endpoints/requests.

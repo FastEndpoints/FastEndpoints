@@ -58,7 +58,7 @@ public static class AuthExtensions
             tokenValidation?.Invoke(o.TokenValidationParameters);
             o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
             o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
-            bearerEvents?.Invoke(o.Events);
+            bearerEvents?.Invoke(o.Events ??= new());
         });
 
         return services;

@@ -17,16 +17,14 @@ public static class AuthExtensions
     /// configure and enable jwt bearer authentication
     /// </summary>
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
-    /// <param name="issuer">validates issuer if set</param>
-    /// <param name="audience">validates audience if set</param>
     /// <param name="tokenSigningStyle">specify the token signing style</param>
-    /// <param name="tokenValidationConfiguration">configuration action to specify additional token validation parameters</param>
-    public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services,
-                                                                string tokenSigningKey,
-                                                                string? issuer = null,
-                                                                string? audience = null,
-                                                                TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric,
-                                                                Action<TokenValidationParameters>? tokenValidationConfiguration = null)
+    /// <param name="tokenValidation">configuration action to specify additional token validation parameters</param>
+    /// <param name="bearerEvents">configuration action to specify custom jwt bearer events</param>
+    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
+                                                      string tokenSigningKey,
+                                                      TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric,
+                                                      Action<TokenValidationParameters>? tokenValidation = null,
+                                                      Action<JwtBearerEvents>? bearerEvents = null)
     {
         services.AddAuthentication(o =>
         {
@@ -48,38 +46,22 @@ public static class AuthExtensions
             }
             o.TokenValidationParameters = new TokenValidationParameters
             {
+                IssuerSigningKey = key,
                 ValidateIssuerSigningKey = true,
-                ValidateAudience = audience is not null,
-                ValidAudience = audience,
-                ValidateIssuer = issuer is not null,
-                ValidIssuer = issuer,
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.FromSeconds(60),
-                IssuerSigningKey = key,
+                ValidAudience = null,
+                ValidateAudience = false,
+                ValidIssuer = null,
+                ValidateIssuer = false
             };
-
-            tokenValidationConfiguration?.Invoke(o.TokenValidationParameters);
+            tokenValidation?.Invoke(o.TokenValidationParameters);
+            o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
+            o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
+            bearerEvents?.Invoke(o.Events);
         });
 
         return services;
-    }
-
-    /// <summary>
-    /// configure and enable jwt bearer authentication
-    /// </summary>
-    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
-    /// <param name="tokenValidationConfiguration">configuration action to specify additional token validation parameters</param>
-    public static IServiceCollection AddAuthenticationJWTBearer(this IServiceCollection services,
-                                                                string tokenSigningKey,
-                                                                Action<TokenValidationParameters> tokenValidationConfiguration)
-    {
-        return AddAuthenticationJWTBearer(
-            services,
-            tokenSigningKey,
-            null,
-            null,
-            TokenSigningStyle.Symmetric,
-            tokenValidationConfiguration);
     }
 
     /// <summary>

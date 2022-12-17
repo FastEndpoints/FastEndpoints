@@ -312,11 +312,14 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             var res = prop.ValueParser(kvp.Value);
 
-            if (res.IsSuccess)
+            if (res.IsSuccess || IsNullablePropAndInputIsEmptyString(kvp, prop))
                 prop.PropSetter(req, res.Value);
             else
                 failures.Add(new(kvp.Key, BndOpts.FailureMessage(prop.PropType, kvp.Key, kvp.Value)));
         }
+
+        static bool IsNullablePropAndInputIsEmptyString(KeyValuePair<string, StringValues> kvp, PrimaryPropCacheEntry prop)
+            => kvp.Value[0]?.Length == 0 && Nullable.GetUnderlyingType(prop.PropType) != null;
     }
 
     private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)

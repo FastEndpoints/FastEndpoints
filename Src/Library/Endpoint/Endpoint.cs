@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace FastEndpoints;
 
@@ -94,6 +95,21 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 await SendErrorsAsync(FastEndpoints.Config.ErrOpts.StatusCode, ct);
             else
                 throw;
+        }
+        catch (JsonException x)
+        {
+            OnValidationFailed();
+            await OnValidationFailedAsync(ct);
+
+            if (!Definition.DoNotCatchExceptions)
+            {
+                ValidationFailures.Add(new(x.Path?[2..] ?? "Unknown", x.InnerException?.Message ?? "Unknown de-serialization error!"));
+                await SendErrorsAsync(FastEndpoints.Config.ErrOpts.StatusCode, ct);
+            }
+            else
+            {
+                throw;
+            }
         }
         finally
         {

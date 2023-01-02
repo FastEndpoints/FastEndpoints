@@ -1,5 +1,5 @@
 ### CHANGES
-- `AddAuthenticationJWTBearer()` has been renamed to `AddJWTBearerAuth()` and signature changed
+- `AddAuthenticationJWTBearer()` has been renamed to `AddJWTBearerAuth()` and signature changed [#info](https://fast-endpoints.com/docs/security#jwt-bearer-authentication)
 
 ### NEW
 - customize dto property binding failure message #356

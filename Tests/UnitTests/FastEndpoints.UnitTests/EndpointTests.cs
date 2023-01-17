@@ -67,12 +67,6 @@ public class EndpointTests
 
     public class SendShouldCallResponseInterceptor : Endpoint<Request, Response>
     {
-
-        public SendShouldCallResponseInterceptor()
-        {
-            ResponseInterceptor(new ResponseInterceptor());
-        }
-
         [Fact]
         public async Task execute_test()
         {

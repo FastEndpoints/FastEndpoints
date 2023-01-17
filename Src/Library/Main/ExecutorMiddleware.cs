@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 
@@ -56,6 +57,24 @@ internal class ExecutorMiddleware
                     ctx.Response.StatusCode = 429;
                     return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!");
                 }
+            }
+
+            var contentTypeHdrIsPresent = false;
+            var epHasAcceptsMetas = false;
+            foreach (var m in endpoint.Metadata.OfType<IAcceptsMetadata>())
+            {
+                epHasAcceptsMetas = true;
+
+                for (var i = 0; !contentTypeHdrIsPresent && i < m.ContentTypes.Count; i++)
+                    contentTypeHdrIsPresent = ctx.Request.Headers.ContentType.Contains(m.ContentTypes[i]);
+
+                if (contentTypeHdrIsPresent)
+                    break;
+            }
+            if (epHasAcceptsMetas && !contentTypeHdrIsPresent)
+            {
+                ctx.Response.StatusCode = 415;
+                return ctx.Response.WriteAsync("Request doesn't have a valid [Content-Type] header!");
             }
 
             var epInstance = _epFactory.Create(epDef, ctx);

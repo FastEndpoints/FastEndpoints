@@ -59,22 +59,29 @@ internal class ExecutorMiddleware
                 }
             }
 
-            var contentTypeHdrIsPresent = false;
+            var contentTypeHdrCheckPassed = false;
             var epHasAcceptsMetas = false;
-            foreach (var m in endpoint.Metadata.OfType<IAcceptsMetadata>())
+            foreach (var epAccept in endpoint.Metadata.OfType<IAcceptsMetadata>())
             {
                 epHasAcceptsMetas = true;
 
-                for (var i = 0; !contentTypeHdrIsPresent && i < m.ContentTypes.Count; i++)
-                    contentTypeHdrIsPresent = ctx.Request.Headers.ContentType.Contains(m.ContentTypes[i]);
+                for (var x = 0; !contentTypeHdrCheckPassed && x < epAccept.ContentTypes.Count; x++)
+                {
+                    if (epAccept.ContentTypes[x] == "*/*")
+                    {
+                        contentTypeHdrCheckPassed = true;
+                        break;
+                    }
+                    contentTypeHdrCheckPassed = ctx.Request.Headers.ContentType.Any(v => v.Contains(epAccept.ContentTypes[x]));
+                }
 
-                if (contentTypeHdrIsPresent)
+                if (contentTypeHdrCheckPassed)
                     break;
             }
-            if (epHasAcceptsMetas && !contentTypeHdrIsPresent)
+            if (epHasAcceptsMetas && !contentTypeHdrCheckPassed)
             {
                 ctx.Response.StatusCode = 415;
-                return ctx.Response.WriteAsync("Request doesn't have a valid [Content-Type] header!");
+                return ctx.Response.StartAsync();
             }
 
             var epInstance = _epFactory.Create(epDef, ctx);

@@ -6,10 +6,11 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new()
 {
-    private static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    private static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def, HttpContext ctx,
+        List<ValidationFailure> failures, CancellationToken ct)
     {
         var binder = (IRequestBinder<TRequest>)
-                (def.RequestBinder ??= FastEndpoints.Config.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
+            (def.RequestBinder ??= FastEndpoints.Config.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
 
         var binderCtx = new BinderContext(ctx, failures, def.SerializerContext, def.DontBindFormData);
 
@@ -22,7 +23,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return req;
     }
 
-    private static async Task RunPostProcessors(List<object> postProcessors, TRequest req, TResponse resp, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPostProcessors(List<object> postProcessors, TRequest req, TResponse resp,
+        HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         for (var i = 0; i < postProcessors.Count; i++)
         {
@@ -38,7 +40,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static async Task RunPreprocessors(List<object> preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task RunPreprocessors(List<object> preProcessors, TRequest req, HttpContext ctx,
+        List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         for (var i = 0; i < preProcessors.Count; i++)
         {
@@ -54,10 +57,17 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static Task AutoSendResponse(HttpContext ctx, TResponse responseDto, JsonSerializerContext? jsonSerializerContext, CancellationToken cancellation)
+    private static async Task RunResponseInterceptor(IResponseInterceptor? interceptor, object resp, HttpContext ctx,
+        List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    {
+        if (interceptor is not null) await interceptor.InterceptResponseAsync(resp, ctx, validationFailures, cancellation);
+    }
+
+    private static Task AutoSendResponse(HttpContext ctx, TResponse responseDto,
+        JsonSerializerContext? jsonSerializerContext, CancellationToken cancellation)
     {
         return responseDto is null
-               ? ctx.Response.SendNoContentAsync(cancellation)
-               : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
+            ? ctx.Response.SendNoContentAsync(cancellation)
+            : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
     }
 }

@@ -40,6 +40,9 @@ public sealed class EndpointDefinition
     public string? OverriddenRoutePrefix { get; private set; }
     public List<string>? PreBuiltUserPolicies { get; private set; }
     public bool ThrowIfValidationFails { get; private set; } = true;
+    
+    public IResponseInterceptor? ResponseInterceptor { get; set; }
+
 
     //only accessible to internal code
     internal object[]? EpAttributes;
@@ -261,7 +264,8 @@ public sealed class EndpointDefinition
                 pos++;
             }
         }
-    }
+    }    
+    
 
     /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.

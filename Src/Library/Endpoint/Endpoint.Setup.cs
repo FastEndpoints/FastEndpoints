@@ -255,7 +255,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (!Definition.PostProcessorList.Contains(p, TypeEqualityComparer.Instance))
                 Definition.PostProcessorList.Add(p);
         }
-    }
+    }  
+    
+    /// <summary>
+    /// configure a response interceptor to be called before the SendAsync response is sent to the browser.
+    /// This will override any globally configured interceptor.  If you return a response to the browser, then
+    /// the rest of the SendAsync method will be skipped;
+    /// </summary>
+    /// <param name="responseInterceptor">the response interceptor to be executed</param>
+    protected void ResponseInterceptor(IResponseInterceptor responseInterceptor) => Definition.ResponseInterceptor = responseInterceptor;
+
 
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.

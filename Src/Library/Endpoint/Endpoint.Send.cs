@@ -17,6 +17,24 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// Sends an object serialized as JSON to the client, if a response interceptor has been defined,
+    /// then that will be executed before the normal HTTP Response is sent.
+    /// </summary>
+    /// <param name="response"></param>
+    /// <param name="statusCode"></param>
+    /// <param name="cancellation"></param>
+    protected async Task SendAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
+    {
+        await RunResponseInterceptor(Definition.ResponseInterceptor, response, HttpContext, ValidationFailures,
+            cancellation);
+
+        if(HttpContext.Response.HasStarted is false)
+        {
+            await HttpContext.Response.SendAsync(response, statusCode, Definition.SerializerContext, cancellation);
+        }
+    }
+
+    /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
     /// <para>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint, specify the 'routeNumber' argument.</para>
     /// <para>WARNING: this overload will not add a location header if you've set a custom endpoint name using .WithName() method. use the other overload that accepts a string endpoint name instead.</para>

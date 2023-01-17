@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace FastEndpoints.UnitTests;
@@ -64,6 +65,50 @@ public class EndpointTests
         }
     }
 
+    public class SendShouldCallResponseInterceptor : Endpoint<Request, Response>
+    {
+
+        public SendShouldCallResponseInterceptor()
+        {
+            ResponseInterceptor(new ResponseInterceptor());
+        }
+
+        [Fact]
+        public async Task execute_test()
+        {
+            HttpContext = new DefaultHttpContext();
+            Definition = new EndpointDefinition
+            {
+                ResponseInterceptor = new ResponseInterceptor()
+            };
+
+            await Assert.ThrowsAsync<ResponseInterceptor.InterceptedResponseException>(() => SendAsync(new {}, StatusCodes.Status200OK, default));
+            
+        }
+    }    
+    
+    public class SendShouldNotCallResponseInterceptorIfExpectedResponseObjectIsReturned : Endpoint<Request, Response>
+    {
+        
+        [Fact]
+        public async Task execute_test()
+        {
+            HttpContext = new DefaultHttpContext();
+            Definition = new EndpointDefinition
+            {
+                ResponseInterceptor = new ResponseInterceptor()
+            };
+
+            await SendAsync(new Response
+            {
+                Id = 1,
+                Age = 15,
+                Name = "Test"
+            }, StatusCodes.Status200OK, default);
+
+        }
+    }
+
     public class Response
     {
         public int Id { get; set; }
@@ -79,5 +124,15 @@ public class EndpointTests
         public string? LastName { get; set; }
         public int Age { get; set; }
         public IEnumerable<string>? PhoneNumbers { get; set; }
+    }
+
+    public class ResponseInterceptor : IResponseInterceptor
+    {
+        public Task InterceptResponseAsync(object res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct) => throw new InterceptedResponseException();
+        
+        public class InterceptedResponseException : Exception
+        {
+            public override string Message => "Intercepted Response";
+        }
     }
 }

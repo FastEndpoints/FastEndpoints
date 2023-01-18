@@ -17,21 +17,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
-    /// Sends an object serialized as JSON to the client, if a response interceptor has been defined,
-    /// then that will be executed before the normal HTTP Response is sent.
+    /// sends an object serialized as json to the client. if a response interceptor has been defined,
+    /// then that will be executed before the normal response is sent.
     /// </summary>
-    /// <param name="response"></param>
-    /// <param name="statusCode"></param>
-    /// <param name="cancellation"></param>
+    /// <param name="response">the object to serialize to json</param>
+    /// <param name="statusCode">optional custom http status code</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     protected async Task SendAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
     {
-        await RunResponseInterceptor(Definition.ResponseInterceptor, response, HttpContext, ValidationFailures,
-            cancellation);
+        await RunResponseInterceptor(Definition.ResponseIntrcptr, response, HttpContext, ValidationFailures, cancellation);
 
-        if(HttpContext.Response.HasStarted is false)
-        {
+        if (!HttpContext.ResponseStarted())
             await HttpContext.Response.SendAsync(response, statusCode, Definition.SerializerContext, cancellation);
-        }
     }
 
     /// <summary>

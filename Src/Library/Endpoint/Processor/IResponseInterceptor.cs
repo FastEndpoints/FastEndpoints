@@ -6,8 +6,14 @@ namespace FastEndpoints;
 /// <summary>
 /// interface for defining a response interceptor to be executed before the main endpoint handler executes
 /// </summary>
-/// <param name="TResponse">Intercept responses returning this object type</param>
 public interface IResponseInterceptor
 {
-    Task InterceptResponseAsync(object res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
+    /// <summary>
+    /// implement this method to intercep the http response.
+    /// </summary>
+    /// <param name="response">the response object</param>
+    /// <param name="ctx">the http context of the current request</param>
+    /// <param name="failures">the collection of validation failures for the endpoint</param>
+    /// <param name="ct">cancellation token</param>
+    Task InterceptResponseAsync(object response, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
 }

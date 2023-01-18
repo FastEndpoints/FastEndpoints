@@ -255,16 +255,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (!Definition.PostProcessorList.Contains(p, TypeEqualityComparer.Instance))
                 Definition.PostProcessorList.Add(p);
         }
-    }  
-    
-    /// <summary>
-    /// configure a response interceptor to be called before the SendAsync response is sent to the browser.
-    /// This will override any globally configured interceptor.  If you return a response to the browser, then
-    /// the rest of the SendAsync method will be skipped;
-    /// </summary>
-    /// <param name="responseInterceptor">the response interceptor to be executed</param>
-    protected void ResponseInterceptor(IResponseInterceptor responseInterceptor) => Definition.ResponseInterceptor = responseInterceptor;
-
+    }
 
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
@@ -320,6 +311,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="varyByHeader">the value for the Vary response header</param>
     /// <param name="varyByQueryKeys">the query keys to vary by</param>
     protected void ResponseCache(int durationSeconds, ResponseCacheLocation location = ResponseCacheLocation.Any, bool noStore = false, string? varyByHeader = null, string[]? varyByQueryKeys = null) => Definition.ResponseCache(durationSeconds, location, noStore, varyByHeader, varyByQueryKeys);
+
+    /// <summary>
+    /// configure a response interceptor to be called before the SendAsync response is sent to the browser.
+    /// this will override any globally configured interceptor. if you return a response to the browser, then
+    /// the rest of the SendAsync method will be skipped.
+    /// </summary>
+    /// <param name="responseInterceptor">the response interceptor to be executed</param>
+    protected void ResponseInterceptor(IResponseInterceptor responseInterceptor) => Definition.ResponseInterceptor(responseInterceptor);
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given roles

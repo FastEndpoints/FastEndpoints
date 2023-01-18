@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -22,53 +24,59 @@ internal class ExecutorMiddleware
 
     public Task Invoke(HttpContext ctx)
     {
-        var endpoint = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!)?.Endpoint;
+        var ep = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!)?.Endpoint;
 
-        if (endpoint is null) return _next(ctx);
+        if (ep is null)
+            return _next(ctx);
 
-        var epDef = endpoint.Metadata.GetMetadata<EndpointDefinition>();
+        var epDef = ep.Metadata.GetMetadata<EndpointDefinition>();
 
-        if (epDef is not null)
+        if (epDef is null)
+            return _next(ctx); //this is not a fastendpoint
+
+        if (ep.Metadata.GetMetadata<IAuthorizeData>() != null && !ctx.Items.ContainsKey(authInvoked))
+            ThrowAuthMiddlewareMissing(ep.DisplayName!);
+
+        if (ep.Metadata.GetMetadata<ICorsMetadata>() != null && !ctx.Items.ContainsKey(corsInvoked))
+            ThrowCORSMiddlewareMissing(ep.DisplayName!);
+
+        if (epDef.HitCounter is not null)
         {
-            if (endpoint.Metadata.GetMetadata<IAuthorizeData>() != null && !ctx.Items.ContainsKey(authInvoked))
-                ThrowAuthMiddlewareMissing(endpoint.DisplayName!);
+            var hdrName = epDef.HitCounter.HeaderName ?? ThrOpts.HeaderName ?? "X-Forwarded-For";
 
-            if (endpoint.Metadata.GetMetadata<ICorsMetadata>() != null && !ctx.Items.ContainsKey(corsInvoked))
-                ThrowCORSMiddlewareMissing(endpoint.DisplayName!);
-
-            if (epDef.HitCounter is not null)
+            if (!ctx.Request.Headers.TryGetValue(hdrName, out var hdrVal))
             {
-                var hdrName = epDef.HitCounter.HeaderName ?? ThrOpts.HeaderName ?? "X-Forwarded-For";
+                hdrVal = ctx.Connection.RemoteIpAddress?.ToString();
 
-                if (!ctx.Request.Headers.TryGetValue(hdrName, out var hdrVal))
+                if (hdrVal.Count == 0)
                 {
-                    hdrVal = ctx.Connection.RemoteIpAddress?.ToString();
-
-                    if (hdrVal.Count == 0)
-                    {
-                        ctx.Response.StatusCode = 403;
-                        return ctx.Response.WriteAsync("Forbidden by rate limiting middleware!");
-                    }
-                }
-
-                if (epDef.HitCounter.LimitReached(hdrVal[0]!))
-                {
-                    ctx.Response.StatusCode = 429;
-                    return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!");
+                    ctx.Response.StatusCode = 403;
+                    return ctx.Response.WriteAsync("Forbidden by rate limiting middleware!");
                 }
             }
 
-            var epInstance = _epFactory.Create(epDef, ctx);
-            epInstance.Definition = epDef;
-            epInstance.HttpContext = ctx;
-
-            ResponseCacheExecutor.Execute(ctx, endpoint.Metadata.GetMetadata<ResponseCacheAttribute>());
-
-            //terminate middleware here. we're done executing
-            return epInstance.ExecAsync(ctx.RequestAborted);
+            if (epDef.HitCounter.LimitReached(hdrVal[0]!))
+            {
+                ctx.Response.StatusCode = 429;
+                return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!");
+            }
         }
 
-        return _next(ctx); //this is not a fastendpoint, let next middleware handle it
+        if (!ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
+             ep.Metadata.OfType<IAcceptsMetadata>().Any() &&
+            !ep.Metadata.OfType<IAcceptsMetadata>().Any(m => m.ContentTypes.Contains("*/*")))
+        {
+            ctx.Response.StatusCode = 415;
+            return ctx.Response.StartAsync();
+        }
+
+        var epInstance = _epFactory.Create(epDef, ctx);
+        epInstance.Definition = epDef;
+        epInstance.HttpContext = ctx;
+
+        ResponseCacheExecutor.Execute(ctx, ep.Metadata.GetMetadata<ResponseCacheAttribute>());
+
+        return epInstance.ExecAsync(ctx.RequestAborted);
     }
 
     private static void ThrowAuthMiddlewareMissing(string epName)

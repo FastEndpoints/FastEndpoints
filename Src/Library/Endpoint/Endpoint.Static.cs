@@ -67,12 +67,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     private static Task RunResponseInterceptor(IResponseInterceptor interceptor,
-        object resp,
-        int statusCode,
-        HttpContext ctx,
-        List<ValidationFailure> validationFailures,
-        CancellationToken cancellation) =>
-        interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
+                                               object resp,
+                                               int statusCode,
+                                               HttpContext ctx,
+                                               List<ValidationFailure> validationFailures,
+                                               CancellationToken cancellation)
+    {
+        return interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
+    }
 
     private static Task AutoSendResponse(HttpContext ctx,
                                          TResponse responseDto,

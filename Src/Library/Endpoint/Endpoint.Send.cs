@@ -27,9 +27,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected async Task SendInterceptedAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
     {
         if (Definition.ResponseIntrcptr is null)
-            throw new InvalidOperationException(
-                "Response interceptor has not been configured");
-        
+            throw new InvalidOperationException("Response interceptor has not been configured!");
+
         await RunResponseInterceptor(Definition.ResponseIntrcptr, response, statusCode, HttpContext, ValidationFailures, cancellation);
 
         if (!HttpContext.ResponseStarted())

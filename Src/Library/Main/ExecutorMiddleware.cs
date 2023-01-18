@@ -63,6 +63,7 @@ internal class ExecutorMiddleware
         }
 
         if (!ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
+             ep.Metadata.OfType<IAcceptsMetadata>().Any() &&
             !ep.Metadata.OfType<IAcceptsMetadata>().Any(m => m.ContentTypes.Contains("*/*")))
         {
             ctx.Response.StatusCode = 415;

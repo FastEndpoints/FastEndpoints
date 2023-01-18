@@ -313,6 +313,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void ResponseCache(int durationSeconds, ResponseCacheLocation location = ResponseCacheLocation.Any, bool noStore = false, string? varyByHeader = null, string[]? varyByQueryKeys = null) => Definition.ResponseCache(durationSeconds, location, noStore, varyByHeader, varyByQueryKeys);
 
     /// <summary>
+    /// configure a response interceptor to be called before the SendAsync response is sent to the browser.
+    /// this will override any globally configured interceptor. if you return a response to the browser, then
+    /// the rest of the SendAsync method will be skipped.
+    /// </summary>
+    /// <param name="responseInterceptor">the response interceptor to be executed</param>
+    protected void ResponseInterceptor(IResponseInterceptor responseInterceptor) => Definition.ResponseInterceptor(responseInterceptor);
+
+    /// <summary>
     /// allows access if the claims principal has ANY of the given roles
     /// </summary>
     /// <param name="rolesNames">one or more roles that has access</param>

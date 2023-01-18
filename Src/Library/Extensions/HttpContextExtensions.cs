@@ -45,5 +45,5 @@ public static class HttpContextExtensions
     /// check if the current response has already started or not.
     /// </summary>
     public static bool ResponseStarted(this HttpContext ctx)
-        => ctx.Response.HasStarted || ctx.Items.ContainsKey(0); //item must match above
+        => ctx.Response.HasStarted || ctx.Items.ContainsKey(0); //item must match above - MarkResponseStart()
 }

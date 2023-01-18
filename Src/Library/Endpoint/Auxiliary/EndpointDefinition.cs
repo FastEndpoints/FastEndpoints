@@ -54,6 +54,7 @@ public sealed class EndpointDefinition
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
+    internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
 
     private object? mapper;
@@ -304,6 +305,13 @@ public sealed class EndpointDefinition
             VaryByQueryKeys = varyByQueryKeys
         };
     }
+
+    /// <summary>
+    /// configure a response interceptor to be called before any SendAsync() methods are called.
+    /// if the interceptor sends a response to the client, the SendAsync() will be ignored.
+    /// </summary>
+    /// <param name="responseInterceptor">the response interceptor to be configured for the endpoint</param>
+    public void ResponseInterceptor(IResponseInterceptor responseInterceptor) => ResponseIntrcptr = responseInterceptor;
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given roles

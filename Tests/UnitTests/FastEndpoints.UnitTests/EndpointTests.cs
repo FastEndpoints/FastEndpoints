@@ -85,6 +85,24 @@ public class EndpointTests
 
         }
     }
+    
+    public class SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor : Endpoint<Request, Response>
+    {
+        [Fact]
+        public async Task execute_test()
+        {
+            HttpContext = new DefaultHttpContext();
+            Definition = new EndpointDefinition();
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => 
+                SendInterceptedAsync(new {
+                Id = 0,
+                Age = 1,
+                Name = "Test"
+            }, StatusCodes.Status200OK, default));
+
+        }
+    }
 
     public class SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied : Endpoint<Request, Response>
     {
@@ -126,7 +144,7 @@ public class EndpointTests
 
     public class ResponseInterceptor : IResponseInterceptor
     {
-        public Task InterceptResponseAsync(object res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct)
+        public Task InterceptResponseAsync(object res, int statusCode, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct)
             => throw new InterceptedResponseException();
 
         public class InterceptedResponseException : Exception

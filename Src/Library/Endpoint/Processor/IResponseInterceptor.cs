@@ -12,8 +12,10 @@ public interface IResponseInterceptor
     /// implement this method to intercep the http response.
     /// </summary>
     /// <param name="response">the response object</param>
+    /// <param name="statusCode"></param>
     /// <param name="ctx">the http context of the current request</param>
     /// <param name="failures">the collection of validation failures for the endpoint</param>
     /// <param name="ct">cancellation token</param>
-    Task InterceptResponseAsync(object response, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
+    Task InterceptResponseAsync(object response, int statusCode, HttpContext ctx,
+        IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
 }

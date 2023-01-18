@@ -23,9 +23,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="response">the object to serialize to json</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
+    /// <exception cref="InvalidOperationException">will throw if an interceptor has not been defined against the endpoint or globally</exception>
     protected async Task SendInterceptedAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
     {
-        await RunResponseInterceptor(Definition.ResponseIntrcptr, response, HttpContext, ValidationFailures, cancellation);
+        if (Definition.ResponseIntrcptr is null)
+            throw new InvalidOperationException(
+                "Response interceptor has not been configured");
+        
+        await RunResponseInterceptor(Definition.ResponseIntrcptr, response, statusCode, HttpContext, ValidationFailures, cancellation);
 
         if (!HttpContext.ResponseStarted())
             await HttpContext.Response.SendAsync(response, statusCode, Definition.SerializerContext, cancellation);

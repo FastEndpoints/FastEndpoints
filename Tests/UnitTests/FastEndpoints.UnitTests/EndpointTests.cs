@@ -76,7 +76,7 @@ public class EndpointTests
 
             await Assert.ThrowsAsync<ResponseInterceptor.InterceptedResponseException>(() =>
             {
-                return SendAsync(new {
+                return SendInterceptedAsync(new {
                     Id = 0,
                     Age = 1,
                     Name = "Test"

@@ -70,20 +70,20 @@ internal sealed class EndpointData
 
             discoveredTypes = assemblies
                 .Where(a =>
-                    !a.IsDynamic &&
-                    !excludes.Any(n => a.FullName!.StartsWith(n)))
+                      !a.IsDynamic &&
+                      !excludes.Any(n => a.FullName!.StartsWith(n)))
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
-                    !t.IsAbstract &&
-                    !t.IsInterface &&
-                    !t.IsGenericType &&
-                     t.GetInterfaces().Intersect(new[] {
-                         Types.IEndpoint,
-                         Types.IEventHandler,
-                         Types.ICommandHandler,
-                         Types.ISummary,
-                         options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                     }).Any() &&
+                      !t.IsAbstract &&
+                      !t.IsInterface &&
+                      !t.IsGenericType &&
+                       t.GetInterfaces().Intersect(new[] {
+                           Types.IEndpoint,
+                           Types.IEventHandler,
+                           Types.ICommandHandler,
+                           Types.ISummary,
+                           options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                       }).Any() &&
                     (options.Filter is null || options.Filter(t)));
         }
 
@@ -145,7 +145,9 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface.IsGenericType && tInterface.IsAssignableTo(Types.IEventHandler))
+                var tGeneric = tInterface.IsGenericType ? tInterface.GetGenericTypeDefinition() : null;
+
+                if (tGeneric == Types.IEventHandlerOf1) // IsAssignableTo() is no good here if the user inherits the interface.
                 {
                     var tEvent = tInterface.GetGenericArguments()[0];
 
@@ -156,7 +158,7 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface.IsGenericType && tInterface.IsAssignableTo(Types.ICommandHandler))
+                if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here also
                 {
                     var tCommand = tInterface.GetGenericArguments()[0];
 

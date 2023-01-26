@@ -87,6 +87,36 @@ public static class JWTBearer
     /// generate a jwt token with the supplied parameters
     /// </summary>
     /// <param name="signingKey">the secret key to use for signing the tokens</param>
+    /// <param name="priviledges">an action to specify the privileges of the user</param>
+    /// <param name="issuer">the issuer</param>
+    /// <param name="audience">the audience</param>
+    /// <param name="expireAt">the expiry date</param>
+    /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
+    public static string CreateToken(string signingKey,
+                                     Action<UserPrivileges> priviledges,
+                                     string? issuer = null,
+                                     string? audience = null,
+                                     DateTime? expireAt = null,
+                                     TokenSigningStyle signingStyle = TokenSigningStyle.Symmetric)
+    {
+        var privs = new UserPrivileges();
+        priviledges(privs);
+
+        return CreateToken(
+            signingKey,
+            expireAt,
+            privs.Permissions,
+            privs.Roles,
+            privs.Claims,
+            issuer,
+            audience,
+            signingStyle);
+    }
+
+    /// <summary>
+    /// generate a jwt token with the supplied parameters
+    /// </summary>
+    /// <param name="signingKey">the secret key to use for signing the tokens</param>
     /// <param name="expireAt">the expiry date</param>
     /// <param name="permissions">one or more permissions to assign to the user principal</param>
     /// <param name="roles">one or more roles to assign the user principal</param>

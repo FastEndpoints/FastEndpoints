@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -60,6 +62,28 @@ public static class AuthExtensions
             o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
             bearerEvents?.Invoke(o.Events ??= new());
         });
+
+        return services;
+    }
+
+    /// <summary>
+    /// configure and enable cookie based authentication
+    /// </summary>
+    /// <param name="validFor">specify how long the created cookie is valid for with a <see cref="TimeSpan"/></param>
+    /// <param name="options">optional action for configuring cookie authentication options</param>
+    public static IServiceCollection AddCookieAuth(this IServiceCollection services,
+                                                   TimeSpan validFor,
+                                                   Action<CookieAuthenticationOptions>? options = null)
+    {
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(o =>
+            {
+                o.ExpireTimeSpan = validFor;
+                o.Cookie.MaxAge = validFor;
+                o.Cookie.HttpOnly = true;
+                o.Cookie.SameSite = SameSiteMode.Lax;
+                options?.Invoke(o);
+            });
 
         return services;
     }

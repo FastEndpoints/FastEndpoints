@@ -158,7 +158,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         {
             var res = typeof(T).ValueParser()(val);
 
-            if (res.IsSuccess is true)
+            if (res.IsSuccess)
                 return (T?)res.Value;
 
             if (isRequired)
@@ -234,7 +234,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     protected Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges) where TService : IRefreshTokenService<TResponse>
     {
         return ((IRefreshTokenService<TResponse>)FastEndpoints.Config.ServiceResolver.CreateInstance(
-            typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges);
+            typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges, null);
     }
 }
 

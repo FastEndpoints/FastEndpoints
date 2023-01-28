@@ -27,9 +27,9 @@ public class TokenService : RefreshTokenService<TokenRequest, TokenResponse>
         return Task.CompletedTask;
     }
 
-    public override Task SetRenewalPrivilegesAsync(TokenRequest request, UserPrivileges privileges)
+    public override async Task SetRenewalPrivilegesAsync(TokenRequest request, UserPrivileges privileges)
     {
+        await Task.Delay(100); //issue #365
         privileges.Claims.Add(new("new-claim", "new-value"));
-        return Task.CompletedTask;
     }
 }

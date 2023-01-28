@@ -34,10 +34,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     {
         await RefreshRequestValidationAsync(req);
         ThrowIfAnyErrors();
-        var res = await ((IRefreshTokenService<TResponse>)this)
-            .CreateToken(
-                req.UserId,
-                async p => await SetRenewalPrivilegesAsync(req, p));
+        var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(req.UserId, null, req);
         await SendAsync(res, 200, ct);
     }
 
@@ -76,13 +73,18 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     public abstract Task SetRenewalPrivilegesAsync(TRequest request, UserPrivileges privileges);
 
     [HideFromDocs]
-    async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPrivileges> privileges)
+    async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPrivileges>? privileges, object? request)
     {
         if (opts?.TokenSigningKey is null)
             throw new ArgumentNullException($"{nameof(opts.TokenSigningKey)} must be specified for [{Definition.EndpointType.FullName}]");
 
         var privs = new UserPrivileges();
-        privileges(privs);
+
+        if (privileges is not null) //only true on initial token creation
+            privileges(privs);
+
+        if (request is not null) //only true on renewal
+            await SetRenewalPrivilegesAsync((TRequest)request, privs);
 
         var accessExpiry = DateTime.UtcNow.Add(opts.AccessTokenValidity);
         var refreshExpiry = DateTime.UtcNow.Add(opts.RefreshTokenValidity);

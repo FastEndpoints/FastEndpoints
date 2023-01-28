@@ -7,4 +7,4 @@
 - better handling of inherited `ICommandHandler` [#info](https://discord.com/channels/933662816458645504/1067599463310446592)
 
 ### FIXES
-- jwt refresh token renewal privileges were not correctly set if awaiting a task in the method #365
+- jwt refresh token renewal privileges were not correctly set if awaiting a task in the method #368

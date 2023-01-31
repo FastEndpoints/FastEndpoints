@@ -24,6 +24,7 @@ internal static class Types
     internal static readonly Type ICommandHandler = typeof(ICommandHandler);
     internal static readonly Type ICommandHandlerOf1 = typeof(ICommandHandler<>);
     internal static readonly Type ICommandHandlerOf2 = typeof(ICommandHandler<,>);
+    internal static readonly Type IDictionary = typeof(IDictionary);
     internal static readonly Type IEndpoint = typeof(IEndpoint);
     internal static readonly Type IEndpointFeature = typeof(IEndpointFeature);
     internal static readonly Type IEndpointValidator = typeof(IEndpointValidator);

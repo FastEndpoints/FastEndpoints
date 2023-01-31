@@ -73,7 +73,8 @@ internal static class BinderExtensions
             var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {
-                return tProp.GetInterfaces().Contains(Types.IEnumerable)
+                var interfaces = tProp.GetInterfaces();
+                return interfaces.Contains(Types.IEnumerable) && !interfaces.Contains(Types.IDictionary) //dictionaries should be deserialized as json objects
                         ? (tProp.GetElementType() ?? tProp.GetGenericArguments().FirstOrDefault()) == Types.Byte
                            ? input => new(true, DeserializeByteArray(input))
                            : input => new(true, DeserializeJsonArrayString(input, tProp))

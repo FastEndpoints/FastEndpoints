@@ -988,6 +988,17 @@
             "schema": {
               "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person"
             }
+          },
+          {
+            "name": "Dict",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
           }
         ],
         "responses": {

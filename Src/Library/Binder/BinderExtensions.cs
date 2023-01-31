@@ -52,10 +52,6 @@ internal static class BinderExtensions
 
         static Func<object?, ParseResult> GetCompiledValueParser(Type tProp)
         {
-            // this method was contributed by: https://stackoverflow.com/users/1086121/canton7
-            // as an answer to a stackoverflow question: https://stackoverflow.com/questions/71220157
-            // many thanks to canton7 :-)
-
             tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
 
             //note: the actual type of the `input` to the parser func can be

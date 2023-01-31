@@ -215,7 +215,8 @@ public class MiscTestCases : EndToEndTestBase
             "dates=[\"2022-01-01\",\"2022-02-02\"]&" +
             "guids=[\"b01ec302-0adc-4a2b-973d-bbfe639ed9a5\",\"e08664a4-efd8-4062-a1e1-6169c6eac2ab\"]&" +
             "ints=[1,2,3]&" +
-            "steven={\"age\":12,\"name\":\"steven\"}",
+            "steven={\"age\":12,\"name\":\"steven\"}&" +
+            "dict={\"key1\":\"val1\",\"key2\":\"val2\"}",
             new());
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -233,6 +234,9 @@ public class MiscTestCases : EndToEndTestBase
                 Age = 12,
                 Name = "steven"
             });
+        res?.Dict.Count.Should().Be(2);
+        res?.Dict["key1"].Should().Be("val1");
+        res?.Dict["key2"].Should().Be("val2");
     }
 
     [Fact]

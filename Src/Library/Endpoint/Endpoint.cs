@@ -244,7 +244,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper> where TRequest : notnull, new() where TMapper : notnull, IMapper
+public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper> where TRequest : notnull, new() where TResponse : notnull where TMapper : notnull, IMapper
 {
     private TMapper? _mapper;
 
@@ -256,6 +256,18 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
     public TMapper Map {
         get => _mapper ??= (TMapper)Definition.GetMapper()!;
         set => _mapper = value; //allow unit tests to set mapper from outside
+    }
+
+    public Task SendMapped<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
+    {
+        var resp = ((Mapper<TRequest, TResponse, TEntity>)Definition.GetMapper()!).FromEntity(entity);
+        return SendAsync(resp, statusCode, ct);
+    }
+
+    public async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
+    {
+        var resp = await ((Mapper<TRequest, TResponse, TEntity>)Definition.GetMapper()!).FromEntityAsync(entity, ct);
+        await SendAsync(resp, statusCode, ct);
     }
 }
 
@@ -341,6 +353,18 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
     public TMapper Map {
         get => _mapper ??= (TMapper)Definition.GetMapper()!;
         set => _mapper = value; //allow unit tests to set mapper from outside
+    }
+
+    public Task SendMapped<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
+    {
+        var resp = ((ResponseMapper<TResponse, TEntity>)Definition.GetMapper()!).FromEntity(entity);
+        return SendAsync(resp, statusCode, ct);
+    }
+
+    public async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
+    {
+        var resp = await ((ResponseMapper<TResponse, TEntity>)Definition.GetMapper()!).FromEntityAsync(entity, ct);
+        await SendAsync(resp, statusCode, ct);
     }
 }
 

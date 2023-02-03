@@ -1,2 +1,2 @@
 ### FIX
-- STJ trying to bind json object as `IEnumerable` when dto property type is `IDictionary`
+- fix object disposed exeception when signing with assymetric key #372

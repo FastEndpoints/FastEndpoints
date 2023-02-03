@@ -162,7 +162,7 @@ public static class JWTBearer
     {
         if (style == TokenSigningStyle.Asymmetric)
         {
-            using var rsa = RSA.Create();
+            var rsa = RSA.Create();
             rsa.ImportRSAPrivateKey(Convert.FromBase64String(key), out _);
             return new SigningCredentials(
                 new RsaSecurityKey(rsa),

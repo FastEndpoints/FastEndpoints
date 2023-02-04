@@ -15,7 +15,7 @@ We are strong proponents of FOSS and would absolutely love FastEndpoints to be s
 
 Your sponsorship will enable the core contributors to spend more of their valuable time and energy on the project to develop it further while squashing any bugs that may pop up in a timely manner. 
 
-Since no software project is complete without a good support system, we try extremely hard to provide top-notch user support via [github issues](https://github.com/FastEndpoints/Library/issues) and our [discord server](https://discord.com/invite/yQZ4uvfF2E) which is a full-time job in and of itself.
+Since no software project is complete without a good support system, we try extremely hard to provide top-notch user support via [github issues](https://github.com/FastEndpoints/Library/issues) and our [discord server](https://discord.gg/ARGPxTukpr) which is a full-time job in and of itself.
 
 Your contribution will go a long way to help thousands of users of FastEndpoints in being able to use a high-quality software library made by the community - for the community...
 

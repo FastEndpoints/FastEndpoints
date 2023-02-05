@@ -31,7 +31,7 @@ public class EndpointOptions
     /// this can be used to apply a set of common configuration settings globally to all endpoints.
     /// i.e. apply globally applicable settings here and specify only the settings applicable to individual endpoints from within each endpoints' `Configure()` method.
     /// <code>
-    /// app.UseFastEndpoints(c => c.GlobalEndpointConfig = ep =>
+    /// app.UseFastEndpoints(c => c.Configurator = ep =>
     /// {
     ///     ep.AllowAnonymous();
     ///     ep.Description(b => b.Produces&lt;ErrorResponse&gt;(400));

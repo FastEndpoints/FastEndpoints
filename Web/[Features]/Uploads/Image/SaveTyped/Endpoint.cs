@@ -10,9 +10,9 @@ public class Endpoint : Endpoint<Request>
         Permissions(Allow.Image_Update);
         Claims(Claim.AdminID);
         AllowFileUploads();
-        Options(b =>
-            b.Produces(200, contentType: "image/png", additionalContentTypes: "test/image")
-             .Produces(204, contentType: "text/plain", additionalContentTypes: "test/notcontent"));
+        Options(b => b
+            .Produces(200, typeof(string), "image/png", "test/image")
+            .Produces(204, typeof(string), "text/plain", "test/notcontent"));
     }
 
     public async override Task HandleAsync(Request r, CancellationToken ct)

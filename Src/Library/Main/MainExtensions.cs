@@ -54,14 +54,7 @@ public static class MainExtensions
     {
         if (app is not IEndpointRouteBuilder routeBuilder)
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
-        UseFastEndpointsMiddleware(app);
         MapFastEndpoints(routeBuilder, configAction);
-        return app;
-    }
-
-    public static IApplicationBuilder UseFastEndpointsMiddleware(this IApplicationBuilder app)
-    {
-        app.UseMiddleware<ExecutorMiddleware>();
         return app;
     }
 
@@ -102,7 +95,10 @@ public static class MainExtensions
 
                 foreach (var verb in def.Verbs)
                 {
-                    var hb = app.MapMethods(finalRoute, new[] { verb }, SendMisconfiguredPipelineMsg());
+                    var hb = app.MapMethods(
+                        finalRoute,
+                        new[] { verb },
+                        (HttpContext ctx, IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
 
                     hb.WithName(
                         def.EndpointType.EndpointName(
@@ -173,9 +169,6 @@ public static class MainExtensions
 
         return app;
     }
-
-    private static Func<string> SendMisconfiguredPipelineMsg()
-        => () => "UseFastEndpoints() must appear after any routing middleware like UseRouting() and before any terminating middleware like UseEndpoints()";
 
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route, string? prefixOverride)
     {

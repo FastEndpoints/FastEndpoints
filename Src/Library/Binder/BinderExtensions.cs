@@ -109,22 +109,27 @@ internal static class BinderExtensions
 
             static object? DeserializeJsonObjectString(object? input, Type tProp)
             {
+#pragma warning disable CS8602, CS8604
                 return input is not StringValues vals || vals.Count != 1
                         ? null
                         : vals[0].StartsWith('{') && vals[0].EndsWith('}') // check if it's a json object
                            ? JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options)
                            : null;
+#pragma warning restore CS8602, CS8604
             }
 
             static object? DeserializeByteArray(object? input)
             {
+#pragma warning disable  CS8604
                 return input is not StringValues vals || vals.Count != 1
                         ? null
                         : Convert.FromBase64String(vals[0]);
+#pragma warning restore  CS8604
             }
 
             static object? DeserializeJsonArrayString(object? input, Type tProp)
             {
+#pragma warning disable CS8602,CS8604
                 if (input is not StringValues vals || vals.Count == 0)
                     return null;
 
@@ -172,6 +177,7 @@ internal static class BinderExtensions
                 sb.Append(']');
 
                 return JsonSerializer.Deserialize(sb.ToString(), tProp, SerOpts.Options);
+#pragma warning restore CS8602, CS8604
             }
         }
     }

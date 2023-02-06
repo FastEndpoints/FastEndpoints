@@ -44,9 +44,7 @@ public static class MainExtensions
 
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
-    /// <para>HINT: this is the combination of <see cref="UseFastEndpointsMiddleware(IApplicationBuilder)"/> and <see cref="MapFastEndpoints(IEndpointRouteBuilder, Action{Config}?)"/>.
-    /// you can use those two methods separately if you have some special requirement such as using "Startup.cs", etc.
-    /// </para>
+    /// <para>HINT: you can use <see cref="MapFastEndpoints(IEndpointRouteBuilder, Action{Config}?)"/> instead of this method if you have some special requirement such as using "Startup.cs", etc.</para>
     /// </summary>
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
     /// <exception cref="InvalidCastException">thrown when the <c>app</c> cannot be cast to <see cref="IEndpointRouteBuilder"/></exception>

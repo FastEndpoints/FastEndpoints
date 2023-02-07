@@ -46,10 +46,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             string? fieldName = null;
             var addPrimary = true;
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);
+            var attribs = Attribute.GetCustomAttributes(propInfo, true);
 
-            foreach (var att in propInfo.GetCustomAttributes()) //reduce allocations by doing this only once
+            for (var i = 0; i < attribs.Length; i++)
             {
-                switch (att)
+                switch (attribs[i])
                 {
                     case FromBodyAttribute:
                         if (fromBodyProp is not null) throw new InvalidOperationException($"Only one [FromBody] attribute is allowed on [{tRequest.FullName}].");

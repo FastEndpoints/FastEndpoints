@@ -3,11 +3,11 @@ on:
     types: [created]
 
 jobs:
-  release-notes-to-discord:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
       - name: Github Releases To Discord
         uses: SethCohen/github-releases-to-discord@v1.13.0
         with:

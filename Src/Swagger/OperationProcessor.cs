@@ -18,7 +18,7 @@ internal class OperationProcessor : IOperationProcessor
 {
     private static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
     private static readonly Regex routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);
-    private static readonly Regex routeConstraintsRegex = new("{(.*?)(:.*)}", RegexOptions.Compiled);
+    private static readonly Regex routeConstraintsRegex = new("(?<={)([^?:}]+)[^}]*(?=})", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> defaultDescriptions = new()
     {
         { "200", "Success" },
@@ -466,11 +466,7 @@ internal class OperationProcessor : IOperationProcessor
         var parts = relativePath.Split('/');
 
         for (var i = 0; i < parts.Length; i++)
-        {
-            parts[i] = routeConstraintsRegex
-                .Replace(parts[i], "{$1}") //strip route constraints
-                .Replace("?", ""); //string ? because OAS3 requires all route params
-        }
+            parts[i] = routeConstraintsRegex.Replace(parts[i], "$1");
 
         return string.Join("/", parts);
     }

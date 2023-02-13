@@ -17,8 +17,8 @@ namespace FastEndpoints.Swagger;
 internal class OperationProcessor : IOperationProcessor
 {
     private static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
-    private static readonly Regex routeParamsRegex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
-    private static readonly Regex routeConstraintsRegex = new(@"\{(.*?)(:.*)\}", RegexOptions.Compiled);
+    private static readonly Regex routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);
+    private static readonly Regex routeConstraintsRegex = new("{(.*?)(:.*)}", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> defaultDescriptions = new()
     {
         { "200", "Success" },
@@ -233,14 +233,13 @@ internal class OperationProcessor : IOperationProcessor
 
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
         reqParams = routeParamsRegex
-            .Matches(apiDescription?.RelativePath!)
+            .Matches(opPath)
             .Select(m =>
             {
-                var routeParam = ActualParamName(m.Value);
                 var pInfo = reqDtoProps?.SingleOrDefault(p =>
                 {
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-                    if (string.Equals(pName, routeParam, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                     {
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                         return true;
@@ -250,11 +249,11 @@ internal class OperationProcessor : IOperationProcessor
 
                 return new OpenApiParameter
                 {
-                    Name = routeParam,
+                    Name = m.Value,
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
                     Schema = ctx.SchemaGenerator.Generate(pInfo?.PropertyType ?? Types.String, ctx.SchemaResolver),
-                    Description = reqParamDescriptions.GetValueOrDefault(routeParam),
+                    Description = reqParamDescriptions.GetValueOrDefault(m.Value),
                     Default = pInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value,
                     Example = pInfo?.GetExample()
                 };
@@ -399,14 +398,6 @@ internal class OperationProcessor : IOperationProcessor
             }
         }
         return true;
-    }
-
-    private static string ActualParamName(string input)
-    {
-        var index = input.IndexOfAny(new[] { '=', ':' });
-        index = index == -1 ? input.Length : index;
-        var left = input[..index];
-        return left.TrimEnd('?');
     }
 
     private static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGETRequest)

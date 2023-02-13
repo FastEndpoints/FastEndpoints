@@ -139,7 +139,7 @@ public static class JWTBearer
             claimList.AddRange(claims);
 
         if (permissions != null)
-            claimList.AddRange(permissions.Select(p => new Claim(Constants.PermissionsClaimType, p)));
+            claimList.AddRange(permissions.Select(p => new Claim(Config.SecOpts.PermissionsClaimType, p)));
 
         if (roles != null)
             claimList.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));

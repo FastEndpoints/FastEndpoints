@@ -23,7 +23,7 @@ public class RefreshTokenTests : EndToEndTestBase
         var token = new JwtSecurityTokenHandler().ReadJwtToken(res.AccessToken);
         token.Claims.Single(c => c.Type == "claim1").Value.Should().Be("val1");
         token.Claims.Single(c => c.Type == "role").Value.Should().Be("role1");
-        token.Claims.Single(c => c.Type == Constants.PermissionsClaimType).Value.Should().Be("perm1");
+        token.Claims.Single(c => c.Type == "permissions").Value.Should().Be("perm1");
     }
 
     [Fact]

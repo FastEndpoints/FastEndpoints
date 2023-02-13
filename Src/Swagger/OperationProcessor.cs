@@ -236,10 +236,11 @@ internal class OperationProcessor : IOperationProcessor
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
+                var routeParam = ActualParamName(m.Value);
                 var pInfo = reqDtoProps?.SingleOrDefault(p =>
                 {
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-                    if (string.Equals(pName, ActualParamName(m.Value), StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(pName, routeParam, StringComparison.OrdinalIgnoreCase))
                     {
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                         return true;
@@ -249,11 +250,11 @@ internal class OperationProcessor : IOperationProcessor
 
                 return new OpenApiParameter
                 {
-                    Name = ActualParamName(m.Value),
+                    Name = routeParam,
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
                     Schema = ctx.SchemaGenerator.Generate(pInfo?.PropertyType ?? Types.String, ctx.SchemaResolver),
-                    Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value)),
+                    Description = reqParamDescriptions.GetValueOrDefault(routeParam),
                     Default = pInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value,
                     Example = pInfo?.GetExample()
                 };

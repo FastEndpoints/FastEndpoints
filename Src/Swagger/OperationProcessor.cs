@@ -17,7 +17,8 @@ namespace FastEndpoints.Swagger;
 internal class OperationProcessor : IOperationProcessor
 {
     private static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
-    private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
+    private static readonly Regex routeParamsRegex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
+    private static readonly Regex routeConstraintsRegex = new(@"\{(.*?)(:.*)\}", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> defaultDescriptions = new()
     {
         { "200", "Success" },
@@ -231,7 +232,7 @@ internal class OperationProcessor : IOperationProcessor
         }
 
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
-        reqParams = regex
+        reqParams = routeParamsRegex
             .Matches(apiDescription?.RelativePath!)
             .Select(m =>
             {
@@ -474,12 +475,9 @@ internal class OperationProcessor : IOperationProcessor
 
         for (var i = 0; i < parts.Length; i++)
         {
-            var p = ActualParamName(parts[i]);
-
-            if (p.StartsWith("{") && !p.EndsWith("}"))
-                p += "}";
-
-            parts[i] = p;
+            parts[i] = routeConstraintsRegex
+                .Replace(parts[i], "{$1}") //strip route constraints
+                .Replace("?", ""); //string ? because OAS3 requires all route params
         }
 
         return string.Join("/", parts);

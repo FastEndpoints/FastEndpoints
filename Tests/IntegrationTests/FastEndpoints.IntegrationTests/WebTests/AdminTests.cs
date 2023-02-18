@@ -49,7 +49,7 @@ public class AdminTests : EndToEndTestBase
     [Fact]
     public async Task AdminLoginInvalidCreds()
     {
-        var (res, _) = await GuestClient.POSTAsync<
+        var (rsp, _) = await GuestClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             Admin.Login.Response>(new()
@@ -57,8 +57,7 @@ public class AdminTests : EndToEndTestBase
                 UserName = "admin",
                 Password = "xxxxx"
             });
-
-        res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

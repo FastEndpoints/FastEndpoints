@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -66,7 +67,14 @@ internal static class BinderExtensions
             if (tProp == Types.Uri)
                 return input => new(Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res);
 
+            var isIParsable = false;
             var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
+            if (tryParseMethod is null)
+            {
+                tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, typeof(IFormatProvider), tProp.MakeByRefType() });
+                isIParsable = tryParseMethod is not null;
+            }
+
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {
                 var interfaces = tProp.GetInterfaces();
@@ -97,7 +105,10 @@ internal static class BinderExtensions
             //  - new ParseResult(isSuccess, (object)res)
             // A sequence of statements is done using a block, and the result of the final
             // statement is the result of the block
-            var tryParseCall = Expression.Call(tryParseMethod, toStringConversion, resultVar);
+            var tryParseCall = isIParsable
+                                ? Expression.Call(tryParseMethod, toStringConversion, Expression.Constant(null, CultureInfo.InvariantCulture.GetType()), resultVar)
+                                : Expression.Call(tryParseMethod, toStringConversion, resultVar);
+
             var block = Expression.Block(
                 new[] { resultVar, isSuccessVar },
                 Expression.Assign(isSuccessVar, tryParseCall),

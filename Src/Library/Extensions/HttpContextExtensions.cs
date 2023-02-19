@@ -39,11 +39,17 @@ public static class HttpContextExtensions
     /// </summary>
     /// <param name="ctx"></param>
     public static void MarkResponseStart(this HttpContext ctx)
-        => ctx.Items[0] = null; //item must match below
+        => ctx.Items[CtxKey.ResponseStarted] = null;
 
     /// <summary>
     /// check if the current response has already started or not.
     /// </summary>
     public static bool ResponseStarted(this HttpContext ctx)
-        => ctx.Response.HasStarted || ctx.Items.ContainsKey(0); //item must match above - MarkResponseStart()
+        => ctx.Response.HasStarted || ctx.Items.ContainsKey(CtxKey.ResponseStarted);
+}
+
+internal static class CtxKey
+{
+    internal const int ResponseStarted = 0;
+    internal const int ValidationFailures = 1;
 }

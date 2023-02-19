@@ -14,6 +14,11 @@ public class ErrorOptions
     public int StatusCode { internal get; set; } = 400;
 
     /// <summary>
+    /// the general errors field name. this is the field name used for general errors when AddError() method is called without specifying a request dto property.
+    /// </summary>
+    public string GeneralErrorsField { internal get; set; } = "GeneralErrors";
+
+    /// <summary>
     /// a function for transforming validation errors to an error response dto.
     /// set it to any func that returns an object that can be serialized to json.
     /// this function will be run everytime an error response needs to be sent to the client.

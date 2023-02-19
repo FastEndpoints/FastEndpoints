@@ -16,7 +16,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="severity">the severity of the error</param>
     protected void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
     {
-        var validationFailure = new ValidationFailure("GeneralErrors", message)
+        var validationFailure = new ValidationFailure(FastEndpoints.Config.ErrOpts.GeneralErrorsField, message)
         {
             ErrorCode = errorCode,
             Severity = severity

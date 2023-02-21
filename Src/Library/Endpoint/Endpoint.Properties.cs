@@ -19,11 +19,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private IConfiguration? _config;
 
     /// <summary>
-    /// indicates if there are any validation failures for the current request
-    /// </summary>
-    public bool ValidationFailed => ValidationFailures.Count > 0;
-
-    /// <summary>
     /// the current user principal
     /// </summary>
     public ClaimsPrincipal User => HttpContext.User;

@@ -50,6 +50,7 @@ internal static class RequestHandler
         var epInstance = epFactory.Create(epDef, ctx);
         epInstance.Definition = epDef;
         epInstance.HttpContext = ctx;
+        ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures; //for use by ICommandHandlers
 
         ResponseCacheExecutor.Execute(ctx, ep.Metadata.GetMetadata<ResponseCacheAttribute>());
 

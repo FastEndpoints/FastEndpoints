@@ -39,7 +39,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEventBus, IServiceResolverBase where TRequest : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IValidationErrors<TRequest>, IEventBus, IServiceResolverBase where TRequest : notnull, new()
 {
     internal async override Task ExecAsync(CancellationToken ct)
     {

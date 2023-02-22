@@ -1,5 +1,6 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 
 namespace FastEndpoints;
 
@@ -12,6 +13,12 @@ public class ErrorOptions
     /// this http status code will be used for all automatically sent validation failure responses. defaults to 400.
     /// </summary>
     public int StatusCode { internal get; set; } = 400;
+
+    /// <summary>
+    /// if this property is set, a <see cref="IProducesResponseTypeMetadata"/> will automatically be added to any endpoints that has a <see cref="Validator{TRequest}"/> associated with it.
+    /// if you're not specifying your own <see cref="ResponseBuilder"/>, you'd typically be setting this to <c>typeOf(<see cref="ErrorResponse"/>)</c>
+    /// </summary>
+    public Type? ProducesMetadataType { internal get; set; }
 
     /// <summary>
     /// the general errors field name. this is the field name used for general errors when AddError() method is called without specifying a request dto property.

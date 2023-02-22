@@ -432,6 +432,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                 b.Produces<TResponse>(200, "text/plain", "application/json");
             else
                 b.Produces<TResponse>(200, "application/json");
+
+            var opts = FastEndpoints.Config.ErrOpts;
+            if (opts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+                b.Produces(opts.StatusCode, opts.ProducesMetadataType, "application/problem+json");
         };
     }
 

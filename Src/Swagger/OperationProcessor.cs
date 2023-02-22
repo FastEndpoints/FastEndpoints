@@ -280,16 +280,16 @@ internal class OperationProcessor : IOperationProcessor
                         });
 
                         //remove corresponding json body field if it's required. allow binding only from header.
-                        if (hAttrib.IsRequired || hAttrib.RemoveFromBody)
+                        if (isGETRequest || hAttrib.IsRequired || hAttrib.RemoveFromSchema)
                             RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                     }
 
                     //can only be bound from claim since it's required. so remove prop from body.
-                    if (attribute is FromClaimAttribute cAttrib && (cAttrib.IsRequired || cAttrib.RemoveFromBody))
+                    if (attribute is FromClaimAttribute cAttrib && (isGETRequest || cAttrib.IsRequired || cAttrib.RemoveFromSchema))
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
 
                     //can only be bound from permission since it's required. so remove prop from body.
-                    if (attribute is HasPermissionAttribute pAttrib && (pAttrib.IsRequired || pAttrib.RemoveFromBody))
+                    if (attribute is HasPermissionAttribute pAttrib && (isGETRequest || pAttrib.IsRequired || pAttrib.RemoveFromSchema))
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                 }
             }

@@ -17,13 +17,20 @@ public class HasPermissionAttribute : Attribute
     public bool IsRequired { get; set; }
 
     /// <summary>
+    /// set to true if your header is not required but shouldn't be added to body model
+    /// </summary>
+    public bool RemoveFromBody { get; set; }
+    /// <summary>
     /// boolean properties decorated with this attribute will have their values set to true if the current principal has the specified permission.
     /// </summary>
     /// <param name="permission">the permission to check for</param>
     /// <param name="isRequired">set to false if a validation error shouldn't be thrown when the current principal doesn't have the specified permission.</param>
-    public HasPermissionAttribute(string permission, bool isRequired = true)
+    /// <param name="removeFromBody">set to true if your header is not required but shouldn't be added to body model.</param>
+
+    public HasPermissionAttribute(string permission, bool isRequired = true, bool removeFromBody = false)
     {
         Permission = permission;
         IsRequired = isRequired;
+        RemoveFromBody = removeFromBody;
     }
 }

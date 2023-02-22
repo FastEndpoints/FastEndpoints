@@ -17,13 +17,21 @@ public class FromHeaderAttribute : Attribute
     public bool IsRequired { get; set; }
 
     /// <summary>
+    /// set to true if your header is not required but shouldn't be added to body model
+    /// </summary>
+    public bool RemoveFromBody { get; set; }
+
+    /// <summary>
     /// properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.
     /// </summary>
     /// <param name="isRequired">set to false if a validation error shouldn't be thrown when the current user request doesn't have a header matching the property name being bound to.</param>
-    public FromHeaderAttribute(bool isRequired)
+    /// <param name="removeFromBody">set to true if your header is not required but shouldn't be added to body model.</param>
+
+    public FromHeaderAttribute(bool isRequired, bool removeFromBody = false)
     {
         HeaderName = null;
         IsRequired = isRequired;
+        RemoveFromBody = removeFromBody;
     }
 
     /// <summary>
@@ -31,9 +39,12 @@ public class FromHeaderAttribute : Attribute
     /// </summary>
     /// <param name="headerName">optionally specify the header name to bind from. if not specified, the header name must match the name of the property being bound to.</param>
     /// <param name="isRequired">set to false if a validation error shouldn't be thrown when the current request doesn't have the specified header.</param>
-    public FromHeaderAttribute(string? headerName = null, bool isRequired = true)
+    /// <param name="removeFromBody">set to true if your header is not required but shouldn't be added to body model.</param>
+
+    public FromHeaderAttribute(string? headerName = null, bool isRequired = true, bool removeFromBody = false)
     {
         HeaderName = headerName;
         IsRequired = isRequired;
+        RemoveFromBody = removeFromBody;
     }
 }

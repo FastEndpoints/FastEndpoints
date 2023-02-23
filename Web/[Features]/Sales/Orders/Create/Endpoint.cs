@@ -25,12 +25,12 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
 
     public async override Task HandleAsync(Request r, CancellationToken t)
     {
-        var fullName = new TestCommand
+        var fullName = await new TestCommand
         {
             FirstName = "x",
             LastName = "y"
         }
-        .ExecuteAsync();
+        .ExecuteAsync(t);
 
         var userType = User.ClaimValue(Claim.UserType);
 
@@ -41,7 +41,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
             OrderTotal = 12345.67m,
         };
 
-        await PublishAsync(saleNotification, Mode.WaitForNone);
+        await PublishAsync(saleNotification, Mode.WaitForNone, t);
 
         await SendAsync(new Response
         {

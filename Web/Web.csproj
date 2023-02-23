@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -16,11 +16,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.2.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
+        <PackageReference Include="FluentValidation" Version="11.5.0" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj" />
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj" />
         <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj" />

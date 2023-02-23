@@ -1,5 +1,4 @@
 ﻿namespace TestCases.EventHandlingTest;
-
 public class NewItemAddedToStock : IEvent
 {
     public int ID { get; set; }
@@ -9,6 +8,11 @@ public class NewItemAddedToStock : IEvent
 
 public class NotifyCustomers : IEventHandler<NewItemAddedToStock>
 {
+    public NotifyCustomers(ILogger<NotifyCustomers> logger)
+    {
+        logger.LogInformation("scope factory and resolve works in IEventHandler!");
+    }
+
     public Task HandleAsync(NewItemAddedToStock eventModel, CancellationToken ct)
     {
         if (eventModel.Quantity == 0)

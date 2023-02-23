@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.Extensions.DependencyInjection;
 using Namotion.Reflection;
 using NJsonSchema.Generation;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
+using NSwag.Generation.Processors.Contexts;
 using NSwag.Generation.Processors.Security;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -30,6 +33,7 @@ public static class Extensions
     /// enable support for FastEndpoints in swagger
     /// </summary>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
+    /// <param name="tagCase">the casing strategy to use on endpoint tags</param>
     /// <param name="minEndpointVersion">endpoints lower than this vesion will not be included in the swagger doc</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     /// <param name="shortSchemaNames">set to true to make schema names just the name of the class instead of full type name</param>
@@ -39,6 +43,7 @@ public static class Extensions
     /// </param>
     public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
                                            int tagIndex,
+                                           TagCase tagCase,
                                            int minEndpointVersion,
                                            int maxEndpointVersion,
                                            bool shortSchemaNames,
@@ -47,7 +52,7 @@ public static class Extensions
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
         settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
-        settings.OperationProcessors.Add(new OperationProcessor(tagIndex, removeEmptySchemas));
+        settings.OperationProcessors.Add(new OperationProcessor(tagIndex, removeEmptySchemas, tagCase));
         settings.DocumentProcessors.Add(new DocumentProcessor(minEndpointVersion, maxEndpointVersion));
     }
 
@@ -80,12 +85,33 @@ public static class Extensions
     }
 
     /// <summary>
+    /// add swagger tag descriptions to the document
+    /// </summary>
+    /// <param name="documentTags">value tuples containing tag names and their descriptions</param>
+    public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings, params (string tagName, string tagDescription)[] documentTags)
+    {
+        settings.AddOperationFilter(ctx =>
+        {
+            foreach (var (tagName, tagDescription) in documentTags)
+            {
+                ctx.Document.Tags.Add(new OpenApiTag
+                {
+                    Name = tagName,
+                    Description = tagDescription
+                });
+            }
+            return true;
+        });
+    }
+
+    /// <summary>
     /// enable swagger support for FastEndpoints with a single call.
     /// </summary>
     /// <param name="settings">swaggergen config settings</param>
     /// <param name="serializerSettings">json serializer options</param>
     /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
     /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
+    /// <param name="tagCase">the casing strategy to use on endpoint tags</param>
     /// <param name="minEndpointVersion">endpoints lower than this vesion will not be included in the swagger doc</param>
     /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
     /// <param name="shortSchemaNames">set to true if you'd like schema names to be the class name intead of the full name</param>
@@ -99,6 +125,7 @@ public static class Extensions
                                                    Action<JsonSerializerOptions>? serializerSettings = null,
                                                    bool addJWTBearerAuth = true,
                                                    int tagIndex = 1,
+                                                   TagCase tagCase = TagCase.TitleCase,
                                                    int minEndpointVersion = 0,
                                                    int maxEndpointVersion = 0,
                                                    bool shortSchemaNames = false,
@@ -112,13 +139,28 @@ public static class Extensions
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             serializerSettings?.Invoke(stjOpts);
             s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
-            s.EnableFastEndpoints(tagIndex, minEndpointVersion, maxEndpointVersion, shortSchemaNames, removeEmptySchemas);
+            s.EnableFastEndpoints(tagIndex, tagCase, minEndpointVersion, maxEndpointVersion, shortSchemaNames, removeEmptySchemas);
             if (excludeNonFastEndpoints) s.OperationProcessors.Insert(0, new FastEndpointsFilter());
             if (addJWTBearerAuth) s.EnableJWTBearerAuth();
             settings?.Invoke(s);
             if (removeEmptySchemas) s.FlattenInheritanceHierarchy = removeEmptySchemas; //gotta force this here even if user asks not to flatten
         });
         return services;
+    }
+
+    /// <summary>
+    /// enables the open-api/swagger middleware for fastendpoints.
+    /// this method is simply a shortcut for the two calls [<c>app.UseOpenApi()</c>] and [<c>app.UseSwaggerUi3(c => c.ConfigureDefaults())</c>]
+    /// </summary>
+    /// <param name="config">optional config action for the open-api middleware</param>
+    /// <param name="uiConfig">optional config action for the swagger-ui</param>
+    public static IApplicationBuilder UseSwaggerGen(this IApplicationBuilder app,
+                                                    Action<OpenApiDocumentMiddlewareSettings>? config = null,
+                                                    Action<SwaggerUi3Settings>? uiConfig = null)
+    {
+        app.UseOpenApi(config);
+        app.UseSwaggerUi3((c => c.ConfigureDefaults()) + uiConfig);
+        return app;
     }
 
     /// <summary>
@@ -166,6 +208,23 @@ public static class Extensions
     /// <param name="filter">a function to use for filtering endpoints</param>
     public static void EndpointFilter(this AspNetCoreOpenApiDocumentGeneratorSettings x, Func<EndpointDefinition, bool> filter)
         => x.OperationProcessors.Insert(0, new EndpointFilter(filter));
+
+    /// <summary>
+    /// gets the <see cref="EndpointDefinition"/> from the nwag operation processor context if this is a FastEndpoint operation. otherwise returns null.
+    /// </summary>
+    public static EndpointDefinition? GetEndpointDefinition(this OperationProcessorContext ctx)
+        => ((AspNetCoreOperationProcessorContext)ctx)
+            .ApiDescription
+            .ActionDescriptor
+            .EndpointMetadata
+            .OfType<EndpointDefinition>()
+            .SingleOrDefault();
+
+    /// <summary>
+    /// gets the example object if any, from a given <see cref="ProducesResponseTypeMetadata"/> internal class
+    /// </summary>
+    public static object? GetExampleFromMetaData(this IProducesResponseTypeMetadata metadata)
+        => (metadata as ProducesResponseTypeMetadata)?.Example;
 
     internal static string Remove(this string value, string removeString)
     {

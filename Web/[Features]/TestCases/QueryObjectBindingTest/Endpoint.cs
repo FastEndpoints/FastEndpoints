@@ -14,12 +14,15 @@ public class Endpoint : Endpoint<Request, Response>
         {
             s.Description = "descr";
             s.Summary = "summary";
+            s.ResponseParam<Response>(200, s => s.String, "Some string property");
+            s.ResponseParam<Response>(s => s.Bool, "Some bool property");
         });
+        //SerializerContext(ApiSerializerContext.Default);
+        //next: fix sourcegen support here + FastEndpoints.Generator for .net 7
     }
 
     public override Task HandleAsync(Request r, CancellationToken t)
     {
-
         return SendAsync(new Response
         {
             Bool = r.Bool,

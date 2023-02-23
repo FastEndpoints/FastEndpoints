@@ -13,7 +13,7 @@ public interface IServiceResolverBase
     ///<para>
     /// <code>
     /// using var scope = CreateScope();
-    /// var scopedService = scope.ServiceProvider.GetService(...);
+    /// var scopedService = scope.Resolve&lt;MyService&gt;();
     /// </code>
     /// </para>
     /// </summary>

@@ -27,7 +27,7 @@ public class Event<TEvent> : EventBase where TEvent : notnull
         if (eventHandlers?.Any() is true)
             handlers = eventHandlers;
         else if (handlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
-            handlers = hndlrs.Select(ht => Config.ServiceResolver.CreateSingleton(ht)).Cast<IEventHandler<TEvent>>();
+            handlers = hndlrs.Select(Config.ServiceResolver.CreateSingleton).Cast<IEventHandler<TEvent>>();
     }
 
     /// <summary>
@@ -47,14 +47,14 @@ public class Event<TEvent> : EventBase where TEvent : notnull
             switch (waitMode)
             {
                 case Mode.WaitForNone:
-                    _ = Task.WhenAll(handlers.Select(h => h.HandleAsync(eventModel, cancellation)));
+                    _ = Parallel.ForEachAsync(handlers, cancellation, async (h, c) => await h.HandleAsync(eventModel, c));
                     return Task.CompletedTask;
 
                 case Mode.WaitForAny:
-                    return Task.WhenAny(handlers.Select(h => h.HandleAsync(eventModel, cancellation)));
+                    return Task.WhenAny(handlers.Select(h => Task.Run(() => h.HandleAsync(eventModel, cancellation), cancellation)));
 
                 case Mode.WaitForAll:
-                    return Task.WhenAll(handlers.Select(h => h.HandleAsync(eventModel, cancellation)));
+                    return Parallel.ForEachAsync(handlers, cancellation, async (h, c) => await h.HandleAsync(eventModel, c));
 
                 default:
                     return Task.CompletedTask;

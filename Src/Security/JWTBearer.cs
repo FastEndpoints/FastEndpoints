@@ -87,6 +87,36 @@ public static class JWTBearer
     /// generate a jwt token with the supplied parameters
     /// </summary>
     /// <param name="signingKey">the secret key to use for signing the tokens</param>
+    /// <param name="priviledges">an action to specify the privileges of the user</param>
+    /// <param name="issuer">the issuer</param>
+    /// <param name="audience">the audience</param>
+    /// <param name="expireAt">the expiry date</param>
+    /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
+    public static string CreateToken(string signingKey,
+                                     Action<UserPrivileges> priviledges,
+                                     string? issuer = null,
+                                     string? audience = null,
+                                     DateTime? expireAt = null,
+                                     TokenSigningStyle signingStyle = TokenSigningStyle.Symmetric)
+    {
+        var privs = new UserPrivileges();
+        priviledges(privs);
+
+        return CreateToken(
+            signingKey,
+            expireAt,
+            privs.Permissions,
+            privs.Roles,
+            privs.Claims,
+            issuer,
+            audience,
+            signingStyle);
+    }
+
+    /// <summary>
+    /// generate a jwt token with the supplied parameters
+    /// </summary>
+    /// <param name="signingKey">the secret key to use for signing the tokens</param>
     /// <param name="expireAt">the expiry date</param>
     /// <param name="permissions">one or more permissions to assign to the user principal</param>
     /// <param name="roles">one or more roles to assign the user principal</param>
@@ -109,7 +139,7 @@ public static class JWTBearer
             claimList.AddRange(claims);
 
         if (permissions != null)
-            claimList.AddRange(permissions.Select(p => new Claim(Constants.PermissionsClaimType, p)));
+            claimList.AddRange(permissions.Select(p => new Claim(Config.SecOpts.PermissionsClaimType, p)));
 
         if (roles != null)
             claimList.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
@@ -132,7 +162,7 @@ public static class JWTBearer
     {
         if (style == TokenSigningStyle.Asymmetric)
         {
-            using var rsa = RSA.Create();
+            var rsa = RSA.Create();
             rsa.ImportRSAPrivateKey(Convert.FromBase64String(key), out _);
             return new SigningCredentials(
                 new RsaSecurityKey(rsa),

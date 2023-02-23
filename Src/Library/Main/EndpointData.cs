@@ -22,10 +22,6 @@ internal sealed class EndpointData
                    ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
                    : endpoints;
         });
-
-        //need this here to cause the lazy factory to run now.
-        //because the endpoints are being added to DI container within the factory
-        _ = _endpoints.Value;
     }
 
     private static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options)
@@ -74,20 +70,20 @@ internal sealed class EndpointData
 
             discoveredTypes = assemblies
                 .Where(a =>
-                    !a.IsDynamic &&
-                    !excludes.Any(n => a.FullName!.StartsWith(n)))
+                      !a.IsDynamic &&
+                      !excludes.Any(n => a.FullName!.StartsWith(n)))
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
-                    !t.IsAbstract &&
-                    !t.IsInterface &&
-                    !t.IsGenericType &&
-                     t.GetInterfaces().Intersect(new[] {
-                         Types.IEndpoint,
-                         Types.IEventHandler,
-                         Types.ICommandHandler,
-                         Types.ISummary,
-                         options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                     }).Any() &&
+                      !t.IsAbstract &&
+                      !t.IsInterface &&
+                      !t.IsGenericType &&
+                       t.GetInterfaces().Intersect(new[] {
+                           Types.IEndpoint,
+                           Types.IEventHandler,
+                           Types.ICommandHandler,
+                           Types.ISummary,
+                           options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                       }).Any() &&
                     (options.Filter is null || options.Filter(t)));
         }
 
@@ -149,10 +145,11 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface.IsGenericType && tInterface.IsAssignableTo(Types.IEventHandler))
+                var tGeneric = tInterface.IsGenericType ? tInterface.GetGenericTypeDefinition() : null;
+
+                if (tGeneric == Types.IEventHandlerOf1) // IsAssignableTo() is no good here if the user inherits the interface.
                 {
                     var tEvent = tInterface.GetGenericArguments()[0];
-                    var handler = (IEventHandler)Activator.CreateInstance(t)!;
 
                     if (EventBase.handlerDict.TryGetValue(tEvent, out var handlers))
                         handlers.Add(t);
@@ -161,7 +158,7 @@ internal sealed class EndpointData
                     continue;
                 }
 
-                if (tInterface.IsGenericType && tInterface.IsAssignableTo(Types.ICommandHandler))
+                if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here also
                 {
                     var tCommand = tInterface.GetGenericArguments()[0];
 
@@ -195,7 +192,7 @@ internal sealed class EndpointData
                 .Where(p => p.CanRead && p.CanWrite && !p.IsDefined(Types.DontInjectAttribute))
                 .Select(p => new ServiceBoundEpProp()
                 {
-                    PropSetter = def.EndpointType.SetterForProp(p.Name),
+                    PropName = p.Name,
                     PropType = p.PropertyType,
                 })
                 .ToArray();

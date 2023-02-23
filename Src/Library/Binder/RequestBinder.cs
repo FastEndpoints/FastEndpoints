@@ -38,21 +38,19 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (tRequest.IsGenericType && tRequest.GetInterfaces().Contains(Types.IEnumerable))
             return;
 
-        foreach (var propInfo in tRequest.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+        foreach (var propInfo in tRequest.BindableProps())
         {
-            if (!propInfo.CanWrite || !propInfo.CanRead)
-                continue;
-
             if (isPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
                 continue; //allow other properties other than `Content` property if this is a plaintext request
 
             string? fieldName = null;
             var addPrimary = true;
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);
+            var attribs = Attribute.GetCustomAttributes(propInfo, true);
 
-            foreach (var att in propInfo.GetCustomAttributes()) //reduce allocations by doing this only once
+            for (var i = 0; i < attribs.Length; i++)
             {
-                switch (att)
+                switch (attribs[i])
                 {
                     case FromBodyAttribute:
                         if (fromBodyProp is not null) throw new InvalidOperationException($"Only one [FromBody] attribute is allowed on [{tRequest.FullName}].");
@@ -87,6 +85,43 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
+    private readonly bool bindJsonBody;
+    private readonly bool bindFormFields;
+    private readonly bool bindRouteValues;
+    private readonly bool bindQueryParams;
+    private readonly bool bindUserClaims;
+    private readonly bool bindHeaders;
+    private readonly bool bindPermissions;
+
+    /// <summary>
+    /// default constructor which enables all binding sources
+    /// </summary>
+    public RequestBinder()
+    {
+        bindJsonBody = true;
+        bindFormFields = true;
+        bindRouteValues = true;
+        bindQueryParams = true;
+        bindUserClaims = true;
+        bindHeaders = true;
+        bindPermissions = true;
+    }
+
+    /// <summary>
+    /// constructor accepting a bitwise combination of enums which enables only the specified binding sources
+    /// </summary>
+    /// <param name="enabledSources">a bitwise combination of enum values</param>
+    public RequestBinder(BindingSource enabledSources)
+    {
+        bindJsonBody = enabledSources.HasFlag(BindingSource.JsonBody);
+        bindFormFields = enabledSources.HasFlag(BindingSource.FormFields);
+        bindRouteValues = enabledSources.HasFlag(BindingSource.RouteValues);
+        bindQueryParams = enabledSources.HasFlag(BindingSource.QueryParams);
+        bindUserClaims = enabledSources.HasFlag(BindingSource.UserClaims);
+        bindHeaders = enabledSources.HasFlag(BindingSource.Headers);
+        bindPermissions = enabledSources.HasFlag(BindingSource.Permissions);
+    }
+
     /// <summary>
     /// override this method to customize the request binding logic
     /// </summary>
@@ -98,18 +133,18 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (skipModelBinding)
             return new TRequest();
 
-        var req = !isPlainTextRequest && ctx.HttpContext.Request.HasJsonContentType()
+        var req = !isPlainTextRequest && bindJsonBody && ctx.HttpContext.Request.HasJsonContentType()
                    ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
                    : isPlainTextRequest
                      ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
                      : new TRequest();
 
-        BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
-        BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
-        BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
-        BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
-        BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
-        BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+        if (bindFormFields) BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
+        if (bindRouteValues) BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
+        if (bindQueryParams) BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures, ctx.JsonSerializerContext);
+        if (bindUserClaims) BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+        if (bindHeaders) BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
+        if (bindPermissions) BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
 
         return ctx.ValidationFailures.Count == 0
                 ? req
@@ -171,7 +206,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures)
+    private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
     {
         if (query.Count == 0) return;
 
@@ -187,7 +222,12 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var swaggerStyle = !sortedDic.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
 
             fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);
-            fromQueryParamsProp.PropSetter(req, obj[Constants.QueryJsonNodeName].Deserialize(fromQueryParamsProp.PropType, SerOpts.Options));
+
+            fromQueryParamsProp.PropSetter(
+                req,
+                obj[Constants.QueryJsonNodeName].Deserialize(
+                    fromQueryParamsProp.PropType,
+                    serializerCtx?.Options ?? SerOpts.Options));
         }
     }
 
@@ -212,7 +252,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (claimVal is null && prop.ForbidIfMissing)
                 failures.Add(new(prop.Identifier, "User doesn't have this claim type!"));
 
-            if (claimVal is not null && prop.ValueParser is not null)
+            if (claimVal is not null)
             {
                 var res = prop.ValueParser(claimVal);
                 prop.PropSetter(req, res.Value);
@@ -233,7 +273,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (hdrVal.Count == 0 && prop.ForbidIfMissing)
                 failures.Add(new(prop.Identifier, "This header is missing from the request!"));
 
-            if (hdrVal.Count > 0 && prop.ValueParser is not null)
+            if (hdrVal.Count > 0)
             {
                 var res = prop.ValueParser(hdrVal);
                 prop.PropSetter(req, res.Value);
@@ -256,7 +296,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (!hasPerm && prop.ForbidIfMissing)
                 failures.Add(new(prop.Identifier, "User doesn't have this permission!"));
 
-            if (hasPerm && prop.ValueParser is not null)
+            if (hasPerm)
             {
                 var res = prop.ValueParser(hasPerm);
                 prop.PropSetter(req, res.Value);
@@ -269,15 +309,18 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     private static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures)
     {
-        if (primaryProps.TryGetValue(kvp.Key, out var prop) && prop.ValueParser is not null)
+        if (primaryProps.TryGetValue(kvp.Key, out var prop))
         {
             var res = prop.ValueParser(kvp.Value);
 
-            if (res.IsSuccess)
+            if (res.IsSuccess || IsNullablePropAndInputIsEmptyString(kvp, prop))
                 prop.PropSetter(req, res.Value);
             else
-                failures.Add(new(kvp.Key, $"Unable to bind [{kvp.Value}] to a [{prop.PropType.ActualName()}] property!"));
+                failures.Add(new(kvp.Key, BndOpts.FailureMessage(prop.PropType, kvp.Key, kvp.Value)));
         }
+
+        static bool IsNullablePropAndInputIsEmptyString(KeyValuePair<string, StringValues> kvp, PrimaryPropCacheEntry prop)
+            => kvp.Value[0]?.Length == 0 && Nullable.GetUnderlyingType(prop.PropType) != null;
     }
 
     private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)

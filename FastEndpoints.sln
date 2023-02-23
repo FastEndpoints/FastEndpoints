@@ -52,6 +52,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Attributes", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.ClientGen", "Src\ClientGen\FastEndpoints.ClientGen.csproj", "{B7B4A4B5-B017-46E2-9897-07A84B5341A0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Generator", "Src\Generator\FastEndpoints.Generator.csproj", "{9E89D6C1-6580-4995-B5C6-2D55C34354CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -204,6 +206,14 @@ Global
 		{B7B4A4B5-B017-46E2-9897-07A84B5341A0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B7B4A4B5-B017-46E2-9897-07A84B5341A0}.Release|x86.ActiveCfg = Release|Any CPU
 		{B7B4A4B5-B017-46E2-9897-07A84B5341A0}.Release|x86.Build.0 = Release|Any CPU
+		{9E89D6C1-6580-4995-B5C6-2D55C34354CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E89D6C1-6580-4995-B5C6-2D55C34354CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E89D6C1-6580-4995-B5C6-2D55C34354CF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9E89D6C1-6580-4995-B5C6-2D55C34354CF}.Debug|x86.Build.0 = Debug|Any CPU
+		{9E89D6C1-6580-4995-B5C6-2D55C34354CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E89D6C1-6580-4995-B5C6-2D55C34354CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E89D6C1-6580-4995-B5C6-2D55C34354CF}.Release|x86.ActiveCfg = Release|Any CPU
+		{9E89D6C1-6580-4995-B5C6-2D55C34354CF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

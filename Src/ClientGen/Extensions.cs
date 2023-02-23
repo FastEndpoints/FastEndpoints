@@ -107,12 +107,12 @@ public static class Extensions
                 throw new InvalidOperationException("Either csharp or typescript client generator settings must be provided!");
 
             await app.StartAsync();
-
             var docs = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
-            var doc = await docs.GenerateAsync(documentName);
-            var logger = app.Services.GetRequiredService<ILogger<Runner>>();
 
+            var logger = app.Services.GetRequiredService<ILogger<Runner>>();
             logger.LogInformation("Api client generation starting...");
+
+            var doc = await docs.GenerateAsync(documentName);
 
             if (csSettings is not null)
             {
@@ -139,6 +139,33 @@ public static class Extensions
                 await File.WriteAllTextAsync(Path.Combine(destinationPath, tsGenSettings.ClassName + ".ts"), source);
                 logger.LogInformation("TypeScript api client generation successful!");
             }
+
+            await app.StopAsync();
+            Environment.Exit(0);
+        }
+    }
+
+    /// <summary>
+    /// exports swagger.json files to disk if the application is run with the commandline argument <c>--exportswaggerjson true</c>
+    /// and exits the program with a zero exit code.
+    /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
+    /// </summary>
+    /// <param name="documentName">the name of the swagger document to generate the clients for</param>
+    /// <param name="destinationPath">the folder path (without file name) where the client files will be save to</param>
+    public static async Task ExportSwaggerJsonAndExitAsync(this WebApplication app, string documentName, string destinationPath)
+    {
+        if (app.Configuration["exportswaggerjson"] == "true")
+        {
+            await app.StartAsync();
+
+            var logger = app.Services.GetRequiredService<ILogger<Runner>>();
+            logger.LogInformation("Exporting json file for doc: [{doc}]", documentName);
+
+            var generator = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
+            var doc = await generator.GenerateAsync(documentName);
+            var json = doc.ToJson();
+            await File.WriteAllTextAsync(Path.Combine(destinationPath, documentName.ToLowerInvariant().Replace(" ", "-") + ".json"), json);
+            logger.LogInformation("Swagger json export successful!");
 
             await app.StopAsync();
             Environment.Exit(0);

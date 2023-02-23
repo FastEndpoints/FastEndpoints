@@ -6,7 +6,6 @@ public class QueryRequest
 {
     [FromQueryParams]
     public QueryObject? Query { get; set; }
-
 }
 public class QueryObject
 {
@@ -16,7 +15,6 @@ public class QueryObject
     public int Age { get; set; }
     public IEnumerable<string>? PhoneNumbers { get; set; }
     public NestedQueryObject? NestedQueryObject { get; set; }
-
 }
 public class NestedQueryObject
 {

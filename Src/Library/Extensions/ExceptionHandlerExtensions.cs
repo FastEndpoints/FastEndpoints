@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
 
@@ -32,7 +31,7 @@ public static class ExceptionHandlerExtensions
                 var exHandlerFeature = ctx.Features.Get<IExceptionHandlerFeature>();
                 if (exHandlerFeature is not null)
                 {
-                    logger ??= ctx.RequestServices.GetRequiredService<ILogger<ExceptionHandler>>();
+                    logger ??= ctx.Resolve<ILogger<ExceptionHandler>>();
                     var http = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
                     var type = exHandlerFeature.Error.GetType().Name;
                     var error = exHandlerFeature.Error.Message;

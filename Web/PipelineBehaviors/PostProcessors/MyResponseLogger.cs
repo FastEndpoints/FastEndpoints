@@ -6,7 +6,7 @@ public class MyResponseLogger<TRequest, TResponse> : IPostProcessor<TRequest, TR
 {
     public Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct)
     {
-        var logger = ctx.RequestServices.GetRequiredService<ILogger<TResponse>>();
+        var logger = ctx.Resolve<ILogger<TResponse>>();
 
         if (res is Sales.Orders.Create.Response response)
         {

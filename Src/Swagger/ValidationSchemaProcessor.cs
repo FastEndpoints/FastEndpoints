@@ -42,8 +42,11 @@ public class ValidationSchemaProcessor : ISchemaProcessor
 
     public ValidationSchemaProcessor()
     {
-        _rules = CreateDefaultRules();
+        if (Config.ServiceResolver is null)
+            throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
+
         _logger = Config.ServiceResolver.Resolve<ILogger<ValidationSchemaProcessor>>();
+        _rules = CreateDefaultRules();
 
         if (validatorTypes?.Length == 0 && MainExtensions.Endpoints is null)
         {

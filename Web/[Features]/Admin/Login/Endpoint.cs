@@ -19,6 +19,7 @@ public class Endpoint : Endpoint<Request, Response>
         Routes("admin/login");
         AllowAnonymous();
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
+        RequestBinder(new RequestBinder<Request>(BindingSource.JsonBody | BindingSource.QueryParams));
         Description(b => b
             .Accepts<Request>("application/json")
             .Produces<Response>(200, "application/json")

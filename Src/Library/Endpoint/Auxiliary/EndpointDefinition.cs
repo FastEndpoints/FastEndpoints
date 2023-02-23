@@ -47,15 +47,33 @@ public sealed class EndpointDefinition
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal bool ImplementsConfigure;
-    internal object? MapperInstance;
+    internal bool IsInitialized;
     internal object? RequestBinder;
     internal List<object> PreProcessorList = new();
     internal List<object> PostProcessorList = new();
     internal ServiceBoundEpProp[]? ServiceBoundEpProps;
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
+    internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
-    internal object? ValidatorInstance;
+
+    private object? mapper;
+    internal object? GetMapper()
+    {
+        if (mapper is null && MapperType is not null)
+            mapper = Config.ServiceResolver.CreateSingleton(MapperType);
+
+        return mapper;
+    }
+
+    private object? validator;
+    internal object? GetValidator()
+    {
+        if (validator is null && ValidatorType is not null)
+            validator = Config.ServiceResolver.CreateSingleton(ValidatorType);
+
+        return validator;
+    }
 
     private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
     {
@@ -289,6 +307,13 @@ public sealed class EndpointDefinition
     }
 
     /// <summary>
+    /// configure a response interceptor to be called before any SendAsync() methods are called.
+    /// if the interceptor sends a response to the client, the SendAsync() will be ignored.
+    /// </summary>
+    /// <param name="responseInterceptor">the response interceptor to be configured for the endpoint</param>
+    public void ResponseInterceptor(IResponseInterceptor responseInterceptor) => ResponseIntrcptr = responseInterceptor;
+
+    /// <summary>
     /// allows access if the claims principal has ANY of the given roles
     /// <para>HINT: these roles will be applied in addition to endpoint level roles if there's any</para>
     /// </summary>
@@ -373,7 +398,7 @@ public sealed class EpVersion
     public int Current { get; internal set; }
     public int DeprecatedAt { get; internal set; }
 
-    internal void Setup()
+    internal void Init()
     {
         if (Current == 0)
             Current = VerOpts.DefaultVersion;
@@ -382,8 +407,9 @@ public sealed class EpVersion
 
 internal sealed class ServiceBoundEpProp
 {
+    public string PropName { get; set; }
     public Type PropType { get; set; }
-    public Action<object, object> PropSetter { get; set; }
+    public Action<object, object>? PropSetter { get; set; }
 }
 
 internal class TypeEqualityComparer : IEqualityComparer<object>

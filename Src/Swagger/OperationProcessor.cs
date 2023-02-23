@@ -8,6 +8,7 @@ using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 using System.Collections;
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -15,7 +16,9 @@ namespace FastEndpoints.Swagger;
 
 internal class OperationProcessor : IOperationProcessor
 {
-    private static readonly Regex regex = new(@"(?<=\{)[^}]*(?=\})", RegexOptions.Compiled);
+    private static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
+    private static readonly Regex routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);
+    private static readonly Regex routeConstraintsRegex = new("(?<={)([^?:}]+)[^}]*(?=})", RegexOptions.Compiled);
     private static readonly Dictionary<string, string> defaultDescriptions = new()
     {
         { "200", "Success" },
@@ -34,17 +37,19 @@ internal class OperationProcessor : IOperationProcessor
 
     private readonly int tagIndex;
     private readonly bool removeEmptySchemas;
+    private readonly TagCase tagCase;
 
-    public OperationProcessor(int tagIndex, bool removeEmptySchemas)
+    public OperationProcessor(int tagIndex, bool removeEmptySchemas, TagCase tagCase)
     {
         this.tagIndex = tagIndex;
         this.removeEmptySchemas = removeEmptySchemas;
+        this.tagCase = tagCase;
     }
 
     public bool Process(OperationProcessorContext ctx)
     {
         var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
-        var epDef = metaData.OfType<EndpointDefinition>().SingleOrDefault();
+        var epDef = metaData.OfType<EndpointDefinition>().SingleOrDefault(); //use shortcut `ctx.GetEndpointDefinition()` for your own processors
         var schemaGeneratorSettings = ctx.SchemaGenerator.Settings;
 
         if (epDef is null)
@@ -53,11 +58,12 @@ internal class OperationProcessor : IOperationProcessor
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
         var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!)}";//fix missing path parameters
         var apiVer = epDef.Version.Current;
-        var version = $"/{Config.VerOpts.Prefix ?? "v"}{apiVer}";
-        var routePrefix = "/" + (Config.EpOpts.RoutePrefix ?? "_");
+        var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{apiVer}";
+        var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");
         var bareRoute = opPath.Remove(routePrefix).Remove(version);
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;
+        var serializer = Newtonsoft.Json.JsonSerializer.Create(ctx.SchemaGenerator.Settings.ActualSerializerSettings);
 
         //set operation id if user has specified
         if (nameMetaData is not null)
@@ -68,7 +74,7 @@ internal class OperationProcessor : IOperationProcessor
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= tagIndex)
-                op.Tags.Add(segments[tagIndex - 1]);
+                op.Tags.Add(TagName(segments[tagIndex - 1], tagCase));
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
@@ -97,12 +103,12 @@ internal class OperationProcessor : IOperationProcessor
              {
                  object? example = null;
                  _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
+                 example = g.Last().GetExampleFromMetaData() ?? example;
+                 example = example is not null ? JToken.FromObject(example, serializer) : null;
                  return new {
                      key = k.ToString(),
                      cTypes = g.Last().ContentTypes,
-                     example = Newtonsoft.Json.JsonConvert.SerializeObject(
-                         (g.Last() as ProducesResponseTypeMetadata)?.Example ?? example,
-                         ctx.SchemaGenerator.Settings.ActualSerializerSettings)
+                     example = example
                  };
              })
              .ToDictionary(x => x.key);
@@ -113,7 +119,7 @@ internal class OperationProcessor : IOperationProcessor
                 {
                     var cTypes = metas[rsp.Key].cTypes;
                     var mediaType = rsp.Value.Content.FirstOrDefault().Value;
-                    if (metas.TryGetValue(rsp.Key, out var x) && x.example is not "null")
+                    if (metas.TryGetValue(rsp.Key, out var x) && x.example is not null)
                     {
                         mediaType.Example = x.example;
                     }
@@ -129,7 +135,7 @@ internal class OperationProcessor : IOperationProcessor
         op.Summary = epDef.EndpointSummary?.Summary ?? epDef.EndpointType.GetSummary();
         op.Description = epDef.EndpointSummary?.Description ?? epDef.EndpointType.GetDescription();
 
-        //set response descriptions (no xml comments support here, yet!)
+        //set response descriptions
         op.Responses
           .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
           .ToList()
@@ -142,11 +148,33 @@ internal class OperationProcessor : IOperationProcessor
 
               if (epDef.EndpointSummary?.Responses.ContainsKey(key) is true)
                   res.Value.Description = epDef.EndpointSummary.Responses[key]; //then take values from summary object
+
+              if (epDef.EndpointSummary?.ResponseParams.ContainsKey(key) is true && res.Value.Schema is not null)
+              {
+                  //set response dto property descriptions
+
+                  var responseSchema = res.Value.Schema.ActualSchema;
+                  var responseDescriptions = epDef.EndpointSummary.ResponseParams[key];
+                  foreach (var prop in responseSchema.ActualProperties)
+                  {
+                      if (responseDescriptions.ContainsKey(prop.Key))
+                          prop.Value.Description = responseDescriptions[prop.Key];
+                  }
+
+                  if (responseSchema.InheritedSchema is not null)
+                  {
+                      foreach (var prop in responseSchema.InheritedSchema.ActualProperties)
+                      {
+                          if (responseDescriptions.ContainsKey(prop.Key))
+                              prop.Value.Description = responseDescriptions[prop.Key];
+                      }
+                  }
+              }
           });
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);
-        var reqDtoProps = reqDtoIsList is true ? null : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var reqDtoProps = reqDtoIsList is true ? null : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).ToList();
         var isGETRequest = apiDescription.HttpMethod == "GET";
 
         //store unique request param description (from each consumes/content type) for later use.
@@ -196,22 +224,22 @@ internal class OperationProcessor : IOperationProcessor
 
         if (reqDtoProps != null)
         {
-            //Remove the readonly properties from the request body
-            foreach (var p in reqDtoProps.Where(p => !p.CanWrite))
+            foreach (var p in reqDtoProps.Where(p => p.GetSetMethod()?.IsPublic is not true).ToArray()) //prop has no public setter
             {
                 RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                reqDtoProps.Remove(p);
             }
         }
 
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
-        reqParams = regex
-            .Matches(apiDescription?.RelativePath!)
+        reqParams = routeParamsRegex
+            .Matches(opPath)
             .Select(m =>
             {
                 var pInfo = reqDtoProps?.SingleOrDefault(p =>
                 {
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-                    if (string.Equals(pName, ActualParamName(m.Value), StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                     {
                         RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                         return true;
@@ -221,11 +249,11 @@ internal class OperationProcessor : IOperationProcessor
 
                 return new OpenApiParameter
                 {
-                    Name = ActualParamName(m.Value),
+                    Name = m.Value,
                     Kind = OpenApiParameterKind.Path,
                     IsRequired = true,
                     Schema = ctx.SchemaGenerator.Generate(pInfo?.PropertyType ?? Types.String, ctx.SchemaResolver),
-                    Description = reqParamDescriptions.GetValueOrDefault(ActualParamName(m.Value)),
+                    Description = reqParamDescriptions.GetValueOrDefault(m.Value),
                     Default = pInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value,
                     Example = pInfo?.GetExample()
                 };
@@ -353,16 +381,11 @@ internal class OperationProcessor : IOperationProcessor
             {
                 if (epDef.EndpointSummary.ExampleRequest.GetType().IsAssignableTo(typeof(IEnumerable)))
                 {
-                    requestBody.ActualSchema.Example = Newtonsoft.Json.JsonConvert.SerializeObject(
-                        epDef.EndpointSummary.ExampleRequest,
-                        ctx.SchemaGenerator.Settings.ActualSerializerSettings);
+                    requestBody.ActualSchema.Example = JToken.FromObject(epDef.EndpointSummary.ExampleRequest, serializer);
                 }
                 else
                 {
-                    var jObj = JObject.Parse(
-                    Newtonsoft.Json.JsonConvert.SerializeObject(
-                        epDef.EndpointSummary.ExampleRequest,
-                        ctx.SchemaGenerator.Settings.ActualSerializerSettings));
+                    var jObj = JObject.FromObject(epDef.EndpointSummary.ExampleRequest, serializer);
 
                     foreach (var p in jObj.Properties().ToArray())
                     {
@@ -377,19 +400,8 @@ internal class OperationProcessor : IOperationProcessor
         return true;
     }
 
-    private static string ActualParamName(string input)
-    {
-        var index = input.IndexOfAny(new[] { '=', ':' });
-        index = index == -1 ? input.Length : index;
-        var left = input[..index];
-        return left.TrimEnd('?');
-    }
-
     private static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGETRequest)
     {
-        if (!prop.CanWrite)
-            return false;
-
         var paramName = prop.Name;
 
         foreach (var attribute in prop.GetCustomAttributes())
@@ -454,15 +466,19 @@ internal class OperationProcessor : IOperationProcessor
         var parts = relativePath.Split('/');
 
         for (var i = 0; i < parts.Length; i++)
-        {
-            var p = ActualParamName(parts[i]);
-
-            if (p.StartsWith("{") && !p.EndsWith("}"))
-                p += "}";
-
-            parts[i] = p;
-        }
+            parts[i] = routeConstraintsRegex.Replace(parts[i], "$1");
 
         return string.Join("/", parts);
+    }
+
+    private static string TagName(string input, TagCase tagCase)
+    {
+        return tagCase switch
+        {
+            TagCase.None => input,
+            TagCase.TitleCase => textInfo.ToTitleCase(input),
+            TagCase.LowerCase => textInfo.ToLower(input),
+            _ => input,
+        };
     }
 }

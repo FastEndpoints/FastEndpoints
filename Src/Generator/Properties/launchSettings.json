@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "gen": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\Web\\Web.csproj"
+    }
+  }
+}

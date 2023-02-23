@@ -10,7 +10,7 @@ namespace FastEndpoints;
 public class EndpointSummary
 {
     internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
-
+    internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; set; } = new(); //key: status-code //val: [propname]=description
     internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b =>
     {
         b.Add(epBuilder =>
@@ -22,6 +22,16 @@ public class EndpointSummary
             }
         });
     };
+
+    /// <summary>
+    /// indexer for the response descriptions
+    /// </summary>
+    /// <param name="statusCode">the status code of the response you want to access</param>
+    /// <returns>the text description</returns>
+    public string this[int statusCode] {
+        get => Responses[statusCode];
+        set => Responses[statusCode] = value;
+    }
 
     /// <summary>
     /// the short summary of the endpoint
@@ -36,7 +46,13 @@ public class EndpointSummary
     /// <summary>
     /// an example request object to be used in swagger/ openapi.
     /// </summary>
-    public object? ExampleRequest { get; set; }
+    public object? ExampleRequest { get; set; } //todo: support for multiple example requests
+
+    /// <summary>
+    /// the descriptions for endpoint paramaters. you can add descriptions for route/query params and request dto properties.
+    /// what you specify here will take precedence over xml comments of dto classes (if they are also specified).
+    /// </summary>
+    public Dictionary<string, string> Params { get; set; } = new();
 
     /// <summary>
     /// the descriptions of the different responses/ status codes an endpoint can return
@@ -49,23 +65,31 @@ public class EndpointSummary
     public Dictionary<int, object> ResponseExamples { get; set; } = new();
 
     /// <summary>
-    /// the descriptions for endpoint paramaters. you can add descriptions for route/query params and request dto properties.
-    /// what you specify here will take precedence over xml comments of dto classes (if they are also specified).
+    /// add a description for a given property of a given response dto
     /// </summary>
-    public Dictionary<string, string> Params { get; set; } = new();
-
-    /// <summary>
-    /// indexer for the response descriptions
-    /// </summary>
-    /// <param name="statusCode">the status code of the response you want to access</param>
-    /// <returns>the text description</returns>
-    public string this[int statusCode] {
-        get => Responses[statusCode];
-        set => Responses[statusCode] = value;
+    /// <param name="statusCode">the status code of the response you want to add the descriptions for</param>
+    /// <param name="property">a member expression for specifying which property the description is for</param>
+    /// <param name="description">the description text</param>
+    public void ResponseParam<TResponse>(int statusCode, Expression<Func<TResponse, object>> property, string description)
+    {
+        if (!ResponseParams.ContainsKey(statusCode))
+            ResponseParams[statusCode] = new(StringComparer.OrdinalIgnoreCase);
+        ResponseParams[statusCode][property.PropertyName()] = description;
     }
 
     /// <summary>
+    /// add a description for a given property of the 200 response dto
+    /// </summary>
+    /// <param name="property">a member expression for specifying which property the description is for</param>
+    /// <param name="description">the description text</param>
+    public void ResponseParam<TResponse>(Expression<Func<TResponse, object>> property, string description)
+        => ResponseParam(200, property, description);
+
+    /// <summary>
     /// add a response description to the swagger document
+    /// <para>
+    /// NOTE: if you use the this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it applies to your endpoint.
+    /// </para>
     /// </summary>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="statusCode">http status code</param>
@@ -88,6 +112,7 @@ public class EndpointSummary
 
     /// <summary>
     /// add a response description that doesn't have a response dto to the swagger document
+    /// NOTE: if you use the this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it applies to your endpoint.
     /// </summary>
     /// <param name="statusCode">http status code</param>
     /// <param name="description">the description of the response</param>
@@ -127,14 +152,3 @@ public abstract class Summary<TEndpoint> : EndpointSummary, ISummary where TEndp
 ///<typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
 ///<typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Summary<TEndpoint, TRequest> : EndpointSummary<TRequest>, ISummary where TEndpoint : IEndpoint where TRequest : new() { }
-
-internal class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
-{
-    public Type? Type { get; set; }
-
-    public int StatusCode { get; set; }
-
-    public IEnumerable<string> ContentTypes { get; set; }
-
-    public object? Example { get; set; }
-}

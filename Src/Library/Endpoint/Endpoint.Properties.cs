@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using System.Text.Json;
@@ -15,6 +16,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private ILogger _logger;
     private IWebHostEnvironment _env;
     private TResponse _response;
+    private IConfiguration? _config;
 
     /// <summary>
     /// indicates if there are any validation failures for the current request
@@ -33,6 +35,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     public TResponse Response {
         get => _response is null ? InitResponseDTO() : _response;
         set => _response = value;
+    }
+
+    /// <summary>
+    /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <c>.AddFastEndpoints(config: builder.Configuration)</c>
+    /// </summary>
+    [DontInject]
+    public IConfiguration Config {
+        get => _config ??= FastEndpoints.Config.ServiceResolver.Resolve<IConfiguration>();
+        internal set => _config = value;
     }
 
     /// <summary>

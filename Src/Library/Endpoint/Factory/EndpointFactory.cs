@@ -16,14 +16,21 @@ public class EndpointFactory : IEndpointFactory
     /// <param name="ctx">the http context for the current request</param>
     public BaseEndpoint Create(EndpointDefinition definition, HttpContext ctx)
     {
-        //note: if the default factory is being called, that means it's ok to use RequestServices below since the default MS DI is being used
+        //note: if the default factory is being called, that means it's ok to use HttpContext.RequestServices below since the default MS DI is being used
 
         var epInstance = (BaseEndpoint)Config.ServiceResolver.CreateInstance(definition.EndpointType, ctx.RequestServices);
+
+        var isAppStartup = ctx.Connection.Id == null;
 
         for (var i = 0; i < definition.ServiceBoundEpProps?.Length; i++)
         {
             var prop = definition.ServiceBoundEpProps[i];
-            prop.PropSetter(epInstance, ctx.RequestServices.GetRequiredService(prop.PropType));
+            prop.PropSetter ??= definition.EndpointType.SetterForProp(prop.PropName);
+            prop.PropSetter(
+                epInstance,
+                isAppStartup
+                 ? ctx.RequestServices.GetRequiredService(prop.PropType)
+                 : ctx.Resolve(prop.PropType));
         }
 
         return epInstance;

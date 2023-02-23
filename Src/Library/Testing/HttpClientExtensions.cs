@@ -18,28 +18,28 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-    public static async Task<(HttpResponseMessage? response, TResponse? result)>
+    public static async Task<TestResult<TResponse>>
         POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.PostAsJsonAsync(requestUri, request, SerOpts.Options);
+        var rsp = await client.PostAsJsonAsync(requestUri, request, SerOpts.Options);
 
         if (typeof(TResponse) == Types.EmptyResponse)
-            return (res, default(TResponse));
+            return new(rsp, default);
 
-        TResponse? body;
+        TResponse? res;
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
+            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
         catch (JsonException)
         {
-            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync()}";
+            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
             throw new InvalidOperationException(
                 $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
         }
 
-        return (res, body);
+        return new(rsp, res);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<(HttpResponseMessage? response, TResponse? result)>
+    public static Task<TestResult<TResponse>>
         POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => POSTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
@@ -59,10 +59,10 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage?> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
-        var (response, _) = await POSTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
-        return response;
+        var (rsp, _) = await POSTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
+        return rsp;
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public static class HttpClientExtensions
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> POSTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => POSTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
@@ -81,27 +81,27 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-    public static async Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+    public static async Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.PutAsJsonAsync(requestUri, request, SerOpts.Options);
+        var rsp = await client.PutAsJsonAsync(requestUri, request, SerOpts.Options);
 
         if (typeof(TResponse) == Types.EmptyResponse)
-            return (res, default(TResponse));
+            return new(rsp, default);
 
-        TResponse? body;
+        TResponse? res;
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
+            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
         catch (JsonException)
         {
-            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync()}";
+            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
             throw new InvalidOperationException(
                 $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
         }
 
-        return (res, body);
+        return new(rsp, res);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => PUTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
@@ -120,10 +120,10 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage?> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
-        var (response, _) = await PUTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
-        return response;
+        var (rsp, _) = await PUTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
+        return rsp;
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ public static class HttpClientExtensions
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> PUTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => PUTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
@@ -142,9 +142,9 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-    public static async Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+    public static async Task<TestResult<TResponse>> GETAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.SendAsync(
+        var rsp = await client.SendAsync(
             new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
@@ -155,22 +155,22 @@ public static class HttpClientExtensions
             });
 
         if (typeof(TResponse) == Types.EmptyResponse)
-            return (res, default(TResponse));
+            return new(rsp, default);
 
-        TResponse? body;
+        TResponse? res;
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
+            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
         catch (JsonException)
         {
-            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync()}";
+            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
             throw new InvalidOperationException(
                 $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
         }
 
-        return (res, body);
+        return new(rsp, res);
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => GETAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
@@ -189,10 +189,10 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage?> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
-        var (response, _) = await GETAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
-        return response;
+        var (rsp, _) = await GETAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
+        return rsp;
     }
 
     /// <summary>
@@ -200,7 +200,7 @@ public static class HttpClientExtensions
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> GETAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => GETAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
@@ -211,9 +211,9 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-    public static async Task<(HttpResponseMessage? response, TResponse? result)> DELETEAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+    public static async Task<TestResult<TResponse>> DELETEAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
     {
-        var res = await client.SendAsync(
+        var rsp = await client.SendAsync(
             new HttpRequestMessage
             {
                 Method = HttpMethod.Delete,
@@ -224,22 +224,22 @@ public static class HttpClientExtensions
             });
 
         if (typeof(TResponse) == Types.EmptyResponse)
-            return (res, default(TResponse));
+            return new(rsp, default);
 
-        TResponse? body;
+        TResponse? res;
 
         try
         {
-            body = await res.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
+            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
         catch (JsonException)
         {
-            var reason = $"[{res.StatusCode}] {await res.Content.ReadAsStringAsync()}";
+            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
             throw new InvalidOperationException(
                 $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
         }
 
-        return (res, body);
+        return new(rsp, res);
     }
 
     /// <summary>
@@ -249,7 +249,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => DELETEAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
@@ -258,10 +258,10 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage?> DELETEAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> DELETEAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
-        var (response, _) = await DELETEAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
-        return response;
+        var (rsp, _) = await DELETEAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
+        return rsp;
     }
 
     /// <summary>
@@ -269,6 +269,6 @@ public static class HttpClientExtensions
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<(HttpResponseMessage? response, TResponse? result)> DELETEAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => DELETEAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 }

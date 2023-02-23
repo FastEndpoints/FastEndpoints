@@ -4,31 +4,31 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Runner;
 
-[MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, targetCount: 10, invocationCount: 10000)]
+[MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, iterationCount: 10, invocationCount: 10000)]
 public class EmptyRequestBenchmarks
 {
-    private static HttpClient emptyClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
-    private static HttpClient objectClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    private static HttpClient EmptyClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    private static HttpClient ObjectClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
 
     [Benchmark(Baseline = true)]
     public Task EmptyRequest()
     {
-        return emptyClient.SendAsync(
+        return EmptyClient.SendAsync(
             new HttpRequestMessage()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{emptyClient.BaseAddress}empty-request"),
+                RequestUri = new Uri($"{EmptyClient.BaseAddress}empty-request"),
             });
     }
 
     [Benchmark]
     public Task ObjectRequest()
     {
-        return objectClient.SendAsync(
+        return ObjectClient.SendAsync(
             new HttpRequestMessage()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{objectClient.BaseAddress}object-request"),
+                RequestUri = new Uri($"{ObjectClient.BaseAddress}object-request"),
             });
     }
 }

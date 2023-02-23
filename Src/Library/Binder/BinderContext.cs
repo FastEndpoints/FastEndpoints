@@ -11,7 +11,7 @@ namespace FastEndpoints;
 /// <summary>
 /// binder context supplied to custom request binders.
 /// </summary>
-public struct BinderContext : IServiceResolverBase
+public readonly struct BinderContext : IServiceResolverBase
 {
     /// <summary>
     /// the http context of the current request

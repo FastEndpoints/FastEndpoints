@@ -8,9 +8,9 @@ internal class ServiceResolver : IServiceResolver
 {
     private readonly ConcurrentDictionary<Type, ObjectFactory> factoryCache = new();
     private readonly IServiceProvider rootProvider;
-    private readonly IHttpContextAccessor ctxAccessor;
+    private readonly IHttpContextAccessor? ctxAccessor;
 
-    public ServiceResolver(IServiceProvider provider, IHttpContextAccessor ctxAccessor)
+    public ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ctxAccessor = null)
     {
         rootProvider = provider;
         this.ctxAccessor = ctxAccessor;
@@ -19,7 +19,7 @@ internal class ServiceResolver : IServiceResolver
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
         var factory = factoryCache.GetOrAdd(type, (t) => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes));
-        return factory(serviceProvider ?? ctxAccessor.HttpContext?.RequestServices ?? rootProvider, null);
+        return factory(serviceProvider ?? ctxAccessor?.HttpContext?.RequestServices ?? rootProvider, null);
     }
 
     public object CreateSingleton(Type type)
@@ -30,18 +30,18 @@ internal class ServiceResolver : IServiceResolver
     public IServiceScope CreateScope() => rootProvider.CreateScope();
 
     public TService Resolve<TService>() where TService : class
-        => ctxAccessor.HttpContext?.RequestServices.GetRequiredService<TService>() ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetRequiredService<TService>() ??
            rootProvider.GetRequiredService<TService>();
 
     public object Resolve(Type typeOfService)
-        => ctxAccessor.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
            rootProvider.GetRequiredService(typeOfService);
 
     public TService? TryResolve<TService>() where TService : class
-        => ctxAccessor.HttpContext?.RequestServices.GetService<TService>() ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetService<TService>() ??
            rootProvider.GetService<TService>();
 
     public object? TryResolve(Type typeOfService)
-        => ctxAccessor.HttpContext?.RequestServices.GetService(typeOfService) ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetService(typeOfService) ??
            rootProvider.GetService(typeOfService);
 }

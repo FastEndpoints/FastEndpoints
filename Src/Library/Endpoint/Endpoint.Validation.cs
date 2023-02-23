@@ -16,7 +16,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="severity">the severity of the error</param>
     protected void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
     {
-        var validationFailure = new ValidationFailure("GeneralErrors", message)
+        var validationFailure = new ValidationFailure(FastEndpoints.Config.ErrOpts.GeneralErrorsField, message)
         {
             ErrorCode = errorCode,
             Severity = severity
@@ -75,19 +75,17 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowError)}() called");
     }
 
-    private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition ep, List<object> preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    private static async Task ValidateRequest(TRequest req, HttpContext ctx, EndpointDefinition def, List<object> preProcessors, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        if (ep.ValidatorInstance is null)
+        if (def.ValidatorType is null)
             return;
 
-        var validator = (IValidator<TRequest>)ep.ValidatorInstance;
-
-        var valResult = await validator.ValidateAsync(req, cancellation);
+        var valResult = await ((IValidator<TRequest>)def.GetValidator()!).ValidateAsync(req, cancellation);
 
         if (!valResult.IsValid)
             validationFailures.AddRange(valResult.Errors);
 
-        if (validationFailures.Count > 0 && ep.ThrowIfValidationFails)
+        if (validationFailures.Count > 0 && def.ThrowIfValidationFails)
         {
             await RunPreprocessors(preProcessors, req, ctx, validationFailures, cancellation);
             throw new ValidationFailureException(validationFailures, "Request validation failed");

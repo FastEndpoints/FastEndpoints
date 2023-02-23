@@ -215,7 +215,8 @@ public class MiscTestCases : EndToEndTestBase
             "dates=[\"2022-01-01\",\"2022-02-02\"]&" +
             "guids=[\"b01ec302-0adc-4a2b-973d-bbfe639ed9a5\",\"e08664a4-efd8-4062-a1e1-6169c6eac2ab\"]&" +
             "ints=[1,2,3]&" +
-            "steven={\"age\":12,\"name\":\"steven\"}",
+            "steven={\"age\":12,\"name\":\"steven\"}&" +
+            "dict={\"key1\":\"val1\",\"key2\":\"val2\"}",
             new());
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -233,6 +234,9 @@ public class MiscTestCases : EndToEndTestBase
                 Age = 12,
                 Name = "steven"
             });
+        res?.Dict.Count.Should().Be(2);
+        res?.Dict["key1"].Should().Be("val1");
+        res?.Dict["key2"].Should().Be("val2");
     }
 
     [Fact]
@@ -412,7 +416,7 @@ public class MiscTestCases : EndToEndTestBase
     {
         var (rsp, res) = await GuestClient
             .GETAsync<TestCases.ByteArrayQueryParamBindingTest.Request, TestCases.ByteArrayQueryParamBindingTest.Response>(
-                "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D",
+                "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D&timestamps=AAAAAAAAw1U%3D",
 
                 new()
                 {
@@ -420,6 +424,14 @@ public class MiscTestCases : EndToEndTestBase
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
         System.Text.Json.JsonSerializer.Serialize(res!.Timestamp)
+            .Should()
+            .BeEquivalentTo("\"AAAAAAAAw1U=\"");
+
+        System.Text.Json.JsonSerializer.Serialize(res!.ObjectWithByteArrays.Timestamp)
+            .Should()
+            .BeEquivalentTo("\"AAAAAAAAw1U=\"");
+
+        System.Text.Json.JsonSerializer.Serialize(res!.ObjectWithByteArrays.Timestamps[0])
             .Should()
             .BeEquivalentTo("\"AAAAAAAAw1U=\"");
     }
@@ -643,17 +655,18 @@ public class MiscTestCases : EndToEndTestBase
         var event2 = new NewItemAddedToStock { ID = 2, Name = "two", Quantity = 20 };
         var event3 = new NewItemAddedToStock { ID = 3, Name = "three", Quantity = 30 };
 
-        await new Event<NewItemAddedToStock>().PublishAsync(event3, Mode.WaitForAll);
-        await new Event<NewItemAddedToStock>().PublishAsync(event2, Mode.WaitForAny);
         await new Event<NewItemAddedToStock>().PublishAsync(event1, Mode.WaitForNone);
+        await new Event<NewItemAddedToStock>().PublishAsync(event2, Mode.WaitForAny);
+        await new Event<NewItemAddedToStock>().PublishAsync(event3, Mode.WaitForAll);
+
+        event3.ID.Should().Be(0);
+        event3.Name.Should().Be("pass");
+
+        event2.ID.Should().Be(0);
+        event2.Name.Should().Be("pass");
 
         event1.ID.Should().Be(0);
-        event2.ID.Should().Be(0);
-        event3.ID.Should().Be(0);
-
         event1.Name.Should().Be("pass");
-        event2.Name.Should().Be("pass");
-        event3.Name.Should().Be("pass");
     }
 
     [Fact]

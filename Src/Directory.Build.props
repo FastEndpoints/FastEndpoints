@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
 
-    <Version>5.3.0</Version>
+    <Version>5.7.2.2-beta</Version>
 
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
@@ -14,5 +14,6 @@
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
   </PropertyGroup>
 </Project>

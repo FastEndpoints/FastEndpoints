@@ -33,7 +33,7 @@ public static class MainExtensions
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
         Endpoints ??= new(opts); //prevent duplicate runs
-        services.AddAuthorization(BuildSecurityPoliciesForEndpoints); //this method doesn't block
+        services.AddAuthorization(async o => await BuildSecurityPoliciesForEndpoints(o)); //this method doesn't block
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
@@ -44,9 +44,7 @@ public static class MainExtensions
 
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
-    /// <para>HINT: this is the combination of <see cref="UseFastEndpoints(IApplicationBuilder, Action{Config}?)"/> and <see cref="MapFastEndpoints(IEndpointRouteBuilder, Action{Config}?)"/>.
-    /// you can use those two methods separately if you have some special requirement such as using "Startup.cs", etc.
-    /// </para>
+    /// <para>HINT: you can use <see cref="MapFastEndpoints(IEndpointRouteBuilder, Action{Config}?)"/> instead of this method if you have some special requirement such as using "Startup.cs", etc.</para>
     /// </summary>
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
     /// <exception cref="InvalidCastException">thrown when the <c>app</c> cannot be cast to <see cref="IEndpointRouteBuilder"/></exception>
@@ -54,25 +52,18 @@ public static class MainExtensions
     {
         if (app is not IEndpointRouteBuilder routeBuilder)
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
-        Config.ServiceResolver = app.ApplicationServices.GetRequiredService<IServiceResolver>();
-        UseFastEndpointsMiddleware(app);
         MapFastEndpoints(routeBuilder, configAction);
-        return app;
-    }
-
-    public static IApplicationBuilder UseFastEndpointsMiddleware(this IApplicationBuilder app)
-    {
-        app.UseMiddleware<ExecutorMiddleware>();
         return app;
     }
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
-        SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
+        Config.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
+        SerOpts.Options = Config.ServiceResolver.Resolve<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
         configAction?.Invoke(new Config());
 
-        var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
-        using var scope = app.ServiceProvider.CreateScope();
+        var epFactory = Config.ServiceResolver.Resolve<IEndpointFactory>();
+        using var scope = Config.ServiceResolver.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
         var routeToHandlerCounts = new ConcurrentDictionary<string, int>();//key: {verb}:{route}
         var totalEndpointCount = 0;
@@ -88,7 +79,7 @@ public static class MainExtensions
             if (def.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
             EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
-            def.Version.Setup(); //todo: move this to a more appropriate place
+            def.Version.Init(); //todo: move this to a more appropriate place
 
             var authorizeAttributes = BuildAuthorizeAttributes(def);
             var routeNum = 0;
@@ -102,20 +93,21 @@ public static class MainExtensions
 
                 foreach (var verb in def.Verbs)
                 {
-                    var strVerb = verb.ToString();
-
-                    var hb = app.MapMethods(finalRoute, new[] { strVerb }, SendMisconfiguredPipelineMsg());
+                    var hb = app.MapMethods(
+                        finalRoute,
+                        new[] { verb },
+                        (HttpContext ctx, IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
 
                     hb.WithName(
                         def.EndpointType.EndpointName(
-                            def.Verbs.Length > 1 ? strVerb : null,
+                            def.Verbs.Length > 1 ? verb : null,
                             def.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
 
                     hb.WithMetadata(def);
 
                     def.InternalConfigAction(hb); //always do this first here
 
-                    if (def.AnonymousVerbs?.Contains(strVerb) is true)
+                    if (def.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
                         hb.RequireAuthorization(authorizeAttributes);
@@ -142,14 +134,14 @@ public static class MainExtensions
             }
         }
 
-        app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
+        Config.ServiceResolver.Resolve<ILogger<StartupTimer>>().LogInformation(
             $"Registered {totalEndpointCount} endpoints in " +
             $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
         EndpointData.Stopwatch.Stop();
 
         var duplicatesDetected = false;
-        var logger = app.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
+        var logger = Config.ServiceResolver.Resolve<ILogger<DuplicateHandlerRegistration>>();
 
         foreach (var kvp in routeToHandlerCounts)
         {
@@ -175,9 +167,6 @@ public static class MainExtensions
 
         return app;
     }
-
-    private static Func<string> SendMisconfiguredPipelineMsg()
-        => () => "UseFastEndpoints() must appear after any routing middleware like UseRouting() and before any terminating middleware like UseEndpoints()";
 
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route, string? prefixOverride)
     {
@@ -265,10 +254,15 @@ public static class MainExtensions
         }).ToArray();
     }
 
-    private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
+    private static async Task BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
     {
         foreach (var ep in Endpoints.Found)
         {
+            while (!ep.IsInitialized) //this usually won't happen unless somehow this method is executed before MapFastEndpoints()
+            {
+                await Task.Delay(100);
+            }
+
             if (ep.AllowedRoles is null && ep.AllowedPermissions is null && ep.AllowedClaimTypes is null && ep.AuthSchemeNames is null)
                 continue;
 

@@ -11,8 +11,8 @@ using Web.Services;
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddCors();
 builder.Services.AddResponseCaching();
-builder.Services.AddFastEndpoints();
-builder.Services.AddAuthenticationJWTBearer(builder.Configuration["TokenKey"]!);
+builder.Services.AddFastEndpoints();//(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All);
+builder.Services.AddJWTBearerAuth(builder.Configuration["TokenKey"]!);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
 
@@ -23,7 +23,9 @@ builder.Services
         s.Title = "Web API";
         s.Version = "v0.0";
     },
-    serializerSettings: x => x.PropertyNamingPolicy = null)
+    serializerSettings: x => x.PropertyNamingPolicy = null,
+    tagCase: TagCase.TitleCase,
+    removeEmptySchemas: false)
 
     .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
      {
@@ -36,7 +38,8 @@ builder.Services
              In = OpenApiSecurityApiKeyLocation.Header,
              Type = OpenApiSecuritySchemeType.ApiKey,
          });
-     })
+     },
+    removeEmptySchemas: false)
 
     .AddSwaggerDoc(maxEndpointVersion: 2, settings: s =>
     {

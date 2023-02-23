@@ -7,6 +7,7 @@ public class Request
     public List<Guid> Guids { get; set; }
     public ICollection<DateTime> Dates { get; set; }
     public Person Steven { get; set; }
+    public Dictionary<string, string> Dict { get; set; }
 
     public class Person
     {

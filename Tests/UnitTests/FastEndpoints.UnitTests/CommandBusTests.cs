@@ -1,6 +1,7 @@
 ﻿using FakeItEasy;
 using Microsoft.Extensions.Logging;
 using TestCases.CommandBusTest;
+using TestCases.CommandHandlerTest;
 using Web.Services;
 using Xunit;
 
@@ -17,5 +18,36 @@ public class CommandBusTests
         var res = await handler.ExecuteAsync(command, default);
 
         res.Should().Be("a b");
+    }
+
+    [Fact]
+    public async Task CommandHandlerAddsErrors()
+    {
+        var command = new GetFullName { FirstName = "yoda", LastName = "minch" };
+        var handler = new MakeFullName(A.Fake<ILogger<MakeFullName>>());
+
+        try
+        {
+            await handler.ExecuteAsync(command, default);
+        }
+        catch (ValidationFailureException x)
+        {
+            x.Failures.Should().HaveCount(2);
+            x.Failures!.First().PropertyName.Should().Be("FirstName");
+            x.Failures!.Last().PropertyName.Should().Be("GeneralErrors");
+        }
+
+        handler.ValidationFailures.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task CommandHandlerExecsWithoutErrors()
+    {
+        var command = new GetFullName { FirstName = "bobbaa", LastName = "fett" };
+        var handler = new MakeFullName(A.Fake<ILogger<MakeFullName>>());
+
+        await handler.ExecuteAsync(command, default);
+
+        handler.ValidationFailures.Should().HaveCount(0);
     }
 }

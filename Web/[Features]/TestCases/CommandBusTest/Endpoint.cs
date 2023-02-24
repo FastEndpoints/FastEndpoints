@@ -4,8 +4,7 @@ public class Endpoint : EndpointWithoutRequest<string>
 {
     public override void Configure()
     {
-        Verbs(Http.GET);
-        Routes("/tests/commands");
+        Get("/tests/commands");
         AllowAnonymous();
     }
 

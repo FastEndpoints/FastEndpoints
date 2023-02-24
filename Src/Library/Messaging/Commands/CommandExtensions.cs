@@ -46,7 +46,7 @@ public static class CommandExtensions
 
         static CommandHandlerExecutorBase<TResult> CreateHandlerWrapper(Type tCommand)
             => (CommandHandlerExecutorBase<TResult>)
-                Config.ServiceResolver.CreateSingleton(
-                    Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
+                    Config.ServiceResolver.CreateSingleton(
+                        Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
     }
 }

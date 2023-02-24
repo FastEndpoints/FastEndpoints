@@ -6,6 +6,10 @@ using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
+/// <summary>
+/// the base class from which all <see cref="CommandHandler{TCommand}"/> classes inherit from
+/// </summary>
+/// <typeparam name="TCommand">the type of the command</typeparam>
 public abstract class CommandHandlerBase<TCommand> : IValidationErrors<TCommand>
 {
     ///<inheritdoc/>

@@ -1,7 +1,4 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 /// <summary>
 /// marker interface for all command handlers
@@ -36,24 +33,3 @@ public interface ICommandHandler<in TCommand, TResult> : ICommandHandler where T
     /// <param name="ct">optional cancellation token</param>
     Task<TResult> ExecuteAsync(TCommand command, CancellationToken ct = default);
 }
-
-public abstract class CommandHandler<TCommand> : ICommandHandler<TCommand>, IValidationErrors<TCommand> where TCommand : ICommand
-{
-    ///<inheritdoc/>
-    public List<ValidationFailure> ValidationFailures { get; } =
-        (List<ValidationFailure>?)Config.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext?.Items[CtxKey.ValidationFailures] ??
-            throw new NotSupportedException($"Executing command handlers derived from [{nameof(CommandHandler<TCommand>)}] outside of endpoints is not supported!");
-
-    ///<inheritdoc/>
-    public bool ValidationFailed => ValidationFailures.Count > 0;
-
-    ///<inheritdoc/>
-    public abstract Task ExecuteAsync(TCommand command, CancellationToken ct = default);
-}
-
-//public class test : CommandHandler<ICommand>
-//{
-//    public override Task ExecuteAsync(ICommand command, CancellationToken ct = default) { 
-//    add
-//    }
-//}

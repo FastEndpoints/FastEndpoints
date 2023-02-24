@@ -29,84 +29,29 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IVal
             throw new ValidationFailureException(validationFailures, "Request validation failed");
         }
     }
-}
 
-internal interface IValidationErrors<T>
-{
-    /// <summary>
-    /// validation failures collection for the endpoint
-    /// </summary>
-    List<ValidationFailure> ValidationFailures { get; }
+    ///<inheritdoc/>
+    public bool ValidationFailed => ValidationFailures.ValidationFailed();
 
-    /// <summary>
-    /// indicates if there are any validation failures for the current request
-    /// </summary>
-    virtual bool ValidationFailed => ValidationFailures.Count > 0;
+    ///<inheritdoc/>
+    public void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
+        => ValidationFailures.AddError(message, errorCode, severity);
 
-    /// <summary>
-    /// adds a "GeneralError" to the current list of validation failures
-    /// </summary>
-    /// <param name="message">the error message</param>
-    /// <param name="errorCode">the error code associated with the error</param>
-    /// <param name="severity">the severity of the error</param>
-    virtual void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
-    {
-        var validationFailure = new ValidationFailure(Config.ErrOpts.GeneralErrorsField, message)
-        {
-            ErrorCode = errorCode,
-            Severity = severity
-        };
+    ///<inheritdoc/>
+    public void AddError(Expression<Func<TRequest, object>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
+        => ValidationFailures.AddError(property, errorMessage, errorCode, severity);
 
-        ValidationFailures.Add(validationFailure);
-    }
-
-    /// <summary>
-    /// adds an error message for the specified property of the request dto
-    /// </summary>
-    /// <param name="property">the property to add the error message for</param>
-    /// <param name="errorMessage">the error message</param>
-    /// <param name="errorCode">the error code associated with the error</param>
-    /// <param name="severity">the severity of the error</param>
-    virtual void AddError(Expression<Func<T, object>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
-    {
-        var validationFailure = new ValidationFailure(property.PropertyName(), errorMessage)
-        {
-            ErrorCode = errorCode,
-            Severity = severity
-        };
-
-        ValidationFailures.Add(validationFailure);
-    }
-
-    /// <summary>
-    /// interrupt the flow of handler execution and send a 400 bad request with error details if there are any validation failures in the current request. if there are no validation failures, execution will continue past this call.
-    /// </summary>
-    virtual void ThrowIfAnyErrors()
-    {
-        if (ValidationFailed)
-            throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowIfAnyErrors)}() called");
-    }
-
-    /// <summary>
-    /// add a "GeneralError" to the validation failure list and send back a 400 bad request with error details immediately interrupting handler execution flow. if there are any vallidation failures, no execution will continue past this call.
-    /// </summary>
-    /// <param name="message">the error message</param>
+    ///<inheritdoc/>
     [DoesNotReturn]
-    virtual void ThrowError(string message)
-    {
-        AddError(message);
-        throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowError)}() called!");
-    }
+    public void ThrowError(string message)
+        => ValidationFailures.ThrowError(message);
 
-    /// <summary>
-    /// adds an error message for the specified property of the request dto and sends back a 400 bad request with error details immediately interrupting handler execution flow. no execution will continue past this call.
-    /// </summary>
-    /// <param name="property">the property to add the error message for</param>
-    /// <param name="errorMessage">the error message</param>
+    ///<inheritdoc/>
     [DoesNotReturn]
-    virtual void ThrowError(Expression<Func<T, object>> property, string errorMessage)
-    {
-        AddError(property, errorMessage);
-        throw new ValidationFailureException(ValidationFailures, $"{nameof(ThrowError)}() called");
-    }
+    public void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
+        => ValidationFailures.ThrowError(property, errorMessage);
+
+    ///<inheritdoc/>
+    public void ThrowIfAnyErrors() =>
+        ValidationFailures.ThrowIfAnyErrors();
 }

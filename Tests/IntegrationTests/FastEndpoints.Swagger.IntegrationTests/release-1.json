@@ -1362,6 +1362,26 @@
         ]
       }
     },
+    "/api/tests/command-handler": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesCommandHandlerTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tests/commands": {
       "get": {
         "tags": [

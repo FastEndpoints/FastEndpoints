@@ -42,6 +42,8 @@ public sealed class EndpointDefinition
     public bool ThrowIfValidationFails { get; private set; } = true;
 
     //only accessible to internal code
+    internal bool AcceptsAnyContentType;
+    internal bool? AcceptsMetaDataPresent;
     internal object[]? EpAttributes;
     internal bool ExecuteAsyncImplemented;
     internal HitCounter? HitCounter { get; private set; }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Metadata;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
 
@@ -9,13 +8,12 @@ namespace FastEndpoints;
 
 internal static class RequestHandler
 {
-    public static Task Invoke(HttpContext ctx, IEndpointFactory epFactory)
+    internal static Task Invoke(HttpContext ctx, IEndpointFactory epFactory)
     {
-        var ep = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!)?.Endpoint;
-        var epDef = ep?.Metadata.GetMetadata<EndpointDefinition>();
+        var epMeta = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!).Endpoint!.Metadata;
+        var epDef = epMeta.GetMetadata<EndpointDefinition>()!;
 
-        if (epDef is null || ep is null)
-            throw new InvalidOperationException($"Unable to retrieve endpoint definition for route: [{ctx.Request.Path}]");
+        //note: epMeta and epDef will never be null since this method is only invoked for fastendpoints
 
         if (epDef.HitCounter is not null)
         {
@@ -28,32 +26,56 @@ internal static class RequestHandler
                 if (hdrVal.Count == 0)
                 {
                     ctx.Response.StatusCode = 403;
-                    return ctx.Response.WriteAsync("Forbidden by rate limiting middleware!");
+                    return ctx.Response.WriteAsync("Forbidden by rate limiting middleware!", ctx.RequestAborted);
                 }
             }
 
             if (epDef.HitCounter.LimitReached(hdrVal[0]!))
             {
                 ctx.Response.StatusCode = 429;
-                return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!");
+                return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!", ctx.RequestAborted);
             }
         }
 
-        if (!ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
-             ep.Metadata.OfType<IAcceptsMetadata>().Any() &&
-            !ep.Metadata.OfType<IAcceptsMetadata>().Any(m => m.ContentTypes.Contains("*/*")))
+        if (PrepAndCheckAcceptsMetaData(ctx, epDef, epMeta))
         {
             ctx.Response.StatusCode = 415;
-            return ctx.Response.StartAsync();
+            return ctx.Response.StartAsync(ctx.RequestAborted);
         }
 
         var epInstance = epFactory.Create(epDef, ctx);
         epInstance.Definition = epDef;
         epInstance.HttpContext = ctx;
-        ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures; //for use by ICommandHandlers
+        ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures;
 
-        ResponseCacheExecutor.Execute(ctx, ep.Metadata.GetMetadata<ResponseCacheAttribute>());
+        ResponseCacheExecutor.Execute(ctx, epDef.ResponseCacheSettings);
 
         return epInstance.ExecAsync(ctx.RequestAborted);
+    }
+
+    private static bool PrepAndCheckAcceptsMetaData(HttpContext ctx, EndpointDefinition def, EndpointMetadataCollection epMeta)
+    {
+        if (def.AcceptsMetaDataPresent is null) //only ever iterating the meta collection once on first request
+        {
+            for (var i = 0; i < epMeta.Count; i++)
+            {
+                if (epMeta[i] is IAcceptsMetadata meta)
+                {
+                    def.AcceptsMetaDataPresent = true;
+                    def.AcceptsAnyContentType = meta.ContentTypes.Contains("*/*");
+                }
+            }
+        }
+
+        // if following conditions are met:
+        //   1.) request doesn't contain any content-type headers
+        //   2.) endpoint declares accepts metadata
+        //   3.) endpoint doesn't declare any wildcard accepts metadata
+        // then return true so that a 415 response can be sent to the client.
+        // we don't need to check for mismatched content-types (between request and endpoint)
+        // because routing middleware already takes care of that.
+        return !ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
+                def.AcceptsMetaDataPresent is true &&
+               !def.AcceptsAnyContentType;
     }
 }

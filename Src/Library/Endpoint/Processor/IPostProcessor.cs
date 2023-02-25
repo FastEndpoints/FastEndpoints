@@ -12,3 +12,8 @@ public interface IPostProcessor<TRequest, TResponse>
 {
     Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
 }
+
+/// <summary>
+/// interface for defining global post-processors to be executed after the main endpoint handler is done
+/// </summary>
+public interface IGlobalPostProcessor : IPostProcessor<object, object?> { }

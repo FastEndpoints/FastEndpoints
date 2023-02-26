@@ -9,7 +9,7 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
     private Http? _httpMethod;
     private string _baseURL;

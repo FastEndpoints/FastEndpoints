@@ -4,7 +4,7 @@
 /// create custom request binders by implementing this interface. by registering a custom modelbinder for an endpoint will completely disable the built-in model binding and completely depend on your implementation of the custom binder to return a correctly populated request dto for the endpoint.
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
-public interface IRequestBinder<TRequest> where TRequest : notnull, new()
+public interface IRequestBinder<TRequest> where TRequest : notnull
 {
     /// <summary>
     /// this method will be called by the library for binding the incoming request data and return a populated request dto object.

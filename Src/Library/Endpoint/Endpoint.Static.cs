@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
     private static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def,
                                                               HttpContext ctx,

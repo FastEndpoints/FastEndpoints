@@ -133,7 +133,7 @@ public class EndpointSummary
 
 ///<inheritdoc/>
 ///<typeparam name="TRequest">the type of the request dto</typeparam>
-public class EndpointSummary<TRequest> : EndpointSummary where TRequest : new()
+public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnull
 {
     /// <summary>
     /// add a description for a request param for a given property of the request dto
@@ -151,4 +151,4 @@ public abstract class Summary<TEndpoint> : EndpointSummary, ISummary where TEndp
 ///<inheritdoc/>
 ///<typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
 ///<typeparam name="TRequest">the type of the request dto</typeparam>
-public abstract class Summary<TEndpoint, TRequest> : EndpointSummary<TRequest>, ISummary where TEndpoint : IEndpoint where TRequest : new() { }
+public abstract class Summary<TEndpoint, TRequest> : EndpointSummary<TRequest>, ISummary where TEndpoint : IEndpoint where TRequest : notnull { }

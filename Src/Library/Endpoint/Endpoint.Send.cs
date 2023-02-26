@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull, new()
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
     /// <summary>
     /// send the supplied response dto serialized as json to the client.

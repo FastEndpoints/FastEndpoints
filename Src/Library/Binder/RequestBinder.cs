@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json;
@@ -15,7 +16,7 @@ namespace FastEndpoints;
 /// the default request binder for a given request dto type
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto this binder will be dealing with</typeparam>
-public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest : notnull, new()
+public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest : notnull
 {
     private static readonly Type tRequest = typeof(TRequest);
     private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
@@ -26,6 +27,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
     private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
     private static readonly List<SecondaryPropCacheEntry> hasPermissionProps = new();
+
+    private static Func<TRequest> _dtoInitializer;
+    private static Func<TRequest> InitDto => _dtoInitializer ??= CompileDtoInitializer();
 
     static RequestBinder()
     {
@@ -131,13 +135,13 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     public async virtual ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken cancellation)
     {
         if (skipModelBinding)
-            return new TRequest();
+            return InitDto();
 
         var req = !isPlainTextRequest && bindJsonBody && ctx.HttpContext.Request.HasJsonContentType()
                    ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
                    : isPlainTextRequest
                      ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
-                     : new TRequest();
+                     : InitDto();
 
         if (bindFormFields) BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
         if (bindRouteValues) BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
@@ -154,9 +158,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     private static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
     {
         if (fromBodyProp is null)
-            return (TRequest)(await SerOpts.RequestDeserializer(httpRequest, tRequest, serializerCtx, cancellation))! ?? new();
+            return (TRequest)(await SerOpts.RequestDeserializer(httpRequest, tRequest, serializerCtx, cancellation))! ?? InitDto();
 
-        var req = new TRequest();
+        var req = InitDto();
 
         fromBodyProp.PropSetter(
             req,
@@ -167,7 +171,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     private static async ValueTask<TRequest> BindPlainTextBody(Stream body)
     {
-        var req = (IPlainTextRequest)new TRequest();
+        var req = (IPlainTextRequest)InitDto();
         using var streamReader = new StreamReader(body);
         req.Content = await streamReader.ReadToEndAsync();
         return (TRequest)req;
@@ -395,5 +399,24 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             PropSetter = compiledSetter,
         };
         return false;
+    }
+
+    private static Func<TRequest> CompileDtoInitializer()
+    {
+        var ctor = tRequest
+            .GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            .OrderBy(c => c.GetParameters().Length)
+            .FirstOrDefault() ??
+                throw new NotSupportedException($"Unable to find any constructors on the request DTO type: [{tRequest.FullName}]");
+
+        var args = ctor.GetParameters();
+        var argExpressions = new List<Expression>(args.Length);
+
+        for (var i = 0; i < args.Length; i++)
+            argExpressions.Add(Expression.Default(args[i].ParameterType));
+
+        var ctorExpression = Expression.New(ctor, argExpressions);
+
+        return Expression.Lambda<Func<TRequest>>(ctorExpression).Compile();
     }
 }

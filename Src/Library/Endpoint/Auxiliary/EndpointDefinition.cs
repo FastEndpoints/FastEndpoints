@@ -345,7 +345,7 @@ public sealed class EndpointDefinition
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
-    public void Summary<TRequest>(Action<EndpointSummary<TRequest>> endpointSummary) where TRequest : notnull, new()
+    public void Summary<TRequest>(Action<EndpointSummary<TRequest>> endpointSummary) where TRequest : notnull
     {
         var summary = EndpointSummary as EndpointSummary<TRequest> ?? new EndpointSummary<TRequest>();
         endpointSummary(summary);

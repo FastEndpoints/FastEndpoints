@@ -407,7 +407,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             .GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
             .OrderBy(c => c.GetParameters().Length)
             .FirstOrDefault() ??
-                throw new NotSupportedException($"Unable to find any constructors on the request DTO type: [{tRequest.FullName}]");
+                throw new NotSupportedException($"Only JSON requests (with an \"application/json\" content-type header) can be deserialized to a DTO type without a constructor! Offending type: [{tRequest.FullName}]");
 
         var args = ctor.GetParameters();
         var argExpressions = new List<Expression>(args.Length);

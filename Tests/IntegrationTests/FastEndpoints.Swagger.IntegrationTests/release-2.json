@@ -201,8 +201,10 @@
             "required": true,
             "description": "this is a string prop xml comment",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "bool",
@@ -210,7 +212,8 @@
             "required": true,
             "schema": {
               "type": "boolean"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "int",
@@ -218,8 +221,10 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "format": "int32"
-            }
+              "format": "int32",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "long",
@@ -228,7 +233,8 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "double",
@@ -237,7 +243,8 @@
             "schema": {
               "type": "number",
               "format": "double"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "decimal",
@@ -246,15 +253,22 @@
             "schema": {
               "type": "number",
               "format": "decimal"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "Person",
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
-            }
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
+                }
+              ]
+            },
+            "nullable": true
           }
         ],
         "requestBody": {
@@ -306,8 +320,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "OtherID",
@@ -315,8 +331,10 @@
             "required": true,
             "description": "the description for other id",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -471,8 +489,14 @@
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
-            }
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
+                }
+              ]
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -504,8 +528,10 @@
             "required": true,
             "description": "this is a string prop xml comment",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "Bool",
@@ -513,15 +539,18 @@
             "required": true,
             "schema": {
               "type": "boolean"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "Int",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32"
-            }
+              "format": "int32",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "Long",
@@ -530,7 +559,8 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "Double",
@@ -539,7 +569,8 @@
             "schema": {
               "type": "number",
               "format": "double"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "Enum",
@@ -547,15 +578,22 @@
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/SystemDayOfWeek"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "Person",
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
-            }
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
+                }
+              ]
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -626,7 +664,8 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
+            },
+            "nullable": false
           }
         ],
         "requestBody": {
@@ -715,8 +754,10 @@
             "name": "TenantID",
             "in": "header",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "requestBody": {
@@ -764,8 +805,10 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -799,8 +842,10 @@
             "name": "TestProp",
             "in": "query",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -936,58 +981,80 @@
           {
             "name": "Doubles",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "number",
                 "format": "double"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Ints",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "integer",
                 "format": "int32"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Guids",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string",
                 "format": "guid"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Dates",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string",
                 "format": "date-time"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Steven",
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person"
-            }
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person"
+                }
+              ]
+            },
+            "nullable": true
           },
           {
             "name": "Dict",
@@ -995,10 +1062,12 @@
             "required": true,
             "schema": {
               "type": "object",
+              "nullable": true,
               "additionalProperties": {
                 "type": "string"
               }
-            }
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -1031,7 +1100,8 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
+            },
+            "nullable": false
           }
         ],
         "requestBody": {
@@ -1085,7 +1155,8 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "CustomerID",
@@ -1094,7 +1165,8 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
+            },
+            "nullable": false
           }
         ],
         "requestBody": {
@@ -1102,7 +1174,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
+                  }
+                ]
               }
             }
           },
@@ -1164,83 +1241,111 @@
           {
             "name": "Strings",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "MoreStrings",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Doubles",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "number",
                 "format": "double"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Ints",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "integer",
                 "format": "int32"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Guids",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string",
                 "format": "guid"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Dates",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string",
                 "format": "date-time"
               }
-            }
+            },
+            "nullable": true
           },
           {
             "name": "Persons",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "$ref": "#/components/schemas/TestCasesDupeParamBindingForIEnumerablePropsRequest_Person"
               }
-            }
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -1271,7 +1376,8 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
+            },
+            "nullable": false
           }
         ],
         "responses": {
@@ -1382,16 +1488,24 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "byte"
-            }
+              "format": "byte",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "ObjectWithByteArrays",
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays"
-            }
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays"
+                }
+              ]
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -1420,15 +1534,19 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "tenant-id",
             "in": "header",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -1470,7 +1588,8 @@
             "schema": {
               "type": "string",
               "format": "guid"
-            }
+            },
+            "nullable": false
           }
         ],
         "requestBody": {
@@ -1614,9 +1733,11 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             },
-            "default": "test default val"
+            "default": "test default val",
+            "nullable": true
           }
         ],
         "responses": {
@@ -1685,8 +1806,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -1715,8 +1838,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -1745,18 +1870,22 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             },
-            "default": "test default val"
+            "default": "test default val",
+            "nullable": true
           },
           {
             "name": "Name",
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             },
-            "default": "query test default val"
+            "default": "query test default val",
+            "nullable": true
           }
         ],
         "requestBody": {
@@ -1804,18 +1933,22 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             },
-            "default": "test default val"
+            "default": "test default val",
+            "nullable": true
           },
           {
             "name": "Name",
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "nullable": true
             },
-            "default": "query test default val"
+            "default": "query test default val",
+            "nullable": true
           }
         ],
         "requestBody": {
@@ -1893,26 +2026,34 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "CustomerName",
             "in": "query",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "PhoneNumbers",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string"
               }
-            }
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -1949,15 +2090,18 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
+            },
+            "nullable": false
           },
           {
             "name": "tenant-id",
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "requestBody": {
@@ -2030,8 +2174,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "requestBody": {
@@ -2086,35 +2232,45 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "cID",
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "CustomerName",
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "PhoneNumbers",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string"
               }
-            }
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -2153,16 +2309,20 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "SourceID",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           }
         ],
         "responses": {
@@ -2199,34 +2359,44 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "SourceID",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "CustomerName",
             "in": "query",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "nullable": true
+            },
+            "nullable": true
           },
           {
             "name": "PhoneNumbers",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "required": true,
             "schema": {
               "type": "array",
+              "nullable": true,
               "items": {
                 "type": "string"
               }
-            }
+            },
+            "nullable": true
           }
         ],
         "responses": {

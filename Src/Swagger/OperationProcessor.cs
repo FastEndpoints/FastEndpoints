@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
+using Namotion.Reflection;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NSwag;
@@ -247,16 +248,13 @@ internal class OperationProcessor : IOperationProcessor
                     return false;
                 });
 
-                return new OpenApiParameter
-                {
-                    Name = m.Value,
-                    Kind = OpenApiParameterKind.Path,
-                    IsRequired = true,
-                    Schema = ctx.SchemaGenerator.Generate(pInfo?.PropertyType ?? Types.String, ctx.SchemaResolver),
-                    Description = reqParamDescriptions.GetValueOrDefault(m.Value),
-                    Default = pInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value,
-                    Example = pInfo?.GetExample()
-                };
+                return CreateParam(
+                    ctx: ctx,
+                    propInfo: pInfo,
+                    name: m.Value,
+                    isRequired: true,
+                    kind: OpenApiParameterKind.Path,
+                    descriptions: reqParamDescriptions);
             })
             .ToList();
 
@@ -268,16 +266,13 @@ internal class OperationProcessor : IOperationProcessor
                 .Select(p =>
                 {
                     RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
-                    return new OpenApiParameter
-                    {
-                        Name = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name,
-                        IsRequired = !p.IsNullable(),
-                        Schema = ctx.SchemaGenerator.Generate(p.PropertyType, ctx.SchemaResolver),
-                        Kind = OpenApiParameterKind.Query,
-                        Description = reqParamDescriptions.GetValueOrDefault(p.Name),
-                        Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value,
-                        Example = p.GetExample()
-                    };
+                    return CreateParam(
+                        ctx: ctx,
+                        propInfo: p,
+                        name: null,
+                        isRequired: null,
+                        kind: OpenApiParameterKind.Query,
+                        descriptions: reqParamDescriptions);
                 })
                 .ToList();
 
@@ -296,16 +291,13 @@ internal class OperationProcessor : IOperationProcessor
                     if (attribute is FromHeaderAttribute hAttrib)
                     {
                         var pName = hAttrib.HeaderName ?? p.Name;
-                        reqParams.Add(new OpenApiParameter
-                        {
-                            Name = pName,
-                            IsRequired = hAttrib.IsRequired,
-                            Schema = ctx.SchemaGenerator.Generate(p.PropertyType, ctx.SchemaResolver),
-                            Kind = OpenApiParameterKind.Header,
-                            Description = reqParamDescriptions.GetValueOrDefault(pName),
-                            Default = p.GetCustomAttribute<DefaultValueAttribute>()?.Value,
-                            Example = p.GetExample()
-                        });
+                        reqParams.Add(CreateParam(
+                            ctx: ctx,
+                            propInfo: p,
+                            name: pName,
+                            isRequired: hAttrib.IsRequired,
+                            kind: OpenApiParameterKind.Header,
+                            descriptions: reqParamDescriptions));
 
                         //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
@@ -361,16 +353,13 @@ internal class OperationProcessor : IOperationProcessor
             foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
             {
                 op.Parameters.Remove(body);
-                op.Parameters.Add(new OpenApiParameter
-                {
-                    Name = fromBodyProp.Name,
-                    IsRequired = true,
-                    Schema = ctx.SchemaGenerator.Generate(fromBodyProp.PropertyType, ctx.SchemaResolver),
-                    Kind = OpenApiParameterKind.Body,
-                    Description = reqParamDescriptions.GetValueOrDefault(fromBodyProp.Name),
-                    Default = fromBodyProp.GetCustomAttribute<DefaultValueAttribute>()?.Value,
-                    Example = fromBodyProp.GetExample()
-                });
+                op.Parameters.Add(CreateParam(
+                    ctx: ctx,
+                    propInfo: fromBodyProp,
+                    name: fromBodyProp.Name,
+                    isRequired: true,
+                    kind: OpenApiParameterKind.Body,
+                    descriptions: reqParamDescriptions));
             }
         }
 
@@ -480,5 +469,21 @@ internal class OperationProcessor : IOperationProcessor
             TagCase.LowerCase => textInfo.ToLower(input),
             _ => input,
         };
+    }
+
+    private static OpenApiParameter CreateParam(OperationProcessorContext ctx,
+                                                PropertyInfo? propInfo,
+                                                string? name,
+                                                bool? isRequired,
+                                                OpenApiParameterKind kind,
+                                                Dictionary<string, string>? descriptions)
+    {
+        name ??= propInfo?.GetCustomAttribute<BindFromAttribute>()?.Name ?? propInfo?.Name ?? throw new InvalidOperationException("param name is required!");
+        var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(name, descriptions?.GetValueOrDefault(name), (propInfo?.PropertyType ?? Types.String).ToContextualType());
+        prm.IsRequired = isRequired ?? !(propInfo?.IsNullable() ?? true);
+        prm.Kind = kind;
+        prm.Default = propInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+        prm.Example = propInfo?.GetExample();
+        return prm;
     }
 }

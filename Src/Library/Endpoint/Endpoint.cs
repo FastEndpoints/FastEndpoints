@@ -103,7 +103,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
             if (!Definition.DoNotCatchExceptions)
             {
-                ValidationFailures.Add(new(x.Path?[2..] ?? "Unknown", x.InnerException?.Message ?? "Unknown de-serialization error!"));
+                ValidationFailures.Add(new(
+                    propertyName: x.Path != "$" ? x.Path?[2..] : FastEndpoints.Config.SerOpts.SerializerErrorsField,
+                    errorMessage: x.InnerException?.Message ?? x.Message));
+
                 await SendErrorsAsync(FastEndpoints.Config.ErrOpts.StatusCode, ct);
             }
             else

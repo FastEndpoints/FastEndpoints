@@ -16,6 +16,11 @@ public class SerializerOptions
     public JsonSerializerOptions Options { get; internal set; } = new(); //should only be set from MapFastEndpoints() during startup
 
     /// <summary>
+    /// this is the field name used for adding serializer errors when the serializer throws due to bad json input and the error is not concerning a particular property/field of the incoming json.
+    /// </summary>
+    public string SerializerErrorsField { internal get; set; } = "SerializerErrors";
+
+    /// <summary>
     /// a function for deserializing the incoming http request body. this function will be executed for each request received if it has a json request body.
     /// the input parameters of the func are as follows:
     /// <para><see cref="HttpRequest"/> : the incoming request</para>

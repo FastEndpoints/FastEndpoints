@@ -10,3 +10,6 @@
 - better swagger support for OAS2.0 #390
 - testing extensions now return a `TestResult<TResponse>` record instead of a value tuple
 - optimize the endpoint request handler internals
+
+### FIXES
+- handling of STJ exceptions when the error is not directly related to any field of the json payload #391

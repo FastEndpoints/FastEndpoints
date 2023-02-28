@@ -106,6 +106,14 @@ internal class OperationProcessor : IOperationProcessor
                  _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
                  example = g.Last().GetExampleFromMetaData() ?? example;
                  example = example is not null ? JToken.FromObject(example, serializer) : null;
+
+                 if (ctx.Settings.SchemaType == SchemaType.Swagger2 &&
+                     example is JToken token &&
+                     token.Type == JTokenType.Array)
+                 {
+                     example = token.ToString();
+                 }
+
                  return new {
                      key = k.ToString(),
                      cTypes = g.Last().ContentTypes,
@@ -121,9 +129,7 @@ internal class OperationProcessor : IOperationProcessor
                     var cTypes = metas[rsp.Key].cTypes;
                     var mediaType = rsp.Value.Content.FirstOrDefault().Value;
                     if (metas.TryGetValue(rsp.Key, out var x) && x.example is not null)
-                    {
                         mediaType.Example = x.example;
-                    }
 
                     rsp.Value.Content.Clear();
                     foreach (var ct in cTypes)

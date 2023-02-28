@@ -4,7 +4,7 @@
 - ability to automatically add produces 400 metadata for endpoints with validators [#info](https://discord.com/channels/933662816458645504/1077784720051556473)
 - ability to remove optional `[FromHeaders],[FromClaim],[HasPermission]` annotated properties from swagger request schema #387
 - support for `IParsable<T>` interface from .net 7.0 #385
-- support for ignoring `GET` request DTOs annotated with `[JsonIgnore]` attribute for disabling binding [#info](https://discord.com/channels/933662816458645504/1078782887756824606)
+- support for ignoring `GET` request DTO properties annotated with `[JsonIgnore]` attribute for disabling binding [#info](https://discord.com/channels/933662816458645504/1078782887756824606/1079980820581859378)
 
 ### IMPROVEMENTS
 - better swagger support for OAS2.0 #390

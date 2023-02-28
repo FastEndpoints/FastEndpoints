@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using System.Collections;
+using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
 
@@ -37,6 +38,7 @@ internal static class Types
     internal static readonly Type IPlainTextRequest = typeof(IPlainTextRequest);
     internal static readonly Type ISummary = typeof(ISummary);
     internal static readonly Type IValidator = typeof(IValidator);
+    internal static readonly Type JsonIgnoreAttribute = typeof(JsonIgnoreAttribute);
     internal static readonly Type NotImplementedAttribute = typeof(NotImplementedAttribute);
     internal static readonly Type Object = typeof(object);
     internal static readonly Type ParseResult = typeof(ParseResult);

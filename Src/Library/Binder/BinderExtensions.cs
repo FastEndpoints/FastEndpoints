@@ -14,7 +14,9 @@ internal static class BinderExtensions
     internal static IEnumerable<PropertyInfo> BindableProps(this Type t)
     {
         return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                .Where(p => p.GetSetMethod()?.IsPublic is true && p.GetGetMethod()?.IsPublic is true);
+                .Where(p => p.GetSetMethod()?.IsPublic is true &&
+                            p.GetGetMethod()?.IsPublic is true &&
+                           !p.IsDefined(Types.JsonIgnoreAttribute));
     }
 
     internal static Func<object, object> GetterForProp(this Type source, string propertyName)

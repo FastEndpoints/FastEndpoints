@@ -225,7 +225,7 @@ internal class OperationProcessor : IOperationProcessor
 
         if (reqDtoProps != null)
         {
-            foreach (var p in reqDtoProps.Where(p => p.GetSetMethod()?.IsPublic is not true).ToArray()) //prop has no public setter
+            foreach (var p in reqDtoProps.Where(p => p.IsDefined(Types.JsonIgnoreAttribute) || p.GetSetMethod()?.IsPublic is not true).ToArray()) //prop has no public setter or has ignore attribute
             {
                 RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                 reqDtoProps.Remove(p);

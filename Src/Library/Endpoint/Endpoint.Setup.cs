@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -212,6 +213,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     /// <param name="permissions">the permissions</param>
     protected void PermissionsAll(params string[] permissions) => Definition.PermissionsAll(permissions);
+
+    /// <summary>
+    /// specify an action for building an authorization requirement which applies only to this endpoint.
+    /// </summary>
+    /// <param name="policy">the policy builder action</param>
+    protected void Policy(Action<AuthorizationPolicyBuilder> policy) => Definition.Policy(policy);
 
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.

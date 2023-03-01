@@ -12,6 +12,8 @@ public class Endpoint : Endpoint<Request>
         ClaimsAll(
             Claim.AdminID,
             "test-claim");
+        Policy(b =>
+               b.RequireClaim(System.Security.Claims.ClaimTypes.Role, Role.Admin));
         Description(x => x
             .Accepts<Request>("application/json")
             .Produces(201)

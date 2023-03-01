@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
@@ -39,6 +40,7 @@ public sealed class EndpointDefinition
     public bool FormDataAllowed { get; private set; }
     public string? OverriddenRoutePrefix { get; private set; }
     public List<string>? PreBuiltUserPolicies { get; private set; }
+    public Action<AuthorizationPolicyBuilder>? PolicyBuilder { get; private set; }
     public bool ThrowIfValidationFails { get; private set; } = true;
 
     //only accessible to internal code
@@ -232,6 +234,13 @@ public sealed class EndpointDefinition
         AllowedPermissions?.AddRange(permissions);
         AllowedPermissions ??= new(permissions);
     }
+
+    /// <summary>
+    /// specify an action for building an authorization requirement which should be added to all endpoints globally.
+    /// <para>HINT: these global level requirements will be combined with the requirements specified at the endpoint level if there's any.</para>
+    /// </summary>
+    /// <param name="policy">th policy builder action</param>
+    public void Policy(Action<AuthorizationPolicyBuilder> policy) => PolicyBuilder = policy + PolicyBuilder;
 
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.

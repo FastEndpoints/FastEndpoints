@@ -235,7 +235,8 @@ public static class MainExtensions
         if (ep.AllowedPermissions?.Any() is true ||
             ep.AllowedClaimTypes?.Any() is true ||
             ep.AllowedRoles?.Any() is true ||
-            ep.AuthSchemeNames?.Any() is true)
+            ep.AuthSchemeNames?.Any() is true ||
+            ep.PolicyBuilder is not null)
         {
             policiesToAdd.Add(ep.SecurityPolicyName);
         }
@@ -263,8 +264,14 @@ public static class MainExtensions
                 await Task.Delay(100);
             }
 
-            if (ep.AllowedRoles is null && ep.AllowedPermissions is null && ep.AllowedClaimTypes is null && ep.AuthSchemeNames is null)
+            if (ep.AllowedRoles is null &&
+                ep.AllowedPermissions is null &&
+                ep.AllowedClaimTypes is null &&
+                ep.AuthSchemeNames is null &&
+                ep.PolicyBuilder is null)
+            {
                 continue;
+            }
 
             opts.AddPolicy(ep.SecurityPolicyName, b =>
             {
@@ -306,7 +313,9 @@ public static class MainExtensions
                     }
                 }
 
-                //note: only claim and permission requirements are added here in the security policy
+                ep.PolicyBuilder?.Invoke(b);
+
+                //note: only claim/permission/policy builder requirements are added here in the security policy
                 //      roles and auth schemes are specified in the authorizeattribute in BuildAuthorizeAttributes()
             });
         }

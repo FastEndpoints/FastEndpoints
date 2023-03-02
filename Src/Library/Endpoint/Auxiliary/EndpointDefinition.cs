@@ -48,6 +48,7 @@ public sealed class EndpointDefinition
     internal bool? AcceptsMetaDataPresent;
     internal object[]? EpAttributes;
     internal bool ExecuteAsyncImplemented;
+    internal bool FoundDuplicateValidators;
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal bool ImplementsConfigure;

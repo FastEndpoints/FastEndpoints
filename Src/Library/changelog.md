@@ -13,5 +13,6 @@
 - optimize the endpoint request handler internals
 
 ### FIXES
+- duplicate validator detection issue #394
 - `RSA` instance being disposed when using `Assymetric` JWT signing style
 - handling of STJ exceptions when the error is not directly related to any field of the json payload #391

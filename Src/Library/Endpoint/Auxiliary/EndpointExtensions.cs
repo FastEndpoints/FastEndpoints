@@ -20,6 +20,12 @@ internal static class EndpointExtensions
         if (def.ImplementsConfigure)
         {
             instance.Configure();
+            if (instance.Definition.FoundDuplicateValidators && instance.Definition.ValidatorType is null)
+            {
+                throw new InvalidOperationException(
+                    $"More than one validator was found for the request dto [{def.ReqDtoType.FullName}]. " +
+                    "Specify the exact validator to register using the `Validator<TValidator>()` method in endpoint configuration.");
+            }
         }
         else if (def.EpAttributes is not null)
         {

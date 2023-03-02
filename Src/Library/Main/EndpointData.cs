@@ -235,12 +235,12 @@ internal sealed class EndpointData
             if (implementsHandleAsync && implementsExecuteAsync)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
 
-            if (def.ValidatorType is null && valDict.TryGetValue(def.ReqDtoType, out var val)) //user has not specified a validator type in the endpoint
+            if (valDict.TryGetValue(def.ReqDtoType, out var val))
             {
                 if (val.HasDuplicates)
-                    throw new InvalidOperationException($"More than one validator was found for the request dto [{def.ReqDtoType.FullName}]. Specify the exact validator to register using the `Validator()` method in endpoint configuration.");
-
-                def.ValidatorType = val.ValidatorType;
+                    def.FoundDuplicateValidators = true;
+                else
+                    def.ValidatorType = val.ValidatorType;
             }
 
             if (summaryDict.TryGetValue(def.EndpointType, out var tSummary))

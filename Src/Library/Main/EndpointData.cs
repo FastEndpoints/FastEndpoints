@@ -7,7 +7,7 @@ namespace FastEndpoints;
 internal sealed class EndpointData
 {
     //using Lazy<T> to prevent contention when WAF testing (see issue #10)
-    private readonly Lazy<EndpointDefinition[]> _endpoints;
+    private Lazy<EndpointDefinition[]> _endpoints;
 
     internal EndpointDefinition[] Found => _endpoints.Value;
 
@@ -23,6 +23,8 @@ internal sealed class EndpointData
                    : endpoints;
         });
     }
+
+    internal void Clear() => _endpoints = null!;
 
     private static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options)
     {
@@ -162,14 +164,8 @@ internal sealed class EndpointData
                 {
                     var tCommand = tInterface.GetGenericArguments()[0];
 
-                    if (CommandExtensions.handlerCache.ContainsKey(tCommand))
-                    {
-                        throw new Exception($"Multiple handlers found for the command [{tCommand.FullName}]. " +
-                                             "Only one handler can exist for a single command. " +
-                                             "Consider using Event Pub/Sub pattern instead!");
-                    }
-
-                    CommandExtensions.handlerCache.Add(tCommand, new(t));
+                    if (!CommandExtensions.handlerCache.ContainsKey(tCommand))
+                        CommandExtensions.handlerCache.Add(tCommand, new(t));
 
                     continue;
                 }

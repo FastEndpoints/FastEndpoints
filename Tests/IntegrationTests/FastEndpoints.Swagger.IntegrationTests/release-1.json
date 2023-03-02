@@ -1803,10 +1803,6 @@
       "post": {
         "tags": [
           "test",
-          "test",
-          "test",
-          "test",
-          "test",
           "Inventory"
         ],
         "operationId": "CreateInventoryItem",
@@ -2038,10 +2034,6 @@
       },
       "post": {
         "tags": [
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
           "Customer Save"
         ],
         "operationId": "PostCustomersCreateEndpoint3",
@@ -2069,10 +2061,6 @@
       },
       "get": {
         "tags": [
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
           "Customer Save"
         ],
         "operationId": "GetCustomersCreateEndpoint3",
@@ -2251,10 +2239,6 @@
     "/api/customer/new/{RefererID}": {
       "post": {
         "tags": [
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
           "Customer Save"
         ],
         "operationId": "PostCustomersCreateEndpoint1",
@@ -2312,10 +2296,6 @@
       },
       "get": {
         "tags": [
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
           "Customer Save"
         ],
         "operationId": "GetCustomersCreateEndpoint1",
@@ -2392,10 +2372,6 @@
     "/api/customer/{cID}/new/{SourceID}": {
       "post": {
         "tags": [
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
           "Customer Save"
         ],
         "operationId": "PostCustomersCreateEndpoint2",
@@ -2445,10 +2421,6 @@
       },
       "get": {
         "tags": [
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
-          "Customer Save",
           "Customer Save"
         ],
         "operationId": "GetCustomersCreateEndpoint2",

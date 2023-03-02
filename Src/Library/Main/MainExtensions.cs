@@ -18,11 +18,11 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    /// <summary>
-    /// WARNING: this data is only available for a few minutes after app startup. It is automatically cleared to release unneeded memory.
-    /// <para>DO NOT ACCESS AFTER APP STARTUP!!!</para>
-    /// </summary>
-    internal static EndpointData Endpoints { get; private set; }
+    ///// <summary>
+    ///// WARNING: this data is only available for a few minutes after app startup. It is automatically cleared to release unneeded memory.
+    ///// <para>DO NOT ACCESS AFTER APP STARTUP!!!</para>
+    ///// </summary>
+    //internal static EndpointData Endpoints { get; private set; }
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
@@ -32,8 +32,8 @@ public static class MainExtensions
     {
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
-        Endpoints ??= new(opts); //prevent duplicate runs
-        services.AddAuthorization(async o => await BuildSecurityPoliciesForEndpoints(o)); //this method doesn't block
+        services.AddSingleton(new EndpointData(opts));
+        services.AddAuthorization(async o => await BuildSecurityPoliciesForEndpoints(o, services)); //this method doesn't block
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
@@ -62,6 +62,7 @@ public static class MainExtensions
         SerOpts.Options = Config.ServiceResolver.Resolve<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? SerOpts.Options;
         configAction?.Invoke(new Config());
 
+        var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
         var epFactory = Config.ServiceResolver.Resolve<IEndpointFactory>();
         using var scope = Config.ServiceResolver.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
@@ -69,7 +70,7 @@ public static class MainExtensions
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 
-        foreach (var def in Endpoints.Found)
+        foreach (var def in endpoints.Found)
         {
             var ep = epFactory.Create(def, httpCtx);
             def.Initialize(ep, httpCtx);
@@ -162,7 +163,7 @@ public static class MainExtensions
             //if someone's tests run for more than 10 minutes, we should make this a user configurable setting.
 
             await Task.Delay(TimeSpan.FromMinutes(10));
-            Endpoints = null!;
+            endpoints.Clear();
         });
 
         return app;
@@ -255,9 +256,11 @@ public static class MainExtensions
         }).ToArray();
     }
 
-    private static async Task BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts)
+    private static async Task BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts, IServiceCollection services)
     {
-        foreach (var ep in Endpoints.Found)
+        var endpoints = services.BuildServiceProvider().GetRequiredService<EndpointData>();
+
+        foreach (var ep in endpoints.Found)
         {
             while (!ep.IsInitialized) //this usually won't happen unless somehow this method is executed before MapFastEndpoints()
             {

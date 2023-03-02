@@ -48,13 +48,7 @@ public class ValidationSchemaProcessor : ISchemaProcessor
         _logger = Config.ServiceResolver.Resolve<ILogger<ValidationSchemaProcessor>>();
         _rules = CreateDefaultRules();
 
-        if (validatorTypes?.Length == 0 && MainExtensions.Endpoints is null)
-        {
-            _logger?.LogError("MainExtensions.Endpoints is null");
-            return;
-        }
-
-        validatorTypes ??= MainExtensions.Endpoints.Found
+        validatorTypes ??= Config.ServiceResolver.Resolve<EndpointData>().Found
             .Where(e => e.ValidatorType != null)
             .Select(e => e.ValidatorType!)
             .Distinct()

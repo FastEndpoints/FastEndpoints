@@ -42,7 +42,7 @@ public static class AuthExtensions
             }
             else
             {
-                using var rsa = RSA.Create();
+                var rsa = RSA.Create();
                 rsa.ImportRSAPublicKey(Convert.FromBase64String(tokenSigningKey), out _);
                 key = new RsaSecurityKey(rsa);
             }

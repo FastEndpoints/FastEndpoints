@@ -1,17 +1,11 @@
 ﻿namespace Customers.UpdateWithHeader;
 
-public class Request
-{
-    [FromHeader]
-    public int CustomerID { get; set; }
-
-    [FromHeader("tenant-id")]
-    public string TenantID { get; set; }
-
-    public string Name { get; set; }
-    public int Age { get; set; }
-    public string Address { get; set; }
-}
+public record Request(
+    [property: FromHeader] int CustomerID,
+    [property: FromHeader("tenant-id")] string TenantID,
+    string Name,
+    int Age,
+    string Address);
 
 public class Endpoint : Endpoint<Request>
 {

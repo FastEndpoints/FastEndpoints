@@ -130,14 +130,12 @@ public class CustomersTests : EndToEndTestBase
         var (_, res) = await CustomerClient.PUTAsync<
             Customers.UpdateWithHeader.Endpoint,
             Customers.UpdateWithHeader.Request,
-            string>(new()
-            {
-                CustomerID = 0,
-                Address = "address",
-                Age = 123,
-                Name = "test customer",
-                TenantID = "this will be set to qwerty from header"
-            });
+            string>(new(
+                10,
+                "this will be set to qwerty from header",
+                "test customer",
+                123,
+                "address"));
 
         var results = res!.Split('|');
         results[0].Should().Be("qwerty");

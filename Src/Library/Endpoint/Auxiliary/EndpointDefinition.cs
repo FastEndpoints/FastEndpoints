@@ -89,6 +89,23 @@ public sealed class EndpointDefinition
         });
     };
 
+    private static void AddProcessor(Order order, object[] processors, List<object> list)
+    {
+        var pos = 0;
+        for (var i = 0; i < processors.Length; i++)
+        {
+            var p = processors[i];
+            if (!list.Contains(p, TypeEqualityComparer.Instance))
+            {
+                if (order == Order.Before)
+                    list.Insert(pos, p);
+                else
+                    list.Add(p);
+                pos++;
+            }
+        }
+    }
+
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
     /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require authentication.
@@ -261,19 +278,7 @@ public sealed class EndpointDefinition
     /// <param name="postProcessors">the post-processors to add</param>
     public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors)
     {
-        var pos = 0;
-        for (var i = 0; i < postProcessors.Length; i++)
-        {
-            var p = postProcessors[i];
-            if (!PostProcessorList.Contains(p, TypeEqualityComparer.Instance))
-            {
-                if (order == Order.Before)
-                    PostProcessorList.Insert(pos, p);
-                else
-                    PostProcessorList.Add(p);
-                pos++;
-            }
-        }
+        AddProcessor(order, postProcessors, PostProcessorList);
     }
 
     /// <summary>
@@ -283,19 +288,7 @@ public sealed class EndpointDefinition
     /// <param name="preProcessors">the pre-processors to add</param>
     public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
     {
-        var pos = 0;
-        for (var i = 0; i < preProcessors.Length; i++)
-        {
-            var p = preProcessors[i];
-            if (!PreProcessorList.Contains(p, TypeEqualityComparer.Instance))
-            {
-                if (order == Order.Before)
-                    PreProcessorList.Insert(pos, p);
-                else
-                    PreProcessorList.Add(p);
-                pos++;
-            }
-        }
+        AddProcessor(order, preProcessors, PreProcessorList);
     }
 
     /// <summary>

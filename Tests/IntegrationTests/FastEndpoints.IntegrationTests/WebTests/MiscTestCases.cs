@@ -809,6 +809,18 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
+    public async Task ProcessorStateWorks()
+    {
+        var x = await GuestClient.GETAsync<
+            TestCases.ProcessorStateTest.Endpoint,
+            TestCases.ProcessorStateTest.Request,
+            string>(new() { Id = 10101 });
+
+        x.Response.StatusCode.Should().Be(HttpStatusCode.OK);
+        x.Result.Should().Be("10101 jane doe");
+    }
+
+    [Fact]
     public async Task PlainTextBodyModelBinding()
     {
         using var stringContent = new StringContent("this is the body content");

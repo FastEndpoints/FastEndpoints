@@ -85,4 +85,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             ? ctx.Response.SendNoContentAsync(cancellation)
             : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
     }
+
+    private static void AddProcessors(object[] preProcessors, List<object> list)
+    {
+        for (var i = 0; i < preProcessors.Length; i++)
+        {
+            var p = preProcessors[i];
+
+            if (!list.Contains(p, TypeEqualityComparer.Instance))
+                list.Add(p);
+        }
+    }
 }

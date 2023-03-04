@@ -28,6 +28,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
     /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     /// </summary>
     [DontInject]
+    //access is public to support testing
     public TMapper Map {
         get => _mapper ??= (TMapper)Definition.GetMapper()!;
         set => _mapper = value; //allow unit tests to set mapper from outside
@@ -211,7 +212,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk as done with IFormFile
     /// </summary>
     /// <param name="cancellation">optional cancellation token</param>
-    public async IAsyncEnumerable<FileMultipartSection?> FormFileSectionsAsync([EnumeratorCancellation] CancellationToken cancellation = default)
+    protected async IAsyncEnumerable<FileMultipartSection?> FormFileSectionsAsync([EnumeratorCancellation] CancellationToken cancellation = default)
     {
         var reader = new MultipartReader(HttpContext.Request.GetMultipartBoundary(), HttpContext.Request.Body);
 
@@ -239,6 +240,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         return ((IRefreshTokenService<TResponse>)FastEndpoints.Config.ServiceResolver.CreateInstance(
             typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges, null);
     }
+
+    /// <summary>
+    /// retrieve the common processor state for this endpoint.
+    /// </summary>
+    /// <typeparam name="TState">the type of the processor state</typeparam>
+    /// <exception cref="InvalidOperationException">thrown if the requested type of the processor state does not match with what's already stored in the context</exception>
+    //access is public to support testing
+    public TState ProcessorState<TState>() where TState : class, new()
+    {
+        //note: access is public to allow tests to get state
+
+        return HttpContext.ProcessorState<TState>();
+    }
 }
 
 /// <summary>
@@ -256,18 +270,33 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
     /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     /// </summary>
     [DontInject]
+    //access is public to support testing
     public TMapper Map {
         get => _mapper ??= (TMapper)Definition.GetMapper()!;
         set => _mapper = value; //allow unit tests to set mapper from outside
     }
 
-    public Task SendMapped<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
+    /// <summary>
+    /// send a response by mapping the supplied entity using this endpoint's mapper's SYNC mapping method.
+    /// </summary>
+    /// <typeparam name="TEntity">the type of the entity supplied</typeparam>
+    /// <param name="entity">the entity instance to map to the response</param>
+    /// <param name="statusCode">the status code to send</param>
+    /// <param name="ct">optional cancellation token</param>
+    protected Task SendMapped<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
     {
         var resp = ((Mapper<TRequest, TResponse, TEntity>)Definition.GetMapper()!).FromEntity(entity);
         return SendAsync(resp, statusCode, ct);
     }
 
-    public async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
+    /// <summary>
+    /// send a response by mapping the supplied entity using this endpoint's mapper's ASYNC mapping method.
+    /// </summary>
+    /// <typeparam name="TEntity">the type of the entity supplied</typeparam>
+    /// <param name="entity">the entity instance to map to the response</param>
+    /// <param name="statusCode">the status code to send</param>
+    /// <param name="ct">optional cancellation token</param>
+    protected async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
     {
         var resp = await ((Mapper<TRequest, TResponse, TEntity>)Definition.GetMapper()!).FromEntityAsync(entity, ct);
         await SendAsync(resp, statusCode, ct);
@@ -353,18 +382,19 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
     /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     /// </summary>
     [DontInject]
+    //access is public to support testing
     public TMapper Map {
         get => _mapper ??= (TMapper)Definition.GetMapper()!;
         set => _mapper = value; //allow unit tests to set mapper from outside
     }
 
-    public Task SendMapped<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
+    protected Task SendMapped<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
     {
         var resp = ((ResponseMapper<TResponse, TEntity>)Definition.GetMapper()!).FromEntity(entity);
         return SendAsync(resp, statusCode, ct);
     }
 
-    public async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
+    protected async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
     {
         var resp = await ((ResponseMapper<TResponse, TEntity>)Definition.GetMapper()!).FromEntityAsync(entity, ct);
         await SendAsync(resp, statusCode, ct);
@@ -383,23 +413,23 @@ public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoi
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto</param>
-    public virtual TEntity MapToEntity(TRequest r) => throw new NotImplementedException($"Please override the {nameof(MapToEntity)} method!");
+    protected virtual TEntity MapToEntity(TRequest r) => throw new NotImplementedException($"Please override the {nameof(MapToEntity)} method!");
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto to map from</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task<TEntity> MapToEntityAsync(TRequest r, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(MapToEntityAsync)} method!");
+    protected virtual Task<TEntity> MapToEntityAsync(TRequest r, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(MapToEntityAsync)} method!");
 
     /// <summary>
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
-    public virtual TResponse MapFromEntity(TEntity e) => throw new NotImplementedException($"Please override the {nameof(MapFromEntity)} method!");
+    protected virtual TResponse MapFromEntity(TEntity e) => throw new NotImplementedException($"Please override the {nameof(MapFromEntity)} method!");
     /// <summary>
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task<TResponse> MapFromEntityAsync(TEntity e, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(MapFromEntityAsync)} method!");
+    protected virtual Task<TResponse> MapFromEntityAsync(TEntity e, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(MapFromEntityAsync)} method!");
 }

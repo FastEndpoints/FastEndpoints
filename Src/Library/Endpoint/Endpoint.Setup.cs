@@ -253,31 +253,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
-    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors)
-    {
-        for (var i = 0; i < postProcessors.Length; i++)
-        {
-            var p = postProcessors[i];
-
-            if (!Definition.PostProcessorList.Contains(p, TypeEqualityComparer.Instance))
-                Definition.PostProcessorList.Add(p);
-        }
-    }
+    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors) => AddProcessors(postProcessors, Definition.PostProcessorList);
 
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>
-    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors)
-    {
-        for (var i = 0; i < preProcessors.Length; i++)
-        {
-            var p = preProcessors[i];
-
-            if (!Definition.PreProcessorList.Contains(p, TypeEqualityComparer.Instance))
-                Definition.PreProcessorList.Add(p);
-        }
-    }
+    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors) => AddProcessors(preProcessors, Definition.PreProcessorList);
 
     /// <summary>
     /// specify to listen for PUT requests on one or more routes.

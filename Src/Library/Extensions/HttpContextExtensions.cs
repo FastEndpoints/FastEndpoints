@@ -46,10 +46,26 @@ public static class HttpContextExtensions
     /// </summary>
     public static bool ResponseStarted(this HttpContext ctx)
         => ctx.Response.HasStarted || ctx.Items.ContainsKey(CtxKey.ResponseStarted);
+
+    /// <summary>
+    /// retrieve the common processor state for the current http context.
+    /// </summary>
+    /// <typeparam name="TState">the type of the processor state</typeparam>
+    /// <exception cref="InvalidOperationException">thrown if the requested type of the processor state does not match with what's already stored in the context</exception>
+    public static TState ProcessorState<TState>(this HttpContext ctx) where TState : class, new()
+    {
+        if (ctx.Items.TryGetValue(CtxKey.ProcessorState, out var state))
+            return state as TState ?? throw new InvalidOperationException($"Only a single type of state is supported across processors and endpoint handler! Requested: [{typeof(TState).Name}] Found: [{state!.GetType().Name}]");
+
+        var st = new TState();
+        ctx.Items[CtxKey.ProcessorState] = st;
+        return st;
+    }
 }
 
 internal static class CtxKey
 {
     internal const int ResponseStarted = 0;
     internal const int ValidationFailures = 1;
+    internal const int ProcessorState = 2;
 }

@@ -616,6 +616,38 @@
         }
       }
     },
+    "/api/test-cases/processor-state-sharing": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesProcessorStateTestEndpoint",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/pre-processor-is-run-on-validation-failure": {
       "post": {
         "tags": [
@@ -3189,6 +3221,10 @@
         ]
       },
       "TestCasesQueryObjectBindingTestRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesProcessorStateTestRequest": {
         "type": "object",
         "additionalProperties": false
       },

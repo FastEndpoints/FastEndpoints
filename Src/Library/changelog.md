@@ -1,6 +1,7 @@
 ### NEW
 - support for `record` types and `required` keyword by removing `new()` constraint on request DTOs [#info]()
 - allow command handlers to manipulate endpoint validation state [#info](https://discord.com/channels/933662816458645504/1076434477246586941)
+- ability to share state between pre/post processors and endpoint handler [#info](https://discord.com/channels/933662816458645504/1080229291926753381/1081114685174190130)
 - add `Policy()` method to endpoint class for building authorization requirements per endpoint #393
 - ability to automatically add produces 400 metadata for endpoints with validators [#info](https://discord.com/channels/933662816458645504/1077784720051556473)
 - ability to remove optional `[FromHeaders],[FromClaim],[HasPermission]` annotated properties from swagger request schema #387

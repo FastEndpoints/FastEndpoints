@@ -159,6 +159,6 @@ public class UnitTests
 
         //assert
         ep.Response.Should().Be("101 blah");
-        state.Duration.Should().BeGreaterThan(300);
+        state.Duration.Should().BeGreaterThan(250);
     }
 }

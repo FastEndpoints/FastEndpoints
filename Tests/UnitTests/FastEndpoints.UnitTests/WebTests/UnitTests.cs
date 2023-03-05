@@ -143,4 +143,22 @@ public class UnitTests
             GenerateFullUrl = false
         }, default);
     }
+
+    [Fact]
+    public async Task processor_state_access_from_unit_test()
+    {
+        //arrange
+        var ep = Factory.Create<TestCases.ProcessorStateTest.Endpoint>();
+
+        var state = ep.ProcessorState<TestCases.ProcessorStateTest.Thingy>();
+        state.Id = 101;
+        state.Name = "blah";
+
+        //act
+        await ep.HandleAsync(new() { Id = 0 }, default);
+
+        //assert
+        ep.Response.Should().Be("101 blah");
+        state.Duration.Should().BeGreaterThan(300);
+    }
 }

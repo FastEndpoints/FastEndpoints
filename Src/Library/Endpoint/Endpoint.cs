@@ -247,12 +247,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <typeparam name="TState">the type of the processor state</typeparam>
     /// <exception cref="InvalidOperationException">thrown if the requested type of the processor state does not match with what's already stored in the context</exception>
     //access is public to support testing
-    public TState ProcessorState<TState>() where TState : class, new()
-    {
-        //note: access is public to allow tests to get state
-
-        return HttpContext.ProcessorState<TState>();
-    }
+    public TState ProcessorState<TState>() where TState : class, new() => HttpContext.ProcessorState<TState>();
 }
 
 /// <summary>

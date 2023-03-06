@@ -28,11 +28,7 @@ public static class AuthExtensions
                                                       Action<TokenValidationParameters>? tokenValidation = null,
                                                       Action<JwtBearerEvents>? bearerEvents = null)
     {
-        services.AddAuthentication(o =>
-        {
-            o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(o =>
         {
             SecurityKey key;
@@ -75,11 +71,7 @@ public static class AuthExtensions
                                                    TimeSpan validFor,
                                                    Action<CookieAuthenticationOptions>? options = null)
     {
-        services.AddAuthentication(o =>
-        {
-            o.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            o.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        })
+        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(o =>
             {
                 o.ExpireTimeSpan = validFor;

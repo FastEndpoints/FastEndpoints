@@ -75,7 +75,11 @@ public static class AuthExtensions
                                                    TimeSpan validFor,
                                                    Action<CookieAuthenticationOptions>? options = null)
     {
-        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        services.AddAuthentication(o =>
+        {
+            o.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            o.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        })
             .AddCookie(o =>
             {
                 o.ExpireTimeSpan = validFor;

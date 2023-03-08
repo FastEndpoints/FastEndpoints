@@ -52,18 +52,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 Definition,
                 HttpContext,
                 ValidationFailures,
-                ct);
+                ct); //execution stops here if JsonException is thrown and continues at try/catch below
 
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req, ct);
 
             await ValidateRequest(
                 req,
-                HttpContext,
                 Definition,
-                Definition.PreProcessorList,
                 ValidationFailures,
-                ct);
+                ct); //execution stops here if ValidationFailureException is thrown and continues at try/catch below
 
             OnAfterValidate(req);
             await OnAfterValidateAsync(req, ct);
@@ -87,37 +85,35 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             OnAfterHandle(req, _response);
             await OnAfterHandleAsync(req, _response, ct);
         }
-        catch (ValidationFailureException)
-        {
-            OnValidationFailed();
-            await OnValidationFailedAsync(ct);
-
-            if (!Definition.DoNotCatchExceptions)
-                await SendErrorsAsync(FastEndpoints.Config.ErrOpts.StatusCode, ct);
-            else
-                throw;
-        }
         catch (JsonException x)
         {
-            OnValidationFailed();
-            await OnValidationFailedAsync(ct);
+            ValidationFailures.Add(new(
+                propertyName: x.Path != "$" ? x.Path?[2..] : FastEndpoints.Config.SerOpts.SerializerErrorsField,
+                errorMessage: x.InnerException?.Message ?? x.Message));
 
-            if (!Definition.DoNotCatchExceptions)
-            {
-                ValidationFailures.Add(new(
-                    propertyName: x.Path != "$" ? x.Path?[2..] : FastEndpoints.Config.SerOpts.SerializerErrorsField,
-                    errorMessage: x.InnerException?.Message ?? x.Message));
-
-                await SendErrorsAsync(FastEndpoints.Config.ErrOpts.StatusCode, ct);
-            }
-            else
-            {
-                throw;
-            }
+            await ValidationFailedAsync(x);
+        }
+        catch (ValidationFailureException x)
+        {
+            await ValidationFailedAsync(x);
         }
         finally
         {
             await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, ValidationFailures, ct);
+        }
+
+        async Task ValidationFailedAsync(Exception x)
+        {
+            await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
+
+            OnValidationFailed();
+            await OnValidationFailedAsync(ct);
+
+            if (Definition.DoNotCatchExceptions)
+                throw x;
+
+            if (!ResponseStarted) //pre-processors may have already sent a response
+                await SendErrorsAsync(FastEndpoints.Config.ErrOpts.StatusCode, ct);
         }
     }
 

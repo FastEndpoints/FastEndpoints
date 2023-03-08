@@ -734,6 +734,21 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
+    public async Task PreProcessorShortCircuitingWhileValidatorFails()
+    {
+        var x = await GuestClient.GETAsync<
+            TestCases.PrecessorShortWhileValidatorFails.Endpoint,
+            TestCases.PrecessorShortWhileValidatorFails.Request,
+            object>(new()
+            {
+                Id = 0
+            });
+
+        x.Response.StatusCode.Should().Be(HttpStatusCode.OK);
+        x.Result?.ToString().Should().Be("hello from pre-processor!");
+    }
+
+    [Fact]
     public async Task PreProcessorsAreRunIfValidationFailuresOccur()
     {
         var (rsp, res) = await AdminClient.POSTAsync<

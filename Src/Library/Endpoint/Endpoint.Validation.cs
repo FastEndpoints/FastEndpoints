@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
@@ -8,12 +7,7 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IValidationErrors<TRequest> where TRequest : notnull
 {
-    private static async Task ValidateRequest(TRequest req,
-                                              HttpContext ctx,
-                                              EndpointDefinition def,
-                                              List<object> preProcessors,
-                                              List<ValidationFailure> validationFailures,
-                                              CancellationToken cancellation)
+    private static async Task ValidateRequest(TRequest req, EndpointDefinition def, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
         if (def.ValidatorType is null)
             return;
@@ -24,10 +18,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IVal
             validationFailures.AddRange(valResult.Errors);
 
         if (validationFailures.Count > 0 && def.ThrowIfValidationFails)
-        {
-            await RunPreprocessors(preProcessors, req, ctx, validationFailures, cancellation);
             throw new ValidationFailureException(validationFailures, "Request validation failed");
-        }
     }
 
     ///<inheritdoc/>

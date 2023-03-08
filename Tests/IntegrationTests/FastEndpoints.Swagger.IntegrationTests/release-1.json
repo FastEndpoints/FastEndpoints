@@ -689,6 +689,39 @@
         ]
       }
     },
+    "/api/testcases/pre-processor-shortcircuit-while-validator-fails": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesPrecessorShortWhileValidatorFailsEndpoint",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/test-cases/plaintext/{Id}": {
       "post": {
         "tags": [
@@ -3254,6 +3287,10 @@
             "format": "int32"
           }
         }
+      },
+      "TestCasesPrecessorShortWhileValidatorFailsRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesPlainTextRequestTestResponse": {
         "type": "object",

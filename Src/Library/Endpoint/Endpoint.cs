@@ -91,18 +91,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 propertyName: x.Path != "$" ? x.Path?[2..] : FastEndpoints.Config.SerOpts.SerializerErrorsField,
                 errorMessage: x.InnerException?.Message ?? x.Message));
 
-            await ValidationFailedAsync(x);
+            await ValidationFailed(x);
         }
         catch (ValidationFailureException x)
         {
-            await ValidationFailedAsync(x);
+            await ValidationFailed(x);
         }
         finally
         {
             await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, ValidationFailures, ct);
         }
 
-        async Task ValidationFailedAsync(Exception x)
+        async Task ValidationFailed(Exception x)
         {
             await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
 

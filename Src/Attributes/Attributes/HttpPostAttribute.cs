@@ -4,7 +4,7 @@
 /// use this attribute to specify a POST route for an endpoint
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public class HttpPostAttribute : HttpAttribute
+public sealed class HttpPostAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a POST route for an endpoint

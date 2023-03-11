@@ -3,7 +3,7 @@
 /// <summary>
 /// the dto used to send an error response to the client when an unhandled exception occurs on the server
 /// </summary>
-public class InternalErrorResponse
+public sealed class InternalErrorResponse
 {
     /// <summary>
     /// error status

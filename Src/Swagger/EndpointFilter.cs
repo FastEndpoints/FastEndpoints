@@ -4,7 +4,7 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-internal class EndpointFilter : IOperationProcessor
+internal sealed class EndpointFilter : IOperationProcessor
 {
     private readonly Func<EndpointDefinition, bool> _filter;
 

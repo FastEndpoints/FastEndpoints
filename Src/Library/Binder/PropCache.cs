@@ -11,7 +11,7 @@ internal class PrimaryPropCacheEntry : PropCache
     public Func<object?, ParseResult> ValueParser { get; init; }
 }
 
-internal class SecondaryPropCacheEntry : PrimaryPropCacheEntry
+internal sealed class SecondaryPropCacheEntry : PrimaryPropCacheEntry
 {
     public string Identifier { get; init; }
     public bool ForbidIfMissing { get; init; }

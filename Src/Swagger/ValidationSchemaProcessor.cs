@@ -33,7 +33,7 @@ using System.Collections.ObjectModel;
 
 namespace FastEndpoints.Swagger;
 
-public class ValidationSchemaProcessor : ISchemaProcessor
+internal sealed class ValidationSchemaProcessor : ISchemaProcessor
 {
     private static Type[]? validatorTypes;
     private readonly FluentValidationRule[] _rules;

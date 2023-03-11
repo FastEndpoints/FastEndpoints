@@ -3,7 +3,7 @@ namespace FastEndpoints;
 /// <summary>
 /// global endpoint versioning options
 /// </summary>
-public class VersioningOptions
+public sealed class VersioningOptions
 {
     /// <summary>
     /// the prefix used in front of the version (for example 'v' produces 'v{version}').

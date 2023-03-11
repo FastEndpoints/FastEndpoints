@@ -5,7 +5,7 @@ using System.Text;
 namespace FastEndpoints.Generator;
 
 [Generator]
-public class EndpointsDiscoveryGenerator : ISourceGenerator
+public sealed class EndpointsDiscoveryGenerator : ISourceGenerator
 {
     public void Initialize(GeneratorInitializationContext context) { }
 

@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-internal class HitCounter
+internal sealed class HitCounter
 {
     //key: header value as a unique client identifier
     private ConcurrentDictionary<string, Counter> clients = new();

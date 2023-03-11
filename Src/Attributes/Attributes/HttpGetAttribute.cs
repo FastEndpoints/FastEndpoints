@@ -4,7 +4,7 @@
 /// use this attribute to specify a GET route for an endpoint
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public class HttpGetAttribute : HttpAttribute
+public sealed class HttpGetAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a GET route for an endpoint

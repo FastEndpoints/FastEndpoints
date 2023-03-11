@@ -7,7 +7,7 @@ namespace FastEndpoints;
 /// <summary>
 /// error response customization settings
 /// </summary>
-public class ErrorOptions
+public sealed class ErrorOptions
 {
     /// <summary>
     /// this http status code will be used for all automatically sent validation failure responses. defaults to 400.

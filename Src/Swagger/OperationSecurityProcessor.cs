@@ -7,7 +7,7 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-internal class OperationSecurityProcessor : IOperationProcessor
+internal sealed class OperationSecurityProcessor : IOperationProcessor
 {
     private readonly string schemeName;
 

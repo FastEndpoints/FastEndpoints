@@ -3,7 +3,7 @@
 /// <summary>
 /// endpoint registration options
 /// </summary>
-public class EndpointOptions
+public sealed class EndpointOptions
 {
     /// <summary>
     /// set to true if you'd like the endpoint names/ swagger operation ids to be just the endpoint class names instead of the full names including namespace.

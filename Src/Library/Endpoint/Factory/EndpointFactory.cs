@@ -7,7 +7,7 @@ namespace FastEndpoints;
 /// the default endpoint factory.
 /// it creates an instance of the endpoint and injects both constructor and property dependencies.
 /// </summary>
-public class EndpointFactory : IEndpointFactory
+public sealed class EndpointFactory : IEndpointFactory
 {
     /// <summary>
     /// this method is called per each request.

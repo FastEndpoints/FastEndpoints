@@ -4,7 +4,7 @@
 /// use this attribute to specify a DELETE route for an endpoint
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public class HttpDeleteAttribute : HttpAttribute
+public sealed class HttpDeleteAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a DELETE route for an endpoint

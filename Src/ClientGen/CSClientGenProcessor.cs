@@ -5,7 +5,7 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.ClientGen;
 
-internal class CSClientGenProcessor : IDocumentProcessor
+internal sealed class CSClientGenProcessor : IDocumentProcessor
 {
     private readonly string destination;
     private readonly ClientGeneratorOutputType outputType;

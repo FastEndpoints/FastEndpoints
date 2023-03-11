@@ -8,4 +8,4 @@
 /// </para>
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-public class FromQueryParamsAttribute : QueryParamAttribute { }
+public sealed class FromQueryParamsAttribute : QueryParamAttribute { }

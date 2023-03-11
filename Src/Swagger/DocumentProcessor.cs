@@ -3,7 +3,7 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-internal class DocumentProcessor : IDocumentProcessor
+internal sealed class DocumentProcessor : IDocumentProcessor
 {
     private readonly int maxEpVer;
     private readonly int minEpVer;

@@ -5,7 +5,7 @@ namespace FastEndpoints;
 /// <summary>
 /// global configuration settings for FastEndpoints
 /// </summary>
-public class Config
+public sealed class Config
 {
     internal static IServiceResolver ServiceResolver;
 

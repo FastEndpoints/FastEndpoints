@@ -3,7 +3,7 @@
 /// <summary>
 /// global settings for throttling
 /// </summary>
-public class ThrottleOptions
+public sealed class ThrottleOptions
 {
     /// <summary>
     /// header used to track rate limits

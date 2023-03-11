@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-internal class ServiceResolver : IServiceResolver
+internal sealed class ServiceResolver : IServiceResolver
 {
     private readonly ConcurrentDictionary<Type, ObjectFactory> factoryCache = new();
     private readonly IServiceProvider rootProvider;

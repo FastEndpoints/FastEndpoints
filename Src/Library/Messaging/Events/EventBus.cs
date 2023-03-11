@@ -14,7 +14,7 @@ public abstract class EventBase
 /// event notification bus which uses an in-process pub/sub messaging system
 /// </summary>
 /// <typeparam name="TEvent">the type of notification event dto</typeparam>
-public class Event<TEvent> : EventBase where TEvent : notnull
+public sealed class Event<TEvent> : EventBase where TEvent : notnull
 {
     private readonly IEnumerable<IEventHandler<TEvent>> handlers = Enumerable.Empty<IEventHandler<TEvent>>();
 

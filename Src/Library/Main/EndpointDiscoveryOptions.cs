@@ -6,7 +6,7 @@ namespace FastEndpoints;
 /// <summary>
 /// defines how endpoint discovery and registration should be done at startup
 /// </summary>
-public class EndpointDiscoveryOptions
+public sealed class EndpointDiscoveryOptions
 {
     /// <summary>
     /// an optional collection of assemblies to discover endpoints from.

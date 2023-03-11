@@ -3,7 +3,7 @@ using System.Text;
 
 namespace FastEndpoints.Swagger;
 
-internal class SchemaNameGenerator : ISchemaNameGenerator
+internal sealed class SchemaNameGenerator : ISchemaNameGenerator
 {
     private readonly bool shortSchemaNames;
 

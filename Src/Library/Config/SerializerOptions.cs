@@ -8,7 +8,7 @@ namespace FastEndpoints;
 /// <summary>
 /// serialization options for the endpoints
 /// </summary>
-public class SerializerOptions
+public sealed class SerializerOptions
 {
     /// <summary>
     /// the json serializer options

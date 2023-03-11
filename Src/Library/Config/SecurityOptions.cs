@@ -3,7 +3,7 @@
 /// <summary>
 /// global security options
 /// </summary>
-public class SecurityOptions
+public sealed class SecurityOptions
 {
     /// <summary>
     /// specify a custom claim type used to identify permissions of a user principal. defaults to `permission`.

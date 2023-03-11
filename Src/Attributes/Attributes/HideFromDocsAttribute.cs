@@ -4,4 +4,4 @@
 /// attribute used to mark classes that should be hidden from public api
 /// </summary>
 [AttributeUsage(AttributeTargets.All, AllowMultiple = false)]
-public class HideFromDocsAttribute : Attribute { }
+public sealed class HideFromDocsAttribute : Attribute { }

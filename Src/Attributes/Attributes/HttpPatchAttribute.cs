@@ -4,7 +4,7 @@
 /// use this attribute to specify a PATCH route for an endpoint
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public class HttpPatchAttribute : HttpAttribute
+public sealed class HttpPatchAttribute : HttpAttribute
 {
     /// <summary>
     /// use this attribute to specify a PATCH route for an endpoint

@@ -6,7 +6,7 @@ namespace FastEndpoints;
 /// the exception thrown when validation failure occurs.
 /// inspect the `Failures` property for details.
 /// </summary>
-public class ValidationFailureException : Exception
+public sealed class ValidationFailureException : Exception
 {
     /// <summary>
     /// the collection of failures that have occured.

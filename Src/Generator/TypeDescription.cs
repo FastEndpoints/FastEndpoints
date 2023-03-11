@@ -2,7 +2,7 @@
 
 namespace FastEndpoints.Generator;
 
-internal class TypeDescription : IEquatable<TypeDescription>
+internal sealed class TypeDescription : IEquatable<TypeDescription>
 {
     public TypeDescription(INamedTypeSymbol symbol)
     {

@@ -6,7 +6,7 @@ namespace FastEndpoints;
 /// <summary>
 /// request binding options
 /// </summary>
-public class BindingOptions
+public sealed class BindingOptions
 {
     /// <summary>
     /// a function used to construct the failure message when a supplied value cannot be succesfully bound to a dto property during model binding.

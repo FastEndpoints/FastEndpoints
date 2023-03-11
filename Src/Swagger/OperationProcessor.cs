@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Swagger;
 
-internal class OperationProcessor : IOperationProcessor
+internal sealed class OperationProcessor : IOperationProcessor
 {
     private static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
     private static readonly Regex routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);

@@ -7,6 +7,7 @@
         <PackageIcon>icon.png</PackageIcon>
         <IsRoslynComponent>true</IsRoslynComponent>
         <DevelopmentDependency>true</DevelopmentDependency>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     </PropertyGroup>
 
     <ItemGroup>

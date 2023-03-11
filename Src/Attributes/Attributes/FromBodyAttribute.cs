@@ -5,4 +5,4 @@
 /// <para>HINT: no other binding sources will be used for binding that property.</para>
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-public class FromBodyAttribute : Attribute { }
+public sealed class FromBodyAttribute : Attribute { }

@@ -4,7 +4,7 @@
 /// rate limit requests to this endpoint based on a request http header sent by the client.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public class ThrottleAttribute : Attribute
+public sealed class ThrottleAttribute : Attribute
 {
     /// <summary>
     /// how many requests are allowed within the given duration

@@ -62,13 +62,11 @@ public static class CookieAuth
     /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configure or method is used outside the scope of an http request</exception>
     public static Task SignOutAsync(Action<AuthenticationProperties>? properties = null)
     {
-        var svc = Config.ServiceResolver.TryResolve<IAuthenticationService>();
-        if (svc is null)
-            throw new InvalidOperationException("Authentication middleware has not been configured!");
+        var svc = Config.ServiceResolver.TryResolve<IAuthenticationService>()
+            ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
 
-        var ctx = Config.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext;
-        if (ctx is null)
-            throw new InvalidOperationException("This operation is only valid during an http request!");
+        var ctx = Config.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext
+            ?? throw new InvalidOperationException("This operation is only valid during an http request!");
 
         var props = new AuthenticationProperties
         {

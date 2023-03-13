@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Text;
 using static FastEndpoints.Config;
+using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 namespace FastEndpoints;
 
@@ -97,7 +98,7 @@ public static class MainExtensions
                     var hb = app.MapMethods(
                         finalRoute,
                         new[] { verb },
-                        (HttpContext ctx, IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
+                        (HttpContext ctx, [FromServices] IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
 
                     hb.WithName(
                         def.EndpointType.EndpointName(

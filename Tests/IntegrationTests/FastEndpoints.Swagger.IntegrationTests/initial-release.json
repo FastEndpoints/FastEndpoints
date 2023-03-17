@@ -203,8 +203,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "bool",
@@ -212,8 +211,7 @@
             "required": true,
             "schema": {
               "type": "boolean"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "int",
@@ -223,8 +221,7 @@
               "type": "integer",
               "format": "int32",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "long",
@@ -233,8 +230,7 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "double",
@@ -243,8 +239,7 @@
             "schema": {
               "type": "number",
               "format": "double"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "decimal",
@@ -253,8 +248,7 @@
             "schema": {
               "type": "number",
               "format": "decimal"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "Person",
@@ -267,8 +261,7 @@
                   "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
                 }
               ]
-            },
-            "nullable": true
+            }
           }
         ],
         "requestBody": {
@@ -322,8 +315,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "OtherID",
@@ -333,8 +325,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -495,8 +486,7 @@
                   "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
                 }
               ]
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -530,8 +520,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Bool",
@@ -539,8 +528,7 @@
             "required": true,
             "schema": {
               "type": "boolean"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "Int",
@@ -549,8 +537,7 @@
               "type": "integer",
               "format": "int32",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Long",
@@ -559,8 +546,7 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "Double",
@@ -569,8 +555,7 @@
             "schema": {
               "type": "number",
               "format": "double"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "Enum",
@@ -578,8 +563,7 @@
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/SystemDayOfWeek"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "Person",
@@ -592,8 +576,7 @@
                   "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
                 }
               ]
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -624,8 +607,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "nullable": false
+            }
           }
         ],
         "responses": {
@@ -694,8 +676,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "nullable": false
+            }
           }
         ],
         "responses": {
@@ -729,8 +710,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "nullable": false
+            }
           }
         ],
         "requestBody": {
@@ -821,8 +801,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "requestBody": {
@@ -872,8 +851,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -909,8 +887,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1056,8 +1033,7 @@
                 "type": "number",
                 "format": "double"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Ints",
@@ -1072,8 +1048,7 @@
                 "type": "integer",
                 "format": "int32"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Guids",
@@ -1088,8 +1063,7 @@
                 "type": "string",
                 "format": "guid"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Dates",
@@ -1104,8 +1078,7 @@
                 "type": "string",
                 "format": "date-time"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Steven",
@@ -1118,8 +1091,7 @@
                   "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person"
                 }
               ]
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Dict",
@@ -1131,8 +1103,7 @@
               "additionalProperties": {
                 "type": "string"
               }
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1165,8 +1136,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "nullable": false
+            }
           }
         ],
         "requestBody": {
@@ -1220,8 +1190,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "CustomerID",
@@ -1230,8 +1199,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "nullable": false
+            }
           }
         ],
         "requestBody": {
@@ -1315,8 +1283,7 @@
               "items": {
                 "type": "string"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "MoreStrings",
@@ -1330,8 +1297,7 @@
               "items": {
                 "type": "string"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Doubles",
@@ -1346,8 +1312,7 @@
                 "type": "number",
                 "format": "double"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Ints",
@@ -1362,8 +1327,7 @@
                 "type": "integer",
                 "format": "int32"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Guids",
@@ -1378,8 +1342,7 @@
                 "type": "string",
                 "format": "guid"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Dates",
@@ -1394,8 +1357,7 @@
                 "type": "string",
                 "format": "date-time"
               }
-            },
-            "nullable": true
+            }
           },
           {
             "name": "Persons",
@@ -1409,8 +1371,7 @@
               "items": {
                 "$ref": "#/components/schemas/TestCasesDupeParamBindingForIEnumerablePropsRequest_Person"
               }
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1441,8 +1402,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "nullable": false
+            }
           }
         ],
         "responses": {
@@ -1555,8 +1515,7 @@
               "type": "string",
               "format": "byte",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "ObjectWithByteArrays",
@@ -1569,8 +1528,7 @@
                   "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays"
                 }
               ]
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1601,8 +1559,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "tenant-id",
@@ -1610,8 +1567,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1653,8 +1609,7 @@
             "schema": {
               "type": "string",
               "format": "guid"
-            },
-            "nullable": false
+            }
           }
         ],
         "requestBody": {
@@ -1799,10 +1754,9 @@
             "required": true,
             "schema": {
               "type": "string",
+              "default": "test default val",
               "nullable": true
-            },
-            "default": "test default val",
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1869,8 +1823,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1901,8 +1854,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -1932,10 +1884,9 @@
             "required": true,
             "schema": {
               "type": "string",
+              "default": "test default val",
               "nullable": true
-            },
-            "default": "test default val",
-            "nullable": true
+            }
           },
           {
             "name": "Name",
@@ -1943,10 +1894,9 @@
             "required": true,
             "schema": {
               "type": "string",
+              "default": "query test default val",
               "nullable": true
-            },
-            "default": "query test default val",
-            "nullable": true
+            }
           }
         ],
         "requestBody": {
@@ -1995,10 +1945,9 @@
             "required": true,
             "schema": {
               "type": "string",
+              "default": "test default val",
               "nullable": true
-            },
-            "default": "test default val",
-            "nullable": true
+            }
           },
           {
             "name": "Name",
@@ -2006,10 +1955,9 @@
             "required": true,
             "schema": {
               "type": "string",
+              "default": "query test default val",
               "nullable": true
-            },
-            "default": "query test default val",
-            "nullable": true
+            }
           }
         ],
         "requestBody": {
@@ -2081,8 +2029,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "CustomerName",
@@ -2090,8 +2037,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "PhoneNumbers",
@@ -2105,8 +2051,7 @@
               "items": {
                 "type": "string"
               }
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -2143,8 +2088,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "nullable": false
+            }
           },
           {
             "name": "tenant-id",
@@ -2153,8 +2097,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "requestBody": {
@@ -2253,8 +2196,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "requestBody": {
@@ -2307,8 +2249,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "cID",
@@ -2317,8 +2258,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "CustomerName",
@@ -2327,8 +2267,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "PhoneNumbers",
@@ -2342,8 +2281,7 @@
               "items": {
                 "type": "string"
               }
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -2380,8 +2318,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "SourceID",
@@ -2390,8 +2327,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {
@@ -2426,8 +2362,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "SourceID",
@@ -2436,8 +2371,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "CustomerName",
@@ -2445,8 +2379,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "nullable": true
+            }
           },
           {
             "name": "PhoneNumbers",
@@ -2460,8 +2393,7 @@
               "items": {
                 "type": "string"
               }
-            },
-            "nullable": true
+            }
           }
         ],
         "responses": {

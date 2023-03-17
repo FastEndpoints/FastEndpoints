@@ -486,10 +486,14 @@ internal sealed class OperationProcessor : IOperationProcessor
     {
         name ??= propInfo?.GetCustomAttribute<BindFromAttribute>()?.Name ?? propInfo?.Name ?? throw new InvalidOperationException("param name is required!");
         var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(name, descriptions?.GetValueOrDefault(name), (propInfo?.PropertyType ?? Types.String).ToContextualType());
-        prm.IsRequired = isRequired ?? !(propInfo?.IsNullable() ?? true);
         prm.Kind = kind;
-        prm.Default = propInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+        prm.IsRequired = isRequired ?? !(propInfo?.IsNullable() ?? true);
+        if (ctx.Settings.SchemaType == SchemaType.Swagger2)
+            prm.Default = propInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+        else
+            prm.Schema.Default = propInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
         prm.Example = propInfo?.GetExample();
+        prm.IsNullableRaw = null; //if this is not null, nswag generates an incorrect swagger spec for some unknown reason.
         return prm;
     }
 }

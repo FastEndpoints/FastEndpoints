@@ -22,6 +22,7 @@ builder.Services
         s.DocumentName = "Initial Release";
         s.Title = "Web API";
         s.Version = "v0.0";
+        s.SchemaType = NJsonSchema.SchemaType.OpenApi3;
     },
     serializerSettings: x => x.PropertyNamingPolicy = null,
     tagCase: TagCase.TitleCase,

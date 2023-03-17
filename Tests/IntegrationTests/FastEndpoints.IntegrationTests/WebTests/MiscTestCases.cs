@@ -683,7 +683,7 @@ public class MiscTestCases : EndToEndTestBase
             await new StreamContent(
                     File.OpenRead("test.png"))
                 .ReadAsByteArrayAsync());
-        imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+        imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
 
         using var form = new MultipartFormDataContent
         {
@@ -704,27 +704,24 @@ public class MiscTestCases : EndToEndTestBase
     [Fact]
     public async Task FileHandlingFileBinding()
     {
-        using var imageContent1 = new ByteArrayContent(
-            await new StreamContent(
-                    File.OpenRead("test.png"))
-                .ReadAsByteArrayAsync());
-        imageContent1.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
+        using var stream1 = File.OpenRead("test.png");
+        using var stream2 = File.OpenRead("test.png");
 
-        using var imageContent2 = new ByteArrayContent(
-            await new StreamContent(
-                    File.OpenRead("test.png"))
-                .ReadAsByteArrayAsync());
-        imageContent2.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-
-        using var form = new MultipartFormDataContent
+        var req = new Uploads.Image.SaveTyped.Request
         {
-            {imageContent1, "File1", "test.png"},
-            {imageContent2, "File2", "test.png"},
-            {new StringContent("500"), "Width"},
-            {new StringContent("500"), "Height"}
+            File1 = new FormFile(stream1, 0, stream1.Length, "File1", "test.png")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/png"
+            },
+            File2 = new FormFile(stream2, 0, stream2.Length, "File2", "test.png"),
+            Width = 500,
+            Height = 500
         };
 
-        var res = await AdminClient.PostAsync("/api/uploads/image/save-typed", form);
+        var res = await AdminClient.POSTAsync<
+            Uploads.Image.SaveTyped.Endpoint,
+            Uploads.Image.SaveTyped.Request>(req, sendAsFormData: true);
 
         using var md5Instance = MD5.Create();
         using var stream = await res.Content.ReadAsStreamAsync();

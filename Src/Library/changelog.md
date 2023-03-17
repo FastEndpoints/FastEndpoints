@@ -1,5 +1,5 @@
 ### NEW
-- 
+- ability to submit a request DTO as multipart form data when integration testing endpoints that accept form data. #409
 
 ### IMPROVEMENTS
 - refactor & simplify httpclient extensions for testing 

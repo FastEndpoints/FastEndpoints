@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using Microsoft.AspNetCore.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using static FastEndpoints.Config;
@@ -18,29 +19,9 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-    public static async Task<TestResult<TResponse>>
+    public static Task<TestResult<TResponse>>
         POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
-    {
-        var rsp = await client.PostAsJsonAsync(requestUri, request, SerOpts.Options);
-
-        if (typeof(TResponse) == Types.EmptyResponse)
-            return new(rsp, default);
-
-        TResponse? res;
-
-        try
-        {
-            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
-        }
-        catch (JsonException)
-        {
-            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
-            throw new InvalidOperationException(
-                $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
-        }
-
-        return new(rsp, res);
-    }
+        => client.Send<TRequest, TResponse>(HttpMethod.Post, requestUri, request);
 
     /// <summary>
     /// make a POST request to an endpoint using auto route discovery using a request dto and get back a response dto.
@@ -81,28 +62,8 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-    public static async Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
-    {
-        var rsp = await client.PutAsJsonAsync(requestUri, request, SerOpts.Options);
-
-        if (typeof(TResponse) == Types.EmptyResponse)
-            return new(rsp, default);
-
-        TResponse? res;
-
-        try
-        {
-            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
-        }
-        catch (JsonException)
-        {
-            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
-            throw new InvalidOperationException(
-                $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
-        }
-
-        return new(rsp, res);
-    }
+    public static Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+        => client.Send<TRequest, TResponse>(HttpMethod.Put, requestUri, request);
 
     /// <summary>
     /// make a PUT request to an endpoint using auto route discovery using a request dto and get back a response dto.
@@ -142,36 +103,8 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-    public static async Task<TestResult<TResponse>> GETAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
-    {
-        var rsp = await client.SendAsync(
-            new HttpRequestMessage
-            {
-                Method = HttpMethod.Get,
-                RequestUri = new Uri(
-                    client.BaseAddress!.ToString().TrimEnd('/') +
-                    (requestUri.StartsWith('/') ? requestUri : "/" + requestUri)),
-                Content = new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
-            });
-
-        if (typeof(TResponse) == Types.EmptyResponse)
-            return new(rsp, default);
-
-        TResponse? res;
-
-        try
-        {
-            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
-        }
-        catch (JsonException)
-        {
-            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
-            throw new InvalidOperationException(
-                $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
-        }
-
-        return new(rsp, res);
-    }
+    public static Task<TestResult<TResponse>> GETAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+        => client.Send<TRequest, TResponse>(HttpMethod.Get, requestUri, request);
 
     /// <summary>
     /// make a GET request to an endpoint using auto route discovery using a request dto and get back a response dto.
@@ -211,36 +144,8 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <exception cref="InvalidOperationException">thrown when the response body cannot be deserialized in to specified response dto type</exception>
-    public static async Task<TestResult<TResponse>> DELETEAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
-    {
-        var rsp = await client.SendAsync(
-            new HttpRequestMessage
-            {
-                Method = HttpMethod.Delete,
-                RequestUri = new Uri(
-                    client.BaseAddress!.ToString().TrimEnd('/') +
-                    (requestUri.StartsWith('/') ? requestUri : "/" + requestUri)),
-                Content = new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
-            });
-
-        if (typeof(TResponse) == Types.EmptyResponse)
-            return new(rsp, default);
-
-        TResponse? res;
-
-        try
-        {
-            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
-        }
-        catch (JsonException)
-        {
-            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
-            throw new InvalidOperationException(
-                $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
-        }
-
-        return new(rsp, res);
-    }
+    public static Task<TestResult<TResponse>> DELETEAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
+        => client.Send<TRequest, TResponse>(HttpMethod.Delete, requestUri, request);
 
     /// <summary>
     /// make a DELETE request to an endpoint using auto route discovery using a request dto and get back a response dto.
@@ -271,4 +176,35 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => DELETEAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
+
+    public static async Task<TestResult<TResponse>> Send<TRequest, TResponse>(this HttpClient client, HttpMethod method, string requestUri, TRequest request)
+    {
+        var rsp = await client.SendAsync(
+            new HttpRequestMessage
+            {
+                Method = method,
+                RequestUri = new Uri(
+                    client.BaseAddress!.ToString().TrimEnd('/') +
+                    (requestUri.StartsWith('/') ? requestUri : "/" + requestUri)),
+                Content = new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
+            });
+
+        if (typeof(TResponse) == Types.EmptyResponse)
+            return new(rsp, default);
+
+        TResponse? res;
+
+        try
+        {
+            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
+        }
+        catch (JsonException)
+        {
+            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
+            throw new InvalidOperationException(
+                $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
+        }
+
+        return new(rsp, res);
+    }
 }

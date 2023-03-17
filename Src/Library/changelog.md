@@ -2,7 +2,7 @@
 - 
 
 ### IMPROVEMENTS
-- 
+- refactor & simplify httpclient extensions for testing 
 
 ### FIXES
 - double response issue if pre-processor sent response and validator also has failures. [#info](https://discord.com/channels/933662816458645504/1080609437879914506)

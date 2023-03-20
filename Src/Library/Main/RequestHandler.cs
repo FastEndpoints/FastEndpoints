@@ -57,6 +57,8 @@ internal static class RequestHandler
     {
         if (def.AcceptsMetaDataPresent is null) //only ever iterating the meta collection once on first request
         {
+            def.AcceptsMetaDataPresent = false;
+
             for (var i = 0; i < epMeta.Count; i++)
             {
                 if (epMeta[i] is IAcceptsMetadata meta)
@@ -65,7 +67,6 @@ internal static class RequestHandler
                     def.AcceptsAnyContentType = meta.ContentTypes.Contains("*/*");
                 }
             }
-            def.AcceptsMetaDataPresent ??= false;
         }
 
         // if following conditions are met:

@@ -65,6 +65,7 @@ internal static class RequestHandler
                     def.AcceptsAnyContentType = meta.ContentTypes.Contains("*/*");
                 }
             }
+            def.AcceptsMetaDataPresent ??= false;
         }
 
         // if following conditions are met:

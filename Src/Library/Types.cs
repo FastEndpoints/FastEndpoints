@@ -13,6 +13,7 @@ internal static class Types
 
     internal static readonly Type Bool = typeof(bool);
     internal static readonly Type Byte = typeof(byte);
+    internal static readonly Type CommandHandlerExecutorOf1 = typeof(CommandHandlerExecutor<>);
     internal static readonly Type CommandHandlerExecutorOf2 = typeof(CommandHandlerExecutor<,>);
     internal static readonly Type DontInjectAttribute = typeof(DontInjectAttribute);
     internal static readonly Type EmptyRequest = typeof(EmptyRequest);

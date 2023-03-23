@@ -56,4 +56,18 @@ public class CommandBusTests : EndToEndTestBase
         cmd.FirstName.Should().Be("pass");
         cmd.LastName.Should().Be("pass");
     }
+
+    [Fact]
+    public async Task NonConcreteCommandThatReturnsVoid()
+    {
+        ICommand cmd = new TestVoidCommand
+        {
+            FirstName = "johnny",
+            LastName = "lawrence"
+        };
+
+        var act = async () => cmd.ExecuteAsync();
+
+        await act.Should().NotThrowAsync();
+    }
 }

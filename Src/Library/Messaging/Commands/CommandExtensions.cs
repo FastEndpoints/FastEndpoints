@@ -12,17 +12,22 @@ public static class CommandExtensions
     /// <param name="command">the command to execute</param>
     /// <param name="ct">optional cancellation token</param>
     /// <exception cref="InvalidOperationException">thrown when a handler for the command cannot be instantiated</exception>
-    public static Task ExecuteAsync<TCommand>(this TCommand command, CancellationToken ct = default) where TCommand : ICommand
+    public static Task ExecuteAsync(this ICommand command, CancellationToken ct = default)
     {
         var tCommand = command.GetType();
 
         if (handlerCache.TryGetValue(tCommand, out var def))
         {
-            var handler = Config.ServiceResolver.CreateInstance(def.HandlerType);
-            return ((ICommandHandler<TCommand>)handler).ExecuteAsync(command, ct);
+            def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
+            return ((CommandHandlerExecutorBase)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
         }
 
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+
+        static CommandHandlerExecutorBase CreateHandlerExecutor(Type tCommand)
+            => (CommandHandlerExecutorBase)
+                    Config.ServiceResolver.CreateSingleton(
+                        Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
     }
 
     /// <summary>

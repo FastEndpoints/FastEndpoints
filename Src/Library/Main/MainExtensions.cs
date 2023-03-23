@@ -117,8 +117,8 @@ public static class MainExtensions
                     if (def.ResponseCacheSettings is not null)
                         hb.WithMetadata(def.ResponseCacheSettings);
 
-                    if (def.FormDataAllowed)
-                        hb.Accepts(def.ReqDtoType, "multipart/form-data");
+                    if (def.FormDataContentType is not null)
+                        hb.Accepts(def.ReqDtoType, def.FormDataContentType);
 
                     if (def.EndpointSummary?.ProducesMetas.Count > 0)
                     {

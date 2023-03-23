@@ -37,7 +37,7 @@ public sealed class EndpointDefinition
     public bool DoNotCatchExceptions { get; private set; }
     public EndpointSummary? EndpointSummary { get; private set; }
     public List<string>? EndpointTags { get; private set; }
-    public bool FormDataAllowed { get; private set; }
+    public string? FormDataContentType { get; private set; }
     public string? OverriddenRoutePrefix { get; private set; }
     public List<string>? PreBuiltUserPolicies { get; private set; }
     public Action<AuthorizationPolicyBuilder>? PolicyBuilder { get; private set; }
@@ -135,14 +135,15 @@ public sealed class EndpointDefinition
     /// </param>
     public void AllowFileUploads(bool dontAutoBindFormData = false)
     {
-        FormDataAllowed = true;
+        FormDataContentType = "multipart/form-data";
         DontBindFormData = dontAutoBindFormData;
     }
 
     /// <summary>
-    /// enable multipart/form-data submissions
+    /// enable form-data submissions
     /// </summary>
-    public void AllowFormData() => FormDataAllowed = true;
+    /// <param name="urlEncoded">set to true to accept `application/x-www-form-urlencoded` content instead of `multipart/form-data` content.</param>
+    public void AllowFormData(bool urlEncoded = false) => FormDataContentType = urlEncoded ? "application/x-www-form-urlencoded" : "multipart/form-data";
 
     /// <summary>
     /// specify which authentication schemes to use for authenticating requests to this endpoint

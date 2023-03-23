@@ -1,5 +1,6 @@
 ### NEW
 - ability to submit a request DTO as multipart form data when integration testing endpoints that accept form data. #409
+- optional boolean argument `urlEncoded` for `AllowFormData()` method to accept `application/x-www-form-urlencoded` instead of `multipart/form-data` #414
 
 ### IMPROVEMENTS
 - ability to execute a non-concrete `ICommand` types #411

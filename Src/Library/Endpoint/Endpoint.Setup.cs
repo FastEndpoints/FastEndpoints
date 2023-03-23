@@ -37,9 +37,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void AllowFileUploads(bool dontAutoBindFormData = false) => Definition.AllowFileUploads(dontAutoBindFormData);
 
     /// <summary>
-    /// enable multipart/form-data submissions
+    /// enable form-data submissions
     /// </summary>
-    protected void AllowFormData() => Definition.AllowFormData();
+    /// <param name="urlEncoded">set to true to accept `application/x-www-form-urlencoded` content instead of `multipart/form-data` content.</param>
+    protected void AllowFormData(bool urlEncoded = false) => Definition.AllowFormData(urlEncoded);
 
     /// <summary>
     /// specify which authentication schemes to use for authenticating requests to this endpoint

@@ -1,8 +1,6 @@
-### NEW
-- ability to submit a request DTO as multipart form data when integration testing endpoints that accept form data. #409
-- optional boolean argument `urlEncoded` for `AllowFormData()` method to accept `application/x-www-form-urlencoded` instead of `multipart/form-data` #414
-
 ### IMPROVEMENTS
+- optional boolean argument `urlEncoded` for `AllowFormData()` method to accept `application/x-www-form-urlencoded` instead of `multipart/form-data` [#info](https://fast-endpoints.com/docs/model-binding#from-form-fields)
+- ability to submit a request DTO as multipart form data when integration testing endpoints that accept form data. #409
 - ability to execute a non-concrete `ICommand` types #411
 - refactor & simplify httpclient extensions for testing 
 

@@ -25,11 +25,16 @@ public class Endpoint : Endpoint<Request>
 
     public async override Task HandleAsync(Request req, CancellationToken ct)
     {
+        var validation = ValidationContext<Request>.Instance;
+
         if (string.IsNullOrEmpty(req.Description))
             AddError(x => x.Description!, "Please enter a product descriptions!");
 
         if (req.Price > 1000)
-            AddError(x => x.Price, "Price is too high!");
+        {
+            //AddError(x => x.Price, "Price is too high!");
+            validation.AddError(x => x.Price, "Price is too high!");
+        }
 
         var eventdto = new TestCases.EventHandlingTest.NewItemAddedToStock
         {
@@ -44,7 +49,10 @@ public class Endpoint : Endpoint<Request>
         ThrowIfAnyErrors();
 
         if (req.Name == "Apple Juice")
-            ThrowError("Product already exists!");
+        {
+            //ThrowError("Product already exists!");
+            validation.ThrowError("Product already exists!");
+        }
 
         var res = new Response
         {

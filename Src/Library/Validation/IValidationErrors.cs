@@ -18,6 +18,12 @@ internal interface IValidationErrors<T>
     bool ValidationFailed { get; }
 
     /// <summary>
+    /// add a <see cref="ValidationFailure"/> to the current collection of validation failures of the endpoint
+    /// </summary>
+    /// <param name="failure">the validation failure to add</param>
+    void AddError(ValidationFailure failure);
+
+    /// <summary>
     /// adds a "GeneralError" to the current list of validation failures
     /// </summary>
     /// <param name="message">the error message</param>
@@ -38,6 +44,13 @@ internal interface IValidationErrors<T>
     /// interrupt the flow of handler execution and send a 400 bad request with error details if there are any validation failures in the current request. if there are no validation failures, execution will continue past this call.
     /// </summary>
     void ThrowIfAnyErrors();
+
+    /// <summary>
+    /// adds a <see cref="ValidationFailure"/> to the validation failure collection of the endpoint and send back a 400 bad request with error details immediately interrupting handler execution flow. if there are any vallidation failures, no execution will continue past this call.
+    /// </summary>
+    /// <param name="failure">the validation failure to add</param>
+    [DoesNotReturn]
+    void ThrowError(ValidationFailure failure);
 
     /// <summary>
     /// add a "GeneralError" to the validation failure list and send back a 400 bad request with error details immediately interrupting handler execution flow. if there are any vallidation failures, no execution will continue past this call.

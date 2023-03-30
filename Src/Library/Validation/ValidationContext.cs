@@ -24,8 +24,17 @@ public class ValidationContext
     public bool ValidationFailed => ValidationFailures.ValidationFailed();
 
     ///<inheritdoc/>
+    public void AddError(ValidationFailure failure)
+        => ValidationFailures.AddError(failure);
+
+    ///<inheritdoc/>
     public void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
         => ValidationFailures.AddError(message, errorCode, severity);
+
+    ///<inheritdoc/>
+    [DoesNotReturn]
+    public void ThrowError(ValidationFailure failure)
+        => ValidationFailures.ThrowError(failure);
 
     ///<inheritdoc/>
     [DoesNotReturn]

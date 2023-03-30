@@ -58,6 +58,7 @@ public class AdminTests : EndToEndTestBase
                 Password = "xxxxx"
             });
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        rsp.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
     }
 
     [Fact]

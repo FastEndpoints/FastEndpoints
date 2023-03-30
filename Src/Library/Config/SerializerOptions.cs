@@ -57,13 +57,13 @@ public sealed class SerializerOptions
     public Func<HttpResponse, object?, string, JsonSerializerContext?, CancellationToken, Task> ResponseSerializer { internal get; set; }
         = (rsp, dto, contentType, jCtx, cancellation) =>
         {
-            rsp.ContentType = contentType;
             return dto is null
                     ? Task.CompletedTask
                     : rsp.WriteAsJsonAsync(
                         value: dto,
                         type: dto.GetType(),
                         options: jCtx?.Options ?? SerOpts.Options,
+                        contentType: contentType,
                         cancellationToken: cancellation);
         };
 }

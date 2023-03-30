@@ -5,4 +5,4 @@
 - 
 
 ### FIXES
-- 
+- default response serializer func overriding the `content-type` of 400 responses [#info](https://discord.com/channels/933662816458645504/1090697556549447821)

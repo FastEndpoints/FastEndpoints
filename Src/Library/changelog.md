@@ -6,3 +6,5 @@
 
 ### FIXES
 - default response serializer func overriding the `content-type` of 400 responses [#info](https://discord.com/channels/933662816458645504/1090697556549447821)
+- swagger descriptions for properties decorated with `[FromHeader("...")]` not being picked up [#info](https://discord.com/channels/933662816458645504/1093846313201827940)
+- swagger descriptions for inherited classes/schema not being picked up

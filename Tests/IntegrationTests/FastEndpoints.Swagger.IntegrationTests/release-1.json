@@ -1599,6 +1599,7 @@
           {
             "name": "tenant-id",
             "in": "header",
+            "description": "this is the tenant id",
             "schema": {
               "type": "string",
               "nullable": true
@@ -3628,7 +3629,8 @@
         "additionalProperties": false,
         "properties": {
           "TenantID": {
-            "type": "string"
+            "type": "string",
+            "description": "this is the tenant id"
           }
         }
       },

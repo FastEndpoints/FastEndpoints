@@ -194,6 +194,12 @@ internal sealed class OperationProcessor : IOperationProcessor
             {
                 foreach (var prop in c.Value.Schema.ActualSchema.ActualProperties)
                     reqParamDescriptions[prop.Key] = prop.Value.Description;
+
+                if (c.Value.Schema.ActualSchema.InheritedSchema is not null)
+                {
+                    foreach (var prop in c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties)
+                        reqParamDescriptions[prop.Key] = prop.Value.Description;
+                }
             }
         }
 
@@ -256,8 +262,8 @@ internal sealed class OperationProcessor : IOperationProcessor
 
                 return CreateParam(
                     ctx: ctx,
-                    propInfo: pInfo,
-                    name: m.Value,
+                    prop: pInfo,
+                    paramName: m.Value,
                     isRequired: true,
                     kind: OpenApiParameterKind.Path,
                     descriptions: reqParamDescriptions);
@@ -274,8 +280,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                     RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
                     return CreateParam(
                         ctx: ctx,
-                        propInfo: p,
-                        name: null,
+                        prop: p,
+                        paramName: null,
                         isRequired: null,
                         kind: OpenApiParameterKind.Query,
                         descriptions: reqParamDescriptions);
@@ -299,8 +305,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                         var pName = hAttrib.HeaderName ?? p.Name;
                         reqParams.Add(CreateParam(
                             ctx: ctx,
-                            propInfo: p,
-                            name: pName,
+                            prop: p,
+                            paramName: pName,
                             isRequired: hAttrib.IsRequired,
                             kind: OpenApiParameterKind.Header,
                             descriptions: reqParamDescriptions));
@@ -361,8 +367,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                 op.Parameters.Remove(body);
                 op.Parameters.Add(CreateParam(
                     ctx: ctx,
-                    propInfo: fromBodyProp,
-                    name: fromBodyProp.Name,
+                    prop: fromBodyProp,
+                    paramName: fromBodyProp.Name,
                     isRequired: true,
                     kind: OpenApiParameterKind.Body,
                     descriptions: reqParamDescriptions));
@@ -478,21 +484,23 @@ internal sealed class OperationProcessor : IOperationProcessor
     }
 
     private static OpenApiParameter CreateParam(OperationProcessorContext ctx,
-                                                PropertyInfo? propInfo,
-                                                string? name,
+                                                PropertyInfo? prop,
+                                                string? paramName,
                                                 bool? isRequired,
                                                 OpenApiParameterKind kind,
                                                 Dictionary<string, string>? descriptions)
     {
-        name ??= propInfo?.GetCustomAttribute<BindFromAttribute>()?.Name ?? propInfo?.Name ?? throw new InvalidOperationException("param name is required!");
-        var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(name, descriptions?.GetValueOrDefault(name), (propInfo?.PropertyType ?? Types.String).ToContextualType());
+        paramName ??= prop?.GetCustomAttribute<BindFromAttribute>()?.Name ??
+                      prop?.Name ??
+                      throw new InvalidOperationException("param name is required!");
+        var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(paramName, descriptions?.GetValueOrDefault(prop?.Name ?? paramName), (prop?.PropertyType ?? Types.String).ToContextualType());
         prm.Kind = kind;
-        prm.IsRequired = isRequired ?? !(propInfo?.IsNullable() ?? true);
+        prm.IsRequired = isRequired ?? !(prop?.IsNullable() ?? true);
         if (ctx.Settings.SchemaType == SchemaType.Swagger2)
-            prm.Default = propInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+            prm.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
         else
-            prm.Schema.Default = propInfo?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-        prm.Example = propInfo?.GetExample();
+            prm.Schema.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+        prm.Example = prop?.GetExample();
         prm.IsNullableRaw = null; //if this is not null, nswag generates an incorrect swagger spec for some unknown reason.
         return prm;
     }

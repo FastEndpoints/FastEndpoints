@@ -2,6 +2,9 @@
 
 public class Request
 {
+    /// <summary>
+    /// this is the tenant id
+    /// </summary>
     [FromHeader("tenant-id", IsRequired = false)]
     public string TenantID { get; set; }
 

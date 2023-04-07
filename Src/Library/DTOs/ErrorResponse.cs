@@ -34,6 +34,8 @@ public sealed class ErrorResponse
     public ErrorResponse(List<ValidationFailure> failures, int statusCode = 400)
     {
         StatusCode = statusCode;
-        Errors = failures.GroupToDictionary(f => f.PropertyName, v => v.ErrorMessage);
+        Errors = failures.GroupToDictionary(
+            f => Config.SerOpts.Options.PropertyNamingPolicy?.ConvertName(f.PropertyName) ?? f.PropertyName,
+            v => v.ErrorMessage);
     }
 }

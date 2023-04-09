@@ -19,8 +19,10 @@ public sealed class ProblemDetails
     public static string TypeValue { private get; set; } = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
     public static string TitleValue { private get; set; } = "One or more validation errors occurred.";
 
-    public string Type { get; set; } = TypeValue;
-    public string Title { get; set; } = TitleValue;
+#pragma warning disable CA1822
+    public string Type => TypeValue;
+    public string Title => TitleValue;
+#pragma warning restore CA1822
     public int Status { get; init; }
     public string Instance { get; init; }
     public string TraceId { get; set; }

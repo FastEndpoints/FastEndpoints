@@ -1,5 +1,7 @@
 ﻿#pragma warning disable CA1822
+using FluentValidation.Results;
 using Microsoft.Extensions.Primitives;
+using System.Text.Json;
 
 namespace FastEndpoints;
 
@@ -10,6 +12,7 @@ public sealed class BindingOptions
 {
     /// <summary>
     /// a function used to construct the failure message when a supplied value cannot be succesfully bound to a dto property during model binding.
+    /// <para>NOTE: this only applies to non-STJ operations. for customizing error messages of STJ binding failures, specify a <see cref="JsonExceptionTransformer"/> func.</para>
     /// the following arguments are supplied to the function.
     /// <para><see cref="Type"/>: the type of the property which failed to bind</para>
     /// <para><see cref="string"/>: the name of the property which failed to bind</para>
@@ -18,6 +21,17 @@ public sealed class BindingOptions
     /// </summary>
     public Func<Type, string, StringValues, string> FailureMessage { internal get; set; } = (tProp, propName, attemptedValue)
         => $"Value [{attemptedValue}] is not valid for a [{tProp.ActualTypeName()}] property!";
+
+    /// <summary>
+    /// by default, all STJ <see cref="JsonException"/>s thrown during deserialization are automatically caught and transformed using this function. 
+    /// if you'd like to disable this behavior, simply set this property to <c>null</c> or specify a function to construct a
+    /// <see cref="ValidationFailure"/> when STJ throws an exception due to invalid json input.
+    /// <para>NOTE: this only applies to STJ based operations. for customizing error messages of non-STJ binding failures, specify a <see cref="FailureMessage"/> func.</para>
+    /// </summary>
+    public Func<JsonException, ValidationFailure>? JsonExceptionTransformer { internal get; set; } = (exception)
+        => new ValidationFailure(
+            propertyName: exception.Path != "$" ? exception.Path?[2..] : Config.SerOpts.SerializerErrorsField,
+            errorMessage: exception.InnerException?.Message ?? exception.Message);
 
     /// <summary>
     /// an optional action to be run after the endpoint level request binding has occured.

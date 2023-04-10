@@ -13,8 +13,12 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class ProblemDetails
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { get; } = (failures, ctx, statusCode)
         => new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
+
     public static bool AllowDuplicates { private get; set; }
     public static string TypeValue { private get; set; } = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
     public static string TitleValue { private get; set; } = "One or more validation errors occurred.";

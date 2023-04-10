@@ -85,13 +85,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             OnAfterHandle(req, _response);
             await OnAfterHandleAsync(req, _response, ct);
         }
-        catch (JsonException x)
+        catch (JsonException x) when (FastEndpoints.Config.BndOpts.JsonExceptionTransformer is not null)
         {
-            ValidationFailures.Add(new(
-                propertyName: x.Path != "$" ? x.Path?[2..] : FastEndpoints.Config.SerOpts.SerializerErrorsField,
-                errorMessage: x.InnerException?.Message ?? x.Message));
-
+            ValidationFailures.Add(FastEndpoints.Config.BndOpts.JsonExceptionTransformer(x));
             await ValidationFailed(x);
+
         }
         catch (ValidationFailureException x)
         {

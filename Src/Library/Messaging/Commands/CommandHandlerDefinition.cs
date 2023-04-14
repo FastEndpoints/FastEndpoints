@@ -1,11 +1,11 @@
 ﻿namespace FastEndpoints;
 
-internal sealed class CommandHandlerDefinition
+public sealed class CommandHandlerDefinition
 {
     internal Type HandlerType { get; init; }
     internal object? HandlerExecutor { get; set; }
 
-    internal CommandHandlerDefinition(Type handlerType)
+    public CommandHandlerDefinition(Type handlerType)
     {
         HandlerType = handlerType;
     }

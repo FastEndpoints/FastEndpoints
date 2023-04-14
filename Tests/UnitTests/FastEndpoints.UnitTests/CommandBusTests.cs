@@ -1,4 +1,6 @@
 ﻿using FakeItEasy;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
@@ -9,6 +11,34 @@ namespace FastEndpoints.UnitTests;
 
 public class CommandBusTests
 {
+    [Fact]
+    public async Task AbilityToFakeTheCommandHandler()
+    {
+        var command = new TestCommand { FirstName = "a", LastName = "b" };
+
+        var fakeHandler = A.Fake<ICommandHandler<TestCommand, string>>();
+        A.CallTo(() => fakeHandler.ExecuteAsync(A<TestCommand>.Ignored, A<CancellationToken>.Ignored))
+            .Returns(Task.FromResult("Fake Result"));
+
+        var handlersCacheContainer = A.Fake<IHandlersCacheContainer>();
+        A.CallTo(() => handlersCacheContainer.HandlersCache).Returns(new Dictionary<Type, CommandHandlerDefinition> {
+            {
+                typeof(TestCommand), new(fakeHandler.GetType())
+            }
+        });
+
+        var services = new ServiceCollection();
+        services.TryAddSingleton(handlersCacheContainer);
+        services.TryAddSingleton(fakeHandler.GetType(), _ => fakeHandler);
+        services.TryAddSingleton<IServiceResolver>(sp => new ProxyServiceResolver(sp));
+        var serviceProvider = services.BuildServiceProvider();
+        FastEndpoints.Config.ServiceResolver = serviceProvider.GetRequiredService<IServiceResolver>();
+
+        var result = await command.ExecuteAsync();
+     
+        Assert.Equal("Fake Result", result);
+    }
+
     [Fact]
     public async Task CommandExecusionWorks()
     {

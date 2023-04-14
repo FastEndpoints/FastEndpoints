@@ -3,7 +3,7 @@
 public static class CommandExtensions
 {
     //key: tCommand //val: handler definition
-    internal static readonly Dictionary<Type, CommandHandlerDefinition> handlerCache = new();
+    internal static readonly Dictionary<Type, CommandHandlerDefinition> handlerCache =  Config.ServiceResolver.TryResolve<IHandlersCacheContainer>()?.HandlersCache ?? new();
 
     /// <summary>
     /// executes the command that does not return a result

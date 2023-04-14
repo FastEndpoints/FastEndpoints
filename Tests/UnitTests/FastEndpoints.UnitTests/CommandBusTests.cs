@@ -32,10 +32,12 @@ public class CommandBusTests
         services.TryAddSingleton(fakeHandler.GetType(), _ => fakeHandler);
         services.TryAddSingleton<IServiceResolver>(sp => new ProxyServiceResolver(sp));
         var serviceProvider = services.BuildServiceProvider();
+        
+        var oldServiceResolver = FastEndpoints.Config.ServiceResolver; 
         FastEndpoints.Config.ServiceResolver = serviceProvider.GetRequiredService<IServiceResolver>();
-
         var result = await command.ExecuteAsync();
-     
+        FastEndpoints.Config.ServiceResolver = oldServiceResolver;
+        
         Assert.Equal("Fake Result", result);
     }
 

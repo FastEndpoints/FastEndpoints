@@ -85,10 +85,11 @@ public class AdminTests : EndToEndTestBase
                 rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
                 successCount++;
             }
-            catch (Exception x)
+            catch (InvalidOperationException x)
             {
                 i.Should().Be(6);
-                x.Should().BeOfType<InvalidOperationException>();
+                x.Response().StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+                x.JsonEx().Message.Should().NotBeNullOrEmpty();
             }
         }
 

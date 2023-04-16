@@ -227,15 +227,26 @@ public static class HttpClientExtensions
         {
             res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
-        catch (JsonException)
+        catch (JsonException x)
         {
             var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
             throw new InvalidOperationException(
-                $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}");
+                $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}",
+                new TestException(reason)
+                {
+                    HttpResponse = rsp,
+                    JsonException = x
+                });
         }
 
         return new(rsp, res);
     }
+
+    public static HttpResponseMessage Response(this InvalidOperationException ex)
+        => ((TestException)ex.InnerException!).HttpResponse;
+
+    public static JsonException JsonEx(this InvalidOperationException ex)
+    => ((TestException)ex.InnerException!).JsonException;
 
     private static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
@@ -262,4 +273,16 @@ public static class HttpClientExtensions
 
         return form;
     }
+}
+
+public sealed class TestException : Exception
+{
+    public HttpResponseMessage HttpResponse { get; internal set; }
+    public JsonException JsonException { get; internal set; }
+
+    public TestException() { }
+
+    public TestException(string? message) : base(message) { }
+
+    public TestException(string? message, Exception? innerException) : base(message, innerException) { }
 }

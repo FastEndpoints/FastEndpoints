@@ -85,7 +85,7 @@ public class EndpointTests
 
         }
     }
-    
+
     public class SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor : Endpoint<Request, Response>
     {
         [Fact]
@@ -94,12 +94,12 @@ public class EndpointTests
             HttpContext = new DefaultHttpContext();
             Definition = new EndpointDefinition();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => 
+            await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 SendInterceptedAsync(new {
-                Id = 0,
-                Age = 1,
-                Name = "Test"
-            }, StatusCodes.Status200OK, default));
+                    Id = 0,
+                    Age = 1,
+                    Name = "Test"
+                }, StatusCodes.Status200OK, default));
 
         }
     }

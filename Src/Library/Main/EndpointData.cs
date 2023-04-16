@@ -164,8 +164,8 @@ internal sealed class EndpointData
                 {
                     var tCommand = tInterface.GetGenericArguments()[0];
 
-                    if (!CommandExtensions.handlerCache.ContainsKey(tCommand))
-                        CommandExtensions.handlerCache.Add(tCommand, new(t));
+                    if (!CommandExtensions.handlerRegistry.ContainsKey(tCommand))
+                        CommandExtensions.handlerRegistry.Add(tCommand, new(t));
 
                     continue;
                 }

@@ -3,7 +3,7 @@
 public static class CommandExtensions
 {
     //key: tCommand //val: handler definition
-    internal static readonly Dictionary<Type, CommandHandlerDefinition> handlerCache =  Config.ServiceResolver.TryResolve<IHandlersCacheContainer>()?.HandlersCache ?? new();
+    internal static readonly Dictionary<Type, CommandHandlerDefinition> handlerRegistry = new();
 
     /// <summary>
     /// executes the command that does not return a result
@@ -16,7 +16,7 @@ public static class CommandExtensions
     {
         var tCommand = command.GetType();
 
-        if (handlerCache.TryGetValue(tCommand, out var def))
+        if (handlerRegistry.TryGetValue(tCommand, out var def))
         {
             def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
             return ((CommandHandlerExecutorBase)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
@@ -41,7 +41,7 @@ public static class CommandExtensions
     {
         var tCommand = command.GetType();
 
-        if (handlerCache.TryGetValue(tCommand, out var def))
+        if (handlerRegistry.TryGetValue(tCommand, out var def))
         {
             def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
             return ((CommandHandlerExecutorBase<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
@@ -53,5 +53,36 @@ public static class CommandExtensions
             => (CommandHandlerExecutorBase<TResult>)
                     Config.ServiceResolver.CreateSingleton(
                         Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
+    }
+
+    /// <summary>
+    /// registers a fake command handler for unit testing purposes
+    /// </summary>
+    /// <typeparam name="TCommand">type of the command</typeparam>
+    /// <param name="handler">a fake handler instance</param>
+    public static void RegisterForTesting<TCommand>(this ICommandHandler<TCommand> handler) where TCommand : ICommand
+    {
+        var tCommand = typeof(TCommand);
+
+        handlerRegistry[tCommand] = new(handler.GetType())
+        {
+            HandlerExecutor = new FakeCommandHandlerExecutor<TCommand>(handler)
+        };
+    }
+
+    /// <summary>
+    /// registers a fake command handler for unit testing purposes
+    /// </summary>
+    /// <typeparam name="TCommand">type of the command</typeparam>
+    /// <typeparam name="TResult">type of the result being returned by the handler</typeparam>
+    /// <param name="handler">a fake handler instance</param>
+    public static void RegisterForTesting<TCommand, TResult>(this ICommandHandler<TCommand, TResult> handler) where TCommand : ICommand<TResult>
+    {
+        var tCommand = typeof(TCommand);
+
+        handlerRegistry[tCommand] = new(handler.GetType())
+        {
+            HandlerExecutor = new FakeCommandHandlerExecutor<TCommand, TResult>(handler)
+        };
     }
 }

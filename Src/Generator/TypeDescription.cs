@@ -24,10 +24,9 @@ internal sealed class TypeDescription : IEquatable<TypeDescription>
 
     public bool Equals(TypeDescription? other)
     {
-        return
-            other is not null && (ReferenceEquals(this, other) ||
-            (string.Equals(Namespace, other.Namespace, StringComparison.OrdinalIgnoreCase) &&
-             string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)));
+        return other is not null && (ReferenceEquals(this, other) ||
+               (string.Equals(Namespace, other.Namespace, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)));
     }
 
     public override bool Equals(object? obj)

@@ -6,6 +6,7 @@
 ### IMPROVEMENTS
 - add overload to `AddError()`, `ThrowError()`, `ThrowIfAnyErrors()` methods to accept a `ValidationFailure` [#info](https://discord.com/channels/933662816458645504/1090551226598432828/1090934715952926740)
 - populate inner exception of `InvalidOperationException` thrown by the testing extensions #422
+- modify source generator for incremental generation #426 
 - upgrade dependencies to latest
 
 ### FIXES

@@ -1,13 +1,13 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-
 using System.Collections.Immutable;
 using System.Text;
 
 namespace FastEndpoints.Generator;
+
 [Generator(LanguageNames.CSharp)]
-public class EndpointsDiscoveryIncrementorGenerator : IIncrementalGenerator
+public class EndpointsDiscoveryGenerator : IIncrementalGenerator
 {
     //also update FastEndpoints.EndpointData class if updating these
     private static readonly string[] _excludes = new string[]
@@ -26,29 +26,24 @@ public class EndpointsDiscoveryIncrementorGenerator : IIncrementalGenerator
             "Accessibility",
             "NJsonSchema",
             "Namotion"
-        };
+    };
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var typeDeclarationSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
             (sn, _) => sn is TypeDeclarationSyntax,
             (c, _) => (TypeDeclarationSyntax)c.Node);
 
-        var compilationAndClasses =
-               context.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
+        var compilationAndClasses = context.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
 
-        context.RegisterSourceOutput(compilationAndClasses, (spc, source) => Execute(source.Item1, source.Item2, spc));
+        context.RegisterSourceOutput(compilationAndClasses, (spc, source) => Execute(source.Left, source.Right, spc));
     }
 
     private void Execute(Compilation compilation, ImmutableArray<TypeDeclarationSyntax> typeDeclarationSyntaxProvider, SourceProductionContext spc)
     {
-        //#if DEBUG
-        //        if (!System.Diagnostics.Debugger.IsAttached)
-        //        {
-        //            System.Diagnostics.Debugger.Launch();
-        //        }
-        //#endif
         var filteredTypes = GetFilteredTypes(compilation, typeDeclarationSyntaxProvider);
-        if (!filteredTypes.Any()) return;
+        if (!filteredTypes.Any())
+            return;
         var fileContent = GetContent(filteredTypes!);
         spc.AddSource(
           "DiscoveredTypes.g.cs",
@@ -60,18 +55,18 @@ public class EndpointsDiscoveryIncrementorGenerator : IIncrementalGenerator
     {
         var mainTypes = GetAssemblySymbolTypes(compilation.SourceModule.ContainingAssembly);
         var referencedTypes = compilation.SourceModule.ReferencedAssemblySymbols.SelectMany(GetAssemblySymbolTypes);
-        IEnumerable<ITypeSymbol>? filteredTypes = mainTypes.Concat(referencedTypes).Where(t =>
-                !t.IsAbstract &&
-                !_excludes.Any(n => GetRootNamespaceSymbolFor(t).Name.StartsWith(n, StringComparison.OrdinalIgnoreCase)) &&
-                t.DeclaredAccessibility == Accessibility.Public &&
-                t.AllInterfaces.Select(i => new TypeDescription(i)).Intersect(new[] {
-                    new TypeDescription("FastEndpoints.IEndpoint"),
-                    new TypeDescription("FastEndpoints.IEventHandler"),
-                    new TypeDescription("FastEndpoints.ICommandHandler"),
-                    new TypeDescription("FastEndpoints.ISummary"),
-                    new TypeDescription("FluentValidation.IValidator"),
-                }).Any());
-        return filteredTypes;
+        return mainTypes.Concat(referencedTypes).Where(t =>
+            !t.IsAbstract &&
+            !_excludes.Any(n => GetRootNamespaceSymbolFor(t).Name.StartsWith(n, StringComparison.OrdinalIgnoreCase)) &&
+            t.DeclaredAccessibility == Accessibility.Public &&
+            t.AllInterfaces.Select(i => new TypeDescription(i)).Intersect(new[]
+            {
+                new TypeDescription("FastEndpoints.IEndpoint"),
+                new TypeDescription("FastEndpoints.IEventHandler"),
+                new TypeDescription("FastEndpoints.ICommandHandler"),
+                new TypeDescription("FastEndpoints.ISummary"),
+                new TypeDescription("FluentValidation.IValidator")
+            }).Any());
     }
 
     private static string GetContent(IEnumerable<ITypeSymbol> filteredTypes)
@@ -132,5 +127,6 @@ namespace FastEndpoints
         }
     }
 
-    private static IEnumerable<ITypeSymbol> GetAssemblySymbolTypes(IAssemblySymbol a) => GetAllTypes(a.GlobalNamespace);
+    private static IEnumerable<ITypeSymbol> GetAssemblySymbolTypes(IAssemblySymbol a)
+        => GetAllTypes(a.GlobalNamespace);
 }

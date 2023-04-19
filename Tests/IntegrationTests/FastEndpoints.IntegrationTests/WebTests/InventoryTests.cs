@@ -73,21 +73,18 @@ public class InventoryTests : EndToEndTestBase
     [Fact]
     public async Task CreateProductFailNoPermission()
     {
-        Func<Task> func = async () =>
-        {
-            await CustomerClient.PUTAsync<
-                Inventory.Manage.Update.Endpoint,
-                Inventory.Manage.Update.Request,
-                Inventory.Manage.Update.Response>(new()
-                {
-                    Name = "Grape Juice",
-                    Description = "description",
-                    ModifiedBy = "me",
-                    Price = 100
-                });
-        };
+        var (rsp, _) = await CustomerClient.PUTAsync<
+            Inventory.Manage.Update.Endpoint,
+            Inventory.Manage.Update.Request,
+            Inventory.Manage.Update.Response>(new()
+            {
+                Name = "Grape Juice",
+                Description = "description",
+                ModifiedBy = "me",
+                Price = 100
+            });
 
-        await func.Should().ThrowAsync<InvalidOperationException>();
+        rsp.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]

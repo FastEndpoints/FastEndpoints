@@ -67,29 +67,29 @@ public class AdminTests : EndToEndTestBase
         var guest = EndToEndTestFixture.CreateNewClient();
         guest.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST");
 
-        int successCount = 0;
+        var successCount = 0;
 
-        for (int i = 1; i <= 6; i++)
+        for (var i = 1; i <= 6; i++)
         {
-            try
-            {
-                var (rsp, _) = await guest.POSTAsync<
-                    Admin.Login.Endpoint_V1,
-                    Admin.Login.Request,
-                    Admin.Login.Response>(new()
-                    {
-                        UserName = "admin",
-                        Password = "pass"
-                    });
+            var (rsp, res) = await guest.POSTAsync<
+                Admin.Login.Endpoint_V1,
+                Admin.Login.Request,
+                Admin.Login.Response>(new()
+                {
+                    UserName = "admin",
+                    Password = "pass"
+                });
 
+            if (i <= 5)
+            {
                 rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+                res?.JWTToken.Should().NotBeNullOrEmpty();
                 successCount++;
             }
-            catch (InvalidOperationException x)
+            else
             {
                 i.Should().Be(6);
-                x.Response().StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
-                x.JsonEx().Message.Should().NotBeNullOrEmpty();
+                rsp.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
             }
         }
 

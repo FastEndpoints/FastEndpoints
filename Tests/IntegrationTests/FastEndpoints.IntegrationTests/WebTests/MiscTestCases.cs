@@ -797,15 +797,15 @@ public class MiscTestCases : EndToEndTestBase
     [Fact]
     public async Task PreProcessorShortCircuitWrongHeaderValue()
     {
-        Func<Task> func = async () =>
-        {
-            await AdminClient.POSTAsync<
-                Sales.Orders.Retrieve.Endpoint,
-                Sales.Orders.Retrieve.Request,
-                object>(new() { OrderID = "order1" });
-        };
+        var (rsp, res) = await AdminClient.POSTAsync<
+            Sales.Orders.Retrieve.Endpoint,
+            Sales.Orders.Retrieve.Request,
+            object>(new()
+            {
+                OrderID = "order1"
+            });
 
-        await func.Should().ThrowAsync<InvalidOperationException>();
+        rsp.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
     }
 
     [Fact]

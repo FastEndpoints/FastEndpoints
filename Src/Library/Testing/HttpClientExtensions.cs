@@ -218,35 +218,19 @@ public static class HttpClientExtensions
             });
 #pragma warning restore RCS1084
 
-        if (typeof(TResponse) == Types.EmptyResponse)
-            return new(rsp, default);
+        TResponse? res = default;
 
-        TResponse? res;
+        if (typeof(TResponse) == Types.EmptyResponse)
+            return new(rsp, res);
 
         try
         {
             res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
         }
-        catch (JsonException x)
-        {
-            var reason = $"[{rsp.StatusCode}] {await rsp.Content.ReadAsStringAsync()}";
-            throw new InvalidOperationException(
-                $"Unable to deserialize the response body as [{typeof(TResponse).FullName}]. Reason: {reason}",
-                new TestException(reason)
-                {
-                    HttpResponse = rsp,
-                    JsonException = x
-                });
-        }
+        catch { }
 
         return new(rsp, res);
     }
-
-    public static HttpResponseMessage Response(this InvalidOperationException ex)
-        => ((TestException)ex.InnerException!).HttpResponse;
-
-    public static JsonException JsonEx(this InvalidOperationException ex)
-    => ((TestException)ex.InnerException!).JsonException;
 
     private static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
@@ -273,16 +257,4 @@ public static class HttpClientExtensions
 
         return form;
     }
-}
-
-public sealed class TestException : Exception
-{
-    public HttpResponseMessage HttpResponse { get; internal set; }
-    public JsonException JsonException { get; internal set; }
-
-    public TestException() { }
-
-    public TestException(string? message) : base(message) { }
-
-    public TestException(string? message, Exception? innerException) : base(message, innerException) { }
 }

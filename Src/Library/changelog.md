@@ -1,6 +1,9 @@
 ### BREAKING CHANGES
 - integration testing extensions (GETAsync(), POSTAsync(), etc.) no longer throws any exceptions
-> if your integration tests are doing try/catch blocks for doing assertions on the unhappy/error path, those tests would now fail. you'll have to get rid of the try/catch blocks and assert on the `HttpResponseMessage` properties instead. the `TResponse` dto would now be `null` when the request is unsuccessful.
+> if your integration tests are doing try/catch blocks for doing assertions on the unhappy/error path, those tests would now fail. 
+you'll have to get rid of the try/catch blocks and assert on the `HttpResponseMessage` properties instead. 
+the `TResponse` dto would now be `null` when the request is unsuccessful. 
+here's an [example](https://github.com/FastEndpoints/FastEndpoints/blob/4831acea19f8b574bf7e4ebfe390ec4138a2a7e1/Tests/IntegrationTests/FastEndpoints.IntegrationTests/WebTests/AdminTests.cs#L65-L94).
 
 ### NEW
 - `ValidationContext<T>` class for manipulating the validation failures list of the current endpoint [#info](https://discord.com/channels/933662816458645504/1090551226598432828)

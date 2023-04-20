@@ -9,11 +9,13 @@ here's an [example](https://github.com/FastEndpoints/FastEndpoints/blob/4831acea
 - `ValidationContext<T>` class for manipulating the validation failures list of the current endpoint [#info](https://discord.com/channels/933662816458645504/1090551226598432828)
 - `RFC8707` compatible problem detail (error response) builder [#info](https://discord.com/channels/933662816458645504/1093917953528971344)
 - `JsonExceptionTransformer` func to enable customization of error messages when STJ throws due to invalid json input [#info](https://discord.com/channels/933662816458645504/1095670893113528370/1095923891605622884)
+- `ClearDefaultProduces(200,401,401)` extension method to clear chosen produces metadata added by default #432
 
 ### IMPROVEMENTS
 - add overload to `AddError()`, `ThrowError()`, `ThrowIfAnyErrors()` methods to accept a `ValidationFailure` [#info](https://discord.com/channels/933662816458645504/1090551226598432828/1090934715952926740)
 - populate inner exception of `InvalidOperationException` thrown by the testing extensions #422
 - modify source generator for incremental generation #426 
+- automatically add `401 - Unauthorized` and `403 - Forbidden` produces metadata to endpoints by default #422 
 - upgrade dependencies to latest
 
 ### FIXES

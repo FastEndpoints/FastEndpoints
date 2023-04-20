@@ -36,6 +36,9 @@
                 "schema": {}
               }
             }
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       },
@@ -68,6 +71,9 @@
                 "schema": {}
               }
             }
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -111,6 +117,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "204": {
             "description": "No Content",
@@ -162,6 +171,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "204": {
             "description": "No Content",
@@ -653,6 +665,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -779,6 +794,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -828,6 +846,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -865,6 +886,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -901,6 +925,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -927,6 +954,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -965,6 +995,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -1253,6 +1286,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -1449,6 +1488,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -1637,6 +1679,9 @@
               }
             }
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -1684,6 +1729,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "400": {
             "description": "Bad Request",
@@ -1733,6 +1781,12 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -1837,6 +1891,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       }
@@ -1924,6 +1984,12 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -1985,6 +2051,12 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -2009,6 +2081,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2066,6 +2141,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2125,6 +2203,12 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -2171,6 +2255,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -2229,6 +2319,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2296,6 +2389,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2342,6 +2438,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -2408,6 +2507,9 @@
                 "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [

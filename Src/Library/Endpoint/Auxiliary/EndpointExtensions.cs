@@ -12,6 +12,15 @@ internal static class EndpointExtensions
     internal static string ActualTypeName(this Type type)
         => (Nullable.GetUnderlyingType(type) ?? type).Name;
 
+    internal static bool RequiresAuthorization(this EndpointDefinition ep)
+    {
+        return ep.AllowedPermissions?.Any() is true ||
+               ep.AllowedClaimTypes?.Any() is true ||
+               ep.AllowedRoles?.Any() is true ||
+               ep.AuthSchemeNames?.Any() is true ||
+               ep.PolicyBuilder is not null;
+    }
+
     internal static void Initialize(this EndpointDefinition def, BaseEndpoint instance, HttpContext? ctx)
     {
         instance.Definition = def;

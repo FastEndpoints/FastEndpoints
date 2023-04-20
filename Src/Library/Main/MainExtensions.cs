@@ -19,12 +19,6 @@ namespace FastEndpoints;
 /// </summary>
 public static class MainExtensions
 {
-    ///// <summary>
-    ///// WARNING: this data is only available for a few minutes after app startup. It is automatically cleared to release unneeded memory.
-    ///// <para>DO NOT ACCESS AFTER APP STARTUP!!!</para>
-    ///// </summary>
-    //internal static EndpointData Endpoints { get; private set; }
-
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
     /// </summary>
@@ -234,14 +228,8 @@ public static class MainExtensions
         if (ep.PreBuiltUserPolicies?.Any() is true)
             policiesToAdd.AddRange(ep.PreBuiltUserPolicies);
 
-        if (ep.AllowedPermissions?.Any() is true ||
-            ep.AllowedClaimTypes?.Any() is true ||
-            ep.AllowedRoles?.Any() is true ||
-            ep.AuthSchemeNames?.Any() is true ||
-            ep.PolicyBuilder is not null)
-        {
+        if (ep.RequiresAuthorization())
             policiesToAdd.Add(ep.SecurityPolicyName);
-        }
 
         return policiesToAdd.Select(p =>
         {

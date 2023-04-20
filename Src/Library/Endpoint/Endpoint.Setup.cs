@@ -423,6 +423,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             else
                 b.Produces<TResponse>(200, "application/json");
 
+            if (Definition.AnonymousVerbs?.Any() is not true)
+                b.Produces(401);
+
+            if (Definition.RequiresAuthorization())
+                b.Produces(403);
+
             var opts = FastEndpoints.Config.ErrOpts;
             if (opts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
                 b.Produces(opts.StatusCode, opts.ProducesMetadataType, "application/problem+json");

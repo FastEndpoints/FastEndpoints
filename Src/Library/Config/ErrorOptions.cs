@@ -39,4 +39,13 @@ public sealed class ErrorOptions
     /// </summary>
     public Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { internal get; set; }
         = (failures, _, statusCode) => new ErrorResponse(failures, statusCode);
+
+    /// <summary>
+    /// change the default error response builder to <see cref="ProblemDetails"/> instead of <see cref="ErrorResponse"/>
+    /// </summary>
+    public void UseProblemDetails()
+    {
+        ProducesMetadataType = typeof(ProblemDetails);
+        ResponseBuilder = ProblemDetails.ResponseBuilder;
+    }
 }

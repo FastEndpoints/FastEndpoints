@@ -14,13 +14,24 @@ namespace FastEndpoints;
 public sealed class ProblemDetails
 {
     /// <summary>
-    /// 
+    /// the built-in function for transforming validation errors to a RFC7807 compatible problem details error response dto.
     /// </summary>
     public static Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { get; } = (failures, ctx, statusCode)
         => new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
 
+    /// <summary>
+    /// controls whether duplicate errors with the same name should be allowed.
+    /// </summary>
     public static bool AllowDuplicates { private get; set; }
+
+    /// <summary>
+    /// globally sets the 'Type' value of the problem details dto.
+    /// </summary>
     public static string TypeValue { private get; set; } = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
+
+    /// <summary>
+    /// globally sets the 'Title' value of the problem details dto.
+    /// </summary>
     public static string TitleValue { private get; set; } = "One or more validation errors occurred.";
 
 #pragma warning disable CA1822
@@ -51,12 +62,26 @@ public sealed class ProblemDetails
         }
     }
 
+    /// <summary>
+    /// the error details object
+    /// </summary>
     public sealed class Error
     {
         internal static Comparer EqComparer = new();
 
+        /// <summary>
+        /// the name of the error or property of the dto that caused the error
+        /// </summary>
         public string Name { get; init; }
+
+        /// <summary>
+        /// the reason for the error
+        /// </summary>
         public string Reason { get; init; }
+
+        /// <summary>
+        /// the code of the error
+        /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Code { get; init; }
 

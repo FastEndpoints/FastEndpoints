@@ -15,7 +15,6 @@ public static class RouteHandlerBuilderExtensions
     public static RouteHandlerBuilder ProducesProblemFE<TResponse>(this RouteHandlerBuilder hb, int statusCode = 400, string contentType = "application/problem+json")
         => hb.Produces<TResponse>(statusCode, contentType);
 
-
     /// <summary>
     /// adds produces metadata of type <see cref="ErrorResponse"/> to the endpoint description
     /// </summary>

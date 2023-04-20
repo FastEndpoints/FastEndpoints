@@ -39,6 +39,16 @@
           },
           "403": {
             "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -74,6 +84,16 @@
           },
           "403": {
             "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -123,6 +143,16 @@
           },
           "403": {
             "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
           },
           "204": {
             "description": "No Content",
@@ -177,6 +207,16 @@
           },
           "403": {
             "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
           },
           "204": {
             "description": "No Content",
@@ -312,6 +352,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesRouteBindingTestResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
                 }
               }
             }
@@ -674,6 +724,16 @@
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -712,6 +772,16 @@
               },
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
               }
             }
           }
@@ -806,6 +876,16 @@
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1828,6 +1908,16 @@
           },
           "403": {
             "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2768,6 +2858,32 @@
   },
   "components": {
     "schemas": {
+      "FastEndpointsErrorResponse": {
+        "type": "object",
+        "description": "the dto used to send an error response to the client",
+        "additionalProperties": false,
+        "properties": {
+          "StatusCode": {
+            "type": "integer",
+            "description": "the http status code sent to the client. default is 400.",
+            "format": "int32"
+          },
+          "Message": {
+            "type": "string",
+            "description": "the message for the error response"
+          },
+          "Errors": {
+            "type": "object",
+            "description": "the collection of errors for the current context",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
       "UploadsImageSaveRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -3697,32 +3813,6 @@
         "properties": {
           "Message": {
             "type": "string"
-          }
-        }
-      },
-      "FastEndpointsErrorResponse": {
-        "type": "object",
-        "description": "the dto used to send an error response to the client",
-        "additionalProperties": false,
-        "properties": {
-          "StatusCode": {
-            "type": "integer",
-            "description": "the http status code sent to the client. default is 400.",
-            "format": "int32"
-          },
-          "Message": {
-            "type": "string",
-            "description": "the message for the error response"
-          },
-          "Errors": {
-            "type": "object",
-            "description": "the collection of errors for the current context",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         }
       },

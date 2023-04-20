@@ -15,7 +15,7 @@ here's an [example](https://github.com/FastEndpoints/FastEndpoints/blob/4831acea
 - add overload to `AddError()`, `ThrowError()`, `ThrowIfAnyErrors()` methods to accept a `ValidationFailure` [#info](https://discord.com/channels/933662816458645504/1090551226598432828/1090934715952926740)
 - populate inner exception of `InvalidOperationException` thrown by the testing extensions #422
 - modify source generator for incremental generation #426 
-- automatically add `401 - Unauthorized` and `403 - Forbidden` produces metadata to endpoints by default #422 
+- automatically add `400 - Bad Request`, `401 - Unauthorized` and `403 - Forbidden` produces metadata to endpoints by default #432 
 - upgrade dependencies to latest
 
 ### FIXES

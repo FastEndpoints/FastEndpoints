@@ -429,9 +429,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (Definition.RequiresAuthorization())
                 b.Produces(403);
 
-            var opts = FastEndpoints.Config.ErrOpts;
-            if (opts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
-                b.Produces(opts.StatusCode, opts.ProducesMetadataType, "application/problem+json");
+            if (FastEndpoints.Config.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+            {
+                b.Produces(
+                    FastEndpoints.Config.ErrOpts.StatusCode,
+                    FastEndpoints.Config.ErrOpts.ProducesMetadataType,
+                    "application/problem+json");
+            }
         };
     }
 

@@ -10,6 +10,7 @@ here's an [example](https://github.com/FastEndpoints/FastEndpoints/blob/4831acea
 - `RFC8707` compatible problem detail (error response) builder [#info](https://discord.com/channels/933662816458645504/1093917953528971344)
 - `JsonExceptionTransformer` func to enable customization of error messages when STJ throws due to invalid json input [#info](https://discord.com/channels/933662816458645504/1095670893113528370/1095923891605622884)
 - `ClearDefaultProduces(200,401,401)` extension method to clear chosen produces metadata added by default #432
+- `MarkNonNullablePropsAsRequired()` swagger doc extension for TS client generation with OA3 swagger definitions #388
 
 ### IMPROVEMENTS
 - add overload to `AddError()`, `ThrowError()`, `ThrowIfAnyErrors()` methods to accept a `ValidationFailure` [#info](https://discord.com/channels/933662816458645504/1090551226598432828/1090934715952926740)

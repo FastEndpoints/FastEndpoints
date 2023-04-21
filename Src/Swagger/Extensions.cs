@@ -210,6 +210,13 @@ public static class Extensions
         => x.OperationProcessors.Insert(0, new EndpointFilter(filter));
 
     /// <summary>
+    /// mark all non-nullable properties of the schema as required in the swagger document.
+    /// this may only be needed for TS client generation with OAS3 swagger definitions.
+    /// </summary>
+    public static void MarkNonNullablePropsAsRequired(this AspNetCoreOpenApiDocumentGeneratorSettings x)
+        => x.SchemaProcessors.Add(new MarkNonNullablePropsAsRequired());
+
+    /// <summary>
     /// gets the <see cref="EndpointDefinition"/> from the nwag operation processor context if this is a FastEndpoint operation. otherwise returns null.
     /// </summary>
     public static EndpointDefinition? GetEndpointDefinition(this OperationProcessorContext ctx)

@@ -36,10 +36,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (skipModelBinding)
             return;
 
-        // if the request dto type is an IEnumerable such as List<T>, it will be deserialized by STJ.
-        // so skip setup for this dto type.
-        // otherwise, a request dto such as MyRequest<T> can have a value parser, so allow to proceed.
-        if (tRequest.IsGenericType && tRequest.GetInterfaces().Contains(Types.IEnumerable))
+        // if the request dto type is an IEnumerable such as List<T>, or any class that implements IEnumerable,
+        // it will be deserialized by STJ. so skip setup for this dto type.
+        // otherwise, a request dto such as MyRequest<T> - which is not IEnumerable can have a value parser, so allow to proceed.
+        if (tRequest.GetInterfaces().Contains(Types.IEnumerable))
             return;
 
         foreach (var propInfo in tRequest.BindableProps())

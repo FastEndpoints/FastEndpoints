@@ -7,4 +7,5 @@ public class Request
 
 public class Response : Request
 {
+    public int Id { get; set; }
 }

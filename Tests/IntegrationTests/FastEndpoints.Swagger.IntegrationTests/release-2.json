@@ -1126,6 +1126,42 @@
         }
       }
     },
+    "/api/test-cases/json-array-binding-to-ienumerable-dto": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesJsonArrayBindingToIEnumerableDtoEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/json-array-binding-for-ienumerable-props": {
       "get": {
         "tags": [
@@ -3373,7 +3409,13 @@
           },
           {
             "type": "object",
-            "additionalProperties": false
+            "additionalProperties": false,
+            "properties": {
+              "Id": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
           }
         ]
       },
@@ -3384,6 +3426,36 @@
           "Name": {
             "type": "string"
           }
+        }
+      },
+      "TestCasesJsonArrayBindingToIEnumerableDtoResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoItem"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TestCasesJsonArrayBindingToIEnumerableDtoItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesJsonArrayBindingToIEnumerableDtoRequest": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoItem"
         }
       },
       "TestCasesJsonArrayBindingForIEnumerablePropsResponse": {

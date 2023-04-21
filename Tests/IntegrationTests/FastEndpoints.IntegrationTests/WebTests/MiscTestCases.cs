@@ -257,6 +257,25 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
+    public async Task JsonArrayBindingToIEnumerableDto()
+    {
+        var req = new TestCases.JsonArrayBindingToIEnumerableDto.Request()
+        {
+            { new TestCases.JsonArrayBindingToIEnumerableDto.Item() { Id = 1,  Name = "one" } },
+            { new TestCases.JsonArrayBindingToIEnumerableDto.Item() { Id = 2, Name = "two" } },
+        };
+
+        var (rsp, res) = await GuestClient.POSTAsync<
+            TestCases.JsonArrayBindingToIEnumerableDto.Endpoint,
+            TestCases.JsonArrayBindingToIEnumerableDto.Request,
+            List<TestCases.JsonArrayBindingToIEnumerableDto.Response>>(req);
+
+        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res?.Count.Should().Be(2);
+        res.Should().BeEquivalentTo(req);
+    }
+
+    [Fact]
     public async Task DupeParamBindingToIEnumerableProps()
     {
         var (rsp, res) = await GuestClient

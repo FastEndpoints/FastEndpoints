@@ -32,17 +32,36 @@ public static class RouteHandlerBuilderExtensions
         => hb.ProducesProblemFE<ProblemDetails>(statusCode, contentType);
 
     /// <summary>
-    /// clears any number of given produces response type metadata from the endpoint by supplying the status codes of the responses to remove
+    /// clears just the default "accepts metadata" from the endpoint.
+    /// </summary>
+    public static RouteHandlerBuilder ClearDefaultAccepts(this RouteHandlerBuilder hb)
+    {
+        hb.Add(epBuilder =>
+        {
+            var metaData = epBuilder.Metadata.ToArray(); //need to make a copy since we're modifying the list
+            for (var i = 0; i < metaData.Length; i++)
+            {
+                if (metaData[i] is IAcceptsMetadata)
+                    epBuilder.Metadata.Remove(metaData[i]);
+            }
+        });
+        return hb;
+    }
+
+    /// <summary>
+    /// clears any number of given "produces metadata" from the endpoint by supplying the status codes of the responses to remove.
+    /// not specifying any status codes will result in all produces metadata being removed.
     /// </summary>
     /// <param name="statusCodes">one or more status codes of the defaults to remove</param>
     public static RouteHandlerBuilder ClearDefaultProduces(this RouteHandlerBuilder hb, params int[] statusCodes)
     {
         hb.Add(epBuilder =>
         {
-            foreach (var m in epBuilder.Metadata.ToArray())
+            var metaData = epBuilder.Metadata.ToArray(); //need to make a copy since we're modifying the list
+            for (var i = 0; i < metaData.Length; i++)
             {
-                if (m is IProducesResponseTypeMetadata meta && statusCodes.Contains(meta.StatusCode))
-                    epBuilder.Metadata.Remove(m);
+                if (metaData[i] is IProducesResponseTypeMetadata meta && (statusCodes.Length == 0 || statusCodes.Contains(meta.StatusCode)))
+                    epBuilder.Metadata.Remove(metaData[i]);
             }
         });
         return hb;

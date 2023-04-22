@@ -1,13 +1,13 @@
 ### BREAKING CHANGES
 - integration testing extensions (GETAsync(), POSTAsync(), etc.) no longer throws any exceptions
 > if your integration tests are doing try/catch blocks for doing assertions on the unhappy/error path, those tests would now fail. 
-you'll have to get rid of the try/catch blocks and assert on the `HttpResponseMessage` properties instead. 
+you'll have to get rid of the try/catch blocks and assert on the `HttpResponseMessage`'s properties instead. 
 the `TResponse` dto would now be `null` when the request is unsuccessful. 
 here's an [example](https://github.com/FastEndpoints/FastEndpoints/blob/4831acea19f8b574bf7e4ebfe390ec4138a2a7e1/Tests/IntegrationTests/FastEndpoints.IntegrationTests/WebTests/AdminTests.cs#L65-L94).
 
 ### NEW
-- `ValidationContext<T>` class for manipulating the validation failures list of the current endpoint [#info](https://discord.com/channels/933662816458645504/1090551226598432828)
-- `RFC8707` compatible problem detail (error response) builder [#info](https://discord.com/channels/933662816458645504/1093917953528971344)
+- `ValidationContext<T>` class for manipulating the validation failures list of the current endpoint [#info](https://fast-endpoints.com/docs/validation#throwing-adding-errors-from-anywhere)
+- `RFC8707` compatible problem detail (error response) builder [#info](https://fast-endpoints.com/docs/configuration-settings#rfc8707-compatible-problem-details)
 - `JsonExceptionTransformer` func to enable customization of error messages when STJ throws due to invalid json input [#info](https://discord.com/channels/933662816458645504/1095670893113528370/1095923891605622884)
 - `ClearDefaultProduces(200,401,401)` extension method to clear chosen produces metadata added by default #432
 - `MarkNonNullablePropsAsRequired()` swagger doc extension for TS client generation with OA3 swagger definitions #388

@@ -19,4 +19,6 @@ public sealed class VersioningOptions
     /// set to true if you'd like to prefix the version to the route instead of being suffixed which is the default
     /// </summary>
     public bool? PrependToRoute { internal get; set; }
+
+    internal bool HasVersionSet { get; set; }
 }

@@ -34,6 +34,7 @@ public static class MainExtensions
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(Event<>));
+        VerOpts.HasVersionSet = services.Any(d => d.ServiceType.Name == "ApiVersionSet");
         return services;
     }
 
@@ -136,20 +137,23 @@ public static class MainExtensions
 
         EndpointData.Stopwatch.Stop();
 
-        var duplicatesDetected = false;
-        var logger = Config.ServiceResolver.Resolve<ILogger<DuplicateHandlerRegistration>>();
-
-        foreach (var kvp in routeToHandlerCounts)
+        if (!VerOpts.HasVersionSet)
         {
-            if (kvp.Value > 1)
-            {
-                duplicatesDetected = true;
-                logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
-            }
-        }
+            var duplicatesDetected = false;
+            var logger = Config.ServiceResolver.Resolve<ILogger<DuplicateHandlerRegistration>>();
 
-        if (duplicatesDetected)
-            throw new InvalidOperationException("Duplicate routes detected! See log for more details.");
+            foreach (var kvp in routeToHandlerCounts)
+            {
+                if (kvp.Value > 1)
+                {
+                    duplicatesDetected = true;
+                    logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
+                }
+            }
+
+            if (duplicatesDetected)
+                throw new InvalidOperationException("Duplicate routes detected! See log for more details.");
+        }
 
         Task.Run(async () =>
         {

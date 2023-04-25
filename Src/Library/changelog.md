@@ -1,2 +1,2 @@
 ### NEW
-- experimental support for `Asp.Versioning.Http` package #352
+- experimental support for `Asp.Versioning.Http` package via `FastEndpoints.AspVersioning` #352

@@ -34,7 +34,6 @@ public static class MainExtensions
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(Event<>));
-        VerOpts.HasVersionSet = services.Any(d => d.ServiceType.Name == "ApiVersionSet");
         return services;
     }
 
@@ -137,7 +136,7 @@ public static class MainExtensions
 
         EndpointData.Stopwatch.Stop();
 
-        if (!VerOpts.HasVersionSet)
+        if (!VerOpts.IsUsingAspVersioning)
         {
             var duplicatesDetected = false;
             var logger = Config.ServiceResolver.Resolve<ILogger<DuplicateHandlerRegistration>>();

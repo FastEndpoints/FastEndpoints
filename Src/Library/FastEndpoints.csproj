@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    
     <PropertyGroup>
         <NoWarn>1701;1702;CS1591;CS1573,CA2254;RCS1079;CS8618;IDE0022</NoWarn>
         <Description>A light-weight REST Api framework for ASP.Net 6 and newer that implements REPR (Request-Endpoint-Response) Pattern.</Description>

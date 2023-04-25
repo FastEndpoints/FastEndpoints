@@ -2,12 +2,16 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
-        <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Source generator library for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
-        <IsRoslynComponent>true</IsRoslynComponent>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <DevelopmentDependency>true</DevelopmentDependency>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

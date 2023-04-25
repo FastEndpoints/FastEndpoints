@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>        
-        <NoWarn>1701;1702;CS1591;CS1573;IDE0022</NoWarn>
-        <Description>Security library for FastEndpoints.</Description>
+    <PropertyGroup>
+        <TargetFrameworks>net7.0</TargetFrameworks>
+        <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+        <Description>Asp.Versioning.Http package integration for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
@@ -10,14 +11,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Asp.Versioning.Http" Version="7.0.0" />
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.0.0" />
+        <PackageReference Include="NSwag.Generation.AspNetCore" Version="13.18.2" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.15" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.4" />
     </ItemGroup>
 
     <ItemGroup>

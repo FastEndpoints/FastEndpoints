@@ -20,5 +20,5 @@ public sealed class VersioningOptions
     /// </summary>
     public bool? PrependToRoute { internal get; set; }
 
-    internal bool HasVersionSet { get; set; }
+    internal bool IsUsingAspVersioning { get; set; }
 }

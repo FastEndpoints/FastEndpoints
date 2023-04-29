@@ -128,7 +128,7 @@ public static class Extensions
     }
 
     //todo: remove at next major version
-    [Obsolete("Use the other AddSwaggerDoc() overload!")]
+    [Obsolete("Use the SwaggerDocument() method!")]
     public static IServiceCollection AddSwaggerDoc(this IServiceCollection services, Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null, Action<JsonSerializerOptions>? serializerSettings = null, bool addJWTBearerAuth = true, int tagIndex = 1, TagCase tagCase = TagCase.TitleCase, int minEndpointVersion = 0, int maxEndpointVersion = 0, bool shortSchemaNames = false, bool removeEmptySchemas = false, bool excludeNonFastEndpoints = false)
     {
         return SwaggerDocument(

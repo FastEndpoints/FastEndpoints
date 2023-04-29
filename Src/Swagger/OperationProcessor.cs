@@ -305,6 +305,27 @@ internal sealed class OperationProcessor : IOperationProcessor
             }
         }
 
+        //fix IFormFile props in OAS2 - remove from request body and add as a request param
+        if (ctx.Settings.SchemaType == SchemaType.Swagger2 && reqDtoProps is not null)
+        {
+            foreach (var p in reqDtoProps.ToArray())
+            {
+                if (p.PropertyType == Types.IFormFile)
+                {
+                    RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
+                    reqDtoProps.Remove(p);
+                    reqParams.Add(
+                        CreateParam(
+                            ctx: ctx,
+                            prop: p,
+                            paramName: null,
+                            isRequired: null,
+                            kind: OpenApiParameterKind.FormData,
+                            descriptions: reqParamDescriptions));
+                }
+            }
+        }
+
         foreach (var p in reqParams)
             op.Parameters.Add(p);
 
@@ -373,6 +394,7 @@ internal sealed class OperationProcessor : IOperationProcessor
                 }
             }
         }
+
         return true;
     }
 

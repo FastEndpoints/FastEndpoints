@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Namotion.Reflection;
+using NJsonSchema;
 using NJsonSchema.Generation;
 using NSwag;
 using NSwag.AspNetCore;
@@ -237,6 +238,27 @@ public static class Extensions
     {
         var index = value.IndexOf(removeString, StringComparison.Ordinal);
         return index < 0 ? value : value.Remove(index, removeString.Length);
+    }
+
+    internal static bool HasNoProperties(this IDictionary<string, OpenApiMediaType> content)
+        => !content.Any(c => c.GetAllProperties().Any());
+
+    internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllProperties(this KeyValuePair<string, OpenApiMediaType> mediaType)
+    {
+        return
+            mediaType.Value.Schema.ActualSchema.ActualProperties.Union(
+                mediaType.Value.Schema.ActualSchema.AllInheritedSchemas
+                    .Select(s => s.ActualProperties)
+                    .SelectMany(s => s.Select(s => s)));
+    }
+
+    internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllProperties(this KeyValuePair<string, OpenApiResponse> response)
+    {
+        return
+            response.Value.Schema.ActualSchema.ActualProperties.Union(
+                response.Value.Schema.ActualSchema.AllInheritedSchemas
+                    .Select(s => s.ActualProperties)
+                    .SelectMany(s => s.Select(s => s)));
     }
 
     private static readonly NullabilityInfoContext nullCtx = new();

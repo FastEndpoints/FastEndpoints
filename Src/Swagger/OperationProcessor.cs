@@ -162,19 +162,11 @@ internal sealed class OperationProcessor : IOperationProcessor
 
                   var responseSchema = res.Value.Schema.ActualSchema;
                   var responseDescriptions = epDef.EndpointSummary.ResponseParams[key];
-                  foreach (var prop in responseSchema.ActualProperties)
+
+                  foreach (var prop in res.GetAllProperties())
                   {
                       if (responseDescriptions.ContainsKey(prop.Key))
                           prop.Value.Description = responseDescriptions[prop.Key];
-                  }
-
-                  if (responseSchema.InheritedSchema is not null)
-                  {
-                      foreach (var prop in responseSchema.InheritedSchema.ActualProperties)
-                      {
-                          if (responseDescriptions.ContainsKey(prop.Key))
-                              prop.Value.Description = responseDescriptions[prop.Key];
-                      }
                   }
               }
           });
@@ -192,14 +184,8 @@ internal sealed class OperationProcessor : IOperationProcessor
         {
             foreach (var c in op.RequestBody.Content)
             {
-                foreach (var prop in c.Value.Schema.ActualSchema.ActualProperties)
+                foreach (var prop in c.GetAllProperties())
                     reqParamDescriptions[prop.Key] = prop.Value.Description;
-
-                if (c.Value.Schema.ActualSchema.InheritedSchema is not null)
-                {
-                    foreach (var prop in c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties)
-                        reqParamDescriptions[prop.Key] = prop.Value.Description;
-                }
             }
         }
 
@@ -215,19 +201,10 @@ internal sealed class OperationProcessor : IOperationProcessor
         {
             foreach (var c in op.RequestBody.Content)
             {
-                foreach (var prop in c.Value.Schema.ActualSchema.ActualProperties)
+                foreach (var prop in c.GetAllProperties())
                 {
                     if (reqParamDescriptions.ContainsKey(prop.Key))
                         prop.Value.Description = reqParamDescriptions[prop.Key];
-                }
-
-                if (c.Value.Schema.ActualSchema.InheritedSchema is not null)
-                {
-                    foreach (var prop in c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties)
-                    {
-                        if (reqParamDescriptions.ContainsKey(prop.Key))
-                            prop.Value.Description = reqParamDescriptions[prop.Key];
-                    }
                 }
             }
         }
@@ -334,10 +311,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body)
         //or if there are no properties left on the request dto after above operations
         //only if the request dto is not a list
-        if (isGETRequest ||
-           (op.RequestBody?.Content.SelectMany(c => c.Value.Schema.ActualSchema.ActualProperties).Any() == false &&
-           !op.RequestBody.Content.Where(c => c.Value.Schema.ActualSchema.InheritedSchema is not null).SelectMany(c => c.Value.Schema.ActualSchema.InheritedSchema.ActualProperties).Any() &&
-           !op.RequestBody.Content.SelectMany(c => c.Value.Schema.ActualSchema.AllOf.SelectMany(s => s.Properties)).Any()))
+        if (isGETRequest || op.RequestBody?.Content.HasNoProperties() is true)
         {
             if (reqDtoIsList is false)
             {
@@ -437,15 +411,9 @@ internal sealed class OperationProcessor : IOperationProcessor
 
         foreach (var c in content)
         {
-            var props1 = c.Value.Schema.ActualSchema.ActualProperties;
-            var props2 = c.Value.Schema.ActualSchema.AllInheritedSchemas
-                .Select(s => s.ActualProperties)
-                .SelectMany(s => s.Select(s => s));
-
-            var props = props1.Union(props2);
-
-            var key = props.FirstOrDefault(p => string.Equals(p.Key, propName, StringComparison.OrdinalIgnoreCase)).Key;
-
+            var key = c.GetAllProperties()
+                       .FirstOrDefault(p => string.Equals(p.Key, propName, StringComparison.OrdinalIgnoreCase))
+                       .Key;
             Remove(c.Value.Schema.ActualSchema, key);
         }
 
@@ -453,13 +421,9 @@ internal sealed class OperationProcessor : IOperationProcessor
         static void Remove(JsonSchema schema, string? key)
         {
             if (key is null) return;
-
             schema.Properties.Remove(key);
-
             foreach (var s in schema.AllOf.Union(schema.AllInheritedSchemas))
-            {
                 Remove(s, key);
-            }
         }
     }
 

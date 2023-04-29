@@ -36,15 +36,11 @@ internal sealed class OperationProcessor : IOperationProcessor
         { "500", "Server Error" },
     };
 
-    private readonly int tagIndex;
-    private readonly bool removeEmptySchemas;
-    private readonly TagCase tagCase;
+    private readonly DocumentOptions opts;
 
-    public OperationProcessor(int tagIndex, bool removeEmptySchemas, TagCase tagCase)
+    public OperationProcessor(DocumentOptions documentOptions)
     {
-        this.tagIndex = tagIndex;
-        this.removeEmptySchemas = removeEmptySchemas;
-        this.tagCase = tagCase;
+        opts = documentOptions;
     }
 
     public bool Process(OperationProcessorContext ctx)
@@ -72,11 +68,11 @@ internal sealed class OperationProcessor : IOperationProcessor
             op.OperationId = nameMetaData.EndpointName;
 
         //set operation tag
-        if (tagIndex > 0 && !epDef.DontAutoTagEndpoints)
+        if (opts.AutoTagPathSegmentIndex > 0 && !epDef.DontAutoTagEndpoints)
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
-            if (segments.Length >= tagIndex)
-                op.Tags.Add(TagName(segments[tagIndex - 1], tagCase));
+            if (segments.Length >= opts.AutoTagPathSegmentIndex)
+                op.Tags.Add(TagName(segments[opts.AutoTagPathSegmentIndex - 1], opts.TagCase));
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
@@ -342,7 +338,7 @@ internal sealed class OperationProcessor : IOperationProcessor
             }
         }
 
-        if (removeEmptySchemas)
+        if (opts.RemoveEmptyRequestSchema)
         {
             //remove all empty schemas that has no props left
             //these schemas have been flattened so no need to worry about inheritance

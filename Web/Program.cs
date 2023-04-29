@@ -17,45 +17,62 @@ builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRo
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services
-    .AddSwaggerDoc(s =>
+    .AddSwaggerDoc(o =>
     {
-        s.DocumentName = "Initial Release";
-        s.Title = "Web API";
-        s.Version = "v0.0";
-        s.SchemaType = NJsonSchema.SchemaType.OpenApi3;
-    },
-    serializerSettings: x => x.PropertyNamingPolicy = null,
-    tagCase: TagCase.TitleCase,
-    removeEmptySchemas: false)
+        o.DocumentSettings = s =>
+        {
+            s.DocumentName = "Initial Release";
+            s.Title = "Web API";
+            s.Version = "v0.0";
+            s.SchemaType = NJsonSchema.SchemaType.OpenApi3;
+        };
+        o.SerializerSettings = x => x.PropertyNamingPolicy = null;
+        o.TagCase = TagCase.TitleCase;
+        o.RemoveEmptyRequestSchema = false;
+    })
 
-    .AddSwaggerDoc(maxEndpointVersion: 1, settings: s =>
-     {
-         s.DocumentName = "Release 1.0";
-         s.Title = "Web API";
-         s.Version = "v1.0";
-         s.AddAuth("ApiKey", new()
-         {
-             Name = "api_key",
-             In = OpenApiSecurityApiKeyLocation.Header,
-             Type = OpenApiSecuritySchemeType.ApiKey,
-         });
-     },
-    removeEmptySchemas: false)
-
-    .AddSwaggerDoc(maxEndpointVersion: 2, settings: s =>
+    .AddSwaggerDoc(o =>
     {
-        s.DocumentName = "Release 2.0";
-        s.Title = "FastEndpoints Sandbox";
-        s.Version = "v2.0";
-    },
-    removeEmptySchemas: false)
+        o.DocumentSettings = s =>
+        {
+            s.DocumentName = "Release 1.0";
+            s.Title = "Web API";
+            s.Version = "v1.0";
+            s.AddAuth("ApiKey", new()
+            {
+                Name = "api_key",
+                In = OpenApiSecurityApiKeyLocation.Header,
+                Type = OpenApiSecuritySchemeType.ApiKey,
+            });
+        };
+        o.MaxEndpointVersion = 1;
+        o.RemoveEmptyRequestSchema = false;
+    })
+
+    .AddSwaggerDoc(o =>
+    {
+        o.DocumentSettings = s =>
+        {
+            s.DocumentName = "Release 2.0";
+            s.Title = "FastEndpoints Sandbox";
+            s.Version = "v2.0";
+        };
+        o.MaxEndpointVersion = 2;
+        o.RemoveEmptyRequestSchema = false;
+    })
 
     //only ver3 & only FastEndpoints
-    .AddSwaggerDoc(minEndpointVersion: 3, maxEndpointVersion: 3, excludeNonFastEndpoints: true, settings: s =>
+    .AddSwaggerDoc(o =>
     {
-        s.DocumentName = "Release 3.0";
-        s.Title = "FastEndpoints Sandbox ver3 only";
-        s.Version = "v3.0";
+        o.DocumentSettings = s =>
+        {
+            s.DocumentName = "Release 3.0";
+            s.Title = "FastEndpoints Sandbox ver3 only";
+            s.Version = "v3.0";
+        };
+        o.MinEndpointVersion = 3;
+        o.MaxEndpointVersion = 3;
+        o.ExcludeNonFastEndpoints = true;
     });
 
 var app = builder.Build();

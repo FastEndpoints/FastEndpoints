@@ -13,7 +13,6 @@ using NSwag.Generation.Processors.Security;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using static FastEndpoints.Config;
 
 [assembly: InternalsVisibleTo("FastEndpoints.Swagger.UnitTests")]
 [assembly: InternalsVisibleTo("FastEndpoints.Swagger.IntegrationTests")]
@@ -33,28 +32,27 @@ public static class Extensions
     /// <summary>
     /// enable support for FastEndpoints in swagger
     /// </summary>
-    /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
-    /// <param name="tagCase">the casing strategy to use on endpoint tags</param>
-    /// <param name="minEndpointVersion">endpoints lower than this vesion will not be included in the swagger doc</param>
-    /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
-    /// <param name="shortSchemaNames">set to true to make schema names just the name of the class instead of full type name</param>
-    /// <param name="removeEmptySchemas">
-    /// set to true for removing empty schemas from the swagger document.
-    /// <para>WARNING: enabling this also flattens the inheritance hierachy of the schmemas.</para>
-    /// </param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
-                                           int tagIndex,
-                                           TagCase tagCase,
-                                           int minEndpointVersion,
-                                           int maxEndpointVersion,
-                                           bool shortSchemaNames,
-                                           bool removeEmptySchemas)
+    /// <param name="documentOptions">the document options</param>
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, Action<DocumentOptions> documentOptions)
     {
-        settings.Title = AppDomain.CurrentDomain.FriendlyName;
-        settings.SchemaNameGenerator = new SchemaNameGenerator(shortSchemaNames);
-        settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
-        settings.OperationProcessors.Add(new OperationProcessor(tagIndex, removeEmptySchemas, tagCase));
-        settings.DocumentProcessors.Add(new DocumentProcessor(minEndpointVersion, maxEndpointVersion));
+        var doc = new DocumentOptions();
+        documentOptions(doc);
+        EnableFastEndpoints(settings, doc);
+    }
+
+    //todo: remove at next major version
+    [Obsolete("Use EnableFastEndpoints(Action<DocumentOptions>) instead!")]
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, TagCase tagCase, int minEndpointVersion, int maxEndpointVersion, bool shortSchemaNames, bool removeEmptySchemas)
+    {
+        EnableFastEndpoints(settings, new DocumentOptions()
+        {
+            AutoTagPathSegmentIndex = tagIndex,
+            TagCase = tagCase,
+            MinEndpointVersion = minEndpointVersion,
+            MaxEndpointVersion = maxEndpointVersion,
+            ShortSchemaNames = shortSchemaNames,
+            RemoveEmptyRequestSchema = removeEmptySchemas
+        });
     }
 
     /// <summary>
@@ -106,47 +104,48 @@ public static class Extensions
     }
 
     /// <summary>
-    /// enable swagger support for FastEndpoints with a single call.
+    /// enable support for FastEndpoints and create a swagger document.
     /// </summary>
-    /// <param name="settings">swaggergen config settings</param>
-    /// <param name="serializerSettings">json serializer options</param>
-    /// <param name="addJWTBearerAuth">set to false to disable auto addition of jwt bearer auth support</param>
-    /// <param name="tagIndex">the index of the route path segment to use for tagging/grouping endpoints</param>
-    /// <param name="tagCase">the casing strategy to use on endpoint tags</param>
-    /// <param name="minEndpointVersion">endpoints lower than this vesion will not be included in the swagger doc</param>
-    /// <param name="maxEndpointVersion">endpoints greater than this version will not be included in the swagger doc</param>
-    /// <param name="shortSchemaNames">set to true if you'd like schema names to be the class name intead of the full name</param>
-    /// <param name="removeEmptySchemas">
-    /// set to true for removing empty schemas from the swagger document.
-    /// <para>WARNING: enabling this also flattens the inheritance hierachy of the schmemas.</para>
-    /// </param>
-    /// <param name="excludeNonFastEndpoints">if set to true, only FastEndpoints will show up in the swagger doc</param>
-    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
-                                                   Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
-                                                   Action<JsonSerializerOptions>? serializerSettings = null,
-                                                   bool addJWTBearerAuth = true,
-                                                   int tagIndex = 1,
-                                                   TagCase tagCase = TagCase.TitleCase,
-                                                   int minEndpointVersion = 0,
-                                                   int maxEndpointVersion = 0,
-                                                   bool shortSchemaNames = false,
-                                                   bool removeEmptySchemas = false,
-                                                   bool excludeNonFastEndpoints = false)
+    /// <param name="options">swagger document configuration options</param>
+    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services, Action<DocumentOptions>? options = null)
     {
+        var doc = new DocumentOptions();
+        options?.Invoke(doc);
         services.AddEndpointsApiExplorer();
-        services.AddOpenApiDocument(s =>
+        services.AddOpenApiDocument(generator =>
         {
-            var stjOpts = new JsonSerializerOptions(SerOpts.Options);
+            var stjOpts = new JsonSerializerOptions(Config.SerOpts.Options);
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
-            serializerSettings?.Invoke(stjOpts);
-            s.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
-            s.EnableFastEndpoints(tagIndex, tagCase, minEndpointVersion, maxEndpointVersion, shortSchemaNames, removeEmptySchemas);
-            if (excludeNonFastEndpoints) s.OperationProcessors.Insert(0, new FastEndpointsFilter());
-            if (addJWTBearerAuth) s.EnableJWTBearerAuth();
-            settings?.Invoke(s);
-            if (removeEmptySchemas) s.FlattenInheritanceHierarchy = removeEmptySchemas; //gotta force this here even if user asks not to flatten
+            doc.SerializerSettings?.Invoke(stjOpts);
+            generator.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
+            EnableFastEndpoints(generator, doc);
+            if (doc.ExcludeNonFastEndpoints) generator.OperationProcessors.Insert(0, new FastEndpointsFilter());
+            if (doc.EnableJWTBearerAuth) generator.EnableJWTBearerAuth();
+            doc.DocumentSettings?.Invoke(generator);
+            if (doc.RemoveEmptyRequestSchema || doc.FlattenSchema) generator.FlattenInheritanceHierarchy = true;
         });
         return services;
+    }
+
+    //todo: remove at next major version
+    [Obsolete("Use the other AddSwaggerDoc() overload!")]
+    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services, Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null, Action<JsonSerializerOptions>? serializerSettings = null, bool addJWTBearerAuth = true, int tagIndex = 1, TagCase tagCase = TagCase.TitleCase, int minEndpointVersion = 0, int maxEndpointVersion = 0, bool shortSchemaNames = false, bool removeEmptySchemas = false, bool excludeNonFastEndpoints = false)
+    {
+        return AddSwaggerDoc(
+            services: services,
+            options: o =>
+            {
+                o.DocumentSettings = settings;
+                o.SerializerSettings = serializerSettings;
+                o.EnableJWTBearerAuth = addJWTBearerAuth;
+                o.AutoTagPathSegmentIndex = tagIndex;
+                o.TagCase = tagCase;
+                o.MinEndpointVersion = minEndpointVersion;
+                o.MaxEndpointVersion = maxEndpointVersion;
+                o.ShortSchemaNames = shortSchemaNames;
+                o.RemoveEmptyRequestSchema = removeEmptySchemas;
+                o.ExcludeNonFastEndpoints = excludeNonFastEndpoints;
+            });
     }
 
     /// <summary>
@@ -280,5 +279,14 @@ public static class Extensions
     {
         var remarks = p.GetXmlDocsRemarks();
         return string.IsNullOrEmpty(remarks) ? null : remarks;
+    }
+
+    private static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
+    {
+        settings.Title = AppDomain.CurrentDomain.FriendlyName;
+        settings.SchemaNameGenerator = new SchemaNameGenerator(opts.ShortSchemaNames);
+        settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
+        settings.OperationProcessors.Add(new OperationProcessor(opts));
+        settings.DocumentProcessors.Add(new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion));
     }
 }

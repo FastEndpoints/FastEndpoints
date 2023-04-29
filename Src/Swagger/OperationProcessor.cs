@@ -64,6 +64,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         var bareRoute = opPath.Remove(routePrefix).Remove(version);
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;
+        var reqContent = op.RequestBody?.Content;
         var serializer = Newtonsoft.Json.JsonSerializer.Create(ctx.SchemaGenerator.Settings.ActualSerializerSettings);
 
         //set operation id if user has specified
@@ -82,7 +83,6 @@ internal sealed class OperationProcessor : IOperationProcessor
         op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epDef.Version.DeprecatedAt}");
 
         //fix request content-types not displaying correctly
-        var reqContent = op.RequestBody?.Content;
         if (reqContent?.Count > 0)
         {
             var contentVal = reqContent.FirstOrDefault().Value;
@@ -180,9 +180,9 @@ internal sealed class OperationProcessor : IOperationProcessor
         //these are the xml comments from dto classes
         //todo: this is not ideal in case two consumes dtos has a prop with the same name.
         var reqParamDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        if (op.RequestBody is not null)
+        if (reqContent is not null)
         {
-            foreach (var c in op.RequestBody.Content)
+            foreach (var c in reqContent)
             {
                 foreach (var prop in c.GetAllProperties())
                     reqParamDescriptions[prop.Key] = prop.Value.Description;
@@ -197,9 +197,9 @@ internal sealed class OperationProcessor : IOperationProcessor
         }
 
         //override req param descriptions for each consumes/content type from user supplied summary request param descriptions
-        if (op.RequestBody is not null)
+        if (reqContent is not null)
         {
-            foreach (var c in op.RequestBody.Content)
+            foreach (var c in reqContent)
             {
                 foreach (var prop in c.GetAllProperties())
                 {
@@ -217,7 +217,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         {
             foreach (var p in reqDtoProps.Where(p => p.IsDefined(Types.JsonIgnoreAttribute) || p.GetSetMethod()?.IsPublic is not true).ToArray()) //prop has no public setter or has ignore attribute
             {
-                RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
                 reqDtoProps.Remove(p);
             }
         }
@@ -232,7 +232,7 @@ internal sealed class OperationProcessor : IOperationProcessor
                     var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
                     if (string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                     {
-                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
                         return true;
                     }
                     return false;
@@ -255,7 +255,7 @@ internal sealed class OperationProcessor : IOperationProcessor
                 .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest))
                 .Select(p =>
                 {
-                    RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                    RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
                     return CreateParam(
                         ctx: ctx,
                         prop: p,
@@ -291,16 +291,16 @@ internal sealed class OperationProcessor : IOperationProcessor
 
                         //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
-                            RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                            RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
                     }
 
                     //can only be bound from claim since it's required. so remove prop from body.
                     if (attribute is FromClaimAttribute cAttrib && (cAttrib.IsRequired || cAttrib.RemoveFromSchema))
-                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
 
                     //can only be bound from permission since it's required. so remove prop from body.
                     if (attribute is HasPermissionAttribute pAttrib && (pAttrib.IsRequired || pAttrib.RemoveFromSchema))
-                        RemovePropFromRequestBodyContent(p.Name, op.RequestBody?.Content, propsToRemoveFromExample);
+                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
                 }
             }
         }
@@ -311,7 +311,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body)
         //or if there are no properties left on the request dto after above operations
         //only if the request dto is not a list
-        if (isGETRequest || op.RequestBody?.Content.HasNoProperties() is true)
+        if (isGETRequest || reqContent?.HasNoProperties() is true)
         {
             if (reqDtoIsList is false)
             {

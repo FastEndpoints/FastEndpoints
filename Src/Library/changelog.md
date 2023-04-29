@@ -2,7 +2,7 @@
 - support for `Asp.Versioning.Http` package via `FastEndpoints.AspVersioning` #352
 
 ### IMPROVEMENTS
-- trim down `AddSwaggerDoc()` calls with `SwaggerDocument(Action<DocumentOptions>)`. see deprecations below & [example here](https://github.com/FastEndpoints/FastEndpoints/blob/6563531e2b3ac02a159927ee4a61a310e6c6b5fb/Web/Program.cs#L20-L32).
+- trim down `AddSwaggerDoc()` calls with `SwaggerDocument(Action<DocumentOptions>)`. see deprecations below & [example here](https://github.com/FastEndpoints/FastEndpoints/blob/925d96ccea6e01cdee408142be1855f3baf616be/Web/Program.cs#L20-L32).
 - improve `IFormFile` support in OAS2 [#info](https://discord.com/channels/933662816458645504/1101429081830064162)
 - nswag operation processor internal optimizations
 

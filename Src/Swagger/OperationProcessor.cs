@@ -235,6 +235,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         var reqParams = new List<OpenApiParameter>();
         var propsToRemoveFromExample = new List<string>();
 
+        //remove dto props that are either marked with [JsonIgnore] or not publicly settable
         if (reqDtoProps != null)
         {
             foreach (var p in reqDtoProps.Where(p => p.IsDefined(Types.JsonIgnoreAttribute) || p.GetSetMethod()?.IsPublic is not true).ToArray()) //prop has no public setter or has ignore attribute

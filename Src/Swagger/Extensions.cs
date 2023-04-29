@@ -107,7 +107,7 @@ public static class Extensions
     /// enable support for FastEndpoints and create a swagger document.
     /// </summary>
     /// <param name="options">swagger document configuration options</param>
-    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services, Action<DocumentOptions>? options = null)
+    public static IServiceCollection SwaggerDocument(this IServiceCollection services, Action<DocumentOptions>? options = null)
     {
         var doc = new DocumentOptions();
         options?.Invoke(doc);
@@ -131,7 +131,7 @@ public static class Extensions
     [Obsolete("Use the other AddSwaggerDoc() overload!")]
     public static IServiceCollection AddSwaggerDoc(this IServiceCollection services, Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null, Action<JsonSerializerOptions>? serializerSettings = null, bool addJWTBearerAuth = true, int tagIndex = 1, TagCase tagCase = TagCase.TitleCase, int minEndpointVersion = 0, int maxEndpointVersion = 0, bool shortSchemaNames = false, bool removeEmptySchemas = false, bool excludeNonFastEndpoints = false)
     {
-        return AddSwaggerDoc(
+        return SwaggerDocument(
             services: services,
             options: o =>
             {

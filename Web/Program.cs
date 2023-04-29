@@ -17,7 +17,7 @@ builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRo
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services
-    .AddSwaggerDoc(o =>
+    .SwaggerDocument(o =>
     {
         o.DocumentSettings = s =>
         {
@@ -31,7 +31,7 @@ builder.Services
         o.RemoveEmptyRequestSchema = false;
     })
 
-    .AddSwaggerDoc(o =>
+    .SwaggerDocument(o =>
     {
         o.DocumentSettings = s =>
         {
@@ -49,7 +49,7 @@ builder.Services
         o.RemoveEmptyRequestSchema = false;
     })
 
-    .AddSwaggerDoc(o =>
+    .SwaggerDocument(o =>
     {
         o.DocumentSettings = s =>
         {
@@ -62,7 +62,7 @@ builder.Services
     })
 
     //only ver3 & only FastEndpoints
-    .AddSwaggerDoc(o =>
+    .SwaggerDocument(o =>
     {
         o.DocumentSettings = s =>
         {

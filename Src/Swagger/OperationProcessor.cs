@@ -248,7 +248,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         if (reqDtoType is not null)
         {
             var qParams = reqDtoProps?
-                .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest))
+                .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest && !opts.EnableGetRequestsWithBody)) //user want body in GET requests
                 .Select(p =>
                 {
                     RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
@@ -325,10 +325,11 @@ internal sealed class OperationProcessor : IOperationProcessor
         foreach (var p in reqParams)
             op.Parameters.Add(p);
 
-        //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body)
-        //or if there are no properties left on the request dto after above operations
-        //only if the request dto is not a list
-        if (isGETRequest || reqContent?.HasNoProperties() is true)
+        //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body).
+        //note: user can decide to allow GET requests with body via EnableGetRequestsWithBody setting.
+        //or if there are no properties left on the request dto after above operations.
+        //only if the request dto is not a list.
+        if ((isGETRequest && !opts.EnableGetRequestsWithBody) || reqContent?.HasNoProperties() is true)
         {
             if (reqDtoIsList is false)
             {

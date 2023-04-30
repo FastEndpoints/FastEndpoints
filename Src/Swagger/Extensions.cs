@@ -49,9 +49,11 @@ public static class Extensions
             if (doc.ExcludeNonFastEndpoints) generator.OperationProcessors.Insert(0, new FastEndpointsFilter());
             if (doc.TagDescriptions is not null)
             {
+                var dict = new Dictionary<string, string>();
+                doc.TagDescriptions(dict);
                 generator.AddOperationFilter(ctx =>
                 {
-                    foreach (var kvp in doc.TagDescriptions)
+                    foreach (var kvp in dict)
                     {
                         ctx.Document.Tags.Add(new OpenApiTag
                         {
@@ -270,7 +272,7 @@ public static class Extensions
     }
 
     //todo: remove at next major version
-    [Obsolete("Use the TagDescriptions property/dictionary on the DocumentOptions object at the top level!")]
+    [Obsolete("Use the TagDescriptions property on the DocumentOptions object at the top level!")]
     public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings, params (string tagName, string tagDescription)[] documentTags)
     {
         settings.AddOperationFilter(ctx =>

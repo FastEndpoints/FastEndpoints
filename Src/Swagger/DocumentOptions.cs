@@ -68,5 +68,5 @@ public class DocumentOptions
     /// specify swagger tag descriptions for the document.
     /// the key of the dictionary is the name of the tag to add a description for.
     /// </summary>
-    public Dictionary<string, string>? TagDescriptions { get; set; }
+    public Action<Dictionary<string, string>>? TagDescriptions { get; set; }
 }

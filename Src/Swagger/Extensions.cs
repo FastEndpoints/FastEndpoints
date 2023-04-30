@@ -119,6 +119,7 @@ public static class Extensions
             doc.SerializerSettings?.Invoke(stjOpts);
             generator.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
             EnableFastEndpoints(generator, doc);
+            if (doc.EndpointFilter is not null) generator.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
             if (doc.ExcludeNonFastEndpoints) generator.OperationProcessors.Insert(0, new FastEndpointsFilter());
             if (doc.EnableJWTBearerAuth) generator.EnableJWTBearerAuth();
             doc.DocumentSettings?.Invoke(generator);
@@ -201,11 +202,8 @@ public static class Extensions
         return s;
     }
 
-    /// <summary>
-    /// specify a function to filter out endpoints from the swagger document.
-    /// this function will be run against every fast endpoint discovered. return true to include the endpoint and return false to exclude the endpoint from the swagger doc.
-    /// </summary>
-    /// <param name="filter">a function to use for filtering endpoints</param>
+    //todo: remove at next major version
+    [Obsolete("Use the EndpointFilter property on the DocumentOptions object at the top level!")]
     public static void EndpointFilter(this AspNetCoreOpenApiDocumentGeneratorSettings x, Func<EndpointDefinition, bool> filter)
         => x.OperationProcessors.Insert(0, new EndpointFilter(filter));
 

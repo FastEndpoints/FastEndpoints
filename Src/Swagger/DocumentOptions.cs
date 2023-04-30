@@ -18,6 +18,12 @@ public class DocumentOptions
     /// </summary>
     public int AutoTagPathSegmentIndex { get; set; } = 1;
     /// <summary>
+    /// a function to filter out endpoints from the swagger document.
+    /// this function will be run against every fast endpoint discovered.
+    /// return true to include the endpoint and return false to exclude the endpoint from the swagger doc.
+    /// </summary>
+    public Func<EndpointDefinition, bool>? EndpointFilter { get; set; }
+    /// <summary>
     /// by default GET request DTO properties are automatically converted to query parameters because fetch-client/swagger ui doesn't support it.
     /// set this to true if for some reason you'd like to disable this auto convertion and allow GET requests with a body.
     /// </summary>

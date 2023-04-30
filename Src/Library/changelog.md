@@ -9,4 +9,5 @@
 ### DEPRECATIONS
 - `FastEndpoints.Swagger.Extensions.AddSwaggerDoc()` in favor of `SwaggerDocument(Action<DocumentOptions>)`
 - `FastEndpoints.Swagger.Extensions.EndpointFilter()` in favor of `DocumentOptions.EndpointFilter` property
+- `FastEndpoints.Swagger.Extensions.TagDescriptions()` in favor of `DocumentOptions.TagDescriptions` dictionary
 - `FastEndpoints.Swagger.Extensions.EnableFastEndpoints()` in favor of `EnableFastEndpoints(Action<DocumentOptions>)`

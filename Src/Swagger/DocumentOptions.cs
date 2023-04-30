@@ -9,20 +9,13 @@ namespace FastEndpoints.Swagger;
 public class DocumentOptions
 {
     /// <summary>
-    /// a function for configuring the swagger document generator settings
-    /// </summary>
-    public Action<AspNetCoreOpenApiDocumentGeneratorSettings>? DocumentSettings { get; set; }
-
-    /// <summary>
     /// the index of the route path segment to use for tagging/grouping endpoints. set 0 to disable auto tagging.
     /// </summary>
     public int AutoTagPathSegmentIndex { get; set; } = 1;
     /// <summary>
-    /// a function to filter out endpoints from the swagger document.
-    /// this function will be run against every fast endpoint discovered.
-    /// return true to include the endpoint and return false to exclude the endpoint from the swagger doc.
+    /// a function for configuring the swagger document generator settings
     /// </summary>
-    public Func<EndpointDefinition, bool>? EndpointFilter { get; set; }
+    public Action<AspNetCoreOpenApiDocumentGeneratorSettings>? DocumentSettings { get; set; }
     /// <summary>
     /// by default GET request DTO properties are automatically converted to query parameters because fetch-client/swagger ui doesn't support it.
     /// set this to true if for some reason you'd like to disable this auto convertion and allow GET requests with a body.
@@ -32,6 +25,12 @@ public class DocumentOptions
     /// set to false to disable auto addition of jwt bearer auth support
     /// </summary>
     public bool EnableJWTBearerAuth { get; set; } = true;
+    /// <summary>
+    /// a function to filter out endpoints from the swagger document.
+    /// this function will be run against every fast endpoint discovered.
+    /// return true to include the endpoint and return false to exclude the endpoint from the swagger doc.
+    /// </summary>
+    public Func<EndpointDefinition, bool>? EndpointFilter { get; set; }
     /// <summary>
     /// if set to true, only FastEndpoints will show up in the swagger doc
     /// </summary>
@@ -65,4 +64,9 @@ public class DocumentOptions
     /// the casing strategy to use when naming endpoint tags.
     /// </summary>
     public TagCase TagCase { get; set; } = TagCase.TitleCase;
+    /// <summary>
+    /// specify swagger tag descriptions for the document.
+    /// the key of the dictionary is the name of the tag to add a description for.
+    /// </summary>
+    public Dictionary<string, string>? TagDescriptions { get; set; }
 }

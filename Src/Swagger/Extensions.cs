@@ -30,80 +30,6 @@ public static class Extensions
     public static JsonNamingPolicy? SelectedJsonNamingPolicy { get; private set; }
 
     /// <summary>
-    /// enable support for FastEndpoints in swagger
-    /// </summary>
-    /// <param name="documentOptions">the document options</param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, Action<DocumentOptions> documentOptions)
-    {
-        var doc = new DocumentOptions();
-        documentOptions(doc);
-        EnableFastEndpoints(settings, doc);
-    }
-
-    //todo: remove at next major version
-    [Obsolete("Use EnableFastEndpoints(Action<DocumentOptions>) instead!")]
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, TagCase tagCase, int minEndpointVersion, int maxEndpointVersion, bool shortSchemaNames, bool removeEmptySchemas)
-    {
-        EnableFastEndpoints(settings, new DocumentOptions()
-        {
-            AutoTagPathSegmentIndex = tagIndex,
-            TagCase = tagCase,
-            MinEndpointVersion = minEndpointVersion,
-            MaxEndpointVersion = maxEndpointVersion,
-            ShortSchemaNames = shortSchemaNames,
-            RemoveEmptyRequestSchema = removeEmptySchemas
-        });
-    }
-
-    /// <summary>
-    /// enable jwt bearer authorization support
-    /// </summary>
-    public static void EnableJWTBearerAuth(this AspNetCoreOpenApiDocumentGeneratorSettings settings)
-    {
-        settings.AddAuth("JWTBearerAuth", new OpenApiSecurityScheme
-        {
-            Type = OpenApiSecuritySchemeType.Http,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
-            Description = "Enter a JWT token to authorize the requests..."
-        });
-    }
-
-    /// <summary>
-    /// add <see cref="OpenApiTag"/>s to a swagger document in order to provide tag descriptions
-    /// </summary>
-    /// <param name="documentTags">the <see cref="OpenApiTag"/>s to be added to the swagger doc</param>
-    public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings, params OpenApiTag[] documentTags)
-    {
-        settings.AddOperationFilter(ctx =>
-        {
-            foreach (var t in documentTags)
-                ctx.Document.Tags.Add(t);
-            return true;
-        });
-    }
-
-    /// <summary>
-    /// add swagger tag descriptions to the document
-    /// </summary>
-    /// <param name="documentTags">value tuples containing tag names and their descriptions</param>
-    public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings, params (string tagName, string tagDescription)[] documentTags)
-    {
-        settings.AddOperationFilter(ctx =>
-        {
-            foreach (var (tagName, tagDescription) in documentTags)
-            {
-                ctx.Document.Tags.Add(new OpenApiTag
-                {
-                    Name = tagName,
-                    Description = tagDescription
-                });
-            }
-            return true;
-        });
-    }
-
-    /// <summary>
     /// enable support for FastEndpoints and create a swagger document.
     /// </summary>
     /// <param name="options">swagger document configuration options</param>
@@ -121,32 +47,26 @@ public static class Extensions
             EnableFastEndpoints(generator, doc);
             if (doc.EndpointFilter is not null) generator.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
             if (doc.ExcludeNonFastEndpoints) generator.OperationProcessors.Insert(0, new FastEndpointsFilter());
+            if (doc.TagDescriptions is not null)
+            {
+                generator.AddOperationFilter(ctx =>
+                {
+                    foreach (var kvp in doc.TagDescriptions)
+                    {
+                        ctx.Document.Tags.Add(new OpenApiTag
+                        {
+                            Name = kvp.Key,
+                            Description = kvp.Value
+                        });
+                    }
+                    return true;
+                });
+            }
             if (doc.EnableJWTBearerAuth) generator.EnableJWTBearerAuth();
             doc.DocumentSettings?.Invoke(generator);
             if (doc.RemoveEmptyRequestSchema || doc.FlattenSchema) generator.FlattenInheritanceHierarchy = true;
         });
         return services;
-    }
-
-    //todo: remove at next major version
-    [Obsolete("Use the SwaggerDocument() method!")]
-    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services, Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null, Action<JsonSerializerOptions>? serializerSettings = null, bool addJWTBearerAuth = true, int tagIndex = 1, TagCase tagCase = TagCase.TitleCase, int minEndpointVersion = 0, int maxEndpointVersion = 0, bool shortSchemaNames = false, bool removeEmptySchemas = false, bool excludeNonFastEndpoints = false)
-    {
-        return SwaggerDocument(
-            services: services,
-            options: o =>
-            {
-                o.DocumentSettings = settings;
-                o.SerializerSettings = serializerSettings;
-                o.EnableJWTBearerAuth = addJWTBearerAuth;
-                o.AutoTagPathSegmentIndex = tagIndex;
-                o.TagCase = tagCase;
-                o.MinEndpointVersion = minEndpointVersion;
-                o.MaxEndpointVersion = maxEndpointVersion;
-                o.ShortSchemaNames = shortSchemaNames;
-                o.RemoveEmptyRequestSchema = removeEmptySchemas;
-                o.ExcludeNonFastEndpoints = excludeNonFastEndpoints;
-            });
     }
 
     /// <summary>
@@ -162,6 +82,31 @@ public static class Extensions
         app.UseOpenApi(config);
         app.UseSwaggerUi3((c => c.ConfigureDefaults()) + uiConfig);
         return app;
+    }
+
+    /// <summary>
+    /// enable support for FastEndpoints in swagger
+    /// </summary>
+    /// <param name="documentOptions">the document options</param>
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, Action<DocumentOptions> documentOptions)
+    {
+        var doc = new DocumentOptions();
+        documentOptions(doc);
+        EnableFastEndpoints(settings, doc);
+    }
+
+    /// <summary>
+    /// enable jwt bearer authorization support
+    /// </summary>
+    public static void EnableJWTBearerAuth(this AspNetCoreOpenApiDocumentGeneratorSettings settings)
+    {
+        settings.AddAuth("JWTBearerAuth", new OpenApiSecurityScheme
+        {
+            Type = OpenApiSecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            Description = "Enter a JWT token to authorize the requests..."
+        });
     }
 
     /// <summary>
@@ -201,11 +146,6 @@ public static class Extensions
 
         return s;
     }
-
-    //todo: remove at next major version
-    [Obsolete("Use the EndpointFilter property on the DocumentOptions object at the top level!")]
-    public static void EndpointFilter(this AspNetCoreOpenApiDocumentGeneratorSettings x, Func<EndpointDefinition, bool> filter)
-        => x.OperationProcessors.Insert(0, new EndpointFilter(filter));
 
     /// <summary>
     /// mark all non-nullable properties of the schema as required in the swagger document.
@@ -286,5 +226,64 @@ public static class Extensions
         settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
         settings.OperationProcessors.Add(new OperationProcessor(opts));
         settings.DocumentProcessors.Add(new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion));
+    }
+
+    //todo: remove at next major version
+    [Obsolete("Use EnableFastEndpoints(Action<DocumentOptions>) instead!")]
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, TagCase tagCase, int minEndpointVersion, int maxEndpointVersion, bool shortSchemaNames, bool removeEmptySchemas)
+    {
+        EnableFastEndpoints(settings, new DocumentOptions()
+        {
+            AutoTagPathSegmentIndex = tagIndex,
+            TagCase = tagCase,
+            MinEndpointVersion = minEndpointVersion,
+            MaxEndpointVersion = maxEndpointVersion,
+            ShortSchemaNames = shortSchemaNames,
+            RemoveEmptyRequestSchema = removeEmptySchemas
+        });
+    }
+
+    //todo: remove at next major version
+    [Obsolete("Use the EndpointFilter property on the DocumentOptions object at the top level!")]
+    public static void EndpointFilter(this AspNetCoreOpenApiDocumentGeneratorSettings x, Func<EndpointDefinition, bool> filter)
+        => x.OperationProcessors.Insert(0, new EndpointFilter(filter));
+
+    //todo: remove at next major version
+    [Obsolete("Use the SwaggerDocument() method!")]
+    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services, Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null, Action<JsonSerializerOptions>? serializerSettings = null, bool addJWTBearerAuth = true, int tagIndex = 1, TagCase tagCase = TagCase.TitleCase, int minEndpointVersion = 0, int maxEndpointVersion = 0, bool shortSchemaNames = false, bool removeEmptySchemas = false, bool excludeNonFastEndpoints = false)
+    {
+        return SwaggerDocument(
+            services: services,
+            options: o =>
+            {
+                o.DocumentSettings = settings;
+                o.SerializerSettings = serializerSettings;
+                o.EnableJWTBearerAuth = addJWTBearerAuth;
+                o.AutoTagPathSegmentIndex = tagIndex;
+                o.TagCase = tagCase;
+                o.MinEndpointVersion = minEndpointVersion;
+                o.MaxEndpointVersion = maxEndpointVersion;
+                o.ShortSchemaNames = shortSchemaNames;
+                o.RemoveEmptyRequestSchema = removeEmptySchemas;
+                o.ExcludeNonFastEndpoints = excludeNonFastEndpoints;
+            });
+    }
+
+    //todo: remove at next major version
+    [Obsolete("Use the TagDescriptions property/dictionary on the DocumentOptions object at the top level!")]
+    public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings, params (string tagName, string tagDescription)[] documentTags)
+    {
+        settings.AddOperationFilter(ctx =>
+        {
+            foreach (var (tagName, tagDescription) in documentTags)
+            {
+                ctx.Document.Tags.Add(new OpenApiTag
+                {
+                    Name = tagName,
+                    Description = tagDescription
+                });
+            }
+            return true;
+        });
     }
 }

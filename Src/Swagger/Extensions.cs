@@ -128,6 +128,13 @@ public static class Extensions
     }
 
     /// <summary>
+    /// the "Try It Out" button is activated by default. call this method to de-activate it by default.
+    /// set <see cref="SwaggerUi3Settings.EnableTryItOut"/> to <c>false</c> to remove the button from ui.
+    /// </summary>
+    public static void DeActivateTryItOut(this SwaggerUi3Settings s)
+        => s.AdditionalSettings.Remove("tryItOutEnabled");
+
+    /// <summary>
     /// add swagger auth for this open api document
     /// </summary>
     /// <param name="schemeName">the authentication scheme</param>

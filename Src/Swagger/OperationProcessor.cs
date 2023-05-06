@@ -441,6 +441,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         {
             if (key is null) return;
             schema.Properties.Remove(key);
+            schema.RequiredProperties.Remove(key); //because validation schema processor may have added this prop/key, which should be removed when the prop is being removed from the schema
             foreach (var s in schema.AllOf.Union(schema.AllInheritedSchemas))
                 Remove(s, key);
         }

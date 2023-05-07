@@ -3711,6 +3711,23 @@
           "GuidTest": {
             "type": "string",
             "format": "guid"
+          },
+          "Event": {
+            "$ref": "#/components/schemas/TestCasesEventHandlingTestSomeEvent"
+          }
+        }
+      },
+      "TestCasesEventHandlingTestSomeEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "One": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Two": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

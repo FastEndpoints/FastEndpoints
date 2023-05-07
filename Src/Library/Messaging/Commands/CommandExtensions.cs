@@ -8,7 +8,6 @@ public static class CommandExtensions
     /// <summary>
     /// executes the command that does not return a result
     /// </summary>
-    /// <typeparam name="TCommand">the type of the command</typeparam>
     /// <param name="command">the command to execute</param>
     /// <param name="ct">optional cancellation token</param>
     /// <exception cref="InvalidOperationException">thrown when a handler for the command cannot be instantiated</exception>

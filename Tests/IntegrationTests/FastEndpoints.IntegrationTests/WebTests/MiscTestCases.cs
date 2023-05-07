@@ -668,7 +668,7 @@ public class MiscTestCases : EndToEndTestBase
     }
 
     [Fact]
-    public async Task TestEventHandling()
+    public async Task EventHandling()
     {
         var event1 = new NewItemAddedToStock { ID = 1, Name = "one", Quantity = 10 };
         var event2 = new NewItemAddedToStock { ID = 2, Name = "two", Quantity = 20 };

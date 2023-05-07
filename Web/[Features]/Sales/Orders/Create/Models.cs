@@ -1,4 +1,6 @@
-﻿namespace Sales.Orders.Create;
+﻿using TestCases.EventHandlingTest;
+
+namespace Sales.Orders.Create;
 
 public class Request
 {
@@ -18,4 +20,5 @@ public class Response
     public string? Message { get; set; }
     public string? AnotherMsg { get; set; }
     public Guid GuidTest { get; set; }
+    public SomeEvent Event { get; set; }
 }

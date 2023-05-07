@@ -1,4 +1,5 @@
 ﻿using TestCases.CommandBusTest;
+using TestCases.EventHandlingTest;
 using Web.PipelineBehaviors.PostProcessors;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
@@ -43,12 +44,16 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
 
         await PublishAsync(saleNotification, Mode.WaitForNone, t);
 
+        IEvent evnt = new SomeEvent();
+        await evnt.PublishAsync();
+
         await SendAsync(new Response
         {
             Message = "order created!",
             AnotherMsg = Map.ToEntity(r),
             OrderID = 54321,
-            GuidTest = r.GuidTest
+            GuidTest = r.GuidTest,
+            Event = (SomeEvent)evnt
         });
     }
 }

@@ -40,7 +40,7 @@ public class Endpoint : Endpoint<Request>
         Description(x => x.WithTags("Customer Save"));
     }
 
-    public override Task HandleAsync(Request r, CancellationToken t)
+    public async override Task HandleAsync(Request r, CancellationToken t)
     {
         Logger.LogInformation("customer creation has begun!");
 
@@ -49,6 +49,6 @@ public class Endpoint : Endpoint<Request>
 
         var msg = _emailer?.SendEmail() + " " + r.CreatedBy;
 
-        return SendAsync(msg ?? "emailer not resolved!");
+        await SendAsync(msg ?? "emailer not resolved!");
     }
 }

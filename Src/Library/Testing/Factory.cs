@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace FastEndpoints;
 
@@ -10,50 +9,38 @@ namespace FastEndpoints;
 /// </summary>
 public static class Factory
 {
+    private static readonly IEndpointFactory epFactory = new EndpointFactory();
+
     /// <summary>
     /// get an instance of an endpoint suitable for unit testing
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint to create an instance of</typeparam>
     /// <param name="httpContext">a default http context object</param>
-    /// <param name="dependencies">the dependencies of the endpoint if it has injected dependencies</param>
-    public static TEndpoint Create<TEndpoint>(DefaultHttpContext httpContext, params object?[]? dependencies) where TEndpoint : class, IEndpoint
+    /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected dependencies</param>
+    public static TEndpoint Create<TEndpoint>(DefaultHttpContext httpContext, params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
     {
-        if (Config.ServiceResolver is null)
+        if (Config.ServiceResolver is null) //only ever set it once
         {
             var services = new ServiceCollection();
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
+            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
             services.AddSingleton(typeof(Event<>));
-            Config.ServiceResolver = new ServiceResolver(services.BuildServiceProvider());
+            var svcProvider = services.BuildServiceProvider();
+            Config.ServiceResolver = new ServiceResolver(svcProvider);
         }
 
-        var tEndpoint = typeof(TEndpoint);
-        var defaultConstructor = tEndpoint.GetConstructor(Type.EmptyTypes);
         BaseEndpoint ep;
-        if (defaultConstructor != null)
-        {
-            ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint)!;
-            var props = tEndpoint.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead && p.CanWrite);
-            foreach (var dep in dependencies ?? Array.Empty<object>())
-            {
-                foreach(var prop in props)
-                {
-                    if (prop.PropertyType.IsAssignableFrom(dep!.GetType()))
-                    {
-                        prop.SetValue(ep, dep);
-                    }
-                }
-            }
-        }
+        var tEndpoint = typeof(TEndpoint);
+        var epDef = new EndpointDefinition(
+            tEndpoint,
+            tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest);
+
+        if (ctorDependencies.Length > 0)
+            ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, ctorDependencies)!; //ctor injection only
         else
-        {
-            ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, dependencies)!;
-        }
-        ep.Definition = new()
-        {
-            EndpointType = tEndpoint,
-            ReqDtoType = tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest,
-        };
-        ep.Definition.Initialize(ep, httpContext);
+            ep = epFactory.Create(epDef, httpContext); //ctor & property injection
+
+        epDef.Initialize(ep, httpContext);
         return (ep as TEndpoint)!;
     }
 
@@ -62,21 +49,21 @@ public static class Factory
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint to create an instance of</typeparam>
     /// <param name="httpContext">an action for configuring the default http context object</param>
-    /// <param name="dependencies">the dependencies of the endpoint if it has any constructor injected arguments</param>
-    public static TEndpoint Create<TEndpoint>(Action<DefaultHttpContext> httpContext, params object?[]? dependencies) where TEndpoint : class, IEndpoint
+    /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected arguments</param>
+    public static TEndpoint Create<TEndpoint>(Action<DefaultHttpContext> httpContext, params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
     {
         var ctx = new DefaultHttpContext();
         httpContext(ctx);
-        return Create<TEndpoint>(ctx, dependencies);
+        return Create<TEndpoint>(ctx, ctorDependencies);
     }
 
     /// <summary>
     /// get an instance of an endpoint suitable for unit testing
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint to create an instance of</typeparam>
-    /// <param name="dependencies">the dependencies of the endpoint if it has any constructor injected arguments</param>
-    public static TEndpoint Create<TEndpoint>(params object?[]? dependencies) where TEndpoint : class, IEndpoint
+    /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected dependencies</param>
+    public static TEndpoint Create<TEndpoint>(params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
     {
-        return Create<TEndpoint>(new DefaultHttpContext(), dependencies)!;
+        return Create<TEndpoint>(new DefaultHttpContext(), ctorDependencies)!;
     }
 }

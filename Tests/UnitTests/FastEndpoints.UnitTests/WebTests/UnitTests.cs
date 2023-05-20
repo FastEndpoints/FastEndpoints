@@ -72,10 +72,9 @@ public class UnitTests
 
             var loggerFactory = A.Fake<ILoggerFactory>();
             services.AddSingleton(loggerFactory);
-
+            services.AddSingleton(emailer);
             ctx.RequestServices = services.BuildServiceProvider();
-        }
-            , emailer);
+        });
 
         var req = new Customers.CreateWithPropertiesDI.Request
         {

@@ -174,27 +174,10 @@ internal sealed class EndpointData
 
         return epList.Select(x =>
         {
-            var def = new EndpointDefinition()
-            {
-                EndpointType = x.tEndpoint,
-                ReqDtoType = x.tRequest,
-            };
+            var def = new EndpointDefinition(x.tEndpoint, x.tRequest);
 
             if (mapperDict.TryGetValue(x.tEndpoint, out var mapper))
                 def.MapperType = mapper;
-
-            var serviceBoundEpProps = def.EndpointType
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                .Where(p => p.CanRead && p.CanWrite && !p.IsDefined(Types.DontInjectAttribute))
-                .Select(p => new ServiceBoundEpProp()
-                {
-                    PropName = p.Name,
-                    PropType = p.PropertyType,
-                })
-                .ToArray();
-
-            if (serviceBoundEpProps.Length > 0)
-                def.ServiceBoundEpProps = serviceBoundEpProps;
 
             var implementsConfigure = false;
             var implementsHandleAsync = false;

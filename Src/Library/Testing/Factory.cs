@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace FastEndpoints;
 
@@ -26,7 +27,27 @@ public static class Factory
         }
 
         var tEndpoint = typeof(TEndpoint);
-        var ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, dependencies)!;
+        var defaultConstructor = tEndpoint.GetConstructor(Type.EmptyTypes);
+        BaseEndpoint ep;
+        if (defaultConstructor != null)
+        {
+            ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint)!;
+            var props = tEndpoint.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead && p.CanWrite);
+            foreach (var dep in dependencies ?? Array.Empty<object>())
+            {
+                foreach(var prop in props)
+                {
+                    if (prop.PropertyType.IsAssignableFrom(dep!.GetType()))
+                    {
+                        prop.SetValue(ep, dep);
+                    }
+                }
+            }
+        }
+        else
+        {
+            ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, dependencies)!;
+        }
         ep.Definition = new()
         {
             EndpointType = tEndpoint,

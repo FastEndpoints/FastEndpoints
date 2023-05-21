@@ -22,9 +22,7 @@ public static class Factory
         if (Config.ServiceResolver is null) //only ever set it once
         {
             var services = new ServiceCollection();
-            services.AddSingleton<ILoggerFactory, LoggerFactory>();
-            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
-            services.AddSingleton(typeof(Event<>));
+            services.AddDefaultFastEndpointServices();
             var svcProvider = services.BuildServiceProvider();
             Config.ServiceResolver = new ServiceResolver(svcProvider);
         }
@@ -65,5 +63,11 @@ public static class Factory
     public static TEndpoint Create<TEndpoint>(params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
     {
         return Create<TEndpoint>(new DefaultHttpContext(), ctorDependencies)!;
+    }
+    public static IServiceCollection AddDefaultFastEndpointServices(this IServiceCollection services)
+    {
+       return services.AddSingleton<ILoggerFactory, LoggerFactory>()
+            .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
+            .AddSingleton(typeof(Event<>));
     }
 }

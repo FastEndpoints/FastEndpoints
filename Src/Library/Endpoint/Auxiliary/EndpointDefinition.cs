@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 using static FastEndpoints.Constants;
@@ -14,10 +15,16 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class EndpointDefinition
 {
+    public EndpointDefinition(Type endpointType, Type requestDtoType)
+    {
+        EndpointType = endpointType;
+        ReqDtoType = requestDtoType;
+    }
+
     //these can only be set from internal code but accessible for user
-    public Type EndpointType { get; internal set; }
+    public Type EndpointType { get; init; }
     public Type? MapperType { get; internal set; }
-    public Type ReqDtoType { get; internal set; }
+    public Type ReqDtoType { get; init; }
     public string[]? Routes { get; internal set; }
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public Type? ValidatorType { get; internal set; }
@@ -56,7 +63,8 @@ public sealed class EndpointDefinition
     internal object? RequestBinder;
     internal List<object> PreProcessorList = new();
     internal List<object> PostProcessorList = new();
-    internal ServiceBoundEpProp[]? ServiceBoundEpProps;
+    private ServiceBoundEpProp[]? _serviceBoundEpProps;
+    internal ServiceBoundEpProp[]? ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
@@ -393,6 +401,19 @@ public sealed class EndpointDefinition
     public void Validator<TValidator>() where TValidator : IValidator
     {
         ValidatorType = typeof(TValidator);
+    }
+
+    private ServiceBoundEpProp[]? GetServiceBoundEpProps()
+    {
+        return EndpointType
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+            .Where(p => p.CanRead && p.CanWrite && !p.IsDefined(Types.DontInjectAttribute))
+            .Select(p => new ServiceBoundEpProp()
+            {
+                PropName = p.Name,
+                PropType = p.PropertyType,
+            })
+            .ToArray();
     }
 }
 

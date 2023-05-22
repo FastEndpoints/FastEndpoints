@@ -39,18 +39,30 @@ public class UnitTests
         var emailer = A.Fake<IEmailService>();
         A.CallTo(() => emailer.SendEmail()).Returns("test email");
 
-        var ep = Factory.Create<Customers.Create.Endpoint>(ctx =>
-            {
-                var services = new ServiceCollection();
-
-                var loggerFactory = A.Fake<ILoggerFactory>();
-                services.AddSingleton(loggerFactory);
-
-                ctx.RequestServices = services.BuildServiceProvider();
-            }
-            , emailer);
+        var ep = Factory.Create<Customers.Create.Endpoint>(emailer);
 
         var req = new Customers.Create.Request
+        {
+            CreatedBy = "by harry potter",
+        };
+
+        await ep.HandleAsync(req, default);
+
+        ep.Response.Should().Be("test email by harry potter");
+    }
+
+    [Fact]
+    public async Task handle_with_correct_input_with_property_di_without_context_should_set_create_customer_response_correctly()
+    {
+        var emailer = A.Fake<IEmailService>();
+        A.CallTo(() => emailer.SendEmail()).Returns("test email");
+
+        var ep = Factory.Create<Customers.CreateWithPropertiesDI.Endpoint>(ctx =>
+        {
+            ctx.AddTestServices(s => s.AddSingleton(emailer));
+        });
+
+        var req = new Customers.CreateWithPropertiesDI.Request
         {
             CreatedBy = "by harry potter",
         };
@@ -129,9 +141,7 @@ public class UnitTests
 
         var ep = Factory.Create<Inventory.Manage.Create.Endpoint>(ctx =>
         {
-            var services = new ServiceCollection();
-            services.AddSingleton(linkgen);
-            ctx.RequestServices = services.BuildServiceProvider();
+            ctx.AddTestServices(s => s.AddSingleton(linkgen));
         });
 
         await ep.HandleAsync(new()

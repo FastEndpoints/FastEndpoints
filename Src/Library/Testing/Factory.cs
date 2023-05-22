@@ -22,7 +22,7 @@ public static class Factory
         if (Config.ServiceResolver is null) //only ever set it once
         {
             var services = new ServiceCollection();
-            services.AddDefaultFastEndpointServices();
+            services.AddServicesForUnitTesting();
             var svcProvider = services.BuildServiceProvider();
             Config.ServiceResolver = new ServiceResolver(svcProvider);
         }
@@ -64,10 +64,30 @@ public static class Factory
     {
         return Create<TEndpoint>(new DefaultHttpContext(), ctorDependencies)!;
     }
-    public static IServiceCollection AddDefaultFastEndpointServices(this IServiceCollection services)
+
+    /// <summary>
+    /// adds the minimum required set of services for unit testing FE endpoints
+    /// </summary>
+    public static IServiceCollection AddServicesForUnitTesting(this IServiceCollection services)
     {
-       return services.AddSingleton<ILoggerFactory, LoggerFactory>()
-            .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
-            .AddSingleton(typeof(Event<>));
+        return services
+             .AddSingleton<ILoggerFactory, LoggerFactory>()
+             .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
+             .AddSingleton(typeof(Event<>));
+    }
+
+    /// <summary>
+    /// register fake/mock/test services for the http context. typically only used with unit tests with the <c>Factory.Create()</c>" method/>
+    /// </summary>
+    /// <param name="s">an action for adding services to the <see cref="IServiceCollection"/></param>
+    /// <exception cref="InvalidOperationException">thrown if the <see cref="HttpContext.RequestServices"/> is not empty</exception>
+    public static void AddTestServices(this HttpContext ctx, Action<IServiceCollection> s)
+    {
+        if (ctx.RequestServices is not null) throw new InvalidOperationException("You cannot add services to this http context!");
+
+        var collection = new ServiceCollection();
+        collection.AddServicesForUnitTesting();
+        s(collection);
+        ctx.RequestServices = collection.BuildServiceProvider();
     }
 }

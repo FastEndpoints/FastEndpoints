@@ -320,5 +320,5 @@ public static class MainExtensions
     }
 }
 
-internal class StartupTimer { }
-internal class DuplicateHandlerRegistration { }
+internal sealed class StartupTimer { }
+internal sealed class DuplicateHandlerRegistration { }

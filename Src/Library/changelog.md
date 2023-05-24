@@ -6,6 +6,7 @@
 
 ### IMPROVEMENTS
 - prevent `UseFastEndpoint()` call overwriting the DI registered `JsonOptions` [#info](https://discord.com/channels/933662816458645504/1103132906681012295)
+- ability to optionally specify a status code when using the `Throw*(404)` endpoint error short-circuit methods #450
 
 ### FIXES
 - swagger schema properties marked as required by a validator were not removed from the schema in some cases [#info](https://discord.com/channels/933662816458645504/1101429081830064162)

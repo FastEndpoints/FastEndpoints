@@ -26,7 +26,5 @@ public sealed class UserPrivileges
     /// shortcut for adding a new <see cref="Claim"/> to the claim list for the given claim type and value
     /// </summary>
     /// <param name="claimType">the claim type to add</param>
-    public string this[string claimType] {
-        set => Claims.Add(new Claim(claimType, value));
-    }
+    public string this[string claimType] { set => Claims.Add(new Claim(claimType, value)); }
 }

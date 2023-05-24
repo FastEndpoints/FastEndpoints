@@ -35,30 +35,30 @@ internal static class ValidationExtensions
             });
     }
 
-    internal static void ThrowIfAnyErrors(this List<ValidationFailure> failures)
+    internal static void ThrowIfAnyErrors(this List<ValidationFailure> failures, int? statusCode)
     {
         if (failures.Count > 0)
-            throw new ValidationFailureException(failures, $"{nameof(ThrowIfAnyErrors)}() called");
+            throw new ValidationFailureException(failures, $"{nameof(ThrowIfAnyErrors)}() called") { StatusCode = statusCode };
     }
 
     [DoesNotReturn]
-    internal static void ThrowError(this List<ValidationFailure> failures, ValidationFailure failure)
+    internal static void ThrowError(this List<ValidationFailure> failures, ValidationFailure failure, int? statusCode)
     {
         failures.AddError(failure);
-        throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called!");
+        throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called!") { StatusCode = statusCode };
     }
 
     [DoesNotReturn]
-    internal static void ThrowError(this List<ValidationFailure> failures, string message)
+    internal static void ThrowError(this List<ValidationFailure> failures, string message, int? statusCode)
     {
         failures.AddError(message);
-        throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called!");
+        throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called!") { StatusCode = statusCode };
     }
 
     [DoesNotReturn]
-    internal static void ThrowError<T>(this List<ValidationFailure> failures, Expression<Func<T, object>> property, string errorMessage)
+    internal static void ThrowError<T>(this List<ValidationFailure> failures, Expression<Func<T, object>> property, string errorMessage, int? statusCode)
     {
         failures.AddError(property, errorMessage);
-        throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called");
+        throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called") { StatusCode = statusCode };
     }
 }

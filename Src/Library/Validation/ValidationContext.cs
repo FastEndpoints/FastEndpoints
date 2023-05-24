@@ -33,17 +33,17 @@ public class ValidationContext
 
     ///<inheritdoc/>
     [DoesNotReturn]
-    public void ThrowError(ValidationFailure failure)
-        => ValidationFailures.ThrowError(failure);
+    public void ThrowError(ValidationFailure failure, int? statusCode = null)
+        => ValidationFailures.ThrowError(failure, statusCode);
 
     ///<inheritdoc/>
     [DoesNotReturn]
-    public void ThrowError(string message)
-        => ValidationFailures.ThrowError(message);
+    public void ThrowError(string message, int? statusCode = null)
+        => ValidationFailures.ThrowError(message, statusCode);
 
     ///<inheritdoc/>
-    public void ThrowIfAnyErrors() =>
-        ValidationFailures.ThrowIfAnyErrors();
+    public void ThrowIfAnyErrors(int? statusCode = null) =>
+        ValidationFailures.ThrowIfAnyErrors(statusCode);
 }
 
 ///<inheritdoc/>
@@ -57,6 +57,6 @@ public class ValidationContext<T> : ValidationContext, IValidationErrors<T>
 
     ///<inheritdoc/>
     [DoesNotReturn]
-    public void ThrowError(Expression<Func<T, object>> property, string errorMessage)
-        => ValidationFailures.ThrowError(property, errorMessage);
+    public void ThrowError(Expression<Func<T, object>> property, string errorMessage, int? statusCode = null)
+        => ValidationFailures.ThrowError(property, errorMessage, statusCode);
 }

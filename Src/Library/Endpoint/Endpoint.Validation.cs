@@ -38,20 +38,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IVal
 
     ///<inheritdoc/>
     [DoesNotReturn]
-    public void ThrowError(ValidationFailure failure)
-        => ValidationFailures.ThrowError(failure);
+    public void ThrowError(ValidationFailure failure, int? statusCode = null)
+        => ValidationFailures.ThrowError(failure, statusCode);
 
     ///<inheritdoc/>
     [DoesNotReturn]
-    public void ThrowError(string message)
-        => ValidationFailures.ThrowError(message);
+    public void ThrowError(string message, int? statusCode = null)
+        => ValidationFailures.ThrowError(message, statusCode);
 
     ///<inheritdoc/>
     [DoesNotReturn]
-    public void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage)
-        => ValidationFailures.ThrowError(property, errorMessage);
+    public void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage, int? statusCode = null)
+        => ValidationFailures.ThrowError(property, errorMessage, statusCode);
 
     ///<inheritdoc/>
-    public void ThrowIfAnyErrors() =>
-        ValidationFailures.ThrowIfAnyErrors();
+    public void ThrowIfAnyErrors(int? statusCode = null) =>
+        ValidationFailures.ThrowIfAnyErrors(statusCode);
 }

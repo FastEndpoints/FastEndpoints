@@ -13,6 +13,11 @@ public sealed class ValidationFailureException : Exception
     /// </summary>
     public IEnumerable<ValidationFailure>? Failures { get; init; }
 
+    /// <summary>
+    /// the status code to be used when building the error response.
+    /// </summary>
+    public int? StatusCode { get; internal set; }
+
     public ValidationFailureException() { }
 
     public ValidationFailureException(string? message) : base(message) { }

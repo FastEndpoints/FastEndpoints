@@ -93,14 +93,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         }
         catch (ValidationFailureException x)
         {
-            await ValidationFailed(x);
+            await ValidationFailed(x, x.StatusCode);
         }
         finally
         {
             await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, ValidationFailures, ct);
         }
 
-        async Task ValidationFailed(Exception x)
+        async Task ValidationFailed(Exception x, int? statusCode = null)
         {
             await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
 
@@ -111,7 +111,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 throw x;
 
             if (!ResponseStarted) //pre-processors may have already sent a response
-                await SendErrorsAsync(FastEndpoints.Config.ErrOpts.StatusCode, ct);
+                await SendErrorsAsync(statusCode ?? FastEndpoints.Config.ErrOpts.StatusCode, ct);
         }
     }
 

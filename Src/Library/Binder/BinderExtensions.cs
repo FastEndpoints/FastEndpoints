@@ -50,7 +50,7 @@ internal static class BinderExtensions
         //we're only ever compiling a value parser for a given type once.
         //if a parser is requested for a type a second time, it will be returned from the dictionary instead of paying the compiling cost again.
         //the parser we return from here is then cached in RequestBinder PropCache entries avoiding the need to do repeated dictionary lookups here.
-        //it is also possible that the user has already registered a parser func via config at startup.
+        //it is also possible that the user has already registered a parser func for a given type via config at startup.
         return ParserFuncCache.GetOrAdd(type, GetCompiledValueParser);
 
         static Func<object?, ParseResult> GetCompiledValueParser(Type tProp)

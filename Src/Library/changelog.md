@@ -7,7 +7,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 ### ⚠️ Breaking Changes
 
 ---
-### 🆕 New
+### 📢 New
 
 ---
 ### 🚀 Improvements

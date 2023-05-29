@@ -104,4 +104,31 @@ public static class AuthExtensions
     /// <param name="claimType">the claim type to look for</param>
     public static string? ClaimValue(this ClaimsPrincipal principal, string claimType)
         => principal.FindFirstValue(claimType);
+
+    /// <summary>
+    /// adds multiple <see cref="Claim"/>s to the list.
+    /// </summary>
+    /// <param name="claims">the <see cref="Claim"/>s to append to the list.</param>
+    public static void Add(this List<Claim> list, params Claim[] claims)
+    {
+        list.AddRange(claims);
+    }
+
+    /// <summary>
+    /// adds multiple <see cref="Claim"/>s to the list.
+    /// </summary>
+    /// <param name="claims">the claim <c>Type</c> &amp; <c>Value</c> tuples to add to the list.</param>
+    public static void Add(this List<Claim> list, params (string claimType, string claimValue)[] claims)
+    {
+        list.AddRange(claims.Select(c => new Claim(c.claimType, c.claimValue)));
+    }
+
+    /// <summary>
+    /// adds multiple strings to a list.
+    /// </summary>
+    /// <param name="values">the strings to append to the list.</param>
+    public static void Add(this List<string> list, params string[] values)
+    {
+        list.AddRange(values);
+    }
 }

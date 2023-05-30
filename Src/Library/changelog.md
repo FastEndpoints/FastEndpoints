@@ -11,8 +11,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ---
 ### 🚀 Improvements
-
-New extension methods to make it easier to add `Roles` and `Permissions` with `params` and with tuples for `Claims` when creating JWT tokens.
+1️⃣ - New extension methods to make it easier to add `Roles` and `Permissions` with `params` and with tuples for `Claims` when creating JWT tokens.
 ```cs
 var jwtToken = JWTBearer.CreateToken(
     priviledges: u =>
@@ -29,6 +28,14 @@ var jwtToken = JWTBearer.CreateToken(
     });
 ```
 ##
+2️⃣ - The unit testing `Factory.Create<T>(...)` method will now inform which service you forgot to register if either the endpoint or one of the dependencies requires a service. 
+In which case, you'd be registering that service like below:
+```cs
+var ep = Factory.Create<Endpoint>(ctx =>
+{
+    ctx.AddTestServices(s => s.AddScoped<ScopedSvc>());
+});
+```
 
 ---
 ### 🪲 Fixes

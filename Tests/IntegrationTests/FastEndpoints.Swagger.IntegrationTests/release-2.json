@@ -238,6 +238,38 @@
         ]
       }
     },
+    "/api/test-cases/unit-test-concurrency": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesUnitTestConcurrencyTestEndpoint",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}": {
       "post": {
         "tags": [
@@ -3106,6 +3138,10 @@
             "format": "binary"
           }
         }
+      },
+      "TestCasesUnitTestConcurrencyTestRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesRouteBindingTestResponse": {
         "type": "object",

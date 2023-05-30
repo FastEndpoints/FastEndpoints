@@ -8,6 +8,23 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ---
 ### 📢 New
+1️⃣ - It's now possible to unit test endpoints (including dependencies) that use the `Resolve<T>()` methods to resolve services from DI. This is especially helpful when resolving `Scoped` services in `Mapper` classes. Just register the services that need to be "Resolved" like so:
+```cs
+var ep = Factory.Create<Endpoint>(ctx =>
+{
+    ctx.AddTestServices(s => s.AddTransient<MyService>());
+});
+```
+An example mapper that uses the `Resolve<T>()` method would be such as this:
+```cs
+public class Mapper : Mapper<Request, Response, Entity>
+{
+    public override Entity ToEntity(Request r)
+    {
+        var mySvc = Resolve<MyService>();
+    }
+}
+```
 
 ---
 ### 🚀 Improvements

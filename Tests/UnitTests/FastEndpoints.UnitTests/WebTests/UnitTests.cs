@@ -171,4 +171,18 @@ public class UnitTests
         ep.Response.Should().Be("101 blah");
         state.Duration.Should().BeGreaterThan(250);
     }
+
+    [Fact]
+    public async Task unit_test_concurrency_and_httpContext_isolation()
+    {
+        await Parallel.ForEachAsync(Enumerable.Range(1, 100), async (id, _) =>
+        {
+            var ep = Factory.Create<TestCases.UnitTestConcurrencyTest.Endpoint>(ctx =>
+            {
+                ctx.AddTestServices(s => s.AddSingleton(new TestCases.UnitTestConcurrencyTest.SingltonSVC(id)));
+            });
+
+            (await ep.ExecuteAsync(new() { Id = id }, default)).Should().Be(id);
+        });
+    }
 }

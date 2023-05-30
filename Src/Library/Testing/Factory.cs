@@ -19,19 +19,6 @@ public static class Factory
     /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected dependencies</param>
     public static TEndpoint Create<TEndpoint>(DefaultHttpContext httpContext, params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
     {
-        if (Config.ServiceResolver is null)
-        {
-            //Todo: Resolve<T>() methods are currently not supported for unit testing.
-            //      Because the root service provider we setup here only contains the bare minimum FE services.
-            //      User supplied services do not get added to the root container which the Resolve() methods use.
-            //      Figure out how to make them "Unit" testable.
-
-            var services = new ServiceCollection();
-            services.AddServicesForUnitTesting();
-            var svcProvider = services.BuildServiceProvider();
-            Config.ServiceResolver = new ServiceResolver(svcProvider);
-        }
-
         if (httpContext.RequestServices is null)
             httpContext.AddTestServices(_ => { });
 
@@ -93,9 +80,19 @@ public static class Factory
     {
         if (ctx.RequestServices is not null) throw new InvalidOperationException("You cannot add services to this http context!");
 
+        if (Config.ServiceResolver is null)
+        {
+            var services = new ServiceCollection();
+            services.AddHttpContextAccessor();
+            var svcProvider = services.BuildServiceProvider();
+            var accessor = svcProvider.GetRequiredService<IHttpContextAccessor>();
+            Config.ServiceResolver = new ServiceResolver(svcProvider, accessor);
+        }
+
         var collection = new ServiceCollection();
         collection.AddServicesForUnitTesting();
         s(collection);
         ctx.RequestServices = collection.BuildServiceProvider();
+        Config.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
     }
 }

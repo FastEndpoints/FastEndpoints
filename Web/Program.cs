@@ -5,6 +5,7 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Localization;
 using NSwag;
 using System.Globalization;
+using TestCases.UnitTestConcurrencyTest;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 
@@ -15,6 +16,7 @@ builder.Services.AddFastEndpoints();//(o => o.SourceGeneratorDiscoveredTypes = D
 builder.Services.AddJWTBearerAuth(builder.Configuration["TokenKey"]!);
 builder.Services.AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)));
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton(new SingltonSVC(0));
 
 builder.Services
     .SwaggerDocument(o =>

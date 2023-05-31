@@ -10,10 +10,13 @@ internal sealed class ServiceResolver : IServiceResolver
     private readonly IServiceProvider rootProvider;
     private readonly IHttpContextAccessor? ctxAccessor;
 
-    public ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ctxAccessor = null)
+    public bool TestMode { get; init; }
+
+    public ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ctxAccessor = null, bool isTestMode = false)
     {
         rootProvider = provider;
         this.ctxAccessor = ctxAccessor;
+        TestMode = isTestMode;
     }
 
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)

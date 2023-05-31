@@ -78,15 +78,18 @@ public static class Factory
     /// <exception cref="InvalidOperationException">thrown if the <see cref="HttpContext.RequestServices"/> is not empty</exception>
     public static void AddTestServices(this HttpContext ctx, Action<IServiceCollection> s)
     {
-        if (ctx.RequestServices is not null) throw new InvalidOperationException("You cannot add services to this http context!");
+        if (ctx.RequestServices is not null)
+            throw new InvalidOperationException("You cannot add services to this http context because it's not empty!");
 
         if (Config.ServiceResolver is null)
         {
-            var services = new ServiceCollection();
-            services.AddHttpContextAccessor();
-            var svcProvider = services.BuildServiceProvider();
-            var accessor = svcProvider.GetRequiredService<IHttpContextAccessor>();
-            Config.ServiceResolver = new ServiceResolver(svcProvider, accessor);
+            var testingProvider = new ServiceCollection()
+                .AddHttpContextAccessor()
+                .BuildServiceProvider();
+            Config.ServiceResolver = new ServiceResolver(
+                provider: testingProvider,
+                ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
+                isTestMode: true);
         }
 
         var collection = new ServiceCollection();

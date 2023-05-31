@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -97,5 +98,27 @@ public static class Factory
         s(collection);
         ctx.RequestServices = collection.BuildServiceProvider();
         Config.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
+    }
+
+    /// <summary>
+    /// get an instance of a validator that uses Resolve&lt;T&gt;() methods to obtain services registered in the DI container.
+    /// </summary>
+    /// <typeparam name="TValidator">the type of the validator</typeparam>
+    /// <param name="s">an action for adding services to the <see cref="IServiceCollection"/></param>
+    public static TValidator CreateValidator<TValidator>(Action<IServiceCollection> s) where TValidator : class, IValidator
+    {
+        new DefaultHttpContext().AddTestServices(s);
+        return (TValidator)Config.ServiceResolver.CreateInstance(typeof(TValidator));
+    }
+
+    /// <summary>
+    /// get an instance of a mapper that uses Resolve&lt;T&gt;() methods to obtain services registered in the DI container.
+    /// </summary>
+    /// <typeparam name="TMapper">the type of the mapper</typeparam>
+    /// <param name="s">an action for adding services to the <see cref="IServiceCollection"/></param>
+    public static TMapper CreateMapper<TMapper>(Action<IServiceCollection> s) where TMapper : class, IMapper
+    {
+        new DefaultHttpContext().AddTestServices(s);
+        return (TMapper)Config.ServiceResolver.CreateInstance(typeof(TMapper));
     }
 }

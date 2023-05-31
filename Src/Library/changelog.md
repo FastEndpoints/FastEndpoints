@@ -25,6 +25,15 @@ public class Mapper : Mapper<Request, Response, Entity>
     }
 }
 ```
+##
+2️⃣ - Mappers & Validators that use the `Resolve<T>()` methods to obtain services from the DI container can now be unit tested by supplying the necessary dependencies.
+```cs
+var validator = Factory.CreateValidator<AgeValidator>(s =>
+{
+    s.AddTransient<AgeService>();
+});
+```
+Use `Factory.CreateMapper<TMapper>()` the same way in order to get a testable instance of a mapper.
 
 ---
 ### 🚀 Improvements

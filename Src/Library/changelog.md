@@ -1,14 +1,20 @@
 ﻿
 ---
+
 ### ⭐ Looking For Sponsors
 FastEndpoints needs sponsorship to [sustain the project](https://github.com/FastEndpoints/FastEndpoints/issues/449). Please help out if you can.
 
-<!-- ---
-### ⚠️ Breaking Changes -->
-
 ---
+
+<!-- ### ⚠️ Breaking Changes -->
+
 ### 📢 New
-1️⃣ - It's now possible to unit test endpoints (including dependencies) that use the `Resolve<T>()` methods to resolve services from DI. This is especially helpful when resolving `Scoped` services in `Mapper` classes. Just register the services that need to be "Resolved" like so:
+
+<details>
+<summary>1️⃣ Unit test Endpoints that use Resolve&lt;T&gt;() methods</summary> 
+
+It's now possible to unit test endpoints (including dependencies) that use the `Resolve<T>()` methods to resolve services from DI. This is especially helpful when resolving `Scoped` services in `Mapper` classes. Just register the services that need to be "Resolved" like so:
+
 ```cs
 var ep = Factory.Create<Endpoint>(ctx =>
 {
@@ -16,6 +22,7 @@ var ep = Factory.Create<Endpoint>(ctx =>
 });
 ```
 An example mapper that uses the `Resolve<T>()` method would be such as this:
+
 ```cs
 public class Mapper : Mapper<Request, Response, Entity>
 {
@@ -25,19 +32,28 @@ public class Mapper : Mapper<Request, Response, Entity>
     }
 }
 ```
-##
-2️⃣ - Mappers & Validators that use the `Resolve<T>()` methods to obtain services from the DI container can now be unit tested by supplying the necessary dependencies.
+</details>
+
+<details>
+<summary>2️⃣ Unit test Mapper & Validator classes that use Resolve&lt;T&gt;()</summary>
+
+Mappers & Validators that use the `Resolve<T>()` methods to obtain services from the DI container can now be unit tested by supplying the necessary dependencies.
+
 ```cs
 var validator = Factory.CreateValidator<AgeValidator>(s =>
 {
     s.AddTransient<AgeService>();
 });
 ```
-Use `Factory.CreateMapper<TMapper>()` the same way in order to get a testable instance of a mapper.
 
----
-### 🚀 Improvements
-1️⃣ - New extension methods to make it easier to add `Roles` and `Permissions` with `params` and with tuples for `Claims` when creating JWT tokens.
+Use `Factory.CreateMapper<TMapper>()` the same way in order to get a testable instance of a mapper.
+</details>
+
+<details>
+<summary>3️⃣ Overloads for adding Claims, Roles & Permissions when creating JWT tokens</summary>
+
+New extension method overloads have been added to make it easier to add `Roles` and `Permissions` with `params` and with tuples for `Claims` when creating JWT tokens.
+
 ```cs
 var jwtToken = JWTBearer.CreateToken(
     priviledges: u =>
@@ -53,9 +69,15 @@ var jwtToken = JWTBearer.CreateToken(
             ("Email", req.Email));
     });
 ```
-##
-2️⃣ - The unit testing `Factory.Create<T>(...)` method will now inform which service you forgot to register if either the endpoint or one of the dependencies requires a service. 
-In which case, you'd be registering that service like below:
+</details>
+
+### 🚀 Improvements
+
+<details>
+<summary>1️⃣ Alert which service was not registered when unit testing</summary>
+
+The unit testing `Factory.Create<T>(...)` method will now inform which service you forgot to register if either the endpoint or one of the dependencies requires a service. In which case, you'd be registering that service like below:
+
 ```cs
 var ep = Factory.Create<Endpoint>(ctx =>
 {
@@ -63,5 +85,6 @@ var ep = Factory.Create<Endpoint>(ctx =>
 });
 ```
 
-<!-- ---
-### 🪲 Fixes -->
+</details>
+
+<!-- ### 🪲 Fixes -->

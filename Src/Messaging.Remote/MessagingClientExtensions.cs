@@ -15,7 +15,9 @@ public static class MessagingClientExtensions
         return host;
     }
 
-    public static Task<TResult> RemoteExecuteAsync<TCommand, TResult>(this TCommand command, CancellationToken ct = default) where TCommand : ICommand<TResult>
+    public static Task<TResult> RemoteExecuteAsync<TCommand, TResult>(this TCommand command, CancellationToken ct = default)
+        where TCommand : class, ICommand<TResult>
+        where TResult : class
     {
         var tCommand = command.GetType();
 

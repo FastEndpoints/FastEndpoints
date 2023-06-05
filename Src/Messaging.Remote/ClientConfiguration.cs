@@ -4,7 +4,7 @@ using Grpc.Net.Client.Configuration;
 
 namespace FastEndpoints;
 
-public sealed class RemoteServerConfiguration
+public sealed class ClientConfiguration
 {
     public GrpcChannelOptions ChannelOptions { get; set; } = new()
     {
@@ -39,7 +39,7 @@ public sealed class RemoteServerConfiguration
     private GrpcChannel? _channel;
     private readonly Dictionary<Type, IMethod> _methodMap = new(); //key: tCommand, val: method
 
-    public RemoteServerConfiguration(string address, IServiceProvider provider)
+    public ClientConfiguration(string address, IServiceProvider provider)
     {
         Address = address;
         _provider = provider;
@@ -50,7 +50,7 @@ public sealed class RemoteServerConfiguration
         where TResult : class
     {
         var tCommand = typeof(TCommand);
-        var remoteMap = MessagingClientExtensions.CommandToRemoteMap;
+        var remoteMap = ClientExtensions.CommandToRemoteMap;
 
         remoteMap.TryGetValue(tCommand, out var server);
 

@@ -3,15 +3,15 @@ using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
-public static class MessagingClientExtensions
+public static class ClientExtensions
 {
     //key: tCommand
     //val: remote server that has handler listening
-    internal static readonly Dictionary<Type, RemoteServerConfiguration> CommandToRemoteMap = new();
+    internal static readonly Dictionary<Type, ClientConfiguration> CommandToRemoteMap = new();
 
-    public static IHost MapRemoteHandlers(this IHost host, string serverAddress, Action<RemoteServerConfiguration> r)
+    public static IHost MapRemoteHandlers(this IHost host, string serverAddress, Action<ClientConfiguration> c)
     {
-        r(new RemoteServerConfiguration(serverAddress, host.Services));
+        c(new ClientConfiguration(serverAddress, host.Services));
         return host;
     }
 

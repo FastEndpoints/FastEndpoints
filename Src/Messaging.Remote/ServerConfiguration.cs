@@ -20,7 +20,7 @@ public sealed class ServerConfiguration
         _services = services;
     }
 
-    public void AddCommandHandler<TCommand, THandler, TResult>()
+    public void MapHandler<TCommand, THandler, TResult>()
         where TCommand : class, ICommand<TResult>
         where THandler : ICommandHandler<TCommand, TResult>
         where TResult : class

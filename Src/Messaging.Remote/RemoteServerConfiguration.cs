@@ -50,23 +50,12 @@ public sealed class RemoteServerConfiguration
         where TResult : class
     {
         var tCommand = typeof(TCommand);
-        var remoteMap = MessagingClientExtensions.CommandsToRemotesMap;
+        var remoteMap = MessagingClientExtensions.CommandToRemoteMap;
 
-        remoteMap.TryGetValue(tCommand, out var servers);
-        if (servers is null)
-        {
-            servers = new();
-            remoteMap[tCommand] = servers;
-        }
+        remoteMap.TryGetValue(tCommand, out var server);
 
-        if (!servers.Any(s => s.Address == Address))
-        {
-            servers.Add(this);
-        }
-        else
-        {
-            return;
-        }
+        if (server is null)
+            remoteMap[tCommand] = server = this;
 
         _channel ??= GrpcChannel.ForAddress(Address, ChannelOptions);
 
@@ -76,5 +65,16 @@ public sealed class RemoteServerConfiguration
             name: nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
             requestMarshaller: new MsgPackMarshaller<TCommand>(),
             responseMarshaller: new MsgPackMarshaller<TResult>());
+    }
+
+    internal Task<TResult> Execute<TCommand, TResult, TMethod>(TCommand cmd, Type tCommand, CancellationToken ct)
+        where TMethod : Method<TCommand, TResult>
+        where TCommand : class, ICommand<TResult>
+        where TResult : class
+    {
+        var invoker = _channel!.CreateCallInvoker();
+        var method = (Method<TCommand, TResult>)_methodMap[tCommand];
+        var call = invoker.AsyncUnaryCall(method, null, new CallOptions(cancellationToken: ct), cmd);
+        return call.ResponseAsync;
     }
 }

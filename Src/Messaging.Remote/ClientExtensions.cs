@@ -1,5 +1,7 @@
 ﻿using Grpc.Core;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
@@ -12,6 +14,10 @@ public static class ClientExtensions
     public static IHost MapRemoteHandlers(this IHost host, string serverAddress, Action<ClientConfiguration> c)
     {
         c(new ClientConfiguration(serverAddress, host.Services));
+        var logger = host.Services.GetRequiredService<ILogger<MessagingClient>>();
+        logger.LogInformation(
+            "Messaging client configured!\r\nServer: {address}\r\nTotal commands: {count}",
+            serverAddress, CommandToRemoteMap.Count);
         return host;
     }
 
@@ -27,3 +33,5 @@ public static class ClientExtensions
         return remote.Execute<TCommand, TResult, Method<TCommand, TResult>>(command, tCommand, ct);
     }
 }
+
+internal sealed class MessagingClient { }

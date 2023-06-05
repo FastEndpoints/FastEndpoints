@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <NoWarn>CS1591</NoWarn>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>GRPC based inter-process-communication for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>

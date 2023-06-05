@@ -14,6 +14,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj" />
+        <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
         <PackageReference Include="FluentValidation" Version="11.5.2" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />

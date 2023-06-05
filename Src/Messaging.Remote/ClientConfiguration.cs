@@ -57,7 +57,7 @@ public sealed class ClientConfiguration
         if (server is null)
             remoteMap[tCommand] = server = this;
 
-        _channel ??= GrpcChannel.ForAddress(Address, ChannelOptions);
+        _channel ??= GrpcChannel.ForAddress(Address);//, ChannelOptions);
 
         _methodMap[tCommand] = new Method<TCommand, TResult>(
             type: MethodType.Unary,
@@ -67,7 +67,7 @@ public sealed class ClientConfiguration
             responseMarshaller: new MsgPackMarshaller<TResult>());
     }
 
-    internal Task<TResult> Execute<TCommand, TResult, TMethod>(TCommand cmd, Type tCommand, CancellationToken ct)
+    internal async Task<TResult> Execute<TCommand, TResult, TMethod>(TCommand cmd, Type tCommand, CancellationToken ct)
         where TMethod : Method<TCommand, TResult>
         where TCommand : class, ICommand<TResult>
         where TResult : class
@@ -75,6 +75,7 @@ public sealed class ClientConfiguration
         var invoker = _channel!.CreateCallInvoker();
         var method = (Method<TCommand, TResult>)_methodMap[tCommand];
         var call = invoker.AsyncUnaryCall(method, null, new CallOptions(cancellationToken: ct), cmd);
-        return call.ResponseAsync;
+        var res = await call.ResponseAsync;
+        return res;
     }
 }

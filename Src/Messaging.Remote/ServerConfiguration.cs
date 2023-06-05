@@ -63,7 +63,7 @@ public sealed class ServerConfiguration
 
     private string SecurityScheme()
     {
-        if (Credentials is SslServerCredentials)
+        if (Credentials is Grpc.Core.SslCredentials)
             return "https://";
         else
             return "http://";

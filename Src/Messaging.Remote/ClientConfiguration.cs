@@ -60,10 +60,8 @@ public sealed class ClientConfiguration
         _commandExecutorMap[tCommand] = new CommandExecutor<TCommand, TResult>(_channel);
     }
 
-    internal Task<TResult> Execute<TResult>(ICommand<TResult> cmd, CancellationToken ct) where TResult : class
+    internal Task<TResult> Execute<TResult>(ICommand<TResult> cmd, Type tCommand, CancellationToken ct) where TResult : class
     {
-        var tCommand = cmd.GetType();
-
         if (!_commandExecutorMap.TryGetValue(tCommand, out var executor))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 

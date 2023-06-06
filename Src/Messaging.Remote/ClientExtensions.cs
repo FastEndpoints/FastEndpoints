@@ -20,16 +20,14 @@ public static class ClientExtensions
         return host;
     }
 
-    public static Task<TResult> RemoteExecuteAsync<TCommand, TResult>(this TCommand command, CancellationToken ct = default)
-        where TCommand : class, ICommand<TResult>
-        where TResult : class
+    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default) where TResult : class
     {
         var tCommand = command.GetType();
 
         if (!CommandToClientMap.TryGetValue(tCommand, out var client))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
-        return client.Execute(command, ct);
+        return client.Execute(command, tCommand, ct);
     }
 }
 

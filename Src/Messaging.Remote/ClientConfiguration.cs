@@ -6,6 +6,9 @@ namespace FastEndpoints;
 
 public sealed class ClientConfiguration
 {
+    private GrpcChannel? _channel;
+    private readonly Dictionary<Type, IMethod> _methodMap = new(); //key: tCommand, val: method
+
     public GrpcChannelOptions ChannelOptions { get; set; } = new()
     {
         HttpHandler = new SocketsHttpHandler
@@ -35,27 +38,22 @@ public sealed class ClientConfiguration
     };
     public string Address { get; init; }
 
-    private readonly IServiceProvider _provider;
-    private GrpcChannel? _channel;
-    private readonly Dictionary<Type, IMethod> _methodMap = new(); //key: tCommand, val: method
-
-    public ClientConfiguration(string address, IServiceProvider provider)
+    public ClientConfiguration(string address)
     {
         Address = address;
-        _provider = provider;
     }
 
-    public void Register<TCommand, TResult>()
-        where TCommand : class, ICommand<TResult>
-        where TResult : class
+    public void Register<TCommand, TResult>() where TCommand : class, ICommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);
-        var remoteMap = ClientExtensions.CommandToRemoteMap;
+        var remoteMap = ClientExtensions.CommandToClientMap;
 
         remoteMap.TryGetValue(tCommand, out var server);
 
         if (server is null)
-            remoteMap[tCommand] = server = this;
+            remoteMap[tCommand] = this;
+        else
+            return;
 
         _channel ??= GrpcChannel.ForAddress(Address);//, ChannelOptions);
 
@@ -67,15 +65,13 @@ public sealed class ClientConfiguration
             responseMarshaller: new MsgPackMarshaller<TResult>());
     }
 
-    internal async Task<TResult> Execute<TCommand, TResult, TMethod>(TCommand cmd, Type tCommand, CancellationToken ct)
-        where TMethod : Method<TCommand, TResult>
+    internal Task<TResult> Execute<TCommand, TResult>(TCommand cmd, Type tCommand, CancellationToken ct)
         where TCommand : class, ICommand<TResult>
         where TResult : class
     {
         var invoker = _channel!.CreateCallInvoker();
         var method = (Method<TCommand, TResult>)_methodMap[tCommand];
         var call = invoker.AsyncUnaryCall(method, null, new CallOptions(cancellationToken: ct), cmd);
-        var res = await call.ResponseAsync;
-        return res;
+        return call.ResponseAsync;
     }
 }

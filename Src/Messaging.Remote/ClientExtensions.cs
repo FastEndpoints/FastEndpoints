@@ -1,5 +1,4 @@
-﻿using Grpc.Core;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -9,15 +8,15 @@ public static class ClientExtensions
 {
     //key: tCommand
     //val: remote server that has handler listening
-    internal static readonly Dictionary<Type, ClientConfiguration> CommandToRemoteMap = new();
+    internal static readonly Dictionary<Type, ClientConfiguration> CommandToClientMap = new();
 
     public static IHost MapRemoteHandlers(this IHost host, string serverAddress, Action<ClientConfiguration> c)
     {
-        c(new ClientConfiguration(serverAddress, host.Services));
+        c(new ClientConfiguration(serverAddress));
         var logger = host.Services.GetRequiredService<ILogger<MessagingClient>>();
         logger.LogInformation(
             "Messaging client configured!\r\nServer: {address}\r\nTotal commands: {count}",
-            serverAddress, CommandToRemoteMap.Count);
+            serverAddress, CommandToClientMap.Count);
         return host;
     }
 
@@ -27,10 +26,10 @@ public static class ClientExtensions
     {
         var tCommand = command.GetType();
 
-        if (!CommandToRemoteMap.TryGetValue(tCommand, out var remote))
+        if (!CommandToClientMap.TryGetValue(tCommand, out var client))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
-        return remote.Execute<TCommand, TResult, Method<TCommand, TResult>>(command, tCommand, ct);
+        return client.Execute<TCommand, TResult>(command, tCommand, ct);
     }
 }
 

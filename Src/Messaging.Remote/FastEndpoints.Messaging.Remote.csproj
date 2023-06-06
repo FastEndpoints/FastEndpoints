@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="Grpc.Core" Version="2.46.6" />
-        <!--<PackageReference Include="Grpc.Net.Client" Version="2.53.0" />-->
+        <PackageReference Include="Grpc.Net.Client" Version="2.53.0" />
         <PackageReference Include="MessagePack" Version="2.5.108" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
@@ -23,9 +23,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\..\..\DOWNLOADS\grpc-dotnet-2.53.0\src\Grpc.Core.Api\Grpc.Core.Api.csproj" />
+      <!--<ProjectReference Include="..\..\..\..\..\DOWNLOADS\grpc-dotnet-2.53.0\src\Grpc.Core.Api\Grpc.Core.Api.csproj" />
       <ProjectReference Include="..\..\..\..\..\DOWNLOADS\grpc-dotnet-2.53.0\src\Grpc.Net.Client\Grpc.Net.Client.csproj" />
-      <ProjectReference Include="..\..\..\..\..\DOWNLOADS\grpc-dotnet-2.53.0\src\Grpc.Net.Common\Grpc.Net.Common.csproj" />
+      <ProjectReference Include="..\..\..\..\..\DOWNLOADS\grpc-dotnet-2.53.0\src\Grpc.Net.Common\Grpc.Net.Common.csproj" />-->
       <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
     </ItemGroup>
 

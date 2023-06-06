@@ -8,19 +8,18 @@ public static class MessagingServerExtensions
 {
     public static IServiceCollection AddMessagingServer(this IServiceCollection services, Action<ServerConfiguration> s)
     {
-        var opts = new ServerConfiguration(services);
-        s(opts);
+        var server = new ServerConfiguration(services);
+        s(server);
 
-        services.TryAddSingleton(opts);
+        services.TryAddSingleton(server);
 
         return services;
     }
 
     public static IHost StartMessagingServer(this IHost host)
     {
-        var config = host.Services.GetRequiredService<ServerConfiguration>();
-        config.SetServiceProvider(host.Services);
-        config.StartServer();
+        var server = host.Services.GetRequiredService<ServerConfiguration>();
+        server.StartServer(host.Services);
         return host;
     }
 }

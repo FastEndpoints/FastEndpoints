@@ -3,21 +3,19 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
-internal sealed class HandlerExecutor<TCommand, THandler, TResult>
+internal abstract class HandlerExecutorBase
+{
+    internal static IServiceProvider ServiceProvider { get; set; } = default!;
+}
+
+internal sealed class HandlerExecutor<TCommand, THandler, TResult> : HandlerExecutorBase
     where TCommand : class, ICommand<TResult>
     where THandler : ICommandHandler<TCommand, TResult>
     where TResult : class
 {
-    private readonly IServiceProvider _provider;
-
-    public HandlerExecutor(IServiceProvider provider)
+    internal static Task<TResult> Execute(TCommand cmd, ServerCallContext ctx)
     {
-        _provider = provider;
-    }
-
-    internal Task<TResult> Execute(TCommand cmd, ServerCallContext ctx)
-    {
-        var handler = _provider.GetRequiredService<THandler>();
+        var handler = ServiceProvider.GetRequiredService<THandler>();
         return handler.ExecuteAsync(cmd, ctx.CancellationToken);
     }
 }

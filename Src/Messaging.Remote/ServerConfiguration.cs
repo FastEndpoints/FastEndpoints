@@ -12,7 +12,6 @@ public sealed class ServerConfiguration
     public ServerCredentials Credentials { get; set; } = ServerCredentials.Insecure;
 
     private Server? _server;
-    private IServiceProvider _provider = default!;
     private readonly IServiceCollection _services;
 
     public ServerConfiguration(IServiceCollection services)
@@ -22,7 +21,7 @@ public sealed class ServerConfiguration
 
     public void MapHandler<TCommand, THandler, TResult>()
         where TCommand : class, ICommand<TResult>
-        where THandler : ICommandHandler<TCommand, TResult>
+        where THandler : class, ICommandHandler<TCommand, TResult>
         where TResult : class
     {
         _server ??= new Server
@@ -30,32 +29,31 @@ public sealed class ServerConfiguration
             Ports = { new ServerPort(Host, Port, Credentials) }
         };
 
-        _services.TryAddTransient(typeof(THandler));
+        _services.TryAddTransient<THandler>();
 
         var b = ServerServiceDefinition.CreateBuilder();
 
         var method = new Method<TCommand, TResult>(
             type: MethodType.Unary,
-            serviceName: typeof(TCommand).FullName!,
-            name: nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
+            serviceName: "TEST",//typeof(TCommand).FullName!,
+            name: "ExecuteAsync",//nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
             requestMarshaller: new MsgPackMarshaller<TCommand>(),
             responseMarshaller: new MsgPackMarshaller<TResult>());
 
-        b.AddMethod(method, new HandlerExecutor<TCommand, THandler, TResult>(_provider).Execute);
+        b.AddMethod(method, HandlerExecutor<TCommand, THandler, TResult>.Execute);
 
         _server.Services.Add(b.Build());
     }
 
-    internal void SetServiceProvider(IServiceProvider provider)
-        => _provider = provider;
-
-    internal void StartServer()
+    internal void StartServer(IServiceProvider provider)
     {
         if (_server?.Services.Any() is not true)
             throw new InvalidOperationException("Please configure the messaging server first!");
 
+        HandlerExecutorBase.ServiceProvider = provider;
+
         _server?.Start();
-        var logger = _provider.GetService<ILogger<MessagingServer>>();
+        var logger = provider.GetService<ILogger<MessagingServer>>();
         logger?.LogInformation(
             "Messaging server started!\r\nAddress: {scheme}{host}:{port}\r\nTotal Handlers: {count}",
             SecurityScheme(), Host, Port, _server?.Services.Count());
@@ -63,7 +61,7 @@ public sealed class ServerConfiguration
 
     private string SecurityScheme()
     {
-        if (Credentials is Grpc.Core.SslCredentials)
+        if (Credentials is SslServerCredentials)
             return "https://";
         else
             return "http://";

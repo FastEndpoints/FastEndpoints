@@ -55,7 +55,7 @@ public sealed class ClientConfiguration
         else
             return;
 
-        _channel ??= GrpcChannel.ForAddress(Address);//, ChannelOptions);
+        _channel ??= GrpcChannel.ForAddress(Address, ChannelOptions);
 
         _methodMap[tCommand] = new Method<TCommand, TResult>(
             type: MethodType.Unary,

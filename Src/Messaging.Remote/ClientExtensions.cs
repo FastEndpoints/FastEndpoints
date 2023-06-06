@@ -15,7 +15,7 @@ public static class ClientExtensions
         c(new ClientConfiguration(serverAddress));
         var logger = host.Services.GetRequiredService<ILogger<MessagingClient>>();
         logger.LogInformation(
-            "Messaging client configured!\r\nRemote Server: {address}\r\nTotal Commands: {count}",
+            " Messaging client configured!\r\n - Remote Server: {address}\r\n - Total Commands: {count}",
             serverAddress, CommandToClientMap.Count);
         return host;
     }

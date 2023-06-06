@@ -23,8 +23,7 @@ public sealed class RemoteConnection
             PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
             KeepAlivePingDelay = TimeSpan.FromSeconds(60),
             KeepAlivePingTimeout = TimeSpan.FromSeconds(5),
-            EnableMultipleHttp2Connections = true,
-            SslOptions = new() { RemoteCertificateValidationCallback = (_, __, ___, ____) => true }
+            EnableMultipleHttp2Connections = true
         },
         ServiceConfig = new()
         {
@@ -37,7 +36,7 @@ public sealed class RemoteConnection
                     InitialBackoff = TimeSpan.FromSeconds(1),
                     MaxBackoff = TimeSpan.FromSeconds(5),
                     BackoffMultiplier = 1.5,
-                    RetryableStatusCodes = { StatusCode.Unavailable, StatusCode.Unknown }
+                    RetryableStatusCodes = { StatusCode.Unavailable }
                 }
             }}
         },

@@ -75,7 +75,7 @@ public sealed class HandlerServer
         _server?.Start();
         var logger = provider.GetService<ILogger<MessagingServer>>();
         logger?.LogInformation(
-            " Messaging server started!\r\n - Listening On: {scheme}{host}:{port}\r\n - Total Handlers: {count}",
+            " Handler server started!\r\n Listening On: {scheme}{host}:{port}\r\n Total Handlers: {count}",
             SecurityScheme(), Host, Port, _server?.Services.Count());
     }
 

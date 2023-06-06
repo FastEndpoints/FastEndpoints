@@ -23,9 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <!--<ProjectReference Include="..\..\..\..\..\DOWNLOADS\grpc-dotnet-2.53.0\src\Grpc.Core.Api\Grpc.Core.Api.csproj" />
-      <ProjectReference Include="..\..\..\..\..\DOWNLOADS\grpc-dotnet-2.53.0\src\Grpc.Net.Client\Grpc.Net.Client.csproj" />
-      <ProjectReference Include="..\..\..\..\..\DOWNLOADS\grpc-dotnet-2.53.0\src\Grpc.Net.Common\Grpc.Net.Common.csproj" />-->
       <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
     </ItemGroup>
 

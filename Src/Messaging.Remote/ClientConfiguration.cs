@@ -59,8 +59,8 @@ public sealed class ClientConfiguration
 
         _methodMap[tCommand] = new Method<TCommand, TResult>(
             type: MethodType.Unary,
-            serviceName: "TEST",//typeof(TCommand).FullName!,
-            name: "ExecuteAsync",//nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
+            serviceName: typeof(TCommand).FullName!,
+            name: nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
             requestMarshaller: new MsgPackMarshaller<TCommand>(),
             responseMarshaller: new MsgPackMarshaller<TResult>());
     }

@@ -35,8 +35,8 @@ public sealed class ServerConfiguration
 
         var method = new Method<TCommand, TResult>(
             type: MethodType.Unary,
-            serviceName: "TEST",//typeof(TCommand).FullName!,
-            name: "ExecuteAsync",//nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
+            serviceName: typeof(TCommand).FullName!,
+            name: nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
             requestMarshaller: new MsgPackMarshaller<TCommand>(),
             responseMarshaller: new MsgPackMarshaller<TResult>());
 
@@ -55,7 +55,7 @@ public sealed class ServerConfiguration
         _server?.Start();
         var logger = provider.GetService<ILogger<MessagingServer>>();
         logger?.LogInformation(
-            "Messaging server started!\r\nAddress: {scheme}{host}:{port}\r\nTotal Handlers: {count}",
+            "Messaging server started!\r\n Listening On: {scheme}{host}:{port}\r\nTotal Handlers: {count}",
             SecurityScheme(), Host, Port, _server?.Services.Count());
     }
 

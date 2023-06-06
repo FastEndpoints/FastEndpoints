@@ -5,20 +5,40 @@ using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
-public sealed class ServerConfiguration
+/// <summary>
+/// represents a handler server that listens to incoming commands from remote servers
+/// </summary>
+public sealed class HandlerServer
 {
+    /// <summary>
+    /// the host address to bind to. specify * to bind on any host. default value: localhost
+    /// </summary>
     public string Host { get; set; } = "localhost";
+
+    /// <summary>
+    /// the port to bind to. default value: 6000
+    /// </summary>
     public int Port { get; set; } = 6000;
+
+    /// <summary>
+    /// server credentials for the server to configure encryption. default is no encryption.
+    /// </summary>
     public ServerCredentials Credentials { get; set; } = ServerCredentials.Insecure;
 
     private Server? _server;
     private readonly IServiceCollection _services;
 
-    public ServerConfiguration(IServiceCollection services)
+    internal HandlerServer(IServiceCollection services)
     {
         _services = services;
     }
 
+    /// <summary>
+    /// map a command handler this server is hosting.
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the incoming command</typeparam>
+    /// <typeparam name="THandler">the type of the handler for the incoming command</typeparam>
+    /// <typeparam name="TResult">the type of the result that will be returned from the handler</typeparam>
     public void MapHandler<TCommand, THandler, TResult>()
         where TCommand : class, ICommand<TResult>
         where THandler : class, ICommandHandler<TCommand, TResult>
@@ -48,7 +68,7 @@ public sealed class ServerConfiguration
     internal void StartServer(IServiceProvider provider)
     {
         if (_server?.Services.Any() is not true)
-            throw new InvalidOperationException("Please configure the messaging server first!");
+            throw new InvalidOperationException("Please configure the handler server first!");
 
         HandlerExecutorBase.ServiceProvider = provider;
 

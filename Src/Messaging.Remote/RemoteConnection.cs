@@ -4,11 +4,18 @@ using Grpc.Net.Client.Configuration;
 
 namespace FastEndpoints;
 
-public sealed class ClientConfiguration
+/// <summary>
+/// represents a connection to a remote server that hosts command handlers (<see cref="ICommandHandler{TCommand, TResult}"/>)
+/// <para>call <see cref="Register{TCommand, TResult}"/> method to map the commands</para>
+/// </summary>
+public sealed class RemoteConnection
 {
     private GrpcChannel? _channel;
     private readonly Dictionary<Type, ICommandExecutor> _commandExecutorMap = new(); //key: tCommand, val: command executor wrapper
 
+    /// <summary>
+    /// grpc channel settings
+    /// </summary>
     public GrpcChannelOptions ChannelOptions { get; set; } = new()
     {
         HttpHandler = new SocketsHttpHandler
@@ -36,27 +43,34 @@ public sealed class ClientConfiguration
         },
         MaxRetryAttempts = 5
     };
-    public string Address { get; init; }
 
-    public ClientConfiguration(string address)
+    /// <summary>
+    /// the address of the remote server
+    /// </summary>
+    public string RemoteAddress { get; init; }
+
+    internal RemoteConnection(string address)
     {
-        Address = address;
+        RemoteAddress = address;
     }
 
+    /// <summary>
+    /// register a command (<see cref="ICommand{TResult}"/>) for this remote connection where the handler for this command is hosted/located.
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the command</typeparam>
+    /// <typeparam name="TResult">the type of the result</typeparam>
+    /// <exception cref="InvalidOperationException">thrown in case of duplicate registrations</exception>
     public void Register<TCommand, TResult>() where TCommand : class, ICommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);
-        var remoteMap = ClientExtensions.CommandToClientMap;
+        var remoteMap = RemoteConnectionExtensions.CommandToRemoteMap;
 
-        remoteMap.TryGetValue(tCommand, out var server);
-
-        if (server is null)
-            remoteMap[tCommand] = this;
+        if (remoteMap.TryGetValue(tCommand, out var remote))
+            throw new InvalidOperationException($"Command [{tCommand.FullName}] is already registered on [{remote.RemoteAddress}]");
         else
-            return;
+            remoteMap[tCommand] = this;
 
-        _channel ??= GrpcChannel.ForAddress(Address, ChannelOptions);
-
+        _channel = GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
         _commandExecutorMap[tCommand] = new CommandExecutor<TCommand, TResult>(_channel);
     }
 
@@ -66,37 +80,5 @@ public sealed class ClientConfiguration
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
         return ((ICommandExecutor<TResult>)executor).Execute(cmd, ct);
-    }
-}
-
-internal interface ICommandExecutor { }
-
-internal interface ICommandExecutor<TResult> : ICommandExecutor where TResult : class
-{
-    Task<TResult> Execute(ICommand<TResult> command, CancellationToken ct);
-}
-
-internal sealed class CommandExecutor<TCommand, TResult> : ICommandExecutor<TResult>
-    where TCommand : class, ICommand<TResult>
-    where TResult : class
-{
-    private readonly Method<TCommand, TResult> _method;
-    private readonly CallInvoker _invoker;
-
-    public CommandExecutor(GrpcChannel channel)
-    {
-        _invoker = channel.CreateCallInvoker();
-        _method = new Method<TCommand, TResult>(
-            type: MethodType.Unary,
-            serviceName: typeof(TCommand).FullName!,
-            name: nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
-            requestMarshaller: new MsgPackMarshaller<TCommand>(),
-            responseMarshaller: new MsgPackMarshaller<TResult>());
-    }
-
-    public Task<TResult> Execute(ICommand<TResult> cmd, CancellationToken ct)
-    {
-        var call = _invoker.AsyncUnaryCall(_method, null, new CallOptions(cancellationToken: ct), (TCommand)cmd);
-        return call.ResponseAsync;
     }
 }

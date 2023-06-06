@@ -7,7 +7,7 @@ namespace FastEndpoints;
 public sealed class ClientConfiguration
 {
     private GrpcChannel? _channel;
-    private readonly Dictionary<Type, IMethod> _methodMap = new(); //key: tCommand, val: method
+    private readonly Dictionary<Type, ICommandExecutor> _commandExecutorMap = new(); //key: tCommand, val: command executor wrapper
 
     public GrpcChannelOptions ChannelOptions { get; set; } = new()
     {
@@ -57,7 +57,38 @@ public sealed class ClientConfiguration
 
         _channel ??= GrpcChannel.ForAddress(Address, ChannelOptions);
 
-        _methodMap[tCommand] = new Method<TCommand, TResult>(
+        _commandExecutorMap[tCommand] = new CommandExecutor<TCommand, TResult>(_channel);
+    }
+
+    internal Task<TResult> Execute<TResult>(ICommand<TResult> cmd, CancellationToken ct) where TResult : class
+    {
+        var tCommand = cmd.GetType();
+
+        if (!_commandExecutorMap.TryGetValue(tCommand, out var executor))
+            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+
+        return ((ICommandExecutor<TResult>)executor).Execute(cmd, ct);
+    }
+}
+
+internal interface ICommandExecutor { }
+
+internal interface ICommandExecutor<TResult> : ICommandExecutor where TResult : class
+{
+    Task<TResult> Execute(ICommand<TResult> command, CancellationToken ct);
+}
+
+internal sealed class CommandExecutor<TCommand, TResult> : ICommandExecutor<TResult>
+    where TCommand : class, ICommand<TResult>
+    where TResult : class
+{
+    private readonly Method<TCommand, TResult> _method;
+    private readonly CallInvoker _invoker;
+
+    public CommandExecutor(GrpcChannel channel)
+    {
+        _invoker = channel.CreateCallInvoker();
+        _method = new Method<TCommand, TResult>(
             type: MethodType.Unary,
             serviceName: typeof(TCommand).FullName!,
             name: nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
@@ -65,13 +96,9 @@ public sealed class ClientConfiguration
             responseMarshaller: new MsgPackMarshaller<TResult>());
     }
 
-    internal Task<TResult> Execute<TCommand, TResult>(TCommand cmd, Type tCommand, CancellationToken ct)
-        where TCommand : class, ICommand<TResult>
-        where TResult : class
+    public Task<TResult> Execute(ICommand<TResult> cmd, CancellationToken ct)
     {
-        var invoker = _channel!.CreateCallInvoker();
-        var method = (Method<TCommand, TResult>)_methodMap[tCommand];
-        var call = invoker.AsyncUnaryCall(method, null, new CallOptions(cancellationToken: ct), cmd);
+        var call = _invoker.AsyncUnaryCall(_method, null, new CallOptions(cancellationToken: ct), (TCommand)cmd);
         return call.ResponseAsync;
     }
 }

@@ -29,7 +29,7 @@ public static class ClientExtensions
         if (!CommandToClientMap.TryGetValue(tCommand, out var client))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
-        return client.Execute<TCommand, TResult>(command, tCommand, ct);
+        return client.Execute(command, ct);
     }
 }
 

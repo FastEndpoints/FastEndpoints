@@ -41,10 +41,10 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = command.GetType();
 
-        if (!CommandToRemoteMap.TryGetValue(tCommand, out var client))
+        if (!CommandToRemoteMap.TryGetValue(tCommand, out var remote))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
-        return client.Execute(command, tCommand, ct);
+        return remote.Execute(command, tCommand, ct);
     }
 }
 

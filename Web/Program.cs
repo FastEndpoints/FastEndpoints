@@ -5,6 +5,7 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Localization;
 using NSwag;
 using System.Globalization;
+using TestCases.CommandBusTest;
 using TestCases.UnitTestConcurrencyTest;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
@@ -77,6 +78,8 @@ builder.Services
         o.ExcludeNonFastEndpoints = true;
     });
 
+builder.Services.AddHandlerServer(s => s.MapHandler<TestCommand, TestCommandHandler, string>());
+
 var app = builder.Build();
 
 var supportedCultures = new[] { new CultureInfo("en-US") };
@@ -127,9 +130,16 @@ app.UseEndpoints(c =>
 
 if (!app.Environment.IsProduction())
 {
-    app.UseOpenApi();
-    app.UseSwaggerUi3(s => s.ConfigureDefaults());
+    app.UseSwaggerGen();
 }
+
+if (app.Environment.ApplicationName != "testhost")
+{
+    //Todo: figure out why the grpc server can't be started in WAF.
+    app.StartHandlerServer();
+    app.MapRemoteHandlers("http://localhost:6000", r => r.Register<TestCommand, string>());
+}
+
 app.Run();
 
 public partial class Program { }

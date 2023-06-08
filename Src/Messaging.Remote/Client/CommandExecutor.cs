@@ -23,7 +23,7 @@ internal sealed class CommandExecutor<TCommand, TResult> : ICommandExecutor<TRes
         _method = new Method<TCommand, TResult>(
             type: MethodType.Unary,
             serviceName: typeof(TCommand).FullName!,
-            name: nameof(ICommandHandler<TCommand, TResult>.ExecuteAsync),
+            name: "",
             requestMarshaller: new MsgPackMarshaller<TCommand>(),
             responseMarshaller: new MsgPackMarshaller<TResult>());
     }

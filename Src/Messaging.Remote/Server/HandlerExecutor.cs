@@ -41,14 +41,18 @@ internal sealed class HandlerExecutor<TCommand, THandler, TResult> : IHandlerExe
             requestMarshaller: new MessagePackMarshaller<TCommand>(),
             responseMarshaller: new MessagePackMarshaller<TResult>());
 
-        var metadata = new List<object>
-        {
-            // Accepting CORS preflight means gRPC will allow requests with OPTIONS + preflight headers.
-            // If CORS middleware hasn't been configured then the request will reach gRPC handler.
-            // gRPC will return 405 response and log that CORS has not been configured.
-            new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true)
-        };
+        var metadata = new List<object>();
+        var handlerAttributes = GetHandlerExecMethodAttributes(tExecutor);
+        if (handlerAttributes?.Length > 0) metadata.AddRange(handlerAttributes);
+        metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
 
         ctx.AddUnaryMethod(method, metadata, invoker);
+
+        static object[]? GetHandlerExecMethodAttributes(Type tExecutor)
+        {
+            var tHandler = tExecutor.GenericTypeArguments[1];
+            var execMethod = tHandler.GetMethod(nameof(ICommandHandler<ICommand<object>, object>.ExecuteAsync));
+            return execMethod?.GetCustomAttributes(false);
+        }
     }
 }

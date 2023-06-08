@@ -1,4 +1,5 @@
-﻿using Web.Services;
+﻿using Microsoft.AspNetCore.Authorization;
+using Web.Services;
 
 namespace TestCases.CommandBusTest;
 
@@ -16,6 +17,7 @@ public class TestCommandHandler : ICommandHandler<TestCommand, string>
         _ = emailService.SendEmail(); //scoped service
     }
 
+    [AllowAnonymous]
     public Task<string> ExecuteAsync(TestCommand cmd, CancellationToken ct)
     {
         return Task.FromResult(cmd.FirstName + " " + cmd.LastName);

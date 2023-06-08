@@ -46,6 +46,17 @@ public static class RemoteConnectionExtensions
 
         return remote.Execute(command, tCommand, ct);
     }
+
+    //only used by integration tests
+    public static Task<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this ICommand<TResult> command, HttpMessageHandler httpMessageHandler)
+        where TCommand : class, ICommand<TResult>
+        where TResult : class
+    {
+        var remote = new RemoteConnection("http://testhost");
+        remote.ChannelOptions.HttpHandler = httpMessageHandler;
+        remote.Register<TCommand, TResult>();
+        return remote.Execute(command, typeof(TCommand), default);
+    }
 }
 
 internal sealed class MessagingClient { }

@@ -78,7 +78,7 @@ builder.Services
         o.ExcludeNonFastEndpoints = true;
     });
 
-builder.Services.AddHandlerServer(s => s.MapHandler<TestCommand, TestCommandHandler, string>());
+builder.AddHandlerServer();
 
 var app = builder.Build();
 
@@ -133,12 +133,19 @@ if (!app.Environment.IsProduction())
     app.UseSwaggerGen();
 }
 
-if (app.Environment.ApplicationName != "testhost")
+//SERVER
+app.MapHandlers(h =>
 {
-    //Todo: figure out why the grpc server can't be started in WAF.
-    app.StartHandlerServer();
-    app.MapRemoteHandlers("http://localhost:6000", r => r.Register<TestCommand, string>());
-}
+    h.Register<TestCommand, TestCommandHandler, string>();
+    h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
+});
+
+//CLIENT
+app.MapRemoteHandlers("http://test", c =>
+{
+    c.Register<TestCommand, string>();
+    c.Register<EchoCommand, EchoCommand>();
+});
 
 app.Run();
 

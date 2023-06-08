@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Grpc.AspNetCore.Server;
+using Grpc.AspNetCore.Server.Model;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
@@ -12,27 +15,27 @@ public static class HandlerServerExtensions
     /// <summary>
     /// configure the handler server which will host a collection of command handlers. this should only be called once per application.
     /// <para>
-    /// IMPORTANT: specify wich handlers this server will be hosting via <see cref="HandlerServer.MapHandler{TCommand, THandler, TResult}"/> method. which is accessible in the action <paramref name="s"/>.
+    /// IMPORTANT: specify wich handlers this server will be hosting via <see cref="MapHandlers(IEndpointRouteBuilder, Action{HandlerRegistry})"/> method.
     /// </para>
     /// </summary>
-    /// <param name="s">configuration action for the server</param>
-    public static IServiceCollection AddHandlerServer(this IServiceCollection services, Action<HandlerServer> s)
+    /// <param name="o">optional grpc service settings</param>
+    public static IGrpcServerBuilder AddHandlerServer(this WebApplicationBuilder bld, Action<GrpcServiceOptions>? o = null)
     {
-        var server = new HandlerServer(services);
-        s(server);
+        bld.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IServiceMethodProvider<>), typeof(ServiceMethodProvider<>)));
 
-        services.TryAddSingleton(server);
+        Action<GrpcServiceOptions> defaultOpts = o => o.IgnoreUnknownServices = true;
 
-        return services;
+        return bld.Services.AddGrpc(defaultOpts + o);
     }
 
     /// <summary>
-    /// start the handler server that was configured via <see cref="AddHandlerServer(IServiceCollection, Action{HandlerServer})"/>
+    /// specify wich handlers (<see cref="ICommandHandler{TCommand, TResult}"/>) this server will be hosting
     /// </summary>
-    public static IHost StartHandlerServer(this IHost host)
+    /// <param name="b"></param>
+    /// <param name="h"></param>
+    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerRegistry> h)
     {
-        var server = host.Services.GetRequiredService<HandlerServer>();
-        server.StartServer(host.Services);
-        return host;
+        h(new HandlerRegistry(b));
+        return b;
     }
 }

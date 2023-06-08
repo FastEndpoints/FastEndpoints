@@ -62,12 +62,8 @@ public sealed class RemoteConnection
     public void Register<TCommand, TResult>() where TCommand : class, ICommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);
-        var remoteMap = RemoteConnectionExtensions.CommandToRemoteMap;
 
-        if (remoteMap.TryGetValue(tCommand, out var remote))
-            throw new InvalidOperationException($"Command [{tCommand.FullName}] is already registered on [{remote.RemoteAddress}]");
-        else
-            remoteMap[tCommand] = this;
+        RemoteConnectionExtensions.CommandToRemoteMap[tCommand] = this;
 
         _channel = GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
         _commandExecutorMap[tCommand] = new CommandExecutor<TCommand, TResult>(_channel);

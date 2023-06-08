@@ -1,21 +1,54 @@
-﻿using Grpc.Core;
+﻿using Grpc.AspNetCore.Server.Model;
+using Grpc.Core;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace FastEndpoints;
 
-internal abstract class HandlerExecutorBase
+internal interface IHandlerExecutor
 {
-    internal static IServiceProvider ServiceProvider { get; set; } = default!;
+    void Bind<TExecutor>(ServiceMethodProviderContext<TExecutor> context) where TExecutor : class;
 }
 
-internal sealed class HandlerExecutor<TCommand, THandler, TResult> : HandlerExecutorBase
+internal sealed class HandlerExecutor<TCommand, THandler, TResult> : IHandlerExecutor
     where TCommand : class, ICommand<TResult>
     where THandler : ICommandHandler<TCommand, TResult>
     where TResult : class
 {
-    internal static Task<TResult> Execute(TCommand cmd, ServerCallContext ctx)
+    private static readonly ObjectFactory handlerFactory = ActivatorUtilities.CreateFactory(typeof(THandler), Type.EmptyTypes);
+
+    private static Task<TResult> Execute(HandlerExecutor<TCommand, THandler, TResult> _, TCommand cmd, ServerCallContext ctx)
     {
-        var handler = ServiceProvider.GetRequiredService<THandler>();
+        var handler = (THandler)handlerFactory(ctx.GetHttpContext().RequestServices, null);
         return handler.ExecuteAsync(cmd, ctx.CancellationToken);
+    }
+
+    public void Bind<TExecutor>(ServiceMethodProviderContext<TExecutor> ctx) where TExecutor : class
+    {
+        var tExecutor = typeof(TExecutor);
+
+        var executeMethod = tExecutor.GetMethod(nameof(Execute), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        var invoker = (UnaryServerMethod<TExecutor, TCommand, TResult>)Delegate.CreateDelegate(
+            typeof(UnaryServerMethod<TExecutor, TCommand, TResult>),
+            executeMethod);
+
+        var method = new Method<TCommand, TResult>(
+            type: MethodType.Unary,
+            serviceName: typeof(TCommand).FullName!,
+            name: "",
+            requestMarshaller: new MsgPackMarshaller<TCommand>(),
+            responseMarshaller: new MsgPackMarshaller<TResult>());
+
+        var metadata = new List<object>
+        {
+            // Accepting CORS preflight means gRPC will allow requests with OPTIONS + preflight headers.
+            // If CORS middleware hasn't been configured then the request will reach gRPC handler.
+            // gRPC will return 405 response and log that CORS has not been configured.
+            new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true)
+        };
+
+        ctx.AddUnaryMethod(method, metadata, invoker);
     }
 }

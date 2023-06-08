@@ -13,6 +13,7 @@
     <ItemGroup>
         <PackageReference Include="Grpc.Core" Version="2.46.6" />
         <PackageReference Include="Grpc.Net.Client" Version="2.53.0" />
+        <PackageReference Include="Grpc.AspNetCore.Server" Version="2.53.0" />
         <PackageReference Include="MessagePack" Version="2.5.108" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />

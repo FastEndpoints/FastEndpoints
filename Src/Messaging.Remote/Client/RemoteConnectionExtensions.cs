@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Grpc.Core;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -35,27 +36,34 @@ public static class RemoteConnectionExtensions
     /// execute the command on the relevant remote server and get back a result
     /// </summary>
     /// <typeparam name="TResult">the type of the result</typeparam>
-    /// <param name="ct">cancellation token</param>
+    /// <param name="options">call options</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default) where TResult : class
+    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, Action<CallOptions>? options = null) where TResult : class
     {
         var tCommand = command.GetType();
 
         if (!CommandToRemoteMap.TryGetValue(tCommand, out var remote))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
-        return remote.Execute(command, tCommand, ct);
+        var opts = new CallOptions();
+        options?.Invoke(opts);
+
+        return remote.Execute(command, tCommand, opts);
     }
 
     //only used by integration tests
-    public static Task<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this ICommand<TResult> command, HttpMessageHandler httpMessageHandler)
+    public static Task<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this ICommand<TResult> command, HttpMessageHandler httpMessageHandler, Action<CallOptions>? options = null)
         where TCommand : class, ICommand<TResult>
         where TResult : class
     {
         var remote = new RemoteConnection("http://testhost");
         remote.ChannelOptions.HttpHandler = httpMessageHandler;
         remote.Register<TCommand, TResult>();
-        return remote.Execute(command, typeof(TCommand), default);
+
+        var opts = new CallOptions();
+        options?.Invoke(opts);
+
+        return remote.Execute(command, typeof(TCommand), opts);
     }
 }
 

@@ -7,7 +7,7 @@ internal interface ICommandExecutor { }
 
 internal interface ICommandExecutor<TResult> : ICommandExecutor where TResult : class
 {
-    Task<TResult> Execute(ICommand<TResult> command, CancellationToken ct);
+    Task<TResult> Execute(ICommand<TResult> command, CallOptions opts);
 }
 
 internal sealed class CommandExecutor<TCommand, TResult> : ICommandExecutor<TResult>
@@ -28,9 +28,9 @@ internal sealed class CommandExecutor<TCommand, TResult> : ICommandExecutor<TRes
             responseMarshaller: new MessagePackMarshaller<TResult>());
     }
 
-    public Task<TResult> Execute(ICommand<TResult> cmd, CancellationToken ct)
+    public Task<TResult> Execute(ICommand<TResult> cmd, CallOptions opts)
     {
-        var call = _invoker.AsyncUnaryCall(_method, null, new CallOptions(cancellationToken: ct), (TCommand)cmd);
+        var call = _invoker.AsyncUnaryCall(_method, null, opts, (TCommand)cmd);
         return call.ResponseAsync;
     }
 }

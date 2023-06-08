@@ -10,7 +10,7 @@ internal sealed class MessagePackMarshaller<T> : Marshaller<T> where T : class
         = MessagePackSerializerOptions
             .Standard
             .WithResolver(ContractlessStandardResolver.Instance)
-            .WithCompression(MessagePackCompression.Lz4Block);
+            .WithCompression(MessagePackCompression.Lz4BlockArray);
 
     private static readonly Type t = typeof(T);
 

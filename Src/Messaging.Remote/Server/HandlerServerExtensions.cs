@@ -1,9 +1,7 @@
 ﻿using Grpc.AspNetCore.Server;
 using Grpc.AspNetCore.Server.Model;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -23,10 +21,11 @@ public static class HandlerServerExtensions
     /// <param name="o">optional grpc service settings</param>
     public static IGrpcServerBuilder AddHandlerServer(this WebApplicationBuilder bld, Action<GrpcServiceOptions>? o = null)
     {
-        bld.WebHost.ConfigureKestrel(o => o.ConfigureEndpointDefaults(o => o.Protocols = HttpProtocols.Http2));
         bld.Services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IServiceMethodProvider<>), typeof(ServiceMethodProvider<>)));
-        if (o is null) return bld.Services.AddGrpc();
-        return bld.Services.AddGrpc(o);
+
+        Action<GrpcServiceOptions> defaultOpts = o => o.IgnoreUnknownServices = true;
+
+        return bld.Services.AddGrpc(defaultOpts + o);
     }
 
     /// <summary>

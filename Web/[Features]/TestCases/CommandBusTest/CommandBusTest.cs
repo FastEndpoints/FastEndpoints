@@ -22,6 +22,30 @@ public class TestCommandHandler : ICommandHandler<TestCommand, string>
     }
 }
 
+public class EchoCommand : ICommand<EchoCommand>
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+}
+
+public class EchoCommandHandler : ICommandHandler<EchoCommand, EchoCommand>
+{
+    public EchoCommandHandler(ILogger<EchoCommandHandler> logger, IEmailService emailService)
+    {
+        logger.LogInformation("command handling works!");
+        _ = emailService.SendEmail(); //scoped service
+    }
+
+    public Task<EchoCommand> ExecuteAsync(EchoCommand cmd, CancellationToken ct)
+    {
+        return Task.FromResult(new EchoCommand
+        {
+            FirstName = cmd.FirstName,
+            LastName = cmd.LastName
+        });
+    }
+}
+
 public class TestVoidCommand : ICommand
 {
     public string FirstName { get; set; }

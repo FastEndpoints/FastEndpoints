@@ -34,6 +34,9 @@ public class EndToEndTestFixture : IAsyncLifetime
                 }))
             .CreateClient();
 
+    public HttpMessageHandler CreateHttpMessageHandler()
+        => _factory.Server.CreateHandler();
+
     public void RegisterTestServices(Action<IServiceCollection> services) =>
         _factory.TestRegistrationServices = services;
 

@@ -78,6 +78,7 @@ builder.Services
         o.ExcludeNonFastEndpoints = true;
     });
 
+//GRPC server
 builder.AddHandlerServer();
 
 var app = builder.Build();
@@ -133,14 +134,14 @@ if (!app.Environment.IsProduction())
     app.UseSwaggerGen();
 }
 
-//SERVER
+//HANDLER SERVER
 app.MapHandlers(h =>
 {
     h.Register<TestCommand, TestCommandHandler, string>();
     h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
 });
 
-//CLIENT
+//HANDLER CLIENT
 app.MapRemoteHandlers("http://test", c =>
 {
     c.Register<TestCommand, string>();

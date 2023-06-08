@@ -58,7 +58,6 @@ public sealed class RemoteConnection
     /// </summary>
     /// <typeparam name="TCommand">the type of the command</typeparam>
     /// <typeparam name="TResult">the type of the result</typeparam>
-    /// <exception cref="InvalidOperationException">thrown in case of duplicate registrations</exception>
     public void Register<TCommand, TResult>() where TCommand : class, ICommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);

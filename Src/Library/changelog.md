@@ -11,7 +11,13 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 ### 📢 New
 
 <details>
-<summary>1️⃣ Unit test Endpoints that use Resolve&lt;T&gt;() methods</summary> 
+<summary>1️⃣ Experimental GRPC based Remote-Procedure-Call support</summary>
+
+info: https://discord.com/channels/933662816458645504/1115702061246447708
+</details>
+
+<details>
+<summary>2️⃣ Unit test Endpoints that use Resolve&lt;T&gt;() methods</summary> 
 
 It's now possible to unit test endpoints (including dependencies) that use the `Resolve<T>()` methods to resolve services from DI. This is especially helpful when resolving `Scoped` services in `Mapper` classes. Just register the services that need to be "Resolved" like so:
 
@@ -35,7 +41,7 @@ public class Mapper : Mapper<Request, Response, Entity>
 </details>
 
 <details>
-<summary>2️⃣ Unit test Mapper & Validator classes that use Resolve&lt;T&gt;()</summary>
+<summary>3️⃣ Unit test Mapper & Validator classes that use Resolve&lt;T&gt;()</summary>
 
 Mappers & Validators that use the `Resolve<T>()` methods to obtain services from the DI container can now be unit tested by supplying the necessary dependencies.
 
@@ -50,7 +56,7 @@ Use `Factory.CreateMapper<TMapper>()` the same way in order to get a testable in
 </details>
 
 <details>
-<summary>3️⃣ Overloads for adding Claims, Roles & Permissions when creating JWT tokens</summary>
+<summary>4️⃣ Overloads for adding Claims, Roles & Permissions when creating JWT tokens</summary>
 
 New extension method overloads have been added to make it easier to add `Roles` and `Permissions` with `params` and with tuples for `Claims` when creating JWT tokens.
 

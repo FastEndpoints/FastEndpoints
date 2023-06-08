@@ -38,8 +38,8 @@ internal sealed class HandlerExecutor<TCommand, THandler, TResult> : IHandlerExe
             type: MethodType.Unary,
             serviceName: typeof(TCommand).FullName!,
             name: "",
-            requestMarshaller: new MsgPackMarshaller<TCommand>(),
-            responseMarshaller: new MsgPackMarshaller<TResult>());
+            requestMarshaller: new MessagePackMarshaller<TCommand>(),
+            responseMarshaller: new MessagePackMarshaller<TResult>());
 
         var metadata = new List<object>
         {

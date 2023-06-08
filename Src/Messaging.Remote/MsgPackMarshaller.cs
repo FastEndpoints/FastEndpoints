@@ -4,7 +4,7 @@ using MessagePack.Resolvers;
 
 namespace FastEndpoints;
 
-internal sealed class MsgPackMarshaller<T> : Marshaller<T> where T : class
+internal sealed class MessagePackMarshaller<T> : Marshaller<T> where T : class
 {
     private static readonly MessagePackSerializerOptions options = MessagePackSerializerOptions
         .Standard
@@ -13,11 +13,14 @@ internal sealed class MsgPackMarshaller<T> : Marshaller<T> where T : class
 
     private static readonly Type t = typeof(T);
 
-    public MsgPackMarshaller() : base(Serialize, Deserialize) { }
+    public MessagePackMarshaller() : base(Serialize, Deserialize) { }
 
-    private static byte[] Serialize(T value)
-        => MessagePackSerializer.Serialize(t, value, options);
+    public static T Deserialize(DeserializationContext ctx)
+        => MessagePackSerializer.Deserialize<T>(ctx.PayloadAsReadOnlySequence(), options);
 
-    private static T Deserialize(byte[] bytes)
-        => MessagePackSerializer.Deserialize<T>(bytes, options);
+    public static void Serialize(T value, SerializationContext ctx)
+    {
+        MessagePackSerializer.Serialize(t, ctx.GetBufferWriter(), value, options);
+        ctx.Complete();
+    }
 }

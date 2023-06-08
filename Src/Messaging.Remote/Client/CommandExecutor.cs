@@ -24,8 +24,8 @@ internal sealed class CommandExecutor<TCommand, TResult> : ICommandExecutor<TRes
             type: MethodType.Unary,
             serviceName: typeof(TCommand).FullName!,
             name: "",
-            requestMarshaller: new MsgPackMarshaller<TCommand>(),
-            responseMarshaller: new MsgPackMarshaller<TResult>());
+            requestMarshaller: new MessagePackMarshaller<TCommand>(),
+            responseMarshaller: new MessagePackMarshaller<TResult>());
     }
 
     public Task<TResult> Execute(ICommand<TResult> cmd, CancellationToken ct)

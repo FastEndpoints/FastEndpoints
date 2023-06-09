@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Localization;
 using NSwag;
 using System.Globalization;
 using TestCases.CommandBusTest;
+using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
@@ -139,6 +140,7 @@ app.MapHandlers(h =>
 {
     h.Register<TestCommand, TestCommandHandler, string>();
     h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
+    h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
 });
 
 //HANDLER CLIENT
@@ -146,6 +148,7 @@ app.MapRemoteHandlers("http://test", c =>
 {
     c.Register<TestCommand, string>();
     c.Register<EchoCommand, EchoCommand>();
+    c.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
 });
 
 app.Run();

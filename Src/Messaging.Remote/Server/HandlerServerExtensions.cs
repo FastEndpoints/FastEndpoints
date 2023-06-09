@@ -15,7 +15,7 @@ public static class HandlerServerExtensions
     /// <summary>
     /// configure the handler server which will host a collection of command handlers. this should only be called once per application.
     /// <para>
-    /// IMPORTANT: specify wich handlers this server will be hosting via <see cref="MapHandlers(IEndpointRouteBuilder, Action{HandlerRegistry})"/> method.
+    /// IMPORTANT: specify wich handlers this server will be hosting via <see cref="MapHandlers(IEndpointRouteBuilder, Action{HandlerOptions})"/> method.
     /// </para>
     /// </summary>
     /// <param name="o">optional grpc service settings</param>
@@ -33,9 +33,9 @@ public static class HandlerServerExtensions
     /// </summary>
     /// <param name="b"></param>
     /// <param name="h"></param>
-    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerRegistry> h)
+    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerOptions> h)
     {
-        h(new HandlerRegistry(b));
+        h(new HandlerOptions(b));
         return b;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-internal class ServiceMethodProvider<TExecutor> : IServiceMethodProvider<TExecutor> where TExecutor : class, IHandlerExecutor, new()
+internal class ServiceMethodProvider<TExecutor> : IServiceMethodProvider<TExecutor> where TExecutor : class, IHandlerBinder<TExecutor>, new()
 {
     public void OnServiceMethodDiscovery(ServiceMethodProviderContext<TExecutor> ctx)
     {

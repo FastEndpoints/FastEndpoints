@@ -6,11 +6,11 @@ namespace FastEndpoints;
 /// <summary>
 /// handler registration options
 /// </summary>
-public sealed class HandlerRegistry
+public sealed class HandlerOptions
 {
     private readonly IEndpointRouteBuilder routeBuilder;
 
-    internal HandlerRegistry(IEndpointRouteBuilder builder)
+    internal HandlerOptions(IEndpointRouteBuilder builder)
     {
         routeBuilder = builder;
     }
@@ -25,5 +25,11 @@ public sealed class HandlerRegistry
         where TCommand : class, ICommand<TResult>
         where THandler : class, ICommandHandler<TCommand, TResult>
         where TResult : class
-            => routeBuilder.MapGrpcService<HandlerExecutor<TCommand, THandler, TResult>>();
+            => routeBuilder.MapGrpcService<UnaryHandlerExecutor<TCommand, THandler, TResult>>();
+
+    public GrpcServiceEndpointConventionBuilder RegisterServerStream<TCommand, THandler, TResult>()
+        where TCommand : class, IServerStreamCommand<TResult>
+        where THandler : class, IServerStreamCommandHandler<TCommand, TResult>
+        where TResult : class
+            => routeBuilder.MapGrpcService<ServerStreamHandlerExecutor<TCommand, THandler, TResult>>();
 }

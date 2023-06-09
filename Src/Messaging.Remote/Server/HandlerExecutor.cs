@@ -1,58 +1,56 @@
 ﻿using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace FastEndpoints;
 
-internal interface IHandlerExecutor
+internal sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>
+    : BaseHandlerExecutor<TCommand, THandler, TResult, UnaryHandlerExecutor<TCommand, THandler, TResult>>
+        where TCommand : class, ICommand<TResult>
+        where THandler : class, ICommandHandler<TCommand, TResult>
+        where TResult : class
 {
-    void Bind<TExecutor>(ServiceMethodProviderContext<TExecutor> context) where TExecutor : class;
-}
+    protected override MethodType MethodType()
+        => Grpc.Core.MethodType.Unary;
 
-internal sealed class HandlerExecutor<TCommand, THandler, TResult> : IHandlerExecutor
-    where TCommand : class, ICommand<TResult>
-    where THandler : ICommandHandler<TCommand, TResult>
-    where TResult : class
-{
-    private static readonly ObjectFactory handlerFactory = ActivatorUtilities.CreateFactory(typeof(THandler), Type.EmptyTypes);
+    protected override void AddMethodToCtx(ServiceMethodProviderContext<UnaryHandlerExecutor<TCommand, THandler, TResult>> ctx,
+                                           Method<TCommand, TResult> method,
+                                           List<object> metadata)
+        => ctx.AddUnaryMethod(method, metadata, Execute);
 
-    private static Task<TResult> Execute(HandlerExecutor<TCommand, THandler, TResult> _, TCommand cmd, ServerCallContext ctx)
+    protected override Task<TResult> Execute(UnaryHandlerExecutor<TCommand, THandler, TResult> _, TCommand cmd, ServerCallContext ctx)
     {
-        var handler = (THandler)handlerFactory(ctx.GetHttpContext().RequestServices, null);
+        var handler = (THandler)_handlerFactory(ctx.GetHttpContext().RequestServices, null);
         return handler.ExecuteAsync(cmd, ctx.CancellationToken);
     }
+}
 
-    public void Bind<TExecutor>(ServiceMethodProviderContext<TExecutor> ctx) where TExecutor : class
+internal sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
+    : BaseHandlerExecutor<TCommand, THandler, TResult, ServerStreamHandlerExecutor<TCommand, THandler, TResult>>
+        where TCommand : class, IServerStreamCommand<TResult>
+        where THandler : class, IServerStreamCommandHandler<TCommand, TResult>
+        where TResult : class
+{
+    protected override MethodType MethodType()
+        => Grpc.Core.MethodType.ServerStreaming;
+
+    protected override void AddMethodToCtx(ServiceMethodProviderContext<ServerStreamHandlerExecutor<TCommand, THandler, TResult>> ctx,
+                                           Method<TCommand, TResult> method,
+                                           List<object> metadata)
+        => ctx.AddServerStreamingMethod(method, metadata, Execute);
+
+    protected async override Task Execute(ServerStreamHandlerExecutor<TCommand, THandler, TResult> _,
+                                          TCommand cmd,
+                                          IServerStreamWriter<TResult> responseStream,
+                                          ServerCallContext ctx)
     {
-        var tExecutor = typeof(TExecutor);
-
-        var executeMethod = tExecutor.GetMethod(nameof(Execute), BindingFlags.NonPublic | BindingFlags.Static)!;
-
-        var invoker = (UnaryServerMethod<TExecutor, TCommand, TResult>)Delegate.CreateDelegate(
-            typeof(UnaryServerMethod<TExecutor, TCommand, TResult>),
-            executeMethod);
-
-        var method = new Method<TCommand, TResult>(
-            type: MethodType.Unary,
-            serviceName: typeof(TCommand).FullName!,
-            name: "",
-            requestMarshaller: new MessagePackMarshaller<TCommand>(),
-            responseMarshaller: new MessagePackMarshaller<TResult>());
-
-        var metadata = new List<object>();
-        var handlerAttributes = GetHandlerExecMethodAttributes(tExecutor);
-        if (handlerAttributes?.Length > 0) metadata.AddRange(handlerAttributes);
-        metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
-
-        ctx.AddUnaryMethod(method, metadata, invoker);
-
-        static object[]? GetHandlerExecMethodAttributes(Type tExecutor)
+        var handler = (THandler)_handlerFactory(ctx.GetHttpContext().RequestServices, null);
+        await foreach (var item in handler.ExecuteAsync(cmd, ctx.CancellationToken))
         {
-            var tHandler = tExecutor.GenericTypeArguments[1];
-            var execMethod = tHandler.GetMethod(nameof(ICommandHandler<ICommand<object>, object>.ExecuteAsync));
-            return execMethod?.GetCustomAttributes(false);
+            try
+            {
+                await responseStream.WriteAsync(item, ctx.CancellationToken);
+            }
+            catch (OperationCanceledException) { }
         }
     }
 }

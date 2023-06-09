@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using System.Runtime.CompilerServices;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// marker interface for all command handlers
@@ -32,4 +34,11 @@ public interface ICommandHandler<in TCommand, TResult> : ICommandHandler where T
     /// <param name="command">the input command object</param>
     /// <param name="ct">optional cancellation token</param>
     Task<TResult> ExecuteAsync(TCommand command, CancellationToken ct = default);
+}
+
+public interface IServerStreamCommandHandler<in TCommand, TResult> where TCommand : IServerStreamCommand<TResult>
+{
+#pragma warning disable CS8424
+    IAsyncEnumerable<TResult> ExecuteAsync(TCommand command, [EnumeratorCancellation] CancellationToken ct);
+#pragma warning restore CS8424
 }

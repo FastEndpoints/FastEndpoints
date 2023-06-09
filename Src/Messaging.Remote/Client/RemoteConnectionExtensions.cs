@@ -38,21 +38,18 @@ public static class RemoteConnectionExtensions
     /// <typeparam name="TResult">the type of the result</typeparam>
     /// <param name="options">call options</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, Action<CallOptions>? options = null) where TResult : class
+    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, CallOptions options = default) where TResult : class
     {
         var tCommand = command.GetType();
 
         if (!CommandToRemoteMap.TryGetValue(tCommand, out var remote))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
-        var opts = new CallOptions();
-        options?.Invoke(opts);
-
-        return remote.Execute(command, tCommand, opts);
+        return remote.Execute(command, tCommand, options);
     }
 
     //only used by integration tests
-    public static Task<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this ICommand<TResult> command, HttpMessageHandler httpMessageHandler, Action<CallOptions>? options = null)
+    public static Task<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this ICommand<TResult> command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
         where TCommand : class, ICommand<TResult>
         where TResult : class
     {
@@ -60,10 +57,29 @@ public static class RemoteConnectionExtensions
         remote.ChannelOptions.HttpHandler = httpMessageHandler;
         remote.Register<TCommand, TResult>();
 
-        var opts = new CallOptions();
-        options?.Invoke(opts);
+        return remote.Execute(command, typeof(TCommand), options);
+    }
 
-        return remote.Execute(command, typeof(TCommand), opts);
+    public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CallOptions options = default) where TResult : class
+    {
+        var tCommand = command.GetType();
+
+        if (!CommandToRemoteMap.TryGetValue(tCommand, out var remote))
+            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+
+        return remote.Execute(command, tCommand, options).ReadAllAsync(options.CancellationToken);
+    }
+
+    //only used by integration tests
+    public static IAsyncEnumerable<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this IServerStreamCommand<TResult> command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
+        where TCommand : class, IServerStreamCommand<TResult>
+        where TResult : class
+    {
+        var remote = new RemoteConnection("http://testhost");
+        remote.ChannelOptions.HttpHandler = httpMessageHandler;
+        remote.RegisterServerStream<TCommand, TResult>();
+
+        return remote.Execute(command, typeof(TCommand), options).ReadAllAsync(options.CancellationToken);
     }
 }
 

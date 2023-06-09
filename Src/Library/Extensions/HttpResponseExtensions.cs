@@ -208,10 +208,10 @@ public static class HttpResponseExtensions
     }
 
     /// <summary>
-    /// send a 301/302 redirect response
+    /// send a 302/301 redirect response
     /// </summary>
     /// <param name="location">the location to redirect to</param>
-    /// <param name="isPermanant">set to true for a 302 redirect. 301 is the default.</param>
+    /// <param name="isPermanant">set to true for a 301 redirect. 302 is the default.</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendRedirectAsync(this HttpResponse rsp, string location, bool isPermanant, CancellationToken cancellation = default)
     {

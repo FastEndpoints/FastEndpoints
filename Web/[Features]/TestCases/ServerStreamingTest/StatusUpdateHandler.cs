@@ -10,7 +10,7 @@ public sealed class StatusUpdateHandler : IServerStreamCommandHandler<StatusStre
         {
             try
             {
-                await Task.Delay(100, ct);
+                await Task.Delay(10, ct);
             }
             catch (TaskCanceledException)
             {

@@ -1,4 +1,5 @@
 ﻿using IntegrationTests.Shared.Fixtures;
+using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.ServerStreamingTest;
 using Xunit;
@@ -16,7 +17,7 @@ public class RPCTests : EndToEndTestBase
     }
 
     [Fact]
-    public async Task RPC_Command_That_Returns_A_Result()
+    public async Task Unary_RPC()
     {
         var res1 = await new TestCommand
         {
@@ -29,7 +30,7 @@ public class RPCTests : EndToEndTestBase
     }
 
     [Fact]
-    public async Task RPC_Command_That_Returns_The_Same_DTO()
+    public async Task Unary_RPC_Echo()
     {
         var cmd = new EchoCommand
         {
@@ -43,7 +44,7 @@ public class RPCTests : EndToEndTestBase
     }
 
     [Fact]
-    public async Task RPC_Command_That_Returns_A_Server_Stream()
+    public async Task Server_Stream_RPC()
     {
         var iterator = new StatusStreamCommand
         {
@@ -57,6 +58,25 @@ public class RPCTests : EndToEndTestBase
             i++;
             if (i == 10)
                 break;
+        }
+    }
+
+    [Fact]
+    public async Task Client_Stream_RPC()
+    {
+        var report = await GetDataStream()
+            .TestRemoteExecuteAsync<CurrentPosition, ProgressReport>(httpMessageHandler);
+
+        report.LastNumber.Should().Be(5);
+
+        static async IAsyncEnumerable<CurrentPosition> GetDataStream()
+        {
+            var i = 0;
+            while (i < 5)
+            {
+                i++;
+                yield return new() { Number = i };
+            }
         }
     }
 }

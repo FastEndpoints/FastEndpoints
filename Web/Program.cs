@@ -5,6 +5,7 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Localization;
 using NSwag;
 using System.Globalization;
+using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
@@ -141,6 +142,7 @@ app.MapHandlers(h =>
     h.Register<TestCommand, TestCommandHandler, string>();
     h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
     h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
+    h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
 });
 
 //HANDLER CLIENT
@@ -149,6 +151,7 @@ app.MapRemoteHandlers("http://test", c =>
     c.Register<TestCommand, string>();
     c.Register<EchoCommand, EchoCommand>();
     c.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
+    c.RegisterClientStream<CurrentPosition, ProgressReport>();
 });
 
 app.Run();

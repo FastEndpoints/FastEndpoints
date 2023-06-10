@@ -74,6 +74,11 @@ public sealed class RemoteConnection
         return ((IUnaryCommandExecutor<TResult>)executor).Execute(cmd, opts);
     }
 
+    /// <summary>
+    /// register a command (<see cref="IServerStreamCommand{TResult}"/>) for this remote connection where the handler for this command is hosted/located.
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the command</typeparam>
+    /// <typeparam name="TResult">the type of the result stream</typeparam>
     public void RegisterServerStream<TCommand, TResult>() where TCommand : class, IServerStreamCommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);

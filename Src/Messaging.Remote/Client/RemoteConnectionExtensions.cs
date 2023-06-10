@@ -60,6 +60,12 @@ public static class RemoteConnectionExtensions
         return remote.Execute(command, typeof(TCommand), options);
     }
 
+    /// <summary>
+    /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult"/>
+    /// </summary>
+    /// <typeparam name="TResult">the type of the result stream</typeparam>
+    /// <param name="options">call options</param>
+    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
     public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CallOptions options = default) where TResult : class
     {
         var tCommand = command.GetType();

@@ -11,7 +11,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 ### 📢 New
 
 <details>
-<summary>1️⃣ Experimental GRPC based Remote-Procedure-Call support</summary>
+<summary>1️⃣ GRPC based Remote-Procedure-Calls</summary>
 
 info: https://discord.com/channels/933662816458645504/1115702061246447708
 </details>

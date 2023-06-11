@@ -13,7 +13,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 <details>
 <summary>1️⃣ GRPC based Remote-Procedure-Calls</summary>
 
-info: https://discord.com/channels/933662816458645504/1115702061246447708
+Please refer to the [documentation](https://fast-endpoints.com/docs/command-bus#dependency-injection) for details of this feature.
 </details>
 
 <details>

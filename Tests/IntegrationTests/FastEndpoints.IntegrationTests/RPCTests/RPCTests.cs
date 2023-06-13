@@ -17,6 +17,17 @@ public class RPCTests : EndToEndTestBase
     }
 
     [Fact]
+    public async Task Void_RPC()
+    {
+        await new TestVoidCommand
+        {
+            FirstName = "johnny",
+            LastName = "lawrence"
+        }
+        .TestRemoteExecuteAsync<TestVoidCommand>(httpMessageHandler);
+    }
+
+    [Fact]
     public async Task Unary_RPC()
     {
         var res1 = await new TestCommand

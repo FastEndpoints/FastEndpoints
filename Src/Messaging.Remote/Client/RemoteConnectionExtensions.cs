@@ -33,6 +33,32 @@ public static class RemoteConnectionExtensions
     }
 
     /// <summary>
+    /// execute the command on the relevant remote server
+    /// </summary>
+    /// <param name="options">call options</param>
+    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+    public static Task RemoteExecuteAsync(this ICommand command, CallOptions options = default)
+    {
+        var tCommand = command.GetType();
+
+        if (!CommandToRemoteMap.TryGetValue(tCommand, out var remote))
+            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+
+        return remote.ExecuteVoid(command, tCommand, options);
+    }
+
+    //only used by integration tests
+    public static Task TestRemoteExecuteAsync<TCommand>(this ICommand command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
+        where TCommand : class, ICommand
+    {
+        var remote = new RemoteConnection("http://testhost");
+        remote.ChannelOptions.HttpHandler = httpMessageHandler;
+        remote.Register<TCommand>();
+
+        return remote.ExecuteVoid(command, typeof(TCommand), options);
+    }
+
+    /// <summary>
     /// execute the command on the relevant remote server and get back a result
     /// </summary>
     /// <typeparam name="TResult">the type of the result</typeparam>

@@ -18,7 +18,3 @@ internal sealed class UnaryCommandExecutor<TCommand, TResult> : BaseCommandExecu
     public Task<TResult> ExecuteUnary(ICommand<TResult> cmd, CallOptions opts)
         => _invoker.AsyncUnaryCall(_method, null, opts, (TCommand)cmd).ResponseAsync;
 }
-
-
-
-

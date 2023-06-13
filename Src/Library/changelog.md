@@ -10,87 +10,29 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ### 📢 New
 
-<details>
-<summary>1️⃣ GRPC based Remote-Procedure-Calls</summary>
+<details><summary>1️⃣ Support for RPC Commands that do not return any result</summary>
 
-Please refer to the [documentation](https://fast-endpoints.com/docs/command-bus#dependency-injection) for details of this feature.
-</details>
-
-<details>
-<summary>2️⃣ Unit test Endpoints that use Resolve&lt;T&gt;() methods</summary> 
-
-It's now possible to unit test endpoints (including dependencies) that use the `Resolve<T>()` methods to resolve services from DI. This is especially helpful when resolving `Scoped` services in `Mapper` classes. Just register the services that need to be "Resolved" like so:
+Remote procedure calls via `ICommand` & `ICommandHandler<TCommand>` is now possible which the initial RPC feature did not support. Command/Handler registration is done the same way:
 
 ```cs
-var ep = Factory.Create<Endpoint>(ctx =>
+//SERVER
+app.MapHandlers(h =>
 {
-    ctx.AddTestServices(s => s.AddTransient<MyService>());
+    h.Register<SayHelloCommand, SayHelloHandler>();
 });
-```
-An example mapper that uses the `Resolve<T>()` method would be such as this:
 
+//CLIENT
 ```cs
-public class Mapper : Mapper<Request, Response, Entity>
+app.MapRemoteHandlers("http://localhost:6000", c =>
 {
-    public override Entity ToEntity(Request r)
-    {
-        var mySvc = Resolve<MyService>();
-    }
-}
-```
-</details>
-
-<details>
-<summary>3️⃣ Unit test Mapper & Validator classes that use Resolve&lt;T&gt;()</summary>
-
-Mappers & Validators that use the `Resolve<T>()` methods to obtain services from the DI container can now be unit tested by supplying the necessary dependencies.
-
-```cs
-var validator = Factory.CreateValidator<AgeValidator>(s =>
-{
-    s.AddTransient<AgeService>();
+    c.Register<SayHelloCommand>();
 });
-```
 
-Use `Factory.CreateMapper<TMapper>()` the same way in order to get a testable instance of a mapper.
-</details>
-
-<details>
-<summary>4️⃣ Overloads for adding Claims, Roles & Permissions when creating JWT tokens</summary>
-
-New extension method overloads have been added to make it easier to add `Roles` and `Permissions` with `params` and with tuples for `Claims` when creating JWT tokens.
-
-```cs
-var jwtToken = JWTBearer.CreateToken(
-    priviledges: u =>
-    {
-        u.Roles.Add(
-            "Manager",
-            "Employee");
-        u.Permissions.Add(
-            "ManageUsers",
-            "ManageInventory");
-        u.Claims.Add(
-            ("UserName", req.Username),
-            ("Email", req.Email));
-    });
+//COMMAND EXECUTION
+await new SayHelloCommand { From = "mars" }.RemoteExecuteAsync();
 ```
 </details>
 
-### 🚀 Improvements
-
-<details>
-<summary>1️⃣ Alert which service was not registered when unit testing</summary>
-
-The unit testing `Factory.Create<T>(...)` method will now inform which service you forgot to register if either the endpoint or one of the dependencies requires a service. In which case, you'd be registering that service like below:
-
-```cs
-var ep = Factory.Create<Endpoint>(ctx =>
-{
-    ctx.AddTestServices(s => s.AddScoped<ScopedSvc>());
-});
-```
-
-</details>
+<!-- ### 🚀 Improvements -->
 
 <!-- ### 🪲 Fixes -->

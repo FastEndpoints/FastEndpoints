@@ -54,6 +54,26 @@ public sealed class RemoteConnection
     }
 
     /// <summary>
+    /// register a "void" command (<see cref="ICommand"/>) for this remote connection where the handler for it is hosted/located.
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the command</typeparam>
+    public void Register<TCommand>() where TCommand : class, ICommand
+    {
+        var tCommand = typeof(TCommand);
+        RemoteConnectionExtensions.CommandToRemoteMap[tCommand] = this;
+        _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
+        _executorMap[tCommand] = new VoidCommandExecutor<TCommand>(_channel);
+    }
+
+    internal Task ExecuteVoid(ICommand cmd, Type tCommand, CallOptions opts)
+    {
+        if (!_executorMap.TryGetValue(tCommand, out var executor))
+            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+
+        return ((IVoidCommandExecutor)executor).ExecuteVoid(cmd, opts);
+    }
+
+    /// <summary>
     /// register a "unary" command (<see cref="ICommand{TResult}"/>) for this remote connection where the handler for it is hosted/located.
     /// </summary>
     /// <typeparam name="TCommand">the type of the command</typeparam>

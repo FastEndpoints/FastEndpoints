@@ -16,6 +16,16 @@ public sealed class HandlerOptions
     }
 
     /// <summary>
+    /// registers a "void" command handler this server is hosting.
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the incoming command</typeparam>
+    /// <typeparam name="THandler">the type of the handler for the incoming command</typeparam>
+    public GrpcServiceEndpointConventionBuilder Register<TCommand, THandler>()
+        where TCommand : class, ICommand
+        where THandler : class, ICommandHandler<TCommand>
+            => routeBuilder.MapGrpcService<VoidHandlerExecutor<TCommand, THandler>>();
+
+    /// <summary>
     /// registers a "unary" command handler this server is hosting.
     /// </summary>
     /// <typeparam name="TCommand">the type of the incoming command</typeparam>

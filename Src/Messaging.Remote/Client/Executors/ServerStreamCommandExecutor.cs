@@ -19,4 +19,3 @@ internal sealed class ServerStreamCommandExecutor<TCommand, TResult> : BaseComma
         => _invoker.AsyncServerStreamingCall(_method, null, opts, (TCommand)cmd).ResponseStream;
 }
 
-

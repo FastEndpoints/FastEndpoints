@@ -18,7 +18,7 @@ public interface ICommandHandler<in TCommand> : ICommandHandler where TCommand :
     /// </summary>
     /// <param name="command">the input command object</param>
     /// <param name="ct">optional cancellation token</param>
-    Task ExecuteAsync(TCommand command, CancellationToken ct = default);
+    Task ExecuteAsync(TCommand command, CancellationToken ct);// = default);
 }
 
 /// <summary>
@@ -33,7 +33,7 @@ public interface ICommandHandler<in TCommand, TResult> : ICommandHandler where T
     /// </summary>
     /// <param name="command">the input command object</param>
     /// <param name="ct">optional cancellation token</param>
-    Task<TResult> ExecuteAsync(TCommand command, CancellationToken ct = default);
+    Task<TResult> ExecuteAsync(TCommand command, CancellationToken ct);// = default);
 }
 
 /// <summary>

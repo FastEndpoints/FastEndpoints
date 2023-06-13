@@ -16,5 +16,5 @@ public interface IEventHandler<TEvent> : IEventHandler
     /// </summary>
     /// <param name="eventModel">the input event model</param>
     /// <param name="ct">optional cancellation token</param>
-    Task HandleAsync(TEvent eventModel, CancellationToken ct = default);
+    Task HandleAsync(TEvent eventModel, CancellationToken ct);// = default);
 }

@@ -5,12 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
-internal interface IHandlerBinder<TExecutor> where TExecutor : class
-{
-    void Bind(ServiceMethodProviderContext<TExecutor> context);
-}
-
-internal abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IHandlerBinder<TSelf>
+internal abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethodBinder<TSelf>
     where TCommand : class
     where THandler : class
     where TResult : class

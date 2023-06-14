@@ -60,4 +60,8 @@ public sealed class HandlerOptions
     where THandler : class, IClientStreamCommandHandler<T, TResult>
     where TResult : class
         => routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
+
+    public GrpcServiceEndpointConventionBuilder RegisterEvent<TEvent>()
+        where TEvent : class, IEvent
+            => routeBuilder.MapGrpcService<EventHub<TEvent>>();
 }

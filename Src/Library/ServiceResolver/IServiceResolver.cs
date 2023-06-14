@@ -53,11 +53,6 @@ public interface IServiceResolverBase
 public interface IServiceResolver : IServiceResolverBase
 {
     /// <summary>
-    /// indicates if the resolver has been instantiated for the purpose if running unit tests with the <see cref="Factory"/> class.
-    /// </summary>
-    public bool TestMode { get; init; }
-
-    /// <summary>
     /// create an instance of a given type (which may not be registered in the DI container). this method will be called repeatedly per request. so a cached delegate/compiled expression such as <see cref="ActivatorUtilities.CreateFactory(Type, Type[])"/> should be used for instance creation.
     /// </summary>
     /// <param name="type">the type to create an instance of</param>

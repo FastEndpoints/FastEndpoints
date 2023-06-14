@@ -35,4 +35,24 @@ await new SayHelloCommand { From = "mars" }.RemoteExecuteAsync();
 
 <!-- ### 🚀 Improvements -->
 
-<!-- ### 🪲 Fixes -->
+### 🪲 Fixes
+
+<details><summary>Scope creation in a Validator was throwing an exception in unit tests</summary>
+
+Validator code such as the following was preventing the validator from being unit tested via the `Factory.CreateValidator<T>()` method, which has now been fixed.
+
+```cs
+public class IdValidator : Validator<RequestDto>
+{
+    public IdValidator()
+    {
+        using var scope = CreateScope();
+        var idChecker = scope.Resolve<IdValidationService>();
+
+        RuleFor(x => x.Id).Must((id)
+            => idChecker.IsValidId(id));
+    }
+}
+```
+
+</details>

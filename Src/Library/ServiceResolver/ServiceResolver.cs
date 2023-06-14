@@ -8,15 +8,18 @@ internal sealed class ServiceResolver : IServiceResolver
 {
     private readonly ConcurrentDictionary<Type, ObjectFactory> factoryCache = new();
     private readonly IServiceProvider rootProvider;
-    private readonly IHttpContextAccessor? ctxAccessor;
+    private readonly IHttpContextAccessor ctxAccessor;
 
-    public bool TestMode { get; init; }
+    private readonly bool _testMode;
 
-    public ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ctxAccessor = null, bool isTestMode = false)
+    public ServiceResolver(IServiceProvider provider, IHttpContextAccessor ctxAccessor, bool isTestMode = false)
     {
+        //this class is instantiated by either the IOC container in normal mode
+        //or by Factory.AddTestServices() method in unit testing mode
+
         rootProvider = provider;
         this.ctxAccessor = ctxAccessor;
-        TestMode = isTestMode;
+        _testMode = isTestMode;
     }
 
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
@@ -30,21 +33,24 @@ internal sealed class ServiceResolver : IServiceResolver
         return ActivatorUtilities.CreateInstance(rootProvider, type);
     }
 
-    public IServiceScope CreateScope() => rootProvider.CreateScope();
+    public IServiceScope CreateScope()
+        => _testMode
+            ? ctxAccessor.HttpContext?.RequestServices.CreateScope() ?? throw new InvalidOperationException("Please follow documentation to configure unit test environment properly!")
+            : rootProvider.CreateScope();
 
     public TService Resolve<TService>() where TService : class
-        => ctxAccessor?.HttpContext?.RequestServices.GetRequiredService<TService>() ??
+        => ctxAccessor.HttpContext?.RequestServices.GetRequiredService<TService>() ??
            rootProvider.GetRequiredService<TService>();
 
     public object Resolve(Type typeOfService)
-        => ctxAccessor?.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
+        => ctxAccessor.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
            rootProvider.GetRequiredService(typeOfService);
 
     public TService? TryResolve<TService>() where TService : class
-        => ctxAccessor?.HttpContext?.RequestServices.GetService<TService>() ??
+        => ctxAccessor.HttpContext?.RequestServices.GetService<TService>() ??
            rootProvider.GetService<TService>();
 
     public object? TryResolve(Type typeOfService)
-        => ctxAccessor?.HttpContext?.RequestServices.GetService(typeOfService) ??
+        => ctxAccessor.HttpContext?.RequestServices.GetService(typeOfService) ??
            rootProvider.GetService(typeOfService);
 }

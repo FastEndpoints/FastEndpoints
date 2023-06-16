@@ -63,6 +63,56 @@ public static class HttpClientExtensions
         => POSTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
+    /// make a PATCH request using a request dto and get back a response dto.
+    /// </summary>
+    /// <typeparam name="TRequest">type of the requet dto</typeparam>
+    /// <typeparam name="TResponse">type of the response dto</typeparam>
+    /// <param name="requestUri">the route url to PATCH to</param>
+    /// <param name="request">the request dto</param>
+    ///<param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent"/></param>
+    public static Task<TestResult<TResponse>> PATCHAsync<TRequest, TResponse>(this HttpClient client,
+                                                                              string requestUri,
+                                                                              TRequest request,
+                                                                              bool? sendAsFormData = null)
+        => client.Send<TRequest, TResponse>(HttpMethod.Patch, requestUri, request, sendAsFormData);
+
+    /// <summary>
+    /// make a PATCH request to an endpoint using auto route discovery using a request dto and get back a response dto.
+    /// </summary>
+    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+    /// <typeparam name="TRequest">the type of the request dto</typeparam>
+    /// <typeparam name="TResponse">the type of the response dto</typeparam>
+    /// <param name="request">the request dto</param>
+    ///<param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent"/></param>
+    public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
+                                                                                         TRequest request,
+                                                                                         bool? sendAsFormData = null) where TEndpoint : IEndpoint
+        => PATCHAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
+
+    /// <summary>
+    /// make a PATCH request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
+    /// </summary>
+    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+    /// <typeparam name="TRequest">the type of the request dto</typeparam>
+    /// <param name="request">the request dto</param>
+    ///<param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent"/></param>
+    public static async Task<HttpResponseMessage> PATCHAsync<TEndpoint, TRequest>(this HttpClient client,
+                                                                                  TRequest request,
+                                                                                  bool? sendAsFormData = null) where TEndpoint : IEndpoint
+    {
+        var (rsp, _) = await PATCHAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
+        return rsp;
+    }
+
+    /// <summary>
+    /// make a PATCH request to an endpoint using auto route discovery without a request dto and get back a typed response dto.
+    /// </summary>
+    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+    /// <typeparam name="TResponse">the type of the response dto</typeparam>
+    public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
+        => PATCHAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
+
+    /// <summary>
     /// make a PUT request using a request dto and get back a response dto.
     /// </summary>
     /// <typeparam name="TRequest">type of the requet dto</typeparam>

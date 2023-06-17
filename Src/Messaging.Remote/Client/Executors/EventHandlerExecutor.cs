@@ -1,18 +1,24 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandExecutor<EmptyObject, TEvent>, ICommandExecutor
+internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandExecutor<string, TEvent>, ICommandExecutor
     where TEvent : class, IEvent
     where TEventHandler : IEventHandler<TEvent>
 {
     private readonly ObjectFactory _handlerFactory;
     private readonly IServiceProvider? _serviceProvider;
+    private const int queueSizeLimit = 1000;
+    private readonly ConcurrentQueue<TEvent> _events = new();
+    private readonly ILogger<EventHandlerExecutor<TEvent, TEventHandler>>? _logger;
 
 #pragma warning disable IDE0052
-    private Task? workerTask;
+    private Task? eventProducerTask;
+    private Task? eventConsumerTask;
 #pragma warning restore IDE0052
 
     internal EventHandlerExecutor(GrpcChannel channel, IServiceProvider? serviceProvider)
@@ -20,18 +26,66 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
     {
         _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
         _serviceProvider = serviceProvider;
+        _logger = serviceProvider?.GetRequiredService<ILogger<EventHandlerExecutor<TEvent, TEventHandler>>>();
     }
 
-    internal void Start()
+    internal void Start(CallOptions opts)
     {
-        workerTask ??= Task.Factory.StartNew(async () =>
+        eventProducerTask ??= Task.Factory.StartNew(async () =>
         {
-            var stream = _invoker.AsyncServerStreamingCall(_method, null, new CallOptions(), new EmptyObject()).ResponseStream;
+            //a unique ID that survives exceptions/retries/reconnects but does not survive app/machine restarts
+            var streamID = Guid.NewGuid().ToString("N");
+            var call = _invoker.AsyncServerStreamingCall(_method, null, opts, streamID);
 
-            while (await stream.MoveNext())
+            while (true)
             {
-                var handler = (TEventHandler)_handlerFactory(_serviceProvider!, null);
-                await handler.HandleAsync(stream.Current, default);
+                if (_events.Count >= queueSizeLimit)
+                {
+                    _logger?.LogWarning("Event receive queue for [stream-id: {stream} ({event})] is full! Resuming after 10 seconds...", streamID, typeof(TEvent));
+                    await Task.Delay(10000);
+                    continue;
+                }
+
+                try
+                {
+                    while (_events.Count < queueSizeLimit && await call.ResponseStream.MoveNext()) // actual network call happens on MoveNext()
+                    {
+                        _events.Enqueue(call.ResponseStream.Current);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning("Event receive error in [stream-id: {stream} ({event})]: [{err}]. Retrying after 10 seconds...", streamID, typeof(TEvent), ex.Message);
+                    call.Dispose(); //the stream is most likely broken, so dispose it and initialize a new call
+                    call = _invoker.AsyncServerStreamingCall(_method, null, opts, streamID);
+                    await Task.Delay(10000);
+                }
+            }
+        }, TaskCreationOptions.LongRunning);
+
+        eventConsumerTask ??= Task.Factory.StartNew(async () =>
+        {
+            while (true)
+            {
+                try
+                {
+                    if (!_events.IsEmpty && _events.TryPeek(out var evnt))
+                    {
+                        var handler = (TEventHandler)_handlerFactory(_serviceProvider!, null);
+                        await handler.HandleAsync(evnt, opts.CancellationToken);
+                        while (!_events.TryDequeue(out var _))
+                            await Task.Delay(100);
+                    }
+                    else
+                    {
+                        await Task.Delay(500);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogCritical("Event [{event}] execution error: [{err}]. Retrying after 10 seconds...", typeof(TEvent).FullName, ex.Message);
+                    await Task.Delay(10000);
+                }
             }
         }, TaskCreationOptions.LongRunning);
     }

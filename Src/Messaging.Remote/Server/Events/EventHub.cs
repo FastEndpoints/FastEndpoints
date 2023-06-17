@@ -5,36 +5,42 @@ using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-internal static class EventHubExtensions
+internal abstract class EventHubBase
 {
-    public static Task RemotePublishAsync<TEvent>(this TEvent evnt, int? expectedSubscriberCount = null)
-        where TEvent : class, IEvent
-    {
+    //key: stream ID (identifies a unique subscriber from each remote client)
+    //val: event queue for the unique client
+    protected static readonly ConcurrentDictionary<string, EventQueue> _subscribers = new();
 
+    static EventHubBase()
+    {
+        _ = RemoveStaleSubscribers();
+    }
+
+    private static async Task RemoveStaleSubscribers()
+    {
+        while (true)
+        {
+            await Task.Delay(TimeSpan.FromHours(1));
+            foreach (var q in _subscribers)
+            {
+                if (q.Value.IsStale)
+                    _subscribers.TryRemove(q);
+            }
+        }
     }
 }
 
-internal static class SubscriberStore<TEvent> where TEvent : IEvent
-{
-    internal static int ExpectedSubCount { get; set; }
-
-    private static readonly ConcurrentBag<IServerStreamWriter<TEvent>> _subscribers = new();
-
-    internal static void AddSubscriber(IServerStreamWriter<TEvent> stream)
-        => _subscribers.Add(stream);
-}
-
-internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where TEvent : class, IEvent
+internal sealed class EventHub<TEvent> : EventHubBase, IMethodBinder<EventHub<TEvent>> where TEvent : class, IEvent
 {
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent>> ctx)
     {
         var tEvent = typeof(TEvent);
 
-        var method = new Method<EmptyObject, TEvent>(
+        var method = new Method<string, TEvent>(
             type: MethodType.ServerStreaming,
             serviceName: tEvent.FullName!,
             name: "",
-            requestMarshaller: new MessagePackMarshaller<EmptyObject>(),
+            requestMarshaller: new MessagePackMarshaller<string>(),
             responseMarshaller: new MessagePackMarshaller<TEvent>());
 
         var metadata = new List<object>();
@@ -45,12 +51,45 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
         ctx.AddServerStreamingMethod(method, metadata, OnClientSubscribed);
     }
 
-    private Task OnClientSubscribed(EventHub<TEvent> _,
-                                    EmptyObject __,
-                                    IServerStreamWriter<TEvent> stream,
-                                    ServerCallContext ___)
+    private async Task OnClientSubscribed(EventHub<TEvent> _,
+                                          string streamID,
+                                          IServerStreamWriter<TEvent> stream,
+                                          ServerCallContext ctx)
     {
-        SubscriberStore<TEvent>.AddSubscriber(stream);
-        return Task.CompletedTask;
+        var q = _subscribers.GetOrAdd(streamID, new EventQueue());
+
+        while (!ctx.CancellationToken.IsCancellationRequested)
+        {
+            if (q.IsStale)
+                break;
+
+            if (!q.IsEmpty && q.TryPeek(out var evnt))
+            {
+                try
+                {
+                    await stream.WriteAsync((TEvent)evnt, ctx.CancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    break;
+                }
+
+                while (!q.TryDequeue(out var _))
+                    await Task.Delay(100);
+
+                q.LastDeQueueAt = DateTime.UtcNow;
+            }
+            else
+            {
+                await Task.Delay(500);
+            }
+
+        }
+    }
+
+    internal static void BroadcastEvent(TEvent evnt)
+    {
+        foreach (var q in _subscribers.Values)
+            q.Enqueue(evnt);
     }
 }

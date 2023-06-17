@@ -56,12 +56,12 @@ public sealed class HandlerOptions
     /// <typeparam name="THandler">the type of the handler for the incoming stream</typeparam>
     /// <typeparam name="TResult">the type of the result that will be returned from the handler when the stream ends</typeparam>
     public GrpcServiceEndpointConventionBuilder RegisterClientStream<T, THandler, TResult>()
-    where T : class
-    where THandler : class, IClientStreamCommandHandler<T, TResult>
-    where TResult : class
-        => routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
+        where T : class
+        where THandler : class, IClientStreamCommandHandler<T, TResult>
+        where TResult : class
+            => routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
 
-    public GrpcServiceEndpointConventionBuilder RegisterEvent<TEvent>()
+    public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>()
         where TEvent : class, IEvent
             => routeBuilder.MapGrpcService<EventHub<TEvent>>();
 }

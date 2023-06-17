@@ -59,7 +59,7 @@ public sealed class RemoteConnection
         _serviceProvider = serviceProvider;
     }
 
-    public void Subscribe<TEvent, TEventHandler>() where TEvent : class, IEvent where TEventHandler : IEventHandler<TEvent>
+    public void Subscribe<TEvent, TEventHandler>(CallOptions callOptions = default) where TEvent : class, IEvent where TEventHandler : IEventHandler<TEvent>
     {
         var tEventHandler = typeof(TEventHandler);
         RemoteMap[tEventHandler] = this;
@@ -68,7 +68,7 @@ public sealed class RemoteConnection
         {
             var eventExecutor = new EventHandlerExecutor<TEvent, TEventHandler>(_channel, _serviceProvider);
             _executorMap[tEventHandler] = eventExecutor;
-            eventExecutor.Start();
+            eventExecutor.Start(callOptions);
         }
     }
 

@@ -134,7 +134,7 @@ app.MapHandlers(h =>
 });
 
 //HANDLER CLIENT
-app.MapRemoteHandlers("http://test", c =>
+app.MapRemote("http://test", c =>
 {
     c.Register<TestVoidCommand>();
     c.Register<TestCommand, string>();

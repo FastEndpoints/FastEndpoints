@@ -11,20 +11,21 @@ namespace FastEndpoints;
 public static class RemoteConnectionExtensions
 {
     /// <summary>
-    /// creates a grpc channel/connection to a remote server that hosts a known collection of command handlers.
+    /// creates a grpc channel/connection to a remote server that hosts a known collection of command handlers and event hubs.
     /// <para>
     /// IMPORTANT: call the <see cref="RemoteConnection.Register{TCommand, TResult}"/> method (using action <paramref name="r"/>) to specify which commands are handled by this remote server.
+    /// event subscriptions can be specified using <see cref="RemoteConnection.Subscribe{TEvent, TEventHandler}(CallOptions)"/> method.
     /// </para>
     /// </summary>
     /// <param name="remoteAddress">the address of the remote server</param>
     /// <param name="r">a configuration action for the connection</param>
-    public static IHost MapRemoteHandlers(this IHost host, string remoteAddress, Action<RemoteConnection> r)
+    public static IHost MapRemote(this IHost host, string remoteAddress, Action<RemoteConnection> r)
     {
-        r(new RemoteConnection(remoteAddress));
+        r(new RemoteConnection(remoteAddress, host.Services));
         var logger = host.Services.GetRequiredService<ILogger<MessagingClient>>();
         logger.LogInformation(
             " Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}",
-            remoteAddress, RemoteConnection.CommandToRemoteMap.Count);
+            remoteAddress, RemoteConnection.RemoteMap.Count);
         return host;
     }
 
@@ -37,7 +38,7 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = command.GetType();
 
-        if (!RemoteConnection.CommandToRemoteMap.TryGetValue(tCommand, out var remote))
+        if (!RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
         return remote.ExecuteVoid(command, tCommand, options);
@@ -64,7 +65,7 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = command.GetType();
 
-        if (!RemoteConnection.CommandToRemoteMap.TryGetValue(tCommand, out var remote))
+        if (!RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
         return remote.ExecuteUnary(command, tCommand, options);
@@ -92,7 +93,7 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = command.GetType();
 
-        if (!RemoteConnection.CommandToRemoteMap.TryGetValue(tCommand, out var remote))
+        if (!RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
         return remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken);
@@ -124,7 +125,7 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = typeof(IAsyncEnumerable<T>);
 
-        if (!RemoteConnection.CommandToRemoteMap.TryGetValue(tCommand, out var remote))
+        if (!RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote))
             throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
 
         return remote.ExecuteClientStream<T, TResult>(commands, tCommand, options);

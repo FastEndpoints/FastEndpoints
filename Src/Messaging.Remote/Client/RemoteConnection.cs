@@ -10,13 +10,13 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class RemoteConnection
 {
-    //key: tCommand
-    //val: remote server that has handlers/event buses
-    internal static Dictionary<Type, RemoteConnection> CommandToRemoteMap { get; } = new();
+    //key: tCommand or tEventHandler
+    //val: remote server that hosts command handlers/event buses
+    internal static Dictionary<Type, RemoteConnection> RemoteMap { get; } = new();
 
     private GrpcChannel? _channel;
     private readonly Dictionary<Type, ICommandExecutor> _executorMap = new(); //key: tCommand, val: command executor wrapper
-    //private readonly IServiceProvider? _serviceProvider;
+    private readonly IServiceProvider? _serviceProvider;
 
     /// <summary>
     /// grpc channel settings
@@ -53,10 +53,30 @@ public sealed class RemoteConnection
     /// </summary>
     public string RemoteAddress { get; init; }
 
-    internal RemoteConnection(string address)//, IServiceProvider? serviceProvider = null)
+    internal RemoteConnection(string address, IServiceProvider? serviceProvider = null)
     {
         RemoteAddress = address;
-        //_serviceProvider = serviceProvider;
+        _serviceProvider = serviceProvider;
+    }
+
+    /// <summary>
+    /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent"/>) on the remote host.
+    /// the received events will be handled by the specified handler (<typeparamref name="TEventHandler"/>) on this machine.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
+    /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
+    /// <param name="callOptions">the call options</param>
+    public void Subscribe<TEvent, TEventHandler>(CallOptions callOptions = default) where TEvent : class, IEvent where TEventHandler : IEventHandler<TEvent>
+    {
+        var tEventHandler = typeof(TEventHandler);
+        RemoteMap[tEventHandler] = this;
+        _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
+        if (!_executorMap.ContainsKey(tEventHandler))
+        {
+            var eventExecutor = new EventHandlerExecutor<TEvent, TEventHandler>(_channel, _serviceProvider);
+            _executorMap[tEventHandler] = eventExecutor;
+            eventExecutor.Start(callOptions);
+        }
     }
 
     /// <summary>
@@ -66,7 +86,7 @@ public sealed class RemoteConnection
     public void Register<TCommand>() where TCommand : class, ICommand
     {
         var tCommand = typeof(TCommand);
-        CommandToRemoteMap[tCommand] = this;
+        RemoteMap[tCommand] = this;
         _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
         _executorMap[tCommand] = new VoidCommandExecutor<TCommand>(_channel);
     }
@@ -87,7 +107,7 @@ public sealed class RemoteConnection
     public void Register<TCommand, TResult>() where TCommand : class, ICommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);
-        CommandToRemoteMap[tCommand] = this;
+        RemoteMap[tCommand] = this;
         _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
         _executorMap[tCommand] = new UnaryCommandExecutor<TCommand, TResult>(_channel);
     }
@@ -108,7 +128,7 @@ public sealed class RemoteConnection
     public void RegisterServerStream<TCommand, TResult>() where TCommand : class, IServerStreamCommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);
-        CommandToRemoteMap[tCommand] = this;
+        RemoteMap[tCommand] = this;
         _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
         _executorMap[tCommand] = new ServerStreamCommandExecutor<TCommand, TResult>(_channel);
     }
@@ -129,7 +149,7 @@ public sealed class RemoteConnection
     public void RegisterClientStream<T, TResult>() where T : class where TResult : class
     {
         var tCommand = typeof(IAsyncEnumerable<T>);
-        CommandToRemoteMap[tCommand] = this;
+        RemoteMap[tCommand] = this;
         _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
         _executorMap[tCommand] = new ClientStreamCommandExecutor<T, TResult>(_channel);
     }

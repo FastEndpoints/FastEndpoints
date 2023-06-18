@@ -5,33 +5,17 @@ using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-internal abstract class EventHubBase
+internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where TEvent : class, IEvent
 {
-    //key: stream ID (identifies a unique subscriber from each remote client)
+    //key: subscriber ID (identifies a unique subscriber/client)
     //val: event queue for the unique client
-    protected static readonly ConcurrentDictionary<string, EventQueue> _subscribers = new();
+    private static readonly ConcurrentDictionary<string, EventQueue<TEvent>> _subscribers = new();
 
-    static EventHubBase()
+    static EventHub()
     {
-        _ = RemoveStaleSubscribers();
+        _ = StaleSubscriberPurgingTask();
     }
 
-    private static async Task RemoveStaleSubscribers()
-    {
-        while (true)
-        {
-            await Task.Delay(TimeSpan.FromHours(1));
-            foreach (var q in _subscribers)
-            {
-                if (q.Value.IsStale)
-                    _subscribers.TryRemove(q);
-            }
-        }
-    }
-}
-
-internal sealed class EventHub<TEvent> : EventHubBase, IMethodBinder<EventHub<TEvent>> where TEvent : class, IEvent
-{
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent>> ctx)
     {
         var tEvent = typeof(TEvent);
@@ -48,15 +32,15 @@ internal sealed class EventHub<TEvent> : EventHubBase, IMethodBinder<EventHub<TE
         if (handlerAttributes?.Length > 0) metadata.AddRange(handlerAttributes);
         metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
 
-        ctx.AddServerStreamingMethod(method, metadata, OnClientSubscribed);
+        ctx.AddServerStreamingMethod(method, metadata, OnClientConnected);
     }
 
-    private async Task OnClientSubscribed(EventHub<TEvent> _,
-                                          string streamID,
-                                          IServerStreamWriter<TEvent> stream,
-                                          ServerCallContext ctx)
+    private async Task OnClientConnected(EventHub<TEvent> _,
+                                         string subscriberID,
+                                         IServerStreamWriter<TEvent> stream,
+                                         ServerCallContext ctx)
     {
-        var q = _subscribers.GetOrAdd(streamID, new EventQueue());
+        var q = _subscribers.GetOrAdd(subscriberID, new EventQueue<TEvent>());
 
         while (!ctx.CancellationToken.IsCancellationRequested && !q.IsStale)
         {
@@ -64,11 +48,11 @@ internal sealed class EventHub<TEvent> : EventHubBase, IMethodBinder<EventHub<TE
             {
                 try
                 {
-                    await stream.WriteAsync((TEvent)evnt, ctx.CancellationToken);
+                    await stream.WriteAsync(evnt, ctx.CancellationToken);
                 }
                 catch
                 {
-                    break;
+                    break; //stream is most likely broken/cancelled
                 }
 
                 while (!q.TryDequeue(out var _))
@@ -83,9 +67,22 @@ internal sealed class EventHub<TEvent> : EventHubBase, IMethodBinder<EventHub<TE
         }
     }
 
-    internal static void BroadcastEvent(TEvent evnt)
+    internal static void AddToSubscriberQueues(TEvent evnt)
     {
         foreach (var q in _subscribers.Values)
             q.Enqueue(evnt);
+    }
+
+    private static async Task StaleSubscriberPurgingTask()
+    {
+        while (true)
+        {
+            await Task.Delay(TimeSpan.FromHours(1));
+            foreach (var q in _subscribers)
+            {
+                if (q.Value.IsStale)
+                    _subscribers.TryRemove(q);
+            }
+        }
     }
 }

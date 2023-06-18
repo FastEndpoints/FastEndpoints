@@ -59,6 +59,13 @@ public sealed class RemoteConnection
         _serviceProvider = serviceProvider;
     }
 
+    /// <summary>
+    /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent"/>) on the remote host.
+    /// the received events will be handled by the specified handler (<typeparamref name="TEventHandler"/>) on this machine.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
+    /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
+    /// <param name="callOptions">the call options</param>
     public void Subscribe<TEvent, TEventHandler>(CallOptions callOptions = default) where TEvent : class, IEvent where TEventHandler : IEventHandler<TEvent>
     {
         var tEventHandler = typeof(TEventHandler);

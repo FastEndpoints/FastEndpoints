@@ -61,6 +61,10 @@ public sealed class HandlerOptions
         where TResult : class
             => routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
 
+    /// <summary>
+    /// registers an "event hub" that broadcasts events of the given type to all remote subscribers in an asynchronous manner
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the event hub</typeparam>
     public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>()
         where TEvent : class, IEvent
             => routeBuilder.MapGrpcService<EventHub<TEvent>>();

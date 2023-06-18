@@ -13,9 +13,9 @@ namespace FastEndpoints;
 public static class HandlerServerExtensions
 {
     /// <summary>
-    /// configure the handler server which will host a collection of command handlers. this should only be called once per application.
+    /// configure the handler server which will host a collection of command handlers and event hubs. this should only be called once per application.
     /// <para>
-    /// IMPORTANT: specify wich handlers this server will be hosting via <see cref="MapHandlers(IEndpointRouteBuilder, Action{HandlerOptions})"/> method.
+    /// IMPORTANT: specify wich handlers/hubs this server will be hosting via <see cref="MapHandlers(IEndpointRouteBuilder, Action{HandlerOptions})"/> method.
     /// </para>
     /// </summary>
     /// <param name="o">optional grpc service settings</param>
@@ -37,7 +37,7 @@ public static class HandlerServerExtensions
     }
 
     /// <summary>
-    /// specify wich handlers (<see cref="ICommandHandler{TCommand, TResult}"/>) this server will be hosting
+    /// specify wich handlers/event hubs this server will be hosting
     /// </summary>
     /// <param name="b"></param>
     /// <param name="h"></param>

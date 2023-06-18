@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-internal sealed class EventQueue : ConcurrentQueue<object>
+internal sealed class EventQueue<TEvent> : ConcurrentQueue<TEvent> where TEvent : class, IEvent
 {
     internal DateTime LastDeQueueAt { private get; set; } = DateTime.UtcNow;
     private double ElapsedInactivityHrs => DateTime.UtcNow.Subtract(LastDeQueueAt).TotalHours;

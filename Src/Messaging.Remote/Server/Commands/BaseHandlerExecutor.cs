@@ -18,16 +18,19 @@ internal abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> 
                                            Method<TCommand, TResult> method,
                                            List<object> metadata);
 
-    protected virtual Task<TResult> ExecuteUnary(TSelf _, TCommand cmd, ServerCallContext ctx) => throw new NotImplementedException();
+    protected virtual Task<TResult> ExecuteUnary(TSelf _, TCommand cmd, ServerCallContext ctx)
+        => throw new NotImplementedException();
 
     protected virtual Task ExecuteServerStream(TSelf _,
-                                   TCommand cmd,
-                                   IServerStreamWriter<TResult> responseStream,
-                                   ServerCallContext ctx) => throw new NotImplementedException();
+                                               TCommand cmd,
+                                               IServerStreamWriter<TResult> responseStream,
+                                               ServerCallContext ctx)
+        => throw new NotImplementedException();
 
     protected virtual Task<TResult> ExecuteClientStream(TSelf _,
                                                         IAsyncStreamReader<TCommand> requestStream,
-                                                        ServerCallContext serverCallContext) => throw new NotImplementedException();
+                                                        ServerCallContext serverCallContext)
+        => throw new NotImplementedException();
 
     public void Bind(ServiceMethodProviderContext<TSelf> ctx)
     {

@@ -6,7 +6,17 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ---
 
-<!-- ### ⚠️ Breaking Changes -->
+### ⚠️ Minor Breaking Changes
+
+<details><summary>1️⃣ RPC remote connection configuration method renamed</summary>
+
+Due to the introduction of remote Pub/Sub messaging (see new features below), it no longer made sense to call the method `MapRemoteHandlers` as it now supports both remote handlers and event hubs.
+
+```cs
+app.MapRemoteHandlers(...) -> app.MapRemote(...)
+```
+</details>
+
 
 ### 📢 New
 
@@ -31,6 +41,12 @@ app.MapRemoteHandlers("http://localhost:6000", c =>
 //COMMAND EXECUTION
 await new SayHelloCommand { From = "mars" }.RemoteExecuteAsync();
 ```
+</details>
+
+<details><summary>2️⃣ Remote Pub/Sub Messaging</summary>
+
+todo: write doc page and point to it.
+
 </details>
 
 <!-- ### 🚀 Improvements -->

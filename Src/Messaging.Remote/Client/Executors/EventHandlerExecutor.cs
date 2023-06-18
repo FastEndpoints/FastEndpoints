@@ -33,15 +33,14 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
     {
         eventProducerTask ??= Task.Factory.StartNew(async () =>
         {
-            //a unique ID that survives exceptions/retries/reconnects but does not survive app/machine restarts
-            var streamID = Guid.NewGuid().ToString("N");
-            var call = _invoker.AsyncServerStreamingCall(_method, null, opts, streamID);
+            var subscriberID = (Environment.MachineName + GetType().FullName).ToHash();
+            var call = _invoker.AsyncServerStreamingCall(_method, null, opts, subscriberID);
 
             while (true)
             {
                 if (_events.Count >= queueSizeLimit)
                 {
-                    _logger?.LogWarning("Event receive queue for [stream-id: {stream} ({event})] is full! Resuming after 10 seconds...", streamID, typeof(TEvent));
+                    _logger?.LogWarning("Event receive queue for [id:{subscriber}({event})] is full! Resuming after 10 seconds...", subscriberID, typeof(TEvent));
                     await Task.Delay(10000);
                     continue;
                 }
@@ -55,9 +54,9 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogWarning("Event receive error in [stream-id: {stream} ({event})]: [{err}]. Retrying after 10 seconds...", streamID, typeof(TEvent), ex.Message);
+                    _logger?.LogWarning("Event receive error in [id:{subscriber}({event})]: [{err}]. Retrying after 10 seconds...", subscriberID, typeof(TEvent), ex.Message);
                     call.Dispose(); //the stream is most likely broken, so dispose it and initialize a new call
-                    call = _invoker.AsyncServerStreamingCall(_method, null, opts, streamID);
+                    call = _invoker.AsyncServerStreamingCall(_method, null, opts, subscriberID);
                     await Task.Delay(10000);
                 }
             }

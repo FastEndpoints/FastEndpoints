@@ -58,18 +58,15 @@ internal sealed class EventHub<TEvent> : EventHubBase, IMethodBinder<EventHub<TE
     {
         var q = _subscribers.GetOrAdd(streamID, new EventQueue());
 
-        while (!ctx.CancellationToken.IsCancellationRequested)
+        while (!ctx.CancellationToken.IsCancellationRequested && !q.IsStale)
         {
-            if (q.IsStale)
-                break;
-
             if (!q.IsEmpty && q.TryPeek(out var evnt))
             {
                 try
                 {
                     await stream.WriteAsync((TEvent)evnt, ctx.CancellationToken);
                 }
-                catch (Exception ex)
+                catch
                 {
                     break;
                 }
@@ -83,7 +80,6 @@ internal sealed class EventHub<TEvent> : EventHubBase, IMethodBinder<EventHub<TE
             {
                 await Task.Delay(500);
             }
-
         }
     }
 

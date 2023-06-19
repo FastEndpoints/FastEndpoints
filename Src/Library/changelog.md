@@ -43,9 +43,9 @@ await new SayHelloCommand { From = "mars" }.RemoteExecuteAsync();
 ```
 </details>
 
-<details><summary>2️⃣ Remote Pub/Sub Messaging</summary>
+<details><summary>2️⃣ Remote Pub/Sub Event Queues</summary>
 
-todo: write doc page and point to it.
+Please refer to the [documentation](https://fast-endpoints.com/docs/remote-procedure-calls#remote-pub-sub-event-queues) for details of this feature.
 
 </details>
 

@@ -7,11 +7,8 @@ namespace FastEndpoints.IntegrationTests.WebTests;
 
 public class AdminTests : EndToEndTestBase
 {
-    public AdminTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) :
-        base(endToEndTestFixture, outputHelper)
-    {
-        endToEndTestFixture.RegisterTestServices(services => { });
-    }
+    public AdminTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper)
+        : base(endToEndTestFixture, outputHelper) { }
 
     [Fact]
     public async Task AdminLoginWithBadInput()

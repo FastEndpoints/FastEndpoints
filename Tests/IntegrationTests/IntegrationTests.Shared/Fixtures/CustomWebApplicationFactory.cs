@@ -47,9 +47,7 @@ public class CustomWebApplicationFactory<TEntryPoint> : WebApplicationFactory<TE
         builder.ConfigureTestServices((services) =>
         {
             services.RemoveAll(typeof(IHostedService));
-
             services.AddHttpContextAccessor();
-
             TestRegistrationServices?.Invoke(services);
         });
 

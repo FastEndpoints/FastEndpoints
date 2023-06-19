@@ -12,7 +12,6 @@ public class EndToEndTestFixture : IAsyncLifetime
 
     public EndToEndTestFixture()
     {
-        // Ref: https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-6.0#basic-tests-with-the-default-webapplicationfactory
         _factory = new CustomWebApplicationFactory<Program>();
         Environment.SetEnvironmentVariable("DOTNET_hostBuilder:reloadConfigOnChange", "false");
     }
@@ -36,9 +35,6 @@ public class EndToEndTestFixture : IAsyncLifetime
 
     public HttpMessageHandler CreateHttpMessageHandler()
         => _factory.Server.CreateHandler();
-
-    public void RegisterTestServices(Action<IServiceCollection> services) =>
-        _factory.TestRegistrationServices = services;
 
     public virtual Task InitializeAsync()
     {

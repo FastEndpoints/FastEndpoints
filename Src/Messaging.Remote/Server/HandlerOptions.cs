@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
@@ -62,10 +64,28 @@ public sealed class HandlerOptions
             => routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
 
     /// <summary>
+    /// register a custom storage provider for event publishers
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the type of the event storage record</typeparam>
+    /// <typeparam name="TStorageProvider">the type of the event storage provider</typeparam>
+    public void EventPublisherStorageProvider<TStorageRecord, TStorageProvider>()
+        where TStorageRecord : IEventStorageRecord, new()
+        where TStorageProvider : class, IEventPublisherStorageProvider
+            => EventPublisherStorage.Initialize<TStorageRecord, TStorageProvider>(routeBuilder.ServiceProvider);
+
+    /// <summary>
     /// registers an "event hub" that broadcasts events of the given type to all remote subscribers in an asynchronous manner
     /// </summary>
     /// <typeparam name="TEvent">the type of the event hub</typeparam>
     public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>()
         where TEvent : class, IEvent
-            => routeBuilder.MapGrpcService<EventHub<TEvent>>();
+    {
+        if (!EventPublisherStorage.IsInitialized)
+            EventPublisherStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventPublisherStorage>(routeBuilder.ServiceProvider);
+
+        //there's no DI for EventHub<TEvent> :-(
+        EventHub<TEvent>.Logger ??= routeBuilder.ServiceProvider.GetRequiredService<ILogger<EventHub<TEvent>>>();
+
+        return routeBuilder.MapGrpcService<EventHub<TEvent>>();
+    }
 }

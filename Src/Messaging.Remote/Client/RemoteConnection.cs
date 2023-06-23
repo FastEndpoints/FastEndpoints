@@ -56,7 +56,7 @@ public sealed class RemoteConnection
     internal RemoteConnection(string address, IServiceProvider? serviceProvider = null)
     {
         RemoteAddress = address;
-        _serviceProvider = serviceProvider;
+        _serviceProvider = serviceProvider; //only null in unit tests for commands (non-events).
     }
 
     /// <summary>
@@ -71,8 +71,12 @@ public sealed class RemoteConnection
         var tEventHandler = typeof(TEventHandler);
         RemoteMap[tEventHandler] = this;
         _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
+
         if (!_executorMap.ContainsKey(tEventHandler))
         {
+            if (!EventSubscriberStorage.IsInitalized)
+                EventSubscriberStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventSubscriberStorage>(_serviceProvider!);
+
             var eventExecutor = new EventHandlerExecutor<TEvent, TEventHandler>(_channel, _serviceProvider);
             _executorMap[tEventHandler] = eventExecutor;
             eventExecutor.Start(callOptions);

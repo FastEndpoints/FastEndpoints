@@ -10,6 +10,11 @@ namespace FastEndpoints;
 /// </summary>
 public static class RemoteConnectionExtensions
 {
+    public static void EventSubscriberStorageProvider<TStorageRecord, TStorageProvider>(this IHost host)
+        where TStorageRecord : IEventStorageRecord, new()
+        where TStorageProvider : class, IEventSubscriberStorageProvider
+            => EventSubscriberStorage.Initialize<TStorageRecord, TStorageProvider>(host.Services);
+
     /// <summary>
     /// creates a grpc channel/connection to a remote server that hosts a known collection of command handlers and event hubs.
     /// <para>
@@ -22,7 +27,7 @@ public static class RemoteConnectionExtensions
     public static IHost MapRemote(this IHost host, string remoteAddress, Action<RemoteConnection> r)
     {
         r(new RemoteConnection(remoteAddress, host.Services));
-        var logger = host.Services.GetRequiredService<ILogger<MessagingClient>>();
+        var logger = host.Services.GetRequiredService<ILogger<RemoteConnection>>();
         logger.LogInformation(
             " Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}",
             remoteAddress, RemoteConnection.RemoteMap.Count);
@@ -143,5 +148,3 @@ public static class RemoteConnectionExtensions
         return remote.ExecuteClientStream<T, TResult>(commands, typeof(IAsyncEnumerable<T>), options);
     }
 }
-
-internal sealed class MessagingClient { }

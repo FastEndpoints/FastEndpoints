@@ -6,6 +6,6 @@ public static class EventExtensions
     /// broadcast/publish an event to all remote subscribers
     /// </summary>
     /// <typeparam name="TEvent">the type of the event being broadcasted</typeparam>
-    public static void Broadcast<TEvent>(this TEvent evnt) where TEvent : class, IEvent
-        => EventHub<TEvent>.AddToSubscriberQueues(evnt);
+    public static void Broadcast<TEvent>(this TEvent evnt, CancellationToken ct = default) where TEvent : class, IEvent
+        => EventHub<TEvent>.AddToSubscriberQueues(evnt, ct);
 }

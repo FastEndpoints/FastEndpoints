@@ -18,6 +18,8 @@ internal sealed class InMemoryEventPublisherStorage : IEventPublisherStorageProv
 
         if (!q.IsStale)
             q.Records.Enqueue(e);
+        else
+            throw new OverflowException();
 
         return ValueTask.CompletedTask;
     }

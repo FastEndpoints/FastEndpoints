@@ -63,6 +63,11 @@ public sealed class HandlerOptions
         where TResult : class
             => routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
 
+    /// <summary>
+    /// register a custom storage provider for event publishers
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the type of the event storage record</typeparam>
+    /// <typeparam name="TStorageProvider">the type of the event storage provider</typeparam>
     public void EventPublisherStorageProvider<TStorageRecord, TStorageProvider>()
         where TStorageRecord : IEventStorageRecord, new()
         where TStorageProvider : class, IEventPublisherStorageProvider

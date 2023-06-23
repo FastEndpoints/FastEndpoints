@@ -27,7 +27,7 @@ public static class RemoteConnectionExtensions
     public static IHost MapRemote(this IHost host, string remoteAddress, Action<RemoteConnection> r)
     {
         r(new RemoteConnection(remoteAddress, host.Services));
-        var logger = host.Services.GetRequiredService<ILogger<MessagingClient>>();
+        var logger = host.Services.GetRequiredService<ILogger<RemoteConnection>>();
         logger.LogInformation(
             " Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}",
             remoteAddress, RemoteConnection.RemoteMap.Count);
@@ -148,5 +148,3 @@ public static class RemoteConnectionExtensions
         return remote.ExecuteClientStream<T, TResult>(commands, typeof(IAsyncEnumerable<T>), options);
     }
 }
-
-internal sealed class MessagingClient { }

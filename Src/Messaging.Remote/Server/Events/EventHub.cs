@@ -11,8 +11,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
     internal static ILogger Logger = default!;
 
     //key: subscriber id
-    //val: last dequeue time
-    private static readonly ConcurrentDictionary<string, DateTime> _subscribers = new();
+    private static readonly ConcurrentDictionary<string, byte> _subscribers = new();
 
     static EventHub()
     {
@@ -22,7 +21,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
             Thread.Sleep(1);
 
         foreach (var subID in t.Result)
-            _subscribers[subID] = DateTime.UtcNow;
+            _subscribers[subID] = 0;
     }
 
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent>> ctx)
@@ -44,13 +43,12 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
         ctx.AddServerStreamingMethod(method, metadata, OnClientConnected);
     }
 
-    private async Task OnClientConnected(EventHub<TEvent> _,
-                                         string subscriberID,
-                                         IServerStreamWriter<TEvent> stream,
-                                         ServerCallContext ctx)
+    private async Task OnClientConnected(EventHub<TEvent> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
     {
         while (!ctx.CancellationToken.IsCancellationRequested)
         {
+            _subscribers.GetOrAdd(subscriberID, 0);
+
             IEventStorageRecord? evntRecord;
 
             try
@@ -83,7 +81,6 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                     try
                     {
                         await EventPublisherStorage.Provider.MarkEventAsCompleteAsync(evntRecord, ctx.CancellationToken);
-                        _subscribers[subscriberID] = DateTime.UtcNow;
                         break;
                     }
                     catch (Exception ex)
@@ -117,6 +114,14 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 try
                 {
                     await EventPublisherStorage.Provider.StoreEventAsync(record, ct);
+                    break;
+                }
+                catch (OverflowException)
+                {
+                    _subscribers.Remove(subId, out _);
+                    Logger.LogWarning("Event queue for [subscriber-id:{subid}]({tevent}) is full! The subscriber has been removed from the broadcast list.",
+                        subId,
+                        typeof(TEvent).FullName);
                     break;
                 }
                 catch (Exception ex)

@@ -26,6 +26,10 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
         _serviceProvider = serviceProvider;
         _logger = serviceProvider?.GetRequiredService<ILogger<EventHandlerExecutor<TEvent, TEventHandler>>>();
         _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target).ToHash();
+        _logger?.LogInformation("Event subscriber registered! [id: {subid}] ({thandler}<{tevent}>)",
+            _subscriberID,
+            typeof(TEventHandler).FullName,
+            typeof(TEvent).FullName);
     }
 
     internal void Start(CallOptions opts)

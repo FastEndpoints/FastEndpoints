@@ -8,12 +8,13 @@ public interface IEventStorageRecord
     /// <summary>
     /// a subscriber id is a uniqu identifier of an event stream subscriber on a remote node.
     /// it is a unique id per each event handler type (TEvent+TEventHandler combo).
-    /// you don't have to worry about generating this as it will automatically be set by FE.
+    /// you don't have to worry about generating this as it will automatically be set by the library.
     /// </summary>
     string SubscriberID { get; set; }
 
     /// <summary>
-    /// the actual event object that will be embedded in the storage record
+    /// the actual event object that will be embedded in the storage record.
+    /// if your database doesn't support embedding objects, you may have to serialize the object and store it in this property.
     /// </summary>
     object Event { get; set; }
 

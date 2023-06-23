@@ -108,6 +108,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
             record.SubscriberID = subId;
             record.Event = evnt;
             record.EventType = typeof(TEvent).FullName!;
+            record.ExpireOn = DateTime.UtcNow.AddHours(4);
 
             while (!ct.IsCancellationRequested)
             {

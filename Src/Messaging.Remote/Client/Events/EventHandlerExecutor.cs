@@ -48,6 +48,7 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
                         record.SubscriberID = _subscriberID;
                         record.Event = call.ResponseStream.Current;
                         record.EventType = typeof(TEvent).FullName!;
+                        record.ExpireOn = DateTime.UtcNow.AddHours(4);
 
                         while (!opts.CancellationToken.IsCancellationRequested)
                         {

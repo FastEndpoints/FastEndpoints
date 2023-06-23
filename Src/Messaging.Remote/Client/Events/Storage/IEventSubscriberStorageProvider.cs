@@ -16,7 +16,7 @@ public interface IEventSubscriberStorageProvider
     /// fetch the next pending event storage record that needs to be processed.
     /// <code>
     ///   Where(e => e.SubscriberID == subscriberID &amp;&amp; !e.IsComplete &amp;&amp; DateTime.UtcNow &lt;= e.ExpireOn)
-    ///   OrderDescending(e => e.Id)
+    ///   OrderAscending(e => e.Id)
     ///   Take(1)
     /// </code>
     /// </summary>
@@ -33,7 +33,7 @@ public interface IEventSubscriberStorageProvider
     ValueTask MarkEventAsCompleteAsync(IEventStorageRecord e, CancellationToken ct);
 
     /// <summary>
-    /// this method will be called hourly. implement this method to remove both expired and incomplete records from storage.
+    /// this method will be called hourly. implement this method to remove stale records (expired+incomplete) from storage.
     /// or instead of removing them, you can move them to some other location (dead-letter-queue maybe) or for inspection by a human.
     /// or if you'd like to retry expired events, update the <see cref="IEventStorageRecord.ExpireOn"/> field to a future date/time.
     /// </summary>

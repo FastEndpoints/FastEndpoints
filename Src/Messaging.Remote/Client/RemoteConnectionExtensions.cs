@@ -50,7 +50,7 @@ public static class RemoteConnectionExtensions
     }
 
     //only used by integration tests
-    public static Task TestRemoteExecuteAsync<TCommand>(this ICommand command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
+    internal static Task TestRemoteExecuteAsync<TCommand>(this ICommand command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
         where TCommand : class, ICommand
     {
         var remote = new RemoteConnection("http://testhost");
@@ -77,7 +77,7 @@ public static class RemoteConnectionExtensions
     }
 
     //only used by integration tests
-    public static Task<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this ICommand<TResult> command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
+    internal static Task<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this ICommand<TResult> command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
         where TCommand : class, ICommand<TResult>
         where TResult : class
     {
@@ -105,7 +105,7 @@ public static class RemoteConnectionExtensions
     }
 
     //only used by integration tests
-    public static IAsyncEnumerable<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this IServerStreamCommand<TResult> command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
+    internal static IAsyncEnumerable<TResult> TestRemoteExecuteAsync<TCommand, TResult>(this IServerStreamCommand<TResult> command, HttpMessageHandler httpMessageHandler, CallOptions options = default)
         where TCommand : class, IServerStreamCommand<TResult>
         where TResult : class
     {
@@ -137,7 +137,7 @@ public static class RemoteConnectionExtensions
     }
 
     //only used by integration tests
-    public static Task<TResult> TestRemoteExecuteAsync<T, TResult>(this IAsyncEnumerable<T> commands, HttpMessageHandler httpMessageHandler, CallOptions options = default)
+    internal static Task<TResult> TestRemoteExecuteAsync<T, TResult>(this IAsyncEnumerable<T> commands, HttpMessageHandler httpMessageHandler, CallOptions options = default)
         where T : class
         where TResult : class
     {

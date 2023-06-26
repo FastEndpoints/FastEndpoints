@@ -84,4 +84,10 @@ public class EventQueueTests
             }
         }
     }
+
+    [Fact]
+    public async Task subscriber()
+    {
+
+    }
 }

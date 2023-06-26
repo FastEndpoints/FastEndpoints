@@ -11,7 +11,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
     internal static ILogger Logger = default!;
 
     //key: subscriber id
-    private static readonly ConcurrentDictionary<string, byte> _subscribers = new();
+    private static readonly ConcurrentDictionary<string, bool> _subscribers = new();
 
     static EventHub()
     {
@@ -21,7 +21,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
             Thread.Sleep(1);
 
         foreach (var subID in t.Result)
-            _subscribers[subID] = 0;
+            _subscribers[subID] = false;
     }
 
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent>> ctx)
@@ -43,11 +43,11 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
         ctx.AddServerStreamingMethod(method, metadata, OnClientConnected);
     }
 
-    private async Task OnClientConnected(EventHub<TEvent> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
+    internal async Task OnClientConnected(EventHub<TEvent> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
     {
         while (!ctx.CancellationToken.IsCancellationRequested)
         {
-            _subscribers.GetOrAdd(subscriberID, 0);
+            _subscribers.GetOrAdd(subscriberID, false);
 
             IEventStorageRecord? evntRecord;
 

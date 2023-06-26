@@ -1,4 +1,8 @@
-﻿using Xunit;
+﻿using FakeItEasy;
+using Grpc.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Xunit;
 
 namespace FastEndpoints.UnitTests;
 
@@ -86,8 +90,44 @@ public class EventQueueTests
     }
 
     [Fact]
-    public async Task subscriber()
+    public async Task subscriber_hub_success_path()
     {
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
+        EventPublisherStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventPublisherStorage>(provider);
 
+        var hub = new EventHub<TestEvent>();
+        var logger = A.Fake<ILogger>();
+        EventHub<TestEvent>.Logger = logger;
+
+        var writer = new TestServerStreamWriter<TestEvent>();
+
+        var ctx = A.Fake<ServerCallContext>();
+        A.CallTo(ctx).WithReturnType<CancellationToken>().Returns(default);
+
+        _ = hub.OnClientConnected(hub, "sub1", writer, ctx);
+        _ = hub.OnClientConnected(hub, "sub2", writer, ctx);
+
+        var e1 = new TestEvent { EventID = 0 };
+        EventHub<TestEvent>.AddToSubscriberQueues(e1, default);
+
+        await Task.Delay(500);
+
+        writer.Responses[0].EventID.Should().Be(0);
+        writer.Responses[1].EventID.Should().Be(0);
+    }
+
+    private class TestEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    private class TestServerStreamWriter<T> : IServerStreamWriter<T>
+    {
+        public WriteOptions? WriteOptions { get; set; }
+        public List<T> Responses { get; } = new List<T>();
+
+        public async Task WriteAsync(T message)
+            => Responses.Add(message);
     }
 }

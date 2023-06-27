@@ -18,9 +18,9 @@ internal sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
         => ctx.AddServerStreamingMethod(method, metadata, ExecuteServerStream);
 
     protected async override Task ExecuteServerStream(ServerStreamHandlerExecutor<TCommand, THandler, TResult> _,
-                                          TCommand cmd,
-                                          IServerStreamWriter<TResult> responseStream,
-                                          ServerCallContext ctx)
+                                                      TCommand cmd,
+                                                      IServerStreamWriter<TResult> responseStream,
+                                                      ServerCallContext ctx)
     {
         var handler = (THandler)_handlerFactory(ctx.GetHttpContext().RequestServices, null);
         await foreach (var item in handler.ExecuteAsync(cmd, ctx.CancellationToken))

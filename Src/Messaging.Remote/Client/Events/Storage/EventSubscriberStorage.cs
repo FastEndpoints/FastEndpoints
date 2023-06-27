@@ -4,9 +4,9 @@ namespace FastEndpoints;
 
 internal static class EventSubscriberStorage
 {
-    internal static bool IsInitalized;
-    internal static Func<IEventStorageRecord> RecordFactory { get; set; } = default!;
-    internal static IEventSubscriberStorageProvider Provider { get; set; } = default!;
+    internal static bool IsInitalized { get; private set; }
+    internal static Func<IEventStorageRecord> RecordFactory { get; private set; } = default!;
+    internal static IEventSubscriberStorageProvider Provider { get; private set; } = default!;
 
     static EventSubscriberStorage()
     {

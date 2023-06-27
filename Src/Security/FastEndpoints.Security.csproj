@@ -11,13 +11,18 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.15" />
-    </ItemGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.5" />
+        <PackageReference
+            Condition="'$(TargetFramework)' == 'net6.0'"
+            Include="Microsoft.AspNetCore.Authentication.JwtBearer" 
+            Version="6.0.15" />
+        <PackageReference
+            Condition="'$(TargetFramework)' == 'net7.0'"
+            Include="Microsoft.AspNetCore.Authentication.JwtBearer" 
+            Version="7.0.5" />
+        <PackageReference
+            Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'"
+            Include="Microsoft.Bcl.TimeProvider"
+            Version="8.0.0-preview*" />        
     </ItemGroup>
 
     <ItemGroup>

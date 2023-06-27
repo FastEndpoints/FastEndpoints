@@ -148,7 +148,7 @@ public static class JWTBearer
         {
             Issuer = issuer,
             Audience = audience,
-            IssuedAt = DateTime.UtcNow,
+            IssuedAt = (Config.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime,
             Subject = new ClaimsIdentity(claimList),
             Expires = expireAt,
             SigningCredentials = GetSigningCredentials(signingKey, signingStyle)

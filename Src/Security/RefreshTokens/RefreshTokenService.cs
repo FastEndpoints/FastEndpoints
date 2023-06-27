@@ -86,8 +86,9 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         if (request is not null) //only true on renewal
             await SetRenewalPrivilegesAsync((TRequest)request, privs);
 
-        var accessExpiry = DateTime.UtcNow.Add(opts.AccessTokenValidity);
-        var refreshExpiry = DateTime.UtcNow.Add(opts.RefreshTokenValidity);
+        var time = FastEndpoints.Config.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
+        var accessExpiry = time.GetUtcNow().Add(opts.AccessTokenValidity).UtcDateTime;
+        var refreshExpiry = time.GetUtcNow().Add(opts.RefreshTokenValidity).UtcDateTime;
         var token = new TResponse()
         {
             UserId = userId,

@@ -8,66 +8,14 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ### 📢 New
 
-<details><summary>1️⃣ Support for RPC Commands that do not return any result</summary>
+<details><summary>1️⃣ Support for TimeProvider in FastEndpoints.Security package</summary>
 
-Remote procedure calls via `ICommand` & `ICommandHandler<TCommand>` is now possible which the initial RPC feature did not support. Command/Handler registration is done the same way:
-
-```cs
-//SERVER
-app.MapHandlers(h =>
-{
-    h.Register<SayHelloCommand, SayHelloHandler>();
-});
-
-//CLIENT
-```cs
-app.MapRemote("http://localhost:6000", c =>
-{
-    c.Register<SayHelloCommand>();
-});
-
-//COMMAND EXECUTION
-await new SayHelloCommand { From = "mars" }.RemoteExecuteAsync();
-```
-</details>
-
-<details><summary>2️⃣ Reliable remote Pub/Sub event queues</summary>
-
-Please refer to the [documentation](https://fast-endpoints.com/docs/remote-procedure-calls#remote-pub-sub-event-queues) for details of this feature.
+You can now register your own [TimeProvider](https://learn.microsoft.com/en-us/dotnet/api/system.timeprovider) implementation in the IOC container and the `FastEndpoints.Security` package will use that implementation to obtain the current time for token creation. If no `TimeProvider` is registered, the `TimeProvider.System` default implementation is used. There's no need to wait for .NET 8.0 release since the `TimeProvider` abstract class is already in a `netstandard2.0` BCL package on nuget. #458
 
 </details>
 
 <!-- ### 🚀 Improvements -->
 
-### 🪲 Fixes
+<!-- ### 🪲 Fixes -->
 
-<details><summary>1️⃣ Scope creation in a Validator was throwing an exception in unit tests</summary>
-
-Validator code such as the following was preventing the validator from being unit tested via the `Factory.CreateValidator<T>()` method, which has now been fixed.
-
-```cs
-public class IdValidator : Validator<RequestDto>
-{
-    public IdValidator()
-    {
-        using var scope = CreateScope();
-        var idChecker = scope.Resolve<IdValidationService>();
-
-        RuleFor(x => x.Id).Must((id)
-            => idChecker.IsValidId(id));
-    }
-}
-```
-
-</details>
-
-### ⚠️ Minor Breaking Changes
-
-<details><summary>1️⃣ RPC remote connection configuration method renamed</summary>
-
-Due to the introduction of remote Pub/Sub messaging (see new features below), it no longer made sense to call the method `MapRemoteHandlers` as it now supports both remote handlers and event hubs.
-
-```cs
-app.MapRemoteHandlers(...) -> app.MapRemote(...)
-```
-</details>
+<!-- ### ⚠️ Minor Breaking Changes -->

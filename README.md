@@ -21,4 +21,4 @@ Please visit the official website for detailed documentation...
 
 - [Pique Events](#) - Pique Events allows couples to search, compare and book their All Inclusive Wedding Package in one place.
 
-- [Hungry Mins](#) - Hungry Minds is an online platform for learning and sharing knowledge with an intricately woven community of like minded people.
+- [Hungry Minds](#) - Hungry Minds is an online platform for learning and sharing knowledge with an intricately woven community of like minded people.

@@ -11,3 +11,14 @@ Performance is on par with Minimal APIs. It's faster, uses less memory and does 
 ## Documentation: [https://fast-endpoints.com](https://fast-endpoints.com)
 
 Please visit the official website for detailed documentation...
+
+---
+
+## Meet Our Sponsors:
+- [VeeFriends](https://veefriends.com/) - VeeFriends is an innovative entertainment company that uses its unique art, compelling storytelling, and collectibles to enhance its intellectual property.
+
+- [EKBY'S](https://ekbys.com/) - EKBY'S provides digital sales & marketing solutions to the Food & Beverage industry.
+
+- [Pique Events](#) - Pique Events allows couples to search, compare and book their All Inclusive Wedding Package in one place.
+
+- [Hungry Mins](#) - Hungry Minds is an online platform for learning and sharing knowledge with an intricately woven community of like minded people.

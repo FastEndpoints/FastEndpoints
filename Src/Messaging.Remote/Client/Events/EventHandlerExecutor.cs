@@ -14,11 +14,6 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
     private readonly ILogger<EventHandlerExecutor<TEvent, TEventHandler>>? _logger;
     private readonly string _subscriberID;
 
-#pragma warning disable IDE0052
-    private Task? eventProducerTask;
-    private Task? eventConsumerTask;
-#pragma warning restore IDE0052
-
     internal EventHandlerExecutor(GrpcChannel channel, IServiceProvider? serviceProvider)
         : base(channel, MethodType.ServerStreaming, $"{typeof(TEvent).FullName}")
     {
@@ -34,112 +29,115 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
 
     internal void Start(CallOptions opts)
     {
-        eventProducerTask ??= Task.Factory.StartNew(async () =>
+        _ = EventProducer(opts, _invoker, _method, _subscriberID, _logger);
+        _ = EventConsumer(opts, _subscriberID, _logger, _handlerFactory, _serviceProvider);
+    }
+
+    private static async Task EventProducer(CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger)
+    {
+        var call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
+
+        while (!opts.CancellationToken.IsCancellationRequested)
         {
-            var call = _invoker.AsyncServerStreamingCall(_method, null, opts, _subscriberID);
-
-            while (!opts.CancellationToken.IsCancellationRequested)
+            try
             {
-                try
+                while (await call.ResponseStream.MoveNext(opts.CancellationToken)) // actual network call happens on MoveNext()
                 {
-                    while (await call.ResponseStream.MoveNext(opts.CancellationToken)) // actual network call happens on MoveNext()
-                    {
-                        var record = EventSubscriberStorage.RecordFactory();
-                        record.SubscriberID = _subscriberID;
-                        record.Event = call.ResponseStream.Current;
-                        record.EventType = typeof(TEvent).FullName!;
-                        record.ExpireOn = DateTime.UtcNow.AddHours(4);
-
-                        while (!opts.CancellationToken.IsCancellationRequested)
-                        {
-                            try
-                            {
-                                await EventSubscriberStorage.Provider.StoreEventAsync(record, opts.CancellationToken);
-                                break;
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger?.LogError("Event storage 'create' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                                    _subscriberID,
-                                    typeof(TEvent).FullName,
-                                    ex.Message);
-                                await Task.Delay(5000);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogTrace("Event 'receive' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                        _subscriberID,
-                        typeof(TEvent),
-                        ex.Message);
-                    call.Dispose(); //the stream is most likely broken, so dispose it and initialize a new call
-                    await Task.Delay(5000);
-                    call = _invoker.AsyncServerStreamingCall(_method, null, opts, _subscriberID);
-                }
-            }
-        }, TaskCreationOptions.LongRunning);
-
-        eventConsumerTask ??= Task.Factory.StartNew(async () =>
-        {
-            while (!opts.CancellationToken.IsCancellationRequested)
-            {
-                IEventStorageRecord? evntRecord;
-
-                try
-                {
-                    evntRecord = await EventSubscriberStorage.Provider.GetNextEventAsync(_subscriberID, opts.CancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogError("Event storage 'retrieval' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                        _subscriberID,
-                        typeof(TEvent).FullName,
-                        ex.Message);
-                    await Task.Delay(5000);
-                    continue;
-                }
-
-                if (evntRecord is not null)
-                {
-                    var handler = (TEventHandler)_handlerFactory(_serviceProvider!, null);
-
-                    try
-                    {
-                        await handler.HandleAsync((TEvent)evntRecord.Event, opts.CancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger?.LogCritical("Event [{event}] execution error: [{err}]. Retrying after 5 seconds...",
-                            typeof(TEvent).FullName,
-                            ex.Message);
-                        await Task.Delay(5000);
-                        continue;
-                    }
+                    var record = EventSubscriberStorage.RecordFactory();
+                    record.SubscriberID = subscriberID;
+                    record.Event = call.ResponseStream.Current;
+                    record.EventType = typeof(TEvent).FullName!;
+                    record.ExpireOn = DateTime.UtcNow.AddHours(4);
 
                     while (!opts.CancellationToken.IsCancellationRequested)
                     {
                         try
                         {
-                            await EventSubscriberStorage.Provider.MarkEventAsCompleteAsync(evntRecord, opts.CancellationToken);
+                            await EventSubscriberStorage.Provider.StoreEventAsync(record, opts.CancellationToken);
                             break;
                         }
                         catch (Exception ex)
                         {
-                            _logger?.LogError("Event storage 'update' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                                _subscriberID,
+                            logger?.LogError("Event storage 'create' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
+                                subscriberID,
                                 typeof(TEvent).FullName,
                                 ex.Message);
                             await Task.Delay(5000);
                         }
                     }
                 }
-                else
+            }
+            catch (Exception ex)
+            {
+                logger?.LogTrace("Event 'receive' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
+                    subscriberID,
+                    typeof(TEvent),
+                    ex.Message);
+                call.Dispose(); //the stream is most likely broken, so dispose it and initialize a new call
+                await Task.Delay(5000);
+                call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
+            }
+        }
+    }
+
+    private static async Task EventConsumer(CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider)
+    {
+        while (!opts.CancellationToken.IsCancellationRequested)
+        {
+            IEventStorageRecord? evntRecord;
+
+            try
+            {
+                evntRecord = await EventSubscriberStorage.Provider.GetNextEventAsync(subscriberID, opts.CancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError("Event storage 'retrieval' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
+                    subscriberID,
+                    typeof(TEvent).FullName,
+                    ex.Message);
+                await Task.Delay(5000);
+                continue;
+            }
+
+            if (evntRecord is not null)
+            {
+                var handler = (TEventHandler)handlerFactory(serviceProvider!, null);
+
+                try
                 {
-                    await Task.Delay(300);
+                    await handler.HandleAsync((TEvent)evntRecord.Event, opts.CancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogCritical("Event [{event}] execution error: [{err}]. Retrying after 5 seconds...",
+                        typeof(TEvent).FullName,
+                        ex.Message);
+                    await Task.Delay(5000);
+                    continue;
+                }
+
+                while (!opts.CancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        await EventSubscriberStorage.Provider.MarkEventAsCompleteAsync(evntRecord, opts.CancellationToken);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger?.LogError("Event storage 'update' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
+                            subscriberID,
+                            typeof(TEvent).FullName,
+                            ex.Message);
+                        await Task.Delay(5000);
+                    }
                 }
             }
-        }, TaskCreationOptions.LongRunning);
+            else
+            {
+                await Task.Delay(300);
+            }
+        }
     }
 }

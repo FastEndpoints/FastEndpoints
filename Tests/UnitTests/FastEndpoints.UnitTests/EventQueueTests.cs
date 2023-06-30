@@ -97,8 +97,7 @@ public class EventQueueTests
         EventPublisherStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventPublisherStorage>(provider);
 
         var hub = new EventHub<TestEvent>();
-        var logger = A.Fake<ILogger>();
-        EventHub<TestEvent>.Logger = logger;
+        EventHub<TestEvent>.Logger = A.Fake<ILogger>();
 
         var writer = new TestServerStreamWriter<TestEvent>();
 
@@ -109,7 +108,7 @@ public class EventQueueTests
         _ = hub.OnClientConnected(hub, "sub2", writer, ctx);
 
         var e1 = new TestEvent { EventID = 0 };
-        EventHub<TestEvent>.AddToSubscriberQueues(e1, default);
+        await EventHub<TestEvent>.AddToSubscriberQueues(e1, default);
 
         await Task.Delay(500);
 

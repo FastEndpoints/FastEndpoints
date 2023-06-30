@@ -100,7 +100,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
         }
     }
 
-    internal static async void AddToSubscriberQueues(TEvent evnt, CancellationToken ct)
+    internal static async Task AddToSubscriberQueues(TEvent evnt, CancellationToken ct)
     {
         foreach (var subId in _subscribers.Keys)
         {

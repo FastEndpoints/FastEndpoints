@@ -123,7 +123,6 @@ if (!app.Environment.IsProduction())
     app.UseSwaggerGen();
 }
 
-//HANDLER SERVER
 app.MapHandlers(h =>
 {
     h.Register<TestVoidCommand, TestVoidCommandHandler>();
@@ -131,16 +130,6 @@ app.MapHandlers(h =>
     h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
     h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
     h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
-});
-
-//HANDLER CLIENT
-app.MapRemote("http://test", c =>
-{
-    c.Register<TestVoidCommand>();
-    c.Register<TestCommand, string>();
-    c.Register<EchoCommand, EchoCommand>();
-    c.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
-    c.RegisterClientStream<CurrentPosition, ProgressReport>();
 });
 
 app.Run();

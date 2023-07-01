@@ -85,9 +85,6 @@ public class RPCTests : EndToEndTestBase
     [Fact]
     public async Task Client_Stream_RPC()
     {
-        //var report = await GetDataStream()
-        //    .TestRemoteExecuteAsync<CurrentPosition, ProgressReport>(httpMessageHandler);
-
         var input = GetDataStream();
 
         var report = await remote.ExecuteClientStream<CurrentPosition, ProgressReport>(

@@ -14,6 +14,7 @@ internal abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> 
     protected static readonly ObjectFactory _handlerFactory = ActivatorUtilities.CreateFactory(typeof(THandler), Type.EmptyTypes);
 
     protected abstract MethodType MethodType();
+
     protected abstract void AddMethodToCtx(ServiceMethodProviderContext<TSelf> ctx,
                                            Method<TCommand, TResult> method,
                                            List<object> metadata);

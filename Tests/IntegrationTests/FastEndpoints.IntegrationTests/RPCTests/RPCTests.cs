@@ -2,6 +2,7 @@
 using IntegrationTests.Shared.Fixtures;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
+using TestCases.EventQueueTest;
 using TestCases.ServerStreamingTest;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,17 +15,19 @@ public class RPCTests : EndToEndTestBase
 
     public RPCTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
     {
-        remote = new RemoteConnection("http://testhost");
+        remote = new RemoteConnection("http://testhost"); //the actual hostname doesn't matter as we're replacing the httphandler below
         remote.ChannelOptions.HttpHandler = endToEndTestFixture.CreateHttpMessageHandler();
         remote.Register<TestVoidCommand>();
         remote.Register<TestCommand, string>();
         remote.Register<EchoCommand, EchoCommand>();
         remote.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
         remote.RegisterClientStream<CurrentPosition, ProgressReport>();
+        remote.Subscribe<TestEvent, TestEventHandler>();
+        Thread.Sleep(500);
     }
 
     [Fact]
-    public async Task Void_RPC()
+    public async Task Void()
     {
         var command = new TestVoidCommand
         {
@@ -35,7 +38,7 @@ public class RPCTests : EndToEndTestBase
     }
 
     [Fact]
-    public async Task Unary_RPC()
+    public async Task Unary()
     {
         var command = new TestCommand
         {
@@ -49,7 +52,7 @@ public class RPCTests : EndToEndTestBase
     }
 
     [Fact]
-    public async Task Unary_RPC_Echo()
+    public async Task Unary_Echo()
     {
         var command = new EchoCommand
         {
@@ -63,7 +66,7 @@ public class RPCTests : EndToEndTestBase
     }
 
     [Fact]
-    public async Task Server_Stream_RPC()
+    public async Task Server_Stream()
     {
         var command = new StatusStreamCommand
         {
@@ -83,7 +86,7 @@ public class RPCTests : EndToEndTestBase
     }
 
     [Fact]
-    public async Task Client_Stream_RPC()
+    public async Task Client_Stream()
     {
         var input = GetDataStream();
 
@@ -101,5 +104,22 @@ public class RPCTests : EndToEndTestBase
                 yield return new() { Number = i };
             }
         }
+    }
+
+    [Fact]
+    public async Task Event_Queue()
+    {
+        for (var i = 1; i <= 1001; i++)
+        {
+            var evnt = new TestEvent { Id = i };
+            evnt.Broadcast();
+        }
+        while (TestEventHandler.Received.Count < 1001)
+        {
+            await Task.Delay(100);
+        }
+        TestEventHandler.Received.Count.Should().Be(1001);
+        TestEventHandler.Received[0].Id.Should().Be(1);
+        TestEventHandler.Received[1000].Id.Should().Be(1001);
     }
 }

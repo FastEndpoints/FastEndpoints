@@ -7,6 +7,7 @@ using NSwag;
 using System.Globalization;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
+using TestCases.EventQueueTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
 using Web.PipelineBehaviors.PreProcessors;
@@ -130,6 +131,7 @@ app.MapHandlers(h =>
     h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
     h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
     h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
+    h.RegisterEventHub<TestEvent>();
 });
 
 app.Run();

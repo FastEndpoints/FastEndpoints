@@ -1,4 +1,5 @@
-﻿using IntegrationTests.Shared.Fixtures;
+﻿using Grpc.Core;
+using IntegrationTests.Shared.Fixtures;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.ServerStreamingTest;
@@ -9,58 +10,67 @@ namespace FastEndpoints.IntegrationTests.CommandBusTests;
 
 public class RPCTests : EndToEndTestBase
 {
-    private readonly HttpMessageHandler httpMessageHandler;
+    private readonly RemoteConnection remote;
 
     public RPCTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
     {
-        httpMessageHandler = endToEndTestFixture.CreateHttpMessageHandler();
+        remote = new RemoteConnection("http://testhost");
+        remote.ChannelOptions.HttpHandler = endToEndTestFixture.CreateHttpMessageHandler();
+        remote.Register<TestVoidCommand>();
+        remote.Register<TestCommand, string>();
+        remote.Register<EchoCommand, EchoCommand>();
+        remote.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
+        remote.RegisterClientStream<CurrentPosition, ProgressReport>();
     }
 
     [Fact]
     public async Task Void_RPC()
     {
-        await new TestVoidCommand
+        var command = new TestVoidCommand
         {
             FirstName = "johnny",
             LastName = "lawrence"
-        }
-        .TestRemoteExecuteAsync<TestVoidCommand>(httpMessageHandler);
+        };
+        await remote.ExecuteVoid(command, command.GetType(), default);
     }
 
     [Fact]
     public async Task Unary_RPC()
     {
-        var res1 = await new TestCommand
-        {
-            FirstName = "johnny",
-            LastName = "lawrence"
-        }
-        .TestRemoteExecuteAsync<TestCommand, string>(httpMessageHandler);
-
-        res1.Should().Be("johnny lawrence");
-    }
-
-    [Fact]
-    public async Task Unary_RPC_Echo()
-    {
-        var cmd = new EchoCommand
+        var command = new TestCommand
         {
             FirstName = "johnny",
             LastName = "lawrence"
         };
 
-        var res1 = await cmd.TestRemoteExecuteAsync<EchoCommand, EchoCommand>(httpMessageHandler);
+        var res = await remote.ExecuteUnary(command, command.GetType(), default);
 
-        res1.Should().BeEquivalentTo(cmd);
+        res.Should().Be("johnny lawrence");
+    }
+
+    [Fact]
+    public async Task Unary_RPC_Echo()
+    {
+        var command = new EchoCommand
+        {
+            FirstName = "johnny",
+            LastName = "lawrence"
+        };
+
+        var res = await remote.ExecuteUnary(command, command.GetType(), default);
+
+        res.Should().BeEquivalentTo(command);
     }
 
     [Fact]
     public async Task Server_Stream_RPC()
     {
-        var iterator = new StatusStreamCommand
+        var command = new StatusStreamCommand
         {
             Id = 101
-        }.TestRemoteExecuteAsync<StatusStreamCommand, StatusUpdate>(httpMessageHandler);
+        };
+
+        var iterator = remote.ExecuteServerStream(command, command.GetType(), default).ReadAllAsync();
 
         var i = 1;
         await foreach (var status in iterator)
@@ -75,8 +85,13 @@ public class RPCTests : EndToEndTestBase
     [Fact]
     public async Task Client_Stream_RPC()
     {
-        var report = await GetDataStream()
-            .TestRemoteExecuteAsync<CurrentPosition, ProgressReport>(httpMessageHandler);
+        //var report = await GetDataStream()
+        //    .TestRemoteExecuteAsync<CurrentPosition, ProgressReport>(httpMessageHandler);
+
+        var input = GetDataStream();
+
+        var report = await remote.ExecuteClientStream<CurrentPosition, ProgressReport>(
+            input, typeof(IAsyncEnumerable<CurrentPosition>), default);
 
         report.LastNumber.Should().Be(5);
 

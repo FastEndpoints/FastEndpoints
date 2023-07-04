@@ -16,9 +16,7 @@ You can now register your own [TimeProvider](https://learn.microsoft.com/en-us/d
 
 ### 🚀 Improvements
 
-<details><summary>1️⃣ Optimize Event Queue internals</summary>
-
-</details>
+<details><summary>1️⃣ Optimize Event Queue internals</summary></details>
 
 <!-- ### 🪲 Fixes -->
 

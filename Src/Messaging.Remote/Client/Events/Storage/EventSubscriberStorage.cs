@@ -24,15 +24,21 @@ internal static class EventSubscriberStorage
 
     private static async Task StaleSubscriberPurgingTask()
     {
-        do
+        bool? isDefaultProvider = null;
+
+        while (true)
         {
-            await Task.Delay(TimeSpan.FromHours(1));
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            isDefaultProvider ??= Provider is InMemoryEventSubscriberStorage;
+            if (isDefaultProvider is true)
+                break; //purging is not used in default subscriber storage
+
             try
             {
                 await Provider.PurgeStaleRecordsAsync();
             }
             catch { }
         }
-        while (Provider is not InMemoryEventSubscriberStorage);
     }
 }

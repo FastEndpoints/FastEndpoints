@@ -83,8 +83,9 @@ public sealed class HandlerOptions
         if (!EventPublisherStorage.IsInitialized)
             EventPublisherStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventPublisherStorage>(routeBuilder.ServiceProvider);
 
-        //there's no DI for EventHub<TEvent> :-(
+        //there's no DI for EventHub<TEvent>
         EventHub<TEvent>.Logger ??= routeBuilder.ServiceProvider.GetRequiredService<ILogger<EventHub<TEvent>>>();
+        EventHub<TEvent>.Errors ??= routeBuilder.ServiceProvider.GetService<PublisherExceptionReceiver>();
 
         return routeBuilder.MapGrpcService<EventHub<TEvent>>();
     }

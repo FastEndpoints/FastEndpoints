@@ -11,6 +11,7 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
 {
     private readonly ObjectFactory _handlerFactory;
     private readonly IServiceProvider? _serviceProvider;
+    private readonly SubscriberExceptionReceiver? _errorReceiver;
     private readonly ILogger<EventHandlerExecutor<TEvent, TEventHandler>>? _logger;
     private readonly string _subscriberID;
 
@@ -19,6 +20,7 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
     {
         _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
         _serviceProvider = serviceProvider;
+        _errorReceiver = _serviceProvider?.GetService<SubscriberExceptionReceiver>();
         _logger = serviceProvider?.GetRequiredService<ILogger<EventHandlerExecutor<TEvent, TEventHandler>>>();
         _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target).ToHash();
         _logger?.LogInformation("Event subscriber registered! [id: {subid}] ({thandler}<{tevent}>)",
@@ -29,13 +31,15 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
 
     internal void Start(CallOptions opts)
     {
-        _ = EventProducer(opts, _invoker, _method, _subscriberID, _logger);
-        _ = EventConsumer(opts, _subscriberID, _logger, _handlerFactory, _serviceProvider);
+        _ = EventProducer(opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
+        _ = EventConsumer(opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
     }
 
-    private static async Task EventProducer(CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger)
+    private static async Task EventProducer(CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
     {
         var call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
+        var createErrorCount = 0;
+        var receiveErrorCount = 0;
 
         while (!opts.CancellationToken.IsCancellationRequested)
         {
@@ -54,10 +58,13 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
                         try
                         {
                             await EventSubscriberStorage.Provider.StoreEventAsync(record, opts.CancellationToken);
+                            createErrorCount = 0;
                             break;
                         }
                         catch (Exception ex)
                         {
+                            createErrorCount++;
+                            _ = errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, opts.CancellationToken);
                             logger?.LogError("Event storage 'create' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
                                 subscriberID,
                                 typeof(TEvent).FullName,
@@ -65,10 +72,13 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
                             await Task.Delay(5000);
                         }
                     }
+                    receiveErrorCount = 0;
                 }
             }
             catch (Exception ex)
             {
+                receiveErrorCount++;
+                _ = errors?.OnEventReceiveError<TEvent>(subscriberID, receiveErrorCount, ex, opts.CancellationToken);
                 logger?.LogTrace("Event 'receive' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
                     subscriberID,
                     typeof(TEvent),
@@ -80,8 +90,12 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
         }
     }
 
-    private static async Task EventConsumer(CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider)
+    private static async Task EventConsumer(CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
     {
+        var retrievalErrorCount = 0;
+        var executionErrorCount = 0;
+        var updateErrorCount = 0;
+
         while (!opts.CancellationToken.IsCancellationRequested)
         {
             IEventStorageRecord? evntRecord;
@@ -89,9 +103,12 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
             try
             {
                 evntRecord = await EventSubscriberStorage.Provider.GetNextEventAsync(subscriberID, opts.CancellationToken);
+                retrievalErrorCount = 0;
             }
             catch (Exception ex)
             {
+                retrievalErrorCount++;
+                _ = errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, opts.CancellationToken);
                 logger?.LogError("Event storage 'retrieval' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
                     subscriberID,
                     typeof(TEvent).FullName,
@@ -107,10 +124,13 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
                 try
                 {
                     await handler.HandleAsync((TEvent)evntRecord.Event, opts.CancellationToken);
+                    executionErrorCount = 0;
                 }
                 catch (Exception ex)
                 {
-                    logger?.LogCritical("Event [{event}] execution error: [{err}]. Retrying after 5 seconds...",
+                    executionErrorCount++;
+                    _ = errors?.OnHandlerExecutionError<TEvent, TEventHandler>(evntRecord, executionErrorCount, ex, opts.CancellationToken);
+                    logger?.LogCritical("Event [{event}] 'execution' error: [{err}]. Retrying after 5 seconds...",
                         typeof(TEvent).FullName,
                         ex.Message);
                     await Task.Delay(5000);
@@ -122,10 +142,13 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
                     try
                     {
                         await EventSubscriberStorage.Provider.MarkEventAsCompleteAsync(evntRecord, opts.CancellationToken);
+                        updateErrorCount = 0;
                         break;
                     }
                     catch (Exception ex)
                     {
+                        updateErrorCount++;
+                        _ = errors?.OnMarkEventAsCompleteError<TEvent>(evntRecord, updateErrorCount, ex, opts.CancellationToken);
                         logger?.LogError("Event storage 'update' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
                             subscriberID,
                             typeof(TEvent).FullName,

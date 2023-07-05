@@ -20,7 +20,7 @@
         
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />      
         
-        <PackageReference Include="FluentValidation" Version="11.5.2" />
+        <PackageReference Include="FluentValidation" Version="11.6.0" />
     </ItemGroup>
 
     <ItemGroup>

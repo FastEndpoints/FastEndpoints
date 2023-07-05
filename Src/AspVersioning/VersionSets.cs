@@ -5,9 +5,9 @@ namespace FastEndpoints.AspVersioning;
 /// <summary>
 /// a container for globally holding the <see cref="ApiVersionSet"/> instances for the application
 /// </summary>
-public sealed class VersionSets : Dictionary<string, ApiVersionSet>
+public static class VersionSets
 {
-    internal static readonly VersionSets Container = new();
+    internal static readonly Dictionary<string, ApiVersionSet> Container = new();
     internal static string VersionFormat = null!;
 
     /// <summary>

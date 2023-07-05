@@ -57,7 +57,7 @@ public static class Extensions
         if (VersionSets.Container.TryGetValue(apiName, out var versionSet))
             b.WithApiVersionSet(versionSet);
         else
-            throw new InvalidOperationException($"A version set with name [{apiName}] has not been registered using .MapVersionSet() at startup!");
+            throw new InvalidOperationException($"A version set with name [{apiName}] has not been registered using {nameof(VersionSets)}.{nameof(VersionSets.CreateApi)}(...) at startup!");
 
         return b;
     }

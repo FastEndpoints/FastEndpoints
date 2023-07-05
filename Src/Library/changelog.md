@@ -14,6 +14,10 @@ You can now register your own [TimeProvider](https://learn.microsoft.com/en-us/d
 
 </details>
 
+<details><summary>2️⃣ Support for Asp.Versioning.Http package</summary>
+todo: write doc page and put link to it here.
+</details>
+
 ### 🚀 Improvements
 
 <details><summary>1️⃣ Optimize Event Queue internals</summary></details>

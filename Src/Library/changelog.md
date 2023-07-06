@@ -16,7 +16,7 @@ You can now register your own [TimeProvider](https://learn.microsoft.com/en-us/d
 
 <details><summary>2️⃣ Ability to subscribe to exceptions in Event Queues</summary>
 
-todo: write doc section about this and link it here.
+Please see the documentation [here](https://fast-endpoints.com/docs/remote-procedure-calls#event-queue-error-notifications) for details.
 
 </details>
 

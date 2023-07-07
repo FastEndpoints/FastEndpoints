@@ -153,10 +153,10 @@ internal sealed class EndpointData
                 {
                     var tEvent = tInterface.GetGenericArguments()[0];
 
-                    if (EventBase.handlerDict.TryGetValue(tEvent, out var handlers))
+                    if (EventBase.HandlerDict.TryGetValue(tEvent, out var handlers))
                         handlers.Add(t);
                     else
-                        EventBase.handlerDict[tEvent] = new() { t };
+                        EventBase.HandlerDict[tEvent] = new() { t };
                     continue;
                 }
 

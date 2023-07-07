@@ -1,4 +1,6 @@
 ﻿using FakeItEasy;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCases.EventHandlingTest;
 using Xunit;
@@ -10,11 +12,14 @@ public class EventBusTests
     [Fact]
     public async Task AbilityToFakeAnEventHandler()
     {
-        var evnt = Factory.CreateEvent<NewItemAddedToStock>();
-        var fakeHandler = A.Fake<IEventHandler<NotifyCustomers>>();
-
-        A.CallTo(() => fakeHandler.HandleAsync(A<NotifyCustomers>.Ignored, A<CancellationToken>.Ignored))
-         .Returns(Task.CompletedTask);
+        var evnt = new NewItemAddedToStock();
+        var fakeHandler = A.Fake<IEventHandler<NewItemAddedToStock>>();
+        new DefaultHttpContext().AddTestServices(sc => sc.AddSingleton(fakeHandler));
+        A.CallTo(
+            () =>
+            fakeHandler.HandleAsync(A<NewItemAddedToStock>.Ignored, A<CancellationToken>.Ignored))
+         .Returns(Task.CompletedTask)
+         .Once();
 
         await evnt.PublishAsync();
     }

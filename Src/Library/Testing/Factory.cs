@@ -121,14 +121,4 @@ public static class Factory
         new DefaultHttpContext().AddTestServices(s);
         return (TMapper)Config.ServiceResolver.CreateInstance(typeof(TMapper));
     }
-
-    /// <summary>
-    /// get an instance of an event suitable for unit testing.
-    /// </summary>
-    /// <typeparam name="TEvent">the type of the event</typeparam>
-    public static TEvent CreateEvent<TEvent>() where TEvent : class, IEvent
-    {
-        new DefaultHttpContext().AddTestServices(_ => { });
-        return (TEvent)Config.ServiceResolver.CreateInstance(typeof(TEvent));
-    }
 }

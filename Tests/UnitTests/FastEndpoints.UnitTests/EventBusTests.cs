@@ -8,6 +8,18 @@ namespace FastEndpoints.UnitTests;
 public class EventBusTests
 {
     [Fact]
+    public async Task AbilityToFakeAnEventHandler()
+    {
+        var evnt = Factory.CreateEvent<NewItemAddedToStock>();
+        var fakeHandler = A.Fake<IEventHandler<NotifyCustomers>>();
+
+        A.CallTo(() => fakeHandler.HandleAsync(A<NotifyCustomers>.Ignored, A<CancellationToken>.Ignored))
+         .Returns(Task.CompletedTask);
+
+        await evnt.PublishAsync();
+    }
+
+    [Fact]
     public async Task EventHandlersExecuteSuccessfully()
     {
         var logger = A.Fake<ILogger<NotifyCustomers>>();

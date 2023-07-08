@@ -10,12 +10,16 @@ public class EventBusTests
     [Fact]
     public async Task AbilityToFakeAnEventHandler()
     {
-        var evnt = Factory.CreateEvent<NewItemAddedToStock>();
-        var fakeHandler = A.Fake<IEventHandler<NotifyCustomers>>();
+        var fakeHandler = A.Fake<IEventHandler<NewItemAddedToStock>>();
 
-        A.CallTo(() => fakeHandler.HandleAsync(A<NotifyCustomers>.Ignored, A<CancellationToken>.Ignored))
-         .Returns(Task.CompletedTask);
+        A.CallTo(() => fakeHandler.HandleAsync(A<NewItemAddedToStock>.Ignored, A<CancellationToken>.Ignored))
+         .Returns(Task.CompletedTask)
+         .Once();
 
+        var evnt = Factory.CreateEvent(new IEventHandler<NewItemAddedToStock>[]
+        {
+            fakeHandler
+        });
         await evnt.PublishAsync();
     }
 

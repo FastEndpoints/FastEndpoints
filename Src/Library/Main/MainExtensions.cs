@@ -33,7 +33,7 @@ public static class MainExtensions
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
-        services.AddSingleton(typeof(Event<>));
+        services.AddSingleton(typeof(EventBus<>));
         return services;
     }
 

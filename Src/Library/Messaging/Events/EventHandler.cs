@@ -22,7 +22,7 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IEventBu
 
     ///<inheritdoc/>
     public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEventModel : notnull
-        => Config.ServiceResolver.Resolve<Event<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
+        => Config.ServiceResolver.Resolve<EventBus<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
 
     ///<inheritdoc/>
     public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();

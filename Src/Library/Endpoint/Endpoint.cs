@@ -221,7 +221,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
     ///<inheritdoc/>
     public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : notnull
-        => FastEndpoints.Config.ServiceResolver.Resolve<Event<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
+        => FastEndpoints.Config.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     /// <summary>
     /// create the access/refresh token pair response with a given refresh-token service.

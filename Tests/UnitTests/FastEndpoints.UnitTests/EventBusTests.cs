@@ -37,8 +37,8 @@ public class EventBusTests
             new UpdateInventoryLevel()
         };
 
-        await new Event<NewItemAddedToStock>(handlers).PublishAsync(event1, Mode.WaitForNone);
-        await new Event<NewItemAddedToStock>(handlers).PublishAsync(event2, Mode.WaitForAny);
+        await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event1, Mode.WaitForNone);
+        await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event2, Mode.WaitForAny);
 
         event2.ID.Should().Be(0);
         event2.Name.Should().Be("pass");
@@ -53,7 +53,7 @@ public class EventBusTests
         var logger = A.Fake<ILogger<NotifyCustomers>>();
 
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async ()
-            => await new Event<NewItemAddedToStock>(new[] { new NotifyCustomers(logger) })
+            => await new EventBus<NewItemAddedToStock>(new[] { new NotifyCustomers(logger) })
                 .PublishAsync(new NewItemAddedToStock()));
     }
 }

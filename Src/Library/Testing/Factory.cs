@@ -121,4 +121,17 @@ public static class Factory
         new DefaultHttpContext().AddTestServices(s);
         return (TMapper)Config.ServiceResolver.CreateInstance(typeof(TMapper));
     }
+
+    /// <summary>
+    /// get an instance of an event suitable for unit testing.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the event</typeparam>
+    /// <param name="handlers">the fake/mock event handlers to register for this event</param>
+    /// <param name="s">an optional action for adding services to the <see cref="IServiceCollection"/></param>
+    public static TEvent CreateEvent<TEvent>(IEnumerable<IEventHandler<TEvent>> handlers, Action<IServiceCollection>? s = null) where TEvent : class, IEvent
+    {
+        Action<IServiceCollection> x = s => s.AddSingleton(handlers);
+        new DefaultHttpContext().AddTestServices(x + s);
+        return (TEvent)Config.ServiceResolver.CreateInstance(typeof(TEvent));
+    }
 }

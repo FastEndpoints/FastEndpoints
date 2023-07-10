@@ -10,12 +10,12 @@ internal class BaseCommandExecutor<TCommand, TResult> where TCommand : class whe
     protected readonly CallInvoker _invoker;
     protected readonly Method<TCommand, TResult> _method;
 
-    public BaseCommandExecutor(GrpcChannel channel, MethodType methodType, string? serviceName = null)
+    public BaseCommandExecutor(GrpcChannel channel, MethodType methodType, string? endpointName = null)
     {
         _invoker = channel.CreateCallInvoker();
         _method = new Method<TCommand, TResult>(
             type: methodType,
-            serviceName: serviceName ?? typeof(TCommand).FullName!,
+            serviceName: endpointName ?? typeof(TCommand).FullName!,
             name: "",
             requestMarshaller: new MessagePackMarshaller<TCommand>(),
             responseMarshaller: new MessagePackMarshaller<TResult>());

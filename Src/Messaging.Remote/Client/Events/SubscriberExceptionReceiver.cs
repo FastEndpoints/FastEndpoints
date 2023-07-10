@@ -20,7 +20,7 @@ public abstract class SubscriberExceptionReceiver
 
     /// <summary>
     /// this method is triggered when there's an error reading the next event message from the underlying gRPC stream.
-    /// you'd hardly ever be overriding this method since it's none of your business most of the time and the operation would be 
+    /// you'd hardly ever be overriding this method since it's none of your business most of the time and the operation would be
     /// automatically retried until successful.
     /// </summary>
     /// <typeparam name="TEvent">the type of the event</typeparam>

@@ -76,8 +76,9 @@ public sealed class HandlerOptions
     /// <summary>
     /// registers an "event hub" that broadcasts events of the given type to all remote subscribers in an asynchronous manner
     /// </summary>
-    /// <typeparam name="TEvent">the type of the event hub</typeparam>
-    public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>()
+    /// <param name="mode">the operation mode of this event hub</param>
+    /// <typeparam name="TEvent">the type of event this hub deals with</typeparam>
+    public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>(HubMode mode = HubMode.EventPublisher)
         where TEvent : class, IEvent
     {
         if (!EventPublisherStorage.IsInitialized)
@@ -86,6 +87,7 @@ public sealed class HandlerOptions
         //there's no DI for EventHub<TEvent>
         EventHub<TEvent>.Logger ??= routeBuilder.ServiceProvider.GetRequiredService<ILogger<EventHub<TEvent>>>();
         EventHub<TEvent>.Errors ??= routeBuilder.ServiceProvider.GetService<PublisherExceptionReceiver>();
+        EventHub<TEvent>.Mode = mode;
 
         return routeBuilder.MapGrpcService<EventHub<TEvent>>();
     }

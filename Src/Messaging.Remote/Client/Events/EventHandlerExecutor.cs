@@ -16,7 +16,7 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
     private readonly string _subscriberID;
 
     internal EventHandlerExecutor(GrpcChannel channel, IServiceProvider? serviceProvider)
-        : base(channel, MethodType.ServerStreaming, $"{typeof(TEvent).FullName}")
+        : base(channel, MethodType.ServerStreaming, $"{typeof(TEvent).FullName}/sub")
     {
         _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
         _serviceProvider = serviceProvider;

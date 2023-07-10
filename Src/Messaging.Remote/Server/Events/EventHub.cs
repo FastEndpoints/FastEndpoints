@@ -9,6 +9,7 @@ namespace FastEndpoints;
 internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where TEvent : class, IEvent
 {
 #pragma warning disable RCS1158
+    internal static HubMode Mode = HubMode.EventPublisher;
     internal static ILogger Logger = default!;
     internal static PublisherExceptionReceiver? Errors;
 #pragma warning restore RCS1158
@@ -30,22 +31,34 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
 
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent>> ctx)
     {
-        var method = new Method<string, TEvent>(
-            type: MethodType.ServerStreaming,
-            serviceName: _eventType.FullName!,
-            name: "",
-            requestMarshaller: new MessagePackMarshaller<string>(),
-            responseMarshaller: new MessagePackMarshaller<TEvent>());
-
         var metadata = new List<object>();
         var handlerAttributes = _eventType.GetCustomAttributes(false);
         if (handlerAttributes?.Length > 0) metadata.AddRange(handlerAttributes);
         metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
 
-        ctx.AddServerStreamingMethod(method, metadata, OnClientConnected);
+        var sub = new Method<string, TEvent>(
+            type: MethodType.ServerStreaming,
+            serviceName: _eventType.FullName!,
+            name: "sub",
+            requestMarshaller: new MessagePackMarshaller<string>(),
+            responseMarshaller: new MessagePackMarshaller<TEvent>());
+
+        ctx.AddServerStreamingMethod(sub, metadata, OnSubscriberConnected);
+
+        if (Mode is HubMode.EventBroker)
+        {
+            var pub = new Method<TEvent, EmptyObject>(
+                type: MethodType.Unary,
+                serviceName: _eventType.FullName!,
+                name: "pub",
+                requestMarshaller: new MessagePackMarshaller<TEvent>(),
+                responseMarshaller: new MessagePackMarshaller<EmptyObject>());
+
+            ctx.AddUnaryMethod(pub, metadata, OnEventReceived);
+        }
     }
 
-    internal async Task OnClientConnected(EventHub<TEvent> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
+    internal async Task OnSubscriberConnected(EventHub<TEvent> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
     {
         Logger.LogInformation("Event subscriber connected! [id:{subid}]({tevent})", subscriberID, _eventType.FullName!);
 
@@ -111,6 +124,12 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 await Task.Delay(300);
             }
         }
+    }
+
+    private Task<EmptyObject> OnEventReceived(EventHub<TEvent> __, TEvent evnt, ServerCallContext ctx)
+    {
+        _ = AddToSubscriberQueues(evnt, ctx.CancellationToken);
+        return Task.FromResult(new EmptyObject());
     }
 
     internal static async Task AddToSubscriberQueues(TEvent evnt, CancellationToken ct)

@@ -104,8 +104,8 @@ public class EventQueueTests
         var ctx = A.Fake<ServerCallContext>();
         A.CallTo(ctx).WithReturnType<CancellationToken>().Returns(default);
 
-        _ = hub.OnClientConnected(hub, "sub1", writer, ctx);
-        _ = hub.OnClientConnected(hub, "sub2", writer, ctx);
+        _ = hub.OnSubscriberConnected(hub, "sub1", writer, ctx);
+        _ = hub.OnSubscriberConnected(hub, "sub2", writer, ctx);
 
         var e1 = new TestEvent { EventID = 0 };
         await EventHub<TestEvent>.AddToSubscriberQueues(e1, default);

@@ -84,6 +84,26 @@ public sealed class RemoteConnection
     }
 
     /// <summary>
+    /// register an "event" that the remote server will be accepting (in <see cref="HubMode.EventBroker"/>) for distribution to subscribers.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the event</typeparam>
+    public void RegisterEvent<TEvent>() where TEvent : class, IEvent
+    {
+        var tEvent = typeof(TEvent);
+        RemoteMap[tEvent] = this;
+        _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
+        _executorMap[tEvent] = new EventPublisher<TEvent>(_channel);
+    }
+
+    internal Task PublishEvent(IEvent evnt, Type tEvent, CallOptions opts)
+    {
+        if (!_executorMap.TryGetValue(tEvent, out var publisher))
+            throw new InvalidOperationException($"No remote handler has been mapped for the event: [{tEvent.FullName}]");
+
+        return ((IEventPublisher)publisher).PublishEvent(evnt, opts);
+    }
+
+    /// <summary>
     /// register a "void" command (<see cref="ICommand"/>) for this remote connection where the handler for it is hosted/located.
     /// </summary>
     /// <typeparam name="TCommand">the type of the command</typeparam>

@@ -90,13 +90,14 @@ public class EventQueueTests
     }
 
     [Fact]
-    public async Task subscriber_hub_success_path()
+    public async Task event_hub_publisher_mode()
     {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
         EventPublisherStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventPublisherStorage>(provider);
 
         var hub = new EventHub<TestEvent>();
+        EventHub<TestEvent>.Mode = HubMode.EventPublisher;
         EventHub<TestEvent>.Logger = A.Fake<ILogger>();
 
         var writer = new TestServerStreamWriter<TestEvent>();
@@ -107,13 +108,36 @@ public class EventQueueTests
         _ = hub.OnSubscriberConnected(hub, "sub1", writer, ctx);
         _ = hub.OnSubscriberConnected(hub, "sub2", writer, ctx);
 
-        var e1 = new TestEvent { EventID = 0 };
+        var e1 = new TestEvent { EventID = 123 };
         await EventHub<TestEvent>.AddToSubscriberQueues(e1, default);
-
         await Task.Delay(500);
 
-        writer.Responses[0].EventID.Should().Be(0);
-        writer.Responses[1].EventID.Should().Be(0);
+        writer.Responses[0].EventID.Should().Be(123);
+    }
+
+    [Fact]
+    public async Task event_hub_broker_mode()
+    {
+        var services = new ServiceCollection();
+        var provider = services.BuildServiceProvider();
+        EventPublisherStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventPublisherStorage>(provider);
+
+        var hub = new EventHub<TestEvent>();
+        EventHub<TestEvent>.Mode = HubMode.EventBroker;
+        EventHub<TestEvent>.Logger = A.Fake<ILogger>();
+
+        var writer = new TestServerStreamWriter<TestEvent>();
+
+        var ctx = A.Fake<ServerCallContext>();
+        A.CallTo(ctx).WithReturnType<CancellationToken>().Returns(default);
+
+        _ = hub.OnSubscriberConnected(hub, "event-sub-1", writer, ctx);
+
+        var e1 = new TestEvent { EventID = 321 };
+        _ = hub.OnEventReceived(hub, e1, ctx);
+        await Task.Delay(500);
+
+        writer.Responses[0].EventID.Should().Be(321);
     }
 
     private class TestEvent : IEvent

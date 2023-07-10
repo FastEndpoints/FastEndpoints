@@ -126,7 +126,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
         }
     }
 
-    private Task<EmptyObject> OnEventReceived(EventHub<TEvent> __, TEvent evnt, ServerCallContext ctx)
+    internal Task<EmptyObject> OnEventReceived(EventHub<TEvent> __, TEvent evnt, ServerCallContext ctx)
     {
         _ = AddToSubscriberQueues(evnt, ctx.CancellationToken);
         return Task.FromResult(new EmptyObject());
@@ -169,7 +169,9 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                         subId,
                         _eventType.FullName,
                         ex.Message);
+#pragma warning disable CA2016
                     await Task.Delay(5000);
+#pragma warning restore CA2016
                 }
             }
         }

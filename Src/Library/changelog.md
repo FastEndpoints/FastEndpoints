@@ -9,11 +9,15 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 ### 📢 New
 
 <details><summary>1️⃣ gRPC based Event Broker functionality</summary>
+
 Please see the documentation [here](https://fast-endpoints.com/docs/remote-procedure-calls#event-broker-mode) for details.
+
 </details>
 
 <details><summary>2️⃣ Ability to subscribe to exceptions in Event Queues</summary>
+
 Please see the documentation [here](https://fast-endpoints.com/docs/remote-procedure-calls#event-queue-error-notifications) for details.
+
 </details>
 
 <details><summary>3️⃣ Support for TimeProvider in FastEndpoints.Security package</summary>
@@ -23,7 +27,9 @@ You can now register your own [TimeProvider](https://learn.microsoft.com/en-us/d
 </details>
 
 <details><summary>4️⃣ Support for Asp.Versioning.Http package</summary>
+
 todo: write doc page and put link to it here.
+
 </details>
 
 ### 🚀 Improvements

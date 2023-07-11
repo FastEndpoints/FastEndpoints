@@ -5,7 +5,7 @@ namespace FastEndpoints;
 //NOTE: this is a singleton class
 internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider
 {
-    private const int max_queue_size = 1000;
+    private const int max_queue_size = 100000;
 
     //key: subscriber ID (see EventHandlerExecutor.ctor to see how subscriber id is generated)
     //val: queue of events for the subscriber

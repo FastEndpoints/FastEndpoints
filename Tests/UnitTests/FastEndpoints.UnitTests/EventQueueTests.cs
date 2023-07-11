@@ -67,7 +67,9 @@ public class EventQueueTests
     {
         var sut = new InMemoryEventSubscriberStorage();
 
-        for (var i = 0; i <= 1000; i++)
+        var max_queue_size = 100000;
+
+        for (var i = 0; i <= max_queue_size; i++)
         {
             var r = new InMemoryEventStorageRecord
             {
@@ -77,7 +79,7 @@ public class EventQueueTests
                 SubscriberID = "sub1"
             };
 
-            if (i < 1000)
+            if (i < max_queue_size)
             {
                 await sut.StoreEventAsync(r, default);
             }

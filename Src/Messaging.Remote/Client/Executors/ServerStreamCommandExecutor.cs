@@ -13,7 +13,9 @@ internal sealed class ServerStreamCommandExecutor<TCommand, TResult> : BaseComma
     where TResult : class
 {
     public ServerStreamCommandExecutor(GrpcChannel channel)
-        : base(channel, MethodType.ServerStreaming) { }
+        : base(channel: channel,
+               methodType: MethodType.ServerStreaming)
+    { }
 
     public IAsyncStreamReader<TResult> ExecuteServerStream(IServerStreamCommand<TResult> cmd, CallOptions opts)
         => _invoker.AsyncServerStreamingCall(_method, null, opts, (TCommand)cmd).ResponseStream;

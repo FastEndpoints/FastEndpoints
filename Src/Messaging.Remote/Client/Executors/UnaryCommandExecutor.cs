@@ -13,7 +13,9 @@ internal sealed class UnaryCommandExecutor<TCommand, TResult> : BaseCommandExecu
     where TResult : class
 {
     public UnaryCommandExecutor(GrpcChannel channel)
-        : base(channel, MethodType.Unary) { }
+        : base(channel: channel,
+               methodType: MethodType.Unary)
+    { }
 
     public Task<TResult> ExecuteUnary(ICommand<TResult> cmd, CallOptions opts)
         => _invoker.AsyncUnaryCall(_method, null, opts, (TCommand)cmd).ResponseAsync;

@@ -12,7 +12,10 @@ internal sealed class EventPublisher<TEvent> : BaseCommandExecutor<TEvent, Empty
     where TEvent : class, IEvent
 {
     public EventPublisher(GrpcChannel channel)
-        : base(channel, MethodType.Unary, typeof(TEvent).FullName + "/pub") { }
+        : base(channel: channel,
+               methodType: MethodType.Unary,
+               endpointName: typeof(TEvent).FullName + "/pub")
+    { }
 
     public Task PublishEvent(IEvent evnt, CallOptions opts)
         => _invoker.AsyncUnaryCall(_method, null, opts, (TEvent)evnt).ResponseAsync;

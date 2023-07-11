@@ -15,7 +15,7 @@ public sealed class RemoteConnection
     internal static Dictionary<Type, RemoteConnection> RemoteMap { get; } = new();
 
     private GrpcChannel? _channel;
-    private readonly Dictionary<Type, ICommandExecutor> _executorMap = new(); //key: tCommand, val: command executor wrapper
+    private readonly Dictionary<Type, ICommandExecutor> _executorMap = new(); //key: tCommand, val: command executor
     private readonly IServiceProvider? _serviceProvider;
 
     /// <summary>
@@ -77,7 +77,7 @@ public sealed class RemoteConnection
             if (!EventSubscriberStorage.IsInitalized)
                 EventSubscriberStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventSubscriberStorage>(_serviceProvider!);
 
-            var eventExecutor = new EventHandlerExecutor<TEvent, TEventHandler>(_channel, _serviceProvider);
+            var eventExecutor = new EventSubscriber<TEvent, TEventHandler>(_channel, _serviceProvider);
             _executorMap[tEventHandler] = eventExecutor;
             eventExecutor.Start(callOptions);
         }

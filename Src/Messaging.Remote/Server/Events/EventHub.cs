@@ -32,8 +32,8 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent>> ctx)
     {
         var metadata = new List<object>();
-        var handlerAttributes = _eventType.GetCustomAttributes(false);
-        if (handlerAttributes?.Length > 0) metadata.AddRange(handlerAttributes);
+        var eventAttributes = _eventType.GetCustomAttributes(false);
+        if (eventAttributes?.Length > 0) metadata.AddRange(eventAttributes);
         metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
 
         var sub = new Method<string, TEvent>(

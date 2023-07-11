@@ -5,23 +5,25 @@ using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
-internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandExecutor<string, TEvent>, ICommandExecutor
+internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecutor<string, TEvent>, ICommandExecutor
     where TEvent : class, IEvent
     where TEventHandler : IEventHandler<TEvent>
 {
     private readonly ObjectFactory _handlerFactory;
     private readonly IServiceProvider? _serviceProvider;
     private readonly SubscriberExceptionReceiver? _errorReceiver;
-    private readonly ILogger<EventHandlerExecutor<TEvent, TEventHandler>>? _logger;
+    private readonly ILogger<EventSubscriber<TEvent, TEventHandler>>? _logger;
     private readonly string _subscriberID;
 
-    internal EventHandlerExecutor(GrpcChannel channel, IServiceProvider? serviceProvider)
-        : base(channel, MethodType.ServerStreaming, $"{typeof(TEvent).FullName}/sub")
+    internal EventSubscriber(GrpcChannel channel, IServiceProvider? serviceProvider)
+        : base(channel: channel,
+               methodType: MethodType.ServerStreaming,
+               endpointName: $"{typeof(TEvent).FullName}/sub")
     {
         _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
         _serviceProvider = serviceProvider;
         _errorReceiver = _serviceProvider?.GetService<SubscriberExceptionReceiver>();
-        _logger = serviceProvider?.GetRequiredService<ILogger<EventHandlerExecutor<TEvent, TEventHandler>>>();
+        _logger = serviceProvider?.GetRequiredService<ILogger<EventSubscriber<TEvent, TEventHandler>>>();
         _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target).ToHash();
         _logger?.LogInformation("Event subscriber registered! [id: {subid}] ({thandler}<{tevent}>)",
             _subscriberID,
@@ -31,11 +33,11 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
 
     internal void Start(CallOptions opts)
     {
-        _ = EventProducer(opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
-        _ = EventConsumer(opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
+        _ = EventReceiver(opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
+        _ = EventExecutor(opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
     }
 
-    private static async Task EventProducer(CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
+    private static async Task EventReceiver(CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
     {
         var call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
         var createErrorCount = 0;
@@ -90,7 +92,7 @@ internal sealed class EventHandlerExecutor<TEvent, TEventHandler> : BaseCommandE
         }
     }
 
-    private static async Task EventConsumer(CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
+    private static async Task EventExecutor(CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
     {
         var retrievalErrorCount = 0;
         var executionErrorCount = 0;

@@ -13,7 +13,9 @@ internal sealed class ClientStreamCommandExecutor<TCommand, TResult> : BaseComma
     where TResult : class
 {
     public ClientStreamCommandExecutor(GrpcChannel channel)
-        : base(channel, MethodType.ClientStreaming) { }
+        : base(channel: channel,
+               methodType: MethodType.ClientStreaming)
+    { }
 
     public async Task<TResult> ExecuteClientStream(IAsyncEnumerable<TCommand> commands, CallOptions opts)
     {

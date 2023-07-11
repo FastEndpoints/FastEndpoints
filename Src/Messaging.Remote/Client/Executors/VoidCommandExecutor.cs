@@ -12,7 +12,9 @@ internal sealed class VoidCommandExecutor<TCommand> : BaseCommandExecutor<TComma
     where TCommand : class, ICommand
 {
     public VoidCommandExecutor(GrpcChannel channel)
-        : base(channel, MethodType.Unary) { }
+        : base(channel: channel,
+               methodType: MethodType.Unary)
+    { }
 
     public Task ExecuteVoid(ICommand cmd, CallOptions opts)
         => _invoker.AsyncUnaryCall(_method, null, opts, (TCommand)cmd).ResponseAsync;

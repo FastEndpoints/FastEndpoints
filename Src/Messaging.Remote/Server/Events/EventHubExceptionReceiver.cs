@@ -1,9 +1,9 @@
 ﻿namespace FastEndpoints;
 
 /// <summary>
-/// inherit this class and override it's methods in order to receive event publisher exceptions.
+/// inherit this class and override it's methods in order to receive event hub exceptions.
 /// </summary>
-public abstract class PublisherExceptionReceiver
+public abstract class EventHubExceptionReceiver
 {
     /// <summary>
     /// this method is triggered when the storage provider has trouble retrieving the next event record.

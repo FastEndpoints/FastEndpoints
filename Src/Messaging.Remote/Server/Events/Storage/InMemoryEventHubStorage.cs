@@ -3,7 +3,7 @@
 namespace FastEndpoints;
 
 //NOTE: this is a singleton class
-internal sealed class InMemoryEventPublisherStorage : IEventPublisherStorageProvider
+internal sealed class InMemoryEventHubStorage : IEventHubStorageProvider
 {
     //key: subscriber ID (identifies a unique subscriber/client)
     //val: in memory event storage record queue

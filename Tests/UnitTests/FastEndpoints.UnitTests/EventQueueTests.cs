@@ -94,7 +94,7 @@ public class EventQueueTests
     {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
-        EventPublisherStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventPublisherStorage>(provider);
+        EventHubStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
 
         var hub = new EventHub<TestEvent>();
         EventHub<TestEvent>.Mode = HubMode.EventPublisher;
@@ -120,7 +120,7 @@ public class EventQueueTests
     {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
-        EventPublisherStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventPublisherStorage>(provider);
+        EventHubStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
 
         var hub = new EventHub<TestEvent>();
         EventHub<TestEvent>.Mode = HubMode.EventBroker;

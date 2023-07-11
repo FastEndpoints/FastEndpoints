@@ -11,7 +11,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
 #pragma warning disable RCS1158
     internal static HubMode Mode = HubMode.EventPublisher;
     internal static ILogger Logger = default!;
-    internal static PublisherExceptionReceiver? Errors;
+    internal static EventHubExceptionReceiver? Errors;
 #pragma warning restore RCS1158
 
     //key: subscriber id
@@ -20,7 +20,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
 
     static EventHub()
     {
-        var t = EventPublisherStorage.Provider.RestoreSubsriberIDsForEventType(typeof(TEvent).FullName!);
+        var t = EventHubStorage.Provider.RestoreSubsriberIDsForEventType(typeof(TEvent).FullName!);
 
         while (!t.IsCompleted)
             Thread.Sleep(1);
@@ -73,7 +73,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
 
             try
             {
-                evntRecord = await EventPublisherStorage.Provider.GetNextEventAsync(subscriberID, ctx.CancellationToken);
+                evntRecord = await EventHubStorage.Provider.GetNextEventAsync(subscriberID, ctx.CancellationToken);
                 retrievalErrorCount = 0;
             }
             catch (Exception ex)
@@ -103,7 +103,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 {
                     try
                     {
-                        await EventPublisherStorage.Provider.MarkEventAsCompleteAsync(evntRecord, ctx.CancellationToken);
+                        await EventHubStorage.Provider.MarkEventAsCompleteAsync(evntRecord, ctx.CancellationToken);
                         updateErrorCount = 0;
                         break;
                     }
@@ -138,7 +138,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
 
         foreach (var subId in _subscribers.Keys)
         {
-            var record = EventPublisherStorage.RecordFactory();
+            var record = EventHubStorage.RecordFactory();
             record.SubscriberID = subId;
             record.Event = evnt;
             record.EventType = _eventType.FullName!;
@@ -148,7 +148,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
             {
                 try
                 {
-                    await EventPublisherStorage.Provider.StoreEventAsync(record, ct);
+                    await EventHubStorage.Provider.StoreEventAsync(record, ct);
                     createErrorCount = 0;
                     break;
                 }

@@ -1,9 +1,9 @@
 ﻿namespace FastEndpoints;
 
 /// <summary>
-/// interface for implementing a storage provider for event publisher app (gRPC server)
+/// interface for implementing a storage provider for event hub app (gRPC server)
 /// </summary>
-public interface IEventPublisherStorageProvider
+public interface IEventHubStorageProvider
 {
     /// <summary>
     /// this method will only be called once (for each event type) on app startup. if there are any pending records on storage from a previous app run,

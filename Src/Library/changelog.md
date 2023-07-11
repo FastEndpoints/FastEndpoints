@@ -28,7 +28,7 @@ You can now register your own [TimeProvider](https://learn.microsoft.com/en-us/d
 
 <details><summary>4️⃣ Support for Asp.Versioning.Http package</summary>
 
-todo: write doc page and put link to it here.
+Please see the documentation [here](https://fast-endpoints.com/docs/api-versioning#asp-versioning-http-package-support-experimental) for details.
 
 </details>
 

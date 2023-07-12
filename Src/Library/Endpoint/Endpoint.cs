@@ -226,7 +226,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <summary>
     /// create the access/refresh token pair response with a given refresh-token service.
     /// </summary>
-    /// <typeparam name="TService"></typeparam>
+    /// <typeparam name="TService">the type of the token service</typeparam>
     /// <param name="userId">the id of the user for which the tokens will be generated for</param>
     /// <param name="userPrivileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
     protected Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges) where TService : IRefreshTokenService<TResponse>

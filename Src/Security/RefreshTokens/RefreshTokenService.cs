@@ -72,6 +72,19 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="privileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
     public abstract Task SetRenewalPrivilegesAsync(TRequest request, UserPrivileges privileges);
 
+    /// <summary>
+    /// create a token response and map it to a different type. useful if you need to create the token manually by yourself.
+    /// </summary>
+    /// <typeparam name="T">the type to map to</typeparam>
+    /// <param name="userId">the id of the user to create the token for</param>
+    /// <param name="privileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
+    /// <param name="map">a func that maps properties from <typeparamref name="TResponse"/> to <typeparamref name="T"/></param>
+    public async Task<T> CreateCustomToken<T>(string userId, Action<UserPrivileges> privileges, Func<TResponse, T> map)
+    {
+        var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(userId, privileges, null);
+        return map(res);
+    }
+
     [HideFromDocs]
     async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPrivileges>? privileges, object? request)
     {

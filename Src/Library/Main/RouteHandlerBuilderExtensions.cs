@@ -66,4 +66,14 @@ public static class RouteHandlerBuilderExtensions
         });
         return hb;
     }
+
+    /// <summary>
+    /// override the default "accepts metadata" in order to accept any content-type from the client.
+    /// </summary>
+    /// <typeparam name="TRequest">the type of the request dto</typeparam>
+    public static RouteHandlerBuilder Accepts<TRequest>(this RouteHandlerBuilder hb) where TRequest : notnull
+    {
+        hb.ClearDefaultAccepts().Accepts<TRequest>("*/*");
+        return hb;
+    }
 }

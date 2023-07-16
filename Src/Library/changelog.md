@@ -32,6 +32,12 @@ Please see the documentation [here](https://fast-endpoints.com/docs/api-versioni
 
 </details>
 
+<details><summary>5️⃣ Visual Studio Code Extension</summary>
+
+Thanks to [Davor Rilko](https://github.com/drilko) we now have a [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=drilko.fastendpoints) for quickly scaffolding/expanding code snippets similarly to the [VS Extension](https://marketplace.visualstudio.com/items?itemName=dj-nitehawk.FastEndpoints) which has also been updated to bring the functionality up to par.
+
+</details>
+
 ### 🚀 Improvements
 
 <details><summary>1️⃣ Optimize Event Queue internals</summary></details>
@@ -40,3 +46,5 @@ Please see the documentation [here](https://fast-endpoints.com/docs/api-versioni
 <!-- ### 🪲 Fixes -->
 
 <!-- ### ⚠️ Minor Breaking Changes -->
+
+<!-- <details><summary>1️⃣ some title</summary></details> -->

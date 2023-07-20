@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
+using Conf = FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -429,11 +430,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (Definition.RequiresAuthorization())
                 b.Produces(403);
 
-            if (FastEndpoints.Config.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+            if (Conf.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
             {
                 b.Produces(
-                    FastEndpoints.Config.ErrOpts.StatusCode,
-                    FastEndpoints.Config.ErrOpts.ProducesMetadataType,
+                    Conf.ErrOpts.StatusCode,
+                    Conf.ErrOpts.ProducesMetadataType,
                     "application/problem+json");
             }
         };

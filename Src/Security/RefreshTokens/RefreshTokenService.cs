@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints.Security;
+﻿using Conf = FastEndpoints.Config;
+
+namespace FastEndpoints.Security;
 
 /// <summary>
 /// implement this class to define your own refresh token endpoints.
@@ -99,7 +101,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         if (request is not null) //only true on renewal
             await SetRenewalPrivilegesAsync((TRequest)request, privs);
 
-        var time = FastEndpoints.Config.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
+        var time = Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
         var accessExpiry = time.GetUtcNow().Add(opts.AccessTokenValidity).UtcDateTime;
         var refreshExpiry = time.GetUtcNow().Add(opts.RefreshTokenValidity).UtcDateTime;
         var token = new TResponse()

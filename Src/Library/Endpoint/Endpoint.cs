@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using Conf = FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -85,9 +86,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             OnAfterHandle(req, _response);
             await OnAfterHandleAsync(req, _response, ct);
         }
-        catch (JsonException x) when (FastEndpoints.Config.BndOpts.JsonExceptionTransformer is not null)
+        catch (JsonException x) when (Conf.BndOpts.JsonExceptionTransformer is not null)
         {
-            ValidationFailures.Add(FastEndpoints.Config.BndOpts.JsonExceptionTransformer(x));
+            ValidationFailures.Add(Conf.BndOpts.JsonExceptionTransformer(x));
             await ValidationFailed(x);
 
         }
@@ -111,7 +112,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 throw x;
 
             if (!ResponseStarted) //pre-processors may have already sent a response
-                await SendErrorsAsync(statusCode ?? FastEndpoints.Config.ErrOpts.StatusCode, ct);
+                await SendErrorsAsync(statusCode ?? Conf.ErrOpts.StatusCode, ct);
         }
     }
 
@@ -132,15 +133,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     public virtual Task<TResponse> ExecuteAsync(TRequest req, CancellationToken ct) => throw new NotImplementedException();
 
     /// <inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => FastEndpoints.Config.ServiceResolver.TryResolve<TService>();
+    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
     /// <inheritdoc/>
-    public object? TryResolve(Type typeOfService) => FastEndpoints.Config.ServiceResolver.TryResolve(typeOfService);
+    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
     ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => FastEndpoints.Config.ServiceResolver.Resolve<TService>();
+    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
     ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => FastEndpoints.Config.ServiceResolver.Resolve(typeOfService);
+    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
-    public IServiceScope CreateScope() => FastEndpoints.Config.ServiceResolver.CreateScope();
+    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
 
     /// <summary>
     /// get the value of a given route parameter by specifying the resulting type and param name.
@@ -221,7 +222,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
     ///<inheritdoc/>
     public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : notnull
-        => FastEndpoints.Config.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
+        => Conf.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     /// <summary>
     /// create the access/refresh token pair response with a given refresh-token service.
@@ -231,7 +232,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <param name="userPrivileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
     protected Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges) where TService : IRefreshTokenService<TResponse>
     {
-        return ((IRefreshTokenService<TResponse>)FastEndpoints.Config.ServiceResolver.CreateInstance(
+        return ((IRefreshTokenService<TResponse>)Conf.ServiceResolver.CreateInstance(
             typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges, null);
     }
 

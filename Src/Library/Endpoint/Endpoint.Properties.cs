@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static FastEndpoints.Config;
+using Conf = FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -37,19 +37,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </summary>
     [DontInject]
     public IConfiguration Config {
-        get => _config ??= FastEndpoints.Config.ServiceResolver.Resolve<IConfiguration>();
+        get => _config ??= Conf.ServiceResolver.Resolve<IConfiguration>();
         internal set => _config = value;
     }
 
     /// <summary>
     /// gives access to the hosting environment
     /// </summary>
-    public IWebHostEnvironment Env => _env ??= FastEndpoints.Config.ServiceResolver.Resolve<IWebHostEnvironment>();
+    public IWebHostEnvironment Env => _env ??= Conf.ServiceResolver.Resolve<IWebHostEnvironment>();
 
     /// <summary>
     /// the logger for the current endpoint type
     /// </summary>
-    public ILogger Logger => _logger ??= FastEndpoints.Config.ServiceResolver.Resolve<ILoggerFactory>().CreateLogger(Definition.EndpointType);
+    public ILogger Logger => _logger ??= Conf.ServiceResolver.Resolve<ILoggerFactory>().CreateLogger(Definition.EndpointType);
 
     /// <summary>
     /// the base url of the current request
@@ -89,7 +89,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
         _response = JsonSerializer.Deserialize<TResponse>(
             isCollectionResponse ? emptyArray : emptyObject,
-            SerOpts.Options)!;
+            Conf.SerOpts.Options)!;
 
         return _response is null
             ? throw new NotSupportedException($"Unable to create an instance of the response DTO. Please create it yourself and assign to the [{nameof(Response)}] property!")

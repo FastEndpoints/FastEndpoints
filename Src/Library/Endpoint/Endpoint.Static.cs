@@ -1,6 +1,7 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
+using Conf = FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -12,7 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                                                               CancellationToken ct)
     {
         var binder = (IRequestBinder<TRequest>)
-            (def.RequestBinder ??= FastEndpoints.Config.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
+            (def.RequestBinder ??= Conf.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
 
         var binderCtx = new BinderContext(ctx, failures, def.SerializerContext, def.DontBindFormData);
 
@@ -20,7 +21,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             binderCtx,
             ct);
 
-        FastEndpoints.Config.BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
+        Conf.BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
 
         return req;
     }

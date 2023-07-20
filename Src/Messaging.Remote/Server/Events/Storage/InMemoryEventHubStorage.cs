@@ -7,17 +7,17 @@ internal sealed class InMemoryEventHubStorage : IEventHubStorageProvider
 {
     //key: subscriber ID (identifies a unique subscriber/client)
     //val: in memory event storage record queue
-    private readonly ConcurrentDictionary<string, EventQueue<IEventStorageRecord>> _subscribers = new();
+    private readonly ConcurrentDictionary<string, EventQueue> _subscribers = new();
 
     public ValueTask<IEnumerable<string>> RestoreSubsriberIDsForEventType(string eventType)
         => ValueTask.FromResult(Enumerable.Empty<string>());
 
     public ValueTask StoreEventAsync(IEventStorageRecord e, CancellationToken _)
     {
-        var q = _subscribers.GetOrAdd(e.SubscriberID, QueueInitializer());
+        var q = _subscribers.GetOrAdd(e.SubscriberID, new EventQueue());
 
         if (!q.IsStale)
-            q.Records.Enqueue(e);
+            q.Records.Enqueue((InMemoryEventStorageRecord)e);
         else
             throw new OverflowException();
 
@@ -26,14 +26,14 @@ internal sealed class InMemoryEventHubStorage : IEventHubStorageProvider
 
     public ValueTask<IEventStorageRecord?> GetNextEventAsync(string subscriberID, CancellationToken ct)
     {
-        var q = _subscribers.GetOrAdd(subscriberID, QueueInitializer());
+        var q = _subscribers.GetOrAdd(subscriberID, new EventQueue());
         q.Records.TryPeek(out var e);
-        return ValueTask.FromResult(e);
+        return ValueTask.FromResult(e as IEventStorageRecord);
     }
 
     public ValueTask MarkEventAsCompleteAsync(IEventStorageRecord e, CancellationToken ct)
     {
-        var q = _subscribers.GetOrAdd(e.SubscriberID, QueueInitializer());
+        var q = _subscribers.GetOrAdd(e.SubscriberID, new EventQueue());
         q.Records.TryDequeue(out _);
         q.LastDequeuAt = DateTime.UtcNow;
         return ValueTask.CompletedTask;
@@ -48,6 +48,4 @@ internal sealed class InMemoryEventHubStorage : IEventHubStorageProvider
         }
         return ValueTask.CompletedTask;
     }
-
-    private static EventQueue<IEventStorageRecord> QueueInitializer() => new();
 }

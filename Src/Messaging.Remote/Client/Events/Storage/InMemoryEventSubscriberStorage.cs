@@ -5,9 +5,7 @@ namespace FastEndpoints;
 //NOTE: this is a singleton class
 internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider
 {
-    private const int max_queue_size = 100000;
-
-    //key: subscriber ID (see EventHandlerExecutor.ctor to see how subscriber id is generated)
+    //key: subscriber ID (see EventSubscriber.ctor to see how subscriber id is generated)
     //val: queue of events for the subscriber
     private readonly ConcurrentDictionary<string, ConcurrentQueue<IEventStorageRecord>> _subscribers = new();
 
@@ -15,7 +13,7 @@ internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStoragePr
     {
         var q = _subscribers.GetOrAdd(e.SubscriberID, QueueInitializer());
 
-        if (q.Count >= max_queue_size)
+        if (q.Count >= InMemoryEventQueue.MaxLimit)
             throw new OverflowException("In-memory event receive queue limit reached!");
 
         q.Enqueue(e);

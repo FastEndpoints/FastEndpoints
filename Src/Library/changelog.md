@@ -6,42 +6,21 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ---
 
-### 📢 New
-
-<details><summary>1️⃣ gRPC based Event Broker functionality</summary>
-
-Please see the documentation [here](https://fast-endpoints.com/docs/remote-procedure-calls#event-broker-mode) for details.
-
-</details>
-
-<details><summary>2️⃣ Ability to subscribe to exceptions in Event Queues</summary>
-
-Please see the documentation [here](https://fast-endpoints.com/docs/remote-procedure-calls#event-queue-error-notifications) for details.
-
-</details>
-
-<details><summary>3️⃣ Support for TimeProvider in FastEndpoints.Security package</summary>
-
-You can now register your own [TimeProvider](https://learn.microsoft.com/en-us/dotnet/api/system.timeprovider) implementation in the IOC container and the `FastEndpoints.Security` package will use that implementation to obtain the current time for token creation. If no `TimeProvider` is registered, the `TimeProvider.System` default implementation is used. There's no need to wait for .NET 8.0 release since the `TimeProvider` abstract class is already in a `netstandard2.0` BCL package on nuget. #458
-
-</details>
-
-<details><summary>4️⃣ Support for Asp.Versioning.Http package</summary>
-
-Please see the documentation [here](https://fast-endpoints.com/docs/api-versioning#asp-versioning-http-package-support-experimental) for details.
-
-</details>
-
-<details><summary>5️⃣ Visual Studio Code Extension</summary>
-
-Thanks to [Davor Rilko](https://github.com/drilko) we now have a [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=drilko.fastendpoints) for quickly scaffolding/expanding code snippets similarly to the [VS Extension](https://marketplace.visualstudio.com/items?itemName=dj-nitehawk.FastEndpoints) which has also been updated to bring the functionality up to par.
-
-</details>
+<!-- ### 📢 New -->
 
 ### 🚀 Improvements
 
-<details><summary>1️⃣ Optimize Event Queue internals</summary></details>
-<details><summary>2️⃣ Upgrade dependencies to latest</summary></details>
+<details><summary>1️⃣ Allow customization of in-memory event queue size</summary>
+
+If you're are using the [default in-memory event storage providers](https://fast-endpoints.com/docs/remote-procedure-calls#event-bus-vs-event-queue), the size limit of their internal queues can now be specified like so:
+
+```cs
+InMemoryEventQueue.MaxLimit = 1000;
+```
+This limit is applied per queue. Each event type in the system has it's own independent queue. If there's 10 events in the system,
+there will be 10X the number of events held in memory if they aren't being dequeued in a timely manner.
+
+</details>
 
 <!-- ### 🪲 Fixes -->
 

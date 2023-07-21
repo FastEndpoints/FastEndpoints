@@ -22,6 +22,13 @@ there will be 10X the number of events held in memory if they aren't being deque
 
 </details>
 
+<details><summary>2️⃣ Remote messaging performance improvements</summary>
+
+- Refactor logging to use code generated high performance logging.
+- Reduce allocations for `void` commands by utilizing a static `EmptyObject` instance.
+
+</details>
+
 <!-- ### 🪲 Fixes -->
 
 <!-- ### ⚠️ Minor Breaking Changes -->

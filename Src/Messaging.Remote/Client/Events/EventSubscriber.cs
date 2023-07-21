@@ -25,10 +25,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
         _errorReceiver = _serviceProvider?.GetService<SubscriberExceptionReceiver>();
         _logger = serviceProvider?.GetRequiredService<ILogger<EventSubscriber<TEvent, TEventHandler>>>();
         _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target).ToHash();
-        _logger?.LogInformation("Event subscriber registered! [id: {subid}] ({thandler}<{tevent}>)",
-            _subscriberID,
-            typeof(TEventHandler).FullName,
-            typeof(TEvent).FullName);
+        _logger?.SubscriberRegistered(_subscriberID, typeof(TEventHandler).FullName!, typeof(TEvent).FullName!);
     }
 
     internal void Start(CallOptions opts)
@@ -67,10 +64,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                         {
                             createErrorCount++;
                             _ = errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, opts.CancellationToken);
-                            logger?.LogError("Event storage 'create' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                                subscriberID,
-                                typeof(TEvent).FullName,
-                                ex.Message);
+                            logger?.StorageCreateError(subscriberID, typeof(TEvent).FullName!, ex.Message);
                             await Task.Delay(5000);
                         }
                     }
@@ -81,10 +75,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
             {
                 receiveErrorCount++;
                 _ = errors?.OnEventReceiveError<TEvent>(subscriberID, receiveErrorCount, ex, opts.CancellationToken);
-                logger?.LogTrace("Event 'receive' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                    subscriberID,
-                    typeof(TEvent),
-                    ex.Message);
+                logger?.ReceiveTrace(subscriberID, typeof(TEvent).FullName!, ex.Message);
                 call.Dispose(); //the stream is most likely broken, so dispose it and initialize a new call
                 await Task.Delay(5000);
                 call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);

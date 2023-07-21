@@ -60,7 +60,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
 
     internal async Task OnSubscriberConnected(EventHub<TEvent> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
     {
-        Logger.LogInformation("Event subscriber connected! [id:{subid}]({tevent})", subscriberID, _eventType.FullName!);
+        Logger.SubscriberConnected(subscriberID, _eventType.FullName!);
 
         var retrievalErrorCount = 0;
         var updateErrorCount = 0;
@@ -80,10 +80,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
             {
                 retrievalErrorCount++;
                 Errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, ctx.CancellationToken);
-                Logger.LogError("Event storage 'retrieval' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                    subscriberID,
-                    _eventType.FullName,
-                    ex.Message);
+                Logger.StorageRetrieveError(subscriberID, _eventType.FullName!, ex.Message);
                 await Task.Delay(5000);
                 continue;
             }
@@ -111,10 +108,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                     {
                         updateErrorCount++;
                         Errors?.OnMarkEventAsCompleteError<TEvent>(evntRecord, updateErrorCount, ex, ctx.CancellationToken);
-                        Logger.LogError("Event storage 'update' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                            subscriberID,
-                            _eventType.FullName,
-                            ex.Message);
+                        Logger.StorageUpdateError(subscriberID, _eventType.FullName!, ex.Message);
                         await Task.Delay(5000);
                     }
                 }
@@ -129,7 +123,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
     internal Task<EmptyObject> OnEventReceived(EventHub<TEvent> __, TEvent evnt, ServerCallContext ctx)
     {
         _ = AddToSubscriberQueues(evnt, ctx.CancellationToken);
-        return Task.FromResult(new EmptyObject());
+        return Task.FromResult(EmptyObject.Instance);
     }
 
     internal static async Task AddToSubscriberQueues(TEvent evnt, CancellationToken ct)
@@ -156,19 +150,14 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 {
                     _subscribers.Remove(subId, out _);
                     Errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
-                    Logger.LogWarning("Event queue for [subscriber-id:{subid}]({tevent}) is full! The subscriber has been removed from the broadcast list.",
-                        subId,
-                        _eventType.FullName);
+                    Logger.QueueOverflowWarning(subId, _eventType.FullName!);
                     break;
                 }
                 catch (Exception ex)
                 {
                     createErrorCount++;
                     Errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, ct);
-                    Logger.LogError("Event storage 'create' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                        subId,
-                        _eventType.FullName,
-                        ex.Message);
+                    Logger.StorageCreateError(subId, _eventType.FullName!, ex.Message);
 #pragma warning disable CA2016
                     await Task.Delay(5000);
 #pragma warning restore CA2016

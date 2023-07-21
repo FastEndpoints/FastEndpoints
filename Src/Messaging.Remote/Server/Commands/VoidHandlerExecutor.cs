@@ -20,6 +20,6 @@ internal sealed class VoidHandlerExecutor<TCommand, THandler>
     {
         var handler = (THandler)_handlerFactory(ctx.GetHttpContext().RequestServices, null);
         await handler.ExecuteAsync(cmd, ctx.CancellationToken);
-        return new EmptyObject();
+        return EmptyObject.Instance;
     }
 }

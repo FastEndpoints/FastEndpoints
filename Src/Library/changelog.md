@@ -29,6 +29,12 @@ there will be 10X the number of events held in memory if they aren't being deque
 
 </details>
 
+<details><summary>3️⃣ Misc. performance improvements</summary>
+
+- Reduce boxing/unboxing in a few hot paths.
+
+</details>
+
 <!-- ### 🪲 Fixes -->
 
 <!-- ### ⚠️ Minor Breaking Changes -->

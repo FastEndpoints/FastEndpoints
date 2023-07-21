@@ -43,7 +43,7 @@ internal static class EndpointExtensions
                 switch (att)
                 {
                     case HttpAttribute httpAttr:
-                        instance.Verbs(httpAttr.Verb.ToString());
+                        instance.Verbs(httpAttr.Verb.ToString("F"));
                         def.Routes = httpAttr.Routes;
                         break;
 

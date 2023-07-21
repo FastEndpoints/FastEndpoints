@@ -122,7 +122,7 @@ public sealed class EndpointDefinition
     {
         AnonymousVerbs =
             verbs.Length > 0
-            ? verbs.Select(v => v.ToString()).ToArray()
+            ? verbs.Select(v => v.ToString("F")).ToArray()
             : Enum.GetNames(Types.Http);
     }
 

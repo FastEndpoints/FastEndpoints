@@ -53,7 +53,7 @@ public static class HttpResponseExtensions
     {
         return SendCreatedAtAsync(
             rsp,
-            typeof(TEndpoint).EndpointName(verb?.ToString(), routeNumber),
+            typeof(TEndpoint).EndpointName(verb?.ToString("F"), routeNumber),
             routeValues,
             responseBody,
             jsonSerializerContext,

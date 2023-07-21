@@ -65,7 +65,8 @@ public static class HttpContextExtensions
 
 internal static class CtxKey
 {
-    internal const int ResponseStarted = 0;
-    internal const int ValidationFailures = 1;
-    internal const int ProcessorState = 2;
+    //values are strings to avoid boxing when doing dictionary lookups in HttpContext.Items
+    internal const string ResponseStarted = "0";
+    internal const string ValidationFailures = "1";
+    internal const string ProcessorState = "2";
 }

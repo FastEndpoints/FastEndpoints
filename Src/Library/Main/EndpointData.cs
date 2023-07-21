@@ -167,7 +167,9 @@ internal sealed class EndpointData
                     if (!CommandExtensions.handlerRegistry.ContainsKey(tCommand))
                         CommandExtensions.handlerRegistry.Add(tCommand, new(t));
 
+#pragma warning disable RCS1134
                     continue;
+#pragma warning restore RCS1134
                 }
             }
         }

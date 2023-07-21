@@ -256,7 +256,6 @@ public static class HttpClientExtensions
                                                                               TRequest request,
                                                                               bool? isFormContent = null)
     {
-#pragma warning disable RCS1084
         var rsp = await client.SendAsync(
             new HttpRequestMessage
             {
@@ -266,8 +265,6 @@ public static class HttpClientExtensions
                             ? request.ToForm()
                             : new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
             });
-#pragma warning restore RCS1084
-
         TResponse? res = default;
 
         if (typeof(TResponse) == Types.EmptyResponse)
@@ -302,9 +299,8 @@ public static class HttpClientExtensions
             }
         }
 
-        if (!form.Any())
-            throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!");
-
-        return form;
+        return !form.Any()
+            ? throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!")
+            : form;
     }
 }

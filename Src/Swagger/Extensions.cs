@@ -40,7 +40,7 @@ public static class Extensions
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(generator =>
         {
-            var stjOpts = new JsonSerializerOptions(Config.SerOpts.Options);
+            var stjOpts = new JsonSerializerOptions(Conf.SerOpts.Options);
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             doc.SerializerSettings?.Invoke(stjOpts);
             generator.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);

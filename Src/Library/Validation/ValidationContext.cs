@@ -17,7 +17,7 @@ public class ValidationContext
     ///<inheritdoc/>
     public List<ValidationFailure> ValidationFailures { get; } =
         (List<ValidationFailure>?)
-            Config.ServiceResolver?.TryResolve<IHttpContextAccessor>()?.HttpContext?.Items[CtxKey.ValidationFailures] ??
+            Conf.ServiceResolver?.TryResolve<IHttpContextAccessor>()?.HttpContext?.Items[CtxKey.ValidationFailures] ??
                 new();
 
     ///<inheritdoc/>

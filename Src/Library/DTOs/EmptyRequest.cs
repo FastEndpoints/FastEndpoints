@@ -6,5 +6,5 @@ namespace FastEndpoints;
 /// </summary>
 public struct EmptyRequest
 {
-    public EmptyRequest() { }
+    public EmptyRequest() { } //removing this ctor breaks tests
 }

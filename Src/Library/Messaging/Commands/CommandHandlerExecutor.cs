@@ -9,7 +9,7 @@ internal sealed class CommandHandlerExecutor<TCommand> : CommandHandlerExecutorB
 {
     internal override Task Execute(ICommand command, Type tCommandHandler, CancellationToken ct)
     {
-        return ((ICommandHandler<TCommand>)Config.ServiceResolver.CreateInstance(tCommandHandler))
+        return ((ICommandHandler<TCommand>)Conf.ServiceResolver.CreateInstance(tCommandHandler))
             .ExecuteAsync((TCommand)command, ct);
     }
 }
@@ -38,7 +38,7 @@ internal sealed class CommandHandlerExecutor<TCommand, TResult> : CommandHandler
 {
     internal override Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
-        return ((ICommandHandler<TCommand, TResult>)Config.ServiceResolver.CreateInstance(tCommandHandler))
+        return ((ICommandHandler<TCommand, TResult>)Conf.ServiceResolver.CreateInstance(tCommandHandler))
             .ExecuteAsync((TCommand)command, ct);
     }
 }

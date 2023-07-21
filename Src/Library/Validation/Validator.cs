@@ -11,13 +11,13 @@ namespace FastEndpoints;
 public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServiceResolverBase, IEndpointValidator where TRequest : class
 {
     ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
+    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
     ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
+    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
     ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
+    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
     ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
+    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
-    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
+    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
 }

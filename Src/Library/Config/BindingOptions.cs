@@ -30,7 +30,7 @@ public sealed class BindingOptions
     /// </summary>
     public Func<JsonException, ValidationFailure>? JsonExceptionTransformer { internal get; set; } = (exception)
         => new ValidationFailure(
-            propertyName: exception.Path != "$" ? exception.Path?[2..] : Config.SerOpts.SerializerErrorsField,
+            propertyName: exception.Path != "$" ? exception.Path?[2..] : Conf.SerOpts.SerializerErrorsField,
             errorMessage: exception.InnerException?.Message ?? exception.Message);
 
     /// <summary>

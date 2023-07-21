@@ -17,12 +17,12 @@ public static class EventExtensions
     /// <see cref="Mode.WaitForAny"/> returns a Task that will complete when any of the subscribers complete their work.
     /// <see cref="Mode.WaitForAll"/> return a Task that will complete only when all of the subscribers complete their work.</returns>
     public static Task PublishAsync<TEvent>(this TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : IEvent
-        => Config.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
+        => Conf.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     //key: tEvent
     //val: the PublishAsync compiled expression - Event<TEvent>.PublishAsync(...)
     private static readonly ConcurrentDictionary<Type, Func<IEvent, Mode, CancellationToken, Task>> publishFuncCache = new();
-    private static EventBus<T> CreateEventInstance<T>() where T : IEvent => Config.ServiceResolver.Resolve<EventBus<T>>();
+    private static EventBus<T> CreateEventInstance<T>() where T : IEvent => Conf.ServiceResolver.Resolve<EventBus<T>>();
 
     /// <summary>
     /// publish the event to all subscribers registered to handle this type of event.

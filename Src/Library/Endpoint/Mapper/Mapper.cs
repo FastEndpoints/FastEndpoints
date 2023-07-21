@@ -43,15 +43,15 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IMapper, IServiceRe
     public virtual TEntity UpdateEntity(TRequest r, TEntity e) => throw new NotImplementedException($"Please override the {nameof(UpdateEntity)} method!");
 
     ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
+    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
     ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
+    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
     ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
+    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
     ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
+    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
-    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
+    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
 }
 
 /// <summary>
@@ -75,15 +75,15 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServic
     public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
 
     ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
+    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
     ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
+    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
     ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
+    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
     ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
+    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
-    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
+    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
 }
 
 /// <summary>
@@ -107,13 +107,13 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper, ISer
     public virtual Task<TResponse> FromEntityAsync(TEntity e, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
 
     ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
+    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
     ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
+    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
     ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
+    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
     ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
+    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
-    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
+    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
 }

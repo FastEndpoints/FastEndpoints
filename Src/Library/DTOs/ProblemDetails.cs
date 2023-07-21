@@ -87,7 +87,7 @@ public sealed class ProblemDetails
 
         public Error(ValidationFailure failure)
         {
-            Name = Config.SerOpts.Options.PropertyNamingPolicy?.ConvertName(failure.PropertyName) ?? failure.PropertyName;
+            Name = Conf.SerOpts.Options.PropertyNamingPolicy?.ConvertName(failure.PropertyName) ?? failure.PropertyName;
             Reason = failure.ErrorMessage;
             Code = failure.ErrorCode;
         }

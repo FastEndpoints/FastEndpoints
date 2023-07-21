@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using System.Text.Json.Serialization;
-using Conf = FastEndpoints.Config;
 
 namespace FastEndpoints;
 

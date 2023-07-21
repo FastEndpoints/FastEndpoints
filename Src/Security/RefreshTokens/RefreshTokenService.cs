@@ -1,6 +1,4 @@
-﻿using Conf = FastEndpoints.Config;
-
-namespace FastEndpoints.Security;
+﻿namespace FastEndpoints.Security;
 
 /// <summary>
 /// implement this class to define your own refresh token endpoints.

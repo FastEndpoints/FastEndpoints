@@ -35,7 +35,7 @@ public sealed class ErrorResponse
     {
         StatusCode = statusCode;
         Errors = failures.GroupToDictionary(
-            f => Config.SerOpts.Options.PropertyNamingPolicy?.ConvertName(f.PropertyName) ?? f.PropertyName,
+            f => Conf.SerOpts.Options.PropertyNamingPolicy?.ConvertName(f.PropertyName) ?? f.PropertyName,
             v => v.ErrorMessage);
     }
 }

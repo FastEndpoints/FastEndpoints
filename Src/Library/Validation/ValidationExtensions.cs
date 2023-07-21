@@ -18,7 +18,7 @@ internal static class ValidationExtensions
     internal static void AddError(this List<ValidationFailure> failures, string message, string? errorCode = null, Severity severity = Severity.Error)
     {
         failures.AddError(
-            new(Config.ErrOpts.GeneralErrorsField, message)
+            new(Conf.ErrOpts.GeneralErrorsField, message)
             {
                 ErrorCode = errorCode,
                 Severity = severity

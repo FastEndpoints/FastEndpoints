@@ -139,7 +139,7 @@ public static class JWTBearer
             claimList.AddRange(claims);
 
         if (permissions != null)
-            claimList.AddRange(permissions.Select(p => new Claim(Config.SecOpts.PermissionsClaimType, p)));
+            claimList.AddRange(permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
 
         if (roles != null)
             claimList.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
@@ -148,7 +148,7 @@ public static class JWTBearer
         {
             Issuer = issuer,
             Audience = audience,
-            IssuedAt = (Config.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime,
+            IssuedAt = (Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime,
             Subject = new ClaimsIdentity(claimList),
             Expires = expireAt,
             SigningCredentials = GetSigningCredentials(signingKey, signingStyle)
@@ -162,7 +162,7 @@ public static class JWTBearer
     {
         if (style == TokenSigningStyle.Asymmetric)
         {
-            var rsa = RSA.Create();
+            var rsa = RSA.Create(); // don't dispose this
             rsa.ImportRSAPrivateKey(Convert.FromBase64String(key), out _);
             return new SigningCredentials(
                 new RsaSecurityKey(rsa),

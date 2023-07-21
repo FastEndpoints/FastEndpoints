@@ -74,7 +74,7 @@ public sealed class EndpointDefinition
     internal object? GetMapper()
     {
         if (mapper is null && MapperType is not null)
-            mapper = Config.ServiceResolver.CreateSingleton(MapperType);
+            mapper = Conf.ServiceResolver.CreateSingleton(MapperType);
 
         return mapper;
     }
@@ -83,7 +83,7 @@ public sealed class EndpointDefinition
     internal object? GetValidator()
     {
         if (validator is null && ValidatorType is not null)
-            validator = Config.ServiceResolver.CreateSingleton(ValidatorType);
+            validator = Conf.ServiceResolver.CreateSingleton(ValidatorType);
 
         return validator;
     }

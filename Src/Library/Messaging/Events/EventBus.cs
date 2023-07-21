@@ -27,7 +27,7 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
         if (eventHandlers?.Any() is true)
             handlers = eventHandlers;
         else if (HandlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
-            handlers = hndlrs.Select(Config.ServiceResolver.CreateSingleton).Cast<IEventHandler<TEvent>>();
+            handlers = hndlrs.Select(Conf.ServiceResolver.CreateSingleton).Cast<IEventHandler<TEvent>>();
     }
 
     /// <summary>

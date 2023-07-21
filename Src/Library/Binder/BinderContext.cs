@@ -26,7 +26,7 @@ public readonly struct BinderContext : IServiceResolverBase
     /// <summary>
     /// the configured json serializer options of the app, which was specified at app startup.
     /// </summary>
-    public JsonSerializerOptions SerializerOptions => Config.SerOpts.Options;
+    public JsonSerializerOptions SerializerOptions => Conf.SerOpts.Options;
 
     /// <summary>
     /// if the current endpoint is configured with a json serializer context, it will be provided to the custom request binder with this property.
@@ -58,13 +58,13 @@ public readonly struct BinderContext : IServiceResolverBase
     }
 
     ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Config.ServiceResolver.TryResolve<TService>();
+    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
     ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Config.ServiceResolver.TryResolve(typeOfService);
+    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
     ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Config.ServiceResolver.Resolve<TService>();
+    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
     ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Config.ServiceResolver.Resolve(typeOfService);
+    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
     ///<inheritdoc/>
-    public IServiceScope CreateScope() => Config.ServiceResolver.CreateScope();
+    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
 }

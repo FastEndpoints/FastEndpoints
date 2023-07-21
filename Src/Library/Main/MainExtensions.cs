@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Text;
-using static FastEndpoints.Config;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
 namespace FastEndpoints;
@@ -51,18 +50,18 @@ public static class MainExtensions
         return app;
     }
 
-    public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
+    public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Conf>? configAction = null)
     {
-        Config.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
-        var jsonOpts = Config.ServiceResolver.Resolve<IOptions<JsonOptions>>()?.Value.SerializerOptions;
-        SerOpts.Options = jsonOpts is not null
+        Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
+        var jsonOpts = Conf.ServiceResolver.Resolve<IOptions<JsonOptions>>()?.Value.SerializerOptions;
+        Conf.SerOpts.Options = jsonOpts is not null
                             ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
-                            : SerOpts.Options;
-        configAction?.Invoke(new Config());
+                            : Conf.SerOpts.Options;
+        configAction?.Invoke(new Conf());
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
-        var epFactory = Config.ServiceResolver.Resolve<IEndpointFactory>();
-        using var scope = Config.ServiceResolver.CreateScope();
+        var epFactory = Conf.ServiceResolver.Resolve<IEndpointFactory>();
+        using var scope = Conf.ServiceResolver.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
         var routeToHandlerCounts = new ConcurrentDictionary<string, int>();//key: {verb}:{route}
         var totalEndpointCount = 0;
@@ -73,11 +72,11 @@ public static class MainExtensions
             var ep = epFactory.Create(def, httpCtx);
             def.Initialize(ep, httpCtx);
 
-            if (EpOpts.Filter is not null && !EpOpts.Filter(def)) continue;
+            if (Conf.EpOpts.Filter is not null && !Conf.EpOpts.Filter(def)) continue;
             if (def.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{def.EndpointType.FullName}]");
             if (def.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
-            EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
+            Conf.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
             def.Version.Init(); //todo: move this to a more appropriate place
 
             var authorizeAttributes = BuildAuthorizeAttributes(def);
@@ -133,16 +132,16 @@ public static class MainExtensions
             }
         }
 
-        Config.ServiceResolver.Resolve<ILogger<StartupTimer>>().LogInformation(
+        Conf.ServiceResolver.Resolve<ILogger<StartupTimer>>().LogInformation(
             $"Registered {totalEndpointCount} endpoints in " +
             $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
         EndpointData.Stopwatch.Stop();
 
-        if (!VerOpts.IsUsingAspVersioning)
+        if (!Conf.VerOpts.IsUsingAspVersioning)
         {
             var duplicatesDetected = false;
-            var logger = Config.ServiceResolver.Resolve<ILogger<DuplicateHandlerRegistration>>();
+            var logger = Conf.ServiceResolver.Resolve<ILogger<DuplicateHandlerRegistration>>();
 
             foreach (var kvp in routeToHandlerCounts)
             {
@@ -178,14 +177,14 @@ public static class MainExtensions
         // {rPrfix}/{route}/{p}{ver}
         // mobile/customer/retrieve/v1
 
-        if (EpOpts.RoutePrefix is not null && prefixOverride != string.Empty)
+        if (Conf.EpOpts.RoutePrefix is not null && prefixOverride != string.Empty)
         {
             builder.Append('/')
-                   .Append(prefixOverride ?? EpOpts.RoutePrefix)
+                   .Append(prefixOverride ?? Conf.EpOpts.RoutePrefix)
                    .Append('/');
         }
 
-        if (VerOpts.PrependToRoute is true)
+        if (Conf.VerOpts.PrependToRoute is true)
             AppendVersion(builder, epVersion, trailingSlash: true);
 
         if (builder.Length > 0 && route.StartsWith('/'))
@@ -193,7 +192,7 @@ public static class MainExtensions
 
         builder.Append(route);
 
-        if (VerOpts.PrependToRoute is not true)
+        if (Conf.VerOpts.PrependToRoute is not true)
             AppendVersion(builder, epVersion, trailingSlash: false);
 
         var final = builder.ToString();
@@ -202,7 +201,7 @@ public static class MainExtensions
 
         static void AppendVersion(StringBuilder builder, int epVersion, bool trailingSlash)
         {
-            var prefix = VerOpts.Prefix ?? "v";
+            var prefix = Conf.VerOpts.Prefix ?? "v";
 
             if (epVersion > 0)
             {
@@ -214,13 +213,13 @@ public static class MainExtensions
 
                 if (trailingSlash) builder.Append('/');
             }
-            else if (VerOpts.DefaultVersion != 0)
+            else if (Conf.VerOpts.DefaultVersion != 0)
             {
                 if (builder.Length > 0 && builder[^1] != '/')
                     builder.Append('/');
 
                 builder.Append(prefix)
-                       .Append(VerOpts.DefaultVersion);
+                       .Append(Conf.VerOpts.DefaultVersion);
 
                 if (trailingSlash) builder.Append('/');
             }
@@ -281,7 +280,7 @@ public static class MainExtensions
                     {
                         b.RequireAssertion(x =>
                             x.User.Claims.Any(c =>
-                                string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                 ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
                     }
                     else
@@ -289,7 +288,7 @@ public static class MainExtensions
                         b.RequireAssertion(x =>
                             ep.AllowedPermissions.All(p =>
                                 x.User.Claims.Any(c =>
-                                    string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                    string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                     string.Equals(c.Value, p, StringComparison.Ordinal))));
                     }
                 }

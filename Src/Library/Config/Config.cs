@@ -1,4 +1,5 @@
-﻿#pragma warning disable RCS1102,CA1822
+﻿global using Conf = FastEndpoints.Config;
+#pragma warning disable RCS1102,CA1822
 
 namespace FastEndpoints;
 

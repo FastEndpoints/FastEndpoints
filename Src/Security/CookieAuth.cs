@@ -18,10 +18,10 @@ public static class CookieAuth
     /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configure or method is used outside the scope of an http request</exception>
     public static Task SignInAsync(Action<UserPrivileges> privileges, Action<AuthenticationProperties>? properties = null)
     {
-        var svc = Config.ServiceResolver.TryResolve<IAuthenticationService>()
+        var svc = Conf.ServiceResolver.TryResolve<IAuthenticationService>()
             ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
 
-        var ctx = Config.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext
+        var ctx = Conf.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext
             ?? throw new InvalidOperationException("This operation is only valid during an http request!");
 
         var privs = new UserPrivileges();
@@ -33,7 +33,7 @@ public static class CookieAuth
             claimList.AddRange(privs.Claims);
 
         if (privs.Permissions.Count > 0)
-            claimList.AddRange(privs.Permissions.Select(p => new Claim(Config.SecOpts.PermissionsClaimType, p)));
+            claimList.AddRange(privs.Permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
 
         if (privs.Roles.Count > 0)
             claimList.AddRange(privs.Roles.Select(r => new Claim(ClaimTypes.Role, r)));
@@ -41,7 +41,7 @@ public static class CookieAuth
         var props = new AuthenticationProperties
         {
             IsPersistent = true,
-            IssuedUtc = (Config.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
+            IssuedUtc = (Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
         };
 
         properties?.Invoke(props);
@@ -60,16 +60,16 @@ public static class CookieAuth
     /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configure or method is used outside the scope of an http request</exception>
     public static Task SignOutAsync(Action<AuthenticationProperties>? properties = null)
     {
-        var svc = Config.ServiceResolver.TryResolve<IAuthenticationService>()
+        var svc = Conf.ServiceResolver.TryResolve<IAuthenticationService>()
             ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
 
-        var ctx = Config.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext
+        var ctx = Conf.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext
             ?? throw new InvalidOperationException("This operation is only valid during an http request!");
 
         var props = new AuthenticationProperties
         {
             IsPersistent = true,
-            IssuedUtc = (Config.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
+            IssuedUtc = (Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
         };
 
         properties?.Invoke(props);

@@ -82,12 +82,12 @@ public static class Factory
         if (ctx.RequestServices is not null)
             throw new InvalidOperationException("You cannot add services to this http context because it's not empty!");
 
-        if (Config.ServiceResolver is null)
+        if (Conf.ServiceResolver is null)
         {
             var testingProvider = new ServiceCollection()
                 .AddHttpContextAccessor()
                 .BuildServiceProvider();
-            Config.ServiceResolver = new ServiceResolver(
+            Conf.ServiceResolver = new ServiceResolver(
                 provider: testingProvider,
                 ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
                 isTestMode: true);
@@ -97,7 +97,7 @@ public static class Factory
         collection.AddServicesForUnitTesting();
         s(collection);
         ctx.RequestServices = collection.BuildServiceProvider();
-        Config.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
+        Conf.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ public static class Factory
     public static TValidator CreateValidator<TValidator>(Action<IServiceCollection> s) where TValidator : class, IValidator
     {
         new DefaultHttpContext().AddTestServices(s);
-        return (TValidator)Config.ServiceResolver.CreateInstance(typeof(TValidator));
+        return (TValidator)Conf.ServiceResolver.CreateInstance(typeof(TValidator));
     }
 
     /// <summary>
@@ -119,7 +119,7 @@ public static class Factory
     public static TMapper CreateMapper<TMapper>(Action<IServiceCollection> s) where TMapper : class, IMapper
     {
         new DefaultHttpContext().AddTestServices(s);
-        return (TMapper)Config.ServiceResolver.CreateInstance(typeof(TMapper));
+        return (TMapper)Conf.ServiceResolver.CreateInstance(typeof(TMapper));
     }
 
     /// <summary>
@@ -132,6 +132,6 @@ public static class Factory
     {
         Action<IServiceCollection> x = s => s.AddSingleton(handlers);
         new DefaultHttpContext().AddTestServices(x + s);
-        return (TEvent)Config.ServiceResolver.CreateInstance(typeof(TEvent));
+        return (TEvent)Conf.ServiceResolver.CreateInstance(typeof(TEvent));
     }
 }

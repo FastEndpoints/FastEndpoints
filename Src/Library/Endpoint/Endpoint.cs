@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using Conf = FastEndpoints.Config;
 
 namespace FastEndpoints;
 

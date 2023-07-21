@@ -42,13 +42,13 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
 
     public ValidationSchemaProcessor()
     {
-        if (Config.ServiceResolver is null)
+        if (Conf.ServiceResolver is null)
             throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
 
-        _logger = Config.ServiceResolver.Resolve<ILogger<ValidationSchemaProcessor>>();
+        _logger = Conf.ServiceResolver.Resolve<ILogger<ValidationSchemaProcessor>>();
         _rules = CreateDefaultRules();
 
-        validatorTypes ??= Config.ServiceResolver.Resolve<EndpointData>().Found
+        validatorTypes ??= Conf.ServiceResolver.Resolve<EndpointData>().Found
             .Where(e => e.ValidatorType != null)
             .Select(e => e.ValidatorType!)
             .Distinct()
@@ -67,7 +67,7 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
 
         var tRequest = context.ContextualType;
 
-        using var scope = Config.ServiceResolver.CreateScope();
+        using var scope = Conf.ServiceResolver.CreateScope();
         if (scope is null)
             throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
 
@@ -77,7 +77,7 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
             {
                 if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
-                    var validator = Config.ServiceResolver.CreateInstance(tValidator, scope.ServiceProvider);
+                    var validator = Conf.ServiceResolver.CreateInstance(tValidator, scope.ServiceProvider);
                     if (validator is null)
                         throw new InvalidOperationException("Unable to instantiate validator!");
 

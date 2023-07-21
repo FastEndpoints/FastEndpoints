@@ -25,7 +25,7 @@ public static class CommandExtensions
 
         static CommandHandlerExecutorBase CreateHandlerExecutor(Type tCommand)
             => (CommandHandlerExecutorBase)
-                    Config.ServiceResolver.CreateSingleton(
+                    Conf.ServiceResolver.CreateSingleton(
                         Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
     }
 
@@ -50,7 +50,7 @@ public static class CommandExtensions
 
         static CommandHandlerExecutorBase<TResult> CreateHandlerExecutor(Type tCommand)
             => (CommandHandlerExecutorBase<TResult>)
-                    Config.ServiceResolver.CreateSingleton(
+                    Conf.ServiceResolver.CreateSingleton(
                         Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
     }
 

@@ -42,20 +42,24 @@ public static class AuthExtensions
                 rsa.ImportRSAPublicKey(Convert.FromBase64String(tokenSigningKey), out _);
                 key = new RsaSecurityKey(rsa);
             }
-            o.TokenValidationParameters = new TokenValidationParameters
-            {
-                IssuerSigningKey = key,
-                ValidateIssuerSigningKey = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromSeconds(60),
-                ValidAudience = null,
-                ValidateAudience = false,
-                ValidIssuer = null,
-                ValidateIssuer = false
-            };
+
+            //set defaults
+            o.TokenValidationParameters.IssuerSigningKey = key;
+            o.TokenValidationParameters.ValidateIssuerSigningKey = true;
+            o.TokenValidationParameters.ValidateLifetime = true;
+            o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
+            o.TokenValidationParameters.ValidAudience = null;
+            o.TokenValidationParameters.ValidateAudience = false;
+            o.TokenValidationParameters.ValidIssuer = null;
+            o.TokenValidationParameters.ValidateIssuer = false;
+
+            //override defaults with user supplied values
             tokenValidation?.Invoke(o.TokenValidationParameters);
+
+            //correct any user mistake
             o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
             o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
+
             bearerEvents?.Invoke(o.Events ??= new());
         });
 

@@ -86,14 +86,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
     }
 
-    private static void AddProcessors(object[] preProcessors, List<object> list)
+    private static void AddProcessors(object[] processors, List<object> target)
     {
-        for (var i = 0; i < preProcessors.Length; i++)
+        for (var i = 0; i < processors.Length; i++)
         {
-            var p = preProcessors[i];
+            var p = processors[i];
 
-            if (!list.Contains(p, TypeEqualityComparer.Instance))
-                list.Add(p);
+            if (!target.Contains(p, TypeEqualityComparer.Instance))
+                target.Add(p);
         }
     }
 }

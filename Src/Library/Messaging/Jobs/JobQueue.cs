@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
 using System.Collections.Concurrent;
-using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
@@ -13,6 +12,8 @@ public abstract class JobQueueBase
     protected static readonly ConcurrentDictionary<Type, JobQueueBase> _allQueues = new();
 
     protected abstract Task StoreJobAsync(object command, CancellationToken ct);
+
+    internal abstract void SetExecutionLimits(int concurrencyLimit, TimeSpan executionTimeLimit);
 
     internal static Task AddToQueueAsync(ICommand command, CancellationToken ct)
     {
@@ -30,24 +31,27 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
     where TStorageRecord : IJobStorageRecord, new()
     where TStorageProvider : IJobStorageProvider<TStorageRecord>
 {
-    private static int _concurrencyLimit;
-    private static TimeSpan _executionTimeLimit;
-    private static readonly Type tCommand = typeof(TCommand);
-    private static readonly string queueID = tCommand.FullName!.ToHash();
+    private static readonly Type _tCommand = typeof(TCommand);
+
+    private readonly ParallelOptions _parallelOptions = new();
+    private TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
+    private readonly string _queueID = _tCommand.FullName!.ToHash();
     private readonly IJobStorageProvider<TStorageRecord> _storage;
-    private readonly CancellationToken _ct;
+    private readonly CancellationToken _appCancellation;
 
     public JobQueue(IJobStorageProvider<TStorageRecord> storageProvider, IHostApplicationLifetime appLife)
     {
         _storage = storageProvider;
-        _allQueues[tCommand] = this;
-        _ct = appLife.ApplicationStopping;
+        _allQueues[_tCommand] = this;
+        _appCancellation = appLife.ApplicationStopping;
+        _parallelOptions.CancellationToken = _appCancellation;
         _ = CommandExecutorTask();
+        _ = StaleJobPurgingTask();
     }
 
-    internal static void SetOptions(int concurrencyLimit, TimeSpan executionTimeLimit)
+    internal override void SetExecutionLimits(int concurrencyLimit, TimeSpan executionTimeLimit)
     {
-        _concurrencyLimit = concurrencyLimit;
+        _parallelOptions.MaxDegreeOfParallelism = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
     }
 
@@ -55,8 +59,10 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
     {
         return _storage.StoreJobAsync(new TStorageRecord
         {
-            QueueID = queueID,
-            Command = command
+            QueueID = _queueID,
+            Command = command,
+            ExecuteAfter = DateTime.UtcNow,
+            ExpireOn = DateTime.UtcNow.AddHours(4)
         }, ct);
     }
 
@@ -64,14 +70,21 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
     {
         var records = Enumerable.Empty<TStorageRecord>();
 
-        while (!_ct.IsCancellationRequested)
+        while (!_appCancellation.IsCancellationRequested)
         {
             try
             {
                 records = await _storage.GetNextBatchAsync(
-                    match: r => r.QueueID == queueID && r.LockExpiry == null,
-                    batchSize: _concurrencyLimit * 2,
-                    ct: _ct);
+
+                    match: r =>
+                           r.QueueID == _queueID &&
+                           !r.IsComplete &&
+                           DateTime.UtcNow >= r.ExecuteAfter &&
+                           DateTime.UtcNow <= r.ExpireOn,
+
+                    batchSize: _parallelOptions.MaxDegreeOfParallelism * 2,
+
+                    ct: _appCancellation);
             }
             catch
             {
@@ -86,60 +99,66 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
                 continue;
             }
 
-            await Parallel.ForEachAsync(
-                records,
-                new ParallelOptions
+            await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+        }
+
+        async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
+        {
+            try
+            {
+                await ((TCommand)record.Command)
+                    .ExecuteAsync(new CancellationTokenSource(_executionTimeLimit).Token);
+                //todo: log info
+            }
+            catch (Exception x)
+            {
+                //todo: log critical
+                while (!_appCancellation.IsCancellationRequested)
                 {
-                    MaxDegreeOfParallelism = _concurrencyLimit,
-                    CancellationToken = new CancellationTokenSource(_executionTimeLimit).Token
-                },
-                ExecuteCommand);
+                    try
+                    {
+                        await _storage.OnHandlerExecutionFailureAsync(record, x, _appCancellation);
+                        break;
+                    }
+                    catch (Exception)
+                    {
+                        //todo: log error
+#pragma warning disable CA2016
+                        await Task.Delay(5000);
+#pragma warning restore CA2016
+                    }
+                }
+            }
+
+            while (!_appCancellation.IsCancellationRequested)
+            {
+                try
+                {
+                    await _storage.MarkJobAsCompleteAsync(record, _appCancellation);
+                }
+                catch (Exception)
+                {
+                    //todo: log error
+#pragma warning disable CA2016
+                    await Task.Delay(5000);
+#pragma warning restore CA2016
+                }
+            }
         }
     }
 
     private async Task StaleJobPurgingTask()
     {
-        while (!_ct.IsCancellationRequested)
+        while (!_appCancellation.IsCancellationRequested)
         {
             await Task.Delay(TimeSpan.FromHours(1));
             try
             {
                 await _storage.PurgeStaleJobsAsync(
-                    match: r => r.QueueID == queueID && (r.IsComplete || (r.LockExpiry != null && DateTime.UtcNow >= r.LockExpiry)),
-                    ct: _ct);
+                    match: r => r.QueueID == _queueID && (r.IsComplete || r.ExpireOn <= DateTime.UtcNow),
+                    ct: _appCancellation);
             }
             catch { }
         }
     }
-
-    private async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken ct)
-    {
-        var cmd = (TCommand)record.Command;
-
-        try
-        {
-            await cmd.ExecuteAsync(ct);
-        }
-        catch (Exception)
-        {
-
-            throw;
-        }
-    }
-}
-
-public interface IJobStorageRecord
-{
-    public string QueueID { get; set; }
-    public object Command { get; set; }
-    public DateTime? LockExpiry { get; set; }
-    public bool IsComplete { get; set; }
-}
-
-public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJobStorageRecord
-{
-    public Task StoreJobAsync(TStorageRecord job, CancellationToken ct);
-    public Task<IEnumerable<TStorageRecord>> GetNextBatchAsync(Expression<Func<TStorageRecord, bool>> match, int batchSize, CancellationToken ct);
-    public Task MarkJobAsCompleteAsync(TStorageRecord job, CancellationToken ct);
-    public Task PurgeStaleJobsAsync(Expression<Func<TStorageRecord, bool>> match, CancellationToken ct);
 }

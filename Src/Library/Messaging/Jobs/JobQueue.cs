@@ -30,7 +30,8 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
     where TStorageRecord : IJobStorageRecord, new()
     where TStorageProvider : IJobStorageProvider<TStorageRecord>
 {
-    private static readonly ParallelOptions _parallelOpts = new() { MaxDegreeOfParallelism = 1 };
+    private static int _concurrencyLimit;
+    private static TimeSpan _executionTimeLimit;
     private static readonly Type tCommand = typeof(TCommand);
     private static readonly string queueID = tCommand.FullName!.ToHash();
     private readonly IJobStorageProvider<TStorageRecord> _storage;
@@ -41,20 +42,21 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
         _storage = storageProvider;
         _allQueues[tCommand] = this;
         _ct = appLife.ApplicationStopping;
-        _parallelOpts.CancellationToken = _ct;
         _ = CommandExecutorTask();
     }
 
-    internal static void SetMaxParallelism(int maxLimit)
-        => _parallelOpts.MaxDegreeOfParallelism = maxLimit;
+    internal static void SetOptions(int concurrencyLimit, TimeSpan executionTimeLimit)
+    {
+        _concurrencyLimit = concurrencyLimit;
+        _executionTimeLimit = executionTimeLimit;
+    }
 
     protected override Task StoreJobAsync(object command, CancellationToken ct)
     {
         return _storage.StoreJobAsync(new TStorageRecord
         {
-            Command = command,
-            IsLocked = false,
-            QueueID = queueID
+            QueueID = queueID,
+            Command = command
         }, ct);
     }
 
@@ -67,8 +69,8 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
             try
             {
                 records = await _storage.GetNextBatchAsync(
-                    match: r => r.QueueID == queueID && !r.IsLocked,
-                    batchSize: _parallelOpts.MaxDegreeOfParallelism * 2,
+                    match: r => r.QueueID == queueID && r.LockExpiry == null,
+                    batchSize: _concurrencyLimit * 2,
                     ct: _ct);
             }
             catch
@@ -84,7 +86,29 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
                 continue;
             }
 
-            await Parallel.ForEachAsync(records, _parallelOpts, ExecuteCommand);
+            await Parallel.ForEachAsync(
+                records,
+                new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = _concurrencyLimit,
+                    CancellationToken = new CancellationTokenSource(_executionTimeLimit).Token
+                },
+                ExecuteCommand);
+        }
+    }
+
+    private async Task StaleJobPurgingTask()
+    {
+        while (!_ct.IsCancellationRequested)
+        {
+            await Task.Delay(TimeSpan.FromHours(1));
+            try
+            {
+                await _storage.PurgeStaleJobsAsync(
+                    match: r => r.QueueID == queueID && (r.IsComplete || (r.LockExpiry != null && DateTime.UtcNow >= r.LockExpiry)),
+                    ct: _ct);
+            }
+            catch { }
         }
     }
 
@@ -108,12 +132,14 @@ public interface IJobStorageRecord
 {
     public string QueueID { get; set; }
     public object Command { get; set; }
-    public bool IsLocked { get; set; }
+    public DateTime? LockExpiry { get; set; }
+    public bool IsComplete { get; set; }
 }
 
 public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJobStorageRecord
 {
     public Task StoreJobAsync(TStorageRecord job, CancellationToken ct);
     public Task<IEnumerable<TStorageRecord>> GetNextBatchAsync(Expression<Func<TStorageRecord, bool>> match, int batchSize, CancellationToken ct);
-    public Task DeleteJobAsync(TStorageRecord job, CancellationToken ct);
+    public Task MarkJobAsCompleteAsync(TStorageRecord job, CancellationToken ct);
+    public Task PurgeStaleJobsAsync(Expression<Func<TStorageRecord, bool>> match, CancellationToken ct);
 }

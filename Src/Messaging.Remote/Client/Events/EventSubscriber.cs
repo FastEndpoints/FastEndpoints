@@ -102,10 +102,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
             {
                 retrievalErrorCount++;
                 _ = errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, opts.CancellationToken);
-                logger?.LogError("Event storage 'retrieval' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                    subscriberID,
-                    typeof(TEvent).FullName,
-                    ex.Message);
+                logger?.StorageRetrieveError(subscriberID, typeof(TEvent).FullName!, ex.Message);
                 await Task.Delay(5000);
                 continue;
             }
@@ -123,9 +120,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                 {
                     executionErrorCount++;
                     _ = errors?.OnHandlerExecutionError<TEvent, TEventHandler>(evntRecord, executionErrorCount, ex, opts.CancellationToken);
-                    logger?.LogCritical("Event [{event}] 'execution' error: [{err}]. Retrying after 5 seconds...",
-                        typeof(TEvent).FullName,
-                        ex.Message);
+                    logger?.HandlerExecutionCritial(typeof(TEvent).FullName!, ex.Message);
                     await Task.Delay(5000);
                     continue;
                 }
@@ -142,10 +137,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                     {
                         updateErrorCount++;
                         _ = errors?.OnMarkEventAsCompleteError<TEvent>(evntRecord, updateErrorCount, ex, opts.CancellationToken);
-                        logger?.LogError("Event storage 'update' error for [subscriber-id:{subid}]({tevent}): {msg}. Retrying in 5 seconds...",
-                            subscriberID,
-                            typeof(TEvent).FullName,
-                            ex.Message);
+                        logger?.StorageUpdateError(subscriberID, typeof(TEvent).FullName!, ex.Message);
                         await Task.Delay(5000);
                     }
                 }

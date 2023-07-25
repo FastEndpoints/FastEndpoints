@@ -3,11 +3,19 @@ using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
+/// <summary>
+/// extension methods for job queues
+/// </summary>
 public static class JobQueueExtensions
 {
     private static Type tStorageRecord;
     private static Type tStorageProvider;
 
+    /// <summary>
+    /// add job queue functionality
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
+    /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
     public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc)
         where TStorageRecord : IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
@@ -19,6 +27,11 @@ public static class JobQueueExtensions
         return svc;
     }
 
+    /// <summary>
+    /// enable job queue functionality with give settings
+    /// </summary>
+    /// <param name="options">specify settings/execution limits for each job queue type</param>
+    /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
     public static IHost UseJobQueues(this IHost host, Action<JobQueueOptions> options)
     {
         if (CommandExtensions.handlerRegistry.Count == 0)
@@ -37,6 +50,11 @@ public static class JobQueueExtensions
         return host;
     }
 
+    /// <summary>
+    /// queues up a given command in the respective job queue for that command type.
+    /// </summary>
+    /// <param name="cmd">the command to be queued</param>
+    /// <param name="ct">cancellation token</param>
     public static Task QueueJobAsync(this ICommand cmd, CancellationToken ct = default)
         => JobQueueBase.AddToQueueAsync(cmd, ct);
 }

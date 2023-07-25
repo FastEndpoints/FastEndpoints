@@ -3,7 +3,10 @@ using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-public abstract class JobQueueBase
+/// <summary>
+/// base class for all <see cref="JobQueue{TCommand, TStorageRecord, TStorageProvider}"/> classes.
+/// </summary>
+internal abstract class JobQueueBase
 {
     //key: tCommand
     //val: job queue for the command type
@@ -26,7 +29,13 @@ public abstract class JobQueueBase
     }
 }
 
-public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
+/// <summary>
+/// represents a job queue for a particular type of <see cref="ICommand"/>
+/// </summary>
+/// <typeparam name="TCommand">the type of the command</typeparam>
+/// <typeparam name="TStorageRecord">the type of the job storage record</typeparam>
+/// <typeparam name="TStorageProvider">the type of the job storage provider</typeparam>
+internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     where TCommand : ICommand
     where TStorageRecord : IJobStorageRecord, new()
     where TStorageProvider : IJobStorageProvider<TStorageRecord>
@@ -39,7 +48,12 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
     private readonly IJobStorageProvider<TStorageRecord> _storage;
     private readonly CancellationToken _appCancellation;
 
-    public JobQueue(IJobStorageProvider<TStorageRecord> storageProvider, IHostApplicationLifetime appLife)
+    /// <summary>
+    /// instantiates a job queue
+    /// </summary>
+    /// <param name="storageProvider">the storage provider instance to use</param>
+    /// <param name="appLife">application lifetime instance to use</param>
+    internal JobQueue(IJobStorageProvider<TStorageRecord> storageProvider, IHostApplicationLifetime appLife)
     {
         _storage = storageProvider;
         _allQueues[_tCommand] = this;
@@ -113,6 +127,7 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
             catch (Exception x)
             {
                 //todo: log critical
+
                 while (!_appCancellation.IsCancellationRequested)
                 {
                     try
@@ -123,6 +138,7 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
                     catch (Exception)
                     {
                         //todo: log error
+
 #pragma warning disable CA2016
                         await Task.Delay(5000);
 #pragma warning restore CA2016
@@ -134,6 +150,7 @@ public sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQu
             {
                 try
                 {
+                    record.IsComplete = true;
                     await _storage.MarkJobAsCompleteAsync(record, _appCancellation);
                 }
                 catch (Exception)

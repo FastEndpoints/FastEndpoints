@@ -40,7 +40,7 @@ public interface IEventHubStorageProvider
     /// mark the event storage record as complete by either replacing the entity on storage with the supplied instance or
     /// simply update the <see cref="IEventStorageRecord.IsComplete"/> field to true with a partial update operation.
     /// </summary>
-    /// <param name="e"></param>
+    /// <param name="e">the event storage record</param>
     /// <param name="ct">cancellation token</param>
     ValueTask MarkEventAsCompleteAsync(IEventStorageRecord e, CancellationToken ct);
 

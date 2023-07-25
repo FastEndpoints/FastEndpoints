@@ -129,6 +129,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                 {
                     try
                     {
+                        evntRecord.IsComplete = true;
                         await EventSubscriberStorage.Provider.MarkEventAsCompleteAsync(evntRecord, opts.CancellationToken);
                         updateErrorCount = 0;
                         break;

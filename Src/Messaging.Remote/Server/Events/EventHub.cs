@@ -100,6 +100,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 {
                     try
                     {
+                        evntRecord.IsComplete = true;
                         await EventHubStorage.Provider.MarkEventAsCompleteAsync(evntRecord, ctx.CancellationToken);
                         updateErrorCount = 0;
                         break;

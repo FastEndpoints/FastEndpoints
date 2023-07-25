@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
@@ -32,22 +32,22 @@ public static class JobQueueExtensions
     /// </summary>
     /// <param name="options">specify settings/execution limits for each job queue type</param>
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
-    public static IHost UseJobQueues(this IHost host, Action<JobQueueOptions> options)
+    public static IApplicationBuilder UseJobQueues(this IApplicationBuilder app, Action<JobQueueOptions>? options = null)
     {
         if (CommandExtensions.handlerRegistry.Count == 0)
-            throw new InvalidOperationException("No Commands/Handlers found in the system!");
+            throw new InvalidOperationException("No Commands/Handlers found in the system! Have you called AddFastEndpoints() yet?");
 
         var opts = new JobQueueOptions();
-        options(opts);
+        options?.Invoke(opts);
 
         foreach (var tCommand in CommandExtensions.handlerRegistry.Keys)
         {
             var tJobQ = typeof(JobQueue<,,>).MakeGenericType(tCommand, tStorageRecord, tStorageProvider);
-            var jobQ = host.Services.GetRequiredService(tJobQ);
+            var jobQ = app.ApplicationServices.GetRequiredService(tJobQ);
             opts.SetExecutionLimits(tCommand, (JobQueueBase)jobQ);
         }
 
-        return host;
+        return app;
     }
 
     /// <summary>

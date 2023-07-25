@@ -32,7 +32,7 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     Task MarkJobAsCompleteAsync(TStorageRecord job, CancellationToken ct);
 
     /// <summary>
-    /// this will only be triggered when the command handler (<see cref="ICommandHandler{TCommand}"/>) associated with the command
+    /// this will only be triggered when a command handler (<see cref="ICommandHandler{TCommand}"/>) associated with a command
     /// throws an exception. If you've set an execution time limit for the command, the thrown exeception would be of type <see cref="OperationCanceledException"/>.
     /// <para>
     /// when a job/command execution fails, it will be retried immediately.

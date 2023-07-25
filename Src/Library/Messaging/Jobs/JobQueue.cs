@@ -41,32 +41,31 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
     where TStorageProvider : IJobStorageProvider<TStorageRecord>
 {
     private static readonly Type _tCommand = typeof(TCommand);
-
-    private readonly ParallelOptions _parallelOptions = new();
-    private TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
-    private readonly string _queueID = _tCommand.FullName!.ToHash();
-    private readonly IJobStorageProvider<TStorageRecord> _storage;
-    private readonly CancellationToken _appCancellation;
+    private static readonly string _queueID = _tCommand.FullName!.ToHash();
+    private static readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
+    private static CancellationToken _appCancellation;
+    private static IJobStorageProvider<TStorageRecord> _storage;
+    private static TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
 
     /// <summary>
     /// instantiates a job queue
     /// </summary>
     /// <param name="storageProvider">the storage provider instance to use</param>
     /// <param name="appLife">application lifetime instance to use</param>
-    internal JobQueue(IJobStorageProvider<TStorageRecord> storageProvider, IHostApplicationLifetime appLife)
+    public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife)
     {
-        _storage = storageProvider;
         _allQueues[_tCommand] = this;
+        _storage = storageProvider;
         _appCancellation = appLife.ApplicationStopping;
         _parallelOptions.CancellationToken = _appCancellation;
-        _ = CommandExecutorTask();
-        _ = StaleJobPurgingTask();
     }
 
     internal override void SetExecutionLimits(int concurrencyLimit, TimeSpan executionTimeLimit)
     {
         _parallelOptions.MaxDegreeOfParallelism = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
+        _ = CommandExecutorTask();
+        _ = StaleJobPurgingTask();
     }
 
     protected override Task StoreJobAsync(object command, CancellationToken ct)
@@ -80,9 +79,10 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
         }, ct);
     }
 
-    private async Task CommandExecutorTask()
+    private static async Task CommandExecutorTask()
     {
         var records = Enumerable.Empty<TStorageRecord>();
+        var batchSize = _parallelOptions.MaxDegreeOfParallelism * 2;
 
         while (!_appCancellation.IsCancellationRequested)
         {
@@ -96,7 +96,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
                            DateTime.UtcNow >= r.ExecuteAfter &&
                            DateTime.UtcNow <= r.ExpireOn,
 
-                    batchSize: _parallelOptions.MaxDegreeOfParallelism * 2,
+                    batchSize: batchSize,
 
                     ct: _appCancellation);
             }
@@ -116,7 +116,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
             await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
         }
 
-        async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
+        static async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
         {
             try
             {
@@ -144,6 +144,8 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
 #pragma warning restore CA2016
                     }
                 }
+
+                return; //abort execution here
             }
 
             while (!_appCancellation.IsCancellationRequested)
@@ -152,6 +154,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
                 {
                     record.IsComplete = true;
                     await _storage.MarkJobAsCompleteAsync(record, _appCancellation);
+                    break;
                 }
                 catch (Exception)
                 {
@@ -164,7 +167,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
         }
     }
 
-    private async Task StaleJobPurgingTask()
+    private static async Task StaleJobPurgingTask()
     {
         while (!_appCancellation.IsCancellationRequested)
         {

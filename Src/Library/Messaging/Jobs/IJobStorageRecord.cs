@@ -14,7 +14,7 @@ public interface IJobStorageRecord
     object Command { get; set; }
 
     /// <summary>
-    /// the job will not be executed this date/time. by default this will automatically be set to the time of creation allowing jobs to be
+    /// the job will not be executed before this date/time. by default it will automatically be set to the time of creation allowing jobs to be
     /// executed as soon as they're created.
     /// </summary>
     DateTime ExecuteAfter { get; set; }

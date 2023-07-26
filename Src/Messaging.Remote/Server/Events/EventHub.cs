@@ -15,7 +15,8 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
 #pragma warning restore RCS1158
 
     //key: subscriber id
-    private static readonly ConcurrentDictionary<string, bool> _subscribers = new();
+    //val: semaphorslim for waiting on record availability
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _subscribers = new();
     private static readonly Type _eventType = typeof(TEvent);
 
     static EventHub()
@@ -26,7 +27,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
             Thread.Sleep(1);
 
         foreach (var subID in t.Result)
-            _subscribers[subID] = false;
+            _subscribers[subID] = new(0);
     }
 
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent>> ctx)
@@ -67,7 +68,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
 
         while (!ctx.CancellationToken.IsCancellationRequested)
         {
-            _subscribers.GetOrAdd(subscriberID, false);
+            var sem = _subscribers.GetOrAdd(subscriberID, new SemaphoreSlim(0));
 
             IEventStorageRecord? evntRecord;
 
@@ -93,10 +94,22 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 }
                 catch
                 {
+                    if (EventHubStorage.IsInMemoryProvider)
+                    {
+                        try
+                        {
+                            await EventHubStorage.Provider.StoreEventAsync(evntRecord, ctx.CancellationToken);
+                        }
+                        catch
+                        {
+                            //ignore and discard event if queue is full
+                        }
+                    }
+
                     break; //stream is most likely broken/cancelled. let the client re-connect.
                 }
 
-                while (!ctx.CancellationToken.IsCancellationRequested)
+                while (!EventHubStorage.IsInMemoryProvider && !ctx.CancellationToken.IsCancellationRequested)
                 {
                     try
                     {
@@ -116,7 +129,8 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
             }
             else
             {
-                await Task.Delay(300);
+                //await Task.Delay(300);
+                await sem.WaitAsync(ctx.CancellationToken);
             }
         }
     }
@@ -144,12 +158,14 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 try
                 {
                     await EventHubStorage.Provider.StoreEventAsync(record, ct);
+                    _subscribers[subId].Release();
                     createErrorCount = 0;
                     break;
                 }
                 catch (OverflowException)
                 {
-                    _subscribers.Remove(subId, out _);
+                    _subscribers.Remove(subId, out var sem);
+                    sem?.Dispose();
                     Errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
                     Logger.QueueOverflowWarning(subId, _eventType.FullName!);
                     break;

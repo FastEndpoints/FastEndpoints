@@ -4,6 +4,7 @@ namespace FastEndpoints;
 
 internal static class EventHubStorage
 {
+    internal static bool IsInMemoryProvider { get; private set; }
     internal static bool IsInitialized { get; private set; }
     internal static Func<IEventStorageRecord> RecordFactory { get; private set; } = default!;
     internal static IEventHubStorageProvider Provider { get; private set; } = default!;
@@ -20,6 +21,7 @@ internal static class EventHubStorage
         RecordFactory = () => new TStorageRecord();
         Provider = ActivatorUtilities.CreateInstance<TStorageProvider>(serviceProvider);
         IsInitialized = true;
+        IsInMemoryProvider = Provider is InMemoryEventHubStorage;
     }
 
     private static async Task StaleSubscriberPurgingTask()

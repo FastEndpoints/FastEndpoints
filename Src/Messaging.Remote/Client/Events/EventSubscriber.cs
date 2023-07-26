@@ -9,6 +9,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
     where TEvent : class, IEvent
     where TEventHandler : IEventHandler<TEvent>
 {
+    private readonly SemaphoreSlim _sem = new(0);
     private readonly ObjectFactory _handlerFactory;
     private readonly IServiceProvider? _serviceProvider;
     private readonly SubscriberExceptionReceiver? _errorReceiver;
@@ -30,11 +31,11 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
 
     internal void Start(CallOptions opts)
     {
-        _ = EventReceiver(opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
-        _ = EventExecutor(opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
+        _ = EventReceiver(_sem, opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
+        _ = EventExecutor(_sem, opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
     }
 
-    private static async Task EventReceiver(CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
+    private static async Task EventReceiver(SemaphoreSlim sem, CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
     {
         var call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
         var createErrorCount = 0;
@@ -57,6 +58,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                         try
                         {
                             await EventSubscriberStorage.Provider.StoreEventAsync(record, opts.CancellationToken);
+                            sem.Release();
                             createErrorCount = 0;
                             break;
                         }
@@ -83,7 +85,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
         }
     }
 
-    private static async Task EventExecutor(CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
+    private static async Task EventExecutor(SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
     {
         var retrievalErrorCount = 0;
         var executionErrorCount = 0;
@@ -118,6 +120,17 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                 }
                 catch (Exception ex)
                 {
+                    if (EventSubscriberStorage.IsInMemoryProvider)
+                    {
+                        try
+                        {
+                            await EventSubscriberStorage.Provider.StoreEventAsync(evntRecord, opts.CancellationToken);
+                        }
+                        catch
+                        {
+                            //ignore and discard event when queue is full
+                        }
+                    }
                     executionErrorCount++;
                     _ = errors?.OnHandlerExecutionError<TEvent, TEventHandler>(evntRecord, executionErrorCount, ex, opts.CancellationToken);
                     logger?.HandlerExecutionCritial(typeof(TEvent).FullName!, ex.Message);
@@ -125,7 +138,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                     continue;
                 }
 
-                while (!opts.CancellationToken.IsCancellationRequested)
+                while (!EventSubscriberStorage.IsInMemoryProvider && !opts.CancellationToken.IsCancellationRequested)
                 {
                     try
                     {
@@ -145,7 +158,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
             }
             else
             {
-                await Task.Delay(300);
+                await sem.WaitAsync(opts.CancellationToken);
             }
         }
     }

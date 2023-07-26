@@ -163,7 +163,8 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 }
                 catch (OverflowException)
                 {
-                    _subscribers.Remove(subId, out _);
+                    _subscribers.Remove(subId, out var sem);
+                    sem?.Dispose();
                     Errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
                     Logger.QueueOverflowWarning(subId, _eventType.FullName!);
                     break;

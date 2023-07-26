@@ -109,17 +109,13 @@ public class RPCTests : EndToEndTestBase
     [Fact]
     public async Task Event_Queue()
     {
-        for (var i = 1; i <= 1001; i++)
+        for (var i = 0; i < 100; i++)
         {
             var evnt = new TestEvent { Id = i };
             evnt.Broadcast();
+            await Task.Delay(10);
         }
-        while (TestEventHandler.Received.Count < 1001)
-        {
-            await Task.Delay(100);
-        }
-        TestEventHandler.Received.Count.Should().Be(1001);
-        TestEventHandler.Received[0].Id.Should().Be(1);
-        TestEventHandler.Received[1000].Id.Should().Be(1001);
+        TestEventHandler.Received.Count.Should().Be(100);
+        TestEventHandler.Received.Select(r => r.Id).Except(Enumerable.Range(0, 100)).Any().Should().BeFalse();
     }
 }

@@ -17,7 +17,7 @@ internal sealed class InMemoryEventHubStorage : IEventHubStorageProvider
         var q = _subscribers.GetOrAdd(e.SubscriberID, new EventQueue());
 
         if (!q.IsStale)
-            q.Records.Enqueue((InMemoryEventStorageRecord)e);
+            q.Records.Enqueue(e);
         else
             throw new OverflowException();
 
@@ -27,17 +27,15 @@ internal sealed class InMemoryEventHubStorage : IEventHubStorageProvider
     public ValueTask<IEventStorageRecord?> GetNextEventAsync(string subscriberID, CancellationToken ct)
     {
         var q = _subscribers.GetOrAdd(subscriberID, new EventQueue());
-        q.Records.TryPeek(out var e);
-        return ValueTask.FromResult(e as IEventStorageRecord);
+
+        q.Records.TryDequeue(out var e);
+        q.LastDequeuAt = DateTime.UtcNow;
+
+        return ValueTask.FromResult(e);
     }
 
     public ValueTask MarkEventAsCompleteAsync(IEventStorageRecord e, CancellationToken ct)
-    {
-        var q = _subscribers.GetOrAdd(e.SubscriberID, new EventQueue());
-        q.Records.TryDequeue(out _);
-        q.LastDequeuAt = DateTime.UtcNow;
-        return ValueTask.CompletedTask;
-    }
+        => throw new NotImplementedException();
 
     public ValueTask PurgeStaleRecordsAsync()
     {

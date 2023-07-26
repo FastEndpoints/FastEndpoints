@@ -44,22 +44,19 @@ public class EventQueueTests
         r1x!.Event.Should().Be(record1.Event);
 
         var r2x = await sut.GetNextEventAsync(record1.SubscriberID, default);
-        r1x!.Event.Should().Be(record1.Event);
-
-        await sut.MarkEventAsCompleteAsync(r2x!, default);
+        r2x!.Event.Should().Be(record2.Event);
 
         await sut.StoreEventAsync(record3, default);
+        await Task.Delay(100);
 
         var r3 = await sut.GetNextEventAsync(record3.SubscriberID, default);
         r3!.Event.Should().Be(record3.Event);
 
         var r3x = await sut.GetNextEventAsync(record2.SubscriberID, default);
-        r3x!.Event.Should().Be(record2.Event);
+        r3x.Should().BeNull();
 
-        await sut.MarkEventAsCompleteAsync(r3x!, default);
-
-        var r4x = await sut.GetNextEventAsync(record2.SubscriberID, default);
-        r4x!.Should().BeNull();
+        var r4x = await sut.GetNextEventAsync(record3.SubscriberID, default);
+        r4x.Should().BeNull();
     }
 
     [Fact]

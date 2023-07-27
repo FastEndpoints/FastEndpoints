@@ -76,7 +76,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
             Command = command,
             ExecuteAfter = DateTime.UtcNow,
             ExpireOn = DateTime.UtcNow.AddHours(4)
-        }, ct);
+        }, ct); //todo: sem.Release() here
     }
 
     private static async Task CommandExecutorTask()
@@ -109,7 +109,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
 
             if (!records.Any())
             {
-                await Task.Delay(300);
+                await Task.Delay(300); //todo: sem.WaitAsync() here
                 continue;
             }
 

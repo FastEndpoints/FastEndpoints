@@ -1,12 +1,12 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
 /// <summary>
-/// a dto representing search parameters for event storage record retrieval
+/// a dto representing search parameters for pending event storage record retrieval
 /// </summary>
 /// <typeparam name="TStorageRecord">the type of storage record</typeparam>
-public struct StorageRecordSearchParams<TStorageRecord> where TStorageRecord : IEventStorageRecord
+public struct PendingRecordSearchParams<TStorageRecord> where TStorageRecord : IEventStorageRecord
 {
     /// <summary>
     /// the subscriber ID for fetching the next batch of records

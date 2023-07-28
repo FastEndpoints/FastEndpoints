@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
@@ -21,7 +21,7 @@ internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStoragePr
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(StorageRecordSearchParams<InMemoryEventStorageRecord> p)
+    public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(PendingRecordSearchParams<InMemoryEventStorageRecord> p)
     {
         var q = _subscribers.GetOrAdd(p.SubscriberID, QueueInitializer());
         q.TryDequeue(out var e);

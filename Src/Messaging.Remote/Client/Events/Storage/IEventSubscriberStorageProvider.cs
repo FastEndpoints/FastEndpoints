@@ -23,7 +23,7 @@ public interface IEventSubscriberStorageProvider<TStorageRecord> where TStorageR
     /// mark the event storage record as complete by either replacing the entity on storage with the supplied instance or
     /// simply update the <see cref="IEventStorageRecord.IsComplete"/> field to true with a partial update operation.
     /// </summary>
-    /// <param name="r"></param>
+    /// <param name="r">the storage record to mark complete</param>
     /// <param name="ct">cancellation token</param>
     ValueTask MarkEventAsCompleteAsync(TStorageRecord r, CancellationToken ct);
 

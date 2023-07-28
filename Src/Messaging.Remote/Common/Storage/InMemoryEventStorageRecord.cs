@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints;
 
-internal sealed class InMemoryEventStorageRecord : IEventStorageRecord
+public sealed class InMemoryEventStorageRecord : IEventStorageRecord
 {
     public string SubscriberID { get; set; } = default!;
     public object Event { get; set; } = default!;

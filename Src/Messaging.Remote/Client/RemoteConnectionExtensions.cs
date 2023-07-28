@@ -10,10 +10,19 @@ namespace FastEndpoints;
 /// </summary>
 public static class RemoteConnectionExtensions
 {
-    public static void EventSubscriberStorageProvider<TStorageRecord, TStorageProvider>(this IHost host)
+    /// <summary>
+    /// register a custom event subscriber storage provider
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the type of the storage record</typeparam>
+    /// <typeparam name="TStorageProvider"></typeparam>
+    public static void AddEventSubscriberStorageProvider<TStorageRecord, TStorageProvider>(this IServiceCollection services)
         where TStorageRecord : IEventStorageRecord, new()
-        where TStorageProvider : class, IEventSubscriberStorageProvider
-            => EventSubscriberStorage.Initialize<TStorageRecord, TStorageProvider>(host.Services);
+        where TStorageProvider : class, IEventSubscriberStorageProvider<TStorageRecord>
+    {
+        RemoteConnection.StorageProviderType = typeof(TStorageProvider);
+        RemoteConnection.StorageRecordType = typeof(TStorageRecord);
+        services.AddSingleton<TStorageProvider>();
+    }
 
     /// <summary>
     /// creates a grpc channel/connection to a remote server that hosts a known collection of command handlers and event hubs.

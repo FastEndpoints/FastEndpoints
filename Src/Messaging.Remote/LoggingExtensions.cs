@@ -20,7 +20,7 @@ internal static partial class LoggingExtensions
     public static partial void QueueOverflowWarning(this ILogger l, string subscriberId, string tEvent);
 
     [LoggerMessage(6, LogLevel.Critical, "Event [{tEvent}] 'execution' error: [{msg}]. Retrying after 5 seconds...")]
-    public static partial void HandlerExecutionCritial(this ILogger l, string tEvent, string msg);
+    public static partial void HandlerExecutionCritical(this ILogger l, string tEvent, string msg);
 
     [LoggerMessage(7, LogLevel.Error, "Event storage 'create' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageCreateError(this ILogger l, string subscriberId, string tEvent, string msg);

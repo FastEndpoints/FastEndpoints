@@ -1,5 +1,7 @@
 ﻿using Grpc.Core;
 using IntegrationTests.Shared.Fixtures;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.EventQueueTest;
@@ -15,7 +17,11 @@ public class RPCTests : EndToEndTestBase
 
     public RPCTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
     {
-        remote = new RemoteConnection("http://testhost"); //the actual hostname doesn't matter as we're replacing the httphandler below
+        var svcCollection = new ServiceCollection();
+        svcCollection.AddSingleton<ILoggerFactory, LoggerFactory>();
+        svcCollection.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        var svcProvider = svcCollection.BuildServiceProvider();
+        remote = new RemoteConnection("http://testhost", svcProvider); //the actual hostname doesn't matter as we're replacing the httphandler below
         remote.ChannelOptions.HttpHandler = endToEndTestFixture.CreateHttpMessageHandler();
         remote.Register<TestVoidCommand>();
         remote.Register<TestCommand, string>();

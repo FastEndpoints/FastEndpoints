@@ -43,6 +43,12 @@ there will be 10X the number of events held in memory if they aren't being deque
 
 <!-- ### 🪲 Fixes -->
 
-<!-- ### ⚠️ Minor Breaking Changes -->
+### ⚠️ Minor Breaking Changes
+
+<details><summary>1️⃣ Event Queue storage provider API changes</summary>
+
+There has been several implementation changes to the custom storage providers to provide a more user-friendly experience. Please see the updated [doc page](https://fast-endpoints.com/docs/remote-procedure-calls#reliable-event-queues-with-persistence) for the current usage.
+
+</details>
 
 <!-- <details><summary>1️⃣ some title</summary></details> -->

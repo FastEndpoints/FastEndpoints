@@ -6,8 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace FastEndpoints;
 
 /// <summary>
-/// represents a connection to a remote server that hosts command handlers (<see cref="ICommandHandler{TCommand, TResult}"/>)
-/// <para>call <see cref="Register{TCommand, TResult}"/> method to map the commands</para>
+/// represents a connection to a remote server that hosts command and event handlers
 /// </summary>
 public sealed class RemoteConnection
 {

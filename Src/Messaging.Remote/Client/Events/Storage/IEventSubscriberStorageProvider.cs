@@ -1,7 +1,7 @@
 ﻿namespace FastEndpoints;
 
 /// <summary>
-/// interface for implementing a storage provider for event subscription client app (gRPC client)
+/// interface for implementing a storage provider for an event subscription client app (gRPC client)
 /// </summary>
 /// <typeparam name="TStorageRecord">the type of the storage record</typeparam> 
 public interface IEventSubscriberStorageProvider<TStorageRecord> where TStorageRecord : IEventStorageRecord
@@ -16,6 +16,7 @@ public interface IEventSubscriberStorageProvider<TStorageRecord> where TStorageR
     /// <summary>
     /// fetch the next batch of pending event storage records that need to be processed.
     /// </summary>
+    /// <param name="parameters">use these supplied search parameters to find the next batch of event records from your database</param>
     ValueTask<IEnumerable<TStorageRecord>> GetNextBatchAsync(GetPendingRecordsParams<TStorageRecord> parameters);
 
     /// <summary>

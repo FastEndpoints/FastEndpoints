@@ -62,7 +62,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
         });
 
         while (!t.IsCompleted)
-            Thread.Sleep(10);
+            Thread.Sleep(100);
 
         foreach (var subID in t.Result)
             _subscribers[subID] = new(0);

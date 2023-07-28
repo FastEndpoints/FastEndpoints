@@ -12,6 +12,7 @@ public interface IEventHubStorageProvider<TStorageRecord> where TStorageRecord :
     /// this method will only be called once (for each event type) on app startup. if there are any pending records on storage from a previous app run,
     /// simply return a collection of unique subscriber IDs.
     /// </summary>
+    /// <param name="parameters">use these supplied search parameters to find the next batch of event records from your database</param>
     ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<TStorageRecord> parameters);
 
     /// <summary>
@@ -57,7 +58,6 @@ public struct SubscriberIDRestorationParams<TStorageRecord> where TStorageRecord
     /// a boolean lambda expression to match pending records.
     /// <code>
     ///     Where(e => e.EventType == eventType &amp;&amp; !e.IsComplete &amp;&amp; DateTime.UtcNow &lt;= e.ExpireOn)
-    ///     Select(e => e.SubscriberID)
     /// </code>
     /// </summary>
     public Expression<Func<TStorageRecord, bool>> Match { get; internal set; }

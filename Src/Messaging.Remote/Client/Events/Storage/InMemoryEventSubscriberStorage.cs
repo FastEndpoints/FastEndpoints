@@ -36,7 +36,9 @@ internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStoragePr
     public ValueTask MarkEventAsCompleteAsync(InMemoryEventStorageRecord e, CancellationToken ct)
         => throw new NotImplementedException();
 
-    public ValueTask PurgeStaleRecordsAsync() => throw new NotImplementedException();
+    public ValueTask PurgeStaleRecordsAsync()
+        => throw new NotImplementedException();
 
-    private static ConcurrentQueue<InMemoryEventStorageRecord> QueueInitializer() => new();
+    private static ConcurrentQueue<InMemoryEventStorageRecord> QueueInitializer()
+        => new();
 }

@@ -182,7 +182,11 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
             }
             else
             {
-                await sem.WaitAsync(opts.CancellationToken);
+                try
+                {
+                    await sem.WaitAsync(opts.CancellationToken);
+                }
+                catch (OperationCanceledException) { }
             }
         }
     }

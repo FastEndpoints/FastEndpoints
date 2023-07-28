@@ -5,37 +5,49 @@ using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
-internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecutor<string, TEvent>, ICommandExecutor
+internal interface IEventSubscriber
+{
+    void Start(CallOptions opts);
+}
+
+internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider> : BaseCommandExecutor<string, TEvent>, ICommandExecutor, IEventSubscriber
     where TEvent : class, IEvent
     where TEventHandler : IEventHandler<TEvent>
+    where TStorageRecord : IEventStorageRecord, new()
+    where TStorageProvider : IEventSubscriberStorageProvider<TStorageRecord>
 {
+    private static TStorageProvider? _storage;
+    private static bool _isInMemProvider;
+
     private readonly SemaphoreSlim _sem = new(0);
     private readonly ObjectFactory _handlerFactory;
-    private readonly IServiceProvider? _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
     private readonly SubscriberExceptionReceiver? _errorReceiver;
-    private readonly ILogger<EventSubscriber<TEvent, TEventHandler>>? _logger;
+    private readonly ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>? _logger;
     private readonly string _subscriberID;
 
-    internal EventSubscriber(GrpcChannel channel, IServiceProvider? serviceProvider)
+    public EventSubscriber(GrpcChannel channel, IServiceProvider serviceProvider)
         : base(channel: channel,
                methodType: MethodType.ServerStreaming,
                endpointName: $"{typeof(TEvent).FullName}/sub")
     {
-        _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
         _serviceProvider = serviceProvider;
-        _errorReceiver = _serviceProvider?.GetService<SubscriberExceptionReceiver>();
-        _logger = serviceProvider?.GetRequiredService<ILogger<EventSubscriber<TEvent, TEventHandler>>>();
+        _storage ??= (TStorageProvider)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, typeof(TStorageProvider));
+        _isInMemProvider = _storage is InMemoryEventSubscriberStorage;
+        _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
+        _errorReceiver = _serviceProvider.GetService<SubscriberExceptionReceiver>();
+        _logger = serviceProvider.GetRequiredService<ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>>();
         _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target).ToHash();
         _logger?.SubscriberRegistered(_subscriberID, typeof(TEventHandler).FullName!, typeof(TEvent).FullName!);
     }
 
-    internal void Start(CallOptions opts)
+    public void Start(CallOptions opts)
     {
-        _ = EventReceiver(_sem, opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
-        _ = EventExecutor(_sem, opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
+        _ = EventReceiver(_storage!, _sem, opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
+        _ = EventExecutor(_storage!, _sem, opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
     }
 
-    private static async Task EventReceiver(SemaphoreSlim sem, CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
+    private static async Task EventReceiver(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
     {
         var call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
         var createErrorCount = 0;
@@ -47,17 +59,19 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
             {
                 while (await call.ResponseStream.MoveNext(opts.CancellationToken)) // actual network call happens on MoveNext()
                 {
-                    var record = EventSubscriberStorage.RecordFactory();
-                    record.SubscriberID = subscriberID;
-                    record.Event = call.ResponseStream.Current;
-                    record.EventType = typeof(TEvent).FullName!;
-                    record.ExpireOn = DateTime.UtcNow.AddHours(4);
+                    var record = new TStorageRecord
+                    {
+                        SubscriberID = subscriberID,
+                        Event = call.ResponseStream.Current,
+                        EventType = typeof(TEvent).FullName!,
+                        ExpireOn = DateTime.UtcNow.AddHours(4)
+                    };
 
                     while (!opts.CancellationToken.IsCancellationRequested)
                     {
                         try
                         {
-                            await EventSubscriberStorage.Provider.StoreEventAsync(record, opts.CancellationToken);
+                            await storage.StoreEventAsync(record, opts.CancellationToken);
                             sem.Release();
                             createErrorCount = 0;
                             break;
@@ -85,7 +99,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
         }
     }
 
-    private static async Task EventExecutor(SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
+    private static async Task EventExecutor(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
     {
         var retrievalErrorCount = 0;
         var executionErrorCount = 0;
@@ -93,11 +107,17 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
 
         while (!opts.CancellationToken.IsCancellationRequested)
         {
-            IEventStorageRecord? evntRecord;
+            IEnumerable<TStorageRecord> records;
 
             try
             {
-                evntRecord = await EventSubscriberStorage.Provider.GetNextEventAsync(subscriberID, opts.CancellationToken);
+                records = await storage.GetNextBatchAsync(new()
+                {
+                    CancellationToken = opts.CancellationToken,
+                    Limit = 25,
+                    SubscriberID = subscriberID,
+                    Match = e => e.SubscriberID == subscriberID && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn
+                });
                 retrievalErrorCount = 0;
             }
             catch (Exception ex)
@@ -109,49 +129,52 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                 continue;
             }
 
-            if (evntRecord is not null)
+            if (records.Any())
             {
-                var handler = (TEventHandler)handlerFactory(serviceProvider!, null);
+                foreach (var record in records)
+                {
+                    var handler = (TEventHandler)handlerFactory(serviceProvider!, null);
 
-                try
-                {
-                    await handler.HandleAsync((TEvent)evntRecord.Event, opts.CancellationToken);
-                    executionErrorCount = 0;
-                }
-                catch (Exception ex)
-                {
-                    if (EventSubscriberStorage.IsInMemoryProvider)
-                    {
-                        try
-                        {
-                            await EventSubscriberStorage.Provider.StoreEventAsync(evntRecord, opts.CancellationToken);
-                        }
-                        catch
-                        {
-                            //ignore and discard event when queue is full
-                        }
-                    }
-                    executionErrorCount++;
-                    _ = errors?.OnHandlerExecutionError<TEvent, TEventHandler>(evntRecord, executionErrorCount, ex, opts.CancellationToken);
-                    logger?.HandlerExecutionCritical(typeof(TEvent).FullName!, ex.Message);
-                    await Task.Delay(5000);
-                    continue;
-                }
-
-                while (!EventSubscriberStorage.IsInMemoryProvider && !opts.CancellationToken.IsCancellationRequested)
-                {
                     try
                     {
-                        await EventSubscriberStorage.Provider.MarkEventAsCompleteAsync(evntRecord, opts.CancellationToken);
-                        updateErrorCount = 0;
-                        break;
+                        await handler.HandleAsync((TEvent)record.Event, opts.CancellationToken);
+                        executionErrorCount = 0;
                     }
                     catch (Exception ex)
                     {
-                        updateErrorCount++;
-                        _ = errors?.OnMarkEventAsCompleteError<TEvent>(evntRecord, updateErrorCount, ex, opts.CancellationToken);
-                        logger?.StorageUpdateError(subscriberID, typeof(TEvent).FullName!, ex.Message);
+                        if (_isInMemProvider)
+                        {
+                            try
+                            {
+                                await storage.StoreEventAsync(record, opts.CancellationToken);
+                            }
+                            catch
+                            {
+                                //ignore and discard event when queue is full
+                            }
+                        }
+                        executionErrorCount++;
+                        _ = errors?.OnHandlerExecutionError<TEvent, TEventHandler>(record, executionErrorCount, ex, opts.CancellationToken);
+                        logger?.HandlerExecutionCritical(typeof(TEvent).FullName!, ex.Message);
                         await Task.Delay(5000);
+                        break; //don't process the rest of the batch
+                    }
+
+                    while (!_isInMemProvider && !opts.CancellationToken.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            await storage.MarkEventAsCompleteAsync(record, opts.CancellationToken);
+                            updateErrorCount = 0;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            updateErrorCount++;
+                            _ = errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount, ex, opts.CancellationToken);
+                            logger?.StorageUpdateError(subscriberID, typeof(TEvent).FullName!, ex.Message);
+                            await Task.Delay(5000);
+                        }
                     }
                 }
             }

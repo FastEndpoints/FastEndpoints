@@ -3,35 +3,40 @@
 namespace FastEndpoints;
 
 //NOTE: this is a singleton class
-internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider
+internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<InMemoryEventStorageRecord>
 {
     //key: subscriber ID (see EventSubscriber.ctor to see how subscriber id is generated)
     //val: queue of events for the subscriber
-    private readonly ConcurrentDictionary<string, ConcurrentQueue<IEventStorageRecord>> _subscribers = new();
+    private readonly ConcurrentDictionary<string, ConcurrentQueue<InMemoryEventStorageRecord>> _subscribers = new();
 
-    public ValueTask StoreEventAsync(IEventStorageRecord e, CancellationToken _)
+    public ValueTask StoreEventAsync(InMemoryEventStorageRecord e, CancellationToken _)
     {
-        var b = _subscribers.GetOrAdd(e.SubscriberID, QueueInitializer());
+        var q = _subscribers.GetOrAdd(e.SubscriberID, QueueInitializer());
 
-        if (b.Count >= InMemoryEventQueue.MaxLimit)
+        if (q.Count >= InMemoryEventQueue.MaxLimit)
             throw new OverflowException("In-memory event receive queue limit reached!");
 
-        b.Enqueue(e);
+        q.Enqueue(e);
 
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask<IEventStorageRecord?> GetNextEventAsync(string subscriberID, CancellationToken _)
+    public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(GetPendingRecordsParams<InMemoryEventStorageRecord> p)
     {
-        var b = _subscribers.GetOrAdd(subscriberID, QueueInitializer());
-        b.TryDequeue(out var e);
-        return ValueTask.FromResult(e);
+        var q = _subscribers.GetOrAdd(p.SubscriberID, QueueInitializer());
+        q.TryDequeue(out var e);
+        if (e is not null)
+        {
+            var res = new InMemoryEventStorageRecord[1] { e };
+            return ValueTask.FromResult(res.AsEnumerable());
+        }
+        return ValueTask.FromResult(Array.Empty<InMemoryEventStorageRecord>().AsEnumerable());
     }
 
-    public ValueTask MarkEventAsCompleteAsync(IEventStorageRecord e, CancellationToken ct)
+    public ValueTask MarkEventAsCompleteAsync(InMemoryEventStorageRecord e, CancellationToken ct)
         => throw new NotImplementedException();
 
     public ValueTask PurgeStaleRecordsAsync() => throw new NotImplementedException();
 
-    private static ConcurrentQueue<IEventStorageRecord> QueueInitializer() => new();
+    private static ConcurrentQueue<InMemoryEventStorageRecord> QueueInitializer() => new();
 }

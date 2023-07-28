@@ -3,26 +3,20 @@
 /// <summary>
 /// interface for implementing a storage provider for event subscription client app (gRPC client)
 /// </summary>
-public interface IEventSubscriberStorageProvider
+/// <typeparam name="TStorageRecord">the type of the storage record</typeparam> 
+public interface IEventSubscriberStorageProvider<TStorageRecord> where TStorageRecord : IEventStorageRecord
 {
     /// <summary>
     /// store the event storage record however you please. ideally on a nosql database.
     /// </summary>
     /// <param name="e">the event storage record which contains the actual event object as well as some metadata</param>
     /// <param name="ct">cancellation token</param>
-    ValueTask StoreEventAsync(IEventStorageRecord e, CancellationToken ct);
+    ValueTask StoreEventAsync(TStorageRecord e, CancellationToken ct);
 
     /// <summary>
-    /// fetch the next pending event storage record that needs to be processed.
-    /// <code>
-    ///   Where(e => e.SubscriberID == subscriberID &amp;&amp; !e.IsComplete &amp;&amp; DateTime.UtcNow &lt;= e.ExpireOn)
-    ///   OrderAscending(e => e.Id)
-    ///   Take(1)
-    /// </code>
+    /// fetch the next batch of pending event storage records that need to be processed.
     /// </summary>
-    /// <param name="subscriberID">the id of the subscriber who's next event that should be retrieved</param>
-    /// <param name="ct">cancellation token</param>
-    ValueTask<IEventStorageRecord?> GetNextEventAsync(string subscriberID, CancellationToken ct);
+    ValueTask<IEnumerable<TStorageRecord>> GetNextBatchAsync(GetPendingRecordsParams<TStorageRecord> parameters);
 
     /// <summary>
     /// mark the event storage record as complete by either replacing the entity on storage with the supplied instance or
@@ -30,7 +24,7 @@ public interface IEventSubscriberStorageProvider
     /// </summary>
     /// <param name="e"></param>
     /// <param name="ct">cancellation token</param>
-    ValueTask MarkEventAsCompleteAsync(IEventStorageRecord e, CancellationToken ct);
+    ValueTask MarkEventAsCompleteAsync(TStorageRecord e, CancellationToken ct);
 
     /// <summary>
     /// this method will be called hourly. implement this method to remove stale records (completed or (expired and incomplete)) from storage.

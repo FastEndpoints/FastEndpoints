@@ -21,7 +21,7 @@ internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStoragePr
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(GetPendingRecordsParams<InMemoryEventStorageRecord> p)
+    public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(StorageRecordSearchParams<InMemoryEventStorageRecord> p)
     {
         var q = _subscribers.GetOrAdd(p.SubscriberID, QueueInitializer());
         q.TryDequeue(out var e);
@@ -36,7 +36,7 @@ internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStoragePr
     public ValueTask MarkEventAsCompleteAsync(InMemoryEventStorageRecord e, CancellationToken ct)
         => throw new NotImplementedException();
 
-    public ValueTask PurgeStaleRecordsAsync()
+    public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<InMemoryEventStorageRecord> parameters)
         => throw new NotImplementedException();
 
     private static ConcurrentQueue<InMemoryEventStorageRecord> QueueInitializer()

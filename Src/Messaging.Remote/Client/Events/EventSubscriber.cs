@@ -31,23 +31,25 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
                methodType: MethodType.ServerStreaming,
                endpointName: $"{typeof(TEvent).FullName}/sub")
     {
+        _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target).ToHash();
         _serviceProvider = serviceProvider;
         _storage ??= (TStorageProvider)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, typeof(TStorageProvider));
         _isInMemProvider = _storage is InMemoryEventSubscriberStorage;
+        EventSubscriberStorage<TStorageRecord, TStorageProvider>.Provider = _storage; //setup stale record purge task
+        EventSubscriberStorage<TStorageRecord, TStorageProvider>.IsInMemProvider = _isInMemProvider;
         _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
         _errorReceiver = _serviceProvider.GetService<SubscriberExceptionReceiver>();
         _logger = serviceProvider.GetRequiredService<ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>>();
-        _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target).ToHash();
         _logger?.SubscriberRegistered(_subscriberID, typeof(TEventHandler).FullName!, typeof(TEvent).FullName!);
     }
 
     public void Start(CallOptions opts)
     {
-        _ = EventReceiver(_storage!, _sem, opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
-        _ = EventExecutor(_storage!, _sem, opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
+        _ = EventReceiverTask(_storage!, _sem, opts, _invoker, _method, _subscriberID, _logger, _errorReceiver);
+        _ = EventExecutorTask(_storage!, _sem, opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
     }
 
-    private static async Task EventReceiver(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
+    private static async Task EventReceiverTask(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
     {
         var call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
         var createErrorCount = 0;
@@ -99,7 +101,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
         }
     }
 
-    private static async Task EventExecutor(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
+    private static async Task EventExecutorTask(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
     {
         var retrievalErrorCount = 0;
         var executionErrorCount = 0;

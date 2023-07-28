@@ -12,7 +12,7 @@ public interface IEventHubStorageProvider<TStorageRecord> where TStorageRecord :
     /// this method will only be called once (for each event type) on app startup. if there are any pending records on storage from a previous app run,
     /// simply return a collection of unique subscriber IDs.
     /// </summary>
-    /// <param name="parameters">use these supplied search parameters to find the next batch of event records from your database</param>
+    /// <param name="parameters">use these supplied search parameters to find relevant event records from your database</param>
     ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<TStorageRecord> parameters);
 
     /// <summary>
@@ -25,7 +25,8 @@ public interface IEventHubStorageProvider<TStorageRecord> where TStorageRecord :
     /// <summary>
     /// fetch the next batch of pending event storage records that need to be processed.
     /// </summary>
-    ValueTask<IEnumerable<TStorageRecord>> GetNextBatchAsync(GetPendingRecordsParams<TStorageRecord> parameters);
+    /// <param name="parameters">use these supplied search parameters to find the next batch of event records from your database</param>
+    ValueTask<IEnumerable<TStorageRecord>> GetNextBatchAsync(StorageRecordSearchParams<TStorageRecord> parameters);
 
     /// <summary>
     /// mark the event storage record as complete by either replacing the entity on storage with the supplied instance or
@@ -36,11 +37,18 @@ public interface IEventHubStorageProvider<TStorageRecord> where TStorageRecord :
     ValueTask MarkEventAsCompleteAsync(TStorageRecord e, CancellationToken ct);
 
     /// <summary>
-    /// this method will be called hourly. implement this method to remove stale records (completed or (expired and incomplete)) from storage.
+    /// this method will be called hourly. implement this method to remove stale records (completed or expired) from storage.
     /// or instead of removing them, you can move them to some other location (dead-letter-queue maybe) or for inspection by a human.
     /// or if you'd like to retry expired events, update the <see cref="IEventStorageRecord.ExpireOn"/> field to a future date/time.
+    /// <para>
+    /// NOTE: the default match criteria is:
+    /// <code>
+    ///     r => r.IsComplete || DateTime.UtcNow &gt;= r.ExpireOn
+    /// </code>
+    /// </para>
     /// </summary>
-    ValueTask PurgeStaleRecordsAsync();
+    /// <param name="parameters">use these supplied search parameters to find relevant event records from your database</param>
+    ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<TStorageRecord> parameters);
 }
 
 /// <summary>

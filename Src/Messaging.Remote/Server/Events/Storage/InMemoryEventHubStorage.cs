@@ -24,7 +24,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(GetPendingRecordsParams<InMemoryEventStorageRecord> p)
+    public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(StorageRecordSearchParams<InMemoryEventStorageRecord> p)
     {
         var q = _subscribers.GetOrAdd(p.SubscriberID, new EventQueue());
 
@@ -42,12 +42,15 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
     public ValueTask MarkEventAsCompleteAsync(InMemoryEventStorageRecord e, CancellationToken ct)
         => throw new NotImplementedException();
 
-    public ValueTask PurgeStaleRecordsAsync()
+    public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<InMemoryEventStorageRecord> p)
     {
         foreach (var q in _subscribers)
         {
             if (q.Value.IsStale)
-                _subscribers.Remove(q.Key, out _);
+            {
+                _subscribers.Remove(q.Key, out var eq);
+                eq?.Records.Clear();
+            }
         }
         return ValueTask.CompletedTask;
     }

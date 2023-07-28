@@ -46,10 +46,11 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
 
     public EventHub(IServiceProvider svcProvider)
     {
-
         _allHubs[_tEvent] = this;
         _storage ??= (TStorageProvider)ActivatorUtilities.CreateInstance(svcProvider, typeof(TStorageProvider));
         _isInMemoryProvider = _storage is InMemoryEventHubStorage;
+        EventHubStorage<TStorageRecord, TStorageProvider>.Provider = _storage; //for stale record purging task setup
+        EventHubStorage<TStorageRecord, TStorageProvider>.IsInMemProvider = _isInMemoryProvider;
         _errors = svcProvider.GetService<EventHubExceptionReceiver>();
         _logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
 

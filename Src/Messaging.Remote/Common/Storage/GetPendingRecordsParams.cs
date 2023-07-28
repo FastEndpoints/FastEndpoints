@@ -2,18 +2,19 @@
 
 namespace FastEndpoints;
 
-public struct GetPendingRecordsParams<TStorageRecord> where TStorageRecord : IEventStorageRecord
+/// <summary>
+/// a dto representing search parameters for event storage record retrieval
+/// </summary>
+/// <typeparam name="TStorageRecord">the type of storage record</typeparam>
+public struct StorageRecordSearchParams<TStorageRecord> where TStorageRecord : IEventStorageRecord
 {
     /// <summary>
-    /// the subscriber ID to fetch the next batch of pending records for
+    /// the subscriber ID for fetching the next batch of records
     /// </summary>
     public string SubscriberID { get; internal set; }
 
     /// <summary>
-    /// a boolean lambda expression to match the next batch of pending records
-    /// <code>
-    ///   Where(e => e.SubscriberID == subscriberID &amp;&amp; !e.IsComplete &amp;&amp; DateTime.UtcNow &lt;= e.ExpireOn)
-    /// </code>
+    /// a boolean lambda expression to match the next batch of records
     /// </summary>
     public Expression<Func<TStorageRecord, bool>> Match { get; internal set; }
 

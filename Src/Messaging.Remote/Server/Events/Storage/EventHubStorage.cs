@@ -1,37 +1,33 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿namespace FastEndpoints;
 
-namespace FastEndpoints;
-
-internal static class EventHubStorage
+internal static class EventHubStorage<TStorageRecord, TStorageProvider>
+    where TStorageRecord : IEventStorageRecord, new()
+    where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
 {
-    internal static bool IsInMemoryProvider { get; private set; }
-    internal static bool IsInitialized { get; private set; }
-    internal static Func<IEventStorageRecord> RecordFactory { get; private set; } = default!;
-    internal static IEventHubStorageProvider Provider { get; private set; } = default!;
+    internal static TStorageProvider Provider { get; set; } = default!;
+    internal static bool IsInMemProvider { private get; set; }
 
     static EventHubStorage()
     {
-        _ = StaleSubscriberPurgingTask();
+        _ = StaleJobPurgingTask();
     }
 
-    internal static void Initialize<TStorageRecord, TStorageProvider>(IServiceProvider serviceProvider)
-        where TStorageRecord : IEventStorageRecord, new()
-        where TStorageProvider : class, IEventHubStorageProvider
-    {
-        RecordFactory = () => new TStorageRecord();
-        Provider = ActivatorUtilities.CreateInstance<TStorageProvider>(serviceProvider);
-        IsInitialized = true;
-        IsInMemoryProvider = Provider is InMemoryEventHubStorage;
-    }
-
-    private static async Task StaleSubscriberPurgingTask()
+    private static async Task StaleJobPurgingTask()
     {
         while (true)
         {
             await Task.Delay(TimeSpan.FromHours(1));
+
+            if (IsInMemProvider)
+                break;
+
             try
             {
-                await Provider.PurgeStaleRecordsAsync();
+                await Provider.PurgeStaleRecordsAsync(new()
+                {
+                    CancellationToken = CancellationToken.None,
+                    Match = r => r.IsComplete || DateTime.UtcNow >= r.ExpireOn
+                });
             }
             catch { }
         }

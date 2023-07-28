@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
 /// <summary>
 /// handler registration options
 /// </summary>
-public sealed class HandlerOptions
+public class HandlerOptions<TStorageRecord, TStorageProvider>
+    where TStorageRecord : IEventStorageRecord, new()
+    where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
 {
     private readonly IEndpointRouteBuilder routeBuilder;
 
@@ -64,16 +64,6 @@ public sealed class HandlerOptions
             => routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
 
     /// <summary>
-    /// register a custom storage provider for event hub
-    /// </summary>
-    /// <typeparam name="TStorageRecord">the type of the event storage record</typeparam>
-    /// <typeparam name="TStorageProvider">the type of the event storage provider</typeparam>
-    public void EventHubStorageProvider<TStorageRecord, TStorageProvider>()
-        where TStorageRecord : IEventStorageRecord, new()
-        where TStorageProvider : class, IEventHubStorageProvider
-            => EventHubStorage.Initialize<TStorageRecord, TStorageProvider>(routeBuilder.ServiceProvider);
-
-    /// <summary>
     /// registers an "event hub" that broadcasts events of the given type to all remote subscribers in an asynchronous manner
     /// </summary>
     /// <param name="mode">the operation mode of this event hub</param>
@@ -81,14 +71,7 @@ public sealed class HandlerOptions
     public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>(HubMode mode = HubMode.EventPublisher)
         where TEvent : class, IEvent
     {
-        if (!EventHubStorage.IsInitialized)
-            EventHubStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventHubStorage>(routeBuilder.ServiceProvider);
-
-        //there's no DI for EventHub<TEvent>
-        EventHub<TEvent>.Logger ??= routeBuilder.ServiceProvider.GetRequiredService<ILogger<EventHub<TEvent>>>();
-        EventHub<TEvent>.Errors ??= routeBuilder.ServiceProvider.GetService<EventHubExceptionReceiver>();
-        EventHub<TEvent>.Mode = mode;
-
-        return routeBuilder.MapGrpcService<EventHub<TEvent>>();
+        EventHub<TEvent, TStorageRecord, TStorageProvider>.Mode = mode;
+        return routeBuilder.MapGrpcService<EventHub<TEvent, TStorageRecord, TStorageProvider>>();
     }
 }

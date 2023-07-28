@@ -1,22 +1,26 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
 /// <summary>
-/// represents a connection to a remote server that hosts command handlers (<see cref="ICommandHandler{TCommand, TResult}"/>)
-/// <para>call <see cref="Register{TCommand, TResult}"/> method to map the commands</para>
+/// represents a connection to a remote server that hosts command and event handlers
 /// </summary>
 public sealed class RemoteConnection
 {
     //key: tCommand or tEventHandler
     //val: remote server that hosts command handlers/event buses
     internal static Dictionary<Type, RemoteConnection> RemoteMap { get; } = new();
+    internal static Type StorageRecordType { private get; set; } = typeof(InMemoryEventStorageRecord);
+    internal static Type StorageProviderType { private get; set; } = typeof(InMemoryEventSubscriberStorage);
 
+    //key: tCommand
+    //val: command executor
+    private readonly Dictionary<Type, ICommandExecutor> _executorMap = new();
     private GrpcChannel? _channel;
-    private readonly Dictionary<Type, ICommandExecutor> _executorMap = new(); //key: tCommand, val: command executor
-    private readonly IServiceProvider? _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
     /// grpc channel settings
@@ -53,10 +57,10 @@ public sealed class RemoteConnection
     /// </summary>
     public string RemoteAddress { get; init; }
 
-    internal RemoteConnection(string address, IServiceProvider? serviceProvider = null)
+    internal RemoteConnection(string address, IServiceProvider serviceProvider)
     {
         RemoteAddress = address;
-        _serviceProvider = serviceProvider; //only null in unit tests for commands (non-events).
+        _serviceProvider = serviceProvider;
     }
 
     /// <summary>
@@ -72,15 +76,15 @@ public sealed class RemoteConnection
         RemoteMap[tEventHandler] = this;
         _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
 
-        if (!_executorMap.ContainsKey(tEventHandler))
-        {
-            if (!EventSubscriberStorage.IsInitalized)
-                EventSubscriberStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventSubscriberStorage>(_serviceProvider!);
+        var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(
+            typeof(TEvent),
+            typeof(TEventHandler),
+            StorageRecordType,
+            StorageProviderType);
 
-            var eventExecutor = new EventSubscriber<TEvent, TEventHandler>(_channel, _serviceProvider);
-            _executorMap[tEventHandler] = eventExecutor;
-            eventExecutor.Start(callOptions);
-        }
+        var eventExecutor = (ICommandExecutor)ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, _channel);
+        _executorMap[tEventHandler] = eventExecutor;
+        ((IEventSubscriber)eventExecutor).Start(callOptions);
     }
 
     /// <summary>

@@ -3,16 +3,16 @@
 namespace FastEndpoints;
 
 //NOTE: this is a singleton class
-internal sealed class InMemoryEventHubStorage : IEventHubStorageProvider
+public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryEventStorageRecord>
 {
     //key: subscriber ID (identifies a unique subscriber/client)
     //val: in memory event storage record queue
     private readonly ConcurrentDictionary<string, EventQueue> _subscribers = new();
 
-    public ValueTask<IEnumerable<string>> RestoreSubsriberIDsForEventType(string eventType)
+    public ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<InMemoryEventStorageRecord> p)
         => ValueTask.FromResult(Enumerable.Empty<string>());
 
-    public ValueTask StoreEventAsync(IEventStorageRecord e, CancellationToken _)
+    public ValueTask StoreEventAsync(InMemoryEventStorageRecord e, CancellationToken _)
     {
         var q = _subscribers.GetOrAdd(e.SubscriberID, new EventQueue());
 
@@ -24,17 +24,22 @@ internal sealed class InMemoryEventHubStorage : IEventHubStorageProvider
         return ValueTask.CompletedTask;
     }
 
-    public ValueTask<IEventStorageRecord?> GetNextEventAsync(string subscriberID, CancellationToken ct)
+    public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(GetPendingRecordsParams<InMemoryEventStorageRecord> p)
     {
-        var q = _subscribers.GetOrAdd(subscriberID, new EventQueue());
+        var q = _subscribers.GetOrAdd(p.SubscriberID, new EventQueue());
 
         q.Records.TryDequeue(out var e);
-        q.LastDequeuAt = DateTime.UtcNow;
+        q.LastDequeAt = DateTime.UtcNow;
 
-        return ValueTask.FromResult(e);
+        if (e is not null)
+        {
+            var res = new InMemoryEventStorageRecord[1] { e };
+            return ValueTask.FromResult(res.AsEnumerable());
+        }
+        return ValueTask.FromResult(Array.Empty<InMemoryEventStorageRecord>().AsEnumerable());
     }
 
-    public ValueTask MarkEventAsCompleteAsync(IEventStorageRecord e, CancellationToken ct)
+    public ValueTask MarkEventAsCompleteAsync(InMemoryEventStorageRecord e, CancellationToken ct)
         => throw new NotImplementedException();
 
     public ValueTask PurgeStaleRecordsAsync()

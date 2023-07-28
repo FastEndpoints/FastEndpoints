@@ -1,45 +1,83 @@
 ﻿using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where TEvent : class, IEvent
+internal abstract class EventHubBase
 {
-#pragma warning disable RCS1158
+    //key: tEvent
+    //val: event hub for the event type
+    //values get created when the DI container resolves each event hub type and the ctor is run.
+    protected static readonly ConcurrentDictionary<Type, EventHubBase> _allHubs = new();
+
+    protected abstract Task BroadcastEvent(object evnt, CancellationToken ct);
+
+    internal static Task AddToSubscriberQueues(IEvent evnt, CancellationToken ct)
+    {
+        var tEvent = evnt.GetType();
+
+        if (!_allHubs.TryGetValue(tEvent, out var hub))
+            throw new InvalidOperationException($"An event hub has not been registered for [{tEvent.FullName}]");
+
+        return hub.BroadcastEvent(evnt, ct);
+    }
+}
+
+internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, IMethodBinder<EventHub<TEvent, TStorageRecord, TStorageProvider>>
+    where TEvent : class, IEvent
+    where TStorageRecord : IEventStorageRecord, new()
+    where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
+{
     internal static HubMode Mode = HubMode.EventPublisher;
-    internal static ILogger Logger = default!;
-    internal static EventHubExceptionReceiver? Errors;
-#pragma warning restore RCS1158
 
     //key: subscriber id
     //val: semaphorslim for waiting on record availability
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _subscribers = new();
-    private static readonly Type _eventType = typeof(TEvent);
+    private static readonly Type _tEvent = typeof(TEvent);
+    private static TStorageProvider? _storage;
 
-    static EventHub()
+    private readonly bool _isInMemoryProvider;
+    private readonly EventHubExceptionReceiver? _errors;
+    private readonly ILogger _logger;
+
+    public EventHub(IServiceProvider svcProvider)
     {
-        var t = EventHubStorage.Provider.RestoreSubsriberIDsForEventType(typeof(TEvent).FullName!);
+
+        _allHubs[_tEvent] = this;
+        _storage ??= (TStorageProvider)ActivatorUtilities.CreateInstance(svcProvider, typeof(TStorageProvider));
+        _isInMemoryProvider = _storage is InMemoryEventHubStorage;
+        _errors = svcProvider.GetService<EventHubExceptionReceiver>();
+        _logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
+
+        var t = _storage.RestoreSubscriberIDsForEventTypeAsync(new()
+        {
+            CancellationToken = CancellationToken.None,
+            EventType = _tEvent.FullName!,
+            Match = e => e.EventType == _tEvent.FullName! && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn,
+            Projection = e => e.SubscriberID
+        });
 
         while (!t.IsCompleted)
-            Thread.Sleep(1);
+            Thread.Sleep(10);
 
         foreach (var subID in t.Result)
             _subscribers[subID] = new(0);
     }
 
-    public void Bind(ServiceMethodProviderContext<EventHub<TEvent>> ctx)
+    public void Bind(ServiceMethodProviderContext<EventHub<TEvent, TStorageRecord, TStorageProvider>> ctx)
     {
         var metadata = new List<object>();
-        var eventAttributes = _eventType.GetCustomAttributes(false);
+        var eventAttributes = _tEvent.GetCustomAttributes(false);
         if (eventAttributes?.Length > 0) metadata.AddRange(eventAttributes);
         metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
 
         var sub = new Method<string, TEvent>(
             type: MethodType.ServerStreaming,
-            serviceName: _eventType.FullName!,
+            serviceName: _tEvent.FullName!,
             name: "sub",
             requestMarshaller: new MessagePackMarshaller<string>(),
             responseMarshaller: new MessagePackMarshaller<TEvent>());
@@ -50,7 +88,7 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
         {
             var pub = new Method<TEvent, EmptyObject>(
                 type: MethodType.Unary,
-                serviceName: _eventType.FullName!,
+                serviceName: _tEvent.FullName!,
                 name: "pub",
                 requestMarshaller: new MessagePackMarshaller<TEvent>(),
                 responseMarshaller: new MessagePackMarshaller<EmptyObject>());
@@ -59,104 +97,106 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
         }
     }
 
-    internal async Task OnSubscriberConnected(EventHub<TEvent> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
+    //internal to allow unit testing
+    internal async Task OnSubscriberConnected(EventHub<TEvent, TStorageRecord, TStorageProvider> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
     {
-        Logger.SubscriberConnected(subscriberID, _eventType.FullName!);
+        _logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
+        var sem = _subscribers.GetOrAdd(subscriberID, new SemaphoreSlim(0));
         var retrievalErrorCount = 0;
         var updateErrorCount = 0;
+        IEnumerable<TStorageRecord> records;
 
         while (!ctx.CancellationToken.IsCancellationRequested)
         {
-            var sem = _subscribers.GetOrAdd(subscriberID, new SemaphoreSlim(0));
-
-            IEventStorageRecord? evntRecord;
-
             try
             {
-                evntRecord = await EventHubStorage.Provider.GetNextEventAsync(subscriberID, ctx.CancellationToken);
+                records = await _storage!.GetNextBatchAsync(new()
+                {
+                    CancellationToken = ctx.CancellationToken,
+                    Limit = 25,
+                    SubscriberID = subscriberID,
+                    Match = e => e.SubscriberID == subscriberID && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn
+                });
                 retrievalErrorCount = 0;
             }
             catch (Exception ex)
             {
                 retrievalErrorCount++;
-                Errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, ctx.CancellationToken);
-                Logger.StorageRetrieveError(subscriberID, _eventType.FullName!, ex.Message);
+                _errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, ctx.CancellationToken);
+                _logger.StorageRetrieveError(subscriberID, _tEvent.FullName!, ex.Message);
                 await Task.Delay(5000);
                 continue;
             }
 
-            if (evntRecord is not null)
+            if (records.Any())
             {
-                try
-                {
-                    await stream.WriteAsync((TEvent)evntRecord.Event, ctx.CancellationToken);
-                }
-                catch
-                {
-                    if (EventHubStorage.IsInMemoryProvider)
-                    {
-                        try
-                        {
-                            await EventHubStorage.Provider.StoreEventAsync(evntRecord, ctx.CancellationToken);
-                        }
-                        catch
-                        {
-                            //ignore and discard event if queue is full
-                        }
-                    }
-
-                    break; //stream is most likely broken/cancelled. let the client re-connect.
-                }
-
-                while (!EventHubStorage.IsInMemoryProvider && !ctx.CancellationToken.IsCancellationRequested)
+                foreach (var record in records)
                 {
                     try
                     {
-                        await EventHubStorage.Provider.MarkEventAsCompleteAsync(evntRecord, ctx.CancellationToken);
-                        updateErrorCount = 0;
-                        break;
+                        await stream.WriteAsync((TEvent)record.Event, ctx.CancellationToken);
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        updateErrorCount++;
-                        Errors?.OnMarkEventAsCompleteError<TEvent>(evntRecord, updateErrorCount, ex, ctx.CancellationToken);
-                        Logger.StorageUpdateError(subscriberID, _eventType.FullName!, ex.Message);
-                        await Task.Delay(5000);
+                        if (_isInMemoryProvider)
+                        {
+                            try
+                            {
+                                await _storage.StoreEventAsync(record, ctx.CancellationToken);
+                            }
+                            catch
+                            {
+                                //ignore and discard event if queue is full
+                            }
+                        }
+                        return; //stream is most likely broken/cancelled. let the client re-connect.
+                    }
+
+                    while (!_isInMemoryProvider && !ctx.CancellationToken.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            await _storage.MarkEventAsCompleteAsync(record, ctx.CancellationToken);
+                            updateErrorCount = 0;
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            updateErrorCount++;
+                            _errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount, ex, ctx.CancellationToken);
+                            _logger.StorageUpdateError(subscriberID, _tEvent.FullName!, ex.Message);
+                            await Task.Delay(5000);
+                        }
                     }
                 }
             }
             else
             {
-                //await Task.Delay(300);
-                await sem.WaitAsync(ctx.CancellationToken);
+                await sem.WaitAsync(ctx.CancellationToken); //this blocks until new records are stored (semaphore released)
             }
         }
     }
 
-    internal Task<EmptyObject> OnEventReceived(EventHub<TEvent> __, TEvent evnt, ServerCallContext ctx)
-    {
-        _ = AddToSubscriberQueues(evnt, ctx.CancellationToken);
-        return Task.FromResult(EmptyObject.Instance);
-    }
-
-    internal static async Task AddToSubscriberQueues(TEvent evnt, CancellationToken ct)
+    protected async override Task BroadcastEvent(object evnt, CancellationToken ct)
     {
         var createErrorCount = 0;
 
         foreach (var subId in _subscribers.Keys)
         {
-            var record = EventHubStorage.RecordFactory();
-            record.SubscriberID = subId;
-            record.Event = evnt;
-            record.EventType = _eventType.FullName!;
-            record.ExpireOn = DateTime.UtcNow.AddHours(4);
+            var record = new TStorageRecord
+            {
+                SubscriberID = subId,
+                Event = evnt,
+                EventType = _tEvent.FullName!,
+                ExpireOn = DateTime.UtcNow.AddHours(4)
+            };
 
             while (!ct.IsCancellationRequested)
             {
                 try
                 {
-                    await EventHubStorage.Provider.StoreEventAsync(record, ct);
+                    await _storage!.StoreEventAsync(record, ct);
                     _subscribers[subId].Release();
                     createErrorCount = 0;
                     break;
@@ -165,20 +205,27 @@ internal sealed class EventHub<TEvent> : IMethodBinder<EventHub<TEvent>> where T
                 {
                     _subscribers.Remove(subId, out var sem);
                     sem?.Dispose();
-                    Errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
-                    Logger.QueueOverflowWarning(subId, _eventType.FullName!);
+                    _errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
+                    _logger.QueueOverflowWarning(subId, _tEvent.FullName!);
                     break;
                 }
                 catch (Exception ex)
                 {
                     createErrorCount++;
-                    Errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, ct);
-                    Logger.StorageCreateError(subId, _eventType.FullName!, ex.Message);
+                    _errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, ct);
+                    _logger.StorageCreateError(subId, _tEvent.FullName!, ex.Message);
 #pragma warning disable CA2016
                     await Task.Delay(5000);
 #pragma warning restore CA2016
                 }
             }
         }
+    }
+
+    //internal to allow unit testing
+    internal Task<EmptyObject> OnEventReceived(EventHub<TEvent, TStorageRecord, TStorageProvider> __, TEvent evnt, ServerCallContext ctx)
+    {
+        _ = AddToSubscriberQueues(evnt, ctx.CancellationToken);
+        return Task.FromResult(EmptyObject.Instance);
     }
 }

@@ -31,19 +31,37 @@ public static class HandlerServerExtensions
     /// <param name="o">optional grpc service settings</param>
     public static IGrpcServerBuilder AddHandlerServer(this IServiceCollection sc, Action<GrpcServiceOptions>? o = null)
     {
+        sc.TryAddSingleton(typeof(VoidHandlerExecutor<,>));
+        sc.TryAddSingleton(typeof(UnaryHandlerExecutor<,,>));
+        sc.TryAddSingleton(typeof(ServerStreamHandlerExecutor<,,>));
+        sc.TryAddSingleton(typeof(ClientStreamHandlerExecutor<,,>));
+        sc.TryAddSingleton(typeof(EventHub<,,>));
         sc.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IServiceMethodProvider<>), typeof(ServiceMethodProvider<>)));
         Action<GrpcServiceOptions> defaultOpts = o => o.IgnoreUnknownServices = true;
         return sc.AddGrpc(defaultOpts + o);
     }
 
     /// <summary>
-    /// specify wich handlers/event hubs this server will be hosting
+    /// specify which handlers/event hubs this server will be hosting. the in-memory storage provider will be used.
     /// </summary>
-    /// <param name="b"></param>
-    /// <param name="h"></param>
-    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerOptions> h)
+    /// <param name="h">handler options</param>
+    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerOptions<InMemoryEventStorageRecord, InMemoryEventHubStorage>> h)
     {
-        h(new HandlerOptions(b));
+        h(new(b));
+        return b;
+    }
+
+    /// <summary>
+    /// specify which handlers/event hubs this server will be hosting together with a custom storage provider
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the type of the event storage record</typeparam>
+    /// <typeparam name="TStorageProvider">the type of the event storage provider</typeparam>
+    /// <param name="h">handler options</param>
+    public static IEndpointRouteBuilder MapHandlers<TStorageRecord, TStorageProvider>(this IEndpointRouteBuilder b, Action<HandlerOptions<TStorageRecord, TStorageProvider>> h)
+        where TStorageRecord : IEventStorageRecord, new()
+        where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
+    {
+        h(new(b));
         return b;
     }
 }

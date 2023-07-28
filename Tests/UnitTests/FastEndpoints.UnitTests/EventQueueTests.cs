@@ -92,12 +92,11 @@ public class EventQueueTests
     public async Task event_hub_publisher_mode()
     {
         var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         var provider = services.BuildServiceProvider();
-        EventHubStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
-
-        var hub = new EventHub<TestEvent>();
-        EventHub<TestEvent>.Mode = HubMode.EventPublisher;
-        EventHub<TestEvent>.Logger = A.Fake<ILogger>();
+        var hub = new EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+        EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
 
         var writer = new TestServerStreamWriter<TestEvent>();
 
@@ -108,7 +107,7 @@ public class EventQueueTests
         _ = hub.OnSubscriberConnected(hub, "sub2", writer, ctx);
 
         var e1 = new TestEvent { EventID = 123 };
-        await EventHub<TestEvent>.AddToSubscriberQueues(e1, default);
+        await EventHubBase.AddToSubscriberQueues(e1, default);
         await Task.Delay(500);
 
         writer.Responses[0].EventID.Should().Be(123);
@@ -118,12 +117,11 @@ public class EventQueueTests
     public async Task event_hub_broker_mode()
     {
         var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         var provider = services.BuildServiceProvider();
-        EventHubStorage.Initialize<InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
-
-        var hub = new EventHub<TestEvent>();
-        EventHub<TestEvent>.Mode = HubMode.EventBroker;
-        EventHub<TestEvent>.Logger = A.Fake<ILogger>();
+        var hub = new EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+        EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventBroker;
 
         var writer = new TestServerStreamWriter<TestEvent>();
 

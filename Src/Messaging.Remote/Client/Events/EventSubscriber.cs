@@ -133,7 +133,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler> : BaseCommandExecut
                     }
                     executionErrorCount++;
                     _ = errors?.OnHandlerExecutionError<TEvent, TEventHandler>(evntRecord, executionErrorCount, ex, opts.CancellationToken);
-                    logger?.HandlerExecutionCritial(typeof(TEvent).FullName!, ex.Message);
+                    logger?.HandlerExecutionCritical(typeof(TEvent).FullName!, ex.Message);
                     await Task.Delay(5000);
                     continue;
                 }

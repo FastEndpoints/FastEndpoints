@@ -14,7 +14,7 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     Task StoreJobAsync(TStorageRecord r, CancellationToken ct);
 
     /// <summary>
-    /// fetch the next pending batch of job storage records that need to be processed, with the supplied match expression.
+    /// fetch the next pending batch of job storage records that need to be processed, with the supplied search parameters.
     /// </summary>
     /// <param name="parameters">use these supplied search parameters to find the next batch of job records from your database</param>
     Task<IEnumerable<TStorageRecord>> GetNextBatchAsync(PendingJobSearchParams<TStorageRecord> parameters);

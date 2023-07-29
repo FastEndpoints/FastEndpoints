@@ -41,7 +41,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
         _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
         _errorReceiver = _serviceProvider.GetService<SubscriberExceptionReceiver>();
         _logger = serviceProvider.GetRequiredService<ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>>();
-        _logger?.SubscriberRegistered(_subscriberID, typeof(TEventHandler).FullName!, typeof(TEvent).FullName!);
+        _logger.SubscriberRegistered(_subscriberID, typeof(TEventHandler).FullName!, typeof(TEvent).FullName!);
     }
 
     public void Start(CallOptions opts)

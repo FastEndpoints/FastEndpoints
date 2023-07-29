@@ -28,7 +28,7 @@ public static class JobQueueExtensions
     }
 
     /// <summary>
-    /// enable job queue functionality with give settings
+    /// enable job queue functionality with given settings
     /// </summary>
     /// <param name="options">specify settings/execution limits for each job queue type</param>
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>

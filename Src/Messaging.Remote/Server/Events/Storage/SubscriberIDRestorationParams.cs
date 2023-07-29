@@ -16,7 +16,7 @@ public struct SubscriberIDRestorationParams<TStorageRecord> where TStorageRecord
     /// <summary>
     /// a boolean lambda expression to match pending records.
     /// <code>
-    ///     r => r.EventType == eventType &amp;&amp; !r.IsComplete &amp;&amp; DateTime.UtcNow &lt;= r.ExpireOn)
+    ///     r => r.EventType == "xxx" &amp;&amp; !r.IsComplete &amp;&amp; DateTime.UtcNow &lt;= r.ExpireOn)
     /// </code>
     /// </summary>
     public Expression<Func<TStorageRecord, bool>> Match { get; internal set; }

@@ -16,7 +16,7 @@ public class JobQueueOptions
     public int MaxConcurrency { get; set; } = Environment.ProcessorCount;
 
     /// <summary>
-    /// the per job type max execution time limit for handler executions unless otherwise overriden using <see cref="LimitsFor{TCommand}(int, TimeSpan)"/>
+    /// the per job type max execution time limit for handler executions unless otherwise overridden using <see cref="LimitsFor{TCommand}(int, TimeSpan)"/>
     /// defaults to <see cref="Timeout.Infinite"/>.
     /// </summary>
     public TimeSpan ExecutionTimeLimit { get; set; } = Timeout.InfiniteTimeSpan;

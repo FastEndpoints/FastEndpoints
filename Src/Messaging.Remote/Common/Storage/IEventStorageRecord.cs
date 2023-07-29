@@ -6,7 +6,7 @@
 public interface IEventStorageRecord
 {
     /// <summary>
-    /// a subscriber id is a uniqu identifier of an event stream subscriber on a remote node.
+    /// a subscriber id is a unique identifier of an event stream subscriber on a remote node.
     /// it is a unique id per each event handler type (TEvent+TEventHandler combo).
     /// you don't have to worry about generating this as it will automatically be set by the library.
     /// </summary>

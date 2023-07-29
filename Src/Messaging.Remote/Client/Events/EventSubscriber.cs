@@ -183,14 +183,8 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
             }
             else
             {
-                try
-                {
-                    await sem.WaitAsync(opts.CancellationToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    return; //end of task loop
-                }
+                //wait until either the semaphore is released or a minute has elapsed
+                await Task.WhenAny(sem.WaitAsync(opts.CancellationToken), Task.Delay(60000));
             }
         }
     }

@@ -175,14 +175,8 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             }
             else
             {
-                try
-                {
-                    await sem.WaitAsync(ctx.CancellationToken); //this blocks until new records are stored (semaphore released)
-                }
-                catch (OperationCanceledException)
-                {
-                    return; //end of loop
-                }
+                //wait until either the semaphore is released or a minute has elapsed
+                await Task.WhenAny(sem.WaitAsync(ctx.CancellationToken), Task.Delay(60000));
             }
         }
     }

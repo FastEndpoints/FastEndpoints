@@ -36,8 +36,8 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     /// </para>
     /// <para>
     /// to prevent this from happening and allow other jobs to be given a chance at execution, you can reschedule failed jobs
-    /// to be re-attempted at a future time instead. simply mark the current job as complete in the database by updating the <see cref="IJobStorageRecord.IsComplete"/> to <c>true</c> and
-    /// re-add the <typeparamref name="TStorageRecord"/> by calling <see cref="JobQueueExtensions.QueueJobAsync(ICommand, DateTime?, DateTime?, CancellationToken)"/> with the desired future date/time.
+    /// to be re-attempted at a future time instead. simply update the <see cref="IJobStorageRecord.ExecuteAfter"/> property to a future date/time
+    /// and save the entity to the database (or do a partial update of only that property value).
     /// </para>
     /// </summary>
     /// <param name="r">the job that failed to execute successfully</param>

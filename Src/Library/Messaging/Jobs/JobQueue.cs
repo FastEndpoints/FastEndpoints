@@ -103,19 +103,9 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
             }
 
             if (!records.Any())
-            {
-                try
-                {
-                    await _sem.WaitAsync(_appCancellation);
-                    continue;
-                }
-                catch (OperationCanceledException)
-                {
-                    return; //end of task loop
-                }
-            }
-
-            await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+                await Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(60000)); //query data again either in a minute or as soon as semaphore is released
+            else
+                await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)

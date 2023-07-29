@@ -13,18 +13,18 @@ internal abstract class JobQueueBase
     //see ctor in JobQueue<TCommand, TStorageRecord, TStorageProvider>
     protected static readonly ConcurrentDictionary<Type, JobQueueBase> _allQueues = new();
 
-    protected abstract Task StoreJobAsync(object command, CancellationToken ct);
+    protected abstract Task StoreJobAsync(object command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
 
     internal abstract void SetExecutionLimits(int concurrencyLimit, TimeSpan executionTimeLimit);
 
-    internal static Task AddToQueueAsync(ICommand command, CancellationToken ct)
+    internal static Task AddToQueueAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         var tCommand = command.GetType();
 
         if (!_allQueues.TryGetValue(tCommand, out var queue))
             throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]");
 
-        return queue.StoreJobAsync(command, ct);
+        return queue.StoreJobAsync(command, executeAfter, expireOn, ct);
     }
 }
 
@@ -63,14 +63,14 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
         _ = CommandExecutorTask();
     }
 
-    protected async override Task StoreJobAsync(object command, CancellationToken ct)
+    protected async override Task StoreJobAsync(object command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         await _storage.StoreJobAsync(new()
         {
             QueueID = _queueID,
             Command = command,
-            ExecuteAfter = DateTime.UtcNow,
-            ExpireOn = DateTime.UtcNow.AddHours(4)
+            ExecuteAfter = executeAfter ?? DateTime.UtcNow,
+            ExpireOn = expireOn ?? DateTime.UtcNow.AddHours(4)
         }, ct);
         _sem.Release();
     }

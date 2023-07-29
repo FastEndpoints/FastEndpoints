@@ -54,7 +54,9 @@ public static class JobQueueExtensions
     /// queues up a given command in the respective job queue for that command type.
     /// </summary>
     /// <param name="cmd">the command to be queued</param>
+    /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
+    /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
     /// <param name="ct">cancellation token</param>
-    public static Task QueueJobAsync(this ICommand cmd, CancellationToken ct = default)
-        => JobQueueBase.AddToQueueAsync(cmd, ct);
+    public static Task QueueJobAsync(this ICommand cmd, DateTime? executeAfter = null, DateTime? expireOn = null, CancellationToken ct = default)
+        => JobQueueBase.AddToQueueAsync(cmd, executeAfter, expireOn, ct);
 }

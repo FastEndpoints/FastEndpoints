@@ -31,12 +31,13 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     /// this will only be triggered when a command handler (<see cref="ICommandHandler{TCommand}"/>) associated with a command
     /// throws an exception. If you've set an execution time limit for the command, the thrown exception would be of type <see cref="OperationCanceledException"/>.
     /// <para>
-    /// when a job/command execution fails, it will be retried immediately.
-    /// the failed job will be fetched again with the next batch of pending jobs.
+    /// when a job/command execution fails, it will be retried immediately. the failed job will be fetched again with the next batch of pending jobs.
     /// if one or more jobs keep failing repeatedly, it may cause the whole queue to get stuck in a retry loop preventing it from progressing.
-    /// to prevent this from happening and allow other jobs in the queue to be given a chance at execution, you can reschedule failed jobs
-    /// to be re-attempted at a future time instead. simply update the <see cref="IJobStorageRecord.ExecuteAfter"/> property to a future date/time
-    /// and save the entity to the database (or do a partial update of only that property value).
+    /// </para>
+    /// <para>
+    /// to prevent this from happening and allow other jobs to be given a chance at execution, you can reschedule failed jobs
+    /// to be re-attempted at a future time instead. simply mark the current job as complete in the database by updating the <see cref="IJobStorageRecord.IsComplete"/> to <c>true</c> and
+    /// re-add the <typeparamref name="TStorageRecord"/> by calling <see cref="JobQueueExtensions.QueueJobAsync(ICommand, DateTime?, DateTime?, CancellationToken)"/> with the desired future date/time.
     /// </para>
     /// </summary>
     /// <param name="r">the job that failed to execute successfully</param>

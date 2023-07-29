@@ -28,6 +28,6 @@ internal static partial class LoggingExtensions
     [LoggerMessage(8, LogLevel.Error, "Event storage 'get-next-batch' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageGetNextBatchError(this ILogger l, string subscriberId, string tEvent, string msg);
 
-    [LoggerMessage(9, LogLevel.Error, "Event storage 'mark-as-complete' error for [subscriber-id:{subscriberId}]({tevent}): {msg}. Retrying in 5 seconds...")]
+    [LoggerMessage(9, LogLevel.Error, "Event storage 'mark-as-complete' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageMarkAsCompleteError(this ILogger l, string subscriberId, string tEvent, string msg);
 }

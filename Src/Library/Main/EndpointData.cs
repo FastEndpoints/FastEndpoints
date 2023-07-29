@@ -164,8 +164,8 @@ internal sealed class EndpointData
                 {
                     var tCommand = tInterface.GetGenericArguments()[0];
 
-                    if (!CommandExtensions.handlerRegistry.ContainsKey(tCommand))
-                        CommandExtensions.handlerRegistry.Add(tCommand, new(t));
+                    if (!CommandExtensions.HandlerRegistry.ContainsKey(tCommand))
+                        CommandExtensions.HandlerRegistry.Add(tCommand, new(t));
 
 #pragma warning disable RCS1134
                     continue;

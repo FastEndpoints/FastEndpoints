@@ -34,13 +34,13 @@ public static class JobQueueExtensions
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
     public static IApplicationBuilder UseJobQueues(this IApplicationBuilder app, Action<JobQueueOptions>? options = null)
     {
-        if (CommandExtensions.handlerRegistry.Count == 0)
+        if (CommandExtensions.HandlerRegistry.Count == 0)
             throw new InvalidOperationException("No Commands/Handlers found in the system! Have you called AddFastEndpoints() yet?");
 
         var opts = new JobQueueOptions();
         options?.Invoke(opts);
 
-        foreach (var tCommand in CommandExtensions.handlerRegistry.Keys)
+        foreach (var tCommand in CommandExtensions.HandlerRegistry.Keys)
         {
             var tJobQ = typeof(JobQueue<,,>).MakeGenericType(tCommand, tStorageRecord, tStorageProvider);
             var jobQ = app.ApplicationServices.GetRequiredService(tJobQ);

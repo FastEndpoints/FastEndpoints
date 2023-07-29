@@ -1,3 +1,4 @@
+using FastEndpoints.Messaging.Remote;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
@@ -82,7 +83,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
                         {
                             createErrorCount++;
                             _ = errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, opts.CancellationToken);
-                            logger?.StorageCreateError(subscriberID, typeof(TEvent).FullName!, ex.Message);
+                            logger?.StoreEventError(subscriberID, typeof(TEvent).FullName!, ex.Message);
                             await Task.Delay(5000);
                         }
                     }
@@ -93,7 +94,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
             {
                 receiveErrorCount++;
                 _ = errors?.OnEventReceiveError<TEvent>(subscriberID, receiveErrorCount, ex, opts.CancellationToken);
-                logger?.ReceiveTrace(subscriberID, typeof(TEvent).FullName!, ex.Message);
+                logger?.StreamReceiveTrace(subscriberID, typeof(TEvent).FullName!, ex.Message);
                 call.Dispose(); //the stream is most likely broken, so dispose it and initialize a new call
                 await Task.Delay(5000);
                 call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
@@ -126,7 +127,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
             {
                 retrievalErrorCount++;
                 _ = errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, opts.CancellationToken);
-                logger?.StorageRetrieveError(subscriberID, typeof(TEvent).FullName!, ex.Message);
+                logger?.StorageGetNextBatchError(subscriberID, typeof(TEvent).FullName!, ex.Message);
                 await Task.Delay(5000);
                 continue;
             }
@@ -174,7 +175,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
                         {
                             updateErrorCount++;
                             _ = errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount, ex, opts.CancellationToken);
-                            logger?.StorageUpdateError(subscriberID, typeof(TEvent).FullName!, ex.Message);
+                            logger?.StorageMarkAsCompleteError(subscriberID, typeof(TEvent).FullName!, ex.Message);
                             await Task.Delay(5000);
                         }
                     }
@@ -186,7 +187,10 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
                 {
                     await sem.WaitAsync(opts.CancellationToken);
                 }
-                catch (OperationCanceledException) { }
+                catch (OperationCanceledException)
+                {
+                    return; //end of task loop
+                }
             }
         }
     }

@@ -3,7 +3,7 @@
 public static class CommandExtensions
 {
     //key: tCommand //val: handler definition
-    internal static readonly Dictionary<Type, CommandHandlerDefinition> handlerRegistry = new();
+    internal static readonly Dictionary<Type, CommandHandlerDefinition> HandlerRegistry = new();
 
     /// <summary>
     /// executes the command that does not return a result
@@ -15,7 +15,7 @@ public static class CommandExtensions
     {
         var tCommand = command.GetType();
 
-        if (handlerRegistry.TryGetValue(tCommand, out var def))
+        if (HandlerRegistry.TryGetValue(tCommand, out var def))
         {
             def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
             return ((CommandHandlerExecutorBase)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
@@ -40,7 +40,7 @@ public static class CommandExtensions
     {
         var tCommand = command.GetType();
 
-        if (handlerRegistry.TryGetValue(tCommand, out var def))
+        if (HandlerRegistry.TryGetValue(tCommand, out var def))
         {
             def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
             return ((CommandHandlerExecutorBase<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
@@ -63,7 +63,7 @@ public static class CommandExtensions
     {
         var tCommand = typeof(TCommand);
 
-        handlerRegistry[tCommand] = new(handler.GetType())
+        HandlerRegistry[tCommand] = new(handler.GetType())
         {
             HandlerExecutor = new FakeCommandHandlerExecutor<TCommand>(handler)
         };
@@ -79,7 +79,7 @@ public static class CommandExtensions
     {
         var tCommand = typeof(TCommand);
 
-        handlerRegistry[tCommand] = new(handler.GetType())
+        HandlerRegistry[tCommand] = new(handler.GetType())
         {
             HandlerExecutor = new FakeCommandHandlerExecutor<TCommand, TResult>(handler)
         };

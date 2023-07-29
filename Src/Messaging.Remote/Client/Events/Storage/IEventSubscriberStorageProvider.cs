@@ -1,9 +1,9 @@
-﻿namespace FastEndpoints;
+namespace FastEndpoints;
 
 /// <summary>
 /// interface for implementing a storage provider for an event subscription client app (gRPC client)
 /// </summary>
-/// <typeparam name="TStorageRecord">the type of the storage record</typeparam> 
+/// <typeparam name="TStorageRecord">the type of the storage record</typeparam>
 public interface IEventSubscriberStorageProvider<TStorageRecord> where TStorageRecord : IEventStorageRecord
 {
     /// <summary>

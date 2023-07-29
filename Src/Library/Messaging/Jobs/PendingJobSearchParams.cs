@@ -1,24 +1,25 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
 /// <summary>
-/// a dto representing search parameters for pending event storage record retrieval
+/// a dto representing search parameters for pending job storage record retrieval
 /// </summary>
 /// <typeparam name="TStorageRecord">the type of storage record</typeparam>
-public struct PendingRecordSearchParams<TStorageRecord> where TStorageRecord : IEventStorageRecord
+public struct PendingJobSearchParams<TStorageRecord> where TStorageRecord : IJobStorageRecord
 {
     /// <summary>
-    /// the subscriber ID for fetching the next batch of records
+    /// the ID of the job queue for fetching the next batch of records for.
     /// </summary>
-    public string SubscriberID { get; internal set; }
+    public string QueueID { get; internal set; }
 
     /// <summary>
     /// a boolean lambda expression to match the next batch of records
     /// <code>
-    ///     r => r.SubscriberID == "xxx" &amp;&amp;
-    ///          !r.IsComplete &amp;&amp;
-    ///          DateTime.UtcNow &lt;= r.ExpireOn
+    /// 	r => r.QueueID == "xxx" &amp;&amp;
+    /// 	     !r.IsComplete &amp;&amp;
+    /// 	     DateTime.UtcNow &gt;= r.ExecuteAfter &amp;&amp;
+    /// 	     DateTime.UtcNow &lt;= r.ExpireOn
     /// </code>
     /// </summary>
     public Expression<Func<TStorageRecord, bool>> Match { get; internal set; }

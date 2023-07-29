@@ -1,12 +1,21 @@
-﻿
+
 ---
 
-### ⭐ Looking For Sponsors
+### ✨ Looking For Sponsors ✨
+
 FastEndpoints needs sponsorship to [sustain the project](https://github.com/FastEndpoints/FastEndpoints/issues/449). Please help out if you can.
 
 ---
 
-<!-- ### 📢 New -->
+<!-- <details><summary>1️⃣ some title</summary></details> -->
+
+### 📢 New
+
+<details><summary>1️⃣ Job Queues for queuing up commands for later execution</summary>
+
+Please see the documentation [here](https://fast-endpoints.com/docs/command-bus#dependency-injection) for details.
+
+</details>
 
 ### 🚀 Improvements
 
@@ -50,5 +59,3 @@ there will be 10X the number of events held in memory if they aren't being deque
 There has been several implementation changes to the custom storage providers to provide a more user-friendly experience. Please see the updated [doc page](https://fast-endpoints.com/docs/remote-procedure-calls#reliable-event-queues-with-persistence) for the current usage.
 
 </details>
-
-<!-- <details><summary>1️⃣ some title</summary></details> -->

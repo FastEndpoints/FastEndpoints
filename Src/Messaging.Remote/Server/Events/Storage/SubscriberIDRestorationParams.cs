@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
@@ -16,7 +16,7 @@ public struct SubscriberIDRestorationParams<TStorageRecord> where TStorageRecord
     /// <summary>
     /// a boolean lambda expression to match pending records.
     /// <code>
-    ///     Where(e => e.EventType == eventType &amp;&amp; !e.IsComplete &amp;&amp; DateTime.UtcNow &lt;= e.ExpireOn)
+    ///     r => r.EventType == eventType &amp;&amp; !r.IsComplete &amp;&amp; DateTime.UtcNow &lt;= r.ExpireOn)
     /// </code>
     /// </summary>
     public Expression<Func<TStorageRecord, bool>> Match { get; internal set; }
@@ -24,7 +24,7 @@ public struct SubscriberIDRestorationParams<TStorageRecord> where TStorageRecord
     /// <summary>
     /// member expression to select/project the UNIQUE <see cref="IEventStorageRecord.SubscriberID"/> values.
     /// <code>
-    ///     Select(e => e.SubscriberID)
+    ///     e => e.SubscriberID
     /// </code>
     /// </summary>
     public Expression<Func<TStorageRecord, string>> Projection { get; internal set; }

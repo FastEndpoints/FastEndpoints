@@ -1,4 +1,4 @@
-﻿namespace FastEndpoints;
+namespace FastEndpoints;
 
 /// <summary>
 /// interface for implementing a storage provider for event hub app (gRPC server)

@@ -1,4 +1,5 @@
-﻿using Grpc.AspNetCore.Server.Model;
+using FastEndpoints.Messaging.Remote;
+using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -125,7 +126,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             {
                 retrievalErrorCount++;
                 _errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, ctx.CancellationToken);
-                _logger.StorageRetrieveError(subscriberID, _tEvent.FullName!, ex.Message);
+                _logger.StorageGetNextBatchError(subscriberID, _tEvent.FullName!, ex.Message);
                 await Task.Delay(5000);
                 continue;
             }
@@ -166,7 +167,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                         {
                             updateErrorCount++;
                             _errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount, ex, ctx.CancellationToken);
-                            _logger.StorageUpdateError(subscriberID, _tEvent.FullName!, ex.Message);
+                            _logger.StorageMarkAsCompleteError(subscriberID, _tEvent.FullName!, ex.Message);
                             await Task.Delay(5000);
                         }
                     }
@@ -174,11 +175,8 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             }
             else
             {
-                try
-                {
-                    await sem.WaitAsync(ctx.CancellationToken); //this blocks until new records are stored (semaphore released)
-                }
-                catch (OperationCanceledException) { }
+                //wait until either the semaphore is released or a minute has elapsed
+                await Task.WhenAny(sem.WaitAsync(ctx.CancellationToken), Task.Delay(60000));
             }
         }
     }
@@ -218,7 +216,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                 {
                     createErrorCount++;
                     _errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, ct);
-                    _logger.StorageCreateError(subId, _tEvent.FullName!, ex.Message);
+                    _logger.StoreEventError(subId, _tEvent.FullName!, ex.Message);
 #pragma warning disable CA2016
                     await Task.Delay(5000);
 #pragma warning restore CA2016

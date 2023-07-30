@@ -136,7 +136,11 @@ app.MapHandlers(h =>
     h.RegisterEventHub<TestEvent>();
 });
 
-app.UseJobQueues();
+app.UseJobQueues(o =>
+{
+    o.MaxConcurrency = 4;
+    o.LimitsFor<JobTestCommand>(1, TimeSpan.FromSeconds(1));
+});
 
 app.Run();
 

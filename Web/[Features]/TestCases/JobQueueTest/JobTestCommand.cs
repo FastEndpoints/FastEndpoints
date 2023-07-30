@@ -7,14 +7,18 @@ public class JobTestCommand : ICommand
     public int Id { get; set; }
 
     public bool ShouldThrow { get; set; }
+    public int ThrowCount { get; set; }
 }
 
 public class JobTestCommandHandler : ICommandHandler<JobTestCommand>
 {
     public Task ExecuteAsync(JobTestCommand cmd, CancellationToken ct)
     {
-        if (cmd.ShouldThrow)
+        if (cmd.ShouldThrow && cmd.ThrowCount == 0)
+        {
+            cmd.ThrowCount++;
             throw new InvalidOperationException();
+        }
 
         JobTestCommand.CompletedIDs.Add(cmd.Id);
 

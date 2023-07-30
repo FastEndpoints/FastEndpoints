@@ -8,6 +8,7 @@ using System.Globalization;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.EventQueueTest;
+using TestCases.JobQueueTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
 using Web.PipelineBehaviors.PreProcessors;
@@ -23,6 +24,7 @@ bld.Services
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))
    .AddScoped<IEmailService, EmailService>()
    .AddSingleton(new SingltonSVC(0))
+   .AddJobQueues<Job, JobStorage>()
    .SwaggerDocument(o =>
    {
        o.DocumentSettings = s =>
@@ -133,6 +135,8 @@ app.MapHandlers(h =>
     h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
     h.RegisterEventHub<TestEvent>();
 });
+
+app.UseJobQueues();
 
 app.Run();
 

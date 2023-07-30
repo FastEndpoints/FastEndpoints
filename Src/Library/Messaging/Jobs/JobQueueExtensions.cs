@@ -40,9 +40,9 @@ public static class JobQueueExtensions
         var opts = new JobQueueOptions();
         options?.Invoke(opts);
 
-        foreach (var tCommand in CommandExtensions.HandlerRegistry.Keys)
+        foreach (var tCommand in CommandExtensions.HandlerRegistry.Keys.Where(t => t.IsAssignableTo(Types.ICommand)))
         {
-            var tJobQ = typeof(JobQueue<,,>).MakeGenericType(tCommand, tStorageRecord, tStorageProvider);
+            var tJobQ = Types.JobQueueOf3.MakeGenericType(tCommand, tStorageRecord, tStorageProvider);
             var jobQ = app.ApplicationServices.GetRequiredService(tJobQ);
             opts.SetExecutionLimits(tCommand, (JobQueueBase)jobQ);
         }

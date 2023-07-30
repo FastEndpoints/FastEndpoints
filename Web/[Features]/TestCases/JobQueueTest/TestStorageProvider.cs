@@ -1,6 +1,6 @@
 ﻿namespace TestCases.JobQueueTest;
 
-public class JobRecord : IJobStorageRecord
+public class Job : IJobStorageRecord
 {
     public Guid ID { get; set; } = Guid.NewGuid();
 
@@ -11,11 +11,17 @@ public class JobRecord : IJobStorageRecord
     public bool IsComplete { get; set; }
 }
 
-public class JobProvider : IJobStorageProvider<JobRecord>
+public class JobStorage : IJobStorageProvider<Job>
 {
-    private readonly List<JobRecord> jobs = new();
+    private readonly List<Job> jobs = new();
 
-    public Task<IEnumerable<JobRecord>> GetNextBatchAsync(PendingJobSearchParams<JobRecord> p)
+    public Task StoreJobAsync(Job r, CancellationToken ct)
+    {
+        jobs.Add(r);
+        return Task.CompletedTask;
+    }
+
+    public Task<IEnumerable<Job>> GetNextBatchAsync(PendingJobSearchParams<Job> p)
     {
         var match = p.Match.Compile();
         return Task.FromResult(jobs
@@ -24,12 +30,14 @@ public class JobProvider : IJobStorageProvider<JobRecord>
             .Take(p.Limit));
     }
 
-    public Task MarkJobAsCompleteAsync(JobRecord r, CancellationToken ct)
+    public Task MarkJobAsCompleteAsync(Job r, CancellationToken ct)
     {
-
+        var j = jobs.Single(j => j.ID == r.ID);
+        j.IsComplete = true;
+        return Task.CompletedTask;
     }
 
-    public Task OnHandlerExecutionFailureAsync(JobRecord r, Exception exception, CancellationToken ct) => throw new NotImplementedException();
-    public Task PurgeStaleJobsAsync(StaleJobSearchParams<JobRecord> parameters) => throw new NotImplementedException();
-    public Task StoreJobAsync(JobRecord r, CancellationToken ct) => throw new NotImplementedException();
+    public Task OnHandlerExecutionFailureAsync(Job r, Exception exception, CancellationToken ct) => Task.CompletedTask;
+
+    public Task PurgeStaleJobsAsync(StaleJobSearchParams<Job> parameters) => Task.CompletedTask;
 }

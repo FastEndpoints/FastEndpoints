@@ -13,7 +13,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>1️⃣ Job Queues for queuing up commands for later execution</summary>
 
-Please see the documentation [here](https://fast-endpoints.com/docs/command-bus#dependency-injection) for details.
+Please see the documentation [here](https://fast-endpoints.com/docs/job-queues) for details.
 
 </details>
 

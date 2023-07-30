@@ -46,7 +46,7 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     Task OnHandlerExecutionFailureAsync(TStorageRecord r, Exception exception, CancellationToken ct);
 
     /// <summary>
-    /// this method will be called hourly. implement this method to delete stale records (completed or (incomplete and expired)) from storage.
+    /// this method will be called hourly. implement this method to delete stale records (completed or expired) from storage.
     /// you can safely delete the completed records. the incomplete &amp; expired records can be moved to some other location (dead-letter-queue maybe) or for inspection by a human.
     /// or if you'd like to retry expired events, update the <see cref="IJobStorageRecord.ExpireOn"/> field to a future date/time.
     /// </summary>

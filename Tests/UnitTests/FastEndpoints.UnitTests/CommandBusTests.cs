@@ -26,7 +26,7 @@ public class CommandBusTests
     }
 
     [Fact]
-    public async Task CommandExecusionWorks()
+    public async Task CommandExecutionWorks()
     {
         var command = new TestCommand { FirstName = "a", LastName = "b" };
         var handler = new TestCommandHandler(A.Fake<ILogger<TestCommandHandler>>(), A.Fake<IEmailService>());

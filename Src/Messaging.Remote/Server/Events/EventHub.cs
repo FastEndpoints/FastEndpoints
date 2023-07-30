@@ -159,6 +159,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                     {
                         try
                         {
+                            record.IsComplete = true;
                             await _storage.MarkEventAsCompleteAsync(record, ctx.CancellationToken);
                             updateErrorCount = 0;
                             break;

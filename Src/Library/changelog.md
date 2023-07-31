@@ -11,9 +11,32 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ### 📢 New
 
-<details><summary>1️⃣ Job Queues for queuing up commands for later execution</summary>
+<details><summary>1️⃣ Job Queues for background processing of commands</summary>
 
 Please see the documentation [here](https://fast-endpoints.com/docs/job-queues) for details.
+
+</details>
+
+<details><summary>2️⃣ TypedResults (union type) support for endpoints</summary>
+
+Please see the documentation [here](#############################) for details.
+
+</details>
+
+<details><summary>3️⃣ Support for IResult via SendResultAsync() method</summary>
+
+You can now use any `IResult` returned from `Results` static class of minimal apis.
+
+```cs
+[HttpGet("bad-result"), AllowAnonymous]
+sealed class MyEndpoint : EndpointWithoutRequest
+{
+    public override async Task HandleAsync(CancellationToken c)
+    {
+        await SendResultAsync(Results.BadRequest());
+    }
+}
+``` 
 
 </details>
 

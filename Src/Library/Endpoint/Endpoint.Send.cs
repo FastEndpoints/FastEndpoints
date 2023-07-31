@@ -25,9 +25,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// Results.Ok(...);
     /// </code>
     /// </param>
-    protected Task SendAsync(IResult result)
+    protected Task SendResultAsync(IResult result)
     {
-        return HttpContext.Response.SendAsync(result);
+        return HttpContext.Response.SendResultAsync(result);
     }
 
     /// <summary>

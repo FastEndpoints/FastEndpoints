@@ -1,6 +1,9 @@
 ﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
@@ -11,7 +14,10 @@ namespace FastEndpoints;
 /// <c>app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);</c>
 /// </para>
 /// </summary>
-public sealed class ProblemDetails
+public sealed class ProblemDetails : IResult
+#if NET7_0_OR_GREATER 
+    , IEndpointMetadataProvider
+#endif
 {
     /// <summary>
     /// the built-in function for transforming validation errors to a RFC7807 compatible problem details error response dto.
@@ -38,12 +44,22 @@ public sealed class ProblemDetails
     public string Type => TypeValue;
     public string Title => TitleValue;
 #pragma warning restore CA1822
-    public int Status { get; init; }
-    public string Instance { get; init; }
-    public string TraceId { get; set; }
-    public IEnumerable<Error> Errors { get; init; }
+    public int Status { get; private set; }
+    public string Instance { get; private set; }
+    public string TraceId { get; private set; }
+    public IEnumerable<Error> Errors { get; private set; }
+
+    public ProblemDetails(List<ValidationFailure> failures, int? statusCode = null)
+    {
+        Initialize(failures, null!, null!, statusCode ?? Config.ErrOpts.StatusCode);
+    }
 
     public ProblemDetails(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
+    {
+        Initialize(failures, instance, traceId, statusCode);
+    }
+
+    private void Initialize(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
     {
         Status = statusCode;
         Instance = instance;
@@ -61,6 +77,29 @@ public sealed class ProblemDetails
             Errors = set;
         }
     }
+
+    ///<inheritdoc/>
+    public Task ExecuteAsync(HttpContext httpContext)
+    {
+        if (string.IsNullOrEmpty(TraceId)) TraceId = httpContext.TraceIdentifier;
+        if (string.IsNullOrEmpty(Instance)) Instance = httpContext.Request.Path;
+        return httpContext.Response.SendAsync(this, Status);
+    }
+
+#if NET7_0_OR_GREATER
+    /// <inheritdoc/>
+    public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder.Metadata.Add(new ProducesResponseTypeMetadata
+        {
+            ContentTypes = new[] { "application/problem+json" },
+            StatusCode = Config.ErrOpts.StatusCode,
+            Type = typeof(ProblemDetails)
+        });
+    }
+#endif
 
     /// <summary>
     /// the error details object

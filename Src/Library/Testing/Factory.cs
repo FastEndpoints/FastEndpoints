@@ -27,7 +27,8 @@ public static class Factory
         var tEndpoint = typeof(TEndpoint);
         var epDef = new EndpointDefinition(
             tEndpoint,
-            tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest);
+            tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest,
+            tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[1] ?? Types.EmptyRequest);
 
         if (ctorDependencies.Length > 0)
             ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, ctorDependencies)!; //ctor injection only

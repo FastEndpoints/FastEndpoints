@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
@@ -418,23 +420,32 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                     b.Accepts<TRequest>("application/json");
             }
 
-            if (tResponse == Types.Object || tResponse == Types.EmptyResponse)
-                b.Produces<TResponse>(200, "text/plain", "application/json");
-            else
-                b.Produces<TResponse>(200, "application/json");
-
-            if (Definition.AnonymousVerbs?.Any() is not true)
-                b.Produces(401);
-
-            if (Definition.RequiresAuthorization())
-                b.Produces(403);
-
-            if (Conf.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+            if (Definition.ExecuteAsyncReturnsIResult)
             {
-                b.Produces(
-                    Conf.ErrOpts.StatusCode,
-                    Conf.ErrOpts.ProducesMetadataType,
-                    "application/problem+json");
+#if NET7_0_OR_GREATER
+                b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, tResponse));
+#endif
+            }
+            else
+            {
+                if (tResponse == Types.Object || tResponse == Types.EmptyResponse)
+                    b.Produces<TResponse>(200, "text/plain", "application/json");
+                else
+                    b.Produces<TResponse>(200, "application/json");
+
+                if (Definition.AnonymousVerbs?.Any() is not true)
+                    b.Produces(401);
+
+                if (Definition.RequiresAuthorization())
+                    b.Produces(403);
+
+                if (Conf.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+                {
+                    b.Produces(
+                        Conf.ErrOpts.StatusCode,
+                        Conf.ErrOpts.ProducesMetadataType,
+                        "application/problem+json");
+                }
             }
         };
     }
@@ -446,3 +457,25 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="deprecateAt">the version group number starting at which this endpoint should not be included in swagger document</param>
     protected void Version(int version, int? deprecateAt = null) => Definition.EndpointVersion(version, deprecateAt);
 }
+
+#if NET7_0_OR_GREATER
+internal static class ProducesMetaForResultOfResponse
+{
+    private static readonly MethodInfo _populateMethod = typeof(ProducesMetaForResultOfResponse).GetMethod(nameof(Populate), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+    public static void AddMetadata(EndpointBuilder builder, Type tResponse)
+    {
+        if (tResponse is not null && typeof(IEndpointMetadataProvider).IsAssignableFrom(tResponse))
+        {
+            var invokeArgs = new object[1] { builder };
+            _populateMethod.MakeGenericMethod(tResponse).Invoke(null, invokeArgs);
+        }
+    }
+
+    private static void Populate<T>(EndpointBuilder b)
+        where T : IEndpointMetadataProvider
+    {
+        T.PopulateMetadata(_populateMethod, b);
+    }
+}
+#endif

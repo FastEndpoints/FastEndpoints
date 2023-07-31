@@ -38,6 +38,7 @@ internal static class Types
     internal static readonly Type IHasMapper = typeof(IHasMapper);
     internal static readonly Type IMapper = typeof(IMapper);
     internal static readonly Type IPlainTextRequest = typeof(IPlainTextRequest);
+    internal static readonly Type IResult = typeof(IResult);
     internal static readonly Type ISummary = typeof(ISummary);
     internal static readonly Type IValidator = typeof(IValidator);
     internal static readonly Type JsonIgnoreAttribute = typeof(JsonIgnoreAttribute);

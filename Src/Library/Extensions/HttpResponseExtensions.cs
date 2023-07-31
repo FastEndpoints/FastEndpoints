@@ -38,7 +38,7 @@ public static class HttpResponseExtensions
     /// Results.Ok(...);
     /// </code>
     /// </param>
-    public static Task SendAsync(this HttpResponse rsp, IResult result)
+    public static Task SendResultAsync(this HttpResponse rsp, IResult result)
     {
         rsp.HttpContext.MarkResponseStart();
         return result.ExecuteAsync(rsp.HttpContext);

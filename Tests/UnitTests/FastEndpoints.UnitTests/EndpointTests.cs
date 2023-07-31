@@ -12,7 +12,7 @@ public class EndpointTests
         public async Task execute_test()
         {
             HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendShouldSetCorrectResponse), typeof(Request));
+            Definition = new EndpointDefinition(typeof(SendShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
             await SendAsync(new Response
             {
@@ -33,7 +33,7 @@ public class EndpointTests
         public async Task execute_test()
         {
             HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendOkShouldSetCorrectResponse), typeof(Request));
+            Definition = new EndpointDefinition(typeof(SendOkShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
             await SendOkAsync(new Response
             {
@@ -54,7 +54,7 @@ public class EndpointTests
         public async Task execute_test()
         {
             HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendForbiddenShouldSetCorrectResponse), typeof(Request));
+            Definition = new EndpointDefinition(typeof(SendForbiddenShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
             await SendForbiddenAsync(CancellationToken.None);
             Response.Should().NotBeNull();
@@ -70,7 +70,7 @@ public class EndpointTests
         public async Task execute_test()
         {
             HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied), typeof(Request));
+            Definition = new EndpointDefinition(typeof(SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
             Definition.ResponseInterceptor(new ResponseInterceptor());
 
             await Assert.ThrowsAsync<ResponseInterceptor.InterceptedResponseException>(() =>
@@ -91,7 +91,7 @@ public class EndpointTests
         public async Task execute_test()
         {
             HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor), typeof(Request));
+            Definition = new EndpointDefinition(typeof(SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor), typeof(Request), typeof(Response));
 
             await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 SendInterceptedAsync(new {
@@ -109,7 +109,7 @@ public class EndpointTests
         public async Task execute_test()
         {
             HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied), typeof(Request));
+            Definition = new EndpointDefinition(typeof(SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
             Definition.ResponseInterceptor(new ResponseInterceptor());
 
             await SendAsync(new Response

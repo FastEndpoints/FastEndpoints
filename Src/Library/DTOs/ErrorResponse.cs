@@ -1,11 +1,18 @@
 ﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
+using System.Reflection;
 
 namespace FastEndpoints;
 
 /// <summary>
 /// the dto used to send an error response to the client
 /// </summary>
-public sealed class ErrorResponse
+public sealed class ErrorResponse : IResult
+#if NET7_0_OR_GREATER 
+    , IEndpointMetadataProvider
+#endif
 {
     /// <summary>
     /// the http status code sent to the client. default is 400.
@@ -15,7 +22,7 @@ public sealed class ErrorResponse
     /// <summary>
     /// the message for the error response
     /// </summary>
-    public string Message { get; set; } = "One or more errors occured!";
+    public string Message { get; set; } = "One or more errors occurred!";
 
     /// <summary>
     /// the collection of errors for the current context
@@ -38,4 +45,24 @@ public sealed class ErrorResponse
             f => Conf.SerOpts.Options.PropertyNamingPolicy?.ConvertName(f.PropertyName) ?? f.PropertyName,
             v => v.ErrorMessage);
     }
+
+    public Task ExecuteAsync(HttpContext httpContext)
+    {
+        return httpContext.Response.SendAsync(this, StatusCode);
+    }
+
+#if NET7_0_OR_GREATER
+    /// <inheritdoc/>
+    public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder.Metadata.Add(new ProducesResponseTypeMetadata
+        {
+            ContentTypes = new[] { "application/problem+json" },
+            StatusCode = Config.ErrOpts.StatusCode,
+            Type = typeof(ProblemDetails)
+        });
+    }
+#endif
 }

@@ -75,9 +75,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             await OnBeforeHandleAsync(req, ct);
 
             if (Definition.ExecuteAsyncImplemented)
+            {
                 _response = await ExecuteAsync(req, ct);
+
+                if (Definition.ExecuteAsyncReturnsIResult)
+                    await SendResultAsync((IResult)_response!);
+            }
             else
+            {
                 await HandleAsync(req, ct);
+            }
 
             if (!ResponseStarted)
                 await AutoSendResponse(HttpContext, _response, Definition.SerializerContext, ct);

@@ -92,7 +92,7 @@ internal sealed class EndpointData
         //Endpoint<TRequest>
         //Validator<TRequest>
 
-        var epList = new List<(Type tEndpoint, Type tRequest)>();
+        var epList = new List<(Type tEndpoint, Type tRequest, Type tResponse)>();
 
         //key: TRequest
         var valDict = new Dictionary<Type, ValDicItem>();
@@ -112,7 +112,8 @@ internal sealed class EndpointData
                 if (tInterface == Types.IEndpoint)
                 {
                     var tRequest = t.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest;
-                    epList.Add((t, tRequest));
+                    var tResponse = t.GetGenericArgumentsOfType(Types.EndpointOf2)?[1] ?? Types.EmptyResponse;
+                    epList.Add((t, tRequest, tResponse));
 
                     if (tInterfaces.Contains(Types.IHasMapper))
                     {
@@ -176,7 +177,7 @@ internal sealed class EndpointData
 
         return epList.Select(x =>
         {
-            var def = new EndpointDefinition(x.tEndpoint, x.tRequest);
+            var def = new EndpointDefinition(x.tEndpoint, x.tRequest, x.tResponse);
 
             if (mapperDict.TryGetValue(x.tEndpoint, out var mapper))
                 def.MapperType = mapper;

@@ -15,16 +15,18 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class EndpointDefinition
 {
-    public EndpointDefinition(Type endpointType, Type requestDtoType)
+    public EndpointDefinition(Type endpointType, Type requestDtoType, Type responseDtoType)
     {
         EndpointType = endpointType;
         ReqDtoType = requestDtoType;
+        ResDtoType = responseDtoType;
     }
 
     //these can only be set from internal code but accessible for user
     public Type EndpointType { get; init; }
     public Type? MapperType { get; internal set; }
     public Type ReqDtoType { get; init; }
+    public Type ResDtoType { get; init; }
     public string[]? Routes { get; internal set; }
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public Type? ValidatorType { get; internal set; }
@@ -55,6 +57,8 @@ public sealed class EndpointDefinition
     internal bool? AcceptsMetaDataPresent;
     internal object[]? EpAttributes;
     internal bool ExecuteAsyncImplemented;
+    private bool? _execReturnsIResults;
+    internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);
     internal bool FoundDuplicateValidators;
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;

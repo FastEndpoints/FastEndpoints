@@ -17,6 +17,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     /// <summary>
+    /// execute and send any <see cref="IResult"/> produced by the <see cref="Results"/> class in minimal apis.
+    /// </summary>
+    /// <param name="result">the <see cref="IResult"/> instance to execute such as:
+    /// <code>
+    /// Results.Forbid();
+    /// Results.Ok(...);
+    /// </code>
+    /// </param>
+    protected Task SendAsync(IResult result)
+    {
+        return HttpContext.Response.SendAsync(result);
+    }
+
+    /// <summary>
     /// sends an object serialized as json to the client. if a response interceptor has been defined,
     /// then that will be executed before the normal response is sent.
     /// </summary>

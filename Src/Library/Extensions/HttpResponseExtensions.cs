@@ -30,6 +30,21 @@ public static class HttpResponseExtensions
     }
 
     /// <summary>
+    /// execute and send any <see cref="IResult"/> produced by the <see cref="Results"/> class in minimal apis.
+    /// </summary>
+    /// <param name="result">the <see cref="IResult"/> instance to execute such as:
+    /// <code>
+    /// Results.Forbid();
+    /// Results.Ok(...);
+    /// </code>
+    /// </param>
+    public static Task SendAsync(this HttpResponse rsp, IResult result)
+    {
+        rsp.HttpContext.MarkResponseStart();
+        return result.ExecuteAsync(rsp.HttpContext);
+    }
+
+    /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
     /// <para>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint, specify the 'routeNumber' argument.</para>
     /// <para>WARNING: this overload will not add a location header if you've set a custom endpoint name using .WithName() method. use the other overload that accepts a string endpoint name instead.</para>

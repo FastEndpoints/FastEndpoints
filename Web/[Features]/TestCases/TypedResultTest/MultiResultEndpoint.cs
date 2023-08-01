@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
+using static Microsoft.AspNetCore.Http.TypedResults;
 
 namespace TestCases.TypedResultTest;
 
@@ -10,7 +11,7 @@ sealed class Request
 
 sealed class Response
 {
-    public int Value { get; set; }
+    public int RequestId { get; set; }
 }
 
 [HttpPost("multi-test"), AllowAnonymous]
@@ -22,7 +23,7 @@ sealed class MultiResultEndpoint : Endpoint<Request, Results<Ok<Response>, NotFo
 
         if (req.Id == 0)
         {
-            return TypedResults.NotFound();
+            return NotFound();
         }
 
         if (req.Id == 1)
@@ -31,9 +32,9 @@ sealed class MultiResultEndpoint : Endpoint<Request, Results<Ok<Response>, NotFo
             return new ProblemDetails(ValidationFailures);
         }
 
-        return TypedResults.Ok(new Response
+        return Ok(new Response
         {
-            Value = req.Id
+            RequestId = req.Id
         });
     }
 }

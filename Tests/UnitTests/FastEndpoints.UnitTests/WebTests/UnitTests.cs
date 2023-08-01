@@ -1,8 +1,10 @@
 using FakeItEasy;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TestCases.TypedResultTest;
 using Web.Services;
 using Xunit;
 
@@ -132,6 +134,25 @@ public class UnitTests
         res?.Customers?.Count().Should().Be(3);
         res?.Customers?.First().Key.Should().Be("ryan gunner");
         res?.Customers?.Last().Key.Should().Be(res?.Customers?.Last().Key);
+    }
+
+    [Fact]
+    public async Task union_type_result_returning_endpoint()
+    {
+        var ep = new MultiResultEndpoint();
+
+        var res0 = await ep.ExecuteAsync(new Request { Id = 0 }, CancellationToken.None);
+        res0.Result.Should().BeOfType<NotFound>();
+
+        var res1 = await ep.ExecuteAsync(new Request { Id = 1 }, CancellationToken.None);
+        var errors = res1.Result.As<ProblemDetails>()!.Errors;
+        errors.Count().Should().Be(1);
+        errors.Single(e => e.Name == nameof(Request.Id)).Reason.Should().Be("value has to be greater than 1");
+
+        var res2 = await ep.ExecuteAsync(new Request { Id = 2 }, CancellationToken.None);
+        var response = res2.Result.As<Ok<Response>>();
+        response.StatusCode.Should().Be(200);
+        response.Value!.RequestId.Should().Be(2);
     }
 
     [Fact]

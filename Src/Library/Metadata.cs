@@ -6,4 +6,3 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("FastEndpoints.UnitTests")]
 [assembly: InternalsVisibleTo("FastEndpoints.Swagger.UnitTests")]
 [assembly: InternalsVisibleTo("FastEndpoints.Security.UnitTests")]
-[assembly: InternalsVisibleTo("FastEndpoints.Messaging.Remote")]

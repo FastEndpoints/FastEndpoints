@@ -19,7 +19,7 @@ Please see the documentation [here](https://fast-endpoints.com/docs/job-queues) 
 
 <details><summary>2️⃣ TypedResults (union type) support for endpoints</summary>
 
-Please see the documentation [here](#############################) for details.
+Please see the documentation [here](https://fast-endpoints.com/docs/get-started#union-type-returning-handler) for details.
 
 </details>
 

@@ -276,6 +276,52 @@
         }
       }
     },
+    "/api/multi-test": {
+      "post": {
+        "tags": [
+          "Multi-Test"
+        ],
+        "operationId": "TestCasesTypedResultTestMultiResultEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesTypedResultTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesTypedResultTestResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}": {
       "post": {
         "tags": [
@@ -3366,6 +3412,75 @@
       "TestCasesUnitTestConcurrencyTestRequest": {
         "type": "object",
         "additionalProperties": false
+      },
+      "TestCasesTypedResultTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "RequestId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "FastEndpointsProblemDetails": {
+        "type": "object",
+        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n\napp.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "type": "string"
+          },
+          "Title": {
+            "type": "string"
+          },
+          "Status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Instance": {
+            "type": "string"
+          },
+          "TraceId": {
+            "type": "string"
+          },
+          "Errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FastEndpointsProblemDetails_Error"
+            }
+          }
+        }
+      },
+      "FastEndpointsProblemDetails_Error": {
+        "type": "object",
+        "description": "the error details object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string",
+            "description": "the name of the error or property of the dto that caused the error"
+          },
+          "Reason": {
+            "type": "string",
+            "description": "the reason for the error"
+          },
+          "Code": {
+            "type": "string",
+            "description": "the code of the error",
+            "nullable": true
+          }
+        }
+      },
+      "TestCasesTypedResultTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "TestCasesRouteBindingTestResponse": {
         "type": "object",

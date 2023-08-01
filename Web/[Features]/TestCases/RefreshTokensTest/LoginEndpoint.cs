@@ -8,7 +8,7 @@ public class LoginEndpoint : EndpointWithoutRequest<TokenResponse>
         AllowAnonymous();
     }
 
-    public async override Task HandleAsync(CancellationToken ct)
+    public override async Task HandleAsync(CancellationToken ct)
     {
         Response = await CreateTokenWith<TokenService>("usr001", p =>
         {

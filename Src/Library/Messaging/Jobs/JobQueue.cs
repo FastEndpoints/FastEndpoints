@@ -63,7 +63,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
         _ = CommandExecutorTask();
     }
 
-    protected async override Task StoreJobAsync(object command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
+    protected override async Task StoreJobAsync(object command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         await _storage.StoreJobAsync(new()
         {

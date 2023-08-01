@@ -23,7 +23,7 @@ public class Endpoint : Endpoint<Request>
             clearDefaults: true);
     }
 
-    public async override Task HandleAsync(Request req, CancellationToken ct)
+    public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         var validation = ValidationContext<Request>.Instance;
 

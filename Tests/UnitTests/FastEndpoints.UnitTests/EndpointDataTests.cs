@@ -29,11 +29,11 @@ public class EndpointDataTests
 public class Foo : EndpointWithoutRequest
 {
     public override void Configure() => Get(nameof(Foo));
-    public async override Task HandleAsync(CancellationToken ct) => await SendOkAsync(ct);
+    public override async Task HandleAsync(CancellationToken ct) => await SendOkAsync(ct);
 }
 
 public class Boo : EndpointWithoutRequest
 {
     public override void Configure() => Get(nameof(Boo));
-    public async override Task HandleAsync(CancellationToken ct) => await SendOkAsync(ct);
+    public override async Task HandleAsync(CancellationToken ct) => await SendOkAsync(ct);
 }

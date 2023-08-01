@@ -8,7 +8,7 @@ public class Endpoint : EndpointWithoutRequest<string>
         AllowAnonymous();
     }
 
-    public async override Task<string> ExecuteAsync(CancellationToken ct)
+    public override async Task<string> ExecuteAsync(CancellationToken ct)
     {
         await new TestVoidCommand().ExecuteAsync(ct);
         var result = await new TestCommand() { FirstName = "x", LastName = "y" }.ExecuteAsync(ct);

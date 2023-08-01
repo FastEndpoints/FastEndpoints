@@ -17,7 +17,7 @@ internal sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
                                            List<object> metadata)
         => ctx.AddServerStreamingMethod(method, metadata, ExecuteServerStream);
 
-    protected async override Task ExecuteServerStream(ServerStreamHandlerExecutor<TCommand, THandler, TResult> _,
+    protected override async Task ExecuteServerStream(ServerStreamHandlerExecutor<TCommand, THandler, TResult> _,
                                                       TCommand cmd,
                                                       IServerStreamWriter<TResult> responseStream,
                                                       ServerCallContext ctx)

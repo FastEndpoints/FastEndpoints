@@ -132,7 +132,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     /// <param name="ctx">the request binder context which holds all the data required for binding the incoming request</param>
     /// <param name="cancellation">cancellation token</param>
     /// <exception cref="ValidationFailureException">thrown if any failures occur during the binding process</exception>
-    public async virtual ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken cancellation)
+    public virtual async ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken cancellation)
     {
         if (skipModelBinding)
             return InitDto();

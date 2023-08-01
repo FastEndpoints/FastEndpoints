@@ -16,7 +16,7 @@ internal sealed class VoidHandlerExecutor<TCommand, THandler>
                                            List<object> metadata)
         => ctx.AddUnaryMethod(method, metadata, ExecuteUnary);
 
-    protected async override Task<EmptyObject> ExecuteUnary(VoidHandlerExecutor<TCommand, THandler> _, TCommand cmd, ServerCallContext ctx)
+    protected override async Task<EmptyObject> ExecuteUnary(VoidHandlerExecutor<TCommand, THandler> _, TCommand cmd, ServerCallContext ctx)
     {
         var handler = (THandler)_handlerFactory(ctx.GetHttpContext().RequestServices, null);
         await handler.ExecuteAsync(cmd, ctx.CancellationToken);

@@ -4,7 +4,7 @@ namespace Shipping.EventHandlers;
 
 public class StartOrderProcessing : FastEventHandler<NewOrderCreated>
 {
-    public async override Task HandleAsync(NewOrderCreated eventModel, CancellationToken ct)
+    public override async Task HandleAsync(NewOrderCreated eventModel, CancellationToken ct)
     {
         var logger = Resolve<ILogger<StartOrderProcessing>>();
 

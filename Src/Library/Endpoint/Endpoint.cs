@@ -42,7 +42,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEventBus, IServiceResolverBase where TRequest : notnull
 {
-    internal async override Task ExecAsync(CancellationToken ct)
+    internal override async Task ExecAsync(CancellationToken ct)
     {
         TRequest req = default!;
 

@@ -45,7 +45,7 @@ public class Endpoint : Endpoint<Request, Response>
         });
     }
 
-    public async override Task HandleAsync(Request req, CancellationToken ct)
+    public override async Task HandleAsync(Request req, CancellationToken ct)
     {
         await SendAsync(new Response
         {

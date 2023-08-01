@@ -18,7 +18,7 @@ public class Request
 
 public class Binder : RequestBinder<Request>
 {
-    public async override ValueTask<Request> BindAsync(BinderContext ctx, CancellationToken ct)
+    public override async ValueTask<Request> BindAsync(BinderContext ctx, CancellationToken ct)
     {
         return new Request
         {

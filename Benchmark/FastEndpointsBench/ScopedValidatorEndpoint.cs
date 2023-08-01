@@ -43,7 +43,7 @@ public class ScopedValidatorEndpoint : Endpoint<ScopedValidatorRequest>
         AllowAnonymous();
     }
 
-    public async override Task HandleAsync(ScopedValidatorRequest req, CancellationToken ct)
+    public override async Task HandleAsync(ScopedValidatorRequest req, CancellationToken ct)
     {
         //Logger.LogInformation("request received!");
 

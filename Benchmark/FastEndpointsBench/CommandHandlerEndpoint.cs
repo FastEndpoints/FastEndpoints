@@ -12,7 +12,7 @@ public class CommandHandlerEndpoint1 : Endpoint<Command, EmptyResponse>
         AllowAnonymous();
     }
 
-    public async override Task HandleAsync(Command req, CancellationToken ct)
+    public override async Task HandleAsync(Command req, CancellationToken ct)
         => await SendAsync(new EmptyResponse());
 }
 
@@ -24,7 +24,7 @@ public class CommandHandlerEndpoint2 : Endpoint<Command, EmptyResponse>
         AllowAnonymous();
     }
 
-    public async override Task HandleAsync(Command cmd, CancellationToken ct)
+    public override async Task HandleAsync(Command cmd, CancellationToken ct)
         => await SendAsync(await cmd.ExecuteAsync());
 }
 

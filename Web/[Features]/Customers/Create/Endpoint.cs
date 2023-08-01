@@ -40,7 +40,7 @@ public class Endpoint : Endpoint<Request>
         Description(x => x.WithTags("Customer Save"));
     }
 
-    public async override Task HandleAsync(Request r, CancellationToken t)
+    public override async Task HandleAsync(Request r, CancellationToken t)
     {
         Logger.LogInformation("customer creation has begun!");
 

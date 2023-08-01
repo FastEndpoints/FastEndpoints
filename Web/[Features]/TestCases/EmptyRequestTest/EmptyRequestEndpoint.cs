@@ -6,5 +6,5 @@ namespace TestCases.EmptyRequestTest;
 [Authorize(Roles = Role.Admin)]
 public class EmptyRequestEndpoint : Endpoint<EmptyRequest, EmptyResponse>
 {
-    public async override Task HandleAsync(EmptyRequest req, CancellationToken ct) => await SendOkAsync(ct);
+    public override async Task HandleAsync(EmptyRequest req, CancellationToken ct) => await SendOkAsync(ct);
 }

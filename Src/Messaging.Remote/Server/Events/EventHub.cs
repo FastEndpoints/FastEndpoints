@@ -182,7 +182,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
         }
     }
 
-    protected async override Task BroadcastEvent(object evnt, CancellationToken ct)
+    protected override async Task BroadcastEvent(object evnt, CancellationToken ct)
     {
         var createErrorCount = 0;
 

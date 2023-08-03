@@ -24,7 +24,7 @@ public sealed class Config
     public BindingOptions Binding => BndOpts;
 
     /// <summary>
-    /// endpoint dicovery &amp; registration settings
+    /// endpoint discovery &amp; registration settings
     /// </summary>
     public EndpointOptions Endpoints => EpOpts;
 

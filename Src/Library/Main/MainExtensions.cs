@@ -50,7 +50,7 @@ public static class MainExtensions
         return app;
     }
 
-    public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Conf>? configAction = null)
+    public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
         Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
         var jsonOpts = Conf.ServiceResolver.Resolve<IOptions<JsonOptions>>()?.Value.SerializerOptions;

@@ -42,8 +42,9 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
     private readonly CancellationToken _appCancellation;
     private readonly TStorageProvider _storage;
     private readonly SemaphoreSlim _sem = new(0);
-    private TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
     private readonly ILogger _log;
+    private TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
+    private bool _isInUse;
 
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TStorageRecord, TStorageProvider>> logger)
     {
@@ -65,6 +66,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
 
     protected override async Task StoreJobAsync(object command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
+        _isInUse = true;
         await _storage.StoreJobAsync(new()
         {
             QueueID = _queueID,
@@ -103,9 +105,22 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
             }
 
             if (!records.Any())
-                await Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(60000)); //query data again either in a minute or as soon as semaphore is released
+            {
+                // if _isInUse is false, a job has never been queued and there's no need for another iteration of the while loop -
+                // until the semaphore is released when the first job is queued.
+                // if _isInUse if true, we need to block until the next job is queued or until 1 min has elapsed.
+                // we need to re-check the storage every minute to see if the user has re-scheduled old jobs while there's no new jobs being queued.
+                // without the 1 minute check, rescheduled jobs will only execute when there's a new job being queued.
+                // which could lead to the rescheduled job being already expired by the time it's executed.
+                await (
+                    _isInUse
+                        ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(60000))
+                        : Task.WhenAny(_sem.WaitAsync(_appCancellation)));
+            }
             else
+            {
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+            }
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)

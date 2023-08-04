@@ -25,9 +25,13 @@ By specifying just the type of the serializer context, instead of supplying an i
 
 </details>
 
-<!-- ## 🚀 Improvements -->
+## 🚀 Improvements
 
+<details><summary>Minor performance optimizations</summary>
 
+- Job queue message pump improvements
+
+</details>
 
 <!-- ## 🪲 Fixes -->
 

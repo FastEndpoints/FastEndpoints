@@ -332,10 +332,17 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     protected void Routes(params string[] patterns) => Definition.Routes = patterns;
 
     /// <summary>
-    /// specify the json serializer context if code generation for request/response dtos is being used
+    /// specify the json serializer context if code generation for request/response dtos is being used by supplying your own instance.
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
     protected void SerializerContext<TContext>(TContext serializerContext) where TContext : JsonSerializerContext => Definition.SerializerContext = serializerContext;
+
+    /// <summary>
+    /// specify the type of the json serializer context if code generation for request/response dtos is being used.
+    /// the json serializer context will be instantiated with <see cref="SerializerOptions"/> from the UseFastEndpoints(...) call.
+    /// </summary>
+    /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
+    protected void SerializerContext<TContext>() where TContext : JsonSerializerContext => Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), Conf.SerOpts.Options);
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi

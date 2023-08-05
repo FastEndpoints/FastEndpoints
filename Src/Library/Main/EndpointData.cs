@@ -49,7 +49,12 @@ internal sealed class EndpointData
             "YamlDotNet",
             "Accessibility",
             "NJsonSchema",
-            "Namotion"
+            "Namotion",
+            "StackExchange",
+            "Grpc",
+            "PresentationFramework",
+            "PresentationCore",
+            "WindowsBase"
         };
 
         var discoveredTypes = options.SourceGeneratorDiscoveredTypes ?? Enumerable.Empty<Type>();

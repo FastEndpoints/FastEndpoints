@@ -25,7 +25,12 @@ public class EndpointsDiscoveryGenerator : IIncrementalGenerator
             "YamlDotNet",
             "Accessibility",
             "NJsonSchema",
-            "Namotion"
+            "Namotion",
+            "StackExchange",
+            "Grpc",
+            "PresentationFramework",
+            "PresentationCore",
+            "WindowsBase"
     };
 
     public void Initialize(IncrementalGeneratorInitializationContext context)

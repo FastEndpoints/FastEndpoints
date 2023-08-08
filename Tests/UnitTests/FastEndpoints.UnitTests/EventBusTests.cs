@@ -1,4 +1,5 @@
 ﻿using FakeItEasy;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCases.EventHandlingTest;
 using Xunit;
@@ -55,5 +56,31 @@ public class EventBusTests
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async ()
             => await new EventBus<NewItemAddedToStock>(new[] { new NotifyCustomers(logger) })
                 .PublishAsync(new NewItemAddedToStock()));
+    }
+
+    [Fact]
+    public async Task RegisterFakeEventHandlerAndPublish()
+    {
+        var fakeHandler = new FakeEventHandler();
+
+        Factory.RegisterTestServices(s =>
+        {
+            s.AddSingleton<IEventHandler<NewItemAddedToStock>>(fakeHandler);
+        });
+
+        await new NewItemAddedToStock { Name = "xyz" }.PublishAsync();
+
+        fakeHandler.Name.Should().Be("xyz");
+    }
+}
+
+file class FakeEventHandler : IEventHandler<NewItemAddedToStock>
+{
+    public string? Name { get; set; }
+
+    public Task HandleAsync(NewItemAddedToStock eventModel, CancellationToken ct)
+    {
+        Name = eventModel.Name;
+        return Task.CompletedTask;
     }
 }

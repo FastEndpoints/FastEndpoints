@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace FastEndpoints;
 
 /// <summary>
-/// a factory for instantiaing endpoints for testing purposes
+/// a factory for instantiating endpoints/event/mappers/validators/etc. for testing purposes
 /// </summary>
 public static class Factory
 {
@@ -99,6 +99,15 @@ public static class Factory
         s(collection);
         ctx.RequestServices = collection.BuildServiceProvider();
         Conf.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
+    }
+
+    /// <summary>
+    /// register fake/mock/test services for the current test execution context.
+    /// </summary>
+    /// <param name="s">an action for adding services to the <see cref="IServiceCollection"/></param>
+    public static void RegisterTestServices(Action<IServiceCollection> s)
+    {
+        new DefaultHttpContext().AddTestServices(s);
     }
 
     /// <summary>

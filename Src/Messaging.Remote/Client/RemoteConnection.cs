@@ -79,15 +79,17 @@ public sealed class RemoteConnection
         RemoteMap[tEventHandler] = this;
         _channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
 
+        var tHandler = _serviceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
+
         var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(
             typeof(TEvent),
-            typeof(TEventHandler),
+            tHandler,
             StorageRecordType,
             StorageProviderType);
 
-        var eventExecutor = (ICommandExecutor)ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, _channel);
-        _executorMap[tEventHandler] = eventExecutor;
-        ((IEventSubscriber)eventExecutor).Start(callOptions);
+        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, _channel);
+        _executorMap[tEventHandler] = eventSubscriber;
+        ((IEventSubscriber)eventSubscriber).Start(callOptions);
     }
 
     /// <summary>

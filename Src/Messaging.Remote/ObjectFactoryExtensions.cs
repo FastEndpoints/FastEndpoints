@@ -4,6 +4,8 @@ namespace FastEndpoints.Messaging.Remote;
 
 internal static class ObjectFactoryExtensions
 {
-    internal static T GetFromProviderOrCreateInstance<T>(this ObjectFactory factory, IServiceProvider provider)
-        => provider.GetService<T>() ?? (T)factory(provider, null);
+    internal static THandler GetEventHandlerOrCreateInstance<TEvent, THandler>(this ObjectFactory factory, IServiceProvider provider)
+        where TEvent : IEvent
+        where THandler : class, IEventHandler<TEvent>
+            => provider.GetService<IEventHandler<TEvent>>() as THandler ?? (THandler)factory(provider, null);
 }

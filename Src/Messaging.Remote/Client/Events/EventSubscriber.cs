@@ -13,7 +13,7 @@ internal interface IEventSubscriber
 
 internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider> : BaseCommandExecutor<string, TEvent>, ICommandExecutor, IEventSubscriber
     where TEvent : class, IEvent
-    where TEventHandler : IEventHandler<TEvent>
+    where TEventHandler : class, IEventHandler<TEvent>
     where TStorageRecord : IEventStorageRecord, new()
     where TStorageProvider : IEventSubscriberStorageProvider<TStorageRecord>
 {
@@ -136,7 +136,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
             {
                 foreach (var record in records)
                 {
-                    var handler = handlerFactory.GetFromProviderOrCreateInstance<TEventHandler>(serviceProvider);
+                    var handler = handlerFactory.GetEventHandlerOrCreateInstance<TEvent, TEventHandler>(serviceProvider);
 
                     try
                     {

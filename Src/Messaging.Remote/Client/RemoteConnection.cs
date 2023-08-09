@@ -61,6 +61,9 @@ public sealed class RemoteConnection
     {
         RemoteAddress = address;
         _serviceProvider = serviceProvider;
+        var httpMsgHnd = serviceProvider.GetService<HttpMessageHandler>();
+        if (httpMsgHnd is not null)
+            ChannelOptions.HttpHandler = httpMsgHnd;
     }
 
     /// <summary>

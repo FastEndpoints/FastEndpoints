@@ -102,7 +102,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
         }
     }
 
-    private static async Task EventExecutorTask(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider? serviceProvider, SubscriberExceptionReceiver? errors)
+    private static async Task EventExecutorTask(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider serviceProvider, SubscriberExceptionReceiver? errors)
     {
         var retrievalErrorCount = 0;
         var executionErrorCount = 0;
@@ -136,7 +136,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
             {
                 foreach (var record in records)
                 {
-                    var handler = (TEventHandler)handlerFactory(serviceProvider!, null);
+                    var handler = handlerFactory.GetFromProviderOrCreateInstance<TEventHandler>(serviceProvider);
 
                     try
                     {

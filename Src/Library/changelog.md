@@ -25,9 +25,9 @@ By specifying just the type of the serializer context, instead of supplying an i
 
 </details>
 
-<details><summary>Ability to do integration testing with Event Queues</summary>
+<details><summary>Ability to do integration testing with Event Queues/Brokers</summary>
 
-gRPC base [Event Queues](https://fast-endpoints.com/docs/remote-procedure-calls#remote-pub-sub-event-queues) can now be integration tested by supplying fake event handlers as shown [here](https://github.com/FastEndpoints/Event-Queues-Demo/tree/main/Test).
+gRPC base [Event Queues](https://fast-endpoints.com/docs/remote-procedure-calls#remote-pub-sub-event-queues) can now be integration tested by supplying fake event handlers as shown [here](https://github.com/FastEndpoints/Event-Broker-Demo/tree/main/Test).
 
 </details>
 

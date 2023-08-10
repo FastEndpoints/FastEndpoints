@@ -36,7 +36,9 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
 {
     private static readonly Type _tCommand = typeof(TCommand);
     private static readonly string _tCommandName = _tCommand.FullName!;
-    private static readonly string _queueID = _tCommandName.ToHash();
+
+    //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
+    public static readonly string _queueID = _tCommandName.ToHash();
 
     private readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
     private readonly CancellationToken _appCancellation;

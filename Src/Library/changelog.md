@@ -39,6 +39,12 @@ gRPC base [Event Queues](https://fast-endpoints.com/docs/remote-procedure-calls#
 
 </details>
 
-<!-- ## 🪲 Fixes -->
+## 🪲 Fixes
+
+<details><summary>Event handler constructors being called twice</summary>
+
+Due to an oversight in `IEnumerable` iteration, just the event handler constructor was being called twice per execution. Thank you [Wahid Bitar](https://github.com/WahidBitar) for reporting it.
+
+</details>
 
 <!-- ## ⚠️ Minor Breaking Changes -->

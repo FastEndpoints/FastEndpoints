@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace FastEndpoints;
 
@@ -11,6 +13,8 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
 {
     private readonly IEndpointRouteBuilder routeBuilder;
+    private static readonly MethodInfo _mapGrpcMethodInfo
+        = typeof(GrpcEndpointRouteBuilderExtensions).GetMethod(nameof(GrpcEndpointRouteBuilderExtensions.MapGrpcService))!;
 
     internal HandlerOptions(IEndpointRouteBuilder builder)
     {
@@ -25,7 +29,16 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     public GrpcServiceEndpointConventionBuilder Register<TCommand, THandler>()
         where TCommand : class, ICommand
         where THandler : class, ICommandHandler<TCommand>
-            => routeBuilder.MapGrpcService<VoidHandlerExecutor<TCommand, THandler>>();
+    {
+        var tHandler = routeBuilder.ServiceProvider.GetService<ICommandHandler<TCommand>>();
+        if (tHandler is not null)
+        {
+            var tService = typeof(VoidHandlerExecutor<,>).MakeGenericType(typeof(TCommand), tHandler.GetType());
+            var mapMethod = _mapGrpcMethodInfo.MakeGenericMethod(tService);
+            return (GrpcServiceEndpointConventionBuilder)mapMethod.Invoke(null, new[] { routeBuilder })!;
+        }
+        return routeBuilder.MapGrpcService<VoidHandlerExecutor<TCommand, THandler>>();
+    }
 
     /// <summary>
     /// registers a "unary" command handler this server is hosting.

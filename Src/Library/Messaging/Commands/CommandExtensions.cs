@@ -1,9 +1,11 @@
-﻿namespace FastEndpoints;
+﻿using System.Collections.Concurrent;
+
+namespace FastEndpoints;
 
 public static class CommandExtensions
 {
     //key: tCommand //val: handler definition
-    internal static readonly Dictionary<Type, CommandHandlerDefinition> HandlerRegistry = new();
+    internal static readonly ConcurrentDictionary<Type, CommandHandlerDefinition> HandlerRegistry = new();
 
     /// <summary>
     /// executes the command that does not return a result

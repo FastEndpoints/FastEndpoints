@@ -39,6 +39,12 @@ gRPC base [Event Queues](https://fast-endpoints.com/docs/remote-procedure-calls#
 
 </details>
 
+<details><summary>Concurrent WAF testing</summary>
+
+- Better thread safety of `EndpointData` when running concurrent integration tests
+
+</details>
+
 ## 🪲 Fixes
 
 <details><summary>Event handler constructors being called twice</summary>

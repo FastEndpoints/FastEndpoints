@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using System.Collections.Concurrent;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// base class for the event bus
@@ -7,7 +9,7 @@ public abstract class EventBase
 {
     //key: TEvent 
     //val: unique list of event handler types (subscribers)
-    internal static readonly Dictionary<Type, HashSet<Type>> HandlerDict = new();
+    internal static readonly ConcurrentDictionary<Type, HashSet<Type>> HandlerDict = new();
 }
 
 /// <summary>

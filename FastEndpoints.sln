@@ -60,6 +60,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Remote", "Src\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj", "{FBEF232B-B9EF-46BF-AE37-D430870B9B62}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Remote.Testing", "Src\Messaging.Remote.Testing\FastEndpoints.Messaging.Remote.Testing.csproj", "{F6BC3605-53EE-4D23-ADA8-B5B685C82047}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -244,6 +246,14 @@ Global
 		{FBEF232B-B9EF-46BF-AE37-D430870B9B62}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FBEF232B-B9EF-46BF-AE37-D430870B9B62}.Release|x86.ActiveCfg = Release|Any CPU
 		{FBEF232B-B9EF-46BF-AE37-D430870B9B62}.Release|x86.Build.0 = Release|Any CPU
+		{F6BC3605-53EE-4D23-ADA8-B5B685C82047}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6BC3605-53EE-4D23-ADA8-B5B685C82047}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6BC3605-53EE-4D23-ADA8-B5B685C82047}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F6BC3605-53EE-4D23-ADA8-B5B685C82047}.Debug|x86.Build.0 = Debug|Any CPU
+		{F6BC3605-53EE-4D23-ADA8-B5B685C82047}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6BC3605-53EE-4D23-ADA8-B5B685C82047}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6BC3605-53EE-4D23-ADA8-B5B685C82047}.Release|x86.ActiveCfg = Release|Any CPU
+		{F6BC3605-53EE-4D23-ADA8-B5B685C82047}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

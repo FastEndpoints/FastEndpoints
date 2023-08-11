@@ -11,7 +11,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## 📢 New
 
-<details><summary>Ability to auto instantiate 'JsonSerializerContext' with global 'SerializerOptions'</summary>
+<details><summary>Auto instantiation of 'JsonSerializerContext' with global 'SerializerOptions'</summary>
 
 ```cs
 public override void Configure()
@@ -25,9 +25,15 @@ By specifying just the type of the serializer context, instead of supplying an i
 
 </details>
 
-<details><summary>Ability to do integration testing with Event Queues/Brokers</summary>
+<details><summary>Support for integration testing Event Queues/Brokers</summary>
 
 gRPC based [Event Queues](https://fast-endpoints.com/docs/remote-procedure-calls#remote-pub-sub-event-queues) can now be integration tested by supplying fake event handlers as shown [here](https://github.com/FastEndpoints/Event-Broker-Demo/tree/main/Test).
+
+</details>
+
+<details><summary>Support integration testing Job Queues</summary>
+
+[Job Queues](https://fast-endpoints.com/docs/job-queues#queueing-a-job) can now be integration tested by supplying fake command handlers as shown [here](https://github.com/FastEndpoints/Job-Queue-Demo/tree/main/Test).
 
 </details>
 

@@ -34,14 +34,18 @@ public static class JobQueueExtensions
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
     public static IApplicationBuilder UseJobQueues(this IApplicationBuilder app, Action<JobQueueOptions>? options = null)
     {
-        if (CommandExtensions.HandlerRegistry.Count == 0)
+        if (CommandExtensions.HandlerRegistry.IsEmpty)
             throw new InvalidOperationException("No Commands/Handlers found in the system! Have you called AddFastEndpoints() yet?");
 
         var opts = new JobQueueOptions();
         options?.Invoke(opts);
 
-        foreach (var tCommand in CommandExtensions.HandlerRegistry.Keys.Where(t => t.IsAssignableTo(Types.ICommand)))
+        foreach (var tCommand in CommandExtensions.HandlerRegistry.Keys.Where(t => t.IsAssignableTo(Types.ICommand)).ToArray())
         {
+            var tHandler = app.ApplicationServices.GetService(Types.ICommandHandlerOf1.MakeGenericType(tCommand))?.GetType();
+            if (tHandler is not null)
+                CommandExtensions.HandlerRegistry[tCommand] = new(tHandler);
+
             var tJobQ = Types.JobQueueOf3.MakeGenericType(tCommand, tStorageRecord, tStorageProvider);
             var jobQ = app.ApplicationServices.GetRequiredService(tJobQ);
             opts.SetExecutionLimits(tCommand, (JobQueueBase)jobQ);
@@ -59,4 +63,14 @@ public static class JobQueueExtensions
     /// <param name="ct">cancellation token</param>
     public static Task QueueJobAsync(this ICommand cmd, DateTime? executeAfter = null, DateTime? expireOn = null, CancellationToken ct = default)
         => JobQueueBase.AddToQueueAsync(cmd, executeAfter, expireOn, ct);
+
+    /// <summary>
+    /// register test/fake/mock command handlers for integration testing jobs queues
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the command model to register a test handler for</typeparam>
+    /// <typeparam name="THandler">the type of the test command handler</typeparam>
+    public static void RegisterTestCommandHandler<TCommand, THandler>(this IServiceCollection s)
+        where TCommand : ICommand
+        where THandler : class, ICommandHandler<TCommand>
+            => s.AddTransient<ICommandHandler<TCommand>, THandler>();
 }

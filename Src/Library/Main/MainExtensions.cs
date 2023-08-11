@@ -59,7 +59,7 @@ public static class MainExtensions
                             : Conf.SerOpts.Options;
         configAction?.Invoke(new Conf());
 
-        var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
+        var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>(); //don't use Resolve<T>() here
         var epFactory = Conf.ServiceResolver.Resolve<IEndpointFactory>();
         using var scope = Conf.ServiceResolver.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider

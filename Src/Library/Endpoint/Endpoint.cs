@@ -12,14 +12,14 @@ namespace FastEndpoints;
 /// use this base class for defining endpoints that only use a request dto and don't use a response dto.
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
-public abstract class Endpoint<TRequest> : Endpoint<TRequest, object> where TRequest : notnull { };
+public abstract class Endpoint<TRequest> : Endpoint<TRequest, object?> where TRequest : notnull { };
 
 /// <summary>
 /// use this base class for defining endpoints that only use a request dto and don't use a response dto but uses a request mapper.
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
-public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object>, IHasMapper<TMapper> where TRequest : notnull where TMapper : notnull, IRequestMapper
+public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object?>, IHasMapper<TMapper> where TRequest : notnull where TMapper : notnull, IRequestMapper
 {
     private TMapper? _mapper;
 
@@ -302,7 +302,7 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
 /// <summary>
 /// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
 /// </summary>
-public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object>
+public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object?>
 {
     /// <summary>
     /// the handler method for the endpoint. this method is called for each request received.
@@ -322,13 +322,13 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object>
     /// </summary>
     /// <param name="ct">a cancellation token</param>
     [NotImplemented]
-    public virtual Task<object> ExecuteAsync(CancellationToken ct) => throw new NotImplementedException();
+    public virtual Task<object?> ExecuteAsync(CancellationToken ct) => throw new NotImplementedException();
 
     /// <summary>
     /// override the ExecuteAsync(CancellationToken ct) method instead of using this method!
     /// </summary>
     [NotImplemented]
-    public sealed override Task<object> ExecuteAsync(EmptyRequest _, CancellationToken ct) => ExecuteAsync(ct);
+    public sealed override Task<object?> ExecuteAsync(EmptyRequest _, CancellationToken ct) => ExecuteAsync(ct);
 }
 
 /// <summary>

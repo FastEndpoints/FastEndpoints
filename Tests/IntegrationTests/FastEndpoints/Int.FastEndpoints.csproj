@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions.Web" Version="1.2.5" />
@@ -21,9 +21,26 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj" />
+        <ProjectReference Include="..\..\..\Web\Web.csproj" />
+        <ProjectReference Include="..\Shared\Shared.csproj" />
+    </ItemGroup>
+   
+    <ItemGroup>
+        <None Update="test.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="xunit.runner.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
     <ItemGroup Label="Implicit usings">
         <Using Include="FluentAssertions" />
     </ItemGroup>
-    
 </Project>

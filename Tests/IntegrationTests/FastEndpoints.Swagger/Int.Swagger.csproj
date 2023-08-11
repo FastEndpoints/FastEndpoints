@@ -45,7 +45,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Swagger\FastEndpoints.Swagger.csproj" />
-        <ProjectReference Include="..\IntegrationTests.Shared\IntegrationTests.Shared.csproj" />
+        <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>

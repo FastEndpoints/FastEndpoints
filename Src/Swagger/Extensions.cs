@@ -11,11 +11,7 @@ using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Contexts;
 using NSwag.Generation.Processors.Security;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-
-[assembly: InternalsVisibleTo("FastEndpoints.Swagger.UnitTests")]
-[assembly: InternalsVisibleTo("FastEndpoints.Swagger.IntegrationTests")]
 
 namespace FastEndpoints.Swagger;
 

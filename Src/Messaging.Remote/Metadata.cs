@@ -1,4 +1,4 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("FastEndpoints.UnitTests")]
-[assembly: InternalsVisibleTo("FastEndpoints.IntegrationTests")]
+[assembly: InternalsVisibleTo("Unit.FastEndpoints")]
+[assembly: InternalsVisibleTo("Int.FastEndpoints")]

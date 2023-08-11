@@ -31,6 +31,12 @@ gRPC based [Event Queues](https://fast-endpoints.com/docs/remote-procedure-calls
 
 </details>
 
+<details><summary>[DontRegister] attribute for skipping auto registration</summary>
+
+Any auto discovered types (endpoints/commands/events/etc.) can be annotated with the attribute `[DontRegister]` if you'd like it to be skipped while assembly scanning for auto registration.
+
+</details>
+
 ## 🚀 Improvements
 
 <details><summary>Minor performance optimizations</summary>

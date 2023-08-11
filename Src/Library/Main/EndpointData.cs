@@ -81,6 +81,7 @@ internal sealed class EndpointData
                       !excludes.Any(n => a.FullName!.StartsWith(n)))
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
+                      !t.IsDefined(Types.DontRegisterAttribute) &&
                       !t.IsAbstract &&
                       !t.IsInterface &&
                       !t.IsGenericType &&
@@ -91,7 +92,7 @@ internal sealed class EndpointData
                            Types.ISummary,
                            options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
                        }).Any() &&
-                    (options.Filter is null || options.Filter(t)));
+                       (options.Filter is null || options.Filter(t)));
         }
 
         //Endpoint<TRequest>

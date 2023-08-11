@@ -16,6 +16,7 @@ internal static class Types
     internal static readonly Type CommandHandlerExecutorOf1 = typeof(CommandHandlerExecutor<>);
     internal static readonly Type CommandHandlerExecutorOf2 = typeof(CommandHandlerExecutor<,>);
     internal static readonly Type DontInjectAttribute = typeof(DontInjectAttribute);
+    internal static readonly Type DontRegisterAttribute = typeof(DontRegisterAttribute);
     internal static readonly Type EmptyRequest = typeof(EmptyRequest);
     internal static readonly Type EmptyResponse = typeof(EmptyResponse);
     internal static readonly Type EndpointOf2 = typeof(Endpoint<,>);

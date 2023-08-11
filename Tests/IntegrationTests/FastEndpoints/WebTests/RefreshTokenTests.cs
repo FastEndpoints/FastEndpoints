@@ -1,11 +1,12 @@
-﻿using FastEndpoints.Security;
-using IntegrationTests.Shared.Fixtures;
+﻿using FastEndpoints;
+using FastEndpoints.Security;
+using Int.Shared.Fixtures;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FastEndpoints.IntegrationTests.WebTests;
+namespace Int.Web;
 
 public class RefreshTokenTests : EndToEndTestBase
 {

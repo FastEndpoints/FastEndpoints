@@ -1,4 +1,5 @@
-﻿using IntegrationTests.Shared.Fixtures;
+﻿using FastEndpoints;
+using Int.Shared.Fixtures;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Net.Http.Json;
@@ -10,7 +11,7 @@ using Xunit;
 using Xunit.Abstractions;
 using MediaTypeHeaderValue = System.Net.Http.Headers.MediaTypeHeaderValue;
 
-namespace FastEndpoints.IntegrationTests.WebTests;
+namespace Int.Web;
 
 public class MiscTestCases : EndToEndTestBase
 {

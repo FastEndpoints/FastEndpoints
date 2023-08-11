@@ -1,9 +1,10 @@
-﻿using IntegrationTests.Shared.Fixtures;
+﻿using FastEndpoints;
+using Int.Shared.Fixtures;
 using TestCases.JobQueueTest;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FastEndpoints.IntegrationTests.JobQueueTests;
+namespace Int.JobQueues;
 
 public class JobQueueTests : EndToEndTestBase
 {

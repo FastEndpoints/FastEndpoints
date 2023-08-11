@@ -1,10 +1,11 @@
-﻿using IntegrationTests.Shared.Fixtures;
+﻿using FastEndpoints;
+using Int.Shared.Fixtures;
 using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace FastEndpoints.IntegrationTests.WebTests;
+namespace Int.Web;
 
 public class InventoryTests : EndToEndTestBase
 {

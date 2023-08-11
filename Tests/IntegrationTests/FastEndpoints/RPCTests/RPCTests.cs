@@ -1,5 +1,6 @@
-﻿using Grpc.Core;
-using IntegrationTests.Shared.Fixtures;
+﻿using FastEndpoints;
+using Grpc.Core;
+using Int.Shared.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCases.ClientStreamingTest;
@@ -9,7 +10,7 @@ using TestCases.ServerStreamingTest;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FastEndpoints.IntegrationTests.CommandBusTests;
+namespace Int.RPC;
 
 public class RPCTests : EndToEndTestBase
 {

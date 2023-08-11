@@ -1,12 +1,12 @@
 using FastEndpoints;
-using IntegrationTests.Shared.Mocks;
+using Int.Shared.Mocks;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net.Http.Headers;
 using Web.Services;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace IntegrationTests.Shared.Fixtures;
+namespace Int.Shared.Fixtures;
 
 public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
 {
@@ -20,15 +20,7 @@ public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
     {
         EndToEndTestFixture = endToEndTestFixture;
 
-        AdminClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, MockEmailService>());
-
         GuestClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
-
-        CustomerClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
-
-        RangeClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
-
-        EndToEndTestFixture.SetOutputHelper(outputHelper);
 
         var (_, result) = GuestClient.POSTAsync<
                 Admin.Login.Endpoint,
@@ -41,16 +33,23 @@ public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
             .GetAwaiter()
             .GetResult();
 
+        AdminClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, MockEmailService>());
+        AdminClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result?.JWTToken);
+        AdminClient.DefaultRequestHeaders.Add("tenant-id", "admin");
+
         var (_, customerToken) = GuestClient.GETAsync<
                 Customers.Login.Endpoint,
                 string>()
             .GetAwaiter().GetResult();
 
-        AdminClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result?.JWTToken);
-        AdminClient.DefaultRequestHeaders.Add("tenant-id", "admin");
+        CustomerClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
         CustomerClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", customerToken);
         CustomerClient.DefaultRequestHeaders.Add("tenant-id", "qwerty");
         CustomerClient.DefaultRequestHeaders.Add("CustomerID", "123");
+
+        RangeClient = EndToEndTestFixture.CreateNewClient(services => services.AddSingleton<IEmailService, EmailService>());
         RangeClient.DefaultRequestHeaders.Range = new(5, 9);
+
+        EndToEndTestFixture.SetOutputHelper(outputHelper);
     }
 }

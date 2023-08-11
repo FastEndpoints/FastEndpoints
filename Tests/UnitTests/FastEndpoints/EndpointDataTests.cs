@@ -1,6 +1,8 @@
-﻿using Xunit;
+﻿using FastEndpoints;
+using Xunit;
 
-namespace FastEndpoints.UnitTests;
+namespace UnitTests;
+
 public class EndpointDataTests
 {
     [Fact]

@@ -1,8 +1,9 @@
-﻿using FluentValidation.Results;
+﻿using FastEndpoints;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace FastEndpoints.UnitTests;
+namespace UnitTests;
 
 public class EndpointTests
 {

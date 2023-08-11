@@ -1,9 +1,10 @@
-using IntegrationTests.Shared.Fixtures;
+using FastEndpoints;
+using Int.Shared.Fixtures;
 using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FastEndpoints.IntegrationTests.WebTests;
+namespace Int.Web;
 
 public class AdminTests : EndToEndTestBase
 {
@@ -13,7 +14,7 @@ public class AdminTests : EndToEndTestBase
     [Fact]
     public async Task AdminLoginWithBadInput()
     {
-        var (resp, result) = await base.GuestClient.POSTAsync<
+        var (resp, result) = await GuestClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             ErrorResponse>(new()

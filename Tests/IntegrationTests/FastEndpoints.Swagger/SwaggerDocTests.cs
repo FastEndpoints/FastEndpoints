@@ -1,12 +1,12 @@
 ﻿using FluentAssertions.Json;
-using IntegrationTests.Shared.Fixtures;
+using Int.Shared.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using NSwag.Generation;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FastEndpoints.Swagger.IntegrationTests;
+namespace Int.Swagger;
 
 public class SwaggerDocTests : EndToEndTestBase
 {

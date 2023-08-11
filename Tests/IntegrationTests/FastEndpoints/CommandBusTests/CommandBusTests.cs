@@ -1,9 +1,10 @@
-﻿using IntegrationTests.Shared.Fixtures;
+﻿using FastEndpoints;
+using Int.Shared.Fixtures;
 using TestCases.CommandBusTest;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace FastEndpoints.IntegrationTests.CommandBusTests;
+namespace Int.CommandBus;
 
 public class CommandBusTests : EndToEndTestBase
 {

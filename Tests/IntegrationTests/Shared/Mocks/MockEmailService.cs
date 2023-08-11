@@ -1,6 +1,6 @@
 ﻿using Web.Services;
 
-namespace IntegrationTests.Shared.Mocks;
+namespace Int.Shared.Mocks;
 
 internal class MockEmailService : IEmailService
 {

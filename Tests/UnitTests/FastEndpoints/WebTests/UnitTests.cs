@@ -1,4 +1,5 @@
 using FakeItEasy;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -8,7 +9,7 @@ using TestCases.TypedResultTest;
 using Web.Services;
 using Xunit;
 
-namespace FastEndpoints.UnitTests.WebTests;
+namespace Unit.Web;
 
 public class UnitTests
 {

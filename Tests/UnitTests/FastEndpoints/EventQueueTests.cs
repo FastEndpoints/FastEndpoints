@@ -1,10 +1,11 @@
 ﻿using FakeItEasy;
+using FastEndpoints;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace FastEndpoints.UnitTests;
+namespace UnitTests;
 
 public class EventQueueTests
 {

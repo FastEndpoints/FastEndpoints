@@ -1,11 +1,12 @@
 ﻿using FakeItEasy;
+using FastEndpoints;
 using Microsoft.Extensions.Logging;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
 using Web.Services;
 using Xunit;
 
-namespace FastEndpoints.UnitTests;
+namespace UnitTests;
 
 public class CommandBusTests
 {

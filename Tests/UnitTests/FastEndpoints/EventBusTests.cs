@@ -1,10 +1,11 @@
 ﻿using FakeItEasy;
+using FastEndpoints;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCases.EventHandlingTest;
 using Xunit;
 
-namespace FastEndpoints.UnitTests;
+namespace UnitTests;
 
 public class EventBusTests
 {

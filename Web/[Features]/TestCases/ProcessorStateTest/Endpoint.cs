@@ -15,7 +15,7 @@ public class Endpoint : Endpoint<Request, string>
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
         var state = ProcessorState<Thingy>();
-        await Task.Delay(300);
+        await Task.Delay(100);
         await SendAsync(state.Id + " " + state.Name);
     }
 }

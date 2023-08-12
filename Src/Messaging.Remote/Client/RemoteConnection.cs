@@ -2,6 +2,7 @@
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
@@ -12,7 +13,7 @@ public sealed class RemoteConnection
 {
     //key: tCommand or tEventHandler
     //val: remote server that hosts command handlers/event buses
-    internal static Dictionary<Type, RemoteConnection> RemoteMap { get; } = new();
+    internal static ConcurrentDictionary<Type, RemoteConnection> RemoteMap { get; } = new(); //concurrent is needed due to parallel integration tests
     internal static Type StorageRecordType { private get; set; } = typeof(InMemoryEventStorageRecord);
     internal static Type StorageProviderType { private get; set; } = typeof(InMemoryEventSubscriberStorage);
 

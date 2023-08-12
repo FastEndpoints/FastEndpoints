@@ -109,7 +109,7 @@ public class EventQueueTests
 
         var e1 = new TestEvent { EventID = 123 };
         await EventHubBase.AddToSubscriberQueues(e1, default);
-        await Task.Delay(500);
+        await Task.Delay(100);
 
         writer.Responses[0].EventID.Should().Be(123);
     }
@@ -133,7 +133,7 @@ public class EventQueueTests
 
         var e1 = new TestEvent { EventID = 321 };
         _ = hub.OnEventReceived(hub, e1, ctx);
-        await Task.Delay(500);
+        await Task.Delay(100);
 
         writer.Responses[0].EventID.Should().Be(321);
     }

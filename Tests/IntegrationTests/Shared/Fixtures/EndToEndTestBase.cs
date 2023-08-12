@@ -1,12 +1,12 @@
 using FastEndpoints;
-using Int.Shared.Mocks;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Mocks;
 using System.Net.Http.Headers;
 using Web.Services;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Int.Shared.Fixtures;
+namespace Shared.Fixtures;
 
 public abstract class EndToEndTestBase : IClassFixture<EndToEndTestFixture>
 {

@@ -1,10 +1,10 @@
 using FastEndpoints;
-using Int.Shared.Fixtures;
+using Shared.Fixtures;
 using System.Net;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Int.Web;
+namespace Web;
 
 public class AdminTests : EndToEndTestBase
 {

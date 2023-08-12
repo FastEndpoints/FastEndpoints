@@ -1,10 +1,10 @@
 ﻿using FastEndpoints;
-using Int.Shared.Fixtures;
+using Shared.Fixtures;
 using TestCases.CommandBusTest;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Int.CommandBus;
+namespace CommandBus;
 
 public class CommandBusTests : EndToEndTestBase
 {

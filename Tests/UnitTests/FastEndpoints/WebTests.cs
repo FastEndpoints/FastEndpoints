@@ -9,9 +9,9 @@ using TestCases.TypedResultTest;
 using Web.Services;
 using Xunit;
 
-namespace Unit.Web;
+namespace Web;
 
-public class UnitTests
+public class WebTests
 {
     [Fact]
     public async Task endpoint_with_mapper_returns_correct_response()

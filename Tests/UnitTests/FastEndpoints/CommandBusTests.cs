@@ -6,7 +6,7 @@ using TestCases.CommandHandlerTest;
 using Web.Services;
 using Xunit;
 
-namespace UnitTests;
+namespace CommandBus;
 
 public class CommandBusTests
 {

@@ -1,7 +1,7 @@
 ﻿using FastEndpoints.Swagger;
 using Xunit;
 
-namespace UnitTests;
+namespace SchemaNameGen;
 
 public class SchemaNameGeneratorTests
 {
@@ -40,28 +40,28 @@ public class SchemaNameGeneratorTests
     public void LongNameNonGeneric()
     {
         var res = longNameGenerator.Generate(typeof(Model));
-        res.Should().Be("UnitTestsModel");
+        res.Should().Be("SchemaNameGenModel");
     }
 
     [Fact]
     public void LongNameGeneric()
     {
         var res = longNameGenerator.Generate(typeof(GenericModel<string>));
-        res.Should().Be("UnitTestsGenericModelOfString");
+        res.Should().Be("SchemaNameGenGenericModelOfString");
     }
 
     [Fact]
     public void LongNameGenericDeep()
     {
         var res = longNameGenerator.Generate(typeof(GenericModel<List<GenericModel<string>>>));
-        res.Should().Be("UnitTestsGenericModelOfListOfGenericModelOfString");
+        res.Should().Be("SchemaNameGenGenericModelOfListOfGenericModelOfString");
     }
 
     [Fact]
     public void LongNameGenericDeepMulti()
     {
         var res = longNameGenerator.Generate(typeof(GenericMultiModel<List<GenericModel<string>>, GenericMultiModel<int, string>>));
-        res.Should().Be("UnitTestsGenericMultiModelOfListOfGenericModelOfStringAndGenericMultiModelOfInt32AndString");
+        res.Should().Be("SchemaNameGenGenericMultiModelOfListOfGenericModelOfStringAndGenericMultiModelOfInt32AndString");
     }
 }
 

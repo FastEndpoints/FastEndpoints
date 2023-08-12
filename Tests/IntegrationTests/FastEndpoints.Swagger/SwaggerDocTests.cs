@@ -1,12 +1,12 @@
 ﻿using FluentAssertions.Json;
-using Int.Shared.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using NSwag.Generation;
+using Shared.Fixtures;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Int.Swagger;
+namespace Swagger;
 
 public class SwaggerDocTests : EndToEndTestBase
 {

@@ -1,8 +1,8 @@
 ﻿using FastEndpoints;
 using Grpc.Core;
-using Int.Shared.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Shared.Fixtures;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.EventQueueTest;
@@ -10,7 +10,7 @@ using TestCases.ServerStreamingTest;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Int.RPC;
+namespace RemoteProcedureCalls;
 
 public class RPCTests : EndToEndTestBase
 {

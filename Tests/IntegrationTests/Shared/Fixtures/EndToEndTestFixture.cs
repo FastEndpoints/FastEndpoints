@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Int.Shared.Fixtures;
+namespace Shared.Fixtures;
 
 public class EndToEndTestFixture : IAsyncLifetime
 {

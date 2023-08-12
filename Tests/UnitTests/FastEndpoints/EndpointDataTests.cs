@@ -1,7 +1,7 @@
 ﻿using FastEndpoints;
 using Xunit;
 
-namespace UnitTests;
+namespace EPData;
 
 public class EndpointDataTests
 {

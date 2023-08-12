@@ -3,153 +3,150 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-namespace UnitTests;
+namespace Endpoints;
 
-public class EndpointTests
+public class SendShouldSetCorrectResponse : Endpoint<Request, Response>
 {
-    public class SendShouldSetCorrectResponse : Endpoint<Request, Response>
+    [Fact]
+    public async Task execute_test()
     {
-        [Fact]
-        public async Task execute_test()
-        {
-            HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendShouldSetCorrectResponse), typeof(Request), typeof(Response));
+        HttpContext = new DefaultHttpContext();
+        Definition = new EndpointDefinition(typeof(SendShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
-            await SendAsync(new Response
-            {
-                Id = 1,
-                Age = 15,
+        await SendAsync(new Response
+        {
+            Id = 1,
+            Age = 15,
+            Name = "Test"
+        }, StatusCodes.Status200OK, default);
+
+        Response.Should().NotBeNull();
+        Response.Id.Should().Be(1);
+        ValidationFailed.Should().BeFalse();
+    }
+}
+
+public class SendOkShouldSetCorrectResponse : Endpoint<Request, Response>
+{
+    [Fact]
+    public async Task execute_test()
+    {
+        HttpContext = new DefaultHttpContext();
+        Definition = new EndpointDefinition(typeof(SendOkShouldSetCorrectResponse), typeof(Request), typeof(Response));
+
+        await SendOkAsync(new Response
+        {
+            Id = 1,
+            Age = 15,
+            Name = "Test"
+        }, CancellationToken.None);
+
+        Response.Should().NotBeNull();
+        Response.Id.Should().Be(1);
+        ValidationFailed.Should().BeFalse();
+    }
+}
+
+public class SendForbiddenShouldSetCorrectResponse : Endpoint<Request, Response>
+{
+    [Fact]
+    public async Task execute_test()
+    {
+        HttpContext = new DefaultHttpContext();
+        Definition = new EndpointDefinition(typeof(SendForbiddenShouldSetCorrectResponse), typeof(Request), typeof(Response));
+
+        await SendForbiddenAsync(CancellationToken.None);
+        Response.Should().NotBeNull();
+        ValidationFailed.Should().BeFalse();
+        HttpContext.Items[0].Should().BeNull();
+        HttpContext.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+}
+
+public class SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied : Endpoint<Request, Response>
+{
+    [Fact]
+    public async Task execute_test()
+    {
+        HttpContext = new DefaultHttpContext();
+        Definition = new EndpointDefinition(typeof(SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
+        Definition.ResponseInterceptor(new ResponseInterceptor());
+
+        await Assert.ThrowsAsync<ResponseInterceptor.InterceptedResponseException>(() =>
+        {
+            return SendInterceptedAsync(new {
+                Id = 0,
+                Age = 1,
                 Name = "Test"
             }, StatusCodes.Status200OK, default);
+        });
 
-            Response.Should().NotBeNull();
-            Response.Id.Should().Be(1);
-            ValidationFailed.Should().BeFalse();
-        }
     }
+}
 
-    public class SendOkShouldSetCorrectResponse : Endpoint<Request, Response>
+public class SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor : Endpoint<Request, Response>
+{
+    [Fact]
+    public async Task execute_test()
     {
-        [Fact]
-        public async Task execute_test()
-        {
-            HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendOkShouldSetCorrectResponse), typeof(Request), typeof(Response));
+        HttpContext = new DefaultHttpContext();
+        Definition = new EndpointDefinition(typeof(SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor), typeof(Request), typeof(Response));
 
-            await SendOkAsync(new Response
-            {
-                Id = 1,
-                Age = 15,
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            SendInterceptedAsync(new {
+                Id = 0,
+                Age = 1,
                 Name = "Test"
-            }, CancellationToken.None);
+            }, StatusCodes.Status200OK, default));
 
-            Response.Should().NotBeNull();
-            Response.Id.Should().Be(1);
-            ValidationFailed.Should().BeFalse();
-        }
     }
+}
 
-    public class SendForbiddenShouldSetCorrectResponse : Endpoint<Request, Response>
+public class SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied : Endpoint<Request, Response>
+{
+    [Fact]
+    public async Task execute_test()
     {
-        [Fact]
-        public async Task execute_test()
+        HttpContext = new DefaultHttpContext();
+        Definition = new EndpointDefinition(typeof(SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
+        Definition.ResponseInterceptor(new ResponseInterceptor());
+
+        await SendAsync(new Response
         {
-            HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendForbiddenShouldSetCorrectResponse), typeof(Request), typeof(Response));
+            Id = 1,
+            Age = 15,
+            Name = "Test"
+        }, StatusCodes.Status200OK, default);
 
-            await SendForbiddenAsync(CancellationToken.None);
-            Response.Should().NotBeNull();
-            ValidationFailed.Should().BeFalse();
-            HttpContext.Items[0].Should().BeNull();
-            HttpContext.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
-        }
+        Response.Should().NotBeNull();
+        Response.Id.Should().Be(1);
     }
+}
 
-    public class SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied : Endpoint<Request, Response>
+public class Response
+{
+    public int Id { get; set; }
+    public string? Name { get; set; }
+    public int Age { get; set; }
+    public string? PhoneNumber { get; set; }
+}
+
+public class Request
+{
+    public int Id { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public int Age { get; set; }
+    public IEnumerable<string>? PhoneNumbers { get; set; }
+}
+
+public class ResponseInterceptor : IResponseInterceptor
+{
+    public Task InterceptResponseAsync(object res, int statusCode, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct)
+        => throw new InterceptedResponseException();
+
+    public class InterceptedResponseException : Exception
     {
-        [Fact]
-        public async Task execute_test()
-        {
-            HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
-            Definition.ResponseInterceptor(new ResponseInterceptor());
-
-            await Assert.ThrowsAsync<ResponseInterceptor.InterceptedResponseException>(() =>
-            {
-                return SendInterceptedAsync(new {
-                    Id = 0,
-                    Age = 1,
-                    Name = "Test"
-                }, StatusCodes.Status200OK, default);
-            });
-
-        }
-    }
-
-    public class SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor : Endpoint<Request, Response>
-    {
-        [Fact]
-        public async Task execute_test()
-        {
-            HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor), typeof(Request), typeof(Response));
-
-            await Assert.ThrowsAsync<InvalidOperationException>(() =>
-                SendInterceptedAsync(new {
-                    Id = 0,
-                    Age = 1,
-                    Name = "Test"
-                }, StatusCodes.Status200OK, default));
-
-        }
-    }
-
-    public class SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied : Endpoint<Request, Response>
-    {
-        [Fact]
-        public async Task execute_test()
-        {
-            HttpContext = new DefaultHttpContext();
-            Definition = new EndpointDefinition(typeof(SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
-            Definition.ResponseInterceptor(new ResponseInterceptor());
-
-            await SendAsync(new Response
-            {
-                Id = 1,
-                Age = 15,
-                Name = "Test"
-            }, StatusCodes.Status200OK, default);
-
-            Response.Should().NotBeNull();
-            Response.Id.Should().Be(1);
-        }
-    }
-
-    public class Response
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public int Age { get; set; }
-        public string? PhoneNumber { get; set; }
-    }
-
-    public class Request
-    {
-        public int Id { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public int Age { get; set; }
-        public IEnumerable<string>? PhoneNumbers { get; set; }
-    }
-
-    public class ResponseInterceptor : IResponseInterceptor
-    {
-        public Task InterceptResponseAsync(object res, int statusCode, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct)
-            => throw new InterceptedResponseException();
-
-        public class InterceptedResponseException : Exception
-        {
-            public override string Message => "Intercepted Response";
-        }
+        public override string Message => "Intercepted Response";
     }
 }

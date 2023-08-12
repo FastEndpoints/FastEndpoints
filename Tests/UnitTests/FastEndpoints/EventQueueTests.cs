@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace UnitTests;
+namespace EventQueue;
 
 public class EventQueueTests
 {

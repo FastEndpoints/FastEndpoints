@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using TestCases.EventHandlingTest;
 using Xunit;
 
-namespace UnitTests;
+namespace EventBus;
 
 public class EventBusTests
 {

@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
-using Int.Shared.Fixtures;
 using Microsoft.AspNetCore.Http;
+using Shared.Fixtures;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
@@ -11,7 +11,7 @@ using Xunit;
 using Xunit.Abstractions;
 using MediaTypeHeaderValue = System.Net.Http.Headers.MediaTypeHeaderValue;
 
-namespace Int.Web;
+namespace Web;
 
 public class MiscTestCases : EndToEndTestBase
 {

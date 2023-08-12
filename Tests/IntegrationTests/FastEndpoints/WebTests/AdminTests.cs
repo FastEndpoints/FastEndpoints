@@ -1,20 +1,18 @@
 using FastEndpoints;
-using Shared.Fixtures;
+using Shared;
 using System.Net;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Web;
 
-public class AdminTests : EndToEndTestBase
+public class AdminTests : TestBase
 {
-    public AdminTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper)
-        : base(endToEndTestFixture, outputHelper) { }
+    public AdminTests(WebFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task AdminLoginWithBadInput()
     {
-        var (resp, result) = await GuestClient.POSTAsync<
+        var (resp, result) = await Web.GuestClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             ErrorResponse>(new()
@@ -30,7 +28,7 @@ public class AdminTests : EndToEndTestBase
     [Fact]
     public async Task AdminLoginSuccess()
     {
-        var (resp, result) = await GuestClient.POSTAsync<
+        var (resp, result) = await Web.GuestClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             Admin.Login.Response>(new()
@@ -47,7 +45,7 @@ public class AdminTests : EndToEndTestBase
     [Fact]
     public async Task AdminLoginInvalidCreds()
     {
-        var (rsp, _) = await GuestClient.POSTAsync<
+        var (rsp, _) = await Web.GuestClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             Admin.Login.Response>(new()
@@ -62,8 +60,7 @@ public class AdminTests : EndToEndTestBase
     [Fact]
     public async Task AdminLoginThrottling()
     {
-        var guest = EndToEndTestFixture.CreateNewClient();
-        guest.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST");
+        var guest = Web.CreateClient(client: c => c.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST"));
 
         var successCount = 0;
 
@@ -97,7 +94,7 @@ public class AdminTests : EndToEndTestBase
     [Fact]
     public async Task AdminLoginV2()
     {
-        var (resp, result) = await GuestClient.GETAsync<
+        var (resp, result) = await Web.GuestClient.GETAsync<
             Admin.Login.Endpoint_V2,
             EmptyRequest,
             int>(new());

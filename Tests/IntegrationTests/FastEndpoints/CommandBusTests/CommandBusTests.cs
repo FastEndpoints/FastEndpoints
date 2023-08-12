@@ -1,21 +1,18 @@
 ﻿using FastEndpoints;
-using Shared.Fixtures;
+using Shared;
 using TestCases.CommandBusTest;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CommandBus;
 
-public class CommandBusTests : EndToEndTestBase
+public class CommandBusTests : TestBase
 {
-    public CommandBusTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
-    {
-    }
+    public CommandBusTests(WebFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task CommandHandlerSendsErrorResponse()
     {
-        var res = await GuestClient.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
+        var res = await Web.GuestClient.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
         res.Response.IsSuccessStatusCode.Should().BeFalse();
         res.Result!.StatusCode.Should().Be(400);
         res.Result.Errors.Count.Should().Be(2);

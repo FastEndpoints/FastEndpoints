@@ -1,16 +1,13 @@
 ﻿using FastEndpoints;
-using Shared.Fixtures;
+using Shared;
 using TestCases.JobQueueTest;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace JobQueues;
 
-public class JobQueueTests : EndToEndTestBase
+public class JobQueueTests : TestBase
 {
-    public JobQueueTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
-    {
-    }
+    public JobQueueTests(WebFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task JobsExecuteSuccessfully()

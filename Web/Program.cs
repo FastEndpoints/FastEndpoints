@@ -144,4 +144,4 @@ app.UseJobQueues(o =>
 
 app.Run();
 
-public partial class Program { }
+namespace Web { public partial class Program { } }

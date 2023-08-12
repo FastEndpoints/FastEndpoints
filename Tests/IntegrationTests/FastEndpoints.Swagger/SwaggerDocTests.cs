@@ -2,19 +2,18 @@
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using NSwag.Generation;
-using Shared.Fixtures;
+using Shared;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Swagger;
 
-public class SwaggerDocTests : EndToEndTestBase
+public class SwaggerDocTests : TestBase
 {
     private readonly IServiceProvider serviceProvider;
 
-    public SwaggerDocTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) : base(endToEndTestFixture, outputHelper)
+    public SwaggerDocTests(WebFixture fixture) : base(fixture)
     {
-        serviceProvider = endToEndTestFixture.ServiceProvider;
+        serviceProvider = fixture.GetServiceProvider();
     }
 
     [Fact]

@@ -1,23 +1,19 @@
 ﻿using FastEndpoints;
-using Shared.Fixtures;
+using Shared;
 using System.Net;
 using Xunit;
-using Xunit.Abstractions;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace Web;
 
-public class InventoryTests : EndToEndTestBase
+public class InventoryTests : TestBase
 {
-    public InventoryTests(EndToEndTestFixture endToEndTestFixture, ITestOutputHelper outputHelper) :
-        base(endToEndTestFixture, outputHelper)
-    {
-    }
+    public InventoryTests(WebFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task CreateProductFailValidation()
     {
-        var (res, result) = await AdminClient.POSTAsync<
+        var (res, result) = await Web.AdminClient.POSTAsync<
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             ErrorResponse>(new()
@@ -34,7 +30,7 @@ public class InventoryTests : EndToEndTestBase
     [Fact]
     public async Task CreateProductFailBusinessLogic()
     {
-        var (res, result) = await AdminClient.POSTAsync<
+        var (res, result) = await Web.AdminClient.POSTAsync<
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             ErrorResponse>(new()
@@ -54,7 +50,7 @@ public class InventoryTests : EndToEndTestBase
     [Fact]
     public async Task CreateProductFailDuplicateItem()
     {
-        var (res, result) = await AdminClient.POSTAsync<
+        var (res, result) = await Web.AdminClient.POSTAsync<
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             ErrorResponse>(new()
@@ -74,7 +70,7 @@ public class InventoryTests : EndToEndTestBase
     [Fact]
     public async Task CreateProductFailNoPermission()
     {
-        var (rsp, _) = await CustomerClient.PUTAsync<
+        var (rsp, _) = await Web.CustomerClient.PUTAsync<
             Inventory.Manage.Update.Endpoint,
             Inventory.Manage.Update.Request,
             Inventory.Manage.Update.Response>(new()
@@ -91,7 +87,7 @@ public class InventoryTests : EndToEndTestBase
     [Fact]
     public async Task CreateProductSuccess()
     {
-        var (res, result) = await AdminClient.POSTAsync<
+        var (res, result) = await Web.AdminClient.POSTAsync<
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             Inventory.Manage.Create.Response>(new()
@@ -110,7 +106,7 @@ public class InventoryTests : EndToEndTestBase
     [Fact]
     public async Task CreatedAtSuccess()
     {
-        var (res, result) = await AdminClient.POSTAsync<
+        var (res, result) = await Web.AdminClient.POSTAsync<
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             Inventory.Manage.Create.Response>(new()
@@ -133,7 +129,7 @@ public class InventoryTests : EndToEndTestBase
     [Fact]
     public async Task CreatedAtSuccessFullUrl()
     {
-        var (res, result) = await AdminClient.POSTAsync<
+        var (res, result) = await Web.AdminClient.POSTAsync<
             Inventory.Manage.Create.Endpoint,
             Inventory.Manage.Create.Request,
             Inventory.Manage.Create.Response>(new()
@@ -157,13 +153,13 @@ public class InventoryTests : EndToEndTestBase
     public async Task ResponseCaching()
     {
         var (rsp1, res1) =
-            await GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+            await Web.GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
         Assert.AreEqual(HttpStatusCode.OK, rsp1?.StatusCode);
 
         await Task.Delay(100);
 
         var (rsp2, res2) =
-            await GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+            await Web.GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
 
         rsp2?.StatusCode.Should().Be(HttpStatusCode.OK);
         res2?.LastModified.Should().Be(res1?.LastModified);
@@ -172,7 +168,7 @@ public class InventoryTests : EndToEndTestBase
     [Fact]
     public async Task DeleteProductSuccess()
     {
-        var res = await AdminClient.DELETEAsync<
+        var res = await Web.AdminClient.DELETEAsync<
             Inventory.Manage.Delete.Endpoint,
             Inventory.Manage.Delete.Request>(new()
             {

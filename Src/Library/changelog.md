@@ -9,7 +9,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <!-- <details><summary>title text</summary></details> -->
 
-## 📢 New
+## 🔖 New
 
 <details><summary>Auto instantiation of 'JsonSerializerContext' with global 'SerializerOptions'</summary>
 

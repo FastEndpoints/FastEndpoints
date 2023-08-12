@@ -1486,6 +1486,27 @@
         }
       }
     },
+    "/api/test-cases/event-bus-test": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesEventBusTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/empty-request-test": {
       "get": {
         "tags": [

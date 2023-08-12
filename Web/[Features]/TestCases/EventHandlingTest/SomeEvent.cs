@@ -8,7 +8,6 @@ public class SomeEvent : IEvent
 
 public class Handler1 : IEventHandler<SomeEvent>
 {
-
     public Task HandleAsync(SomeEvent eventModel, CancellationToken ct)
     {
         eventModel.One = 100;

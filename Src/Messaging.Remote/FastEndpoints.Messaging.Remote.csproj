@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-        
+
         <PackageReference Include="Grpc.Net.Client" Version="2.55.0" />
         <PackageReference Include="Grpc.AspNetCore.Server" Version="2.55.0" />
         <PackageReference Include="MessagePack" Version="2.5.124" />
@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
+        <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
     </ItemGroup>
 
 </Project>

@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
+        <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
     </ItemGroup>
 
 </Project>

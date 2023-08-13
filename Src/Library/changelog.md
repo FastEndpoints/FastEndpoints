@@ -11,15 +11,14 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## 🔖 New
 
-<details><summary>Support for integration testing Event Queues/Brokers</summary>
+<details><summary>Integration testing with fake/test handlers for messaging features</summary>
 
-gRPC based [Event Queues](https://fast-endpoints.com/docs/remote-procedure-calls#remote-pub-sub-event-queues) can now be integration tested by supplying fake event handlers as shown [here](https://github.com/FastEndpoints/Event-Broker-Demo/tree/main/Test).
+Both `In-Proc` and `RPC` based messaging functionality can now be easily integration tested by registering fake/test handlers during testing. See below links for examples of each:
 
-</details>
-
-<details><summary>Support integration testing Job Queues</summary>
-
-[Job Queues](https://fast-endpoints.com/docs/job-queues#queueing-a-job) can now be integration tested by supplying fake command handlers as shown [here](https://github.com/FastEndpoints/Job-Queue-Demo/tree/main/Test).
+- [Command Bus](https://fast-endpoints.com/docs/command-bus) ([example](https://github.com/FastEndpoints/FastEndpoints/blob/fcb18db8e938fc850ea517d298ecaadd869d0f7c/Tests/IntegrationTests/FastEndpoints/CommandBusTests/CommandBusTests.cs#L73-L84))
+- [Job Queues](https://fast-endpoints.com/docs/job-queues#queueing-a-job) ([example](https://github.com/FastEndpoints/Job-Queue-Demo/tree/main/Test))
+- [Event Bus](https://fast-endpoints.com/docs/event-bus) ([example](https://github.com/FastEndpoints/FastEndpoints/blob/fcb18db8e938fc850ea517d298ecaadd869d0f7c/Tests/IntegrationTests/FastEndpoints/EventBusTests/EventBusTests.cs#L22-L35))
+- [Event-Queue/Broker](https://fast-endpoints.com/docs/remote-procedure-calls#remote-pub-sub-event-queues) ([example](https://github.com/FastEndpoints/Event-Broker-Demo/tree/main/Test))
 
 </details>
 
@@ -54,6 +53,7 @@ By specifying just the type of the serializer context, instead of supplying an i
 <details><summary>Concurrent WAF testing</summary>
 
 - Better thread safety of `EndpointData` when running concurrent integration tests
+- Avoid potential contention issues for `Event Handlers` when integration testing
 
 </details>
 
@@ -61,7 +61,7 @@ By specifying just the type of the serializer context, instead of supplying an i
 
 <details><summary>Event handler constructors being called twice</summary>
 
-Due to an oversight in `IEnumerable` iteration, just the event handler constructor was being called twice per execution. Thank you [Wahid Bitar](https://github.com/WahidBitar) for reporting it.
+Due to an oversight in `IEnumerable` iteration, the event handler constructor was being called twice per execution. Thank you [Wahid Bitar](https://github.com/WahidBitar) for reporting it.
 
 </details>
 

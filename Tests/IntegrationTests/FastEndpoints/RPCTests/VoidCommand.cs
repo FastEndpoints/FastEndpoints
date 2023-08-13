@@ -11,7 +11,7 @@ public class VoidCommand : RPCTestBase
     [Fact]
     public async Task Void()
     {
-        var command = new TestVoidCommand
+        var command = new TestCases.CommandBusTest.VoidCommand
         {
             FirstName = "johnny",
             LastName = "lawrence"

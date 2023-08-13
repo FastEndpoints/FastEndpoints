@@ -26,7 +26,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
 
     public override async Task HandleAsync(Request r, CancellationToken t)
     {
-        var fullName = await new TestCommand
+        var fullName = await new SomeCommand
         {
             FirstName = "x",
             LastName = "y"

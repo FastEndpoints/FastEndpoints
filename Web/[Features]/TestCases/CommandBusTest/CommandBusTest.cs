@@ -3,22 +3,22 @@ using Web.Services;
 
 namespace TestCases.CommandBusTest;
 
-public class TestCommand : ICommand<string>
+public class SomeCommand : ICommand<string>
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
 }
 
-public class TestCommandHandler : ICommandHandler<TestCommand, string>
+public class SomeCommandHandler : ICommandHandler<SomeCommand, string>
 {
-    public TestCommandHandler(ILogger<TestCommandHandler> logger, IEmailService emailService)
+    public SomeCommandHandler(ILogger<SomeCommandHandler> logger, IEmailService emailService)
     {
         logger.LogInformation("command handling works!");
         _ = emailService.SendEmail(); //scoped service
     }
 
     [AllowAnonymous]
-    public Task<string> ExecuteAsync(TestCommand cmd, CancellationToken ct)
+    public Task<string> ExecuteAsync(SomeCommand cmd, CancellationToken ct)
     {
         return Task.FromResult(cmd.FirstName + " " + cmd.LastName);
     }
@@ -48,15 +48,15 @@ public class EchoCommandHandler : ICommandHandler<EchoCommand, EchoCommand>
     }
 }
 
-public class TestVoidCommand : ICommand
+public class VoidCommand : ICommand
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
 }
 
-public class TestVoidCommandHandler : ICommandHandler<TestVoidCommand>
+public class VoidCommandHandler : ICommandHandler<VoidCommand>
 {
-    public Task ExecuteAsync(TestVoidCommand cmd, CancellationToken ct)
+    public Task ExecuteAsync(VoidCommand cmd, CancellationToken ct)
     {
         cmd.FirstName = "pass";
         cmd.LastName = "pass";

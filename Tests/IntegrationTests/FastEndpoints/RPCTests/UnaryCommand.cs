@@ -11,7 +11,7 @@ public class UnaryCommand : RPCTestBase
     [Fact]
     public async Task Unary()
     {
-        var command = new TestCommand
+        var command = new SomeCommand
         {
             FirstName = "johnny",
             LastName = "lawrence"

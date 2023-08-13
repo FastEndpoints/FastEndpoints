@@ -15,10 +15,10 @@ public class CommandBusTests
     {
         Factory.RegisterTestServices(_ => { });
 
-        var command = new TestCommand { FirstName = "a", LastName = "b" };
+        var command = new SomeCommand { FirstName = "a", LastName = "b" };
 
-        var fakeHandler = A.Fake<ICommandHandler<TestCommand, string>>();
-        A.CallTo(() => fakeHandler.ExecuteAsync(A<TestCommand>.Ignored, A<CancellationToken>.Ignored))
+        var fakeHandler = A.Fake<ICommandHandler<SomeCommand, string>>();
+        A.CallTo(() => fakeHandler.ExecuteAsync(A<SomeCommand>.Ignored, A<CancellationToken>.Ignored))
          .Returns(Task.FromResult("Fake Result"));
 
         fakeHandler.RegisterForTesting();
@@ -31,8 +31,8 @@ public class CommandBusTests
     [Fact]
     public async Task CommandExecutionWorks()
     {
-        var command = new TestCommand { FirstName = "a", LastName = "b" };
-        var handler = new TestCommandHandler(A.Fake<ILogger<TestCommandHandler>>(), A.Fake<IEmailService>());
+        var command = new SomeCommand { FirstName = "a", LastName = "b" };
+        var handler = new SomeCommandHandler(A.Fake<ILogger<SomeCommandHandler>>(), A.Fake<IEmailService>());
 
         var res = await handler.ExecuteAsync(command, default);
 

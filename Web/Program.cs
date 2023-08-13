@@ -128,8 +128,8 @@ if (!app.Environment.IsProduction())
 
 app.MapHandlers(h =>
 {
-    h.Register<TestVoidCommand, TestVoidCommandHandler>();
-    h.Register<TestCommand, TestCommandHandler, string>();
+    h.Register<VoidCommand, VoidCommandHandler>();
+    h.Register<SomeCommand, SomeCommandHandler, string>();
     h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
     h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
     h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();

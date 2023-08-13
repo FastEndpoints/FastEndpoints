@@ -21,8 +21,8 @@ public class RPCTestBase : TestBase
         var svcProvider = svcCollection.BuildServiceProvider();
         remote = new RemoteConnection("http://testhost", svcProvider); //the actual hostname doesn't matter as we're replacing the httphandler below
         remote.ChannelOptions.HttpHandler = Web.CreateHttpMessageHandler();
-        remote.Register<TestVoidCommand>();
-        remote.Register<TestCommand, string>();
+        remote.Register<TestCases.CommandBusTest.VoidCommand>();
+        remote.Register<SomeCommand, string>();
         remote.Register<EchoCommand, EchoCommand>();
         remote.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
         remote.RegisterClientStream<CurrentPosition, ProgressReport>();

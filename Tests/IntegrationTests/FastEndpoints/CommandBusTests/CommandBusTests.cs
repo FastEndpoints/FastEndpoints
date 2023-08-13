@@ -22,14 +22,14 @@ public class CommandBusTests : TestBase
     [Fact]
     public async Task Command_That_Returns_A_Result()
     {
-        var res1 = await new TestCommand
+        var res1 = await new SomeCommand
         {
             FirstName = "johnny",
             LastName = "lawrence"
         }
         .ExecuteAsync();
 
-        var res2 = await new TestCommand
+        var res2 = await new SomeCommand
         {
             FirstName = "jo",
             LastName = "law"
@@ -45,7 +45,7 @@ public class CommandBusTests : TestBase
     {
         var client = Web.CreateClient(s =>
         {
-            s.RegisterTestCommandHandler<TestCommand, TestCommandHandler, string>();
+            s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
         });
 
         var (rsp, res) = await client.GETAsync<Endpoint, string>();
@@ -57,7 +57,7 @@ public class CommandBusTests : TestBase
     [Fact]
     public async Task Void_Command_With_Original_Handler()
     {
-        var cmd = new TestVoidCommand
+        var cmd = new VoidCommand
         {
             FirstName = "johnny",
             LastName = "lawrence"
@@ -74,7 +74,7 @@ public class CommandBusTests : TestBase
     {
         var client = Web.CreateClient(s =>
         {
-            s.RegisterTestCommandHandler<TestVoidCommand, TestVoidCommandHandler>();
+            s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
         });
 
         var (rsp, res) = await client.GETAsync<Endpoint, string>();
@@ -86,7 +86,7 @@ public class CommandBusTests : TestBase
     [Fact]
     public async Task Non_Concrete_Void_Command()
     {
-        ICommand cmd = new TestVoidCommand
+        ICommand cmd = new VoidCommand
         {
             FirstName = "johnny",
             LastName = "lawrence"
@@ -99,11 +99,11 @@ public class CommandBusTests : TestBase
 }
 
 [DontRegister]
-sealed class TestVoidCommandHandler : ICommandHandler<TestVoidCommand>
+sealed class TestVoidCommandHandler : ICommandHandler<VoidCommand>
 {
     public static string FullName = default!;
 
-    public Task ExecuteAsync(TestVoidCommand command, CancellationToken ct)
+    public Task ExecuteAsync(VoidCommand command, CancellationToken ct)
     {
         FullName = command.FirstName + " " + command.LastName + " z";
         return Task.CompletedTask;
@@ -111,11 +111,11 @@ sealed class TestVoidCommandHandler : ICommandHandler<TestVoidCommand>
 }
 
 [DontRegister]
-sealed class TestCommandHandler : ICommandHandler<TestCommand, string>
+sealed class TestCommandHandler : ICommandHandler<SomeCommand, string>
 {
     public static string FullName = default!;
 
-    public Task<string> ExecuteAsync(TestCommand command, CancellationToken c)
+    public Task<string> ExecuteAsync(SomeCommand command, CancellationToken c)
     {
         FullName = command.FirstName + " " + command.LastName + " zseeeee!";
         return Task.FromResult(FullName);

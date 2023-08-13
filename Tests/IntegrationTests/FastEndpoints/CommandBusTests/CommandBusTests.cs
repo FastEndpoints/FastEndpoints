@@ -10,7 +10,7 @@ public class CommandBusTests : TestBase
     public CommandBusTests(WebFixture fixture) : base(fixture) { }
 
     [Fact]
-    public async Task CommandHandlerSendsErrorResponse()
+    public async Task Command_Handler_Sends_Error_Response()
     {
         var res = await Web.GuestClient.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
         res.Response.IsSuccessStatusCode.Should().BeFalse();
@@ -20,7 +20,7 @@ public class CommandBusTests : TestBase
     }
 
     [Fact]
-    public async Task CommandThatReturnsAResult()
+    public async Task Command_That_Returns_A_Result()
     {
         var res1 = await new TestCommand
         {
@@ -41,7 +41,21 @@ public class CommandBusTests : TestBase
     }
 
     [Fact]
-    public async Task CommandThatReturnsVoid()
+    public async Task Command_That_Returns_A_Result_With_TestHandler()
+    {
+        var client = Web.CreateClient(s =>
+        {
+            s.RegisterTestCommandHandler<TestCommand, TestCommandHandler, string>();
+        });
+
+        var (rsp, res) = await client.GETAsync<Endpoint, string>();
+
+        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        TestCommandHandler.FullName.Should().Be("x y zseeeee!");
+    }
+
+    [Fact]
+    public async Task Void_Command_With_Original_Handler()
     {
         var cmd = new TestVoidCommand
         {
@@ -56,7 +70,21 @@ public class CommandBusTests : TestBase
     }
 
     [Fact]
-    public async Task NonConcreteCommandThatReturnsVoid()
+    public async Task Void_Command_With_Test_Handler()
+    {
+        var client = Web.CreateClient(s =>
+        {
+            s.RegisterTestCommandHandler<TestVoidCommand, TestVoidCommandHandler>();
+        });
+
+        var (rsp, res) = await client.GETAsync<Endpoint, string>();
+
+        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        TestVoidCommandHandler.FullName.Should().Be("x y z");
+    }
+
+    [Fact]
+    public async Task Non_Concrete_Void_Command()
     {
         ICommand cmd = new TestVoidCommand
         {
@@ -67,5 +95,29 @@ public class CommandBusTests : TestBase
         var act = async () => cmd.ExecuteAsync();
 
         await act.Should().NotThrowAsync();
+    }
+}
+
+[DontRegister]
+sealed class TestVoidCommandHandler : ICommandHandler<TestVoidCommand>
+{
+    public static string FullName = default!;
+
+    public Task ExecuteAsync(TestVoidCommand command, CancellationToken ct)
+    {
+        FullName = command.FirstName + " " + command.LastName + " z";
+        return Task.CompletedTask;
+    }
+}
+
+[DontRegister]
+sealed class TestCommandHandler : ICommandHandler<TestCommand, string>
+{
+    public static string FullName = default!;
+
+    public Task<string> ExecuteAsync(TestCommand command, CancellationToken c)
+    {
+        FullName = command.FirstName + " " + command.LastName + " zseeeee!";
+        return Task.FromResult(FullName);
     }
 }

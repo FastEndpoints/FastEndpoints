@@ -70,6 +70,7 @@ public static class Factory
         return services
              .AddSingleton<ILoggerFactory, LoggerFactory>()
              .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
+             .AddSingleton<CommandHandlerRegistry>()
              .AddSingleton(typeof(EventBus<>));
     }
 

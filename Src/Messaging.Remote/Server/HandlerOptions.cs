@@ -30,10 +30,10 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
         where TCommand : class, ICommand
         where THandler : class, ICommandHandler<TCommand>
     {
-        var tHandler = routeBuilder.ServiceProvider.GetService<ICommandHandler<TCommand>>();
+        var tHandler = routeBuilder.ServiceProvider.GetService<ICommandHandler<TCommand>>()?.GetType();
         if (tHandler is not null)
         {
-            var tService = typeof(VoidHandlerExecutor<,>).MakeGenericType(typeof(TCommand), tHandler.GetType());
+            var tService = typeof(VoidHandlerExecutor<,>).MakeGenericType(typeof(TCommand), tHandler);
             var mapMethod = _mapGrpcMethodInfo.MakeGenericMethod(tService);
             return (GrpcServiceEndpointConventionBuilder)mapMethod.Invoke(null, new[] { routeBuilder })!;
         }

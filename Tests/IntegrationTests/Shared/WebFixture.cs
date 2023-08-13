@@ -65,17 +65,16 @@ public sealed class WebFixture
     {
         var c = _factory.WithWebHostBuilder(b =>
         {
-            if (services is not null)
-                b.ConfigureTestServices(services);
-
+            if (services is not null) b.ConfigureTestServices(services);
             b.ConfigureLogging(c => c.AddXUnit(_messageSink));
-
         }).CreateClient();
 
         client?.Invoke(c);
 
         return c;
     }
+
+#pragma warning disable CA1822
 
     public HttpMessageHandler CreateHttpMessageHandler()
         => _factory.Server.CreateHandler();

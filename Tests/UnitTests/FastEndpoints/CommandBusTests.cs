@@ -13,6 +13,8 @@ public class CommandBusTests
     [Fact]
     public async Task AbilityToFakeTheCommandHandler()
     {
+        Factory.RegisterTestServices(_ => { });
+
         var command = new TestCommand { FirstName = "a", LastName = "b" };
 
         var fakeHandler = A.Fake<ICommandHandler<TestCommand, string>>();

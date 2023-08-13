@@ -26,7 +26,9 @@ public static class MainExtensions
     {
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
-        services.AddSingleton(new EndpointData(opts));
+        var cmdHandlerRegistry = new CommandHandlerRegistry();
+        services.AddSingleton(cmdHandlerRegistry);
+        services.AddSingleton(new EndpointData(opts, cmdHandlerRegistry));
         services.AddAuthorization(async o => await BuildSecurityPoliciesForEndpoints(o, services)); //this method doesn't block
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
@@ -52,16 +54,16 @@ public static class MainExtensions
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
-        Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
-        var jsonOpts = Conf.ServiceResolver.Resolve<IOptions<JsonOptions>>()?.Value.SerializerOptions;
+        Conf.ServiceResolver ??= app.ServiceProvider.GetRequiredService<IServiceResolver>(); //only ever do it once
+        var jsonOpts = app.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Conf.SerOpts.Options = jsonOpts is not null
                             ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
                             : Conf.SerOpts.Options;
         configAction?.Invoke(new Conf());
 
-        var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>(); //don't use Resolve<T>() here
-        var epFactory = Conf.ServiceResolver.Resolve<IEndpointFactory>();
-        using var scope = Conf.ServiceResolver.CreateScope();
+        var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
+        var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
+        using var scope = app.ServiceProvider.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
         var routeToHandlerCounts = new ConcurrentDictionary<string, int>();//key: {verb}:{route}
         var totalEndpointCount = 0;
@@ -132,7 +134,7 @@ public static class MainExtensions
             }
         }
 
-        Conf.ServiceResolver.Resolve<ILogger<StartupTimer>>().LogInformation(
+        app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
             $"Registered {totalEndpointCount} endpoints in " +
             $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
@@ -141,7 +143,7 @@ public static class MainExtensions
         if (!Conf.VerOpts.IsUsingAspVersioning)
         {
             var duplicatesDetected = false;
-            var logger = Conf.ServiceResolver.Resolve<ILogger<DuplicateHandlerRegistration>>();
+            var logger = app.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
 
             foreach (var kvp in routeToHandlerCounts)
             {
@@ -155,6 +157,8 @@ public static class MainExtensions
             if (duplicatesDetected)
                 throw new InvalidOperationException("Duplicate routes detected! See log for more details.");
         }
+
+        CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
         Task.Run(async () =>
         {

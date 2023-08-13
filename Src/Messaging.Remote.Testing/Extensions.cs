@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.TestHost;
+﻿#pragma warning disable IDE0022
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints.Messaging.Remote.Testing;
@@ -23,7 +24,10 @@ public static class Extensions
     public static void RegisterTestEventHandler<TEvent, THandler>(this IServiceCollection s)
         where TEvent : IEvent
         where THandler : class, IEventHandler<TEvent>
-            => s.AddTransient<IEventHandler<TEvent>, THandler>();
+    {
+        //event handlers are always singletons
+        s.AddSingleton<IEventHandler<TEvent>, THandler>();
+    }
 
     /// <summary>
     /// register test/fake/mock command handlers for integration testing gRPC commands
@@ -33,5 +37,9 @@ public static class Extensions
     public static void RegisterTestCommandHandler<TCommand, THandler>(this IServiceCollection s)
         where TCommand : ICommand
         where THandler : class, ICommandHandler<TCommand>
-            => s.AddTransient<ICommandHandler<TCommand>, THandler>();
+    {
+        //command handlers are transient at consumption but,
+        //singleton here because we only need to resolve the type when consuming.
+        s.AddSingleton<ICommandHandler<TCommand>, THandler>();
+    }
 }

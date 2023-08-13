@@ -13,11 +13,11 @@ internal sealed class EndpointData
 
     internal static Stopwatch Stopwatch { get; } = new();
 
-    internal EndpointData(EndpointDiscoveryOptions options)
+    internal EndpointData(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
     {
         _endpoints = new(() =>
         {
-            var endpoints = BuildEndpointDefinitions(options);
+            var endpoints = BuildEndpointDefinitions(options, cmdHandlerRegistry);
             return endpoints.Length == 0
                    ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
                    : endpoints;
@@ -26,7 +26,7 @@ internal sealed class EndpointData
 
     internal void Clear() => _endpoints = null!;
 
-    private static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options)
+    private static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
     {
         if (options.DisableAutoDiscovery && options.Assemblies?.Any() is false)
             throw new InvalidOperationException("If 'DisableAutoDiscovery' is true, a collection of `Assemblies` must be provided!");
@@ -164,18 +164,17 @@ internal sealed class EndpointData
                         handlers.Add(t);
                     else
                         EventBase.HandlerDict[tEvent] = new() { t };
+
                     continue;
                 }
 
                 if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here also
                 {
-                    var tCommand = tInterface.GetGenericArguments()[0];
+                    cmdHandlerRegistry.TryAdd(
+                        key: tInterface.GetGenericArguments()[0],
+                        value: new CommandHandlerDefinition(t));
 
-                    CommandExtensions.HandlerRegistry.TryAdd(tCommand, new(t));
-
-#pragma warning disable RCS1134
-                    continue;
-#pragma warning restore RCS1134
+                    //continue;
                 }
             }
         }

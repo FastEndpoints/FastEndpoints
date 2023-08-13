@@ -1,5 +1,4 @@
 ﻿using FastEndpoints;
-using Microsoft.Extensions.DependencyInjection;
 using Shared;
 using TestCases.EventBusTest;
 using Xunit;
@@ -24,8 +23,8 @@ public class EventBusTests : TestBase
     {
         var client = Web.CreateClient(s =>
         {
-            s.AddTransient<IEventHandler<TestEvent>, FakeEventHandler>();
-            s.AddTransient<IEventHandler<TestEvent>, AnotherFakeEventHandler>();
+            s.RegisterTestEventHandler<TestEvent, FakeEventHandler>();
+            s.RegisterTestEventHandler<TestEvent, AnotherFakeEventHandler>();
         });
 
         var (rsp, res) = await client.GETAsync<Endpoint, int>();
@@ -35,6 +34,7 @@ public class EventBusTests : TestBase
         AnotherFakeEventHandler.Result.Should().Be(102);
     }
 
+    [DontRegister]
     sealed class FakeEventHandler : IEventHandler<TestEvent>
     {
         public static int Result;
@@ -46,6 +46,7 @@ public class EventBusTests : TestBase
         }
     }
 
+    [DontRegister]
     sealed class AnotherFakeEventHandler : IEventHandler<TestEvent>
     {
         public static int Result;

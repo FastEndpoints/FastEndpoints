@@ -46,7 +46,6 @@ public class CustomersTests : TestBase
 
         rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Should().Be("Email was not sent during testing! admin");
-
     }
 
     [Fact]

@@ -15,7 +15,7 @@ public class EndpointDataTests
             Assemblies = new[] { GetType().Assembly }
         };
 
-        var sut = new EndpointData(options);
+        var sut = new EndpointData(options, new());
         var ep = new Foo
         {
             Definition = sut.Found[0]

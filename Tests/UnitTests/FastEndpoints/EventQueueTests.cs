@@ -48,7 +48,7 @@ public class EventQueueTests
         r2x!.Single().Event.Should().Be(record2.Event);
 
         await sut.StoreEventAsync(record3, default);
-        await Task.Delay(200);
+        await Task.Delay(100);
 
         var r3 = await sut.GetNextBatchAsync(new() { SubscriberID = record3.SubscriberID });
         r3!.Single().Event.Should().Be(record3.Event);
@@ -109,7 +109,7 @@ public class EventQueueTests
 
         var e1 = new TestEvent { EventID = 123 };
         await EventHubBase.AddToSubscriberQueues(e1, default);
-        await Task.Delay(200);
+        await Task.Delay(100);
 
         writer.Responses[0].EventID.Should().Be(123);
     }
@@ -133,7 +133,7 @@ public class EventQueueTests
 
         var e1 = new TestEvent { EventID = 321 };
         _ = hub.OnEventReceived(hub, e1, ctx);
-        await Task.Delay(200);
+        await Task.Delay(100);
 
         writer.Responses[0].EventID.Should().Be(321);
     }

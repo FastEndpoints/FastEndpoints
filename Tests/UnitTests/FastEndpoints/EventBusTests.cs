@@ -42,7 +42,7 @@ public class EventBusTests
         await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event1, Mode.WaitForNone);
         await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event2, Mode.WaitForAny);
 
-        await Task.Delay(200);
+        await Task.Delay(100);
 
         event2.ID.Should().Be(0);
         event2.Name.Should().Be("pass");

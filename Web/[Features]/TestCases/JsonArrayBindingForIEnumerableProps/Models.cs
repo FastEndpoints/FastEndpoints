@@ -5,7 +5,10 @@ public class Request
     public double[] Doubles { get; set; }
     public IEnumerable<int> Ints { get; set; }
     public List<Guid> Guids { get; set; }
+
+    ///<example>["2020-10-10"]</example>
     public ICollection<DateTime> Dates { get; set; }
+
     public Person Steven { get; set; }
     public Dictionary<string, string> Dict { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Namotion.Reflection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NSwag;
@@ -61,7 +62,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;
         var reqContent = op.RequestBody?.Content;
-        var serializer = Newtonsoft.Json.JsonSerializer.Create(ctx.SchemaGenerator.Settings.ActualSerializerSettings);
+        var serializer = JsonSerializer.Create(ctx.SchemaGenerator.Settings.ActualSerializerSettings);
 
         //set operation id if user has specified
         if (nameMetaData is not null)
@@ -248,7 +249,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         if (reqDtoType is not null)
         {
             var qParams = reqDtoProps?
-                .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest && !opts.EnableGetRequestsWithBody)) //user want body in GET requests
+                .Where(p => ShouldAddQueryParam(p, reqParams, isGETRequest && !opts.EnableGetRequestsWithBody)) //user wants body in GET requests
                 .Select(p =>
                 {
                     RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
@@ -478,14 +479,28 @@ internal sealed class OperationProcessor : IOperationProcessor
         paramName ??= prop?.GetCustomAttribute<BindFromAttribute>()?.Name ??
                       prop?.Name ??
                       throw new InvalidOperationException("param name is required!");
-        var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(paramName, descriptions?.GetValueOrDefault(prop?.Name ?? paramName), (prop?.PropertyType ?? Types.String).ToContextualType());
+
+        var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(
+            paramName,
+            descriptions?.GetValueOrDefault(prop?.Name ?? paramName),
+            (prop?.PropertyType ?? Types.String).ToContextualType());
+
         prm.Kind = kind;
+
         prm.IsRequired = isRequired ?? !(prop?.IsNullable() ?? true);
+
         if (ctx.Settings.SchemaType == SchemaType.Swagger2)
             prm.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
         else
             prm.Schema.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
-        prm.Example = prop?.GetExample();
+
+        if (ctx.Settings.GenerateExamples)
+        {
+            prm.Example = prop?.GetExample();
+            if (prm.Example is null && prm.Default is null && prm.Schema.Default is null)
+                prm.Example = prm.ActualSchema.ToSampleJson();
+        }
+
         prm.IsNullableRaw = null; //if this is not null, nswag generates an incorrect swagger spec for some unknown reason.
         return prm;
     }

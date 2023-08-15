@@ -24,6 +24,6 @@ steps:
     displayName: "Run Tests"
     inputs:
       command: "test"
-      projects: "**/*.csproj"
+      projects: "Tests/**/*.csproj"
       arguments: "--configuration $(BuildConfiguration)"
       workingDirectory: "Tests"

@@ -24,22 +24,6 @@ steps:
     displayName: "Run Tests"
     inputs:
       command: "test"
-      projects: "**/*[Tt]ests/*.csproj"
+      projects: "**/*.csproj"
       arguments: "--configuration $(BuildConfiguration)"
       workingDirectory: "Tests"
-
-  # - task: DotNetCoreCLI@2
-  #   displayName: "Make Nuget Package"
-  #   inputs:
-  #     command: "pack"
-  #     packagesToPack: "Src/**/*.csproj"
-  #     versioningScheme: "off"
-  #     verbosityPack: "Minimal"
-
-  # - task: NuGetCommand@2
-  #   displayName: "Publish To Nuget"
-  #   inputs:
-  #     command: "push"
-  #     packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg"
-  #     nuGetFeedType: "external"
-  #     publishFeedCredentials: "nuget-djnitehawk"

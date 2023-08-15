@@ -87,20 +87,20 @@ public static class JWTBearer
     /// generate a jwt token with the supplied parameters
     /// </summary>
     /// <param name="signingKey">the secret key to use for signing the tokens</param>
-    /// <param name="priviledges">an action to specify the privileges of the user</param>
+    /// <param name="privileges">an action to specify the privileges of the user</param>
     /// <param name="issuer">the issuer</param>
     /// <param name="audience">the audience</param>
     /// <param name="expireAt">the expiry date</param>
     /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
     public static string CreateToken(string signingKey,
-                                     Action<UserPrivileges> priviledges,
+                                     Action<UserPrivileges> privileges,
                                      string? issuer = null,
                                      string? audience = null,
                                      DateTime? expireAt = null,
                                      TokenSigningStyle signingStyle = TokenSigningStyle.Symmetric)
     {
         var privs = new UserPrivileges();
-        priviledges(privs);
+        privileges(privs);
 
         return CreateToken(
             signingKey,

@@ -123,7 +123,7 @@ public static class JWTBearer
     /// <param name="claims">one or more claims to assign to the user principal</param>
     /// <param name="issuer">the issuer</param>
     /// <param name="audience">the audience</param>
-    /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
+    /// <param name="signingStyle">the signing style to use (Symmetric or Asymmetric)</param>
     public static string CreateToken(string signingKey,
                                      DateTime? expireAt = null,
                                      IEnumerable<string>? permissions = null,

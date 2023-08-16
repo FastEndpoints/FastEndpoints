@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
@@ -342,7 +343,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// the json serializer context will be instantiated with <see cref="SerializerOptions"/> from the UseFastEndpoints(...) call.
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
-    protected void SerializerContext<TContext>() where TContext : JsonSerializerContext => Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), Conf.SerOpts.Options);
+    protected void SerializerContext<TContext>() where TContext : JsonSerializerContext => Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), new JsonSerializerOptions(Conf.SerOpts.Options));
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi

@@ -123,4 +123,10 @@ Due to an oversight in `IEnumerable` iteration, the event handler constructor wa
 
 </details>
 
+<details><summary>Json serializer context was not correctly copying 'JsonSerializerOptions'</summary>
+
+`SerializerContext<TContext>()` was not properly making a copy of the global `JsonSerializerOptions` when the serializer context was being instantiated; leading to the same global options instance being bound to multiple serializer contexts, which is not supported by the SDK as of .NET 7.0.
+
+</details>
+
 <!-- ## ⚠️ Minor Breaking Changes -->

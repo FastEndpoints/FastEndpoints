@@ -54,7 +54,9 @@ public static class MainExtensions
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
-        Conf.ServiceResolver ??= app.ServiceProvider.GetRequiredService<IServiceResolver>(); //only ever do it once
+        if (Conf.ResolverIsNotSet) //only ever do it once
+            Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
+
         var jsonOpts = app.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Conf.SerOpts.Options = jsonOpts is not null
                             ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions

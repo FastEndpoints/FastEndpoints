@@ -84,7 +84,7 @@ public static class Factory
         if (ctx.RequestServices is not null)
             throw new InvalidOperationException("You cannot add services to this http context because it's not empty!");
 
-        if (Conf.ServiceResolver is null)
+        if (Conf.ResolverIsNotSet)
         {
             var testingProvider = new ServiceCollection()
                 .AddHttpContextAccessor()

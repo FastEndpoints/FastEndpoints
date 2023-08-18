@@ -8,7 +8,12 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class Config
 {
-    internal static IServiceResolver ServiceResolver;
+    private static IServiceResolver? _resolver;
+    internal static bool ResolverIsNotSet => _resolver is null;
+    internal static IServiceResolver ServiceResolver {
+        get => _resolver ?? throw new InvalidOperationException("Service resolver is null! Have you done the unit test setup correctly?");
+        set => _resolver = value;
+    }
 
     internal static BindingOptions BndOpts = new();
     internal static EndpointOptions EpOpts = new();

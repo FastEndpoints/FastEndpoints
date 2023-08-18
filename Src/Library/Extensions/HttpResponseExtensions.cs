@@ -94,9 +94,9 @@ public static class HttpResponseExtensions
                                           bool generateAbsoluteUrl = false,
                                           CancellationToken cancellation = default)
     {
-        var linkGen = Conf.ServiceResolver.TryResolve<LinkGenerator>() ?? //this is null for unit tests
+        var linkGen = Conf.ServiceResolver.TryResolve<LinkGenerator>() ?? //unit tests (won't have the LinkGenerator registered)
                       rsp.HttpContext.RequestServices?.GetService<LinkGenerator>() ?? //so get it from httpcontext (only applies to unit tests). do not change to Resolve<T>() here
-                      throw new InvalidOperationException("Service provider is null on the current HttpContext! Set it yourself for unit tests.");
+                      throw new InvalidOperationException("Service provider is null! Have you done the unit test setup correctly?");
 
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 201;

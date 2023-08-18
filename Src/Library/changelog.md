@@ -115,6 +115,12 @@ builder.Services.SwaggerDocument(o =>
 
 </details>
 
+<details><summary>Unit testing improvements</summary>
+
+- Warn user if internal `ServiceResolver` is null due to incorrect unit test setup
+
+</details>
+
 ## 🪲 Fixes
 
 <details><summary>Event handler constructors being called twice</summary>

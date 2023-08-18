@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Shared;
 
-public sealed class WebFixture
+public sealed class WebFixture : IDisposable
 {
     public HttpClient GuestClient { get; init; }
     public HttpClient AdminClient { get; init; }
@@ -21,6 +21,7 @@ public sealed class WebFixture
     private static readonly WebApplicationFactory<Web.Program> _factory = new();
 
     private readonly IMessageSink _messageSink;
+    bool disposedValue;
 
     public WebFixture(IMessageSink messageSink)
     {
@@ -81,4 +82,28 @@ public sealed class WebFixture
 
     public IServiceProvider GetServiceProvider()
         => _factory.Services;
+
+    #region idisposable
+    private void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                GuestClient.Dispose();
+                AdminClient.Dispose();
+                CustomerClient.Dispose();
+                RangeClient.Dispose();
+                // WARNING: do not dispose _factory
+            }
+            disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+    #endregion
 }

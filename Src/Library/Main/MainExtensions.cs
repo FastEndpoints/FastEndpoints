@@ -27,9 +27,10 @@ public static class MainExtensions
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
         var cmdHandlerRegistry = new CommandHandlerRegistry();
+        var endpointData = new EndpointData(opts, cmdHandlerRegistry);
         services.AddSingleton(cmdHandlerRegistry);
-        services.AddSingleton(new EndpointData(opts, cmdHandlerRegistry));
-        services.AddAuthorization(async o => await BuildSecurityPoliciesForEndpoints(o, services)); //this method doesn't block
+        services.AddSingleton(endpointData);
+        services.AddAuthorization(o => BuildSecurityPoliciesForEndpoints(o, endpointData)); //this method doesn't block
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
@@ -256,15 +257,13 @@ public static class MainExtensions
         }).ToArray();
     }
 
-    private static async Task BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts, IServiceCollection services)
+    private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts, EndpointData epData)
     {
-        var endpoints = services.BuildServiceProvider().GetRequiredService<EndpointData>();
-
-        foreach (var ep in endpoints.Found)
+        foreach (var ep in epData.Found)
         {
             while (!ep.IsInitialized) //this usually won't happen unless somehow this method is executed before MapFastEndpoints()
             {
-                await Task.Delay(100);
+                Thread.Sleep(100);
             }
 
             if (ep.AllowedRoles is null &&

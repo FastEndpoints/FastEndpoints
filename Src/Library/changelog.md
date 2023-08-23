@@ -122,6 +122,7 @@ Any other Newtonsoft settings that needs to be tuned can also be accessed via th
 <details><summary>Minor performance optimizations</summary>
 
 - Job queue message pump improvements
+- Startup code optimizations
 
 </details>
 

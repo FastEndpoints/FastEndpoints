@@ -40,6 +40,7 @@ public static class Extensions
             SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
             doc.SerializerSettings?.Invoke(stjOpts);
             generator.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
+            doc.NewtonsoftSettings?.Invoke(generator.SerializerSettings);
             EnableFastEndpoints(generator, doc);
             if (doc.EndpointFilter is not null) generator.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
             if (doc.ExcludeNonFastEndpoints) generator.OperationProcessors.Insert(0, new FastEndpointsFilter());

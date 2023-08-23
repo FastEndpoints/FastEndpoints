@@ -100,6 +100,23 @@ builder.Services.SwaggerDocument(o =>
 
 </details>
 
+<details><summary>NSwag serializer (Newtonsoft) customization</summary>
+
+Since NSwag still uses Newtonsoft internally, it is sometimes necessary to register custom converters for the NewtonSoft serializer, which can now be achieved like so:
+
+```cs
+.SwaggerDocument(o =>
+{
+    o.NewtonsoftSettings = s =>
+    {
+        s.Converters.Add(new MyCustomConverter());
+    };
+});
+```
+Any other Newtonsoft settings that needs to be tuned can also be accessed via the `s` parameter.
+
+</details>
+
 ## 🚀 Improvements
 
 <details><summary>Minor performance optimizations</summary>

@@ -9,7 +9,7 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class EndpointsDiscoveryGenerator : IIncrementalGenerator
 {
-     public void Initialize(IncrementalGeneratorInitializationContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var typeDeclarationSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
                 (sn, _) => sn is TypeDeclarationSyntax,

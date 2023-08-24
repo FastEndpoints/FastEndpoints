@@ -18,7 +18,7 @@ public class DocumentOptions
     public Action<AspNetCoreOpenApiDocumentGeneratorSettings>? DocumentSettings { get; set; }
     /// <summary>
     /// by default GET request DTO properties are automatically converted to query parameters because fetch-client/swagger ui doesn't support it.
-    /// set this to true if for some reason you'd like to disable this auto convertion and allow GET requests with a body.
+    /// set this to true if for some reason you'd like to disable this auto conversion and allow GET requests with a body.
     /// </summary>
     public bool EnableGetRequestsWithBody { get; set; }
     /// <summary>
@@ -36,7 +36,7 @@ public class DocumentOptions
     /// </summary>
     public bool ExcludeNonFastEndpoints { get; set; }
     /// <summary>
-    /// enabling this flattens the inheritance hierachy of all the schmema.
+    /// enabling this flattens the inheritance hierarchy of all the schema.
     /// </summary>
     public bool FlattenSchema { get; set; }
     /// <summary>
@@ -44,18 +44,22 @@ public class DocumentOptions
     /// </summary>
     public int MaxEndpointVersion { get; set; }
     /// <summary>
-    /// endpoints lower than this vesion will not be included in the swagger doc.
+    /// endpoints lower than this version will not be included in the swagger doc.
     /// </summary>
     public int MinEndpointVersion { get; set; }
     /// <summary>
     /// set to true for removing empty request dto schema from the swagger document.
-    /// <para>WARNING: enabling this also flattens the inheritance hierachy of the schmema.</para>
+    /// <para>WARNING: enabling this also flattens the inheritance hierarchy of the schema.</para>
     /// </summary>
     public bool RemoveEmptyRequestSchema { get; set; }
     /// <summary>
     /// json serializer options
     /// </summary>
     public Action<JsonSerializerOptions>? SerializerSettings { get; set; }
+    /// <summary>
+    /// any additional newtonsoft serializer settings. most useful for registering custom converters.
+    /// </summary>
+    public Action<Newtonsoft.Json.JsonSerializerSettings>? NewtonsoftSettings { get; set; }
     /// <summary>
     /// set to true if you'd like schema names to be just the class name instead of the full name.
     /// </summary>

@@ -100,11 +100,29 @@ builder.Services.SwaggerDocument(o =>
 
 </details>
 
+<details><summary>NSwag serializer (Newtonsoft) customization</summary>
+
+Since NSwag still uses Newtonsoft internally, it is sometimes necessary to register custom converters for the NewtonSoft serializer, which can now be achieved like so:
+
+```cs
+.SwaggerDocument(o =>
+{
+    o.NewtonsoftSettings = s =>
+    {
+        s.Converters.Add(new MyCustomConverter());
+    };
+});
+```
+Any other Newtonsoft settings that needs to be tuned can also be accessed via the `s` parameter.
+
+</details>
+
 ## 🚀 Improvements
 
 <details><summary>Minor performance optimizations</summary>
 
 - Job queue message pump improvements
+- Startup code optimizations
 
 </details>
 
@@ -132,6 +150,12 @@ Due to an oversight in `IEnumerable` iteration, the event handler constructor wa
 <details><summary>Json serializer context was not correctly copying 'JsonSerializerOptions'</summary>
 
 `SerializerContext<TContext>()` was not properly making a copy of the global `JsonSerializerOptions` when the serializer context was being instantiated; leading to the same global options instance being bound to multiple serializer contexts, which is not supported by the SDK as of .NET 7.0.
+
+</details>
+
+<details><summary>Startup exception edge case</summary>
+
+If `app.MapControllers()` call was placed before the `app.UseFastEndpoints()` call, the app would randomly throw a cryptic exception at startup. Now when this misconfiguration is detected, a clear exception would be thrown instructing the user to change the middleware order.
 
 </details>
 

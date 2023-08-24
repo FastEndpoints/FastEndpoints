@@ -153,4 +153,10 @@ Due to an oversight in `IEnumerable` iteration, the event handler constructor wa
 
 </details>
 
+<details><summary>Startup exception edge case</summary>
+
+If `app.MapControllers()` call was placed before the `app.UseFastEndpoints()` call, the app would randomly throw a cryptic exception at startup. Now when this misconfiguration is detected, a clear exception would be thrown instructing the user to change the middleware order.
+
+</details>
+
 <!-- ## ⚠️ Minor Breaking Changes -->

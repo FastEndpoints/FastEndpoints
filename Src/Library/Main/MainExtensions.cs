@@ -261,10 +261,8 @@ public static class MainExtensions
     {
         foreach (var ep in epData.Found)
         {
-            while (!ep.IsInitialized) //this usually won't happen unless somehow this method is executed before MapFastEndpoints()
-            {
-                Thread.Sleep(100);
-            }
+            if (!ep.IsInitialized)
+                throw new InvalidOperationException("Endpoints are not initialized! This usually happens when 'app.UseFastEndpoints()' is placed after 'app.MapControllers()'. Try changing the middleware order.");
 
             if (ep.AllowedRoles is null &&
                 ep.AllowedPermissions is null &&

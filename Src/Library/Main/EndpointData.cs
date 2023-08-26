@@ -33,8 +33,7 @@ internal sealed class EndpointData
 
         Stopwatch.Start();
 
-        //also update FastEndpoints.Generator.EndpointsDiscoveryGenerator class if updating these
-        IEnumerable<string> excludes = new[]
+        IEnumerable<string> exclusions = new[]
         {
             "Microsoft",
             "System",
@@ -65,8 +64,9 @@ internal sealed class EndpointData
 
             if (options.Assemblies?.Any() is true)
             {
+                //remove user supplied assemblies from exclusion list
                 assemblies = options.Assemblies;
-                excludes = excludes.Except(options.Assemblies.Select(a => a.FullName?.Split('.')[0]!));
+                exclusions = exclusions.Except(options.Assemblies.Select(a => a.FullName?.Split('.')[0]!));
             }
 
             if (!options.DisableAutoDiscovery)
@@ -78,7 +78,7 @@ internal sealed class EndpointData
             discoveredTypes = assemblies
                 .Where(a =>
                       !a.IsDynamic &&
-                      !excludes.Any(n => a.FullName!.StartsWith(n)))
+                      !exclusions.Any(n => a.FullName!.StartsWith(n)))
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsDefined(Types.DontRegisterAttribute) &&

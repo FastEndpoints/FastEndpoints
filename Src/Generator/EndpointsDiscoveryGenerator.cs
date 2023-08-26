@@ -9,27 +9,17 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class EndpointsDiscoveryGenerator : IIncrementalGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
-        var typeDeclarationSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
+        var typeDeclarationSyntaxProvider = ctx.SyntaxProvider
+            .CreateSyntaxProvider(
                 (sn, _) => sn is TypeDeclarationSyntax,
                 (c, _) => Transform(c))
             .Where(p => p is not null);
 
-        var compilationAndClasses = context.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
+        var compilationAndClasses = ctx.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
 
-        context.RegisterSourceOutput(compilationAndClasses, (spc, source) => Execute(source.Right!, spc));
-    }
-
-    private void Execute(ImmutableArray<ITypeSymbol> typeSymbols, SourceProductionContext spc)
-    {
-        if (!typeSymbols.Any())
-            return;
-        var fileContent = GetContent(typeSymbols);
-        spc.AddSource(
-            "DiscoveredTypes.g.cs",
-            SourceText.From(fileContent,
-                Encoding.UTF8));
+        ctx.RegisterSourceOutput(compilationAndClasses, (spc, source) => Execute(source.Right!, spc));
     }
 
     private ITypeSymbol? Transform(GeneratorSyntaxContext ctx)
@@ -43,29 +33,32 @@ public class EndpointsDiscoveryGenerator : IIncrementalGenerator
             new TypeDescription("FastEndpoints.ICommandHandler"),
             new TypeDescription("FastEndpoints.ISummary"),
             new TypeDescription("FluentValidation.IValidator")
-        }).Any() && typeSymbol is { IsAbstract: false, DeclaredAccessibility: Accessibility.Public };
+        }).Any() && typeSymbol is { IsAbstract: false };
         return isValid ? typeSymbol : null;
+    }
+
+    private void Execute(ImmutableArray<ITypeSymbol> typeSymbols, SourceProductionContext spc)
+    {
+        if (!typeSymbols.Any()) return;
+        var fileContent = GetContent(typeSymbols);
+        spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
     private static string GetContent(IEnumerable<ITypeSymbol> filteredTypes)
     {
-        var sb = new StringBuilder(@"
-using System;
-namespace FastEndpoints
+        var sb = new StringBuilder(@"namespace FastEndpoints
 {
     public static class DiscoveredTypes
     {
-        public static readonly System.Type[] All = new System.Type[]
+        public static readonly global::System.Type[] All = new global::System.Type[]
         {
 ");
-
         foreach (var discoveredType in filteredTypes)
         {
             sb.Append("            typeof(")
-                .Append(discoveredType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).Append(@"),
+              .Append(discoveredType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).Append(@"),
 ");
         }
-
         sb.Append(@"        };
     }
 }");

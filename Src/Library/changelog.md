@@ -139,6 +139,12 @@ Any other Newtonsoft settings that needs to be tuned can also be accessed via th
 
 </details>
 
+<details><summary>Nested type discovery for source generator</summary>
+
+Nested endpoints were previously ignored by the type discovery [source generator](https://fast-endpoints.com/docs/configuration-settings#source-generator-based-startup). Thanks to [Tomasz Chacuk](https://github.com/FastEndpoints/FastEndpoints/pull/472) we now have a more streamlined source generator that discovers nested types as well.
+
+</details>
+
 ## 🪲 Fixes
 
 <details><summary>Event handler constructors being called twice</summary>

@@ -9,129 +9,59 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class EndpointsDiscoveryGenerator : IIncrementalGenerator
 {
-    //also update FastEndpoints.EndpointData class if updating these
-    private static readonly string[] _excludes = new string[]
+    public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
-            "Microsoft",
-            "System",
-            "FastEndpoints",
-            "testhost",
-            "netstandard",
-            "Newtonsoft",
-            "mscorlib",
-            "NuGet",
-            "NSwag",
-            "FluentValidation",
-            "YamlDotNet",
-            "Accessibility",
-            "NJsonSchema",
-            "Namotion",
-            "StackExchange",
-            "Grpc",
-            "PresentationFramework",
-            "PresentationCore",
-            "WindowsBase"
-    };
+        var typeDeclarationSyntaxProvider = ctx.SyntaxProvider
+            .CreateSyntaxProvider(
+                (sn, _) => sn is TypeDeclarationSyntax,
+                (c, _) => Transform(c))
+            .Where(p => p is not null);
 
-    public void Initialize(IncrementalGeneratorInitializationContext context)
-    {
-        var typeDeclarationSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
-            (sn, _) => sn is TypeDeclarationSyntax,
-            (c, _) => (TypeDeclarationSyntax)c.Node);
+        var compilationAndClasses = ctx.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
 
-        var compilationAndClasses = context.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
-
-        context.RegisterSourceOutput(compilationAndClasses, (spc, source) => Execute(source.Left, source.Right, spc));
+        ctx.RegisterSourceOutput(compilationAndClasses, (spc, source) => Execute(source.Right!, spc));
     }
 
-    private void Execute(Compilation compilation, ImmutableArray<TypeDeclarationSyntax> typeDeclarationSyntaxProvider, SourceProductionContext spc)
+    private ITypeSymbol? Transform(GeneratorSyntaxContext ctx)
     {
-        var filteredTypes = GetFilteredTypes(compilation, typeDeclarationSyntaxProvider);
-        if (!filteredTypes.Any())
-            return;
-        var fileContent = GetContent(filteredTypes!);
-        spc.AddSource(
-          "DiscoveredTypes.g.cs",
-          SourceText.From(fileContent,
-          Encoding.UTF8));
+        var symbol = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node);
+        if (symbol is not ITypeSymbol typeSymbol) return null;
+        var isValid = typeSymbol.AllInterfaces.Select(i => new TypeDescription(i)).Intersect(new[]
+        {
+            new TypeDescription("FastEndpoints.IEndpoint"),
+            new TypeDescription("FastEndpoints.IEventHandler"),
+            new TypeDescription("FastEndpoints.ICommandHandler"),
+            new TypeDescription("FastEndpoints.ISummary"),
+            new TypeDescription("FluentValidation.IValidator")
+        }).Any() && typeSymbol is { IsAbstract: false };
+        return isValid ? typeSymbol : null;
     }
 
-    private IEnumerable<ITypeSymbol> GetFilteredTypes(Compilation compilation, ImmutableArray<TypeDeclarationSyntax> typeDeclarationSyntaxProvider)
+    private void Execute(ImmutableArray<ITypeSymbol> typeSymbols, SourceProductionContext spc)
     {
-        var mainTypes = GetAssemblySymbolTypes(compilation.SourceModule.ContainingAssembly);
-        var referencedTypes = compilation.SourceModule.ReferencedAssemblySymbols.SelectMany(GetAssemblySymbolTypes);
-        return mainTypes.Concat(referencedTypes).Where(t =>
-            !t.IsAbstract &&
-            !_excludes.Any(n => GetRootNamespaceSymbolFor(t).Name.StartsWith(n, StringComparison.OrdinalIgnoreCase)) &&
-            t.DeclaredAccessibility == Accessibility.Public &&
-            t.AllInterfaces.Select(i => new TypeDescription(i)).Intersect(new[]
-            {
-                new TypeDescription("FastEndpoints.IEndpoint"),
-                new TypeDescription("FastEndpoints.IEventHandler"),
-                new TypeDescription("FastEndpoints.ICommandHandler"),
-                new TypeDescription("FastEndpoints.ISummary"),
-                new TypeDescription("FluentValidation.IValidator")
-            }).Any());
+        if (!typeSymbols.Any()) return;
+        var fileContent = GetContent(typeSymbols);
+        spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
     private static string GetContent(IEnumerable<ITypeSymbol> filteredTypes)
     {
-        var sb = new StringBuilder(@"
-using System;
-namespace FastEndpoints
+        var sb = new StringBuilder(@"namespace FastEndpoints
 {
     public static class DiscoveredTypes
     {
-        public static readonly System.Type[] All = new System.Type[]
+        public static readonly global::System.Type[] All = new global::System.Type[]
         {
 ");
-
         foreach (var discoveredType in filteredTypes)
         {
-            sb.Append("            typeof(").Append(discoveredType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).Append(@"),
+            sb.Append("            typeof(")
+              .Append(discoveredType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).Append(@"),
 ");
         }
-
         sb.Append(@"        };
     }
 }");
         return sb.ToString();
     }
-
-    private static INamespaceSymbol GetRootNamespaceSymbolFor(ITypeSymbol symbol)
-    {
-        var currentNamespace = symbol.ContainingNamespace;
-
-        while (true)
-        {
-            var parentNamespace = currentNamespace.ContainingNamespace;
-
-            if (parentNamespace?.IsGlobalNamespace != false)
-                return currentNamespace;
-
-            currentNamespace = parentNamespace;
-        }
-    }
-
-    private static IEnumerable<ITypeSymbol> GetAllTypes(INamespaceSymbol root)
-    {
-        foreach (var namespaceOrTypeSymbol in root.GetMembers())
-        {
-            switch (namespaceOrTypeSymbol)
-            {
-                case INamespaceSymbol @namespace:
-                    {
-                        foreach (var nested in GetAllTypes(@namespace))
-                            yield return nested;
-                        break;
-                    }
-                case ITypeSymbol type:
-                    yield return type;
-                    break;
-            }
-        }
-    }
-
-    private static IEnumerable<ITypeSymbol> GetAssemblySymbolTypes(IAssemblySymbol a)
-        => GetAllTypes(a.GlobalNamespace);
 }

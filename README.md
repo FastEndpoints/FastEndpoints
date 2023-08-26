@@ -17,7 +17,7 @@ Please visit the official website for detailed documentation...
 ## Meet Our Sponsors:
 - [VeeFriends](https://veefriends.com/) - VeeFriends is an innovative entertainment company that uses its unique art, compelling storytelling, and collectibles to enhance its intellectual property.
 
-- [EKBY'S](https://ekbys.com/) - EKBY'S provides digital sales & marketing solutions to the Food & Beverage industry.
+- [EKBY'S](#) - EKBY'S provides digital sales & marketing solutions to the Food & Beverage industry.
 
 - [Pique Events](#) - Pique Events allows couples to search, compare and book their All Inclusive Wedding Package in one place.
 

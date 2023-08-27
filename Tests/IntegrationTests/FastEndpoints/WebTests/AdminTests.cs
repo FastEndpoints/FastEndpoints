@@ -7,12 +7,12 @@ namespace Web;
 
 public class AdminTests : TestBase
 {
-    public AdminTests(WebFixture fixture) : base(fixture) { }
+    public AdminTests(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task AdminLoginWithBadInput()
     {
-        var (resp, result) = await Web.GuestClient.POSTAsync<
+        var (resp, result) = await App.GuestClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             ErrorResponse>(new()
@@ -28,7 +28,7 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginSuccess()
     {
-        var (resp, result) = await Web.GuestClient.POSTAsync<
+        var (resp, result) = await App.GuestClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             Admin.Login.Response>(new()
@@ -45,7 +45,7 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginInvalidCreds()
     {
-        var (rsp, _) = await Web.GuestClient.POSTAsync<
+        var (rsp, _) = await App.GuestClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             Admin.Login.Response>(new()
@@ -60,7 +60,7 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginThrottling()
     {
-        var guest = Web.CreateClient(client: c => c.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST"));
+        var guest = App.CreateClient(client: c => c.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST"));
 
         var successCount = 0;
 
@@ -94,7 +94,7 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginV2()
     {
-        var (resp, result) = await Web.GuestClient.GETAsync<
+        var (resp, result) = await App.GuestClient.GETAsync<
             Admin.Login.Endpoint_V2,
             EmptyRequest,
             int>(new());

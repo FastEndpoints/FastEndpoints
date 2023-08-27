@@ -9,12 +9,12 @@ namespace Web;
 
 public class RefreshTokenTests : TestBase
 {
-    public RefreshTokenTests(WebFixture fixture) : base(fixture) { }
+    public RefreshTokenTests(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task LoginEndpointGeneratesCorrectToken()
     {
-        var (rsp, res) = await Web.GuestClient.GETAsync<TestCases.RefreshTokensTest.LoginEndpoint, TokenResponse>();
+        var (rsp, res) = await App.GuestClient.GETAsync<TestCases.RefreshTokensTest.LoginEndpoint, TokenResponse>();
         rsp!.StatusCode.Should().Be(HttpStatusCode.OK);
         res!.UserId.Should().Be("usr001");
 
@@ -27,7 +27,7 @@ public class RefreshTokenTests : TestBase
     [Fact]
     public async Task RefreshEndpointValidationWorks()
     {
-        var (rsp, res) = await Web.GuestClient.POSTAsync<TestCases.RefreshTokensTest.TokenService, TokenRequest, ErrorResponse>(
+        var (rsp, res) = await App.GuestClient.POSTAsync<TestCases.RefreshTokensTest.TokenService, TokenRequest, ErrorResponse>(
             new()
             {
                 UserId = "bad-id",
@@ -42,7 +42,7 @@ public class RefreshTokenTests : TestBase
     [Fact]
     public async Task RefreshEndpointReturnsCorrectTokenResponse()
     {
-        var (rsp, res) = await Web.GuestClient.POSTAsync<TestCases.RefreshTokensTest.TokenService, TokenRequest, TokenResponse>(
+        var (rsp, res) = await App.GuestClient.POSTAsync<TestCases.RefreshTokensTest.TokenService, TokenRequest, TokenResponse>(
             new()
             {
                 UserId = "usr001",

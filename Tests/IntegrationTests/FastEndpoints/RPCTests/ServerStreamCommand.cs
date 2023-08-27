@@ -7,7 +7,7 @@ namespace RemoteProcedureCalls;
 
 public class ServerStreamCommand : RPCTestBase
 {
-    public ServerStreamCommand(WebFixture fixture) : base(fixture) { }
+    public ServerStreamCommand(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task Server_Stream()

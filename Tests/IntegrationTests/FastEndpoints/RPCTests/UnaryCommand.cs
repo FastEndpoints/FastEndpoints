@@ -6,7 +6,7 @@ namespace RemoteProcedureCalls;
 
 public class UnaryCommand : RPCTestBase
 {
-    public UnaryCommand(WebFixture fixture) : base(fixture) { }
+    public UnaryCommand(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task Unary()

@@ -7,12 +7,12 @@ namespace Web;
 
 public class CustomersTests : TestBase
 {
-    public CustomersTests(WebFixture fixture) : base(fixture) { }
+    public CustomersTests(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task ListRecentCustomers()
     {
-        var (_, res) = await Web.AdminClient.GETAsync<
+        var (_, res) = await App.AdminClient.GETAsync<
             Customers.List.Recent.Endpoint,
             Customers.List.Recent.Response>();
 
@@ -24,7 +24,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task ListRecentCustomersCookieScheme()
     {
-        var (rsp, _) = await Web.AdminClient.GETAsync<
+        var (rsp, _) = await App.AdminClient.GETAsync<
             Customers.List.Recent.Endpoint_V1,
             Customers.List.Recent.Response>();
 
@@ -34,7 +34,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CreateNewCustomer()
     {
-        var (rsp, res) = await Web.AdminClient.POSTAsync<
+        var (rsp, res) = await App.AdminClient.POSTAsync<
             Customers.Create.Endpoint,
             Customers.Create.Request,
             string>(new()
@@ -51,7 +51,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CustomerUpdateByCustomer()
     {
-        var (_, res) = await Web.CustomerClient.PUTAsync<
+        var (_, res) = await App.CustomerClient.PUTAsync<
             Customers.Update.Endpoint,
             Customers.Update.Request,
             string>(new()
@@ -68,7 +68,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CustomerUpdateAdmin()
     {
-        var (_, res) = await Web.AdminClient.PUTAsync<
+        var (_, res) = await App.AdminClient.PUTAsync<
             Customers.Update.Endpoint,
             Customers.Update.Request,
             string>(new()
@@ -85,7 +85,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CreateOrderByCustomer()
     {
-        var (rsp, res) = await Web.CustomerClient.POSTAsync<
+        var (rsp, res) = await App.CustomerClient.POSTAsync<
             Sales.Orders.Create.Endpoint,
             Sales.Orders.Create.Request,
             Sales.Orders.Create.Response>(new()
@@ -107,7 +107,7 @@ public class CustomersTests : TestBase
     {
         var guid = Guid.NewGuid();
 
-        var (rsp, res) = await Web.CustomerClient.POSTAsync<
+        var (rsp, res) = await App.CustomerClient.POSTAsync<
             Sales.Orders.Create.Request,
             Sales.Orders.Create.Response>(
             $"api/sales/orders/create/{guid}",
@@ -127,7 +127,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CustomerUpdateByCustomerWithTenantIDInHeader()
     {
-        var (_, res) = await Web.CustomerClient.PUTAsync<
+        var (_, res) = await App.CustomerClient.PUTAsync<
             Customers.UpdateWithHeader.Endpoint,
             Customers.UpdateWithHeader.Request,
             string>(new(

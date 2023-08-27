@@ -7,12 +7,12 @@ namespace EventBus;
 
 public class EventBusTests : TestBase
 {
-    public EventBusTests(WebFixture fixture) : base(fixture) { }
+    public EventBusTests(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task Original_Handler_Execution()
     {
-        var (rsp, res) = await Web.GuestClient.GETAsync<Endpoint, int>();
+        var (rsp, res) = await App.GuestClient.GETAsync<Endpoint, int>();
 
         rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         res.Should().Be(200);
@@ -21,7 +21,7 @@ public class EventBusTests : TestBase
     [Fact]
     public async Task Fake_Handler_Execution()
     {
-        var client = Web.CreateClient(s =>
+        var client = App.CreateClient(s =>
         {
             s.RegisterTestEventHandler<TestEvent, FakeEventHandler>();
             s.RegisterTestEventHandler<TestEvent, AnotherFakeEventHandler>();

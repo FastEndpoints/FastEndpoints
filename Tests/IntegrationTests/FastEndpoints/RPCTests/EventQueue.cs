@@ -7,7 +7,7 @@ namespace RemoteProcedureCalls;
 
 public class EventQueue : RPCTestBase
 {
-    public EventQueue(WebFixture fixture) : base(fixture) { }
+    public EventQueue(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task Event_Queue()

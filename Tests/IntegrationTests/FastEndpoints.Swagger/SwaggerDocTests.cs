@@ -11,7 +11,7 @@ public class SwaggerDocTests : TestBase
 {
     private readonly IServiceProvider serviceProvider;
 
-    public SwaggerDocTests(WebFixture fixture) : base(fixture)
+    public SwaggerDocTests(AppFixture fixture) : base(fixture)
     {
         serviceProvider = fixture.GetServiceProvider();
     }

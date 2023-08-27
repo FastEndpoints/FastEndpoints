@@ -7,7 +7,7 @@ namespace JobQueues;
 
 public class JobQueueTests : TestBase
 {
-    public JobQueueTests(WebFixture fixture) : base(fixture) { }
+    public JobQueueTests(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task JobsExecuteSuccessfully()

@@ -2,12 +2,12 @@
 
 namespace Shared;
 
-public abstract class TestBase : IClassFixture<WebFixture>
+public abstract class TestBase : IClassFixture<AppFixture>
 {
-    protected WebFixture Web { get; init; }
+    protected AppFixture App { get; init; }
 
-    protected TestBase(WebFixture fixture)
+    protected TestBase(AppFixture fixture)
     {
-        Web = fixture;
+        App = fixture;
     }
 }

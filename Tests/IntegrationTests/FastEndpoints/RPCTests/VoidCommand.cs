@@ -6,7 +6,7 @@ namespace RemoteProcedureCalls;
 
 public class VoidCommand : RPCTestBase
 {
-    public VoidCommand(WebFixture fixture) : base(fixture) { }
+    public VoidCommand(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task Void()

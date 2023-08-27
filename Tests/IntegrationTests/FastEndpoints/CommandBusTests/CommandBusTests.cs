@@ -7,12 +7,12 @@ namespace CommandBus;
 
 public class CommandBusTests : TestBase
 {
-    public CommandBusTests(WebFixture fixture) : base(fixture) { }
+    public CommandBusTests(AppFixture fixture) : base(fixture) { }
 
     [Fact]
     public async Task Command_Handler_Sends_Error_Response()
     {
-        var res = await Web.GuestClient.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
+        var res = await App.GuestClient.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
         res.Response.IsSuccessStatusCode.Should().BeFalse();
         res.Result!.StatusCode.Should().Be(400);
         res.Result.Errors.Count.Should().Be(2);
@@ -43,7 +43,7 @@ public class CommandBusTests : TestBase
     [Fact]
     public async Task Command_That_Returns_A_Result_With_TestHandler()
     {
-        var client = Web.CreateClient(s =>
+        var client = App.CreateClient(s =>
         {
             s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
         });
@@ -72,7 +72,7 @@ public class CommandBusTests : TestBase
     [Fact]
     public async Task Void_Command_With_Test_Handler()
     {
-        var client = Web.CreateClient(s =>
+        var client = App.CreateClient(s =>
         {
             s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
         });

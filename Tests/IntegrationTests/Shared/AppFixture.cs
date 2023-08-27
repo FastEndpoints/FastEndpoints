@@ -71,14 +71,15 @@ public sealed class AppFixture : WebApplicationFactory<Program>
 
     public override async ValueTask DisposeAsync()
     {
+        // only dispose the clients of this instance
+        // do not dispose this instance itself
         GuestClient.Dispose();
         AdminClient.Dispose();
         CustomerClient.Dispose();
         RangeClient.Dispose();
 
+        // dispose the delegated factories of this instance
         foreach (var f in Factories)
             await f.DisposeAsync();
-
-        //NOTE: this instance is not being disposed on purpose!
     }
 }

@@ -1,4 +1,5 @@
-﻿using FastEndpoints;
+﻿#pragma warning disable CS8618
+using FastEndpoints;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -14,10 +15,10 @@ namespace Shared;
 
 public sealed class AppFixture : WebApplicationFactory<Program>
 {
-    public HttpClient GuestClient { get; set; } = default!;
-    public HttpClient AdminClient { get; set; } = default!;
-    public HttpClient CustomerClient { get; set; } = default!;
-    public HttpClient RangeClient { get; set; } = default!;
+    public HttpClient GuestClient { get; private set; }
+    public HttpClient AdminClient { get; private set; }
+    public HttpClient CustomerClient { get; private set; }
+    public HttpClient RangeClient { get; private set; }
 
     private readonly IMessageSink _messageSink;
 
@@ -49,7 +50,6 @@ public sealed class AppFixture : WebApplicationFactory<Program>
                 UserName = "admin",
                 Password = "pass"
             }).GetAwaiter().GetResult();
-
         AdminClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result?.JWTToken);
         AdminClient.DefaultRequestHeaders.Add("tenant-id", "admin");
 
@@ -78,5 +78,7 @@ public sealed class AppFixture : WebApplicationFactory<Program>
 
         foreach (var f in Factories)
             await f.DisposeAsync();
+
+        //NOTE: this instance is not being disposed on purpose!
     }
 }

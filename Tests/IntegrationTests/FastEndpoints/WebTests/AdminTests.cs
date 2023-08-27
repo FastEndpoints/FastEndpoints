@@ -60,7 +60,8 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginThrottling()
     {
-        var guest = App.CreateClient(client: c => c.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST"));
+        var guest = App.CreateClient();
+        guest.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST");
 
         var successCount = 0;
 

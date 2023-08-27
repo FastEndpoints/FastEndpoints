@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using Microsoft.AspNetCore.TestHost;
 using Shared;
 using TestCases.EventBusTest;
 using Xunit;
@@ -21,11 +22,14 @@ public class EventBusTests : TestBase
     [Fact]
     public async Task Fake_Handler_Execution()
     {
-        var client = App.CreateClient(s =>
+        var client = App.WithWebHostBuilder(b =>
         {
-            s.RegisterTestEventHandler<TestEvent, FakeEventHandler>();
-            s.RegisterTestEventHandler<TestEvent, AnotherFakeEventHandler>();
-        });
+            b.ConfigureTestServices(s =>
+            {
+                s.RegisterTestEventHandler<TestEvent, FakeEventHandler>();
+                s.RegisterTestEventHandler<TestEvent, AnotherFakeEventHandler>();
+            });
+        }).CreateClient();
 
         var (rsp, res) = await client.GETAsync<Endpoint, int>();
 

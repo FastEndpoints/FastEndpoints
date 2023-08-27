@@ -1,4 +1,5 @@
 ﻿using FastEndpoints;
+using Microsoft.AspNetCore.TestHost;
 using Shared;
 using TestCases.CommandBusTest;
 using Xunit;
@@ -43,10 +44,13 @@ public class CommandBusTests : TestBase
     [Fact]
     public async Task Command_That_Returns_A_Result_With_TestHandler()
     {
-        var client = App.CreateClient(s =>
+        var client = App.WithWebHostBuilder(b =>
         {
-            s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
-        });
+            b.ConfigureTestServices(s =>
+            {
+                s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
+            });
+        }).CreateClient();
 
         var (rsp, res) = await client.GETAsync<Endpoint, string>();
 
@@ -72,10 +76,13 @@ public class CommandBusTests : TestBase
     [Fact]
     public async Task Void_Command_With_Test_Handler()
     {
-        var client = App.CreateClient(s =>
+        var client = App.WithWebHostBuilder(b =>
         {
-            s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
-        });
+            b.ConfigureTestServices(s =>
+            {
+                s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
+            });
+        }).CreateClient();
 
         var (rsp, res) = await client.GETAsync<Endpoint, string>();
 

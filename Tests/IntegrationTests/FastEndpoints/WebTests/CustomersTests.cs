@@ -97,7 +97,7 @@ public class CustomersTests : TestBase
 
         rsp?.IsSuccessStatusCode.Should().BeTrue();
         res?.OrderID.Should().Be(54321);
-        res?.AnotherMsg.Should().Be("Email actually sent!");
+        res?.AnotherMsg.Should().Be("Email was not sent during testing!");
         res?.Event.One.Should().Be(100);
         res?.Event.Two.Should().Be(200);
     }

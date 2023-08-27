@@ -42,7 +42,7 @@ public sealed class AppFixture : WebApplicationFactory<Program>
         GuestClient = CreateClient();
 
         AdminClient = CreateClient();
-        var (_, result) = GuestClient.POSTAsync<
+        var (_, result) = AdminClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
             Admin.Login.Response>(new()
@@ -54,7 +54,7 @@ public sealed class AppFixture : WebApplicationFactory<Program>
         AdminClient.DefaultRequestHeaders.Add("tenant-id", "admin");
 
         CustomerClient = CreateClient();
-        var (_, customerToken) = GuestClient.GETAsync<Customers.Login.Endpoint, string>().GetAwaiter().GetResult();
+        var (_, customerToken) = CustomerClient.GETAsync<Customers.Login.Endpoint, string>().GetAwaiter().GetResult();
         CustomerClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", customerToken);
         CustomerClient.DefaultRequestHeaders.Add("tenant-id", "qwerty");
         CustomerClient.DefaultRequestHeaders.Add("CustomerID", "123");

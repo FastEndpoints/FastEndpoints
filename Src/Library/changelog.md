@@ -117,6 +117,12 @@ Any other Newtonsoft settings that needs to be tuned can also be accessed via th
 
 </details>
 
+<details><summary>Starter Project Templates</summary>
+
+[See here](https://fast-endpoints.com/docs/scaffolding#project-scaffolding) for details about new project scaffolding with the `Template Pack`.
+
+</details>
+
 ## 🚀 Improvements
 
 <details><summary>Minor performance optimizations</summary>

@@ -2,7 +2,10 @@
 using Shared;
 using System.Net;
 using Xunit;
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Create = Inventory.Manage.Create;
+using Delete = Inventory.Manage.Delete;
+using GetProduct = Inventory.GetProduct;
+using Update = Inventory.Manage.Update;
 
 namespace Web;
 
@@ -13,13 +16,10 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductFailValidation()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<
-            Inventory.Manage.Create.Endpoint,
-            Inventory.Manage.Create.Request,
-            ErrorResponse>(new()
-            {
-                Price = 1100
-            });
+        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
+        {
+            Price = 1100
+        });
 
         res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result?.Errors.Count.Should().Be(2);
@@ -30,15 +30,12 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductFailBusinessLogic()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<
-            Inventory.Manage.Create.Endpoint,
-            Inventory.Manage.Create.Request,
-            ErrorResponse>(new()
-            {
-                Name = "test item",
-                ModifiedBy = "me",
-                Price = 1100
-            });
+        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
+        {
+            Name = "test item",
+            ModifiedBy = "me",
+            Price = 1100
+        });
 
         res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result?.Errors.Should().NotBeNull();
@@ -50,16 +47,13 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductFailDuplicateItem()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<
-            Inventory.Manage.Create.Endpoint,
-            Inventory.Manage.Create.Request,
-            ErrorResponse>(new()
-            {
-                Name = "Apple Juice",
-                Description = "description",
-                ModifiedBy = "me",
-                Price = 100
-            });
+        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
+        {
+            Name = "Apple Juice",
+            Description = "description",
+            ModifiedBy = "me",
+            Price = 100
+        });
 
         res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result?.Errors.Should().NotBeNull();
@@ -70,16 +64,13 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductFailNoPermission()
     {
-        var (rsp, _) = await App.CustomerClient.PUTAsync<
-            Inventory.Manage.Update.Endpoint,
-            Inventory.Manage.Update.Request,
-            Inventory.Manage.Update.Response>(new()
-            {
-                Name = "Grape Juice",
-                Description = "description",
-                ModifiedBy = "me",
-                Price = 100
-            });
+        var (rsp, _) = await App.CustomerClient.PUTAsync<Update.Endpoint, Update.Request, Update.Response>(new()
+        {
+            Name = "Grape Juice",
+            Description = "description",
+            ModifiedBy = "me",
+            Price = 100
+        });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -87,16 +78,13 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductSuccess()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<
-            Inventory.Manage.Create.Endpoint,
-            Inventory.Manage.Create.Request,
-            Inventory.Manage.Create.Response>(new()
-            {
-                Name = "Grape Juice",
-                Description = "description",
-                ModifiedBy = "me",
-                Price = 100
-            });
+        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
+        {
+            Name = "Grape Juice",
+            Description = "description",
+            ModifiedBy = "me",
+            Price = 100
+        });
 
         res?.StatusCode.Should().Be(HttpStatusCode.Created);
         result?.ProductId.Should().BeGreaterThan(1);
@@ -106,17 +94,14 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreatedAtSuccess()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<
-            Inventory.Manage.Create.Endpoint,
-            Inventory.Manage.Create.Request,
-            Inventory.Manage.Create.Response>(new()
-            {
-                Name = "Grape Juice",
-                Description = "description",
-                ModifiedBy = "me",
-                Price = 100,
-                GenerateFullUrl = false
-            });
+        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
+        {
+            Name = "Grape Juice",
+            Description = "description",
+            ModifiedBy = "me",
+            Price = 100,
+            GenerateFullUrl = false
+        });
 
         var createdAtLocation = res?.Headers.Location?.ToString();
 
@@ -129,17 +114,14 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreatedAtSuccessFullUrl()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<
-            Inventory.Manage.Create.Endpoint,
-            Inventory.Manage.Create.Request,
-            Inventory.Manage.Create.Response>(new()
-            {
-                Name = "Grape Juice",
-                Description = "description",
-                ModifiedBy = "me",
-                Price = 100,
-                GenerateFullUrl = true
-            });
+        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
+        {
+            Name = "Grape Juice",
+            Description = "description",
+            ModifiedBy = "me",
+            Price = 100,
+            GenerateFullUrl = true
+        });
 
         var createdAtLocation = res?.Headers.Location?.ToString();
 
@@ -152,14 +134,13 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task ResponseCaching()
     {
-        var (rsp1, res1) =
-            await App.GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
-        Assert.AreEqual(HttpStatusCode.OK, rsp1?.StatusCode);
+        var (rsp1, res1) = await App.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
+
+        rsp1!.StatusCode.Should().Be(HttpStatusCode.OK);
 
         await Task.Delay(100);
 
-        var (rsp2, res2) =
-            await App.GuestClient.GETAsync<Inventory.GetProduct.Endpoint, Inventory.GetProduct.Response>();
+        var (rsp2, res2) = await App.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
 
         rsp2?.StatusCode.Should().Be(HttpStatusCode.OK);
         res2?.LastModified.Should().Be(res1?.LastModified);
@@ -168,12 +149,10 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task DeleteProductSuccess()
     {
-        var res = await App.AdminClient.DELETEAsync<
-            Inventory.Manage.Delete.Endpoint,
-            Inventory.Manage.Delete.Request>(new()
-            {
-                ItemID = Guid.NewGuid().ToString()
-            });
+        var res = await App.AdminClient.DELETEAsync<Delete.Endpoint, Delete.Request>(new()
+        {
+            ItemID = Guid.NewGuid().ToString()
+        });
 
         res?.StatusCode.Should().Be(HttpStatusCode.OK);
     }

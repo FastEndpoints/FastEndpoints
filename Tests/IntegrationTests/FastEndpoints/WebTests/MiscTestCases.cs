@@ -612,7 +612,6 @@ public class MiscTestCases : TestBase
     }
 
     [Fact]
-
     public async Task BindingObjectFromQueryUseSwaggerUiStyle()
     {
         var (rsp, res) = await App.GuestClient

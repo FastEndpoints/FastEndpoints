@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    
+
     <PropertyGroup>
         <NoWarn>1701;1702;CS1591;CS1573,CA2254;RCS1079;CS8618;IDE0022</NoWarn>
         <Description>A light-weight REST Api framework for ASP.Net 6 and newer that implements REPR (Request-Endpoint-Response) Pattern.</Description>
@@ -14,13 +14,12 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        
+
         <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj" />
         <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
-        
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />      
-        
+
         <PackageReference Include="FluentValidation" Version="11.7.1" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
@@ -28,8 +27,9 @@
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false" />
         <None Include="changelog.md" Pack="false" Link="Content\Changelog" />
         <None Include="..\Directory.Build.props" Pack="false" Link="Content\BuildProps" />
-        <None Include="JetBrains\ExternalAnnotations.xml" Pack="true" PackagePath="lib\$(TargetFramework)\$(AssemblyName).ExternalAnnotations.xml">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
+        <None Include="JetBrains\ExternalAnnotations.xml"
+              Pack="true"
+              PackagePath="lib\$(TargetFramework)\$(AssemblyName).ExternalAnnotations.xml"
+              CopyToOutputDirectory="Always" />
     </ItemGroup>
 </Project>

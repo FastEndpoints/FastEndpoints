@@ -10,9 +10,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-        <PackageReference Include="NSwag.AspNetCore" Version="13.19.0" />
         <ProjectReference Include="..\Library\FastEndpoints.csproj" />
+        
+        <PackageReference Include="NSwag.AspNetCore" Version="13.19.0" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>

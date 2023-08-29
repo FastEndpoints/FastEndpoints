@@ -10,14 +10,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+        <ProjectReference Include="..\Library\FastEndpoints.csproj" />
+
         <PackageReference Condition="'$(TargetFramework)' == 'net6.0'" Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" />
         <PackageReference Condition="'$(TargetFramework)' == 'net7.0'" Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.10" />
         <PackageReference Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Include="Microsoft.Bcl.TimeProvider" Version="8.0.0-preview*" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Library\FastEndpoints.csproj" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>

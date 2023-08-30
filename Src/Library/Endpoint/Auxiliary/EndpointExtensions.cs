@@ -18,7 +18,8 @@ internal static class EndpointExtensions
                ep.AllowedClaimTypes?.Any() is true ||
                ep.AllowedRoles?.Any() is true ||
                ep.AuthSchemeNames?.Any() is true ||
-               ep.PolicyBuilder is not null;
+               ep.PolicyBuilder is not null ||
+               ep.PreBuiltUserPolicies is not null;
     }
 
     internal static void Initialize(this EndpointDefinition def, BaseEndpoint instance, HttpContext? ctx)

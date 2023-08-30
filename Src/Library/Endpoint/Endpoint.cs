@@ -384,12 +384,26 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
         set => _mapper = value; //allow unit tests to set mapper from outside
     }
 
+    /// <summary>
+    /// send a response by mapping the supplied entity using this endpoint's mapper's SYNC mapping method.
+    /// </summary>
+    /// <typeparam name="TEntity">the type of the entity supplied</typeparam>
+    /// <param name="entity">the entity instance to map to the response</param>
+    /// <param name="statusCode">the status code to send</param>
+    /// <param name="ct">optional cancellation token</param>
     protected Task SendMapped<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
     {
         var resp = ((ResponseMapper<TResponse, TEntity>)Definition.GetMapper()!).FromEntity(entity);
         return SendAsync(resp, statusCode, ct);
     }
 
+    /// <summary>
+    /// send a response by mapping the supplied entity using this endpoint's mapper's ASYNC mapping method.
+    /// </summary>
+    /// <typeparam name="TEntity">the type of the entity supplied</typeparam>
+    /// <param name="entity">the entity instance to map to the response</param>
+    /// <param name="statusCode">the status code to send</param>
+    /// <param name="ct">optional cancellation token</param>
     protected async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
     {
         var resp = await ((ResponseMapper<TResponse, TEntity>)Definition.GetMapper()!).FromEntityAsync(entity, ct);

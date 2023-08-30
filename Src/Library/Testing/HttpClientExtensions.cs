@@ -13,9 +13,9 @@ namespace FastEndpoints;
 public static class HttpClientExtensions
 {
     /// <summary>
-    /// make a POST request using a request dto and get back a response dto.
+    /// make a POST request using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO/>.
     /// </summary>
-    /// <typeparam name="TRequest">type of the requet dto</typeparam>
+    /// <typeparam name="TRequest">type of the request dto</typeparam>
     /// <typeparam name="TResponse">type of the response dto</typeparam>
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
@@ -24,10 +24,10 @@ public static class HttpClientExtensions
                                                                              string requestUri,
                                                                              TRequest request,
                                                                              bool? sendAsFormData = null)
-        => client.Send<TRequest, TResponse>(HttpMethod.Post, requestUri, request, sendAsFormData);
+        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Post, requestUri, request, sendAsFormData);
 
     /// <summary>
-    /// make a POST request to an endpoint using auto route discovery using a request dto and get back a response dto.
+    /// make a POST request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
@@ -55,7 +55,7 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// make a POST request to an endpoint using auto route discovery without a request dto and get back a typed response dto.
+    /// make a POST request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
@@ -63,9 +63,9 @@ public static class HttpClientExtensions
         => POSTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
-    /// make a PATCH request using a request dto and get back a response dto.
+    /// make a PATCH request using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
-    /// <typeparam name="TRequest">type of the requet dto</typeparam>
+    /// <typeparam name="TRequest">type of the request dto</typeparam>
     /// <typeparam name="TResponse">type of the response dto</typeparam>
     /// <param name="requestUri">the route url to PATCH to</param>
     /// <param name="request">the request dto</param>
@@ -74,10 +74,10 @@ public static class HttpClientExtensions
                                                                               string requestUri,
                                                                               TRequest request,
                                                                               bool? sendAsFormData = null)
-        => client.Send<TRequest, TResponse>(HttpMethod.Patch, requestUri, request, sendAsFormData);
+        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Patch, requestUri, request, sendAsFormData);
 
     /// <summary>
-    /// make a PATCH request to an endpoint using auto route discovery using a request dto and get back a response dto.
+    /// make a PATCH request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
@@ -105,7 +105,7 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// make a PATCH request to an endpoint using auto route discovery without a request dto and get back a typed response dto.
+    /// make a PATCH request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
@@ -113,9 +113,9 @@ public static class HttpClientExtensions
         => PATCHAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
-    /// make a PUT request using a request dto and get back a response dto.
+    /// make a PUT request using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
-    /// <typeparam name="TRequest">type of the requet dto</typeparam>
+    /// <typeparam name="TRequest">type of the request dto</typeparam>
     /// <typeparam name="TResponse">type of the response dto</typeparam>
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
@@ -124,10 +124,10 @@ public static class HttpClientExtensions
                                                                             string requestUri,
                                                                             TRequest request,
                                                                             bool? sendAsFormData = null)
-        => client.Send<TRequest, TResponse>(HttpMethod.Put, requestUri, request, sendAsFormData);
+        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Put, requestUri, request, sendAsFormData);
 
     /// <summary>
-    /// make a PUT request to an endpoint using auto route discovery using a request dto and get back a response dto.
+    /// make a PUT request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
@@ -155,7 +155,7 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// make a PUT request to an endpoint using auto route discovery without a request dto and get back a typed response dto.
+    /// make a PUT request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
@@ -163,19 +163,19 @@ public static class HttpClientExtensions
         => PUTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
-    /// make a GET request using a request dto and get back a response dto.
+    /// make a GET request using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
-    /// <typeparam name="TRequest">type of the requet dto</typeparam>
+    /// <typeparam name="TRequest">type of the request dto</typeparam>
     /// <typeparam name="TResponse">type of the response dto</typeparam>
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     public static Task<TestResult<TResponse>> GETAsync<TRequest, TResponse>(this HttpClient client,
                                                                             string requestUri,
                                                                             TRequest request)
-        => client.Send<TRequest, TResponse>(HttpMethod.Get, requestUri, request);
+        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Get, requestUri, request);
 
     /// <summary>
-    /// make a GET request to an endpoint using auto route discovery using a request dto and get back a response dto.
+    /// make a GET request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
@@ -199,7 +199,7 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// make a GET request to an endpoint using auto route discovery without a request dto and get back a typed response dto.
+    /// make a GET request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
@@ -207,19 +207,19 @@ public static class HttpClientExtensions
         => GETAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
     /// <summary>
-    /// make a DELETE request using a request dto and get back a response dto.
+    /// make a DELETE request using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
-    /// <typeparam name="TRequest">type of the requet dto</typeparam>
+    /// <typeparam name="TRequest">type of the request dto</typeparam>
     /// <typeparam name="TResponse">type of the response dto</typeparam>
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     public static Task<TestResult<TResponse>> DELETEAsync<TRequest, TResponse>(this HttpClient client,
                                                                                string requestUri,
                                                                                TRequest request)
-        => client.Send<TRequest, TResponse>(HttpMethod.Delete, requestUri, request);
+        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Delete, requestUri, request);
 
     /// <summary>
-    /// make a DELETE request to an endpoint using auto route discovery using a request dto and get back a response dto.
+    /// make a DELETE request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
@@ -243,25 +243,34 @@ public static class HttpClientExtensions
     }
 
     /// <summary>
-    /// make a DELETE request to an endpoint using auto route discovery without a request dto and get back a typed response dto.
+    /// make a DELETE request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO.
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
         => DELETEAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new EmptyRequest());
 
-    public static async Task<TestResult<TResponse>> Send<TRequest, TResponse>(this HttpClient client,
-                                                                              HttpMethod method,
-                                                                              string requestUri,
-                                                                              TRequest request,
-                                                                              bool? isFormContent = null)
+    /// <summary>
+    /// send a request DTO to a given endpoint URL and get back a <see cref="TestResult{TResponse}"/> containing the <see cref="HttpResponseMessage"/> as well as the <typeparamref name="TResponse"/> DTO
+    /// </summary>
+    /// <typeparam name="TRequest">type of the request dto</typeparam>
+    /// <typeparam name="TResponse">type of the response dto</typeparam>
+    /// <param name="method">the http method to use</param>
+    /// <param name="requestUri">the route url of the endpoint</param>
+    /// <param name="request">the request dto</param>
+    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent"/></param>
+    public static async Task<TestResult<TResponse>> SENDAsync<TRequest, TResponse>(this HttpClient client,
+                                                                                   HttpMethod method,
+                                                                                   string requestUri,
+                                                                                   TRequest request,
+                                                                                   bool? sendAsFormData = null)
     {
         var rsp = await client.SendAsync(
             new HttpRequestMessage
             {
                 Method = method,
-                RequestUri = new Uri(client.BaseAddress!.ToString() + requestUri.TrimStart('/')),
-                Content = isFormContent is true
+                RequestUri = new Uri($"{client.BaseAddress}{requestUri.TrimStart('/')}"),
+                Content = sendAsFormData is true
                             ? request.ToForm()
                             : new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
             });

@@ -3,11 +3,11 @@
     <ItemGroup>
         <PackageReference Include="FluentAssertions.Web" Version="1.2.5" />
         <PackageReference Include="FluentAssertions.Json" Version="6.1.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
         <PackageReference Include="Microsoft.VisualStudio.TestPlatform" Version="14.0.0" />
         <PackageReference Include="xunit" Version="2.5.0" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0" PrivateAssets ="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
-        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     </ItemGroup>
 
     <ItemGroup>
@@ -16,9 +16,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="initial-release.json" CopyToOutputDirectory="Always"/>
-        <Content Include="release-1.json" CopyToOutputDirectory="Always"/>
-        <Content Include="release-2.json" CopyToOutputDirectory="Always"/>
+        <Content Include="initial-release.json" CopyToOutputDirectory="Always" />
+        <Content Include="release-1.json" CopyToOutputDirectory="Always" />
+        <Content Include="release-2.json" CopyToOutputDirectory="Always" />
         <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 

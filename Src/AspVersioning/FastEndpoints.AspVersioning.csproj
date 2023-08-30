@@ -13,9 +13,9 @@
     <ItemGroup>
         <ProjectReference Include="..\Library\FastEndpoints.csproj" />
 
-        <PackageReference Include="Asp.Versioning.Http" Version="7.0.0" />
-        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.0.0" />
-        <PackageReference Include="NSwag.Generation.AspNetCore" Version="13.19.0" />
+        <PackageReference Include="Asp.Versioning.Http" Version="7.0.1" />
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.0.1" />
+        <PackageReference Include="NSwag.Generation.AspNetCore" Version="13.20.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     </ItemGroup>
 

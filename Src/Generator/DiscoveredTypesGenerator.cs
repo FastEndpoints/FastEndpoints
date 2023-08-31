@@ -7,7 +7,7 @@ using System.Text;
 namespace FastEndpoints.Generator;
 
 [Generator(LanguageNames.CSharp)]
-public class EndpointsDiscoveryGenerator : IIncrementalGenerator
+public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
@@ -44,22 +44,24 @@ public class EndpointsDiscoveryGenerator : IIncrementalGenerator
         spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    private static string GetContent(IEnumerable<ITypeSymbol> filteredTypes)
+    private static string GetContent(IEnumerable<ITypeSymbol> discoveredTypes)
     {
-        var sb = new StringBuilder(@"namespace FastEndpoints
+        var assembly = discoveredTypes.FirstOrDefault()?.ContainingAssembly.Name;
+
+        var sb = new StringBuilder(
+"namespace ").Append(assembly).Append(@"
 {
     public static class DiscoveredTypes
     {
         public static readonly global::System.Type[] All = new global::System.Type[]
+        {");
+        foreach (var t in discoveredTypes)
         {
-");
-        foreach (var discoveredType in filteredTypes)
-        {
-            sb.Append("            typeof(")
-              .Append(discoveredType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).Append(@"),
-");
+            sb.Append(@"
+            typeof(").Append(t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).Append("),");
         }
-        sb.Append(@"        };
+        sb.Append(@"
+        };
     }
 }");
         return sb.ToString();

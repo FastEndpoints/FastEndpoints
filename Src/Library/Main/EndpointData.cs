@@ -56,7 +56,7 @@ internal sealed class EndpointData
             "WindowsBase"
         };
 
-        var discoveredTypes = options.SourceGeneratorDiscoveredTypes ?? Enumerable.Empty<Type>();
+        var discoveredTypes = options.SourceGeneratorDiscoveredTypes.AsEnumerable();
 
         if (!discoveredTypes.Any())
         {

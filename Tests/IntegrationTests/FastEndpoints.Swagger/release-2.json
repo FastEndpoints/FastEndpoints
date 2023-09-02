@@ -740,8 +740,7 @@
               "type": "integer",
               "format": "int32",
               "nullable": true
-            },
-            "example": 0
+            }
           },
           {
             "name": "Long",
@@ -1070,8 +1069,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "requestBody": {
@@ -1164,8 +1162,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "responses": {
@@ -1975,8 +1972,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "responses": {
@@ -2493,8 +2489,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "PhoneNumbers",
@@ -2716,8 +2711,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "PhoneNumbers",
@@ -2842,8 +2836,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "PhoneNumbers",
@@ -2977,8 +2970,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "PhoneNumbers",
@@ -3103,8 +3095,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "PhoneNumbers",
@@ -3197,8 +3188,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "PhoneNumbers",

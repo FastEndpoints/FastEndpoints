@@ -497,7 +497,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         if (ctx.Settings.GenerateExamples)
         {
             prm.Example = prop?.GetExample();
-            if (prm.Example is null && prm.Default is null && prm.Schema.Default is null)
+            if (prm.Example is null && prm.Default is null && prm.Schema.Default is null && prm.IsRequired)
                 prm.Example = prm.ActualSchema.ToSampleJson();
         }
 

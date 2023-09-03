@@ -11,7 +11,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## 🔖 New
 
-<details><summary>'FastEndpoints.Testing' helper library for Integration testing</summary>
+<details><summary>'FastEndpoints.Testing' package for convenient Integration testing</summary>
 
 Please see the [documentation](https://fast-endpoints.com/docs/integration-unit-testing#integration-testing) for details.
 

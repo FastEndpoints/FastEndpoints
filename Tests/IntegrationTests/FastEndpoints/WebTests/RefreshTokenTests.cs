@@ -1,5 +1,4 @@
 ﻿using FastEndpoints.Security;
-using Int.FastEndpoints;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using RefreshTest = TestCases.RefreshTokensTest;

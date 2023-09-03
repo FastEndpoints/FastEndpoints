@@ -1,5 +1,4 @@
-﻿using Int.FastEndpoints;
-using System.Net;
+﻿using System.Net;
 using Create = Customers.Create;
 using List = Customers.List;
 using Orders = Sales.Orders;

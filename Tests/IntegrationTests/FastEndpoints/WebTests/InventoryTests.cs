@@ -1,5 +1,4 @@
-﻿using Int.FastEndpoints;
-using System.Net;
+﻿using System.Net;
 using Create = Inventory.Manage.Create;
 using Delete = Inventory.Manage.Delete;
 using GetProduct = Inventory.GetProduct;

@@ -1,6 +1,4 @@
-﻿using FastEndpoints.Testing;
-using NSwag.Generation;
-using Xunit.Abstractions;
+﻿using NSwag.Generation;
 
 namespace Swagger;
 

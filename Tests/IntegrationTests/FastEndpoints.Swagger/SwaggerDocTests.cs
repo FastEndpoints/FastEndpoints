@@ -1,4 +1,6 @@
-﻿namespace Swagger;
+﻿using FluentAssertions.Json;
+
+namespace Swagger;
 
 public class SwaggerDocTests : TestClass<Fixture>
 {

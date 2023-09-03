@@ -9,7 +9,13 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <!-- <details><summary>title text</summary></details> -->
 
-<!-- ## 🔖 New -->
+## 🔖 New
+
+<details><summary>'FastEndpoints.Testing' helper library for Integration testing</summary>
+
+Please see the [documentation](https://fast-endpoints.com/docs/integration-unit-testing#integration-testing) for details.
+
+</details>
 
 <!-- ## 🚀 Improvements -->
 

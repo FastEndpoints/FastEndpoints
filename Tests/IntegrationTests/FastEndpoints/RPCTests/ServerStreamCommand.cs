@@ -1,13 +1,11 @@
 ﻿using Grpc.Core;
-using Shared;
 using TestCases.ServerStreamingTest;
-using Xunit;
 
 namespace RemoteProcedureCalls;
 
 public class ServerStreamCommand : RPCTestBase
 {
-    public ServerStreamCommand(AppFixture fixture) : base(fixture) { }
+    public ServerStreamCommand(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task Server_Stream()

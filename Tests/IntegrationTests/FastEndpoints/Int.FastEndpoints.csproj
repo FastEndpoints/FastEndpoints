@@ -1,28 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
     <ItemGroup>
-        <PackageReference Include="FluentAssertions.Web" Version="1.2.5" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
-        <PackageReference Include="Microsoft.VisualStudio.TestPlatform" Version="14.0.0" />
-        <PackageReference Include="xunit" Version="2.5.0" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
         <PackageReference Include="FakeItEasy" Version="7.4.0" />
         <PackageReference Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
-        <PackageReference Include="coverlet.collector" Version="6.0.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj" />
+        <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj" />
         <ProjectReference Include="..\..\..\Web\Web.csproj" />
-        <ProjectReference Include="..\Shared\Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-        <Content Include="test.png" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="Always" />
+        <Content Include="test.png" CopyToOutputDirectory="Always" />
     </ItemGroup>
 
-    <ItemGroup Label="Implicit usings">
-        <Using Include="FluentAssertions" />
-    </ItemGroup>
 </Project>

@@ -1,12 +1,10 @@
-﻿using Shared;
-using TestCases.ClientStreamingTest;
-using Xunit;
+﻿using TestCases.ClientStreamingTest;
 
 namespace RemoteProcedureCalls;
 
 public class ClientStreamCommand : RPCTestBase
 {
-    public ClientStreamCommand(AppFixture fixture) : base(fixture) { }
+    public ClientStreamCommand(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task Client_Stream()

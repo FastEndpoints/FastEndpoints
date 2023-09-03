@@ -1,93 +1,19 @@
-﻿using FastEndpoints;
-using Microsoft.AspNetCore.TestHost;
-using Shared;
-using TestCases.CommandBusTest;
-using Xunit;
+﻿using TestCases.CommandBusTest;
 
 namespace CommandBus;
 
-public class CommandBusTests : TestBase
+public class CommandBusTests : TestClass<Fixture>
 {
-    public CommandBusTests(AppFixture fixture) : base(fixture) { }
+    public CommandBusTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task Command_Handler_Sends_Error_Response()
     {
-        var res = await App.GuestClient.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
+        var res = await Fixture.Client.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
         res.Response.IsSuccessStatusCode.Should().BeFalse();
         res.Result!.StatusCode.Should().Be(400);
         res.Result.Errors.Count.Should().Be(2);
         res.Result.Errors["GeneralErrors"].Count.Should().Be(2);
-    }
-
-    [Fact]
-    public async Task Command_That_Returns_A_Result()
-    {
-        var res1 = await new SomeCommand
-        {
-            FirstName = "johnny",
-            LastName = "lawrence"
-        }
-        .ExecuteAsync();
-
-        var res2 = await new SomeCommand
-        {
-            FirstName = "jo",
-            LastName = "law"
-        }
-        .ExecuteAsync();
-
-        res1.Should().Be("johnny lawrence");
-        res2.Should().Be("jo law");
-    }
-
-    [Fact]
-    public async Task Command_That_Returns_A_Result_With_TestHandler()
-    {
-        var client = App.WithWebHostBuilder(b =>
-        {
-            b.ConfigureTestServices(s =>
-            {
-                s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
-            });
-        }).CreateClient();
-
-        var (rsp, res) = await client.GETAsync<Endpoint, string>();
-
-        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        TestCommandHandler.FullName.Should().Be("x y zseeeee!");
-    }
-
-    [Fact]
-    public async Task Void_Command_With_Original_Handler()
-    {
-        var cmd = new VoidCommand
-        {
-            FirstName = "johnny",
-            LastName = "lawrence"
-        };
-
-        await cmd.ExecuteAsync();
-
-        cmd.FirstName.Should().Be("pass");
-        cmd.LastName.Should().Be("pass");
-    }
-
-    [Fact]
-    public async Task Void_Command_With_Test_Handler()
-    {
-        var client = App.WithWebHostBuilder(b =>
-        {
-            b.ConfigureTestServices(s =>
-            {
-                s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
-            });
-        }).CreateClient();
-
-        var (rsp, res) = await client.GETAsync<Endpoint, string>();
-
-        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        TestVoidCommandHandler.FullName.Should().Be("x y z");
     }
 
     [Fact]
@@ -103,10 +29,28 @@ public class CommandBusTests : TestBase
 
         await act.Should().NotThrowAsync();
     }
+
+    [Fact]
+    public async Task Command_That_Returns_A_Result_With_TestHandler()
+    {
+        var (rsp, _) = await Fixture.Client.GETAsync<Endpoint, string>();
+
+        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        TestCommandHandler.FullName.Should().Be("x y zseeeee!");
+    }
+
+    [Fact]
+    public async Task Void_Command_With_Test_Handler()
+    {
+        var (rsp, _) = await Fixture.Client.GETAsync<Endpoint, string>();
+
+        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        TestVoidCommandHandler.FullName.Should().Be("x y z");
+    }
 }
 
 [DontRegister]
-sealed class TestVoidCommandHandler : ICommandHandler<VoidCommand>
+public class TestVoidCommandHandler : ICommandHandler<VoidCommand>
 {
     public static string FullName = default!;
 
@@ -118,7 +62,7 @@ sealed class TestVoidCommandHandler : ICommandHandler<VoidCommand>
 }
 
 [DontRegister]
-sealed class TestCommandHandler : ICommandHandler<SomeCommand, string>
+public class TestCommandHandler : ICommandHandler<SomeCommand, string>
 {
     public static string FullName = default!;
 

@@ -1,7 +1,5 @@
-﻿using FastEndpoints;
-using Shared;
+﻿using Int.FastEndpoints;
 using System.Net;
-using Xunit;
 using Create = Inventory.Manage.Create;
 using Delete = Inventory.Manage.Delete;
 using GetProduct = Inventory.GetProduct;
@@ -9,14 +7,14 @@ using Update = Inventory.Manage.Update;
 
 namespace Web;
 
-public class InventoryTests : TestBase
+public class InventoryTests : TestClass<Fixture>
 {
-    public InventoryTests(AppFixture fixture) : base(fixture) { }
+    public InventoryTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task CreateProductFailValidation()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
         {
             Price = 1100
         });
@@ -30,7 +28,7 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductFailBusinessLogic()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
         {
             Name = "test item",
             ModifiedBy = "me",
@@ -47,7 +45,7 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductFailDuplicateItem()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
         {
             Name = "Apple Juice",
             Description = "description",
@@ -64,7 +62,7 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductFailNoPermission()
     {
-        var (rsp, _) = await App.CustomerClient.PUTAsync<Update.Endpoint, Update.Request, Update.Response>(new()
+        var (rsp, _) = await Fixture.CustomerClient.PUTAsync<Update.Endpoint, Update.Request, Update.Response>(new()
         {
             Name = "Grape Juice",
             Description = "description",
@@ -78,7 +76,7 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreateProductSuccess()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
         {
             Name = "Grape Juice",
             Description = "description",
@@ -94,7 +92,7 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreatedAtSuccess()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
         {
             Name = "Grape Juice",
             Description = "description",
@@ -114,7 +112,7 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task CreatedAtSuccessFullUrl()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
         {
             Name = "Grape Juice",
             Description = "description",
@@ -134,13 +132,13 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task ResponseCaching()
     {
-        var (rsp1, res1) = await App.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
+        var (rsp1, res1) = await Fixture.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
 
         rsp1!.StatusCode.Should().Be(HttpStatusCode.OK);
 
         await Task.Delay(100);
 
-        var (rsp2, res2) = await App.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
+        var (rsp2, res2) = await Fixture.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
 
         rsp2?.StatusCode.Should().Be(HttpStatusCode.OK);
         res2?.LastModified.Should().Be(res1?.LastModified);
@@ -149,7 +147,7 @@ public class InventoryTests : TestBase
     [Fact]
     public async Task DeleteProductSuccess()
     {
-        var res = await App.AdminClient.DELETEAsync<Delete.Endpoint, Delete.Request>(new()
+        var res = await Fixture.AdminClient.DELETEAsync<Delete.Endpoint, Delete.Request>(new()
         {
             ItemID = Guid.NewGuid().ToString()
         });

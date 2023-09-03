@@ -1,20 +1,18 @@
-using FastEndpoints;
-using Shared;
+using Int.FastEndpoints;
 using System.Net;
 using System.Net.Http.Json;
-using Xunit;
 using Login = Admin.Login;
 
 namespace Web;
 
-public class AdminTests : TestBase
+public class AdminTests : TestClass<Fixture>
 {
-    public AdminTests(AppFixture fixture) : base(fixture) { }
+    public AdminTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task AdminLoginWithBadInput()
     {
-        var (resp, result) = await App.GuestClient.POSTAsync<Login.Endpoint, Login.Request, ErrorResponse>(new()
+        var (resp, result) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, ErrorResponse>(new()
         {
             UserName = "x",
             Password = "y"
@@ -27,7 +25,7 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginSuccess()
     {
-        var (resp, result) = await App.GuestClient.POSTAsync<Login.Endpoint, Login.Request, Login.Response>(new()
+        var (resp, result) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, Login.Response>(new()
         {
             UserName = "admin",
             Password = "pass"
@@ -41,7 +39,7 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginInvalidCreds()
     {
-        var (rsp, _) = await App.GuestClient.POSTAsync<Login.Endpoint, Login.Request, Login.Response>(new()
+        var (rsp, _) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, Login.Response>(new()
         {
             UserName = "admin",
             Password = "xxxxx"
@@ -57,14 +55,14 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginThrottling()
     {
-        var guest = App.CreateClient();
-        guest.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST");
+        var client = Fixture.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Custom-Throttle-Header", "TEST");
 
         var successCount = 0;
 
         for (var i = 1; i <= 6; i++)
         {
-            var (rsp, res) = await guest.POSTAsync<Login.Endpoint_V1, Login.Request, Login.Response>(new()
+            var (rsp, res) = await client.POSTAsync<Login.Endpoint_V1, Login.Request, Login.Response>(new()
             {
                 UserName = "admin",
                 Password = "pass"
@@ -89,7 +87,7 @@ public class AdminTests : TestBase
     [Fact]
     public async Task AdminLoginV2()
     {
-        var (resp, result) = await App.GuestClient.GETAsync<Login.Endpoint_V2, EmptyRequest, int>(new());
+        var (resp, result) = await Fixture.GuestClient.GETAsync<Login.Endpoint_V2, EmptyRequest, int>(new());
         resp?.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Should().Be(2);
     }

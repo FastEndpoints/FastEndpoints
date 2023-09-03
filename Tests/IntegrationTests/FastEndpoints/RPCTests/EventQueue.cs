@@ -1,13 +1,10 @@
-﻿using FastEndpoints;
-using Shared;
-using TestCases.EventQueueTest;
-using Xunit;
+﻿using TestCases.EventQueueTest;
 
 namespace RemoteProcedureCalls;
 
 public class EventQueue : RPCTestBase
 {
-    public EventQueue(AppFixture fixture) : base(fixture) { }
+    public EventQueue(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task Event_Queue()

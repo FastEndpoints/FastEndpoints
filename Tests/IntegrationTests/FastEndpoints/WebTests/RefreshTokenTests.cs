@@ -1,21 +1,19 @@
-﻿using FastEndpoints;
-using FastEndpoints.Security;
-using Shared;
+﻿using FastEndpoints.Security;
+using Int.FastEndpoints;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using Xunit;
 using RefreshTest = TestCases.RefreshTokensTest;
 
 namespace Web;
 
-public class RefreshTokenTests : TestBase
+public class RefreshTokenTests : TestClass<Fixture>
 {
-    public RefreshTokenTests(AppFixture fixture) : base(fixture) { }
+    public RefreshTokenTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task LoginEndpointGeneratesCorrectToken()
     {
-        var (rsp, res) = await App.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
         rsp!.StatusCode.Should().Be(HttpStatusCode.OK);
         res!.UserId.Should().Be("usr001");
 
@@ -28,7 +26,7 @@ public class RefreshTokenTests : TestBase
     [Fact]
     public async Task RefreshEndpointValidationWorks()
     {
-        var (rsp, res) = await App.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, ErrorResponse>(new()
+        var (rsp, res) = await Fixture.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, ErrorResponse>(new()
         {
             UserId = "bad-id",
             RefreshToken = "bad-token"
@@ -42,7 +40,7 @@ public class RefreshTokenTests : TestBase
     [Fact]
     public async Task RefreshEndpointReturnsCorrectTokenResponse()
     {
-        var (rsp, res) = await App.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, TokenResponse>(new()
+        var (rsp, res) = await Fixture.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, TokenResponse>(new()
         {
             UserId = "usr001",
             RefreshToken = "xyz"

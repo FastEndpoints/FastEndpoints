@@ -1,20 +1,18 @@
-﻿using FastEndpoints;
+﻿using Int.FastEndpoints;
 using Microsoft.AspNetCore.Http;
-using Shared;
 using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using TestCases.EventHandlingTest;
 using TestCases.RouteBindingTest;
-using Xunit;
 using MediaTypeHeaderValue = System.Net.Http.Headers.MediaTypeHeaderValue;
 
 namespace Web;
 
-public class MiscTestCases : TestBase
+public class MiscTestCases : TestClass<Fixture>
 {
-    public MiscTestCases(AppFixture fixture) : base(fixture) { }
+    public MiscTestCases(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task MultiVerbEndpointAnonymousUserPutFail()
@@ -24,7 +22,7 @@ public class MiscTestCases : TestBase
 
         using var form = new MultipartFormDataContent { { imageContent, "File", "test.png" } };
 
-        var res = await App.GuestClient.PutAsync("/api/uploads/image/save", form);
+        var res = await Fixture.GuestClient.PutAsync("/api/uploads/image/save", form);
 
         res.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -32,7 +30,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task ClaimMissing()
     {
-        var (_, result) = await App.AdminClient.POSTAsync<
+        var (_, result) = await Fixture.AdminClient.POSTAsync<
             TestCases.MissingClaimTest.ThrowIfMissingEndpoint,
             TestCases.MissingClaimTest.ThrowIfMissingRequest,
             ErrorResponse>(new()
@@ -49,7 +47,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task ClaimMissingButDontThrow()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<
+        var (res, result) = await Fixture.AdminClient.POSTAsync<
             TestCases.MissingClaimTest.DontThrowIfMissingEndpoint,
             TestCases.MissingClaimTest.DontThrowIfMissingRequest,
             string>(new()
@@ -67,7 +65,7 @@ public class MiscTestCases : TestBase
         var endpointUrl = IEndpoint.TestURLFor<TestCases.EmptyRequestTest.EmptyRequestEndpoint>();
 
         var requestUri = new Uri(
-            App.AdminClient.BaseAddress!.ToString().TrimEnd('/') +
+            Fixture.AdminClient.BaseAddress!.ToString().TrimEnd('/') +
             (endpointUrl.StartsWith('/') ? endpointUrl : "/" + endpointUrl)
         );
 
@@ -78,7 +76,7 @@ public class MiscTestCases : TestBase
             RequestUri = requestUri
         };
 
-        var response = await App.AdminClient.SendAsync(message);
+        var response = await Fixture.AdminClient.SendAsync(message);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -86,7 +84,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task HeaderMissing()
     {
-        var (_, result) = await App.AdminClient.POSTAsync<
+        var (_, result) = await Fixture.AdminClient.POSTAsync<
             TestCases.MissingHeaderTest.ThrowIfMissingEndpoint,
             TestCases.MissingHeaderTest.ThrowIfMissingRequest,
             ErrorResponse>(new()
@@ -103,7 +101,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task HeaderMissingButDontThrow()
     {
-        var (res, result) = await App.AdminClient.POSTAsync<
+        var (res, result) = await Fixture.AdminClient.POSTAsync<
             TestCases.MissingHeaderTest.DontThrowIfMissingEndpoint,
             TestCases.MissingHeaderTest.DontThrowIfMissingRequest,
             string>(new()
@@ -118,7 +116,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task RouteValueReadingInEndpointWithoutRequest()
     {
-        var (rsp, res) = await App.GuestClient.GETAsync<
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<
             EmptyRequest,
             TestCases.RouteBindingInEpWithoutReq.Response>(
             "/api/test-cases/ep-witout-req-route-binding-test/09809/12", new());
@@ -131,7 +129,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task RouteValueReadingIsRequired()
     {
-        var (rsp, res) = await App.GuestClient.GETAsync<
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<
             EmptyRequest,
             ErrorResponse>(
             "/api/test-cases/ep-witout-req-route-binding-test/09809/lkjhlkjh", new());
@@ -144,7 +142,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task RouteValueBinding()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12&CustomList=1;2",
                 new()
@@ -176,7 +174,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task RouteValueBindingFromQueryParams()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                 "?Bool=false&String=everything",
@@ -205,7 +203,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task JsonArrayBindingToIEnumerableProps()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .GETAsync<TestCases.JsonArrayBindingForIEnumerableProps.Request, TestCases.JsonArrayBindingForIEnumerableProps.Response>(
             "/api/test-cases/json-array-binding-for-ienumerable-props?" +
             "doubles=[123.45,543.21]&" +
@@ -239,7 +237,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task JsonArrayBindingToListOfModels()
     {
-        var (rsp, res) = await App.GuestClient.POSTAsync<
+        var (rsp, res) = await Fixture.GuestClient.POSTAsync<
             TestCases.JsonArrayBindingToListOfModels.Endpoint,
             List<TestCases.JsonArrayBindingToListOfModels.Request>,
             List<TestCases.JsonArrayBindingToListOfModels.Response>>(new()
@@ -262,7 +260,7 @@ public class MiscTestCases : TestBase
             { new TestCases.JsonArrayBindingToIEnumerableDto.Item() { Id = 2, Name = "two" } },
         };
 
-        var (rsp, res) = await App.GuestClient.POSTAsync<
+        var (rsp, res) = await Fixture.GuestClient.POSTAsync<
             TestCases.JsonArrayBindingToIEnumerableDto.Endpoint,
             TestCases.JsonArrayBindingToIEnumerableDto.Request,
             List<TestCases.JsonArrayBindingToIEnumerableDto.Response>>(req);
@@ -275,7 +273,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task DupeParamBindingToIEnumerableProps()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .GETAsync<TestCases.DupeParamBindingForIEnumerableProps.Request, TestCases.DupeParamBindingForIEnumerableProps.Response>(
             "/api/test-cases/dupe-param-binding-for-ienumerable-props?" +
             "doubles=123.45&" +
@@ -318,7 +316,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task BindingFromAttributeUse()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                 "?Bool=false&String=everything&XBlank=256" +
@@ -376,7 +374,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task BindingObjectFromQueryUse()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
                 "api/test-cases/query-object-binding-test" +
                 "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
@@ -430,7 +428,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task ByteArrayQueryParamBindingTestUse()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .GETAsync<TestCases.ByteArrayQueryParamBindingTest.Request, TestCases.ByteArrayQueryParamBindingTest.Response>(
                 "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D&timestamps=AAAAAAAAw1U%3D",
 
@@ -455,7 +453,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .GETAsync<TestCases.QueryObjectWithObjectsArrayBindingTest.Request, TestCases.QueryObjectWithObjectsArrayBindingTest.Response>(
                 "api/test-cases/query-arrays-of-objects-binding-test" +
                 "?ArraysOfObjects[0][0].String=test&ArraysOfObjects[0][0].Bool=true&ArraysOfObjects[0][0].Double=22.22&ArraysOfObjects[0][0].Enum=4" +
@@ -556,7 +554,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task BindingFromAttributeUseSwaggerUiStyle()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .POSTAsync<Request, Response>(
                 "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                 "?Bool=false&String=everything&XBlank=256" +
@@ -614,7 +612,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task BindingObjectFromQueryUseSwaggerUiStyle()
     {
-        var (rsp, res) = await App.GuestClient
+        var (rsp, res) = await Fixture.GuestClient
             .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
                 "api/test-cases/query-object-binding-test" +
                 "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
@@ -687,7 +685,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task RangeHandling()
     {
-        var res = await App.RangeClient.GetStringAsync("api/test-cases/range");
+        var res = await Fixture.RangeClient.GetStringAsync("api/test-cases/range");
         res.Should().Be("fghij");
     }
 
@@ -707,7 +705,7 @@ public class MiscTestCases : TestBase
             {new StringContent("500"), "Height"}
         };
 
-        var res = await App.AdminClient.PostAsync("api/uploads/image/save", form);
+        var res = await Fixture.AdminClient.PostAsync("api/uploads/image/save", form);
 
         using var md5Instance = MD5.Create();
         using var stream = await res.Content.ReadAsStreamAsync();
@@ -734,7 +732,7 @@ public class MiscTestCases : TestBase
             Height = 500
         };
 
-        var res = await App.AdminClient.POSTAsync<
+        var res = await Fixture.AdminClient.POSTAsync<
             Uploads.Image.SaveTyped.Endpoint,
             Uploads.Image.SaveTyped.Request>(req, sendAsFormData: true);
 
@@ -748,7 +746,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task PreProcessorShortCircuitingWhileValidatorFails()
     {
-        var x = await App.GuestClient.GETAsync<
+        var x = await Fixture.GuestClient.GETAsync<
             TestCases.PrecessorShortWhileValidatorFails.Endpoint,
             TestCases.PrecessorShortWhileValidatorFails.Request,
             object>(new()
@@ -763,7 +761,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task PreProcessorsAreRunIfValidationFailuresOccur()
     {
-        var (rsp, res) = await App.AdminClient.POSTAsync<
+        var (rsp, res) = await Fixture.AdminClient.POSTAsync<
             TestCases.PreProcessorIsRunOnValidationFailure.Endpoint,
             TestCases.PreProcessorIsRunOnValidationFailure.Request,
             ErrorResponse>
@@ -782,7 +780,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task OnBeforeOnAfterValidation()
     {
-        var (rsp, res) = await App.AdminClient.POSTAsync<
+        var (rsp, res) = await Fixture.AdminClient.POSTAsync<
             TestCases.OnBeforeAfterValidationTest.Endpoint,
             TestCases.OnBeforeAfterValidationTest.Request,
             TestCases.OnBeforeAfterValidationTest.Response>(new()
@@ -798,7 +796,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task PreProcessorShortCircuitMissingHeader()
     {
-        var (rsp, res) = await App.GuestClient.GETAsync<
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<
             Sales.Orders.Retrieve.Endpoint,
             Sales.Orders.Retrieve.Request,
             ErrorResponse>(new() { OrderID = "order1" });
@@ -812,7 +810,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task PreProcessorShortCircuitWrongHeaderValue()
     {
-        var (rsp, res) = await App.AdminClient.POSTAsync<
+        var (rsp, res) = await Fixture.AdminClient.POSTAsync<
             Sales.Orders.Retrieve.Endpoint,
             Sales.Orders.Retrieve.Request,
             object>(new()
@@ -826,7 +824,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task PreProcessorShortCircuitHandlerExecuted()
     {
-        var (rsp, res) = await App.CustomerClient.GETAsync<
+        var (rsp, res) = await Fixture.CustomerClient.GETAsync<
             Sales.Orders.Retrieve.Endpoint,
             Sales.Orders.Retrieve.Request,
             ErrorResponse>(new() { OrderID = "order1" });
@@ -838,7 +836,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task ProcessorStateWorks()
     {
-        var x = await App.GuestClient.GETAsync<
+        var x = await Fixture.GuestClient.GETAsync<
             TestCases.ProcessorStateTest.Endpoint,
             TestCases.ProcessorStateTest.Request,
             string>(new() { Id = 10101 });
@@ -853,7 +851,7 @@ public class MiscTestCases : TestBase
         using var stringContent = new StringContent("this is the body content");
         stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
 
-        var rsp = await App.AdminClient.PostAsync("test-cases/plaintext/12345", stringContent);
+        var rsp = await Fixture.AdminClient.PostAsync("test-cases/plaintext/12345", stringContent);
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
@@ -867,7 +865,7 @@ public class MiscTestCases : TestBase
         using var stringContent = new StringContent("this is the body content");
         stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
 
-        var rsp = await App.AdminClient.PostAsync("/mobile/api/test-cases/global-prefix-override/12345", stringContent);
+        var rsp = await Fixture.AdminClient.PostAsync("/mobile/api/test-cases/global-prefix-override/12345", stringContent);
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
@@ -878,7 +876,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task GETRequestWithRouteParameterAndReqDto()
     {
-        var (rsp, res) = await App.CustomerClient.GETAsync<EmptyRequest, ErrorResponse>(
+        var (rsp, res) = await Fixture.CustomerClient.GETAsync<EmptyRequest, ErrorResponse>(
             "/api/sales/orders/retrieve/54321",
             new());
 
@@ -889,7 +887,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task QueryParamReadingInEndpointWithoutRequest()
     {
-        var (rsp, res) = await App.GuestClient.GETAsync<
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<
             EmptyRequest,
             TestCases.QueryParamBindingInEpWithoutReq.Response>(
             "/api/test-cases/ep-witout-req-query-param-binding-test" +
@@ -915,7 +913,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task QueryParamReadingIsRequired()
     {
-        var (rsp, res) = await App.GuestClient.GETAsync<
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<
             EmptyRequest,
             ErrorResponse>(
             "/api/test-cases/ep-witout-req-query-param-binding-test?customerId=09809&otherId=lkjhlkjh", new());
@@ -939,7 +937,7 @@ public class MiscTestCases : TestBase
             request.RequestUri =
                 new Uri("api/test-cases/global-throttle-error-response?customerId=09809&otherId=12",
                     UriKind.Relative);
-            response = await App.GuestClient.SendAsync(request);
+            response = await Fixture.GuestClient.SendAsync(request);
         }
 
         var responseContent = await response!.Content.ReadAsStringAsync();
@@ -962,7 +960,7 @@ public class MiscTestCases : TestBase
             request.RequestUri =
                 new Uri("api/test-cases/global-throttle-error-response?customerId=09809&otherId=12",
                     UriKind.Relative);
-            response = await App.GuestClient.SendAsync(request);
+            response = await Fixture.GuestClient.SendAsync(request);
         }
 
         response!.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -971,7 +969,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task FromBodyJsonBinding()
     {
-        var (rsp, res) = await App.CustomerClient.POSTAsync<
+        var (rsp, res) = await Fixture.CustomerClient.POSTAsync<
             TestCases.FromBodyJsonBinding.Endpoint,
             TestCases.FromBodyJsonBinding.Product,
             TestCases.FromBodyJsonBinding.Response>(new()
@@ -992,7 +990,7 @@ public class MiscTestCases : TestBase
     [Fact]
     public async Task CustomRequestBinder()
     {
-        var (rsp, res) = await App.CustomerClient.POSTAsync<
+        var (rsp, res) = await Fixture.CustomerClient.POSTAsync<
             TestCases.CustomRequestBinder.Endpoint,
             TestCases.CustomRequestBinder.Product,
             TestCases.CustomRequestBinder.Response>(new()
@@ -1015,11 +1013,11 @@ public class MiscTestCases : TestBase
     {
         try
         {
-            await App.GuestClient.GetStringAsync("/api/test-cases/one");
+            await Fixture.GuestClient.GetStringAsync("/api/test-cases/one");
         }
         catch { }
 
-        var res = await App.GuestClient.GetStringAsync("/api/test-cases/1");
+        var res = await Fixture.GuestClient.GetStringAsync("/api/test-cases/1");
 
         res.Should().Be("1");
     }

@@ -1,12 +1,8 @@
-﻿using Shared;
-using TestCases.CommandBusTest;
-using Xunit;
-
-namespace RemoteProcedureCalls;
+﻿namespace RemoteProcedureCalls;
 
 public class VoidCommand : RPCTestBase
 {
-    public VoidCommand(AppFixture fixture) : base(fixture) { }
+    public VoidCommand(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task Void()

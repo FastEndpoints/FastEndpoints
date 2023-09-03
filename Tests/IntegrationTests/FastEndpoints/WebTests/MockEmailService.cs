@@ -1,6 +1,6 @@
 ﻿using Web.Services;
 
-namespace Shared.Mocks;
+namespace Web;
 
 internal class MockEmailService : IEmailService
 {

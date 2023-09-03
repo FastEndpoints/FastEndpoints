@@ -1,7 +1,5 @@
-﻿using FastEndpoints;
-using Shared;
+﻿using Int.FastEndpoints;
 using System.Net;
-using Xunit;
 using Create = Customers.Create;
 using List = Customers.List;
 using Orders = Sales.Orders;
@@ -10,14 +8,14 @@ using UpdateWithHdr = Customers.UpdateWithHeader;
 
 namespace Web;
 
-public class CustomersTests : TestBase
+public class CustomersTests : TestClass<Fixture>
 {
-    public CustomersTests(AppFixture fixture) : base(fixture) { }
+    public CustomersTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task ListRecentCustomers()
     {
-        var (_, res) = await App.AdminClient.GETAsync<List.Recent.Endpoint, List.Recent.Response>();
+        var (_, res) = await Fixture.AdminClient.GETAsync<List.Recent.Endpoint, List.Recent.Response>();
 
         res?.Customers?.Count().Should().Be(3);
         res?.Customers?.First().Key.Should().Be("ryan gunner");
@@ -27,7 +25,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task ListRecentCustomersCookieScheme()
     {
-        var (rsp, _) = await App.AdminClient.GETAsync<List.Recent.Endpoint_V1, List.Recent.Response>();
+        var (rsp, _) = await Fixture.AdminClient.GETAsync<List.Recent.Endpoint_V1, List.Recent.Response>();
 
         rsp!.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
@@ -35,7 +33,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CreateNewCustomer()
     {
-        var (rsp, res) = await App.AdminClient.POSTAsync<Create.Endpoint, Create.Request, string>(new()
+        var (rsp, res) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, string>(new()
         {
             CreatedBy = "this should be replaced by claim",
             CustomerName = "test customer",
@@ -49,7 +47,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CustomerUpdateByCustomer()
     {
-        var (_, res) = await App.CustomerClient.PUTAsync<Update.Endpoint, Update.Request, string>(new()
+        var (_, res) = await Fixture.CustomerClient.PUTAsync<Update.Endpoint, Update.Request, string>(new()
         {
             CustomerID = "this will be auto bound from claim",
             Address = "address",
@@ -63,7 +61,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CustomerUpdateAdmin()
     {
-        var (_, res) = await App.AdminClient.PUTAsync<Update.Endpoint, Update.Request, string>(new()
+        var (_, res) = await Fixture.AdminClient.PUTAsync<Update.Endpoint, Update.Request, string>(new()
         {
             CustomerID = "customer id set by admin user",
             Address = "address",
@@ -77,7 +75,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CreateOrderByCustomer()
     {
-        var (rsp, res) = await App.CustomerClient.POSTAsync<Orders.Create.Endpoint, Orders.Create.Request, Orders.Create.Response>(new()
+        var (rsp, res) = await Fixture.CustomerClient.POSTAsync<Orders.Create.Endpoint, Orders.Create.Request, Orders.Create.Response>(new()
         {
             CustomerID = 12345,
             ProductID = 100,
@@ -96,7 +94,7 @@ public class CustomersTests : TestBase
     {
         var guid = Guid.NewGuid();
 
-        var (rsp, res) = await App.CustomerClient.POSTAsync<Orders.Create.Request, Orders.Create.Response>(
+        var (rsp, res) = await Fixture.CustomerClient.POSTAsync<Orders.Create.Request, Orders.Create.Response>(
             $"api/sales/orders/create/{guid}",
             new()
             {
@@ -114,7 +112,7 @@ public class CustomersTests : TestBase
     [Fact]
     public async Task CustomerUpdateByCustomerWithTenantIDInHeader()
     {
-        var (_, res) = await App.CustomerClient.PUTAsync<UpdateWithHdr.Endpoint, UpdateWithHdr.Request, string>(
+        var (_, res) = await Fixture.CustomerClient.PUTAsync<UpdateWithHdr.Endpoint, UpdateWithHdr.Request, string>(
             new(CustomerID: 10,
                 TenantID: "this will be set to qwerty from header",
                 Name: "test customer",

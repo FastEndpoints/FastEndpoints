@@ -1,26 +1,13 @@
-﻿using FluentAssertions.Json;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
-using NSwag.Generation;
-using Shared;
-using Xunit;
+﻿namespace Swagger;
 
-namespace Swagger;
-
-public class SwaggerDocTests : TestBase
+public class SwaggerDocTests : TestClass<Fixture>
 {
-    private readonly IServiceProvider serviceProvider;
-
-    public SwaggerDocTests(AppFixture fixture) : base(fixture)
-    {
-        serviceProvider = fixture.GetServiceProvider();
-    }
+    public SwaggerDocTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task initial_release_doc_produces_correct_output()
     {
-        var generator = serviceProvider.GetRequiredService<IOpenApiDocumentGenerator>();
-        var doc = await generator.GenerateAsync("Initial Release");
+        var doc = await Fixture.DocGenerator.GenerateAsync("Initial Release");
 
         var json = doc.ToJson();
         var currentDoc = JToken.Parse(json);
@@ -35,8 +22,7 @@ public class SwaggerDocTests : TestBase
     [Fact]
     public async Task release_1_doc_produces_correct_output()
     {
-        var generator = serviceProvider.GetRequiredService<IOpenApiDocumentGenerator>();
-        var doc = await generator.GenerateAsync("Release 1.0");
+        var doc = await Fixture.DocGenerator.GenerateAsync("Release 1.0");
 
         var json = doc.ToJson();
         var currentDoc = JToken.Parse(json);
@@ -51,8 +37,7 @@ public class SwaggerDocTests : TestBase
     [Fact]
     public async Task release_2_doc_produces_correct_output()
     {
-        var generator = serviceProvider.GetRequiredService<IOpenApiDocumentGenerator>();
-        var doc = await generator.GenerateAsync("Release 2.0");
+        var doc = await Fixture.DocGenerator.GenerateAsync("Release 2.0");
 
         var json = doc.ToJson();
         var currentDoc = JToken.Parse(json);

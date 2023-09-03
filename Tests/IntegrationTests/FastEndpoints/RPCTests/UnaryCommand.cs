@@ -1,12 +1,10 @@
-﻿using Shared;
-using TestCases.CommandBusTest;
-using Xunit;
+﻿using TestCases.CommandBusTest;
 
 namespace RemoteProcedureCalls;
 
 public class UnaryCommand : RPCTestBase
 {
-    public UnaryCommand(AppFixture fixture) : base(fixture) { }
+    public UnaryCommand(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
     [Fact]
     public async Task Unary()

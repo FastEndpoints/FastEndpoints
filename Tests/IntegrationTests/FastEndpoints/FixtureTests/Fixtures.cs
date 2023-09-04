@@ -1,34 +1,34 @@
 ﻿using CommandBus;
 using TestCases.CommandBusTest;
+using Web;
+using Web.Services;
 
 namespace TestFixture;
 
-public record FixtureId(string Id);
-
-public class FixtureOne : TestFixture<Web.Program>
+public class FixtureA : TestFixture<Web.Program>
 {
-    public FixtureOne(IMessageSink s) : base(s) { }
+    public FixtureA(IMessageSink s) : base(s) { }
 
     private static readonly string _id = Guid.NewGuid().ToString("N");
 
     protected override void ConfigureServices(IServiceCollection s)
     {
+        s.AddScoped<IEmailService, MockEmailService>();
         s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
-        s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
         s.AddSingleton(new FixtureId(_id));
     }
 }
 
-public class FixtureTwo : TestFixture<Web.Program>
+public class FixtureB : TestFixture<Web.Program>
 {
-    public FixtureTwo(IMessageSink s) : base(s) { }
+    public FixtureB(IMessageSink s) : base(s) { }
 
     private static string _id = Guid.NewGuid().ToString("N");
 
     protected override void ConfigureServices(IServiceCollection s)
     {
+        s.AddScoped<IEmailService, MockEmailService>();
         s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
-        s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
         s.AddSingleton(new FixtureId(_id));
     }
 }

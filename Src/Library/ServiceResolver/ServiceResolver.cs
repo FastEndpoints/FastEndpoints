@@ -6,51 +6,51 @@ namespace FastEndpoints;
 
 internal sealed class ServiceResolver : IServiceResolver
 {
-    private readonly ConcurrentDictionary<Type, ObjectFactory> factoryCache = new();
-    private readonly IServiceProvider rootProvider;
-    private readonly IHttpContextAccessor ctxAccessor;
+    private readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();
+    private readonly IServiceProvider _rootServiceProvider;
+    private readonly IHttpContextAccessor _ctxAccessor;
 
-    private readonly bool _testMode;
+    private readonly bool _isUnitTestMode;
 
-    public ServiceResolver(IServiceProvider provider, IHttpContextAccessor ctxAccessor, bool isTestMode = false)
+    public ServiceResolver(IServiceProvider provider, IHttpContextAccessor ctxAccessor, bool isUnitTestMode = false)
     {
         //this class is instantiated by either the IOC container in normal mode
         //or by Factory.AddTestServices() method in unit testing mode
 
-        rootProvider = provider;
-        this.ctxAccessor = ctxAccessor;
-        _testMode = isTestMode;
+        _rootServiceProvider = provider;
+        _ctxAccessor = ctxAccessor;
+        _isUnitTestMode = isUnitTestMode;
     }
 
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
-        var factory = factoryCache.GetOrAdd(type, (t) => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes));
-        return factory(serviceProvider ?? ctxAccessor?.HttpContext?.RequestServices ?? rootProvider, null);
+        var factory = _factoryCache.GetOrAdd(type, (t) => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes));
+        return factory(serviceProvider ?? _ctxAccessor?.HttpContext?.RequestServices ?? _rootServiceProvider, null);
     }
 
     public object CreateSingleton(Type type)
     {
-        return ActivatorUtilities.CreateInstance(rootProvider, type);
+        return ActivatorUtilities.CreateInstance(_rootServiceProvider, type);
     }
 
     public IServiceScope CreateScope()
-        => _testMode
-            ? ctxAccessor.HttpContext?.RequestServices.CreateScope() ?? throw new InvalidOperationException("Please follow documentation to configure unit test environment properly!")
-            : rootProvider.CreateScope();
+        => _isUnitTestMode
+            ? _ctxAccessor.HttpContext?.RequestServices.CreateScope() ?? throw new InvalidOperationException("Please follow documentation to configure unit test environment properly!")
+            : _rootServiceProvider.CreateScope();
 
     public TService Resolve<TService>() where TService : class
-        => ctxAccessor.HttpContext?.RequestServices.GetRequiredService<TService>() ??
-           rootProvider.GetRequiredService<TService>();
+        => _ctxAccessor.HttpContext?.RequestServices.GetRequiredService<TService>() ??
+           _rootServiceProvider.GetRequiredService<TService>();
 
     public object Resolve(Type typeOfService)
-        => ctxAccessor.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
-           rootProvider.GetRequiredService(typeOfService);
+        => _ctxAccessor.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
+           _rootServiceProvider.GetRequiredService(typeOfService);
 
     public TService? TryResolve<TService>() where TService : class
-        => ctxAccessor.HttpContext?.RequestServices.GetService<TService>() ??
-           rootProvider.GetService<TService>();
+        => _ctxAccessor.HttpContext?.RequestServices.GetService<TService>() ??
+           _rootServiceProvider.GetService<TService>();
 
     public object? TryResolve(Type typeOfService)
-        => ctxAccessor.HttpContext?.RequestServices.GetService(typeOfService) ??
-           rootProvider.GetService(typeOfService);
+        => _ctxAccessor.HttpContext?.RequestServices.GetService(typeOfService) ??
+           _rootServiceProvider.GetService(typeOfService);
 }

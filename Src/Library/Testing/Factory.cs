@@ -92,7 +92,7 @@ public static class Factory
             Conf.ServiceResolver = new ServiceResolver(
                 provider: testingProvider,
                 ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
-                isTestMode: true);
+                isUnitTestMode: true);
         }
 
         var collection = new ServiceCollection();

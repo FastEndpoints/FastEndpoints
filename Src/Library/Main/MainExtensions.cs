@@ -264,14 +264,8 @@ public static class MainExtensions
             if (!ep.IsInitialized)
                 throw new InvalidOperationException("Endpoints are not initialized! This usually happens when 'app.UseFastEndpoints()' is placed after 'app.MapControllers()'. Try changing the middleware order.");
 
-            if (ep.AllowedRoles is null &&
-                ep.AllowedPermissions is null &&
-                ep.AllowedClaimTypes is null &&
-                ep.AuthSchemeNames is null &&
-                ep.PolicyBuilder is null)
-            {
+            if (!ep.RequiresAuthorization())
                 continue;
-            }
 
             opts.AddPolicy(ep.SecurityPolicyName, b =>
             {

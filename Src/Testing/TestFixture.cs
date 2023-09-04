@@ -6,16 +6,27 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace FastEndpoints.Testing;
 
+public abstract class BaseFixture
+{
+    static BaseFixture()
+    {
+        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
+    }
+
+    internal static readonly ConcurrentDictionary<Type, object> _appCache = new();
+}
+
 /// <summary>
 /// inherit this class to create a class fixture for an implementation of <see cref="TestClass{TFixture}"/>.
 /// </summary>
 /// <typeparam name="TProgram">the type of the web application to bootstrap via <see cref="WebApplicationFactory{TEntryPoint}"/></typeparam>
-public abstract class TestFixture<TProgram> : IAsyncLifetime, IFixture where TProgram : class
+public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixture where TProgram : class
 {
     /// <inheritdoc/>>
     public Faker Fake => _faker;
@@ -36,21 +47,19 @@ public abstract class TestFixture<TProgram> : IAsyncLifetime, IFixture where TPr
     public HttpClient Client { get; set; }
 
     private static readonly Faker _faker = new();
-    private static WebApplicationFactory<TProgram> _app;
-
-    static TestFixture()
-    {
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
-    }
+    private readonly WebApplicationFactory<TProgram> _app;
 
     protected TestFixture(IMessageSink s)
     {
-        _app ??= new WebApplicationFactory<TProgram>().WithWebHostBuilder(b =>
-        {
-            b.ConfigureLogging(l => l.ClearProviders().AddXUnit(s));
-            b.ConfigureTestServices(ConfigureServices);
-            ConfigureApp(b);
-        });
+        _app = (WebApplicationFactory<TProgram>)
+            _appCache.GetOrAdd(
+                GetType(),
+                _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(b =>
+                {
+                    b.ConfigureLogging(l => l.ClearProviders().AddXUnit(s));
+                    b.ConfigureTestServices(ConfigureServices);
+                    ConfigureApp(b);
+                }));
         Client = _app.CreateClient();
     }
 

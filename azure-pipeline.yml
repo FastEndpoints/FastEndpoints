@@ -20,6 +20,16 @@ steps:
       version: "7.x"
       includePreviewVersions: false
 
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: |
+        echo '{
+            "parallelizeAssembly": false,
+            "parallelizeTestCollections": false,
+            "diagnosticMessages": false
+        }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json
+
   - task: DotNetCoreCLI@2
     displayName: "Run Tests"
     inputs:

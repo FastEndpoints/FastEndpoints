@@ -17,6 +17,14 @@ jobs:
           dotnet-version: 7.x
           include-prerelease: false
 
+      - name: Modify xUnit Runner Config
+        run: |
+          echo '{
+            "parallelizeAssembly": false,
+            "parallelizeTestCollections": false,
+            "diagnosticMessages": false
+          }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json          
+
       - name: Run Tests
         run: dotnet test FastEndpoints.sln --configuration Release --verbosity minimal
 

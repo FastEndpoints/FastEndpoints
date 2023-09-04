@@ -21,6 +21,7 @@ steps:
       includePreviewVersions: false
 
   - task: Bash@3
+    displayName: "Update xUnit Runner Config"
     inputs:
       targetType: 'inline'
       script: |

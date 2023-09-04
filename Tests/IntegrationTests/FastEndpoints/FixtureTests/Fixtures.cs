@@ -1,4 +1,7 @@
-﻿namespace TestFixture;
+﻿using CommandBus;
+using TestCases.CommandBusTest;
+
+namespace TestFixture;
 
 public record FixtureId(string Id);
 
@@ -10,6 +13,8 @@ public class FixtureOne : TestFixture<Web.Program>
 
     protected override void ConfigureServices(IServiceCollection s)
     {
+        s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
+        s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
         s.AddSingleton(new FixtureId(_id));
     }
 }
@@ -22,6 +27,8 @@ public class FixtureTwo : TestFixture<Web.Program>
 
     protected override void ConfigureServices(IServiceCollection s)
     {
+        s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
+        s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
         s.AddSingleton(new FixtureId(_id));
     }
 }

@@ -25,6 +25,7 @@
     <ItemGroup>
         <None Include="..\..\README.md" Pack="true" PackagePath="\"  Visible="false"/>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="changelog.md" Pack="false" Visible="false"/>
         <None Include="JetBrains\ExternalAnnotations.xml" Pack="true" PackagePath="lib\$(TargetFramework)\$(AssemblyName).ExternalAnnotations.xml" CopyToOutputDirectory="Always" />
     </ItemGroup>
 </Project>

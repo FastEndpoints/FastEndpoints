@@ -14,7 +14,7 @@ namespace FastEndpoints.Testing;
 public abstract class BaseFixture
 {
     protected static readonly Faker _faker = new();
-    internal static readonly ConcurrentDictionary<Type, object> _appCache = new();
+    protected static readonly ConcurrentDictionary<Type, object> _appCache = new();
 
     static BaseFixture()
     {

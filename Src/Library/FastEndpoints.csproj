@@ -23,13 +23,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="Content\Readme" />
-        <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false" />
-        <None Include="changelog.md" Pack="false" Link="Content\Changelog" />
-        <None Include="..\Directory.Build.props" Pack="false" Link="Content\BuildProps" />
-        <None Include="JetBrains\ExternalAnnotations.xml"
-              Pack="true"
-              PackagePath="lib\$(TargetFramework)\$(AssemblyName).ExternalAnnotations.xml"
-              CopyToOutputDirectory="Always" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="\"  Visible="false"/>
+        <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="JetBrains\ExternalAnnotations.xml" Pack="true" PackagePath="lib\$(TargetFramework)\$(AssemblyName).ExternalAnnotations.xml" CopyToOutputDirectory="Always" />
     </ItemGroup>
 </Project>

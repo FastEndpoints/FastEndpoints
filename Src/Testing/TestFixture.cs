@@ -1,5 +1,4 @@
-﻿#pragma warning disable CS8618
-using Bogus;
+﻿using Bogus;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -14,12 +13,13 @@ namespace FastEndpoints.Testing;
 
 public abstract class BaseFixture
 {
+    protected static readonly Faker _faker = new();
+    internal static readonly ConcurrentDictionary<Type, object> _appCache = new();
+
     static BaseFixture()
     {
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
     }
-
-    internal static readonly ConcurrentDictionary<Type, object> _appCache = new();
 }
 
 /// <summary>
@@ -46,7 +46,6 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     /// </summary>
     public HttpClient Client { get; set; }
 
-    private static readonly Faker _faker = new();
     private readonly WebApplicationFactory<TProgram> _app;
 
     protected TestFixture(IMessageSink s)

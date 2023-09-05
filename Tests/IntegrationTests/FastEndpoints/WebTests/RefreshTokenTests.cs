@@ -13,8 +13,8 @@ public class RefreshTokenTests : TestClass<Fixture>
     public async Task LoginEndpointGeneratesCorrectToken()
     {
         var (rsp, res) = await Fixture.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
-        rsp!.StatusCode.Should().Be(HttpStatusCode.OK);
-        res!.UserId.Should().Be("usr001");
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.UserId.Should().Be("usr001");
 
         var token = new JwtSecurityTokenHandler().ReadJwtToken(res.AccessToken);
         token.Claims.Single(c => c.Type == "claim1").Value.Should().Be("val1");
@@ -31,9 +31,9 @@ public class RefreshTokenTests : TestClass<Fixture>
             RefreshToken = "bad-token"
         });
 
-        rsp!.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res!.Errors["UserId"][0].Should().Be("invalid user id");
-        res!.Errors["RefreshToken"][0].Should().Be("invalid refresh token");
+        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.Errors["UserId"][0].Should().Be("invalid user id");
+        res.Errors["RefreshToken"][0].Should().Be("invalid refresh token");
     }
 
     [Fact]
@@ -45,9 +45,9 @@ public class RefreshTokenTests : TestClass<Fixture>
             RefreshToken = "xyz"
         });
 
-        rsp!.StatusCode.Should().Be(HttpStatusCode.OK);
-        res!.UserId.Should().Be("usr001");
-        Guid.TryParse(res!.RefreshToken, out _).Should().BeTrue();
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.UserId.Should().Be("usr001");
+        Guid.TryParse(res.RefreshToken, out _).Should().BeTrue();
 
         var token = new JwtSecurityTokenHandler().ReadJwtToken(res.AccessToken);
         token.Claims.Count().Should().Be(4);

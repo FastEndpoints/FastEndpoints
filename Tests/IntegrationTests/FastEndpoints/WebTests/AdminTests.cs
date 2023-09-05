@@ -17,8 +17,8 @@ public class AdminTests : TestClass<Fixture>
             Password = "y"
         });
 
-        resp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result?.Errors.Count.Should().Be(2);
+        resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        result.Errors.Count.Should().Be(2);
     }
 
     [Fact]
@@ -30,9 +30,9 @@ public class AdminTests : TestClass<Fixture>
             Password = "pass"
         });
 
-        resp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        result?.Permissions?.Count().Should().Be(7);
-        result?.JWTToken.Should().NotBeNull();
+        resp.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.Permissions.Count().Should().Be(7);
+        result.JWTToken.Should().NotBeNull();
     }
 
     [Fact]
@@ -47,6 +47,7 @@ public class AdminTests : TestClass<Fixture>
         rsp.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
 
         // read(deserialize) the 400 response to see what's actually wrong
+        // or change the response DTO type above to ErrorResponse
         var errRsp = await rsp.Content.ReadFromJsonAsync<ErrorResponse>();
         errRsp!.Errors["GeneralErrors"][0].Should().Be("Authentication Failed!");
     }
@@ -69,8 +70,8 @@ public class AdminTests : TestClass<Fixture>
 
             if (i <= 5)
             {
-                rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-                res?.JWTToken.Should().NotBeNullOrEmpty();
+                rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+                res.JWTToken.Should().NotBeNullOrEmpty();
                 successCount++;
             }
             else
@@ -87,7 +88,7 @@ public class AdminTests : TestClass<Fixture>
     public async Task AdminLoginV2()
     {
         var (resp, result) = await Fixture.GuestClient.GETAsync<Login.Endpoint_V2, EmptyRequest, int>(new());
-        resp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        resp.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Should().Be(2);
     }
 }

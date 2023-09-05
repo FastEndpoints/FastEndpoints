@@ -11,7 +11,15 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <!-- ### 🔖 New -->
 
-<!-- ### 🚀 Improvements -->
+### 🚀 Improvements
+
+<details><summary>Ability to get rid of null-forgiving operator '!' from test code</summary>
+
+The `TestResult<TResponse>.Result` property is no longer a nullable property. This change enables us to get rid of the null-forgiving operator `!` from our integration test code.
+Existing test code wouldn't have to change. You just don't need to use the `!` to hide the compiler warnings anymore. If/when the value of the property is actually `null`, the tests will 
+just fail with a NRE, which is fine in the context of test code.
+
+</details>
 
 <!-- ### 🪲 Fixes -->
 

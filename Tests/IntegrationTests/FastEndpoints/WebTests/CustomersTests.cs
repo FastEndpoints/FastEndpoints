@@ -16,9 +16,9 @@ public class CustomersTests : TestClass<Fixture>
     {
         var (_, res) = await Fixture.AdminClient.GETAsync<List.Recent.Endpoint, List.Recent.Response>();
 
-        res?.Customers?.Count().Should().Be(3);
-        res?.Customers?.First().Key.Should().Be("ryan gunner");
-        res?.Customers?.Last().Key.Should().Be("ryan reynolds");
+        res.Customers!.Count().Should().Be(3);
+        res.Customers!.First().Key.Should().Be("ryan gunner");
+        res.Customers!.Last().Key.Should().Be("ryan reynolds");
     }
 
     [Fact]
@@ -26,7 +26,7 @@ public class CustomersTests : TestClass<Fixture>
     {
         var (rsp, _) = await Fixture.AdminClient.GETAsync<List.Recent.Endpoint_V1, List.Recent.Response>();
 
-        rsp!.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        rsp.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class CustomersTests : TestClass<Fixture>
             PhoneNumbers = new[] { "123", "456" }
         });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Should().Be("Email was not sent during testing! admin");
     }
 
@@ -81,11 +81,11 @@ public class CustomersTests : TestClass<Fixture>
             Quantity = 23
         });
 
-        rsp?.IsSuccessStatusCode.Should().BeTrue();
-        res?.OrderID.Should().Be(54321);
-        res?.AnotherMsg.Should().Be("Email was not sent during testing!");
-        res?.Event.One.Should().Be(100);
-        res?.Event.Two.Should().Be(200);
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.OrderID.Should().Be(54321);
+        res.AnotherMsg.Should().Be("Email was not sent during testing!");
+        res.Event.One.Should().Be(100);
+        res.Event.Two.Should().Be(200);
     }
 
     [Fact]
@@ -103,9 +103,9 @@ public class CustomersTests : TestClass<Fixture>
                 GuidTest = Guid.NewGuid()
             });
 
-        rsp?.IsSuccessStatusCode.Should().BeTrue();
-        res?.OrderID.Should().Be(54321);
-        res!.GuidTest.Should().Be(guid);
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.OrderID.Should().Be(54321);
+        res.GuidTest.Should().Be(guid);
     }
 
     [Fact]

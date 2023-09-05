@@ -274,10 +274,11 @@ public static class HttpClientExtensions
                             ? request.ToForm()
                             : new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
             });
-        TResponse? res = default;
+
+        TResponse? res = default!;
 
         if (typeof(TResponse) == Types.EmptyResponse)
-            return new(rsp, res);
+            return new(rsp, res!);
 
         try
         {
@@ -297,7 +298,7 @@ public static class HttpClientExtensions
         }
         catch { }
 
-        return new(rsp, res);
+        return new(rsp, res!);
     }
 
     private static MultipartFormDataContent ToForm<TRequest>(this TRequest req)

@@ -11,7 +11,7 @@ public class CommandBusTests : TestClass<Fixture>
     {
         var res = await Fixture.Client.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
         res.Response.IsSuccessStatusCode.Should().BeFalse();
-        res.Result!.StatusCode.Should().Be(400);
+        res.Result.StatusCode.Should().Be(400);
         res.Result.Errors.Count.Should().Be(2);
         res.Result.Errors["GeneralErrors"].Count.Should().Be(2);
     }

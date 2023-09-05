@@ -37,10 +37,10 @@ public class MiscTestCases : TestClass<Fixture>
                 TestProp = "xyz"
             });
 
-        result?.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        result?.Errors.Should().NotBeNull();
-        result?.Errors.Count.Should().Be(1);
-        result?.Errors.Should().ContainKey("null-claim");
+        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        result.Errors.Should().NotBeNull();
+        result.Errors.Count.Should().Be(1);
+        result.Errors.Should().ContainKey("null-claim");
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class MiscTestCases : TestClass<Fixture>
                 TestProp = "xyz"
             });
 
-        res?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Should().Be("you sent xyz");
     }
 
@@ -64,7 +64,7 @@ public class MiscTestCases : TestClass<Fixture>
         var endpointUrl = IEndpoint.TestURLFor<TestCases.EmptyRequestTest.EmptyRequestEndpoint>();
 
         var requestUri = new Uri(
-            Fixture.AdminClient.BaseAddress!.ToString().TrimEnd('/') +
+            Fixture.AdminClient.BaseAddress.ToString().TrimEnd('/') +
             (endpointUrl.StartsWith('/') ? endpointUrl : "/" + endpointUrl)
         );
 
@@ -91,10 +91,10 @@ public class MiscTestCases : TestClass<Fixture>
                 TenantID = "abc"
             });
 
-        result?.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        result?.Errors.Should().NotBeNull();
-        result?.Errors.Count.Should().Be(1);
-        result?.Errors.Should().ContainKey("TenantID");
+        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        result.Errors.Should().NotBeNull();
+        result.Errors.Count.Should().Be(1);
+        result.Errors.Should().ContainKey("TenantID");
     }
 
     [Fact]
@@ -108,7 +108,7 @@ public class MiscTestCases : TestClass<Fixture>
                 TenantID = "abc"
             });
 
-        res?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Should().Be("you sent abc");
     }
 
@@ -120,9 +120,9 @@ public class MiscTestCases : TestClass<Fixture>
             TestCases.RouteBindingInEpWithoutReq.Response>(
             "/api/test-cases/ep-witout-req-route-binding-test/09809/12", new());
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res!.CustomerID.Should().Be(09809);
-        res!.OtherID.Should().Be(12);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.CustomerID.Should().Be(09809);
+        res.OtherID.Should().Be(12);
     }
 
     [Fact]
@@ -133,9 +133,9 @@ public class MiscTestCases : TestClass<Fixture>
             ErrorResponse>(
             "/api/test-cases/ep-witout-req-route-binding-test/09809/lkjhlkjh", new());
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res?.Errors.Should().NotBeNull();
-        res?.Errors.Should().ContainKey("OtherID");
+        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.Errors.Should().NotBeNull();
+        res.Errors.Should().ContainKey("OtherID");
     }
 
     [Fact]
@@ -157,17 +157,17 @@ public class MiscTestCases : TestClass<Fixture>
                     CustomList = new() { 0 }
                 });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.String.Should().Be("something");
-        res?.Bool.Should().Be(true);
-        res?.Int.Should().Be(99);
-        res?.Long.Should().Be(483752874564876);
-        res?.Double.Should().Be(2232.12);
-        res?.FromBody.Should().Be("from body value");
-        res?.Decimal.Should().Be(123.45m);
-        res?.Url.Should().Be("https://test.com/");
-        res?.Custom.Value.Should().Be(12);
-        res?.CustomList.Should().ContainInOrder(1, 2);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.String.Should().Be("something");
+        res.Bool.Should().Be(true);
+        res.Int.Should().Be(99);
+        res.Long.Should().Be(483752874564876);
+        res.Double.Should().Be(2232.12);
+        res.FromBody.Should().Be("from body value");
+        res.Decimal.Should().Be(123.45m);
+        res.Url.Should().Be("https://test.com/");
+        res.Custom.Value.Should().Be(12);
+        res.CustomList.Should().ContainInOrder(1, 2);
     }
 
     [Fact]
@@ -188,15 +188,15 @@ public class MiscTestCases : TestClass<Fixture>
                     String = "nothing"
                 });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.String.Should().Be("everything");
-        res?.Bool.Should().BeFalse();
-        res?.Int.Should().Be(99);
-        res?.Long.Should().Be(483752874564876);
-        res?.Double.Should().Be(2232.12);
-        res?.FromBody.Should().Be("from body value");
-        res?.Decimal.Should().Be(123.45m);
-        res?.Blank.Should().BeNull();
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.String.Should().Be("everything");
+        res.Bool.Should().BeFalse();
+        res.Int.Should().Be(99);
+        res.Long.Should().Be(483752874564876);
+        res.Double.Should().Be(2232.12);
+        res.FromBody.Should().Be("from body value");
+        res.Decimal.Should().Be(123.45m);
+        res.Blank.Should().BeNull();
     }
 
     [Fact]
@@ -213,24 +213,24 @@ public class MiscTestCases : TestClass<Fixture>
             "dict={\"key1\":\"val1\",\"key2\":\"val2\"}",
             new());
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Doubles.Length.Should().Be(2);
-        res?.Doubles[0].Should().Be(123.45);
-        res?.Dates.Count.Should().Be(2);
-        res?.Dates.First().Should().Be(DateTime.Parse("2022-01-01"));
-        res?.Guids.Count.Should().Be(2);
-        res?.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
-        res?.Ints.Count().Should().Be(3);
-        res?.Ints.First().Should().Be(1);
-        res?.Steven.Should().BeEquivalentTo(
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Doubles.Length.Should().Be(2);
+        res.Doubles[0].Should().Be(123.45);
+        res.Dates.Count.Should().Be(2);
+        res.Dates.First().Should().Be(DateTime.Parse("2022-01-01"));
+        res.Guids.Count.Should().Be(2);
+        res.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
+        res.Ints.Count().Should().Be(3);
+        res.Ints.First().Should().Be(1);
+        res.Steven.Should().BeEquivalentTo(
             new TestCases.JsonArrayBindingForIEnumerableProps.Request.Person
             {
                 Age = 12,
                 Name = "steven"
             });
-        res?.Dict.Count.Should().Be(2);
-        res?.Dict["key1"].Should().Be("val1");
-        res?.Dict["key2"].Should().Be("val2");
+        res.Dict.Count.Should().Be(2);
+        res.Dict["key1"].Should().Be("val1");
+        res.Dict["key2"].Should().Be("val2");
     }
 
     [Fact]
@@ -245,9 +245,9 @@ public class MiscTestCases : TestClass<Fixture>
                 { new TestCases.JsonArrayBindingToListOfModels.Request() { Name = "test2" } },
             });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Count.Should().Be(2);
-        res?[0].Name.Should().Be("test1");
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Count.Should().Be(2);
+        res[0].Name.Should().Be("test1");
     }
 
     [Fact]
@@ -264,8 +264,8 @@ public class MiscTestCases : TestClass<Fixture>
             TestCases.JsonArrayBindingToIEnumerableDto.Request,
             List<TestCases.JsonArrayBindingToIEnumerableDto.Response>>(req);
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Count.Should().Be(2);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Count.Should().Be(2);
         res.Should().BeEquivalentTo(req);
     }
 
@@ -292,24 +292,24 @@ public class MiscTestCases : TestClass<Fixture>
             "persons={\"name\":\"doe\",\"age\":55}",
             new());
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Doubles.Length.Should().Be(2);
-        res?.Doubles[0].Should().Be(123.45);
-        res?.Dates.Count.Should().Be(2);
-        res?.Dates.First().Should().Be(DateTime.Parse("2022-01-01"));
-        res?.Guids.Count.Should().Be(2);
-        res?.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
-        res?.Ints.Count().Should().Be(3);
-        res?.Ints.First().Should().Be(1);
-        res?.Strings.Length.Should().Be(2);
-        res?.Strings[0].Should().Be("[1,2]");
-        res?.MoreStrings.Length.Should().Be(2);
-        res?.MoreStrings[0].Should().Be("[\"one\",\"two\"]");
-        res?.Persons.Count().Should().Be(2);
-        res?.Persons.First().Name.Should().Be("john");
-        res?.Persons.First().Age.Should().Be(45);
-        res?.Persons.Last().Name.Should().Be("doe");
-        res?.Persons.Last().Age.Should().Be(55);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Doubles.Length.Should().Be(2);
+        res.Doubles[0].Should().Be(123.45);
+        res.Dates.Count.Should().Be(2);
+        res.Dates.First().Should().Be(DateTime.Parse("2022-01-01"));
+        res.Guids.Count.Should().Be(2);
+        res.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
+        res.Ints.Count().Should().Be(3);
+        res.Ints.First().Should().Be(1);
+        res.Strings.Length.Should().Be(2);
+        res.Strings[0].Should().Be("[1,2]");
+        res.MoreStrings.Length.Should().Be(2);
+        res.MoreStrings[0].Should().Be("[\"one\",\"two\"]");
+        res.Persons.Count().Should().Be(2);
+        res.Persons.First().Name.Should().Be("john");
+        res.Persons.First().Age.Should().Be(45);
+        res.Persons.Last().Name.Should().Be("doe");
+        res.Persons.Last().Age.Should().Be(55);
     }
 
     [Fact]
@@ -341,17 +341,17 @@ public class MiscTestCases : TestClass<Fixture>
                     }
                 });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.String.Should().Be("everything");
-        res?.Bool.Should().BeFalse();
-        res?.Int.Should().Be(99);
-        res?.Long.Should().Be(483752874564876);
-        res?.Double.Should().Be(2232.12);
-        res?.FromBody.Should().Be("from body value");
-        res?.Decimal.Should().Be(123.45m);
-        res?.Blank.Should().Be(256);
-        res?.Person.Should().NotBeNull();
-        res?.Person.Should().BeEquivalentTo(new Person
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.String.Should().Be("everything");
+        res.Bool.Should().BeFalse();
+        res.Int.Should().Be(99);
+        res.Long.Should().Be(483752874564876);
+        res.Double.Should().Be(2232.12);
+        res.FromBody.Should().Be("from body value");
+        res.Decimal.Should().Be(123.45m);
+        res.Blank.Should().Be(256);
+        res.Person.Should().NotBeNull();
+        res.Person.Should().BeEquivalentTo(new Person
         {
             Age = 45,
             Name = "john",
@@ -388,8 +388,8 @@ public class MiscTestCases : TestClass<Fixture>
                 {
                 });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Should().BeEquivalentTo(
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Should().BeEquivalentTo(
             new TestCases.QueryObjectBindingTest.Request
             {
                 Double = 2232.12,
@@ -435,16 +435,16 @@ public class MiscTestCases : TestClass<Fixture>
                 {
                 });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        System.Text.Json.JsonSerializer.Serialize(res!.Timestamp)
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        System.Text.Json.JsonSerializer.Serialize(res.Timestamp)
             .Should()
             .BeEquivalentTo("\"AAAAAAAAw1U=\"");
 
-        System.Text.Json.JsonSerializer.Serialize(res!.ObjectWithByteArrays.Timestamp)
+        System.Text.Json.JsonSerializer.Serialize(res.ObjectWithByteArrays.Timestamp)
             .Should()
             .BeEquivalentTo("\"AAAAAAAAw1U=\"");
 
-        System.Text.Json.JsonSerializer.Serialize(res!.ObjectWithByteArrays.Timestamps[0])
+        System.Text.Json.JsonSerializer.Serialize(res.ObjectWithByteArrays.Timestamps[0])
             .Should()
             .BeEquivalentTo("\"AAAAAAAAw1U=\"");
     }
@@ -470,8 +470,8 @@ public class MiscTestCases : TestClass<Fixture>
                 {
                 });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Should().BeEquivalentTo(
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Should().BeEquivalentTo(
             new TestCases.QueryObjectWithObjectsArrayBindingTest.Request
             {
                 Person = new()
@@ -579,17 +579,17 @@ public class MiscTestCases : TestClass<Fixture>
                     }
                 });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.String.Should().Be("everything");
-        res?.Bool.Should().BeFalse();
-        res?.Int.Should().Be(99);
-        res?.Long.Should().Be(483752874564876);
-        res?.Double.Should().Be(2232.12);
-        res?.FromBody.Should().Be("from body value");
-        res?.Decimal.Should().Be(123.45m);
-        res?.Blank.Should().Be(256);
-        res?.Person.Should().NotBeNull();
-        res?.Person.Should().BeEquivalentTo(new Person
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.String.Should().Be("everything");
+        res.Bool.Should().BeFalse();
+        res.Int.Should().Be(99);
+        res.Long.Should().Be(483752874564876);
+        res.Double.Should().Be(2232.12);
+        res.FromBody.Should().Be("from body value");
+        res.Decimal.Should().Be(123.45m);
+        res.Blank.Should().Be(256);
+        res.Person.Should().NotBeNull();
+        res.Person.Should().BeEquivalentTo(new Person
         {
             Age = 45,
             Name = "john",
@@ -624,8 +624,8 @@ public class MiscTestCases : TestClass<Fixture>
                 "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
                 new());
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Should().BeEquivalentTo(
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Should().BeEquivalentTo(
             new TestCases.QueryObjectBindingTest.Request
             {
                 Double = 2232.12,
@@ -754,7 +754,7 @@ public class MiscTestCases : TestClass<Fixture>
             });
 
         x.Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        x.Result?.ToString().Should().Be("hello from pre-processor!");
+        x.Result.ToString().Should().Be("hello from pre-processor!");
     }
 
     [Fact]
@@ -770,10 +770,10 @@ public class MiscTestCases : TestClass<Fixture>
             FirstName = ""
         });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res?.Errors.Should().NotBeNull();
-        res?.Errors.Count.Should().Be(2);
-        res?.Errors["x"].First().Should().Be("blah");
+        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.Errors.Should().NotBeNull();
+        res.Errors.Count.Should().Be(2);
+        res.Errors["x"].First().Should().Be("blah");
     }
 
     [Fact]
@@ -788,8 +788,8 @@ public class MiscTestCases : TestClass<Fixture>
                 Verb = Http.DELETE
             });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Host.Should().Be("localhost");
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Host.Should().Be("localhost");
     }
 
     [Fact]
@@ -800,10 +800,10 @@ public class MiscTestCases : TestClass<Fixture>
             Sales.Orders.Retrieve.Request,
             ErrorResponse>(new() { OrderID = "order1" });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res?.Errors.Should().NotBeNull();
-        res?.Errors.Count.Should().Be(1);
-        res?.Errors.Should().ContainKey("MissingHeaders");
+        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.Errors.Should().NotBeNull();
+        res.Errors.Count.Should().Be(1);
+        res.Errors.Should().ContainKey("MissingHeaders");
     }
 
     [Fact]
@@ -828,8 +828,8 @@ public class MiscTestCases : TestClass<Fixture>
             Sales.Orders.Retrieve.Request,
             ErrorResponse>(new() { OrderID = "order1" });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Message.Should().Be("ok!");
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Message.Should().Be("ok!");
     }
 
     [Fact]
@@ -854,8 +854,8 @@ public class MiscTestCases : TestClass<Fixture>
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
-        res?.BodyContent.Should().Be("this is the body content");
-        res?.Id.Should().Be(12345);
+        res.BodyContent.Should().Be("this is the body content");
+        res.Id.Should().Be(12345);
     }
 
     [Fact]
@@ -868,8 +868,8 @@ public class MiscTestCases : TestClass<Fixture>
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
-        res?.BodyContent.Should().Be("this is the body content");
-        res?.Id.Should().Be(12345);
+        res!.BodyContent.Should().Be("this is the body content");
+        res.Id.Should().Be(12345);
     }
 
     [Fact]
@@ -879,8 +879,8 @@ public class MiscTestCases : TestClass<Fixture>
             "/api/sales/orders/retrieve/54321",
             new());
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Message.Should().Be("ok!");
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Message.Should().Be("ok!");
     }
 
     [Fact]
@@ -897,16 +897,16 @@ public class MiscTestCases : TestClass<Fixture>
             "&ints=[1,2,3]" +
             "&floaty=3.2", new());
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res!.CustomerID.Should().Be(09809);
-        res!.OtherID.Should().Be(12);
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Doubles.Length.Should().Be(2);
-        res?.Doubles[0].Should().Be(123.45);
-        res?.Guids.Count.Should().Be(2);
-        res?.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
-        res?.Ints.Count().Should().Be(3);
-        res?.Ints.First().Should().Be(1);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.CustomerID.Should().Be(09809);
+        res.OtherID.Should().Be(12);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Doubles.Length.Should().Be(2);
+        res.Doubles[0].Should().Be(123.45);
+        res.Guids.Count.Should().Be(2);
+        res.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
+        res.Ints.Count().Should().Be(3);
+        res.Ints.First().Should().Be(1);
     }
 
     [Fact]
@@ -917,8 +917,8 @@ public class MiscTestCases : TestClass<Fixture>
             ErrorResponse>(
             "/api/test-cases/ep-witout-req-query-param-binding-test?customerId=09809&otherId=lkjhlkjh", new());
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res?.Errors.Should().ContainKey("OtherID");
+        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.Errors.Should().ContainKey("OtherID");
     }
 
     [Fact]
@@ -939,15 +939,15 @@ public class MiscTestCases : TestClass<Fixture>
             response = await Fixture.GuestClient.SendAsync(request);
         }
 
-        var responseContent = await response!.Content.ReadAsStringAsync();
+        var responseContent = await response.Content.ReadAsStringAsync();
         responseContent.Should().Be("Custom Error Response");
-        response!.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+        response.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
     }
 
     [Fact]
     public async Task NotThrottledGlobalResponse()
     {
-        HttpResponseMessage? response = null;
+        HttpResponseMessage response = default!;
 
         for (var i = 0; i < 3; i++)
         {
@@ -962,7 +962,7 @@ public class MiscTestCases : TestClass<Fixture>
             response = await Fixture.GuestClient.SendAsync(request);
         }
 
-        response!.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -978,12 +978,12 @@ public class MiscTestCases : TestClass<Fixture>
                 Price = 10.10m
             });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Product.Name.Should().Be("test product");
-        res?.Product.Price.Should().Be(10.10m);
-        res?.Product.Id.Should().Be(202);
-        res?.CustomerID.Should().Be(123);
-        res?.Id.Should().Be(0);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Product.Name.Should().Be("test product");
+        res.Product.Price.Should().Be(10.10m);
+        res.Product.Id.Should().Be(202);
+        res.CustomerID.Should().Be(123);
+        res.Id.Should().Be(0);
     }
 
     [Fact]
@@ -999,12 +999,12 @@ public class MiscTestCases : TestClass<Fixture>
                 Price = 10.10m
             });
 
-        rsp?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res?.Product?.Name.Should().Be("test product");
-        res?.Product?.Price.Should().Be(10.10m);
-        res?.Product?.Id.Should().Be(202);
-        res?.CustomerID.Should().Be("123");
-        res?.Id.Should().Be(null);
+        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.Product!.Name.Should().Be("test product");
+        res.Product.Price.Should().Be(10.10m);
+        res.Product.Id.Should().Be(202);
+        res.CustomerID.Should().Be("123");
+        res.Id.Should().Be(null);
     }
 
     [Fact]

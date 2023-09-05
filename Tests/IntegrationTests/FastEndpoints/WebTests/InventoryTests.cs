@@ -18,10 +18,10 @@ public class InventoryTests : TestClass<Fixture>
             Price = 1100
         });
 
-        res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result?.Errors.Count.Should().Be(2);
-        result?.Errors.Should().ContainKey("Name");
-        result?.Errors.Should().ContainKey("ModifiedBy");
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        result.Errors.Count.Should().Be(2);
+        result.Errors.Should().ContainKey("Name");
+        result.Errors.Should().ContainKey("ModifiedBy");
     }
 
     [Fact]
@@ -34,11 +34,11 @@ public class InventoryTests : TestClass<Fixture>
             Price = 1100
         });
 
-        res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result?.Errors.Should().NotBeNull();
-        result?.Errors.Count.Should().Be(2);
-        result?.Errors.Should().ContainKey("Description");
-        result?.Errors.Should().ContainKey("Price");
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        result.Errors.Should().NotBeNull();
+        result.Errors.Count.Should().Be(2);
+        result.Errors.Should().ContainKey("Description");
+        result.Errors.Should().ContainKey("Price");
     }
 
     [Fact]
@@ -52,10 +52,10 @@ public class InventoryTests : TestClass<Fixture>
             Price = 100
         });
 
-        res?.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result?.Errors.Should().NotBeNull();
-        result?.Errors.Count.Should().Be(1);
-        result?.Errors.Should().ContainKey("GeneralErrors");
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        result.Errors.Should().NotBeNull();
+        result.Errors.Count.Should().Be(1);
+        result.Errors.Should().ContainKey("GeneralErrors");
     }
 
     [Fact]
@@ -83,9 +83,9 @@ public class InventoryTests : TestClass<Fixture>
             Price = 100
         });
 
-        res?.StatusCode.Should().Be(HttpStatusCode.Created);
-        result?.ProductId.Should().BeGreaterThan(1);
-        result?.ProductName.Should().Be("Grape Juice");
+        res.StatusCode.Should().Be(HttpStatusCode.Created);
+        result.ProductId.Should().BeGreaterThan(1);
+        result.ProductName.Should().Be("Grape Juice");
     }
 
     [Fact]
@@ -100,12 +100,12 @@ public class InventoryTests : TestClass<Fixture>
             GenerateFullUrl = false
         });
 
-        var createdAtLocation = res?.Headers.Location?.ToString();
+        var createdAtLocation = res.Headers.Location?.ToString();
 
-        res?.StatusCode.Should().Be(HttpStatusCode.Created);
-        createdAtLocation.Should().Be($"/api/inventory/get-product/{result?.ProductId}");
-        result?.ProductId.Should().BeGreaterThan(1);
-        result?.ProductName.Should().Be("Grape Juice");
+        res.StatusCode.Should().Be(HttpStatusCode.Created);
+        createdAtLocation.Should().Be($"/api/inventory/get-product/{result.ProductId}");
+        result.ProductId.Should().BeGreaterThan(1);
+        result.ProductName.Should().Be("Grape Juice");
     }
 
     [Fact]
@@ -120,12 +120,12 @@ public class InventoryTests : TestClass<Fixture>
             GenerateFullUrl = true
         });
 
-        var createdAtLocation = res?.Headers.Location?.ToString();
+        var createdAtLocation = res.Headers.Location?.ToString();
 
-        res?.StatusCode.Should().Be(HttpStatusCode.Created);
-        createdAtLocation.Should().Be($"http://localhost/api/inventory/get-product/{result?.ProductId}");
-        result?.ProductId.Should().BeGreaterThan(1);
-        result?.ProductName.Should().Be("Grape Juice");
+        res.StatusCode.Should().Be(HttpStatusCode.Created);
+        createdAtLocation.Should().Be($"http://localhost/api/inventory/get-product/{result.ProductId}");
+        result.ProductId.Should().BeGreaterThan(1);
+        result.ProductName.Should().Be("Grape Juice");
     }
 
     [Fact]
@@ -133,14 +133,14 @@ public class InventoryTests : TestClass<Fixture>
     {
         var (rsp1, res1) = await Fixture.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
 
-        rsp1!.StatusCode.Should().Be(HttpStatusCode.OK);
+        rsp1.StatusCode.Should().Be(HttpStatusCode.OK);
 
         await Task.Delay(100);
 
         var (rsp2, res2) = await Fixture.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
 
-        rsp2?.StatusCode.Should().Be(HttpStatusCode.OK);
-        res2?.LastModified.Should().Be(res1?.LastModified);
+        rsp2.StatusCode.Should().Be(HttpStatusCode.OK);
+        res2.LastModified.Should().Be(res1?.LastModified);
     }
 
     [Fact]
@@ -151,6 +151,6 @@ public class InventoryTests : TestClass<Fixture>
             ItemID = Guid.NewGuid().ToString()
         });
 
-        res?.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 }

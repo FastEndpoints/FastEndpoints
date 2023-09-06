@@ -19,6 +19,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private static readonly bool isCollectionResponse = tResponse.IsAssignableTo(Types.IEnumerable);
 
 #pragma warning disable IDE0060, RCS1163
+    /// <summary>
+    /// if the 'FastEndpoints.Generator' package is used, calling this method will generate a static class called '{assembly-name}.Auth.Allow'
+    /// with a const field with this <paramref name="keyName"/> that has a 3 digit auto generated value. doesn't do anything without the source
+    /// generator package.
+    /// </summary>
+    /// <param name="keyName"></param>
     protected void AccessControlKey(string keyName) { }
 #pragma warning restore IDE0060, RCS1163
 

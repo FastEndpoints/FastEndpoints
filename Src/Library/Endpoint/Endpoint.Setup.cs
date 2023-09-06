@@ -18,6 +18,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private static readonly bool isStringResponse = tResponse.IsAssignableFrom(Types.String);
     private static readonly bool isCollectionResponse = tResponse.IsAssignableTo(Types.IEnumerable);
 
+#pragma warning disable IDE0060, RCS1163
+    protected void AccessControlKey(string keyName) { }
+#pragma warning restore IDE0060, RCS1163
+
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
     /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require authentication.

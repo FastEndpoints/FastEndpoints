@@ -9,7 +9,13 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <!-- <details><summary>title text</summary></details> -->
 
-<!-- ### 🔖 New -->
+### 🔖 New
+
+<details><summary>Source generated access control lists</summary>
+
+Todo: update doc page and link from here.
+
+</details>
 
 ### 🚀 Improvements
 

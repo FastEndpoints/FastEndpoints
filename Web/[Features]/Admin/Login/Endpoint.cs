@@ -80,7 +80,7 @@ public class Endpoint : Endpoint<Request, Response>
             {
                 JWTToken = token,
                 ExpiryDate = expiryDate,
-                Permissions = new Allow().NamesFor(userPermissions)
+                Permissions = Allow.NamesFor(userPermissions)
             });
         }
         else

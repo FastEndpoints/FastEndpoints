@@ -29,6 +29,7 @@ public class Endpoint : Endpoint<Request>
             Allow.Customers_Create,
             Allow.Customers_Update,
             Allow.Customers_Retrieve);
+        AccessControlKey("Customers_Update");
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)

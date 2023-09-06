@@ -14,6 +14,7 @@ public class Endpoint : EndpointWithoutRequest
             Allow.Customers_Retrieve,
             Allow.Customers_Create);
         Options(o => o.Produces<Response>(200));
+        AccessControlKey("Customers_Retrieve");
     }
 
     public override Task<object> ExecuteAsync(CancellationToken ct)

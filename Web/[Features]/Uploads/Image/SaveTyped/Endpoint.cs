@@ -7,6 +7,7 @@ public class Endpoint : Endpoint<Request>
         Verbs(Http.POST, Http.PUT);
         AllowAnonymous(Http.POST);
         Routes("uploads/image/save-typed");
+        AccessControlKey("Image_Update");
         Permissions(Allow.Image_Update);
         Claims(Claim.AdminID);
         AllowFileUploads();

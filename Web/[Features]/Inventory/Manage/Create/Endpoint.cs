@@ -5,6 +5,7 @@ public class Endpoint : Endpoint<Request>
     public override void Configure()
     {
         Post("/inventory/manage/create");
+        AccessControlKey("Inventory_Create_Item");
         Policies("AdminOnly");
         Permissions(
             Allow.Inventory_Create_Item,

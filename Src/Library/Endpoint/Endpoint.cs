@@ -96,7 +96,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         {
             ValidationFailures.Add(Conf.BndOpts.JsonExceptionTransformer(x));
             await ValidationFailed(x);
-
         }
         catch (ValidationFailureException x)
         {

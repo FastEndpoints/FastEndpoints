@@ -12,7 +12,7 @@ public class RefreshTokenTests : TestClass<Fixture>
     [Fact]
     public async Task LoginEndpointGeneratesCorrectToken()
     {
-        var (rsp, res) = await Fixture.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
+        var (rsp, res) = await fx.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.UserId.Should().Be("usr001");
 
@@ -25,7 +25,7 @@ public class RefreshTokenTests : TestClass<Fixture>
     [Fact]
     public async Task RefreshEndpointValidationWorks()
     {
-        var (rsp, res) = await Fixture.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, ErrorResponse>(new()
+        var (rsp, res) = await fx.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, ErrorResponse>(new()
         {
             UserId = "bad-id",
             RefreshToken = "bad-token"
@@ -39,7 +39,7 @@ public class RefreshTokenTests : TestClass<Fixture>
     [Fact]
     public async Task RefreshEndpointReturnsCorrectTokenResponse()
     {
-        var (rsp, res) = await Fixture.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, TokenResponse>(new()
+        var (rsp, res) = await fx.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, TokenResponse>(new()
         {
             UserId = "usr001",
             RefreshToken = "xyz"

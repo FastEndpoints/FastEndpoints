@@ -32,8 +32,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </param>
     protected void AccessControlKey(string keyName, Apply? behavior = null)
     {
-        if (behavior == Apply.ToThisEndpoint)
-            Permissions(GetAclHash(keyName));
+        if (behavior is not null and Apply.ToThisEndpoint)
+            Definition.Permissions(GetAclHash(keyName));
     }
 
     /// <summary>

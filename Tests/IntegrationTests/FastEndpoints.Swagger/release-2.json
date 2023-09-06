@@ -2045,6 +2045,9 @@
           "401": {
             "description": "Unauthorized"
           },
+          "403": {
+            "description": "Forbidden"
+          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -2095,6 +2098,9 @@
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "400": {
             "description": "Bad Request",

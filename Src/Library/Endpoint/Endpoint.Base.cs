@@ -37,10 +37,10 @@ public abstract class BaseEndpoint : IEndpoint
     //this is here just so the derived endpoint class can seal it.
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
 
-    private static readonly SHA256 sha256 = SHA256.Create();
-    protected static string GetAclHash(string input)
+    internal static string GetAclHash(string input)
     {
         //NOTE: if modifying this algo, update FastEndpoints.Generator.AccessControlGenerator.Permission.GetAclHash() method also!
+        using var sha256 = SHA256.Create();
         var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
         return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(c => char.ToUpper(c)).ToArray());
     }

@@ -60,6 +60,7 @@ namespace ").Append(_namespace).Append(@".Auth;
 public static partial class Allow
 {
     private static readonly Dictionary<string, string> _perms = new();
+    private static readonly Dictionary<string, string> _permsReverse = new();
 ");
         foreach (var p in perms)
         {
@@ -72,7 +73,9 @@ public static partial class Allow
     {
         foreach (var f in typeof(Allow).GetFields(BindingFlags.Public | BindingFlags.Static))
         {
-            _perms[f.Name] = f.GetValue(null)?.ToString()!;
+            var val = f.GetValue(null)?.ToString() ?? string.Empty;
+            _perms[f.Name] = val;
+            _permsReverse[val] = f.Name;
         }
     }
 
@@ -91,6 +94,28 @@ public static partial class Allow
         => _perms.Where(kv => names.Contains(kv.Key)).Select(kv => kv.Value);
 
     /// <summary>
+    /// get the permission code for a given permission name
+    /// </summary>
+    /// <param name=""permissionName"">the name of the permission to get the code for</param>
+    public static string? PermissionCodeFor(string permissionName)
+    {
+        if (_perms.TryGetValue(permissionName, out var code))
+            return code;
+        return null;
+    }
+
+    /// <summary>
+    /// get the permission name for a given permission code
+    /// </summary>
+    /// <param name=""permissionCode"">the permission code to get the name for</param>
+    public static string? PermissionNameFor(string permissionCode)
+    {
+        if (_permsReverse.TryGetValue(permissionCode, out var name))
+            return name;
+        return null;
+    }
+
+    /// <summary>
     /// get a permission tuple using it's name. returns null if not found
     /// </summary>
     /// <param name=""permissionName"">name of the permission</param>
@@ -107,11 +132,8 @@ public static partial class Allow
     /// <param name=""permissionCode"">code of the permission to get</param>
     public static (string PermissionName, string PermissionCode)? PermissionFromCode(string permissionCode)
     {
-        foreach (var kv in _perms)
-        {
-            if (kv.Value == permissionCode)
-                return new(kv.Key, kv.Value);
-        }
+        if (_permsReverse.TryGetValue(permissionCode, out var name))
+            return new(name, permissionCode);
         return null;
     }
 

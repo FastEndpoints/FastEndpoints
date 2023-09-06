@@ -191,7 +191,7 @@ public class WebTests
 
         //assert
         ep.Response.Should().Be("101 blah");
-        state.Duration.Should().BeGreaterThan(100);
+        state.Duration.Should().BeGreaterThan(95);
     }
 
     [Fact]

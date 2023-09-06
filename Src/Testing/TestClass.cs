@@ -22,6 +22,13 @@ public abstract class TestClass<TFixture> : IClassFixture<TFixture> where TFixtu
     /// </summary>
     protected TFixture Fixture { get; init; }
 
+#pragma warning disable IDE1006
+    /// <summary>
+    /// fixture data that is shared among all tests of this class
+    /// </summary>
+    protected TFixture fx => Fixture;
+#pragma warning restore IDE1006
+
     /// <summary>
     /// xUnit test output helper
     /// </summary>

@@ -27,15 +27,17 @@ public class AccessControlGenerator : IIncrementalGenerator
     {
         if (ctx.Node is MethodDeclarationSyntax n && n.Identifier.Value is "Configure")
         {
+            _namespace = ctx.SemanticModel.Compilation.Assembly.Name;
+            var endpoint = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!)!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
             foreach (var expStm in n.Body?.Statements.OfType<ExpressionStatementSyntax>() ?? Enumerable.Empty<ExpressionStatementSyntax>())
             {
                 if (expStm.Expression is InvocationExpressionSyntax inv &&
                     inv.Expression is IdentifierNameSyntax id &&
                     id.Identifier.Value is "AccessControlKey")
                 {
-                    _namespace = ctx.SemanticModel.Compilation.Assembly.Name;
                     var keyName = ((LiteralExpressionSyntax)inv.ArgumentList.Arguments.First().Expression).Token.Value!.ToString();
-                    return new(keyName);
+                    return new(keyName, endpoint);
                 }
             }
         }
@@ -59,15 +61,19 @@ namespace ").Append(_namespace).Append(@".Auth;
 
 public static partial class Allow
 {
-    private static readonly Dictionary<string, string> _perms = new();
-    private static readonly Dictionary<string, string> _permsReverse = new();
-");
+
+#region ACL");
         foreach (var p in perms)
         {
             sb.Append(@$"
-    public const string {p.Name} = ""{p.Code}"";");
+    /// <summary><see cref=""{p.Endpoint}""/></summary>
+    public const string {p.Name} = ""{p.Code}"";
+");
         }
-        sb.Append(@"
+        sb.Append(@"#endregion
+
+    private static readonly Dictionary<string, string> _perms = new();
+    private static readonly Dictionary<string, string> _permsReverse = new();
 
     static Allow()
     {
@@ -162,11 +168,13 @@ public static partial class Allow
     {
         public string Name { get; }
         public string Code { get; }
+        public string Endpoint { get; set; }
 
-        public Permission(string name)
+        public Permission(string name, string endpoint)
         {
             Name = Sanitize(name);
             Code = GetCode(name);
+            Endpoint = endpoint.Substring(8);
         }
 
         private static readonly SHA256 sha256 = SHA256.Create();

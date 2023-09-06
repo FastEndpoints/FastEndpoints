@@ -18,15 +18,23 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     private static readonly bool isStringResponse = tResponse.IsAssignableFrom(Types.String);
     private static readonly bool isCollectionResponse = tResponse.IsAssignableTo(Types.IEnumerable);
 
-#pragma warning disable IDE0060, RCS1163
     /// <summary>
     /// if the 'FastEndpoints.Generator' package is used, calling this method will generate a static class called '{assembly-name}.Auth.Allow'
     /// with a const field with this <paramref name="keyName"/> that has a 3 digit auto generated value. doesn't do anything without the source
-    /// generator package.
+    /// generator package installed.
     /// </summary>
-    /// <param name="keyName"></param>
-    protected void AccessControlKey(string keyName) { }
-#pragma warning restore IDE0060, RCS1163
+    /// <param name="keyName">the name of the constant field to generate</param>
+    /// <param name="behavior">specify whether to add as a permission requirement for this endpoint.
+    /// this does the same thing as calling <see cref="Permissions(string[])"/> method.
+    /// <para> if this optional argument is set to <see cref="Apply.ToThisEndpoint"/>, then a user principal who has this permission will be
+    /// allowed to access this endpoint without having to specify it via another <c>Permissions(...)</c> call.
+    /// </para>
+    /// </param>
+    protected void AccessControlKey(string keyName, Apply? behavior = null)
+    {
+        if (behavior == Apply.ToThisEndpoint)
+            Permissions(GetAclHash(keyName));
+    }
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.

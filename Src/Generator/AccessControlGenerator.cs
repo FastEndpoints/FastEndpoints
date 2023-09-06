@@ -173,13 +173,14 @@ public static partial class Allow
         public Permission(string name, string endpoint)
         {
             Name = Sanitize(name);
-            Code = GetCode(name);
+            Code = GetAclHash(name);
             Endpoint = endpoint.Substring(8);
         }
 
         private static readonly SHA256 sha256 = SHA256.Create();
-        private static string GetCode(string input)
+        private static string GetAclHash(string input)
         {
+            //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.ToAclKey() method also!
             var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
             return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(c => char.ToUpper(c)).ToArray());
         }

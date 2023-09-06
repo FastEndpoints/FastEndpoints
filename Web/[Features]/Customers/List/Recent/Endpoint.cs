@@ -13,8 +13,8 @@ public class Endpoint : EndpointWithoutRequest
         Permissions(
             Allow.Customers_Retrieve,
             Allow.Customers_Create);
-        Options(o => o.Produces<Response>(200));
         AccessControlKey("Customers_Retrieve");
+        Options(o => o.Produces<Response>(200));
     }
 
     public override Task<object> ExecuteAsync(CancellationToken ct)

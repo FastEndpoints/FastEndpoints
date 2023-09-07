@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FastEndpoints;
 
@@ -37,11 +38,15 @@ public abstract class BaseEndpoint : IEndpoint
     //this is here just so the derived endpoint class can seal it.
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
 
+    private static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
     internal static string GetAclHash(string input)
     {
         //NOTE: if modifying this algo, update FastEndpoints.Generator.AccessControlGenerator.Permission.GetAclHash() method also!
         using var sha256 = SHA256.Create();
-        var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
-        return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(c => char.ToUpper(c)).ToArray());
+        var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(Sanitize(input).ToUpperInvariant())));
+        return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
+
+        static string Sanitize(string input)
+           => regex.Replace(input, "_");
     }
 }

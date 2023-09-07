@@ -13,7 +13,7 @@ public class Endpoint : EndpointWithoutRequest
         Permissions(
             Allow.Customers_Retrieve,
             Allow.Customers_Create);
-        AccessControlKey("Customers_Retrieve");
+        AccessControlKey("Customers_Retrieve", "Admin");
         Options(o => o.Produces<Response>(200));
     }
 

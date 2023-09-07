@@ -54,8 +54,9 @@ public class AccessControlGenerator : IIncrementalGenerator
         if (!perms.Any()) return;
 
         var groups = perms
-            .SelectMany(p => p.Categories.Select(g => (p, g)))
-            .ToDictionary(x => x.g, x => x.p);
+            .SelectMany(perm => perm.Categories.Select(category => (category, name: perm.Name)))
+            .GroupBy(x => x.category, x => x.name)
+            .ToDictionary(g => g.Key, g => g.Select(n => n));
 
         var fileContent = RenderClass(perms.OrderBy(p => p.Name), groups);
         spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
@@ -63,7 +64,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
     private static string _namespace = default!;
 
-    private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, Permission> groups)
+    private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
     {
         var sb = new StringBuilder(@"#nullable enable
 
@@ -77,12 +78,16 @@ public static partial class Allow
 #region ACL_ITEMS");
         foreach (var p in perms)
         {
-            sb.Append(@$"
-    /// <summary><see cref=""{p.Endpoint}""/></summary>
-    public const string {p.Name} = ""{p.Code}"";
+            sb.Append(@"
+    /// <summary><see cref=""").Append(p.Endpoint).Append(@"""/></summary>
+    public const string ").Append(p.Name).Append(" = \"").Append(p.Code).Append(@""";
 ");
         }
         sb.Append(@"#endregion
+
+");
+        RenderGroups(sb, groups);
+        sb.Append(@"
 
     private static readonly Dictionary<string, string> _perms = new();
     private static readonly Dictionary<string, string> _permsReverse = new();
@@ -174,6 +179,29 @@ public static partial class Allow
         => _perms.Select(kv => new ValueTuple<string, string>(kv.Key, kv.Value));
 }");
         return sb.ToString();
+
+        static void RenderGroups(StringBuilder sb, Dictionary<string, IEnumerable<string>> groups)
+        {
+            if (groups.Count > 0)
+            {
+                sb.Append("#region GROUPS");
+                foreach (var g in groups)
+                {
+                    sb.Append(@"
+    public static string[] ").Append(g.Key).Append(@" { get; } =
+    {
+");
+                    foreach (var name in g.Value)
+                    {
+                        sb.Append("        ").Append(name).AppendLine(",");
+                    }
+                    sb.Remove(sb.Length - 2, 2).Append(@"
+    };
+");
+                }
+                sb.Append("#endregion");
+            }
+        }
     }
 
     private const string _replacement = "_";
@@ -186,14 +214,14 @@ public static partial class Allow
         public string Name { get; }
         public string Code { get; }
         public string Endpoint { get; set; }
-        public string[]? Categories { get; set; }
+        public IEnumerable<string> Categories { get; set; }
 
         public Permission(string name, string endpoint, IEnumerable<string> categories)
         {
-            Name = Sanitize(name);
+            Name = name;
             Code = GetAclHash(name);
             Endpoint = endpoint.Substring(8);
-            Categories = categories.Any() ? categories.ToArray() : null;
+            Categories = categories;
         }
 
         private static string GetAclHash(string input)
@@ -201,7 +229,7 @@ public static partial class Allow
             //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.ToAclKey() method also!
             using var sha256 = SHA256.Create();
             var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
-            return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(c => char.ToUpper(c)).ToArray());
+            return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
         }
 
     }

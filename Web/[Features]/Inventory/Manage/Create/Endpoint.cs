@@ -9,7 +9,7 @@ public class Endpoint : Endpoint<Request>
         Permissions(
             Allow.Inventory_Create_Item,
             Allow.Inventory_Update_Item);
-        AccessControlKey("Inventory_Create_Item", Apply.ToThisEndpoint, "Admin", "Manager");
+        AccessControlKey("Inventory_Create_Item", "Admin");
         ClaimsAll(
             Claim.AdminID,
             "test-claim");

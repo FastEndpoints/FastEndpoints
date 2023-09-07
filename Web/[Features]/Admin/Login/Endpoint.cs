@@ -50,14 +50,7 @@ public class Endpoint : Endpoint<Request, Response>
         {
             var expiryDate = DateTime.UtcNow.AddDays(1);
 
-            var userPermissions = new[] {
-                    Allow.Inventory_Create_Item,
-                    Allow.Inventory_Retrieve_Item,
-                    Allow.Inventory_Update_Item,
-                    Allow.Inventory_Delete_Item,
-                    Allow.Customers_Retrieve,
-                    Allow.Customers_Create,
-                    Allow.Customers_Update};
+            var userPermissions = Allow.Admin;
 
             var userClaims = new[] {
                     (Claim.UserName, r.UserName),

@@ -6,7 +6,7 @@ public class Endpoint : EndpointWithoutRequest<Response>
     {
         Verbs(Http.GET);
         Routes("/inventory/get-product/{ProductID}");
-        AccessControlKey("Inventory_Retrieve_Item");
+        AccessControlKey("Inventory_Retrieve_Item", "Admin");
         AllowAnonymous();
         ResponseCache(10);
     }

@@ -20,15 +20,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 
     /// <summary>
     /// if the 'FastEndpoints.Generator' package is used, calling this method will generate a static class called '{assembly-name}.Auth.Allow'
-    /// with a const field with this <paramref name="keyName"/> that has a 3 digit auto generated value. doesn't do anything without the source
+    /// with a const field with this <paramref name="keyName"/> that has a 3 digit auto generated value (permission code). doesn't do anything without the source
     /// generator package installed.
     /// </summary>
     /// <param name="keyName">the name of the constant field to generate</param>
-    /// <param name="behavior">specify whether to add as a permission requirement for this endpoint.
+    /// <param name="behavior">specify whether to add the generated permission code as a permission requirement for this endpoint.
     /// this does the same thing as calling <see cref="Permissions(string[])"/> method.
-    /// <para> if this optional argument is set to <see cref="Apply.ToThisEndpoint"/>, then a user principal who has this permission will be
-    /// allowed to access this endpoint without having to specify it via another <c>Permissions(...)</c> call.
-    /// </para>
+    /// i.e. if this optional argument is set to <see cref="Apply.ToThisEndpoint"/>, then a user principal who has this permission code will be
+    /// allowed to access this endpoint without having to explicitly specify it via another <c>Permissions(...)</c> call.
     /// </param>
     protected void AccessControlKey(string keyName, Apply? behavior = null)
     {

@@ -28,4 +28,9 @@ public interface IJobStorageRecord
     /// indicates whether the job has successfully completed or not.
     /// </summary>
     bool IsComplete { get; set; }
+
+    /// <summary>
+    /// implement this method to customize command parsing.
+    /// </summary>
+    TCommand GetCommand<TCommand>() => (TCommand)Command;
 }

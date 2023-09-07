@@ -129,7 +129,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
         {
             try
             {
-                await ((TCommand)record.Command)
+                await record.GetCommand<TCommand>()
                     .ExecuteAsync(new CancellationTokenSource(_executionTimeLimit).Token);
             }
             catch (Exception x)

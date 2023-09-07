@@ -140,7 +140,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
 
                     try
                     {
-                        await handler.HandleAsync((TEvent)record.Event, opts.CancellationToken);
+                        await handler.HandleAsync(record.GetEvent<TEvent>(), opts.CancellationToken);
                         executionErrorCount = 0;
                     }
                     catch (Exception ex)

@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using System.Runtime.CompilerServices;
+
+namespace FastEndpoints;
 
 public interface IJobStorageRecord
 {
@@ -28,4 +30,10 @@ public interface IJobStorageRecord
     /// indicates whether the job has successfully completed or not.
     /// </summary>
     bool IsComplete { get; set; }
+
+    /// <summary>
+    /// allows implementers to customize command parsing.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    TCommand GetCommand<TCommand>() => (TCommand)Command;
 }

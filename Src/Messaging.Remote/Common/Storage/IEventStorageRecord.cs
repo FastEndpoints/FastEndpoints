@@ -35,7 +35,12 @@ public interface IEventStorageRecord
     bool IsComplete { get; set; }
 
     /// <summary>
-    /// implement this method to customize event parsing.
+    /// implement this function to customize event deserialization.
     /// </summary>
     TEvent GetEvent<TEvent>() where TEvent : IEvent => (TEvent)Event;
+
+    /// <summary>
+    /// implement this method to customize event serialization.
+    /// </summary>
+    void SetEvent<TEvent>(IEvent @event) where TEvent : IEvent => Event = @event;
 }

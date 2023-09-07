@@ -13,7 +13,7 @@ internal abstract class JobQueueBase
     //see ctor in JobQueue<TCommand, TStorageRecord, TStorageProvider>
     protected static readonly ConcurrentDictionary<Type, JobQueueBase> _allQueues = new();
 
-    protected abstract Task StoreJobAsync(object command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
+    protected abstract Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
 
     internal abstract void SetExecutionLimits(int concurrencyLimit, TimeSpan executionTimeLimit);
 
@@ -66,16 +66,17 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
         _ = CommandExecutorTask();
     }
 
-    protected override async Task StoreJobAsync(object command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
+    protected override async Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         _isInUse = true;
-        await _storage.StoreJobAsync(new()
+        var job = new TStorageRecord()
         {
             QueueID = _queueID,
-            Command = command,
             ExecuteAfter = executeAfter ?? DateTime.UtcNow,
             ExpireOn = expireOn ?? DateTime.UtcNow.AddHours(4)
-        }, ct);
+        };
+        job.SetCommand<TCommand>(command);
+        await _storage.StoreJobAsync(job, ct);
         _sem.Release();
     }
 

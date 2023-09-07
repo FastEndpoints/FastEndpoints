@@ -15,7 +15,7 @@ internal abstract class EventHubBase
     //values get created when the DI container resolves each event hub type and the ctor is run.
     protected static readonly ConcurrentDictionary<Type, EventHubBase> _allHubs = new();
 
-    protected abstract Task BroadcastEvent(object evnt, CancellationToken ct);
+    protected abstract Task BroadcastEvent(IEvent evnt, CancellationToken ct);
 
     internal static Task AddToSubscriberQueues(IEvent evnt, CancellationToken ct)
     {
@@ -137,7 +137,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                 {
                     try
                     {
-                        await stream.WriteAsync((TEvent)record.Event, ctx.CancellationToken);
+                        await stream.WriteAsync(record.GetEvent<TEvent>(), ctx.CancellationToken);
                     }
                     catch
                     {
@@ -182,7 +182,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
         }
     }
 
-    protected override async Task BroadcastEvent(object evnt, CancellationToken ct)
+    protected override async Task BroadcastEvent(IEvent evnt, CancellationToken ct)
     {
         var createErrorCount = 0;
 
@@ -191,10 +191,10 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             var record = new TStorageRecord
             {
                 SubscriberID = subId,
-                Event = evnt,
                 EventType = _tEvent.FullName!,
                 ExpireOn = DateTime.UtcNow.AddHours(4)
             };
+            record.SetEvent<TEvent>(evnt);
 
             while (!ct.IsCancellationRequested)
             {

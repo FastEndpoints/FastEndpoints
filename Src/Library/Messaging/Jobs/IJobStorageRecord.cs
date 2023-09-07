@@ -30,7 +30,12 @@ public interface IJobStorageRecord
     bool IsComplete { get; set; }
 
     /// <summary>
-    /// implement this method to customize command parsing.
+    /// implement this function to customize command deserialization.
     /// </summary>
-    TCommand GetCommand<TCommand>() => (TCommand)Command;
+    TCommand GetCommand<TCommand>() where TCommand : ICommand => (TCommand)Command;
+
+    /// <summary>
+    /// implement this method to customize command serialization.
+    /// </summary>
+    void SetCommand<TCommand>(ICommand command) where TCommand : ICommand => Command = command;
 }

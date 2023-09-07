@@ -18,7 +18,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
             "/sales/orders/create/{guidTest}",
             "/sales/orders/create");
         //Permissions(Allow.Sales_Order_Create);
-        AccessControlKey("Sales_Order_Create", Apply.ToThisEndpoint);
+        AccessControlKey("Sales_Order_Create", Apply.ToThisEndpoint, "Admin", "Manager");
         PreProcessors(new MyRequestLogger<Request>());
         PostProcessors(new MyResponseLogger<Request, Response>());
         Tags("orders");

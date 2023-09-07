@@ -36,8 +36,13 @@ public class AccessControlGenerator : IIncrementalGenerator
                     inv.Expression is IdentifierNameSyntax id &&
                     id.Identifier.Value is "AccessControlKey")
                 {
-                    var keyName = ((LiteralExpressionSyntax)inv.ArgumentList.Arguments.First().Expression).Token.Value!.ToString();
-                    return new(keyName, endpoint);
+                    var args = inv.ArgumentList.Arguments
+                        .OfType<ArgumentSyntax>()
+                        .Select(a => a.Expression)
+                        .OfType<LiteralExpressionSyntax>()
+                        .Select(l => Sanitize(l.Token.ValueText));
+
+                    return new(args.First(), endpoint, args.Skip(1));
                 }
             }
         }
@@ -47,13 +52,18 @@ public class AccessControlGenerator : IIncrementalGenerator
     private void Execute(ImmutableArray<Permission> perms, SourceProductionContext spc)
     {
         if (!perms.Any()) return;
-        var fileContent = GetContent(perms.OrderBy(p => p.Name));
+
+        var groups = perms
+            .SelectMany(p => p.Categories.Select(g => (p, g)))
+            .ToDictionary(x => x.g, x => x.p);
+
+        var fileContent = RenderClass(perms.OrderBy(p => p.Name), groups);
         spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
     private static string _namespace = default!;
 
-    private static string GetContent(IEnumerable<Permission> perms)
+    private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, Permission> groups)
     {
         var sb = new StringBuilder(@"#nullable enable
 
@@ -64,7 +74,7 @@ namespace ").Append(_namespace).Append(@".Auth;
 public static partial class Allow
 {
 
-#region ACL");
+#region ACL_ITEMS");
         foreach (var p in perms)
         {
             sb.Append(@$"
@@ -166,17 +176,24 @@ public static partial class Allow
         return sb.ToString();
     }
 
+    private const string _replacement = "_";
+    private static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+    private static string Sanitize(string input)
+        => regex.Replace(input, _replacement);
+
     private sealed class Permission
     {
         public string Name { get; }
         public string Code { get; }
         public string Endpoint { get; set; }
+        public string[]? Categories { get; set; }
 
-        public Permission(string name, string endpoint)
+        public Permission(string name, string endpoint, IEnumerable<string> categories)
         {
             Name = Sanitize(name);
             Code = GetAclHash(name);
             Endpoint = endpoint.Substring(8);
+            Categories = categories.Any() ? categories.ToArray() : null;
         }
 
         private static string GetAclHash(string input)
@@ -187,9 +204,5 @@ public static partial class Allow
             return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(c => char.ToUpper(c)).ToArray());
         }
 
-        private const string _replacement = "_";
-        private static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
-        private static string Sanitize(string input)
-            => regex.Replace(input, _replacement);
     }
 }

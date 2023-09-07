@@ -55,7 +55,9 @@ public class AccessControlGenerator : IIncrementalGenerator
 
     private static string GetContent(IEnumerable<Permission> perms)
     {
-        var sb = new StringBuilder(@"using System.Reflection;
+        var sb = new StringBuilder(@"#nullable enable
+
+using System.Reflection;
 
 namespace ").Append(_namespace).Append(@".Auth;
 

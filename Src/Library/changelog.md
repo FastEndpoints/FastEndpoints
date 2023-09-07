@@ -27,6 +27,12 @@ just fail with a NRE, which is fine in the context of test code.
 
 </details>
 
+<details><summary>Allow customizing parsing of Event/Command objects in Job/Event Queue storage</summary>
+
+Todo: update doc page and link from here.
+
+</details>
+
 <!-- ### 🪲 Fixes -->
 
 <!-- ### ⚠️ Minor Breaking Changes -->

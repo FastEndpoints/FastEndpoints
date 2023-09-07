@@ -75,7 +75,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
             ExecuteAfter = executeAfter ?? DateTime.UtcNow,
             ExpireOn = expireOn ?? DateTime.UtcNow.AddHours(4)
         };
-        job.SetCommand<TCommand>(command);
+        job.SetCommand((TCommand)command);
         await _storage.StoreJobAsync(job, ct);
         _sem.Release();
     }

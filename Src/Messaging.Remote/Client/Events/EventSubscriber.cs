@@ -68,7 +68,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
                         EventType = typeof(TEvent).FullName!,
                         ExpireOn = DateTime.UtcNow.AddHours(4)
                     };
-                    record.SetEvent<TEvent>(call.ResponseStream.Current);
+                    record.SetEvent(call.ResponseStream.Current);
 
                     while (!opts.CancellationToken.IsCancellationRequested)
                     {

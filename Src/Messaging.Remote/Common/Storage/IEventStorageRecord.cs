@@ -42,5 +42,5 @@ public interface IEventStorageRecord
     /// <summary>
     /// implement this method to customize event serialization.
     /// </summary>
-    void SetEvent<TEvent>(IEvent @event) where TEvent : IEvent => Event = @event;
+    void SetEvent<TEvent>(TEvent @event) where TEvent : IEvent => Event = @event;
 }

@@ -37,5 +37,5 @@ public interface IJobStorageRecord
     /// <summary>
     /// implement this method to customize command serialization.
     /// </summary>
-    void SetCommand<TCommand>(ICommand command) where TCommand : ICommand => Command = command;
+    void SetCommand<TCommand>(TCommand command) where TCommand : ICommand => Command = command;
 }

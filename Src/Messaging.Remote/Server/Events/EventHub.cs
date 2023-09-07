@@ -194,7 +194,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                 EventType = _tEvent.FullName!,
                 ExpireOn = DateTime.UtcNow.AddHours(4)
             };
-            record.SetEvent<TEvent>(evnt);
+            record.SetEvent((TEvent)evnt);
 
             while (!ct.IsCancellationRequested)
             {

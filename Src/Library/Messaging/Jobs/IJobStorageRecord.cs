@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 public interface IJobStorageRecord
 {
@@ -32,8 +30,7 @@ public interface IJobStorageRecord
     bool IsComplete { get; set; }
 
     /// <summary>
-    /// allows implementers to customize command parsing.
+    /// implement this method to customize command parsing.
     /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     TCommand GetCommand<TCommand>() => (TCommand)Command;
 }

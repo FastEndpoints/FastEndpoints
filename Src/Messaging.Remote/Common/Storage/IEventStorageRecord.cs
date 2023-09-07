@@ -33,4 +33,9 @@ public interface IEventStorageRecord
     /// pending status of the event. will only return true if the event has been successfully processed and is ready to be discarded.
     /// </summary>
     bool IsComplete { get; set; }
+
+    /// <summary>
+    /// implement this method to customize event parsing.
+    /// </summary>
+    TEvent GetEvent<TEvent>() where TEvent : IEvent => (TEvent)Event;
 }

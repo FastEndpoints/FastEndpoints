@@ -167,10 +167,14 @@ internal static class BinderExtensions
                 // - ["one","two"], three, four (as StringValues)
                 // - {"name":"x"}, {"name":"y"} (as StringValues) - from swagger ui
 
+                var isEnumArray = false;
+                if (tProp.IsArray)
+                    isEnumArray = tProp.GetElementType().IsEnum;
+
                 var sb = new StringBuilder("[");
                 for (var i = 0; i < vals.Count; i++)
                 {
-                    if (vals[i].StartsWith('{') && vals[i].EndsWith('}'))
+                    if (isEnumArray || (vals[i].StartsWith('{') && vals[i].EndsWith('}')))
                     {
                         sb.Append(vals[i]);
                     }

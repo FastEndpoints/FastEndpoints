@@ -55,6 +55,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         var groups = perms
             .SelectMany(perm => perm.Categories.Select(category => (category, name: perm.Name)))
+            .OrderBy(x => x.name).ThenBy(x => x.category)
             .GroupBy(x => x.category, x => x.name)
             .ToDictionary(g => g.Key, g => g.Select(n => n));
 
@@ -100,7 +101,13 @@ public static partial class Allow
             _perms[f.Name] = val;
             _permsReverse[val] = f.Name;
         }
+        Categorize();
     }
+
+    /// <summary>
+    /// implement this method to add custom permissions to the generated categories
+    /// </summary>
+    static partial void Categorize();
 
     /// <summary>
     /// gets a list of permission names for the given list of permission codes
@@ -187,8 +194,12 @@ public static partial class Allow
                 sb.Append("#region GROUPS");
                 foreach (var g in groups)
                 {
+                    var key = $"_{g.Key.ToLower()}";
+
                     sb.Append(@"
-    public static string[] ").Append(g.Key).Append(@" { get; } =
+    public static IEnumerable<string> ").Append(g.Key).Append(" => ").Append(key).Append(@";
+    private static void AddTo").Append(g.Key).Append("(string permissionCode) => ").Append(key).Append(@".Add(permissionCode);
+    private static readonly List<string> ").Append(key).Append(@" = new()
     {
 ");
                     foreach (var name in g.Value)

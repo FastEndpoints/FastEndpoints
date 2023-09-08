@@ -31,7 +31,7 @@ public class AdminTests : TestClass<Fixture>
         });
 
         resp.StatusCode.Should().Be(HttpStatusCode.OK);
-        result.Permissions.Count().Should().Be(7);
+        result.Permissions.Count().Should().Be(8);
         result.JWTToken.Should().NotBeNull();
     }
 

@@ -14,43 +14,44 @@ public class AccessControlGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var syntaxProvider = ctx.SyntaxProvider.CreateSyntaxProvider(
-            (sn, _) => sn is MethodDeclarationSyntax,
-            (c, _) => Transform(c)
-            ).Where(p => p is not null);
+            static (sn, _) => sn is MethodDeclarationSyntax m && m.Identifier.ValueText == "Configure",
+            static (c, _) => Transform(c)
+        ).Where(static p => p is not null);
 
-        var compilationAndClasses = ctx.CompilationProvider.Combine(syntaxProvider.Collect());
+        var compilationAndPermissions = ctx.CompilationProvider.Combine(syntaxProvider.Collect());
 
-        ctx.RegisterSourceOutput(compilationAndClasses, (spc, src) => Execute(src.Right!, spc));
+        ctx.RegisterSourceOutput(compilationAndPermissions, static (spc, src) => Execute(src.Left, src.Right!, spc));
     }
 
-    private Permission? Transform(GeneratorSyntaxContext ctx)
+    private static Permission? Transform(GeneratorSyntaxContext ctx)
     {
-        if (ctx.Node is MethodDeclarationSyntax n && n.Identifier.Value is "Configure")
+        var endpoint = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!)!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+        foreach (var exprStm in ((MethodDeclarationSyntax)ctx.Node).Body?.Statements.OfType<ExpressionStatementSyntax>() ?? Enumerable.Empty<ExpressionStatementSyntax>())
         {
-            _namespace = ctx.SemanticModel.Compilation.Assembly.Name;
-            var endpoint = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!)!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-            foreach (var expStm in n.Body?.Statements.OfType<ExpressionStatementSyntax>() ?? Enumerable.Empty<ExpressionStatementSyntax>())
+            if (exprStm.Expression is InvocationExpressionSyntax inv &&
+                inv.Expression is IdentifierNameSyntax id &&
+                id.Identifier.ValueText == "AccessControl")
             {
-                if (expStm.Expression is InvocationExpressionSyntax inv &&
-                    inv.Expression is IdentifierNameSyntax id &&
-                    id.Identifier.Value is "AccessControl")
-                {
-                    var args = inv.ArgumentList.Arguments
-                        .OfType<ArgumentSyntax>()
-                        .Select(a => a.Expression)
-                        .OfType<LiteralExpressionSyntax>()
-                        .Select(l => Sanitize(l.Token.ValueText));
+                var args = inv.ArgumentList.Arguments
+                    .OfType<ArgumentSyntax>()
+                    .Select(a => a.Expression)
+                    .OfType<LiteralExpressionSyntax>()
+                    .Select(l => Sanitize(l.Token.ValueText));
 
-                    return new(args.First(), endpoint, args.Skip(1));
-                }
+                return new(args.First(), endpoint, args.Skip(1));
             }
         }
+
         return null;
     }
 
-    private void Execute(ImmutableArray<Permission> perms, SourceProductionContext spc)
+    private static string? _namespace;
+
+    private static void Execute(Compilation compilation, ImmutableArray<Permission> perms, SourceProductionContext spc)
     {
+        _namespace ??= compilation.Assembly.Name;
+
         if (!perms.Any()) return;
 
         var groups = perms
@@ -63,11 +64,12 @@ public class AccessControlGenerator : IIncrementalGenerator
         spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    private static string _namespace = default!;
+    private static readonly StringBuilder sb = new();
 
     private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
     {
-        var sb = new StringBuilder(@"#nullable enable
+        sb.Clear().Append(
+@"#nullable enable
 
 using System.Reflection;
 

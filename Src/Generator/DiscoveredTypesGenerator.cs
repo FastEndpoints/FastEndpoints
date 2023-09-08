@@ -11,18 +11,17 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
-        var typeDeclarationSyntaxProvider = ctx.SyntaxProvider
-            .CreateSyntaxProvider(
-                (sn, _) => sn is TypeDeclarationSyntax,
-                (c, _) => Transform(c))
-            .Where(p => p is not null);
+        var typeDeclarationSyntaxProvider = ctx.SyntaxProvider.CreateSyntaxProvider(
+            static (sn, _) => sn is TypeDeclarationSyntax,
+            static (c, _) => Transform(c)
+        ).Where(t => t is not null);
 
         var compilationAndClasses = ctx.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
 
-        ctx.RegisterSourceOutput(compilationAndClasses, (spc, source) => Execute(source.Right!, spc));
+        ctx.RegisterSourceOutput(compilationAndClasses, static (spc, source) => Execute(source.Left, source.Right!, spc));
     }
 
-    private ITypeSymbol? Transform(GeneratorSyntaxContext ctx)
+    private static ITypeSymbol? Transform(GeneratorSyntaxContext ctx)
     {
         var symbol = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node);
         if (symbol is not ITypeSymbol typeSymbol) return null;
@@ -37,18 +36,19 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         return isValid ? typeSymbol : null;
     }
 
-    private void Execute(ImmutableArray<ITypeSymbol> typeSymbols, SourceProductionContext spc)
+    private static void Execute(Compilation compilation, ImmutableArray<ITypeSymbol> typeSymbols, SourceProductionContext spc)
     {
         if (!typeSymbols.Any()) return;
-        var fileContent = GetContent(typeSymbols);
+        var fileContent = GetContent(compilation, typeSymbols);
         spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    private static string GetContent(IEnumerable<ITypeSymbol> discoveredTypes)
-    {
-        var assembly = discoveredTypes.FirstOrDefault()?.ContainingAssembly.Name;
+    private static readonly StringBuilder sb = new();
 
-        var sb = new StringBuilder(
+    private static string GetContent(Compilation compilation, IEnumerable<ITypeSymbol> discoveredTypes)
+    {
+        var assembly = compilation.AssemblyName;
+        sb.Clear().Append(
 "namespace ").Append(assembly).Append(@"
 {
     public static class DiscoveredTypes

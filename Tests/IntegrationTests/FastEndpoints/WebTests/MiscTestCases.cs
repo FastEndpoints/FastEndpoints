@@ -1020,4 +1020,22 @@ public class MiscTestCases : TestClass<Fixture>
 
         res.Should().Be("1");
     }
+
+    [Fact]
+    public async Task IAuthorization_Injection_Pass()
+    {
+        var (rsp, res) = await fx.AdminClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
+
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task IAuthorization_Injection_Fail()
+    {
+        var (rsp, res) = await fx.CustomerClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
+
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.Should().BeFalse();
+    }
 }

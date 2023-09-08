@@ -1482,6 +1482,37 @@
         }
       }
     },
+    "/api/tests/iauth-injection": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesIAuthorizationServiceInjectionTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
     "/mobile/api/test-cases/global-prefix-override/{Id}": {
       "post": {
         "tags": [

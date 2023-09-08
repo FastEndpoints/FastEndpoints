@@ -30,9 +30,16 @@ just fail with a NRE, which is fine in the context of test code.
 <details><summary>Allow customizing serialization/deserialization of Event/Command objects in Job/Event Queue storage</summary>
 
 Todo: update doc page and link from here.
+Ref: https://github.com/FastEndpoints/FastEndpoints/issues/480
 
 </details>
 
-<!-- ### 🪲 Fixes -->
+### 🪲 Fixes
+
+<details><summary>Startup issue due to 'IAuthorizationService' injection</summary>
+
+v5.16 had introduced a bug of not being able to inject `IAuthorizationService` into endpoint classes, which has now been fixed.
+
+</details>
 
 <!-- ### ⚠️ Minor Breaking Changes -->

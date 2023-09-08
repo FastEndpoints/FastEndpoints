@@ -30,7 +30,7 @@ public static class MainExtensions
         var endpointData = new EndpointData(opts, cmdHandlerRegistry);
         services.AddSingleton(cmdHandlerRegistry);
         services.AddSingleton(endpointData);
-        services.AddAuthorization(o => BuildSecurityPoliciesForEndpoints(o, endpointData)); //this method doesn't block
+        services.AddAuthorization(async o => await BuildSecurityPoliciesForEndpoints(o, endpointData)); //this method doesn't block
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
@@ -162,16 +162,6 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
-        Task.Run(async () =>
-        {
-            //release memory held by Endpoints static variable after 10 mins as it's not needed after app startup.
-            //we wait for 10 minutes in case WAF might create multiple instances of the web application in some testing scenarios.
-            //if someone's tests run for more than 10 minutes, we should make this a user configurable setting.
-
-            await Task.Delay(TimeSpan.FromMinutes(10));
-            endpoints.Clear();
-        });
-
         return app;
     }
 
@@ -256,12 +246,14 @@ public static class MainExtensions
         }).ToArray();
     }
 
-    private static void BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts, EndpointData epData)
+    private static async Task BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts, EndpointData endpointData)
     {
-        foreach (var ep in epData.Found)
+        foreach (var ep in endpointData.Found)
         {
-            if (!ep.IsInitialized)
-                throw new InvalidOperationException("Endpoints are not initialized! This usually happens when 'app.UseFastEndpoints()' is placed after 'app.MapControllers()'. Try changing the middleware order.");
+            while (!ep.IsInitialized)
+            {
+                await Task.Delay(100);
+            }
 
             if (!ep.RequiresAuthorization())
                 continue;

@@ -6,25 +6,17 @@ namespace FastEndpoints;
 
 internal sealed class EndpointData
 {
-    //using Lazy<T> to prevent contention when WAF testing (see issue #10)
-    private Lazy<EndpointDefinition[]> _endpoints;
-
-    internal EndpointDefinition[] Found => _endpoints.Value;
-
     internal static Stopwatch Stopwatch { get; } = new();
+
+    internal EndpointDefinition[] Found { get; private set; }
 
     internal EndpointData(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
     {
-        _endpoints = new(() =>
-        {
-            var endpoints = BuildEndpointDefinitions(options, cmdHandlerRegistry);
-            return endpoints.Length == 0
-                   ? throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!")
-                   : endpoints;
-        });
-    }
+        Found = BuildEndpointDefinitions(options, cmdHandlerRegistry);
 
-    internal void Clear() => _endpoints = null!;
+        if (Found.Length == 0)
+            throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
+    }
 
     private static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
     {

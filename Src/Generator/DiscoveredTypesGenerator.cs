@@ -14,7 +14,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         var typeDeclarationSyntaxProvider = ctx.SyntaxProvider.CreateSyntaxProvider(
             static (sn, _) => sn is TypeDeclarationSyntax,
             static (c, _) => Transform(c)
-        ).Where(t => t is not null);
+        ).Where(static t => t is not null);
 
         var compilationAndClasses = ctx.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
 

@@ -90,38 +90,44 @@ public static partial class Allow
         RenderGroups(sb, groups);
         sb.Append(@"
 
-    private static readonly Dictionary<string, string> _perms = new();
-    private static readonly Dictionary<string, string> _permsReverse = new();
+    private static readonly Dictionary<string, string> _permNames = new();
+    private static readonly Dictionary<string, string> _permCodes = new();
 
     static Allow()
     {
         foreach (var f in typeof(Allow).GetFields(BindingFlags.Public | BindingFlags.Static))
         {
             var val = f.GetValue(null)?.ToString() ?? string.Empty;
-            _perms[f.Name] = val;
-            _permsReverse[val] = f.Name;
+            _permNames[f.Name] = val;
+            _permCodes[val] = f.Name;
         }
-        Categorize();
+        Groups();
     }
 
     /// <summary>
     /// implement this method to add custom permissions to the generated categories
     /// </summary>
-    static partial void Categorize();
+    static partial void Groups();
 
     /// <summary>
     /// gets a list of permission names for the given list of permission codes
     /// </summary>
     /// <param name=""codes"">the permission codes to get the permission names for</param>
     public static IEnumerable<string> NamesFor(IEnumerable<string> codes)
-        => _perms.Where(kv => codes.Contains(kv.Value)).Select(kv => kv.Key);
+    {
+        foreach (var code in codes)
+            if (_permCodes.TryGetValue(code, out var name)) yield return name;
+    }
 
     /// <summary>
     /// get a list of permission codes for a given list of permission names
     /// </summary>
     /// <param name=""names"">the permission names to get the codes for</param>
     public static IEnumerable<string> CodesFor(IEnumerable<string> names)
-        => _perms.Where(kv => names.Contains(kv.Key)).Select(kv => kv.Value);
+    {
+        foreach (var name in names)
+            if (_permNames.TryGetValue(name, out var code)) yield return code;
+    }
 
     /// <summary>
     /// get the permission code for a given permission name
@@ -129,7 +135,7 @@ public static partial class Allow
     /// <param name=""permissionName"">the name of the permission to get the code for</param>
     public static string? PermissionCodeFor(string permissionName)
     {
-        if (_perms.TryGetValue(permissionName, out var code))
+        if (_permNames.TryGetValue(permissionName, out var code))
             return code;
         return null;
     }
@@ -140,7 +146,7 @@ public static partial class Allow
     /// <param name=""permissionCode"">the permission code to get the name for</param>
     public static string? PermissionNameFor(string permissionCode)
     {
-        if (_permsReverse.TryGetValue(permissionCode, out var name))
+        if (_permCodes.TryGetValue(permissionCode, out var name))
             return name;
         return null;
     }
@@ -151,7 +157,7 @@ public static partial class Allow
     /// <param name=""permissionName"">name of the permission</param>
     public static (string PermissionName, string PermissionCode)? PermissionFromName(string permissionName)
     {
-        if (_perms.TryGetValue(permissionName, out var code))
+        if (_permNames.TryGetValue(permissionName, out var code))
             return new(permissionName, code);
         return null;
     }
@@ -162,7 +168,7 @@ public static partial class Allow
     /// <param name=""permissionCode"">code of the permission to get</param>
     public static (string PermissionName, string PermissionCode)? PermissionFromCode(string permissionCode)
     {
-        if (_permsReverse.TryGetValue(permissionCode, out var name))
+        if (_permCodes.TryGetValue(permissionCode, out var name))
             return new(name, permissionCode);
         return null;
     }
@@ -171,19 +177,19 @@ public static partial class Allow
     /// get a list of all permission names
     /// </summary>
     public static IEnumerable<string> AllNames()
-        => _perms.Keys;
+        => _permNames.Keys;
 
     /// <summary>
     /// get a list of all permission codes
     /// </summary>
     public static IEnumerable<string> AllCodes()
-        => _perms.Values;
+        => _permNames.Values;
 
     /// <summary>
     /// get a list of all the defined permissions
     /// </summary>
     public static IEnumerable<(string PermissionName, string PermissionCode)> AllPermissions()
-        => _perms.Select(kv => new ValueTuple<string, string>(kv.Key, kv.Value));
+        => _permNames.Select(kv => new ValueTuple<string, string>(kv.Key, kv.Value));
 }");
         return sb.ToString();
 

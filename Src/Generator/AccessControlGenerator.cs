@@ -34,7 +34,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             {
                 if (expStm.Expression is InvocationExpressionSyntax inv &&
                     inv.Expression is IdentifierNameSyntax id &&
-                    id.Identifier.Value is "AccessControlKey")
+                    id.Identifier.Value is "AccessControl")
                 {
                     var args = inv.ArgumentList.Arguments
                         .OfType<ArgumentSyntax>()

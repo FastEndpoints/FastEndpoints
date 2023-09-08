@@ -26,14 +26,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <param name="keyName">the name of the constant field to generate</param>
     /// <param name="behavior">specify whether to add the generated permission code as a permission requirement for this endpoint.
     /// this does the same thing as calling "Permissions(...)" method.
-    /// i.e. if this optional argument is set to <see cref="Apply.ToThisEndpoint"/>, then a user principal who has this permission code will be
-    /// allowed to access this endpoint without having to explicitly specify it via another <c>Permissions(...)</c> call.
+    /// i.e. if this optional argument is set to <see cref="Apply.ToThisEndpoint"/>, then a user principal must posses this permission code 
+    /// in order to be allowed access to this endpoint. you don't need to explicitly specify it via a <c>Permissions(...)</c> call, when setting the <paramref name="behavior"/>.
     /// </param>
     /// <param name="groupNames">optionally specify one or more groups (sets of permissions) this <paramref name="keyName"/> belongs to.
     /// for example if you want to generate a const/key called "Edit_Stock_Item" and want to assign it to an "Admin" group as well as a "Manager"
     /// group, you'd specify it with this parameter. The generated const/key is accessible via "Allow.Admin.Edit_Stock_Item" as well as "Allow.Manager.Edit_Stock_Item"
     /// </param>
-    protected void AccessControlKey(string keyName, Apply? behavior = null, params string[] groupNames)
+    protected void AccessControl(string keyName, Apply? behavior = null, params string[] groupNames)
     {
         if (behavior is not null and Apply.ToThisEndpoint)
             Definition.Permissions(GetAclHash(keyName));
@@ -49,9 +49,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// for example if you want to generate a const/key called "Edit_Stock_Item" and want to assign it to an "Admin" group as well as a "Manager"
     /// group, you'd specify it with this parameter. The generated const/key is accessible via "Allow.Admin.Edit_Stock_Item" as well as "Allow.Manager.Edit_Stock_Item"
     /// </param>
-    protected void AccessControlKey(string keyName, params string[] groupNames)
+    protected void AccessControl(string keyName, params string[] groupNames)
     {
-        AccessControlKey(keyName, Apply.ToThisEndpoint, groupNames);
+        AccessControl(keyName, Apply.ToThisEndpoint, groupNames);
     }
 
     /// <summary>

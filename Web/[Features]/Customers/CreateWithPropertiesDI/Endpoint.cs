@@ -31,7 +31,7 @@ public class Endpoint : Endpoint<Request>
             "/customer/new/2{RefererID}",
             "/customer/{cID}/new2/{SourceID}",
             "/customer/save2");
-        AccessControlKey("Customers_Create_2");
+        AccessControl("Customers_Create_2");
         DontAutoTag();
         Description(x => x.WithTags("Customer Save"));
     }

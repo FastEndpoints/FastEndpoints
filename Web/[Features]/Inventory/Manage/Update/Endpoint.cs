@@ -10,7 +10,7 @@ public class Endpoint : Endpoint<Request>
         Permissions(
             Allow.Inventory_Create_Item,
             Allow.Inventory_Update_Item);
-        AccessControlKey("Inventory_Update_Item", "Admin");
+        AccessControl("Inventory_Update_Item", "Admin");
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)

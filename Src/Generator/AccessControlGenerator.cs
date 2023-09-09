@@ -14,44 +14,47 @@ public class AccessControlGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var syntaxProvider = ctx.SyntaxProvider.CreateSyntaxProvider(
-            static (sn, _) => sn is MethodDeclarationSyntax m && m.Identifier.ValueText == "Configure",
-            static (c, _) => Transform(c)
+            static (node, _) => Filter(node),
+            static (ctx, _) => Transform(ctx)
         ).Where(static p => p is not null);
 
-        var compilationAndPermissions = ctx.CompilationProvider.Combine(syntaxProvider.Collect());
+        ctx.RegisterSourceOutput(syntaxProvider.Collect(), static (spc, perms) => Execute(perms!, spc));
+    }
 
-        ctx.RegisterSourceOutput(compilationAndPermissions, static (spc, src) => Execute(src.Left, src.Right!, spc));
+    private static bool Filter(SyntaxNode node)
+    {
+        return
+            node is InvocationExpressionSyntax inv &&
+            inv.Expression is IdentifierNameSyntax id &&
+            id.Identifier.ValueText == "AccessControl";
     }
 
     private static Permission? Transform(GeneratorSyntaxContext ctx)
     {
-        var endpoint = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!)!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        _namespace ??= ctx.SemanticModel.Compilation.AssemblyName;
 
-        foreach (var exprStm in ((MethodDeclarationSyntax)ctx.Node).Body?.Statements.OfType<ExpressionStatementSyntax>() ?? Enumerable.Empty<ExpressionStatementSyntax>())
-        {
-            if (exprStm.Expression is InvocationExpressionSyntax inv &&
-                inv.Expression is IdentifierNameSyntax id &&
-                id.Identifier.ValueText == "AccessControl")
-            {
-                var args = inv.ArgumentList.Arguments
+        var endpoint = ctx.SemanticModel
+            .GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!)!
+            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+        var inv = (InvocationExpressionSyntax)ctx.Node;
+
+        var args = inv.ArgumentList.Arguments
                     .OfType<ArgumentSyntax>()
                     .Select(a => a.Expression)
                     .OfType<LiteralExpressionSyntax>()
                     .Select(l => Sanitize(l.Token.ValueText));
 
-                return new(args.First(), endpoint, args.Skip(1));
-            }
-        }
+        if (!args.Any())
+            return null;
 
-        return null;
+        return new(args.First(), endpoint, args.Skip(1));
     }
 
     private static string? _namespace;
 
-    private static void Execute(Compilation compilation, ImmutableArray<Permission> perms, SourceProductionContext spc)
+    private static void Execute(ImmutableArray<Permission> perms, SourceProductionContext spc)
     {
-        _namespace ??= compilation.Assembly.Name;
-
         if (!perms.Any()) return;
 
         var groups = perms
@@ -64,16 +67,16 @@ public class AccessControlGenerator : IIncrementalGenerator
         spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    private static readonly StringBuilder sb = new();
+    private static readonly StringBuilder b = new();
 
     private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
     {
-        sb.Clear().Append(
+        b.Clear().w(
 @"#nullable enable
 
 using System.Reflection;
 
-namespace ").Append(_namespace).Append(@".Auth;
+namespace ").w(_namespace).w(@".Auth;
 
 public static partial class Allow
 {
@@ -81,16 +84,16 @@ public static partial class Allow
 #region ACL_ITEMS");
         foreach (var p in perms)
         {
-            sb.Append(@"
-    /// <summary><see cref=""").Append(p.Endpoint).Append(@"""/></summary>
-    public const string ").Append(p.Name).Append(" = \"").Append(p.Code).Append(@""";
+            b.w(@"
+    /// <summary><see cref=""").w(p.Endpoint).w(@"""/></summary>
+    public const string ").w(p.Name).w(" = \"").w(p.Code).w(@""";
 ");
         }
-        sb.Append(@"#endregion
+        b.w(@"#endregion
 
 ");
-        RenderGroups(sb, groups);
-        sb.Append(@"
+        RenderGroups(b, groups);
+        b.w(@"
 
     private static readonly Dictionary<string, string> _permNames = new();
     private static readonly Dictionary<string, string> _permCodes = new();
@@ -193,32 +196,32 @@ public static partial class Allow
     public static IEnumerable<(string PermissionName, string PermissionCode)> AllPermissions()
         => _permNames.Select(kv => new ValueTuple<string, string>(kv.Key, kv.Value));
 }");
-        return sb.ToString();
+        return b.ToString();
 
         static void RenderGroups(StringBuilder sb, Dictionary<string, IEnumerable<string>> groups)
         {
             if (groups.Count > 0)
             {
-                sb.Append("#region GROUPS");
+                sb.w("#region GROUPS");
                 foreach (var g in groups)
                 {
                     var key = $"_{g.Key.ToLower()}";
 
-                    sb.Append(@"
-    public static IEnumerable<string> ").Append(g.Key).Append(" => ").Append(key).Append(@";
-    private static void AddTo").Append(g.Key).Append("(string permissionCode) => ").Append(key).Append(@".Add(permissionCode);
-    private static readonly List<string> ").Append(key).Append(@" = new()
+                    sb.w(@"
+    public static IEnumerable<string> ").w(g.Key).w(" => ").w(key).w(@";
+    private static void AddTo").w(g.Key).w("(string permissionCode) => ").w(key).w(@".Add(permissionCode);
+    private static readonly List<string> ").w(key).w(@" = new()
     {
 ");
                     foreach (var name in g.Value)
                     {
-                        sb.Append("        ").Append(name).AppendLine(",");
+                        sb.w("        ").w(name).AppendLine(",");
                     }
-                    sb.Remove(sb.Length - 2, 2).Append(@"
+                    sb.Remove(sb.Length - 2, 2).w(@"
     };
 ");
                 }
-                sb.Append("#endregion");
+                sb.w("#endregion");
             }
         }
     }
@@ -228,8 +231,9 @@ public static partial class Allow
     private static string Sanitize(string input)
         => regex.Replace(input, _replacement);
 
-    private sealed class Permission
+    private sealed class Permission : IEquatable<Permission>
     {
+        public int Hash { get; set; }
         public string Name { get; }
         public string Code { get; }
         public string Endpoint { get; set; }
@@ -237,10 +241,11 @@ public static partial class Allow
 
         public Permission(string name, string endpoint, IEnumerable<string> categories)
         {
-            Name = name;
+            Name = name.Length == 0 ? "Unspecified" : name;
             Code = GetAclHash(name);
             Endpoint = endpoint.Substring(8);
             Categories = categories;
+            Hash = (Name + Code + endpoint + string.Concat(Categories)).GetHashCode();
         }
 
         private static string GetAclHash(string input)
@@ -251,5 +256,6 @@ public static partial class Allow
             return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
         }
 
+        public bool Equals(Permission other) => other.Hash.Equals(Hash);
     }
 }

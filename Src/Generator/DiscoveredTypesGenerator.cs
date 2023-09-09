@@ -43,27 +43,33 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    private static readonly StringBuilder sb = new();
+    private static readonly StringBuilder b = new();
+    private static int count;
 
     private static string GetContent(Compilation compilation, IEnumerable<ITypeSymbol> discoveredTypes)
     {
+        count++;
+
         var assembly = compilation.AssemblyName;
-        sb.Clear().Append(
-"namespace ").Append(assembly).Append(@"
+        b.Clear().w(
+"namespace ").w(assembly).w(@"
 {
+
+//count: ").w(count.ToString()).w(@"
+
     public static class DiscoveredTypes
     {
         public static readonly global::System.Type[] All = new global::System.Type[]
         {");
         foreach (var t in discoveredTypes)
         {
-            sb.Append(@"
-            typeof(").Append(t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).Append("),");
+            b.w(@"
+            typeof(").w(t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).w("),");
         }
-        sb.Append(@"
+        b.w(@"
         };
     }
 }");
-        return sb.ToString();
+        return b.ToString();
     }
 }

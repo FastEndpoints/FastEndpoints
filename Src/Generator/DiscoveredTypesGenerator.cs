@@ -11,64 +11,64 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
-        var typeDeclarationSyntaxProvider = ctx.SyntaxProvider.CreateSyntaxProvider(
-            static (sn, _) => sn is TypeDeclarationSyntax,
+        var syntaxProvider = ctx.SyntaxProvider.CreateSyntaxProvider(
+            static (sn, _) => sn is ClassDeclarationSyntax,
             static (c, _) => Transform(c)
         ).Where(static t => t is not null);
 
-        var compilationAndClasses = ctx.CompilationProvider.Combine(typeDeclarationSyntaxProvider.Collect());
-
-        ctx.RegisterSourceOutput(compilationAndClasses, static (spc, source) => Execute(source.Left, source.Right!, spc));
+        ctx.RegisterSourceOutput(syntaxProvider.Collect(), static (spc, typeNames) => Execute(typeNames!, spc));
     }
 
-    private static ITypeSymbol? Transform(GeneratorSyntaxContext ctx)
+    private static readonly string[] _whiteList = new[]
     {
-        var symbol = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node);
-        if (symbol is not ITypeSymbol typeSymbol) return null;
-        var isValid = typeSymbol.AllInterfaces.Select(i => new TypeDescription(i)).Intersect(new[]
+        "FastEndpoints.IEndpoint",
+        "FastEndpoints.IEventHandler",
+        "FastEndpoints.ICommandHandler",
+        "FastEndpoints.ISummary",
+        "FluentValidation.IValidator"
+    };
+
+    private static string? _assemblyName;
+
+    private static string? Transform(GeneratorSyntaxContext ctx)
+    {
+        _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
+
+        if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
+           !type.IsAbstract &&
+            type.AllInterfaces.Length > 0 &&
+            type.AllInterfaces.Any(i => _whiteList.Contains($"{i.ContainingNamespace.Name}.{i.Name}")))
         {
-            new TypeDescription("FastEndpoints.IEndpoint"),
-            new TypeDescription("FastEndpoints.IEventHandler"),
-            new TypeDescription("FastEndpoints.ICommandHandler"),
-            new TypeDescription("FastEndpoints.ISummary"),
-            new TypeDescription("FluentValidation.IValidator")
-        }).Any() && typeSymbol is { IsAbstract: false };
-        return isValid ? typeSymbol : null;
+            return type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        }
+        return null;
     }
 
-    private static void Execute(Compilation compilation, ImmutableArray<ITypeSymbol> typeSymbols, SourceProductionContext spc)
+    private static void Execute(ImmutableArray<string> typeNames, SourceProductionContext spc)
     {
-        if (!typeSymbols.Any()) return;
-        var fileContent = GetContent(compilation, typeSymbols);
+        if (!typeNames.Any()) return;
+        var fileContent = RenderClass(typeNames.OrderBy(t => t));
         spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
     private static readonly StringBuilder b = new();
-    private static int count;
 
-    private static string GetContent(Compilation compilation, IEnumerable<ITypeSymbol> discoveredTypes)
+    private static string RenderClass(IEnumerable<string> discoveredTypes)
     {
-        count++;
-
-        var assembly = compilation.AssemblyName;
         b.Clear().w(
-"namespace ").w(assembly).w(@"
+"namespace ").w(_assemblyName).w(@";
+
+public static class DiscoveredTypes
 {
-
-//count: ").w(count.ToString()).w(@"
-
-    public static class DiscoveredTypes
-    {
-        public static readonly global::System.Type[] All = new global::System.Type[]
-        {");
+    public static readonly global::System.Type[] All = new global::System.Type[]
+    {");
         foreach (var t in discoveredTypes)
         {
             b.w(@"
-            typeof(").w(t.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).w("),");
+        typeof(").w(t).w("),");
         }
         b.w(@"
-        };
-    }
+    };
 }");
         return b.ToString();
     }

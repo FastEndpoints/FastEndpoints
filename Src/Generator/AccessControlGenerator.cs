@@ -31,7 +31,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
     private static Permission? Transform(GeneratorSyntaxContext ctx)
     {
-        _namespace ??= ctx.SemanticModel.Compilation.AssemblyName;
+        _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
 
         var endpoint = ctx.SemanticModel
             .GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!)!
@@ -51,7 +51,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         return new(args.First(), endpoint, args.Skip(1));
     }
 
-    private static string? _namespace;
+    private static string? _assemblyName;
 
     private static void Execute(ImmutableArray<Permission> perms, SourceProductionContext spc)
     {
@@ -76,7 +76,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
 using System.Reflection;
 
-namespace ").w(_namespace).w(@".Auth;
+namespace ").w(_assemblyName).w(@".Auth;
 
 public static partial class Allow
 {

@@ -19,7 +19,7 @@ bld.AddHandlerServer();
 bld.Services
    .AddCors()
    .AddResponseCaching()
-   .AddFastEndpoints()//(o => o.SourceGeneratorDiscoveredTypes.AddRange(Web.DiscoveredTypes.All))
+   .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes.AddRange(Web.DiscoveredTypes.All))
    .AddJWTBearerAuth(bld.Configuration["TokenKey"]!)
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))
    .AddScoped<IEmailService, EmailService>()

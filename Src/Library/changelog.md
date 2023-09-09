@@ -34,6 +34,12 @@ Ref: https://github.com/FastEndpoints/FastEndpoints/issues/480
 
 </details>
 
+<details><summary>Optimize source generator performance</summary>
+
+The type discovery generator is now highly efficient and only generates the source when any of the target types changes or new ones are added.
+
+</details>
+
 ### 🪲 Fixes
 
 <details><summary>Startup issue due to 'IAuthorizationService' injection</summary>

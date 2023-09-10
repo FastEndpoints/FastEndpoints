@@ -243,19 +243,31 @@ public static partial class Allow
 
     private sealed class Permission : IEquatable<Permission>
     {
-        public int Hash { get; set; }
+        public int Hash { get; } //used as Roslyn cache key
         public string Name { get; }
         public string Code { get; }
-        public string Endpoint { get; set; }
-        public IEnumerable<string> Categories { get; set; }
+        public string Endpoint { get; }
+        public IEnumerable<string> Categories { get; }
 
-        public Permission(string endpoint, string name, IEnumerable<string> categories)
+        internal Permission(string endpoint, string name, IEnumerable<string> categories)
         {
             Name = name.Length == 0 ? "Unspecified" : name;
             Code = GetAclHash(name);
             Endpoint = endpoint.Substring(8);
             Categories = categories;
-            Hash = (Name + Code + endpoint + string.Concat(Categories)).GetHashCode();
+
+            unchecked
+            {
+                var hash = 17;
+                hash = (hash * 31) + Name.GetHashCode();
+                hash = (hash * 31) + Endpoint.GetHashCode();
+                if (Categories.Any())
+                {
+                    foreach (var category in Categories)
+                        hash = (hash * 31) + category.GetHashCode();
+                }
+                Hash = hash;
+            }
         }
 
         private static readonly SHA256 _sha256 = SHA256.Create();

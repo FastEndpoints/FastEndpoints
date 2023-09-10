@@ -16,9 +16,10 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
             static (c, _) => Transform(c)
         ).Where(static t => t is not null);
 
-        ctx.RegisterSourceOutput(syntaxProvider.Collect(), static (spc, typeNames) => Execute(typeNames!, spc));
+        ctx.RegisterSourceOutput(syntaxProvider.Collect(), static (spc, typeNames) => Generate(typeNames!, spc));
     }
 
+    private static string? _assemblyName;
     private static readonly string[] _whiteList = new[]
     {
         "FastEndpoints.IEndpoint",
@@ -28,11 +29,9 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FluentValidation.IValidator"
     };
 
-    private static string? _assemblyName;
-
     private static string? Transform(GeneratorSyntaxContext ctx)
     {
-        _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
+        _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
 
         if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
            !type.IsAbstract &&
@@ -44,7 +43,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         return null;
     }
 
-    private static void Execute(ImmutableArray<string> typeNames, SourceProductionContext spc)
+    private static void Generate(ImmutableArray<string> typeNames, SourceProductionContext spc)
     {
         if (!typeNames.Any()) return;
         var fileContent = RenderClass(typeNames.OrderBy(t => t));

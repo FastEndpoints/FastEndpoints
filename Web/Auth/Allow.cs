@@ -1,4 +1,4 @@
-﻿namespace Auth;
+﻿namespace Web.Auth;
 
 public static partial class Allow
 {

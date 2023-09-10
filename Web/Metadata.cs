@@ -1,5 +1,4 @@
-﻿global using Auth;
-global using FastEndpoints;
+﻿global using FastEndpoints;
 global using FastEndpoints.Security;
 global using Web.Auth;
 using System.Runtime.CompilerServices;

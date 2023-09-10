@@ -13,88 +13,55 @@ public class AccessControlGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
-        var syntaxProvider = ctx.SyntaxProvider.CreateSyntaxProvider(
-            static (node, _) => Filter(node),
-            static (ctx, _) => Transform(ctx)
-        ).Where(static p => p is not null);
+        ctx.RegisterPostInitializationOutput(
+            static ctx => ctx.AddSource("Allow.b.g.cs", SourceText.From(_baseSource, Encoding.UTF8)));
 
-        ctx.RegisterSourceOutput(syntaxProvider.Collect(), static (spc, perms) => Execute(perms!, spc));
+        var provider = ctx.SyntaxProvider
+            .CreateSyntaxProvider(Match, Transform)
+            .Where(static p => p is not null)
+            .Collect();
+
+        ctx.RegisterSourceOutput(provider, static (spc, perms) => Generate(spc, perms!));
+
+        static bool Match(SyntaxNode node, CancellationToken _)
+        {
+            return
+                node is InvocationExpressionSyntax inv &&
+                inv.Expression is IdentifierNameSyntax id &&
+                id.Identifier.ValueText == "AccessControl" &&
+                inv.ArgumentList.Arguments.Count > 0;
+        }
+
+        static Permission? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        {
+            var endpoint = ctx.SemanticModel
+                .GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!)?
+                .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+            if (endpoint is null)
+                return null;
+
+            var inv = (InvocationExpressionSyntax)ctx.Node;
+
+            var args = inv.ArgumentList.Arguments
+                .OfType<ArgumentSyntax>()
+                .Select(a => a.Expression)
+                .OfType<LiteralExpressionSyntax>()
+                .Select(l => Sanitize(l.Token.ValueText));
+
+            return new(endpoint, args.First(), args.Skip(1));
+        }
     }
 
-    private static bool Filter(SyntaxNode node)
-    {
-        return
-            node is InvocationExpressionSyntax inv &&
-            inv.Expression is IdentifierNameSyntax id &&
-            id.Identifier.ValueText == "AccessControl";
-    }
-
-    private static Permission? Transform(GeneratorSyntaxContext ctx)
-    {
-        _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
-
-        var endpoint = ctx.SemanticModel
-            .GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!)!
-            .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-
-        var inv = (InvocationExpressionSyntax)ctx.Node;
-
-        var args = inv.ArgumentList.Arguments
-                    .OfType<ArgumentSyntax>()
-                    .Select(a => a.Expression)
-                    .OfType<LiteralExpressionSyntax>()
-                    .Select(l => Sanitize(l.Token.ValueText));
-
-        if (!args.Any())
-            return null;
-
-        return new(args.First(), endpoint, args.Skip(1));
-    }
-
-    private static string? _assemblyName;
-
-    private static void Execute(ImmutableArray<Permission> perms, SourceProductionContext spc)
-    {
-        if (!perms.Any()) return;
-
-        var groups = perms
-            .SelectMany(perm => perm.Categories.Select(category => (category, name: perm.Name)))
-            .OrderBy(x => x.name).ThenBy(x => x.category)
-            .GroupBy(x => x.category, x => x.name)
-            .ToDictionary(g => g.Key, g => g.Select(n => n));
-
-        var fileContent = RenderClass(perms.OrderBy(p => p.Name), groups);
-        spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
-    }
-
-    private static readonly StringBuilder b = new();
-
-    private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
-    {
-        b.Clear().w(
+    private const string _baseSource =
 @"#nullable enable
 
 using System.Reflection;
 
-namespace ").w(_assemblyName).w(@".Auth;
+namespace Auth;
 
 public static partial class Allow
 {
-
-#region ACL_ITEMS");
-        foreach (var p in perms)
-        {
-            b.w(@"
-    /// <summary><see cref=""").w(p.Endpoint).w(@"""/></summary>
-    public const string ").w(p.Name).w(" = \"").w(p.Code).w(@""";
-");
-        }
-        b.w(@"#endregion
-
-");
-        RenderGroups(b, groups);
-        b.w(@"
-
     private static readonly Dictionary<string, string> _permNames = new();
     private static readonly Dictionary<string, string> _permCodes = new();
 
@@ -195,6 +162,46 @@ public static partial class Allow
     /// </summary>
     public static IEnumerable<(string PermissionName, string PermissionCode)> AllPermissions()
         => _permNames.Select(kv => new ValueTuple<string, string>(kv.Key, kv.Value));
+}";
+
+    private static void Generate(SourceProductionContext spc, ImmutableArray<Permission> perms)
+    {
+        if (!perms.Any()) return;
+
+        var groups = perms
+            .SelectMany(perm => perm.Categories.Select(category => (category, name: perm.Name)))
+            .OrderBy(x => x.name).ThenBy(x => x.category)
+            .GroupBy(x => x.category, x => x.name)
+            .ToDictionary(g => g.Key, g => g.Select(name => name));
+
+        var fileContent = RenderClass(perms.OrderBy(p => p.Name), groups);
+        spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
+    }
+
+    private static readonly StringBuilder b = new();
+    private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
+    {
+        b.Clear().w(
+@"#nullable enable
+
+namespace Auth;
+
+public static partial class Allow
+{
+
+#region ACL_ITEMS");
+        foreach (var p in perms)
+        {
+            b.w(@"
+    /// <summary><see cref=""").w(p.Endpoint).w(@"""/></summary>
+    public const string ").w(p.Name).w(" = \"").w(p.Code).w(@""";
+");
+        }
+        b.w(@"#endregion
+
+");
+        RenderGroups(b, groups);
+        b.w(@"
 }");
         return b.ToString();
 
@@ -202,7 +209,9 @@ public static partial class Allow
         {
             if (groups.Count > 0)
             {
-                sb.w("#region GROUPS");
+                sb.w(@"
+
+#region GROUPS");
                 foreach (var g in groups)
                 {
                     var key = $"_{g.Key.ToLower()}";
@@ -221,7 +230,8 @@ public static partial class Allow
     };
 ");
                 }
-                sb.w("#endregion");
+                sb.w(@"
+#endregion");
             }
         }
     }
@@ -239,7 +249,7 @@ public static partial class Allow
         public string Endpoint { get; set; }
         public IEnumerable<string> Categories { get; set; }
 
-        public Permission(string name, string endpoint, IEnumerable<string> categories)
+        public Permission(string endpoint, string name, IEnumerable<string> categories)
         {
             Name = name.Length == 0 ? "Unspecified" : name;
             Code = GetAclHash(name);
@@ -248,11 +258,11 @@ public static partial class Allow
             Hash = (Name + Code + endpoint + string.Concat(Categories)).GetHashCode();
         }
 
+        private static readonly SHA256 _sha256 = SHA256.Create();
         private static string GetAclHash(string input)
         {
             //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.ToAclKey() method also!
-            using var sha256 = SHA256.Create();
-            var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
+            var base64Hash = Convert.ToBase64String(_sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
             return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
         }
 

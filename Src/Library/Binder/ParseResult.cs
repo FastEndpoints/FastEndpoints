@@ -16,7 +16,7 @@ public struct ParseResult
     public object? Value { get; set; }
 
     /// <summary>
-    /// constructor for initializsing a ParseResult instance
+    /// constructor for initializing a ParseResult instance
     /// </summary>
     /// <param name="isSuccess">set to true of parsing was successful</param>
     /// <param name="value">set the value that was obtained from the parsing operation</param>

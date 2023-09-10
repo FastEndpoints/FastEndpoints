@@ -5,9 +5,6 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Source generator library for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <DevelopmentDependency>true</DevelopmentDependency>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>

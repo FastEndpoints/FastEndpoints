@@ -40,6 +40,12 @@ The type discovery generator is now highly efficient and only generates the sour
 
 </details>
 
+<details><summary>Optimize startup routine</summary>
+
+Authorization policy building is moved to the `MapFastEndpoints` stage avoiding the need to iterate the discovered endpoint collection twice. This also avoids any potential race conditions due to different middleware pipeline config/ordering edge cases.
+
+</details>
+
 ### 🪲 Fixes
 
 <details><summary>Startup issue due to 'IAuthorizationService' injection</summary>

@@ -9,7 +9,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <!-- <details><summary>title text</summary></details> -->
 
-### 🔖 New
+## New 🎉
 
 <details><summary>Source generated access control lists</summary>
 
@@ -17,7 +17,7 @@ Todo: update doc page and link from here.
 
 </details>
 
-### 🚀 Improvements
+## Improvements 🚀
 
 <details><summary>Ability to get rid of null-forgiving operator '!' from test code</summary>
 
@@ -46,7 +46,7 @@ Authorization policy building is moved to the `MapFastEndpoints` stage avoiding 
 
 </details>
 
-### 🪲 Fixes
+## Fixes 🪲
 
 <details><summary>Startup issue due to 'IAuthorizationService' injection</summary>
 
@@ -54,4 +54,4 @@ v5.16 had introduced a bug of not being able to inject `IAuthorizationService` i
 
 </details>
 
-<!-- ### ⚠️ Minor Breaking Changes -->
+<!-- ## Breaking Changes ⚠️ -->

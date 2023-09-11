@@ -30,7 +30,6 @@ public static class MainExtensions
         var endpointData = new EndpointData(opts, cmdHandlerRegistry);
         services.AddSingleton(cmdHandlerRegistry);
         services.AddSingleton(endpointData);
-        services.AddAuthorization(async o => await BuildSecurityPoliciesForEndpoints(o, endpointData)); //this method doesn't block
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
@@ -56,7 +55,6 @@ public static class MainExtensions
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
         Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
-
         var jsonOpts = app.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Conf.SerOpts.Options = jsonOpts is not null
                             ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
@@ -65,6 +63,7 @@ public static class MainExtensions
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
         var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
+        var authOptions = app.ServiceProvider.GetRequiredService<IOptions<AuthorizationOptions>>().Value;
         using var scope = app.ServiceProvider.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
         var routeToHandlerCounts = new ConcurrentDictionary<string, int>();//key: {verb}:{route}
@@ -82,6 +81,7 @@ public static class MainExtensions
 
             Conf.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
             def.Version.Init(); //todo: move this to a more appropriate place
+            AddSecurityPolicy(authOptions, def);
 
             var authorizeAttributes = BuildAuthorizeAttributes(def);
             var routeNum = 0;
@@ -138,9 +138,9 @@ public static class MainExtensions
 
         app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
             $"Registered {totalEndpointCount} endpoints in " +
-            $"{EndpointData.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
+            $"{endpoints.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
 
-        EndpointData.Stopwatch.Stop();
+        endpoints.Stopwatch.Stop();
 
         if (!Conf.VerOpts.IsUsingAspVersioning)
         {
@@ -246,64 +246,56 @@ public static class MainExtensions
         }).ToArray();
     }
 
-    private static async Task BuildSecurityPoliciesForEndpoints(AuthorizationOptions opts, EndpointData endpointData)
+    private static void AddSecurityPolicy(AuthorizationOptions opts, EndpointDefinition ep)
     {
-        foreach (var ep in endpointData.Found)
+        if (!ep.RequiresAuthorization())
+            return;
+
+        opts.AddPolicy(ep.SecurityPolicyName, b =>
         {
-            while (!ep.IsInitialized)
+            b.RequireAuthenticatedUser();
+
+            if (ep.AllowedPermissions?.Count > 0)
             {
-                await Task.Delay(100);
-            }
-
-            if (!ep.RequiresAuthorization())
-                continue;
-
-            opts.AddPolicy(ep.SecurityPolicyName, b =>
-            {
-                b.RequireAuthenticatedUser();
-
-                if (ep.AllowedPermissions?.Count > 0)
+                if (ep.AllowAnyPermission)
                 {
-                    if (ep.AllowAnyPermission)
-                    {
-                        b.RequireAssertion(x =>
+                    b.RequireAssertion(x =>
+                        x.User.Claims.Any(c =>
+                            string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                            ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
+                }
+                else
+                {
+                    b.RequireAssertion(x =>
+                        ep.AllowedPermissions.All(p =>
                             x.User.Claims.Any(c =>
                                 string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                                ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
-                    }
-                    else
-                    {
-                        b.RequireAssertion(x =>
-                            ep.AllowedPermissions.All(p =>
-                                x.User.Claims.Any(c =>
-                                    string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                                    string.Equals(c.Value, p, StringComparison.Ordinal))));
-                    }
+                                string.Equals(c.Value, p, StringComparison.Ordinal))));
                 }
+            }
 
-                if (ep.AllowedClaimTypes?.Count > 0)
+            if (ep.AllowedClaimTypes?.Count > 0)
+            {
+                if (ep.AllowAnyClaim)
                 {
-                    if (ep.AllowAnyClaim)
-                    {
-                        b.RequireAssertion(x =>
-                            x.User.Claims.Any(c =>
-                                ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
-                    }
-                    else
-                    {
-                        b.RequireAssertion(x =>
-                            ep.AllowedClaimTypes.All(t =>
-                                x.User.Claims.Any(c =>
-                                    string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
-                    }
+                    b.RequireAssertion(x =>
+                        x.User.Claims.Any(c =>
+                            ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
                 }
+                else
+                {
+                    b.RequireAssertion(x =>
+                        ep.AllowedClaimTypes.All(t =>
+                            x.User.Claims.Any(c =>
+                                string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
+                }
+            }
 
-                ep.PolicyBuilder?.Invoke(b);
+            ep.PolicyBuilder?.Invoke(b);
 
-                //note: only claim/permission/policy builder requirements are added here in the security policy
-                //      roles and auth schemes are specified in the authorizeattribute in BuildAuthorizeAttributes()
-            });
-        }
+            //note: only claim/permission/policy builder requirements are added here in the security policy
+            //      roles and auth schemes are specified in the AuthorizeAttribute in BuildAuthorizeAttributes()
+        });
     }
 }
 

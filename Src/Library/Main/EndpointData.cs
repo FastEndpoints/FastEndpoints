@@ -4,14 +4,16 @@ using System.Reflection;
 
 namespace FastEndpoints;
 
+//lives as a singleton in each DI container instance
 internal sealed class EndpointData
 {
-    internal static Stopwatch Stopwatch { get; } = new();
+    internal Stopwatch Stopwatch { get; } = new();
 
-    internal EndpointDefinition[] Found { get; private set; }
+    internal EndpointDefinition[] Found { get; }
 
     internal EndpointData(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
     {
+        Stopwatch.Start();
         Found = BuildEndpointDefinitions(options, cmdHandlerRegistry);
 
         if (Found.Length == 0)
@@ -22,8 +24,6 @@ internal sealed class EndpointData
     {
         if (options.DisableAutoDiscovery && options.Assemblies?.Any() is false)
             throw new InvalidOperationException("If 'DisableAutoDiscovery' is true, a collection of `Assemblies` must be provided!");
-
-        Stopwatch.Start();
 
         IEnumerable<string> exclusions = new[]
         {
@@ -199,12 +199,12 @@ internal sealed class EndpointData
 
             def.ImplementsConfigure = implementsConfigure;
             def.EpAttributes = x.tEndpoint.GetCustomAttributes(true);
-            var hashttpAttrib = def.EpAttributes.Any(a => a is HttpAttribute);
+            var hasHttpAttrib = def.EpAttributes.Any(a => a is HttpAttribute);
 
-            if (implementsConfigure && hashttpAttrib)
+            if (implementsConfigure && hasHttpAttrib)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
 
-            if (!implementsConfigure && !hashttpAttrib)
+            if (!implementsConfigure && !hasHttpAttrib)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] should either override the Configure() method or decorate the class with a [Http*(...)] attribute!");
 
             if (!implementsHandleAsync && !implementsExecuteAsync)

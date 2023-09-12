@@ -7,6 +7,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet6, minimal-api, vertical-slice-architecture, repr-pattern</PackageTags>
         <OutputType>Library</OutputType>
+        <IsPackable>true</IsPackable>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -23,9 +24,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\README.md" Pack="true" PackagePath="\"  Visible="false"/>
-        <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false"/>
-        <None Include="changelog.md" Pack="false" Visible="false"/>
+        <ProjectReference Include="..\Generator\FastEndpoints.Generator.csproj" Pack="false" ReferenceOutputAssembly="false" OutputItemType="Content" CopyToOutputDirectory="PreserveNewest"/>
+        <None Include="$(OutputPath)\net7.0\$(AssemblyName).Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false" />
+        <None Include="changelog.md" Pack="false" Visible="false" />
         <None Include="JetBrains\ExternalAnnotations.xml" Pack="true" PackagePath="lib\$(TargetFramework)\$(AssemblyName).ExternalAnnotations.xml" CopyToOutputDirectory="Always" />
     </ItemGroup>
 </Project>

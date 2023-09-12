@@ -55,10 +55,7 @@ internal sealed class EndpointData
             var assemblies = Enumerable.Empty<Assembly>();
 
             if (options.Assemblies?.Any() is true)
-            {
-                //remove user supplied assemblies from exclusion list
                 assemblies = options.Assemblies;
-            }
 
             if (!options.DisableAutoDiscovery)
                 assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
@@ -67,10 +64,7 @@ internal sealed class EndpointData
                 assemblies = assemblies.Where(options.AssemblyFilter);
 
             discoveredTypes = assemblies
-                .Where(a =>
-                      !a.IsDynamic &&
-                      (options.Assemblies?.Contains(a) == true ||
-                          !exclusions.Any(n => a.FullName!.StartsWith(n))))
+                .Where(a => !a.IsDynamic && (options.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsDefined(Types.DontRegisterAttribute) &&

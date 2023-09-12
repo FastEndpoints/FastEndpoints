@@ -54,4 +54,16 @@ v5.16 had introduced a bug of not being able to inject `IAuthorizationService` i
 
 </details>
 
+<details><summary>Startup type discovery issue with exclusion list</summary>
+
+Since you can override the exclusion list by doing:
+
+```cs
+.AddFastEndpoints(o.Assemblies = new[] { typeof(SomeClass).Assembly });
+```
+
+This was not working if the assembly name didn't have a dot (.) in the namespace.  
+
+</details>
+
 <!-- ## Breaking Changes ⚠️ -->

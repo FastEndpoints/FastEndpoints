@@ -7,7 +7,6 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>http, rest, rest-api, web-api, webapi, aspnet, aspnetcore, dotnet6, minimal-api, vertical-slice-architecture, repr-pattern</PackageTags>
         <OutputType>Library</OutputType>
-        <IsPackable>true</IsPackable>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>

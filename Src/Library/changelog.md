@@ -54,11 +54,4 @@ v5.16 had introduced a bug of not being able to inject `IAuthorizationService` i
 
 </details>
 
-## Breaking Changes ⚠️
-
-<details><summary>Source generator package changes</summary>
-
-//Todo: see what happens with reflection elimination.
-        or write about how there's no need to install generator separately.
-
-</details>
+<!-- ## Breaking Changes ⚠️ -->

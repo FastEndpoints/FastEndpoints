@@ -2,12 +2,21 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <Description>Source generator library for FastEndpoints.</Description>
+        <PackageIcon>icon.png</PackageIcon>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
-        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.7.0" PrivateAssets="all" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false" />
+    </ItemGroup>
+    
 </Project>

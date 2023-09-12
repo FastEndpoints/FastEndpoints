@@ -35,6 +35,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
         if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
            !type.IsAbstract &&
+           !type.GetAttributes().Any(a => a.AttributeClass!.Name == "DontRegisterAttribute") &&
             type.AllInterfaces.Length > 0 &&
             type.AllInterfaces.Any(i => _whiteList.Contains($"{i.ContainingNamespace.Name}.{i.Name}")))
         {

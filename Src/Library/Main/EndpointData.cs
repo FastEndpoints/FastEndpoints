@@ -58,7 +58,6 @@ internal sealed class EndpointData
             {
                 //remove user supplied assemblies from exclusion list
                 assemblies = options.Assemblies;
-                exclusions = exclusions.Except(options.Assemblies.Select(a => a.FullName?.Split('.')[0]!));
             }
 
             if (!options.DisableAutoDiscovery)
@@ -70,7 +69,8 @@ internal sealed class EndpointData
             discoveredTypes = assemblies
                 .Where(a =>
                       !a.IsDynamic &&
-                      !exclusions.Any(n => a.FullName!.Split('.', 1)[0].Equals(n)))
+                      (options.Assemblies?.Contains(a) == true ||
+                          !exclusions.Any(n => a.FullName!.StartsWith(n))))
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsDefined(Types.DontRegisterAttribute) &&

@@ -70,7 +70,7 @@ internal sealed class EndpointData
             discoveredTypes = assemblies
                 .Where(a =>
                       !a.IsDynamic &&
-                      !exclusions.Any(n => a.FullName!.StartsWith(n)))
+                      !exclusions.Any(n => a.FullName!.Split('.', 1)[0].Equals(n)))
                 .SelectMany(a => a.GetTypes())
                 .Where(t =>
                       !t.IsDefined(Types.DontRegisterAttribute) &&

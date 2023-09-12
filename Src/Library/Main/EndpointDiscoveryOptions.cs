@@ -46,6 +46,7 @@ public sealed class EndpointDiscoveryOptions
     /// the function you set here will be executed for each discovered type during startup.
     /// return 'false' from the function if you want to exclude a type from discovery.
     /// return 'true' to include.
+    /// alternatively you can annotate the type/class with the <see cref="DontRegisterAttribute"/> to skip auto registration for that type.
     /// </summary>
     public Func<Type, bool>? Filter { internal get; set; }
 }

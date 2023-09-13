@@ -17,6 +17,16 @@ Todo: update doc page and link from here.
 
 </details>
 
+<details><summary>Ability to show deprecated endpoint versions in Swagger</summary>
+
+By default, deprecated endpoint versions are not included in swagger docs. Now you have the choice of including/displaying them in the doc so they'll be displayed greyed out like this:
+
+![image](https://user-images.githubusercontent.com/7043768/267551669-25eb2c56-fb55-4dfb-b3a2-847e1c55b2c7.png)
+
+Please see [this usage example](https://gist.github.com/dj-nitehawk/c32e7f887389460c661b955d233b650d) on how to enable it.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Ability to get rid of null-forgiving operator '!' from test code</summary>

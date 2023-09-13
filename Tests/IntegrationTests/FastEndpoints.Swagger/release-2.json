@@ -2666,6 +2666,102 @@
         }
       }
     },
+    "/api/customer/list/recent": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "CustomersListRecentEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomersListRecentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": true,
+        "security": [
+          {
+            "JWTBearerAuth": [
+              "admin",
+              "staff"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/customer/list/recent/ver1": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "CustomersListRecentEndpoint_V1",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomersListRecentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/api/customer/list/recent/ver2": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "CustomersListRecentEndpoint_V2",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomersListRecentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": [
+              "admin",
+              "staff"
+            ]
+          }
+        ]
+      }
+    },
     "/api/customer/new/{RefererID}": {
       "post": {
         "tags": [
@@ -3305,6 +3401,250 @@
             "JWTBearerAuth": []
           }
         ]
+      }
+    },
+    "/api/admin/login": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "this is a short summary",
+        "description": "this is the long description of the endpoint",
+        "operationId": "PostAdminLoginEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "all good",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "indicates an error"
+          },
+          "403": {
+            "description": "forbidden when login fails"
+          }
+        },
+        "deprecated": true
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "this is a short summary",
+        "description": "this is the long description of the endpoint",
+        "operationId": "PutAdminLoginEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "all good",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "indicates an error"
+          },
+          "403": {
+            "description": "forbidden when login fails"
+          }
+        },
+        "deprecated": true
+      },
+      "patch": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "this is a short summary",
+        "description": "this is the long description of the endpoint",
+        "operationId": "PatchAdminLoginEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "all good",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "indicates an error"
+          },
+          "403": {
+            "description": "forbidden when login fails"
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/api/admin/login/ver1": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "this is a short summary",
+        "description": "this is the long description of the endpoint",
+        "operationId": "PostAdminLoginEndpoint_V1",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "all good",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "indicates an error"
+          },
+          "403": {
+            "description": "forbidden when login fails"
+          }
+        },
+        "deprecated": true
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "this is a short summary",
+        "description": "this is the long description of the endpoint",
+        "operationId": "PutAdminLoginEndpoint_V1",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "all good",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "indicates an error"
+          },
+          "403": {
+            "description": "forbidden when login fails"
+          }
+        },
+        "deprecated": true
+      },
+      "patch": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "this is a short summary",
+        "description": "this is the long description of the endpoint",
+        "operationId": "PatchAdminLoginEndpoint_V1",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "all good",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminLoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "indicates an error"
+          },
+          "403": {
+            "description": "forbidden when login fails"
+          }
+        },
+        "deprecated": true
       }
     },
     "/api/admin/login/ver2": {

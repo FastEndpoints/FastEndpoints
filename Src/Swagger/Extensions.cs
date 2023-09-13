@@ -231,7 +231,7 @@ public static class Extensions
         settings.SchemaNameGenerator = new SchemaNameGenerator(opts.ShortSchemaNames);
         settings.SchemaProcessors.Add(new ValidationSchemaProcessor());
         settings.OperationProcessors.Add(new OperationProcessor(opts));
-        settings.DocumentProcessors.Add(new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion));
+        settings.DocumentProcessors.Add(new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion, opts.ShowDeprecatedOps));
     }
 
     //todo: remove at next major version

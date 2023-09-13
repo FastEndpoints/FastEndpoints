@@ -61,6 +61,7 @@ bld.Services
            s.Version = "v2.0";
        };
        o.MaxEndpointVersion = 2;
+       o.ShowDeprecatedOps = true;
        o.RemoveEmptyRequestSchema = false;
    })
    .SwaggerDocument(o => //only ver3 & only FastEndpoints

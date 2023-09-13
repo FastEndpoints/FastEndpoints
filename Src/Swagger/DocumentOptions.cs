@@ -48,6 +48,11 @@ public class DocumentOptions
     /// </summary>
     public int MinEndpointVersion { get; set; }
     /// <summary>
+    /// by default deprecated endpoints/operations will not show up in the swagger doc.
+    /// set this to true if you instead want them to show up but displayed as "obsolete".
+    /// </summary>
+    public bool ShowDeprecatedOps { internal get; set; }
+    /// <summary>
     /// set to true for removing empty request dto schema from the swagger document.
     /// <para>WARNING: enabling this also flattens the inheritance hierarchy of the schema.</para>
     /// </summary>

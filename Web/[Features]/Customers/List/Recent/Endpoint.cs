@@ -15,6 +15,7 @@ public class Endpoint : EndpointWithoutRequest
             Allow.Customers_Create);
         AccessControl("Customers_Retrieve", "Admin");
         Options(o => o.Produces<Response>(200));
+        Version(0, deprecateAt: 1);
     }
 
     public override Task<object> ExecuteAsync(CancellationToken ct)
@@ -42,5 +43,23 @@ public class Endpoint_V1 : Endpoint
         base.Configure();
         Version(1, deprecateAt: 2);
         AuthSchemes("ApiKey", "Cookies");
+    }
+}
+
+public class Endpoint_V2 : Endpoint
+{
+    public override void Configure()
+    {
+        base.Configure();
+        Version(2, deprecateAt: 3);
+    }
+}
+
+public class Endpoint_V3 : Endpoint
+{
+    public override void Configure()
+    {
+        base.Configure();
+        Version(3, deprecateAt: 4);
     }
 }

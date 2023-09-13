@@ -42,6 +42,7 @@ public class Endpoint : Endpoint<Request, Response>
             s[201] = "new resource created";
         });
         SerializerContext(AdminLogin.Default);
+        Version(0, 1);
     }
 
     public override Task HandleAsync(Request r, CancellationToken ct)

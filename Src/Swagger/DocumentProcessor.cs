@@ -7,11 +7,13 @@ internal sealed class DocumentProcessor : IDocumentProcessor
 {
     private readonly int maxEpVer;
     private readonly int minEpVer;
+    private readonly bool showDeprecated;
 
-    public DocumentProcessor(int minEndpointVersion, int maxEndpointVersion)
+    public DocumentProcessor(int minEndpointVersion, int maxEndpointVersion, bool showDeprecatedOps)
     {
         minEpVer = minEndpointVersion;
         maxEpVer = maxEndpointVersion;
+        showDeprecated = showDeprecatedOps;
 
         if (maxEpVer < minEpVer)
             throw new ArgumentException($"{nameof(maxEndpointVersion)} must be greater than or equal to {nameof(minEndpointVersion)}");
@@ -23,12 +25,11 @@ internal sealed class DocumentProcessor : IDocumentProcessor
             .SelectMany(p => p.Value.Values)
             .Select(o =>
             {
-                var tag = o.Tags.SingleOrDefault(t => t.StartsWith("|"));
-                var segments = tag?.Split("|");
+                var tagSegments = o.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
                 return new {
-                    route = segments?[1],
-                    ver = Convert.ToInt32(segments?[2]),
-                    depVer = Convert.ToInt32(segments?[3]),
+                    route = tagSegments?[1],
+                    ver = Convert.ToInt32(tagSegments?[2]),
+                    depVer = Convert.ToInt32(tagSegments?[3]),
                     pathItm = o.Parent
                 };
             })
@@ -36,8 +37,8 @@ internal sealed class DocumentProcessor : IDocumentProcessor
             .Select(g => new {
                 pathItm = g.Where(x => x.ver >= minEpVer && x.ver <= maxEpVer)
                            .OrderByDescending(x => x.ver)
-                           .Take(1)
-                           .Where(x => x.depVer == 0 || x.depVer > maxEpVer)
+                           .Take(showDeprecated ? g.Count() : 1)
+                           .Where(x => x.depVer == 0 || showDeprecated || x.depVer > maxEpVer)
                            .Select(x => x.pathItm)
             })
             .SelectMany(x => x.pathItm)
@@ -54,7 +55,15 @@ internal sealed class DocumentProcessor : IDocumentProcessor
                 ctx.Document.Paths.Remove(p.Key);
 
             foreach (var op in p.Value.Values)
+            {
+                if (showDeprecated)
+                {
+                    var tagSegments = op.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
+                    var depVer = Convert.ToInt32(tagSegments?[3]);
+                    op.IsDeprecated = maxEpVer >= depVer && depVer != 0;
+                }
                 op.Tags.Remove(op.Tags.SingleOrDefault(t => t.StartsWith("|")));
+            }
         }
     }
 }

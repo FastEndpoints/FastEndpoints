@@ -37,9 +37,9 @@ internal static class EndpointExtensions
                     "Specify the exact validator to register using the `Validator<TValidator>()` method in endpoint configuration.");
             }
         }
-        else if (def.EpAttributes is not null)
+        else if (def.EndpointAttributes is not null)
         {
-            foreach (var att in def.EpAttributes)
+            foreach (var att in def.EndpointAttributes)
             {
                 switch (att)
                 {

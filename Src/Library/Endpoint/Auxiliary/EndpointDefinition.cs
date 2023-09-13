@@ -44,6 +44,7 @@ public sealed class EndpointDefinition
     public bool DontAutoTagEndpoints { get; private set; }
     public bool DontBindFormData { get; private set; }
     public bool DoNotCatchExceptions { get; private set; }
+    public object[]? EndpointAttributes { get; internal set; }
     public EndpointSummary? EndpointSummary { get; private set; }
     public List<string>? EndpointTags { get; private set; }
     public string? FormDataContentType { get; private set; }
@@ -55,7 +56,6 @@ public sealed class EndpointDefinition
     //only accessible to internal code
     internal bool AcceptsAnyContentType;
     internal bool? AcceptsMetaDataPresent;
-    internal object[]? EpAttributes;
     internal bool ExecuteAsyncImplemented;
     private bool? _execReturnsIResults;
     internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);

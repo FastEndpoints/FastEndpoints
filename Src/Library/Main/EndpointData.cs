@@ -192,8 +192,8 @@ internal sealed class EndpointData
             }
 
             def.ImplementsConfigure = implementsConfigure;
-            def.EpAttributes = x.tEndpoint.GetCustomAttributes(true);
-            var hasHttpAttrib = def.EpAttributes.Any(a => a is HttpAttribute);
+            def.EndpointAttributes = x.tEndpoint.GetCustomAttributes(true);
+            var hasHttpAttrib = def.EndpointAttributes.Any(a => a is HttpAttribute);
 
             if (implementsConfigure && hasHttpAttrib)
                 throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");

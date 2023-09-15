@@ -14,7 +14,13 @@ public interface IEventStorageRecord
 
     /// <summary>
     /// the actual event object that will be embedded in the storage record.
-    /// if your database doesn't support embedding objects, you may have to serialize the object and store it in this property.
+    /// if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
+    /// <code>
+    /// 1. add a [NotMapped] attribute to this property.
+    /// 2. add a new property, either a <see langword="string"/> or <see cref="byte"/> array
+    /// 3. implement both <see cref="GetEvent"/> and <see cref="SetEvent"/> to serialize/deserialize the event object back and forth and store it in the newly added property.
+    /// </code>
+    /// you may use any serializer you please. recommendation is to use MessagePack.
     /// </summary>
     object Event { get; set; }
 

@@ -76,4 +76,16 @@ This was not working if the assembly name didn't have a dot (.) in the namespace
 
 </details>
 
-<!-- ## Breaking Changes ⚠️ -->
+## Minor Breaking Changes ⚠️
+
+<details><summary>'AddFastEndpoints()' no longer calls 'AddAuthorization()'</summary>
+
+Due to the startup optimization mentioned above, you will now be greeted with the following exception if your app is using authorization middleware:
+
+```yaml
+Unhandled exception. System.InvalidOperationException: Unable to find the required services. Please add all the required services by calling 'IServiceCollection.AddAuthorization' in the application startup code.
+```
+
+It's because the `AddFastEndpoints()` call used to do the `AddAuthorization()` call internally which it no longer does. Simply add this call yourself to the middleware pipeline.
+
+</details>

@@ -70,6 +70,7 @@ internal static class EndpointExtensions
                 }
             }
         }
+        def.Version.Init();
         def.IsInitialized = true;
     }
 

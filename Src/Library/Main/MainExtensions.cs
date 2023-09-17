@@ -80,7 +80,7 @@ public static class MainExtensions
             if (def.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
             Conf.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
-            def.Version.Init(); //todo: move this to a more appropriate place
+
             AddSecurityPolicy(authOptions, def);
 
             var authorizeAttributes = BuildAuthorizeAttributes(def);

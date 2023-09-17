@@ -27,6 +27,13 @@ Please see [this usage example](https://gist.github.com/dj-nitehawk/c32e7f887389
 
 </details>
 
+<details><summary>Allow customizing serialization/deserialization of Event/Command objects in Job/Event Queue storage</summary>
+
+Todo: update doc page and link from here.
+Ref: https://github.com/FastEndpoints/FastEndpoints/issues/480
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Ability to get rid of null-forgiving operator '!' from test code</summary>
@@ -34,13 +41,6 @@ Please see [this usage example](https://gist.github.com/dj-nitehawk/c32e7f887389
 The `TestResult<TResponse>.Result` property is no longer a nullable property. This change enables us to get rid of the null-forgiving operator `!` from our integration test code.
 Existing test code wouldn't have to change. You just don't need to use the `!` to hide the compiler warnings anymore. If/when the value of the property is actually `null`, the tests will 
 just fail with a NRE, which is fine in the context of test code.
-
-</details>
-
-<details><summary>Allow customizing serialization/deserialization of Event/Command objects in Job/Event Queue storage</summary>
-
-Todo: update doc page and link from here.
-Ref: https://github.com/FastEndpoints/FastEndpoints/issues/480
 
 </details>
 

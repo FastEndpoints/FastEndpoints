@@ -57,8 +57,8 @@ public static class MainExtensions
         Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
         var jsonOpts = app.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Conf.SerOpts.Options = jsonOpts is not null
-                            ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
-                            : Conf.SerOpts.Options;
+                                ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
+                                : Conf.SerOpts.Options;
         configAction?.Invoke(new Conf());
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();

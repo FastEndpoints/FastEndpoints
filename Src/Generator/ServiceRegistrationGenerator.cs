@@ -85,7 +85,8 @@ public static class ServiceRegistrationExtensions
         foreach (var reg in regs.OrderBy(r => r!.LifeTime).ThenBy(r => r!.ServiceType))
         {
             b.w(
-"        sc.Add").w(reg!.LifeTime).w("<").w(reg.ServiceType).w(",").w(" ").w(reg.ImplType).w(">();").AppendLine();
+"        sc.Add").w(reg!.LifeTime).w("<").w(reg.ServiceType).w(",").w(" ").w(reg.ImplType).w(@">();
+");
         }
         b.Remove(b.Length - 2, 2).w(@"
         return sc;

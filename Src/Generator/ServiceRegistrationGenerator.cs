@@ -88,7 +88,7 @@ public static class ServiceRegistrationExtensions
 "        sc.Add").w(reg!.LifeTime).w("<").w(reg.ServiceType).w(",").w(" ").w(reg.ImplType).w(@">();
 ");
         }
-        b.Remove(b.Length - 2, 2).w(@"
+        b.w(@"
         return sc;
     }
 }");

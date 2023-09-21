@@ -323,6 +323,29 @@
         }
       }
     },
+    "/api/test-cases/service-reg-gen-test": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesServiceRegistrationGeneratorTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}": {
       "post": {
         "tags": [

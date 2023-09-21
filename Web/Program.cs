@@ -8,6 +8,7 @@ using TestCases.EventQueueTest;
 using TestCases.JobQueueTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
+using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 
@@ -22,6 +23,7 @@ bld.Services
    .AddScoped<IEmailService, EmailService>()
    .AddSingleton(new SingltonSVC(0))
    .AddJobQueues<Job, JobStorage>()
+   .RegisterServicesFromWeb()
    .SwaggerDocument(o =>
    {
        o.DocumentSettings = s =>

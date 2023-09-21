@@ -11,6 +11,12 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Source generated DI registrations</summary>
+
+Todo: update doc page and link from here.
+
+</details>
+
 <details><summary>Source generated access control lists</summary>
 
 Todo: update doc page and link from here.

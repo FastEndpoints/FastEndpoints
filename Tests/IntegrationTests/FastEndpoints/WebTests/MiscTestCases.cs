@@ -1038,4 +1038,14 @@ public class MiscTestCases : TestClass<Fixture>
         rsp.IsSuccessStatusCode.Should().BeTrue();
         res.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task Service_Registration_Generator()
+    {
+        var (rsp, res) = await fx.GuestClient.GETAsync<TestCases.ServiceRegistrationGeneratorTest.Endpoint, string[]>();
+
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+
+        res.Should().Equal("Scoped", "Transient", "Singleton");
+    }
 }

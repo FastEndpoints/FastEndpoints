@@ -9,8 +9,9 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class ServiceRegistrationGenerator : IIncrementalGenerator
 {
-    private const string attribShortName = "RegisterService";
-    private const string attribMetadataName = "RegisterServiceAttribute`1";
+    private static string? _assemblyName;
+    private const string _attribShortName = "RegisterService";
+    private const string _attribMetadataName = "RegisterServiceAttribute`1";
 
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
@@ -19,54 +20,53 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             .Where(r => r is not null)
             .Collect();
 
-        ctx.RegisterSourceOutput(provider, Generate);
-    }
+        ctx.RegisterSourceOutput(provider, Generate!);
 
-    private static bool Match(SyntaxNode node, CancellationToken _)
-    {
-        return node is ClassDeclarationSyntax cds &&
-               cds.AttributeLists.Any(
-                   static al => al.Attributes.Any(
-                       static a => a.Name is GenericNameSyntax { Identifier.ValueText: attribShortName }));
-    }
+        static bool Match(SyntaxNode node, CancellationToken _)
+        {
+            return node is ClassDeclarationSyntax cds &&
+                   cds.AttributeLists.Any(
+                       static al => al.Attributes.Any(
+                           static a => a.Name is GenericNameSyntax { Identifier.ValueText: _attribShortName }));
+        }
 
-    private static string? _assemblyName;
+        static Registration? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        {
+            var service = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) as ITypeSymbol;
 
-    private static Registration? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
-    {
-        var service = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) as ITypeSymbol;
+            if (service?.IsAbstract is null or true)
+                return null;
 
-        if (service?.IsAbstract is null or true)
-            return null;
+            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
 
-        _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
+            var svcType = service
+                .GetAttributes()
+                .Single(a => a.AttributeClass!.MetadataName == _attribMetadataName)
+                .AttributeClass!
+                .TypeArguments[0]
+                .ToDisplayString();
 
-        var svcType = service
-            .GetAttributes()
-            .Single(a => a.AttributeClass!.MetadataName == attribMetadataName)
-            .AttributeClass!
-            .TypeArguments[0]
-            .ToDisplayString();
+            var implType = service.ToDisplayString();
 
-        var implType = service.ToDisplayString();
+            var attrib = (ctx.Node as ClassDeclarationSyntax)!
+                .AttributeLists
+                .SelectMany(al => al.Attributes)
+                .First(a => ((GenericNameSyntax)a.Name).Identifier.ValueText == _attribShortName);
+            var arg = (MemberAccessExpressionSyntax)attrib
+                .ArgumentList!
+                .Arguments
+                .OfType<AttributeArgumentSyntax>()
+                .Single()
+                .Expression;
+            var lifetime = ((IdentifierNameSyntax)arg.Name).Identifier.ValueText;
 
-        var attrib = (ctx.Node as ClassDeclarationSyntax)!
-            .AttributeLists
-            .SelectMany(al => al.Attributes)
-            .First(a => ((GenericNameSyntax)a.Name).Identifier.ValueText == attribShortName);
-        var arg = (MemberAccessExpressionSyntax)attrib
-            .ArgumentList!
-            .Arguments
-            .OfType<AttributeArgumentSyntax>()
-            .Single()
-            .Expression;
-        var lifetime = ((IdentifierNameSyntax)arg.Name).Identifier.ValueText;
-
-        return new(svcType, implType, lifetime);
+            return new(svcType, implType, lifetime);
+        }
     }
 
     private static readonly StringBuilder b = new();
-    private static void Generate(SourceProductionContext ctx, ImmutableArray<Registration?> regs)
+
+    private static void Generate(SourceProductionContext ctx, ImmutableArray<Registration> regs)
     {
         if (!regs.Any())
             return;
@@ -91,7 +91,6 @@ public static class ServiceRegistrationExtensions
         return sc;
     }
 }");
-
         ctx.AddSource("ServiceRegistrations.g.cs", SourceText.From(b.ToString(), Encoding.UTF8));
     }
 

@@ -19,9 +19,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             .Where(static p => p is not null)
             .Collect();
 
-        ctx.RegisterSourceOutput(
-            permissions,
-            static (spc, perms) => Generate(spc, perms!));
+        ctx.RegisterSourceOutput(permissions, Generate!);
 
         var assemblyName = ctx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
 

@@ -9,6 +9,7 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class ServiceRegistrationGenerator : IIncrementalGenerator
 {
+    private static readonly StringBuilder b = new();
     private static string? _assemblyName;
     private const string _attribShortName = "RegisterService";
     private const string _attribMetadataName = "RegisterServiceAttribute`1";
@@ -24,10 +25,11 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
         static bool Match(SyntaxNode node, CancellationToken _)
         {
-            return node is ClassDeclarationSyntax cds &&
-                   cds.AttributeLists.Any(
-                       static al => al.Attributes.Any(
-                           static a => a.Name is GenericNameSyntax { Identifier.ValueText: _attribShortName }));
+            return
+                node is ClassDeclarationSyntax cds &&
+                cds.AttributeLists.Any(
+                    static al => al.Attributes.Any(
+                        static a => a.Name is GenericNameSyntax { Identifier.ValueText: _attribShortName }));
         }
 
         static Registration? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
@@ -63,8 +65,6 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             return new(svcType, implType, lifetime);
         }
     }
-
-    private static readonly StringBuilder b = new();
 
     private static void Generate(SourceProductionContext ctx, ImmutableArray<Registration> regs)
     {

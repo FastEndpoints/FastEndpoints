@@ -11,21 +11,22 @@ namespace FastEndpoints.Generator;
 public class AccessControlGenerator : IIncrementalGenerator
 {
     private static string? _assemblyName;
+    private static readonly StringBuilder b = new();
 
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
+        var assemblyName = ctx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
+
+        ctx.RegisterSourceOutput(
+            assemblyName,
+            static (spc, assembly) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assembly), Encoding.UTF8)));
+
         var permissions = ctx.SyntaxProvider
             .CreateSyntaxProvider(Match, Transform)
             .Where(static p => p is not null)
             .Collect();
 
         ctx.RegisterSourceOutput(permissions, Generate!);
-
-        var assemblyName = ctx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
-
-        ctx.RegisterSourceOutput(
-            assemblyName,
-            static (spc, assembly) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assembly), Encoding.UTF8)));
 
         static bool Match(SyntaxNode node, CancellationToken _)
         {
@@ -73,7 +74,6 @@ public class AccessControlGenerator : IIncrementalGenerator
         spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    private static readonly StringBuilder b = new();
     private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
     {
         b.Clear().w(

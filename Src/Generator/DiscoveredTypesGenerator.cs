@@ -9,16 +9,7 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext ctx)
-    {
-        var syntaxProvider = ctx.SyntaxProvider.CreateSyntaxProvider(
-            static (sn, _) => sn is ClassDeclarationSyntax,
-            static (c, _) => Transform(c)
-        ).Where(static t => t is not null);
-
-        ctx.RegisterSourceOutput(syntaxProvider.Collect(), static (spc, typeNames) => Generate(typeNames!, spc));
-    }
-
+    private static readonly StringBuilder b = new();
     private static string? _assemblyName;
     private static readonly string[] _whiteList = new[]
     {
@@ -29,29 +20,37 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FluentValidation.IValidator"
     };
 
-    private static string? Transform(GeneratorSyntaxContext ctx)
+    public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
-        _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
+        var syntaxProvider = ctx.SyntaxProvider
+            .CreateSyntaxProvider(static (sn, _) => sn is ClassDeclarationSyntax, Transform)
+            .Where(static t => t is not null)
+            .Collect();
 
-        if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
-           !type.IsAbstract &&
-           !type.GetAttributes().Any(a => a.AttributeClass!.Name == "DontRegisterAttribute") &&
-            type.AllInterfaces.Length > 0 &&
-            type.AllInterfaces.Any(i => _whiteList.Contains($"{i.ContainingNamespace.Name}.{i.Name}")))
+        ctx.RegisterSourceOutput(syntaxProvider, Generate!);
+
+        static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            return type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
+
+            if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
+               !type.IsAbstract &&
+               !type.GetAttributes().Any(a => a.AttributeClass!.Name == "DontRegisterAttribute") &&
+                type.AllInterfaces.Length > 0 &&
+                type.AllInterfaces.Any(i => _whiteList.Contains($"{i.ContainingNamespace.Name}.{i.Name}")))
+            {
+                return type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            }
+            return null;
         }
-        return null;
     }
 
-    private static void Generate(ImmutableArray<string> typeNames, SourceProductionContext spc)
+    private static void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
     {
         if (!typeNames.Any()) return;
         var fileContent = RenderClass(typeNames.OrderBy(t => t));
         spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
-
-    private static readonly StringBuilder b = new();
 
     private static string RenderClass(IEnumerable<string> discoveredTypes)
     {

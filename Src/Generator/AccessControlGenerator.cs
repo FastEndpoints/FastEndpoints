@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Generator;
 
@@ -56,14 +55,11 @@ public class AccessControlGenerator : IIncrementalGenerator
                 .OfType<ArgumentSyntax>()
                 .Select(a => a.Expression)
                 .OfType<LiteralExpressionSyntax>()
-                .Select(l => Sanitize(l.Token.ValueText));
+                .Select(l => l.Token.ValueText.Sanitize());
 
             return new(endpoint, args.First(), args.Skip(1));
         }
     }
-
-    private static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
-    private static string Sanitize(string input) => regex.Replace(input, "_");
 
     private static void Generate(SourceProductionContext spc, ImmutableArray<Permission> perms)
     {
@@ -266,15 +262,14 @@ public static partial class Allow
 
             unchecked
             {
-                var hash = 17;
-                hash = (hash * 31) + Name.GetHashCode();
-                hash = (hash * 31) + Endpoint.GetHashCode();
+                Hash = 17;
+                Hash = (Hash * 31) + Name.GetHashCode();
+                Hash = (Hash * 31) + Endpoint.GetHashCode();
                 if (Categories.Any())
                 {
                     foreach (var category in Categories)
-                        hash = (hash * 31) + category.GetHashCode();
+                        Hash = (Hash * 31) + category.GetHashCode();
                 }
-                Hash = hash;
             }
         }
 

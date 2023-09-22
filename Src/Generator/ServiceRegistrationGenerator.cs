@@ -22,10 +22,9 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         ctx.RegisterSourceOutput(provider, Generate);
     }
 
-    private bool Match(SyntaxNode node, CancellationToken _)
+    private static bool Match(SyntaxNode node, CancellationToken _)
     {
         return node is ClassDeclarationSyntax cds &&
-               cds.AttributeLists.Count > 0 &&
                cds.AttributeLists.Any(
                    static al => al.Attributes.Any(
                        static a => a.Name is GenericNameSyntax { Identifier.ValueText: attribShortName }));
@@ -79,7 +78,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceRegistrationExtensions
 {
-    public static IServiceCollection RegisterServicesFrom").w(_assemblyName).w(@"(this IServiceCollection sc)
+    public static IServiceCollection RegisterServicesFrom").w(_assemblyName?.Sanitize(string.Empty) ?? "Assembly").w(@"(this IServiceCollection sc)
     {
 ");
         foreach (var reg in regs.OrderBy(r => r!.LifeTime).ThenBy(r => r!.ServiceType))
@@ -108,18 +107,13 @@ public static class ServiceRegistrationExtensions
             ServiceType = svcType;
             ImplType = implType;
             LifeTime = life;
-            Hash = CalculateHash(svcType, implType, life);
-        }
 
-        private static int CalculateHash(string svcType, string implType, string life)
-        {
             unchecked
             {
-                var hash = 17;
-                hash = (hash * 23) + svcType.GetHashCode();
-                hash = (hash * 23) + implType.GetHashCode();
-                hash = (hash * 23) + life.GetHashCode();
-                return hash;
+                Hash = 17;
+                Hash = (Hash * 23) + svcType.GetHashCode();
+                Hash = (Hash * 23) + implType.GetHashCode();
+                Hash = (Hash * 23) + life.GetHashCode();
             }
         }
 

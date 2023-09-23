@@ -47,6 +47,17 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (isPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
                 continue; //allow other properties other than `Content` property if this is a plaintext request
 
+            foreach (var (matcher, parser) in BindingOptions.PropertyMatchers)
+            {
+                if (matcher(propInfo))
+                {
+                    BinderExtensions.ParserFuncCache.TryAdd(
+                        propInfo.PropertyType,
+                        input => parser(input, propInfo.PropertyType));
+                    break;
+                }
+            }
+
             string? fieldName = null;
             var addPrimary = true;
             var compiledSetter = tRequest.SetterForProp(propInfo.Name);

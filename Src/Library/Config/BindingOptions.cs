@@ -1,6 +1,7 @@
 ﻿#pragma warning disable CA1822
 using FluentValidation.Results;
 using Microsoft.Extensions.Primitives;
+using System.Reflection;
 using System.Text.Json;
 
 namespace FastEndpoints;
@@ -100,4 +101,17 @@ public sealed class BindingOptions
     /// </param>
     public bool ValueParserFor(Type type, Func<object?, ParseResult> parser)
         => BinderExtensions.ParserFuncCache.TryAdd(type, parser);
+
+    /// <summary>
+    /// override value parsers for request dto properties that match a predicate.
+    /// <para>
+    /// WARNING: might lead to weird/untraceable behavior. use at own risk!
+    /// </para>
+    /// </summary>
+    /// <param name="propertyMatcher">a predicate for qualifying a property</param>
+    /// <param name="parser">the value parser for the matched property type</param>
+    public void ValueParserWhen(Func<PropertyInfo, bool> propertyMatcher, Func<object?, Type, ParseResult> parser)
+        => PropertyMatchers.Add(new(propertyMatcher, parser));
+
+    internal static List<(Func<PropertyInfo, bool> matcher, Func<object?, Type, ParseResult> parser)> PropertyMatchers = new();
 }

@@ -363,8 +363,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "bool",
@@ -507,8 +506,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "OtherID",
@@ -518,8 +516,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "responses": {
@@ -750,8 +747,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "Bool",
@@ -1160,8 +1156,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "responses": {
@@ -2000,8 +1995,7 @@
               "type": "string",
               "format": "byte",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "ObjectWithByteArrays",
@@ -2051,8 +2045,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "tenant-id",
@@ -2103,8 +2096,7 @@
             "schema": {
               "type": "string",
               "format": "guid"
-            },
-            "example": ""
+            }
           }
         ],
         "requestBody": {
@@ -2361,8 +2353,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "responses": {
@@ -2399,8 +2390,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "responses": {
@@ -2605,8 +2595,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "CustomerName",
@@ -2687,8 +2676,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "requestBody": {
@@ -2802,8 +2790,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "requestBody": {
@@ -2865,8 +2852,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "cID",
@@ -2875,8 +2861,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "CustomerName",
@@ -2948,8 +2933,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "SourceID",
@@ -2958,8 +2942,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "responses": {
@@ -3003,8 +2986,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "SourceID",
@@ -3013,8 +2995,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "CustomerName",
@@ -3085,8 +3066,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "requestBody": {
@@ -3148,8 +3128,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "cID",
@@ -3158,8 +3137,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "CustomerName",
@@ -3231,8 +3209,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "SourceID",
@@ -3241,8 +3218,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           }
         ],
         "responses": {
@@ -3286,8 +3262,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "SourceID",
@@ -3296,8 +3271,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "CustomerName",
@@ -3401,8 +3375,7 @@
             "schema": {
               "type": "string",
               "nullable": true
-            },
-            "example": ""
+            }
           },
           {
             "name": "CustomerName",

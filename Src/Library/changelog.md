@@ -82,6 +82,20 @@ This was not working if the assembly name didn't have a dot (.) in the namespace
 
 </details>
 
+<details><summary>Empty swagger parameter example generation issue</summary>
+
+The swagger operation processor was creating an example field with an empty string when there's no example provided by the user like the following:
+
+```json
+"parameters": [
+    {
+    ...
+    "example": ""
+    }
+```
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>'AddFastEndpoints()' no longer calls 'AddAuthorization()'</summary>

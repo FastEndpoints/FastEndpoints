@@ -498,7 +498,10 @@ internal sealed class OperationProcessor : IOperationProcessor
         {
             prm.Example = prop?.GetExample();
             if (prm.Example is null && prm.Default is null && prm.Schema.Default is null && prm.IsRequired)
-                prm.Example = prm.ActualSchema.ToSampleJson();
+            {
+                var jToken = prm.ActualSchema.ToSampleJson();
+                prm.Example = string.IsNullOrEmpty(jToken.ToString()) ? null : jToken;
+            }
         }
 
         prm.IsNullableRaw = null; //if this is not null, nswag generates an incorrect swagger spec for some unknown reason.

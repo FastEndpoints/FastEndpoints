@@ -30,11 +30,12 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         static bool Match(SyntaxNode node, CancellationToken _)
         {
+            if (node is not InvocationExpressionSyntax inv || inv.ArgumentList.Arguments.Count == 0)
+                return false;
+
             return
-                node is InvocationExpressionSyntax inv &&
-                inv.Expression is IdentifierNameSyntax id &&
-                id.Identifier.ValueText == "AccessControl" &&
-                inv.ArgumentList.Arguments.Count > 0;
+                inv.Expression is IdentifierNameSyntax idn &&
+                idn.Identifier.ValueText == "AccessControl";
         }
 
         static Permission? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
@@ -43,7 +44,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             var endpoint = ctx.SemanticModel
                 .GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!)?
-                .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                .ToDisplayString();
 
             if (endpoint is null)
                 return null;
@@ -255,7 +256,7 @@ public static partial class Allow
         {
             Name = name.Length == 0 ? "Unspecified" : name;
             Code = GetAclHash(name);
-            Endpoint = endpoint.Substring(8);
+            Endpoint = endpoint;
             Categories = categories;
 
             unchecked

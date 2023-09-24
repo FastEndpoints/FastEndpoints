@@ -25,8 +25,10 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
         static bool Match(SyntaxNode node, CancellationToken _)
         {
+            if (node is not ClassDeclarationSyntax cds || cds.TypeParameterList is not null)
+                return false;
+
             return
-                node is ClassDeclarationSyntax cds &&
                 cds.AttributeLists.Any(
                     static al => al.Attributes.Any(
                         static a => a.Name is GenericNameSyntax { Identifier.ValueText: _attribShortName }));
@@ -34,7 +36,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
         static Registration? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            var service = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) as ITypeSymbol;
+            var service = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node);
 
             if (service?.IsAbstract is null or true)
                 return null;

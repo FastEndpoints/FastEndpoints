@@ -225,6 +225,14 @@ public static class Extensions
         return string.IsNullOrEmpty(remarks) ? null : remarks;
     }
 
+    internal static string ApplyPropNamingPolicy(this string paramName, DocumentOptions documentOptions)
+    {
+        return
+            documentOptions.UsePropertyNamingPolicyForParams && SelectedJsonNamingPolicy is not null
+            ? SelectedJsonNamingPolicy.ConvertName(paramName)
+            : paramName;
+    }
+
     private static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;

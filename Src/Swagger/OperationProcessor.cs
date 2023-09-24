@@ -241,7 +241,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                     paramName: m.Value,
                     isRequired: true,
                     kind: OpenApiParameterKind.Path,
-                    descriptions: reqParamDescriptions);
+                    descriptions: reqParamDescriptions,
+                    docOpts: opts);
             })
             .ToList();
 
@@ -259,7 +260,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                         paramName: null,
                         isRequired: null,
                         kind: OpenApiParameterKind.Query,
-                        descriptions: reqParamDescriptions);
+                        descriptions: reqParamDescriptions,
+                        docOpts: opts);
                 })
                 .ToList();
 
@@ -284,7 +286,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                             paramName: pName,
                             isRequired: hAttrib.IsRequired,
                             kind: OpenApiParameterKind.Header,
-                            descriptions: reqParamDescriptions));
+                            descriptions: reqParamDescriptions,
+                            docOpts: opts));
 
                         //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
@@ -318,7 +321,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                             paramName: null,
                             isRequired: null,
                             kind: OpenApiParameterKind.FormData,
-                            descriptions: reqParamDescriptions));
+                            descriptions: reqParamDescriptions,
+                            docOpts: opts));
                 }
             }
         }
@@ -365,7 +369,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                     paramName: fromBodyProp.Name,
                     isRequired: true,
                     kind: OpenApiParameterKind.Body,
-                    descriptions: reqParamDescriptions));
+                    descriptions: reqParamDescriptions,
+                    docOpts: opts));
             }
         }
 
@@ -474,11 +479,13 @@ internal sealed class OperationProcessor : IOperationProcessor
                                                 string? paramName,
                                                 bool? isRequired,
                                                 OpenApiParameterKind kind,
-                                                Dictionary<string, string>? descriptions)
+                                                Dictionary<string, string>? descriptions,
+                                                DocumentOptions docOpts)
     {
-        paramName ??= prop?.GetCustomAttribute<BindFromAttribute>()?.Name ??
-                      prop?.Name ??
-                      throw new InvalidOperationException("param name is required!");
+        paramName = paramName?.ApplyPropNamingPolicy(docOpts)
+                    ?? prop?.GetCustomAttribute<BindFromAttribute>()?.Name //don't apply naming policy to attribute value
+                    ?? prop?.Name.ApplyPropNamingPolicy(docOpts)
+                    ?? throw new InvalidOperationException("param name is required!");
 
         var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(
             paramName,

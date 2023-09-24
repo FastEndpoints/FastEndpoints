@@ -33,7 +33,6 @@ bld.Services
            s.Version = "v0.0";
            s.SchemaType = NJsonSchema.SchemaType.OpenApi3;
        };
-       o.SerializerSettings = x => x.PropertyNamingPolicy = null;
        o.TagCase = TagCase.TitleCase;
        o.RemoveEmptyRequestSchema = false;
    })

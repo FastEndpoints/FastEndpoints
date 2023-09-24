@@ -18,6 +18,12 @@ public class ASingletonService
     public string Type { get; set; } = "Singleton";
 }
 
+[RegisterService<AGenericService<Guid>>(LifeTime.Singleton)] //this should be skipped by the source generator
+public class AGenericService<T>
+{
+    public T? Type { get; set; }
+}
+
 sealed class Endpoint : EndpointWithoutRequest<string[]>
 {
     public AScopedService ScopedService { get; set; }

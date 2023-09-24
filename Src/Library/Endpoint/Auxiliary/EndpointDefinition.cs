@@ -193,7 +193,7 @@ public sealed class EndpointDefinition
     }
 
     /// <summary>
-    /// describe openapi metadata for this endpoint. optionaly specify whether or not you want to clear the default Accepts/Produces metadata.
+    /// describe openapi metadata for this endpoint. optionally specify whether or not you want to clear the default Accepts/Produces metadata.
     /// <para>
     /// EXAMPLE: <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
     /// </para>
@@ -215,7 +215,7 @@ public sealed class EndpointDefinition
     /// <summary>
     /// use this only if you have your own exception catching middleware.
     /// if this method is called in config, an automatic error response will not be sent to the client by the library.
-    /// all exceptions will be thrown and it would be your exeception catching middleware to handle them.
+    /// all exceptions will be thrown and it would be your exception catching middleware to handle them.
     /// </summary>
     public void DontCatchExceptions() => DoNotCatchExceptions = true;
 
@@ -422,7 +422,7 @@ public sealed class EndpointDefinition
 }
 
 /// <summary>
-/// represents an enpoint version
+/// represents an endpoint version
 /// </summary>
 public sealed class EpVersion
 {

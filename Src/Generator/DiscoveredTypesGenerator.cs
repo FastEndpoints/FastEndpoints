@@ -45,7 +45,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
                 return null;
             }
 
-            if (type.AllInterfaces.Any(static i => _whiteList.Contains(i.ToDisplayString())))
+            if (type.AllInterfaces.Any(i => _whiteList.Contains(i.ToDisplayString())))
             {
                 return type.ToDisplayString();
             }

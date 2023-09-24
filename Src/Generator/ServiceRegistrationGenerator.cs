@@ -18,7 +18,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
     {
         var provider = ctx.SyntaxProvider
             .CreateSyntaxProvider(Match, Transform)
-            .Where(r => r is not null)
+            .Where(static r => r is not null)
             .Collect();
 
         ctx.RegisterSourceOutput(provider, Generate!);
@@ -30,8 +30,8 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
             return
                 cds.AttributeLists.Any(
-                    static al => al.Attributes.Any(
-                        static a => a.Name is GenericNameSyntax { Identifier.ValueText: _attribShortName }));
+                    al => al.Attributes.Any(
+                        a => a.Name is GenericNameSyntax { Identifier.ValueText: _attribShortName }));
         }
 
         static Registration? Transform(GeneratorSyntaxContext ctx, CancellationToken _)

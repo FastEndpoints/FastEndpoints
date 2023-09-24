@@ -9,8 +9,9 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
-    private static readonly StringBuilder b = new();
     private static string? _assemblyName;
+    private static readonly StringBuilder b = new();
+    private const string _dontRegisterAttribute = "DontRegisterAttribute";
     private static readonly string[] _whiteList = new[]
     {
         "FastEndpoints.IEndpoint",
@@ -23,23 +24,30 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var syntaxProvider = ctx.SyntaxProvider
-            .CreateSyntaxProvider(static (sn, _) => sn is ClassDeclarationSyntax, Transform)
+            .CreateSyntaxProvider(Match, Transform)
             .Where(static t => t is not null)
             .Collect();
 
         ctx.RegisterSourceOutput(syntaxProvider, Generate!);
 
+        static bool Match(SyntaxNode node, CancellationToken _)
+            => node is ClassDeclarationSyntax cds && cds.TypeParameterList is null;
+
         static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
 
-            if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
-               !type.IsAbstract &&
-               !type.GetAttributes().Any(a => a.AttributeClass!.Name == "DontRegisterAttribute") &&
-                type.AllInterfaces.Length > 0 &&
-                type.AllInterfaces.Any(i => _whiteList.Contains($"{i.ContainingNamespace.Name}.{i.Name}")))
+            if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
+                type.IsAbstract ||
+                type.GetAttributes().Any(a => a.AttributeClass!.Name == _dontRegisterAttribute ||
+                type.AllInterfaces.Length == 0))
             {
-                return type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                return null;
+            }
+
+            if (type.AllInterfaces.Any(static i => _whiteList.Contains(i.ToDisplayString())))
+            {
+                return type.ToDisplayString();
             }
             return null;
         }
@@ -57,9 +65,11 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         b.Clear().w(
 "namespace ").w(_assemblyName).w(@";
 
+using System;
+
 public static class DiscoveredTypes
 {
-    public static readonly global::System.Type[] All = new global::System.Type[]
+    public static readonly Type[] All = new Type[]
     {");
         foreach (var t in discoveredTypes)
         {

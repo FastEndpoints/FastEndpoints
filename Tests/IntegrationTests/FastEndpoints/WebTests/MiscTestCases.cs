@@ -64,7 +64,7 @@ public class MiscTestCases : TestClass<Fixture>
         var endpointUrl = IEndpoint.TestURLFor<TestCases.EmptyRequestTest.EmptyRequestEndpoint>();
 
         var requestUri = new Uri(
-            Fixture.AdminClient.BaseAddress.ToString().TrimEnd('/') +
+            Fixture.AdminClient.BaseAddress!.ToString().TrimEnd('/') +
             (endpointUrl.StartsWith('/') ? endpointUrl : "/" + endpointUrl)
         );
 
@@ -809,7 +809,7 @@ public class MiscTestCases : TestClass<Fixture>
     [Fact]
     public async Task PreProcessorShortCircuitWrongHeaderValue()
     {
-        var (rsp, res) = await Fixture.AdminClient.POSTAsync<
+        var (rsp, _) = await Fixture.AdminClient.POSTAsync<
             Sales.Orders.Retrieve.Endpoint,
             Sales.Orders.Retrieve.Request,
             object>(new()
@@ -854,7 +854,7 @@ public class MiscTestCases : TestClass<Fixture>
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
-        res.BodyContent.Should().Be("this is the body content");
+        res!.BodyContent.Should().Be("this is the body content");
         res.Id.Should().Be(12345);
     }
 
@@ -939,7 +939,7 @@ public class MiscTestCases : TestClass<Fixture>
             response = await Fixture.GuestClient.SendAsync(request);
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync();
+        var responseContent = await response!.Content.ReadAsStringAsync();
         responseContent.Should().Be("Custom Error Response");
         response.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
     }

@@ -51,10 +51,10 @@ public static class RemoteConnectionExtensions
     {
         var tEvent = @event.GetType();
 
-        if (!RemoteConnection.RemoteMap.TryGetValue(tEvent, out var remote))
-            throw new InvalidOperationException($"No remote broker has been mapped for the event: [{tEvent.FullName}]");
-
-        return remote.PublishEvent(@event, tEvent, options);
+        return
+            RemoteConnection.RemoteMap.TryGetValue(tEvent, out var remote)
+            ? remote.PublishEvent(@event, tEvent, options)
+            : throw new InvalidOperationException($"No remote broker has been mapped for the event: [{tEvent.FullName}]");
     }
 
     /// <summary>
@@ -66,10 +66,10 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = command.GetType();
 
-        if (!RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote))
-            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
-
-        return remote.ExecuteVoid(command, tCommand, options);
+        return
+            RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
+            ? remote.ExecuteVoid(command, tCommand, options)
+            : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
 
     /// <summary>
@@ -82,10 +82,10 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = command.GetType();
 
-        if (!RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote))
-            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
-
-        return remote.ExecuteUnary(command, tCommand, options);
+        return
+            RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
+            ? remote.ExecuteUnary(command, tCommand, options)
+            : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
 
     /// <summary>
@@ -98,10 +98,10 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = command.GetType();
 
-        if (!RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote))
-            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
-
-        return remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken);
+        return
+            RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
+            ? remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken)
+            : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
 
     /// <summary>
@@ -118,9 +118,9 @@ public static class RemoteConnectionExtensions
     {
         var tCommand = typeof(IAsyncEnumerable<T>);
 
-        if (!RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote))
-            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
-
-        return remote.ExecuteClientStream<T, TResult>(commands, tCommand, options);
+        return
+            RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
+            ? remote.ExecuteClientStream<T, TResult>(commands, tCommand, options)
+            : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
 }

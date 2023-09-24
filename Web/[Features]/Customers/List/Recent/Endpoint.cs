@@ -18,9 +18,9 @@ public class Endpoint : EndpointWithoutRequest
         Version(0, deprecateAt: 1);
     }
 
-    public override Task<object> ExecuteAsync(CancellationToken ct)
+    public override Task<object?> ExecuteAsync(CancellationToken ct)
     {
-        return Task.FromResult((object)new Response
+        return Task.FromResult((object?)new Response
         {
             Customers = new[] {
                     new KeyValuePair<string,int>("ryan gunner", 123),

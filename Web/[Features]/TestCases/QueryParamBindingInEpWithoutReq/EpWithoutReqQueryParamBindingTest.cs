@@ -16,9 +16,9 @@ public class EpWithoutReqQueryParamBindingTest : EndpointWithoutRequest<Response
         {
             CustomerID = Query<int>("CustomerID"),
             OtherID = Query<int>("OtherID"),
-            Doubles = Query<double[]>("Doubles"),
-            Guids = Query<List<Guid>>("Guids"),
-            Ints = Query<IEnumerable<int>>("Ints"),
+            Doubles = Query<double[]>("Doubles")!,
+            Guids = Query<List<Guid>>("Guids")!,
+            Ints = Query<IEnumerable<int>>("Ints")!,
             Floaty = Query<float>("Floaty")
         });
     }

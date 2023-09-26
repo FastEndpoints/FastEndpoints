@@ -149,10 +149,18 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                             }
                             catch
                             {
+                                //it's either cancelled or queue is full
                                 //ignore and discard event if queue is full
                             }
                         }
-                        return; //stream is most likely broken/cancelled. let the client re-connect.
+                        if (_isRoundRobinEvent)
+                        {
+                            //remove this subscriber when it disconnects.
+                            //incase it never re-connects, the event will be sitting doing nothing waiting forever for the subscriber to come back.
+                            _subscribers.Remove(subscriberID, out var _sem);
+                            _sem?.Dispose();
+                        }
+                        return; //stream is most likely broken/cancelled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
 
                     while (!_isInMemoryProvider && !ctx.CancellationToken.IsCancellationRequested)
@@ -179,6 +187,14 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                 //wait until either the semaphore is released or a minute has elapsed
                 await Task.WhenAny(sem.WaitAsync(ctx.CancellationToken), Task.Delay(60000));
             }
+        }
+
+        if (_isRoundRobinEvent)
+        {
+            //remove the subscriber if the while loop is exited.
+            //which means the subscriber either cancelled or stream got broken.
+            _subscribers.Remove(subscriberID, out var _sem);
+            _sem?.Dispose();
         }
     }
 
@@ -218,9 +234,22 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
 
     protected override async Task BroadcastEvent(IEvent evnt, CancellationToken ct)
     {
+        var subscribers = GetReceiveCandidates();
+
+        var startTime = DateTime.Now;
+        while (!subscribers.Any())
+        {
+            _logger.NoSubscribersTrace(_tEvent.FullName!);
+#pragma warning disable CA2016
+            await Task.Delay(5000);
+#pragma warning restore CA2016
+            if (ct.IsCancellationRequested || (DateTime.Now - startTime).TotalSeconds >= 60)
+                break;
+        }
+
         var createErrorCount = 0;
 
-        foreach (var subId in GetReceiveCandidates())
+        foreach (var subId in subscribers)
         {
             var record = new TStorageRecord
             {

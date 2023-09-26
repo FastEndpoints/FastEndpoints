@@ -10,24 +10,27 @@ internal static partial class LoggingExtensions
     [LoggerMessage(2, LogLevel.Information, "Event subscriber connected! [id:{subscriberId}]({tEvent})")]
     public static partial void SubscriberConnected(this ILogger l, string subscriberId, string tEvent);
 
-    [LoggerMessage(3, LogLevel.Information, " Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}")]
+    [LoggerMessage(3, LogLevel.Trace, "Waiting for Event subscribers to connect for [{tEvent}]")]
+    public static partial void NoSubscribersTrace(this ILogger l, string tEvent);
+
+    [LoggerMessage(4, LogLevel.Information, " Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}")]
     public static partial void RemoteConfigured(this ILogger l, string address, int count);
 
-    [LoggerMessage(4, LogLevel.Trace, "Event 'stream-receive' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
+    [LoggerMessage(5, LogLevel.Trace, "Event 'stream-receive' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StreamReceiveTrace(this ILogger l, string subscriberId, string tEvent, string msg);
 
-    [LoggerMessage(5, LogLevel.Warning, "Event queue for [subscriber-id:{subscriberId}]({tEvent}) is full! The subscriber has been removed from the broadcast list.")]
+    [LoggerMessage(6, LogLevel.Warning, "Event queue for [subscriber-id:{subscriberId}]({tEvent}) is full! The subscriber has been removed from the broadcast list.")]
     public static partial void QueueOverflowWarning(this ILogger l, string subscriberId, string tEvent);
 
-    [LoggerMessage(6, LogLevel.Critical, "Event [{tEvent}] 'handler-execution' error: [{msg}]. Retrying after 5 seconds...")]
+    [LoggerMessage(7, LogLevel.Critical, "Event [{tEvent}] 'handler-execution' error: [{msg}]. Retrying after 5 seconds...")]
     public static partial void HandlerExecutionCritical(this ILogger l, string tEvent, string msg);
 
-    [LoggerMessage(7, LogLevel.Error, "Event storage 'store-event' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
+    [LoggerMessage(8, LogLevel.Error, "Event storage 'store-event' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StoreEventError(this ILogger l, string subscriberId, string tEvent, string msg);
 
-    [LoggerMessage(8, LogLevel.Error, "Event storage 'get-next-batch' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
+    [LoggerMessage(9, LogLevel.Error, "Event storage 'get-next-batch' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageGetNextBatchError(this ILogger l, string subscriberId, string tEvent, string msg);
 
-    [LoggerMessage(9, LogLevel.Error, "Event storage 'mark-as-complete' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
+    [LoggerMessage(10, LogLevel.Error, "Event storage 'mark-as-complete' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageMarkAsCompleteError(this ILogger l, string subscriberId, string tEvent, string msg);
 }

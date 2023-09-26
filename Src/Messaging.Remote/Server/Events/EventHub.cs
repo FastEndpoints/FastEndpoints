@@ -21,10 +21,9 @@ internal abstract class EventHubBase
     {
         var tEvent = evnt.GetType();
 
-        if (!_allHubs.TryGetValue(tEvent, out var hub))
-            throw new InvalidOperationException($"An event hub has not been registered for [{tEvent.FullName}]");
-
-        return hub.BroadcastEvent(evnt, ct);
+        return _allHubs.TryGetValue(tEvent, out var hub)
+                ? hub.BroadcastEvent(evnt, ct)
+                : throw new InvalidOperationException($"An event hub has not been registered for [{tEvent.FullName}]");
     }
 }
 

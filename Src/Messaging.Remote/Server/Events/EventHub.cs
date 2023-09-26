@@ -38,6 +38,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
     //val: semaphorslim for waiting on record availability
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _subscribers = new();
     private static readonly Type _tEvent = typeof(TEvent);
+    private static readonly bool _isRoundRobinEvent = typeof(IRoundRobinEvent).IsAssignableFrom(_tEvent);
     private static TStorageProvider? _storage;
 
     private readonly bool _isInMemoryProvider;
@@ -181,11 +182,45 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
         }
     }
 
+    //key: type of the event
+    //val: the id of the subscriber that last received this type of event
+    private static readonly ConcurrentDictionary<Type, string> _lastReceivedBy = new();
+
+    private static IEnumerable<string> GetReceiveCandidates()
+    {
+        if (_isRoundRobinEvent)
+        {
+            if (_subscribers.IsEmpty)
+                return Enumerable.Empty<string>();
+
+            _lastReceivedBy.TryGetValue(_tEvent, out var lastSubId);
+
+            if (lastSubId is null)
+            {
+                var subIds = _subscribers.Keys.Take(1);
+                _lastReceivedBy[_tEvent] = subIds.First();
+                return subIds;
+            }
+
+            if (_subscribers.Keys.Count == 1 && _subscribers.ContainsKey(lastSubId))
+            {
+                return _subscribers.Keys;
+            }
+            else
+            {
+                var subIds = _subscribers.Keys.SkipWhile(subId => subId == lastSubId).Take(1);
+                _lastReceivedBy[_tEvent] = subIds.First();
+                return subIds;
+            }
+        }
+        return _subscribers.Keys;
+    }
+
     protected override async Task BroadcastEvent(IEvent evnt, CancellationToken ct)
     {
         var createErrorCount = 0;
 
-        foreach (var subId in _subscribers.Keys)
+        foreach (var subId in GetReceiveCandidates())
         {
             var record = new TStorageRecord
             {

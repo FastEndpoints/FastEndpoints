@@ -33,6 +33,14 @@ Please see [this usage example](https://gist.github.com/dj-nitehawk/c32e7f887389
 
 </details>
 
+<details><summary>Round-Robin Event delivery with gRPC</summary>
+
+It is now possible to deliver an event to only just one of the connected remote subscribers in a round-robin fashion. Comes in handy when you need to distribute the workload among a pool of subscribers/workers and ensure that a single event is only processed by a single remote subscriber. See the [documentation]() for more info.
+
+TODO: update link to doc page.
+
+</details>
+
 <details><summary>Allow customizing serialization/deserialization of Event/Command objects in Job/Event Queue storage</summary>
 
 Todo: update doc page and link from here.

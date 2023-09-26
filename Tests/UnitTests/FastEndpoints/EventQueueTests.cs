@@ -115,6 +115,90 @@ public class EventQueueTests
     }
 
     [Fact]
+    public async Task event_hub_publisher_mode_round_robin()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        var provider = services.BuildServiceProvider();
+        var hub = new EventHub<RRTestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+        EventHub<RRTestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
+
+        var writerA = new TestServerStreamWriter<RRTestEvent>();
+        var writerB = new TestServerStreamWriter<RRTestEvent>();
+
+        var ctx = A.Fake<ServerCallContext>();
+        A.CallTo(ctx).WithReturnType<CancellationToken>().Returns(default);
+
+        _ = hub.OnSubscriberConnected(hub, "subA", writerA, ctx);
+        _ = hub.OnSubscriberConnected(hub, "subB", writerB, ctx);
+
+        await Task.Delay(500);
+
+        var e1 = new RRTestEvent { EventID = 111 };
+        await EventHubBase.AddToSubscriberQueues(e1, default);
+
+        var e2 = new RRTestEvent { EventID = 222 };
+        await EventHubBase.AddToSubscriberQueues(e2, default);
+
+        var e3 = new RRTestEvent { EventID = 333 };
+        await EventHubBase.AddToSubscriberQueues(e3, default);
+
+        await Task.Delay(500);
+
+        if (writerA.Responses.Count == 2)
+        {
+            writerB.Responses.Count.Should().Be(1);
+            writerB.Responses[0].EventID.Should().Be(222);
+            writerA.Responses[0].EventID.Should().Be(111);
+            writerA.Responses[1].EventID.Should().Be(333);
+        }
+        else if (writerB.Responses.Count == 1)
+        {
+            writerA.Responses.Count.Should().Be(2);
+            writerA.Responses[0].EventID.Should().Be(111);
+            writerA.Responses[1].EventID.Should().Be(333);
+            writerB.Responses[0].EventID.Should().Be(222);
+        }
+    }
+
+    [Fact]
+    public async Task event_hub_publisher_mode_round_robin_only_one_subscriber()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        var provider = services.BuildServiceProvider();
+        var hub = new EventHub<RRTestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+        EventHub<RRTestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
+
+        var writer = new TestServerStreamWriter<RRTestEvent>();
+
+        var ctx = A.Fake<ServerCallContext>();
+        A.CallTo(ctx).WithReturnType<CancellationToken>().Returns(default);
+
+        _ = hub.OnSubscriberConnected(hub, "subA", writer, ctx);
+
+        await Task.Delay(500);
+
+        var e1 = new RRTestEvent { EventID = 111 };
+        await EventHubBase.AddToSubscriberQueues(e1, default);
+
+        var e2 = new RRTestEvent { EventID = 222 };
+        await EventHubBase.AddToSubscriberQueues(e2, default);
+
+        var e3 = new RRTestEvent { EventID = 333 };
+        await EventHubBase.AddToSubscriberQueues(e3, default);
+
+        await Task.Delay(500);
+
+        writer.Responses.Count.Should().Be(3);
+        writer.Responses[0].EventID.Should().Be(111);
+        writer.Responses[1].EventID.Should().Be(222);
+        writer.Responses[2].EventID.Should().Be(333);
+    }
+
+    [Fact]
     public async Task event_hub_broker_mode()
     {
         var services = new ServiceCollection();
@@ -139,6 +223,11 @@ public class EventQueueTests
     }
 
     private class TestEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    private class RRTestEvent : IRoundRobinEvent
     {
         public int EventID { get; set; }
     }

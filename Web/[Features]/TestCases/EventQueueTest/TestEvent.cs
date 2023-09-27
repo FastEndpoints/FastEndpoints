@@ -1,6 +1,6 @@
 ﻿namespace TestCases.EventQueueTest;
 
-public class TestEvent : IEvent
+public class TestEventQueue : IEvent
 {
     public int Id { get; set; }
 }

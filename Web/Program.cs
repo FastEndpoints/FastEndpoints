@@ -132,7 +132,7 @@ app.MapHandlers(h =>
     h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
     h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
     h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
-    h.RegisterEventHub<TestEvent>();
+    h.RegisterEventHub<TestEventQueue>();
 });
 
 app.UseJobQueues(o =>

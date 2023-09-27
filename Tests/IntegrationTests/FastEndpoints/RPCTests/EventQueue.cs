@@ -11,11 +11,17 @@ public class EventQueue : RPCTestBase
     {
         for (var i = 0; i < 100; i++)
         {
-            var evnt = new TestEvent { Id = i };
+            var evnt = new TestEventQueue { Id = i };
             evnt.Broadcast();
             await Task.Delay(10);
         }
-        TestEventHandler.Received.Count.Should().Be(100);
-        TestEventHandler.Received.Select(r => r.Id).Except(Enumerable.Range(0, 100)).Any().Should().BeFalse();
+
+        while (TestEventQueueHandler.Received.Count < 1)
+        {
+            await Task.Delay(500);
+        }
+
+        TestEventQueueHandler.Received.Count.Should().Be(100);
+        TestEventQueueHandler.Received.Select(r => r.Id).Except(Enumerable.Range(0, 100)).Any().Should().BeFalse();
     }
 }

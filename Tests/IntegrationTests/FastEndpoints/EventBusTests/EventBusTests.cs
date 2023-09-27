@@ -18,11 +18,11 @@ public class EventBusTests : TestClass<Fixture>
 }
 
 [DontRegister]
-sealed class FakeEventHandler : IEventHandler<TestEvent>
+sealed class FakeEventHandler : IEventHandler<TestEventBus>
 {
     public static int Result;
 
-    public Task HandleAsync(TestEvent eventModel, CancellationToken ct)
+    public Task HandleAsync(TestEventBus eventModel, CancellationToken ct)
     {
         Result = eventModel.Id + 1;
         return Task.CompletedTask;
@@ -30,11 +30,11 @@ sealed class FakeEventHandler : IEventHandler<TestEvent>
 }
 
 [DontRegister]
-sealed class AnotherFakeEventHandler : IEventHandler<TestEvent>
+sealed class AnotherFakeEventHandler : IEventHandler<TestEventBus>
 {
     public static int Result;
 
-    public Task HandleAsync(TestEvent eventModel, CancellationToken ct)
+    public Task HandleAsync(TestEventBus eventModel, CancellationToken ct)
     {
         Result = eventModel.Id + 2;
         return Task.CompletedTask;

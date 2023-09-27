@@ -48,6 +48,7 @@ csharp_style_var_for_built_in_types = true
 csharp_style_var_when_type_is_apparent = true
 csharp_using_directive_placement = outside_namespace
 dotnet_diagnostic.CA2007.severity = silent
+dotnet_diagnostic.RCS1158.severity = silent
 dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
 dotnet_naming_rule.interface_should_be_begins_with_i.style = begins_with_i
 dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface

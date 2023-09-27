@@ -10,20 +10,20 @@ sealed class Endpoint : EndpointWithoutRequest<int>
 
     public override async Task HandleAsync(CancellationToken c)
     {
-        var evnt = new TestEvent { Id = 100 };
+        var evnt = new TestEventBus { Id = 100 };
         await evnt.PublishAsync();
         await SendAsync(evnt.Id);
     }
 }
 
-sealed class TestEvent : IEvent
+sealed class TestEventBus : IEvent
 {
     public int Id { get; set; }
 }
 
-sealed class TestEventHandler : IEventHandler<TestEvent>
+sealed class TestEventBusHandler : IEventHandler<TestEventBus>
 {
-    public Task HandleAsync(TestEvent e, CancellationToken c)
+    public Task HandleAsync(TestEventBus e, CancellationToken c)
     {
         e.Id = 200;
         return Task.CompletedTask;

@@ -23,7 +23,7 @@ public class RPCTestBase : TestClass<Fixture>
         remote.Register<EchoCommand, EchoCommand>();
         remote.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
         remote.RegisterClientStream<CurrentPosition, ProgressReport>();
-        remote.Subscribe<TestEvent, TestEventHandler>();
+        remote.Subscribe<TestEventQueue, TestEventQueueHandler>();
         Thread.Sleep(500);
     }
 }

@@ -48,8 +48,8 @@ public class Fixture : TestFixture<Web.Program>
     {
         s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
         s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
-        s.RegisterTestEventHandler<TestEvent, FakeEventHandler>();
-        s.RegisterTestEventHandler<TestEvent, AnotherFakeEventHandler>();
+        s.RegisterTestEventHandler<TestEventBus, FakeEventHandler>();
+        s.RegisterTestEventHandler<TestEventBus, AnotherFakeEventHandler>();
         s.AddScoped<IEmailService, MockEmailService>();
     }
 

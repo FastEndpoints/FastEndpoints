@@ -9,10 +9,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="[Features]\Inventory\List\Search\**" />
-      <Content Remove="[Features]\Inventory\List\Search\**" />
-      <EmbeddedResource Remove="[Features]\Inventory\List\Search\**" />
-      <None Remove="[Features]\Inventory\List\Search\**" />
+        <Compile Remove="[Features]\Inventory\List\Search\**" />
+        <Content Remove="[Features]\Inventory\List\Search\**" />
+        <EmbeddedResource Remove="[Features]\Inventory\List\Search\**" />
+        <None Remove="[Features]\Inventory\List\Search\**" />
     </ItemGroup>
 
     <ItemGroup>

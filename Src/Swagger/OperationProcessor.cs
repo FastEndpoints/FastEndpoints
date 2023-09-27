@@ -114,7 +114,7 @@ internal sealed class OperationProcessor : IOperationProcessor
                      key = k.ToString(),
                      cTypes = g.Last().ContentTypes,
                      example,
-                     header = epDef.EndpointSummary?.ResponseHeaders.Find(h => h.StatusCode == k)
+                     headers = epDef.EndpointSummary?.ResponseHeaders.Where(h => h.StatusCode == k).ToArray()
                  };
              })
              .ToDictionary(x => x.key);
@@ -130,14 +130,17 @@ internal sealed class OperationProcessor : IOperationProcessor
                         if (x.example is not null)
                             mediaType.Example = x.example;
 
-                        if (x.header is not null)
+                        if (x.headers?.Any() is true)
                         {
-                            rsp.Value.Headers.Add(new(x.header.HeaderName, new()
+                            foreach (var hdr in x.headers)
                             {
-                                Description = x.header.Description,
-                                Example = x.header.Example is not null ? JToken.FromObject(x.header.Example, serializer) : null,
-                                Schema = x.header.Example is not null ? ctx.SchemaGenerator.Generate(x.header.Example?.GetType()) : null
-                            }));
+                                rsp.Value.Headers.Add(new(hdr.HeaderName, new()
+                                {
+                                    Description = hdr.Description,
+                                    Example = hdr.Example is not null ? JToken.FromObject(hdr.Example, serializer) : null,
+                                    Schema = hdr.Example is not null ? ctx.SchemaGenerator.Generate(hdr.Example?.GetType()) : null
+                                }));
+                            }
                         }
                     }
 

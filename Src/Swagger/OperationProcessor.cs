@@ -48,7 +48,6 @@ internal sealed class OperationProcessor : IOperationProcessor
     {
         var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
         var epDef = metaData.OfType<EndpointDefinition>().SingleOrDefault(); //use shortcut `ctx.GetEndpointDefinition()` for your own processors
-        var schemaGeneratorSettings = ctx.SchemaGenerator.Settings;
 
         if (epDef is null)
             return true; //this is not a fastendpoint
@@ -92,7 +91,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         }
 
         //fix response content-types not displaying correctly
-        //also set user provided response examples
+        //also set user provided response examples and response headers
         if (op.Responses.Count > 0)
         {
             var metas = metaData
@@ -114,7 +113,8 @@ internal sealed class OperationProcessor : IOperationProcessor
                  return new {
                      key = k.ToString(),
                      cTypes = g.Last().ContentTypes,
-                     example = example
+                     example,
+                     header = epDef.EndpointSummary?.ResponseHeaders.Find(h => h.StatusCode == k)
                  };
              })
              .ToDictionary(x => x.key);
@@ -125,8 +125,21 @@ internal sealed class OperationProcessor : IOperationProcessor
                 {
                     var cTypes = metas[rsp.Key].cTypes;
                     var mediaType = rsp.Value.Content.FirstOrDefault().Value;
-                    if (metas.TryGetValue(rsp.Key, out var x) && x.example is not null)
-                        mediaType.Example = x.example;
+                    if (metas.TryGetValue(rsp.Key, out var x))
+                    {
+                        if (x.example is not null)
+                            mediaType.Example = x.example;
+
+                        if (x.header is not null)
+                        {
+                            rsp.Value.Headers.Add(new(x.header.HeaderName, new()
+                            {
+                                Description = x.header.Description,
+                                Example = x.header.Example is not null ? JToken.FromObject(x.header.Example, serializer) : null,
+                                Schema = x.header.Example is not null ? ctx.SchemaGenerator.Generate(x.header.Example?.GetType()) : null
+                            }));
+                        }
+                    }
 
                     rsp.Value.Content.Clear();
                     foreach (var ct in cTypes)

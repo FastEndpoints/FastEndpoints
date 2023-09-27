@@ -10,18 +10,15 @@ namespace FastEndpoints;
 public class EndpointSummary
 {
     internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
-    internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; set; } = new(); //key: status-code //val: [propname]=description
-    internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b =>
+    internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; } = new(); //key: status-code //val: [propname]=description
+    internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b => b.Add(epBuilder =>
     {
-        b.Add(epBuilder =>
+        foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata).ToArray())
         {
-            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata).ToArray())
-            {
-                if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
-                    epBuilder.Metadata.Remove(m);
-            }
-        });
-    };
+            if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
+                epBuilder.Metadata.Remove(m);
+        }
+    });
 
     /// <summary>
     /// indexer for the response descriptions
@@ -49,7 +46,7 @@ public class EndpointSummary
     public object? ExampleRequest { get; set; } //todo: support for multiple example requests
 
     /// <summary>
-    /// the descriptions for endpoint paramaters. you can add descriptions for route/query params and request dto properties.
+    /// the descriptions for endpoint parameters. you can add descriptions for route/query params and request dto properties.
     /// what you specify here will take precedence over xml comments of dto classes (if they are also specified).
     /// </summary>
     public Dictionary<string, string> Params { get; set; } = new();
@@ -63,6 +60,8 @@ public class EndpointSummary
     /// the response examples for each status code
     /// </summary>
     public Dictionary<int, object> ResponseExamples { get; set; } = new();
+
+    public List<ResponseHeader> ResponseHeaders { get; set; } = new();
 
     /// <summary>
     /// add a description for a given property of a given response dto

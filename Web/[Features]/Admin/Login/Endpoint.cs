@@ -40,6 +40,7 @@ public class Endpoint : Endpoint<Request, Response>
             s[400] = "indicates an error";
             s[403] = "forbidden when login fails";
             s[201] = "new resource created";
+            s.ResponseHeaders.Add(new(200, "x-some-custom-header"));
         });
         SerializerContext(AdminLogin.Default);
         Version(0, 1);

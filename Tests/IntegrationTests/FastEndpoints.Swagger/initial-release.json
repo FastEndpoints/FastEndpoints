@@ -3361,6 +3361,9 @@
         "responses": {
           "200": {
             "description": "all good",
+            "headers": {
+              "x-some-custom-header": {}
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -3400,6 +3403,9 @@
         "responses": {
           "200": {
             "description": "all good",
+            "headers": {
+              "x-some-custom-header": {}
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -3439,6 +3445,9 @@
         "responses": {
           "200": {
             "description": "all good",
+            "headers": {
+              "x-some-custom-header": {}
+            },
             "content": {
               "application/json": {
                 "schema": {

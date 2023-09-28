@@ -1,6 +1,5 @@
 ﻿using Bogus;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +7,9 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using Xunit;
 using Xunit.Abstractions;
+#if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#endif
 
 namespace FastEndpoints.Testing;
 
@@ -15,11 +17,6 @@ public abstract class BaseFixture
 {
     protected static readonly Faker _faker = new();
     protected static readonly ConcurrentDictionary<Type, object> _appCache = new();
-
-    static BaseFixture()
-    {
-        Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
-    }
 }
 
 /// <summary>
@@ -55,6 +52,7 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
                 GetType(),
                 _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(b =>
                 {
+                    b.UseEnvironment("Testing");
                     b.ConfigureLogging(l => l.ClearProviders().AddXUnit(s));
                     b.ConfigureTestServices(ConfigureServices);
                     ConfigureApp(b);

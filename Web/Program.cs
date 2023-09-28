@@ -12,7 +12,7 @@ using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 
-var bld = WebApplication.CreateBuilder();
+var bld = WebApplication.CreateBuilder(args);
 bld.AddHandlerServer();
 bld.Services
    .AddCors()
@@ -140,6 +140,10 @@ app.UseJobQueues(o =>
     o.MaxConcurrency = 4;
     o.LimitsFor<JobTestCommand>(1, TimeSpan.FromSeconds(1));
 });
+
+var isTestHost = app.Services.GetService<IEmailService>() is not EmailService;
+if (isTestHost && app.Environment.EnvironmentName != "Testing")
+    throw new InvalidOperationException("TestFixture hasn't set the test environment correctly!");
 
 app.Run();
 

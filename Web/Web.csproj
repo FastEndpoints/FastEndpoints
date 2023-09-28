@@ -6,7 +6,6 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>CS1591;1701;1702;CA2016;RCS1090;CA2254;CS8618;ASP0014</NoWarn>
-        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles> <!-- workaround for live unit testing issue -->
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,15 +20,18 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj" />
         <ProjectReference Include="..\Src\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" />
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj" />
         <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj" />
     </ItemGroup>
 
+    <!--<PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>    
     <ItemGroup>
-        <InternalsVisibleTo Include="Test" />
-    </ItemGroup>
-
+        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+    </ItemGroup>-->
 </Project>

@@ -160,8 +160,8 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                         {
                             //remove this subscriber when it disconnects.
                             //incase it never re-connects, the event will be sitting doing nothing waiting forever for the subscriber to come back.
-                            _subscribers.Remove(subscriberID, out var _sem);
-                            _sem?.Dispose();
+                            _subscribers.Remove(subscriberID, out var smp);
+                            smp?.Dispose();
                         }
                         return; //stream is most likely broken/cancelled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
@@ -196,8 +196,8 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
         {
             //remove the subscriber if the while loop is exited.
             //which means the subscriber either cancelled or stream got broken.
-            _subscribers.Remove(subscriberID, out var _sem);
-            _sem?.Dispose();
+            _subscribers.Remove(subscriberID, out var smp);
+            smp?.Dispose();
         }
     }
 

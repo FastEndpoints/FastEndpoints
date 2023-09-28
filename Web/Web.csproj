@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>CS1591;1701;1702;CA2016;RCS1090;CA2254;CS8618;ASP0014</NoWarn>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles> <!-- workaround for live unit testing issue -->
     </PropertyGroup>
 
     <ItemGroup>

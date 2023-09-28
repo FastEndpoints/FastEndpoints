@@ -33,15 +33,16 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
     where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
 {
     internal static HubMode Mode = HubMode.EventPublisher;
-    private static readonly Type _tEvent = typeof(TEvent);
-    private static readonly bool _isRoundRobinEvent = typeof(IRoundRobinEvent).IsAssignableFrom(_tEvent);
-    private static TStorageProvider? _storage;
+
     //key: subscriber id
     //val: semaphorslim for waiting on record availability
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _subscribers = new();
     //key: type of the event
     //val: the id of the subscriber that last received this type of event
     private static readonly ConcurrentDictionary<Type, string> _lastReceivedBy = new();
+    private static readonly Type _tEvent = typeof(TEvent);
+    private static readonly bool _isRoundRobinEvent = typeof(IRoundRobinEvent).IsAssignableFrom(_tEvent);
+    private static TStorageProvider? _storage;
 
     private readonly bool _isInMemoryProvider;
     private readonly EventHubExceptionReceiver? _errors;

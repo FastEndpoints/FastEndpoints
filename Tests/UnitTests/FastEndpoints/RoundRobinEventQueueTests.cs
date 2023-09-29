@@ -16,8 +16,8 @@ public class RoundRobinEventQueueTests
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         var provider = services.BuildServiceProvider();
+        EventHub<RRTestEventMulti, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin | HubMode.EventBroker;
         var hub = new EventHub<RRTestEventMulti, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
-        EventHub<RRTestEventOnlyOne, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
 
         var writerA = new TestServerStreamWriter<RRTestEventMulti>();
         var writerB = new TestServerStreamWriter<RRTestEventMulti>();
@@ -71,8 +71,8 @@ public class RoundRobinEventQueueTests
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         var provider = services.BuildServiceProvider();
+        EventHub<RRTestEventOneConnected, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin;
         var hub = new EventHub<RRTestEventOneConnected, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
-        EventHub<RRTestEventOnlyOne, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
 
         var writerA = new TestServerStreamWriter<RRTestEventOneConnected>();
         var writerB = new TestServerStreamWriter<RRTestEventOneConnected>();
@@ -124,8 +124,8 @@ public class RoundRobinEventQueueTests
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         var provider = services.BuildServiceProvider();
+        EventHub<RRTestEventOnlyOne, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin;
         var hub = new EventHub<RRTestEventOnlyOne, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
-        EventHub<RRTestEventOnlyOne, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
 
         var writer = new TestServerStreamWriter<RRTestEventOnlyOne>();
 
@@ -154,17 +154,17 @@ public class RoundRobinEventQueueTests
         writer.Responses[2].EventID.Should().Be(333);
     }
 
-    private class RRTestEventOnlyOne : IRoundRobinEvent
+    private class RRTestEventOnlyOne : IEvent
     {
         public int EventID { get; set; }
     }
 
-    private class RRTestEventMulti : IRoundRobinEvent
+    private class RRTestEventMulti : IEvent
     {
         public int EventID { get; set; }
     }
 
-    private class RRTestEventOneConnected : IRoundRobinEvent
+    private class RRTestEventOneConnected : IEvent
     {
         public int EventID { get; set; }
     }

@@ -41,7 +41,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
     //val: the id of the subscriber that last received this type of event
     private static readonly ConcurrentDictionary<Type, string> _lastReceivedBy = new();
     private static readonly Type _tEvent = typeof(TEvent);
-    private static readonly bool _isRoundRobinEvent = typeof(IRoundRobinEvent).IsAssignableFrom(_tEvent);
+    private static bool _isRoundRobinMode;
     private static TStorageProvider? _storage;
 
     private readonly bool _isInMemoryProvider;
@@ -51,6 +51,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
     public EventHub(IServiceProvider svcProvider)
     {
         _allHubs[_tEvent] = this;
+        _isRoundRobinMode = Mode.HasFlag(HubMode.RoundRobin);
         _storage ??= (TStorageProvider)ActivatorUtilities.CreateInstance(svcProvider, typeof(TStorageProvider));
         _isInMemoryProvider = _storage is InMemoryEventHubStorage;
         EventHubStorage<TStorageRecord, TStorageProvider>.Provider = _storage; //for stale record purging task setup
@@ -89,7 +90,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
 
         ctx.AddServerStreamingMethod(sub, metadata, OnSubscriberConnected);
 
-        if (Mode is HubMode.EventBroker)
+        if (Mode.HasFlag(HubMode.EventBroker))
         {
             var pub = new Method<TEvent, EmptyObject>(
                 type: MethodType.Unary,
@@ -158,7 +159,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                             }
                         }
 
-                        if (_isRoundRobinEvent)
+                        if (_isRoundRobinMode)
                             subscriber.IsConnected = false;
 
                         return; //stream is most likely broken/cancelled. exit the method here and let the subscriber re-connect and re-enter the method.
@@ -192,13 +193,13 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
 
         //mark subscriber as disconnected if the while loop is exited.
         //which means the subscriber either cancelled or stream got broken.
-        if (_isRoundRobinEvent)
+        if (_isRoundRobinMode)
             subscriber.IsConnected = false;
     }
 
     private static IEnumerable<string> GetReceiveCandidates()
     {
-        if (_isRoundRobinEvent)
+        if (_isRoundRobinMode)
         {
             var connectedSubIds = _subscribers
                 .Where(kv => kv.Value.IsConnected)
@@ -226,7 +227,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
         var startTime = DateTime.Now;
         while (!subscribers.Any())
         {
-            _logger.NoSubscribersTrace(_tEvent.FullName!);
+            _logger.NoSubscribersWarning(_tEvent.FullName!);
 #pragma warning disable CA2016
             await Task.Delay(5000);
 #pragma warning restore CA2016

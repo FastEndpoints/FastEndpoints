@@ -10,8 +10,8 @@ internal static partial class LoggingExtensions
     [LoggerMessage(2, LogLevel.Information, "Event subscriber connected! [id:{subscriberId}]({tEvent})")]
     public static partial void SubscriberConnected(this ILogger l, string subscriberId, string tEvent);
 
-    [LoggerMessage(3, LogLevel.Trace, "Waiting for Event subscribers to connect for [{tEvent}]")]
-    public static partial void NoSubscribersTrace(this ILogger l, string tEvent);
+    [LoggerMessage(3, LogLevel.Warning, "No event subscribers to connect for: [{tEvent}]")]
+    public static partial void NoSubscribersWarning(this ILogger l, string tEvent);
 
     [LoggerMessage(4, LogLevel.Information, " Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}")]
     public static partial void RemoteConfigured(this ILogger l, string address, int count);

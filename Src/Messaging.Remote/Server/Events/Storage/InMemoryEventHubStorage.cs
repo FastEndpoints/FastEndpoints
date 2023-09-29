@@ -7,14 +7,14 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 {
     //key: subscriber ID (identifies a unique subscriber/client)
     //val: in memory event storage record queue
-    private readonly ConcurrentDictionary<string, EventQueue> _subscribers = new();
+    private readonly ConcurrentDictionary<string, InMemEventQueue> _subscribers = new();
 
     public ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<InMemoryEventStorageRecord> p)
         => ValueTask.FromResult(Enumerable.Empty<string>());
 
     public ValueTask StoreEventAsync(InMemoryEventStorageRecord e, CancellationToken _)
     {
-        var q = _subscribers.GetOrAdd(e.SubscriberID, new EventQueue());
+        var q = _subscribers.GetOrAdd(e.SubscriberID, new InMemEventQueue());
 
         if (!q.IsStale)
             q.Records.Enqueue(e);
@@ -26,7 +26,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 
     public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(PendingRecordSearchParams<InMemoryEventStorageRecord> p)
     {
-        var q = _subscribers.GetOrAdd(p.SubscriberID, new EventQueue());
+        var q = _subscribers.GetOrAdd(p.SubscriberID, new InMemEventQueue());
 
         q.Records.TryDequeue(out var e);
         q.LastDequeAt = DateTime.UtcNow;

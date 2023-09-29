@@ -252,8 +252,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           }
         ],
         "responses": {
@@ -365,8 +364,7 @@
             "required": true,
             "schema": {
               "type": "boolean"
-            },
-            "example": false
+            }
           },
           {
             "name": "int",
@@ -376,8 +374,7 @@
               "type": "integer",
               "format": "int32",
               "nullable": true
-            },
-            "example": 0
+            }
           },
           {
             "name": "long",
@@ -386,8 +383,7 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            },
-            "example": 0
+            }
           },
           {
             "name": "double",
@@ -396,8 +392,7 @@
             "schema": {
               "type": "number",
               "format": "double"
-            },
-            "example": 0.0
+            }
           },
           {
             "name": "decimal",
@@ -406,8 +401,7 @@
             "schema": {
               "type": "number",
               "format": "decimal"
-            },
-            "example": 0.0
+            }
           },
           {
             "name": "Person",
@@ -749,8 +743,7 @@
             "required": true,
             "schema": {
               "type": "boolean"
-            },
-            "example": false
+            }
           },
           {
             "name": "Int",
@@ -768,8 +761,7 @@
             "schema": {
               "type": "integer",
               "format": "int64"
-            },
-            "example": 0
+            }
           },
           {
             "name": "Double",
@@ -778,8 +770,7 @@
             "schema": {
               "type": "number",
               "format": "double"
-            },
-            "example": 0.0
+            }
           },
           {
             "name": "Enum",
@@ -787,8 +778,7 @@
             "required": true,
             "schema": {
               "$ref": "#/components/schemas/SystemDayOfWeek"
-            },
-            "example": 0
+            }
           },
           {
             "name": "Person",
@@ -855,8 +845,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           }
         ],
         "responses": {
@@ -938,8 +927,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           }
         ],
         "responses": {
@@ -983,8 +971,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           }
         ],
         "requestBody": {
@@ -1455,8 +1442,7 @@
               "additionalProperties": {
                 "type": "string"
               }
-            },
-            "example": {}
+            }
           }
         ],
         "responses": {
@@ -1517,8 +1503,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           }
         ],
         "requestBody": {
@@ -1572,8 +1557,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           },
           {
             "name": "CustomerID",
@@ -1582,8 +1566,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           }
         ],
         "requestBody": {
@@ -1840,8 +1823,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           }
         ],
         "responses": {
@@ -2604,8 +2586,7 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            },
-            "example": 0
+            }
           },
           {
             "name": "tenant-id",

@@ -207,7 +207,7 @@ public static class Extensions
     private static readonly NullabilityInfoContext nullCtx = new();
     internal static bool IsNullable(this PropertyInfo p) => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
 
-    internal static string? GetExample(this PropertyInfo p)
+    internal static string? GetXmlExample(this PropertyInfo p)
     {
         var example = p.GetXmlDocsTag("example");
         return string.IsNullOrEmpty(example) ? null : example;

@@ -519,11 +519,11 @@ internal sealed class OperationProcessor : IOperationProcessor
 
         if (ctx.Settings.GenerateExamples)
         {
-            prm.Example = prop?.GetExample();
+            prm.Example = prop?.GetXmlExample();
             if (prm.Example is null && prm.Default is null && prm.Schema.Default is null && prm.IsRequired)
             {
                 var jToken = prm.ActualSchema.ToSampleJson();
-                prm.Example = string.IsNullOrEmpty(jToken.ToString()) ? null : jToken;
+                prm.Example = jToken.HasValues ? jToken : null;
             }
         }
 

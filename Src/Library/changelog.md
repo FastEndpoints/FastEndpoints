@@ -90,7 +90,7 @@ This was not working if the assembly name didn't have a dot (.) in the namespace
 
 </details>
 
-<details><summary>Empty swagger parameter example generation issue</summary>
+<details><summary>Empty swagger parameter example generation</summary>
 
 The swagger operation processor was creating an example field with an empty string when there's no example provided by the user like the following:
 
@@ -99,6 +99,20 @@ The swagger operation processor was creating an example field with an empty stri
     {
     ...
     "example": ""
+    }
+```
+
+</details>
+
+<details><summary>Swagger parameter example generation with default values</summary>
+
+The swagger operation processor was creating an example field with the default value when there's no example or `DefaultValue` provided by the user like the following:
+
+```json
+"parameters": [
+    {
+    ...
+    "example": 0
     }
 ```
 

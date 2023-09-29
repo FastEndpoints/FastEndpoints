@@ -35,8 +35,8 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
     internal static HubMode Mode = HubMode.EventPublisher;
 
     //key: subscriber id
-    //val: semaphorslim for waiting on record availability
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _subscribers = new();
+    //val: subscriber object
+    private static readonly ConcurrentDictionary<string, Subscriber> _subscribers = new();
     //key: type of the event
     //val: the id of the subscriber that last received this type of event
     private static readonly ConcurrentDictionary<Type, string> _lastReceivedBy = new();
@@ -70,7 +70,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             Thread.Sleep(100);
 
         foreach (var subID in t.Result)
-            _subscribers[subID] = new(0);
+            _subscribers[subID] = new();
     }
 
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent, TStorageRecord, TStorageProvider>> ctx)
@@ -107,7 +107,8 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
     {
         _logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
-        var sem = _subscribers.GetOrAdd(subscriberID, new SemaphoreSlim(0));
+        var subscriber = _subscribers.GetOrAdd(subscriberID, new Subscriber());
+        subscriber.IsConnected = true;
         var retrievalErrorCount = 0;
         var updateErrorCount = 0;
         IEnumerable<TStorageRecord> records;
@@ -156,13 +157,10 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                                 //ignore and discard event if queue is full
                             }
                         }
+
                         if (_isRoundRobinEvent)
-                        {
-                            //remove this subscriber when it disconnects.
-                            //incase it never re-connects, the event will be sitting doing nothing waiting forever for the subscriber to come back.
-                            _subscribers.Remove(subscriberID, out var smp);
-                            smp?.Dispose();
-                        }
+                            subscriber.IsConnected = false;
+
                         return; //stream is most likely broken/cancelled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
 
@@ -188,45 +186,35 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             else
             {
                 //wait until either the semaphore is released or a minute has elapsed
-                await Task.WhenAny(sem.WaitAsync(ctx.CancellationToken), Task.Delay(60000));
+                await Task.WhenAny(subscriber.Sem.WaitAsync(ctx.CancellationToken), Task.Delay(60000));
             }
         }
 
+        //mark subscriber as disconnected if the while loop is exited.
+        //which means the subscriber either cancelled or stream got broken.
         if (_isRoundRobinEvent)
-        {
-            //remove the subscriber if the while loop is exited.
-            //which means the subscriber either cancelled or stream got broken.
-            _subscribers.Remove(subscriberID, out var smp);
-            smp?.Dispose();
-        }
+            subscriber.IsConnected = false;
     }
 
     private static IEnumerable<string> GetReceiveCandidates()
     {
         if (_isRoundRobinEvent)
         {
-            if (_subscribers.IsEmpty)
-                return Enumerable.Empty<string>();
+            var connectedSubIds = _subscribers
+                .Where(kv => kv.Value.IsConnected)
+                .Select(kv => kv.Key)
+                .ToArray(); //take a snapshot of currently connected subscriber ids
+
+            if (connectedSubIds.Length <= 1)
+                return connectedSubIds;
 
             _lastReceivedBy.TryGetValue(_tEvent, out var lastSubId);
 
-            if (lastSubId is null)
-            {
-                var subIds = _subscribers.Keys.Take(1);
-                _lastReceivedBy[_tEvent] = subIds.First();
-                return subIds;
-            }
+            var qualified = connectedSubIds.SkipWhile(s => s == lastSubId).Take(1);
 
-            if (_subscribers.Keys.Count == 1 && _subscribers.ContainsKey(lastSubId))
-            {
-                return _subscribers.Keys;
-            }
-            else
-            {
-                var subIds = _subscribers.Keys.SkipWhile(subId => subId == lastSubId).Take(1);
-                _lastReceivedBy[_tEvent] = subIds.First();
-                return subIds;
-            }
+            _lastReceivedBy[_tEvent] = qualified.Single();
+
+            return qualified;
         }
         return _subscribers.Keys;
     }
@@ -263,14 +251,14 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
                 try
                 {
                     await _storage!.StoreEventAsync(record, ct);
-                    _subscribers[subId].Release();
+                    _subscribers[subId].Sem.Release();
                     createErrorCount = 0;
                     break;
                 }
                 catch (OverflowException)
                 {
-                    _subscribers.Remove(subId, out var sem);
-                    sem?.Dispose();
+                    _subscribers.Remove(subId, out var sub);
+                    sub?.Sem?.Dispose();
                     _errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
                     _logger.QueueOverflowWarning(subId, _tEvent.FullName!);
                     break;
@@ -293,5 +281,16 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
     {
         _ = AddToSubscriberQueues(evnt, ctx.CancellationToken);
         return Task.FromResult(EmptyObject.Instance);
+    }
+
+    class Subscriber
+    {
+        public SemaphoreSlim Sem { get; init; } //semaphorslim for waiting on record availability
+        public bool IsConnected { get; set; }
+
+        public Subscriber()
+        {
+            Sem = new SemaphoreSlim(0);
+        }
     }
 }

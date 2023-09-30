@@ -9,11 +9,11 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <!-- <details><summary>title text</summary></details> -->
 
-## New 🎉
+# New 🎉
 
 <details><summary>Source generated DI registrations</summary>
 
-Todo: update doc page and link from here.
+Please see the [documentation](https://fast-endpoints.com/docs/dependency-injection#source-generated-service-registrations) for details of this feature.
 
 </details>
 
@@ -35,9 +35,7 @@ Please see [this usage example](https://gist.github.com/dj-nitehawk/c32e7f887389
 
 <details><summary>Round-Robin Event delivery with gRPC</summary>
 
-It is now possible to deliver an event to only just one of the connected remote subscribers in a round-robin fashion. Comes in handy when you need to distribute the workload among a pool of subscribers/workers and ensure that a single event is only processed by a single remote subscriber. See the [documentation]() for more info.
-
-TODO: update link to doc page.
+It is now possible to deliver an event to only just one of the connected remote subscribers in a round-robin fashion. Comes in handy when you need to distribute the workload among a pool of subscribers/workers and ensure that a single event is only processed by a single remote subscriber. See the [documentation](https://fast-endpoints.com/docs/remote-procedure-calls#round-robin-mode) for more info.
 
 </details>
 
@@ -48,7 +46,7 @@ Ref: https://github.com/FastEndpoints/FastEndpoints/issues/480
 
 </details>
 
-## Improvements 🚀
+# Improvements 🚀
 
 <details><summary>Ability to get rid of null-forgiving operator '!' from test code</summary>
 
@@ -70,7 +68,7 @@ Authorization policy building is moved to the `MapFastEndpoints` stage avoiding 
 
 </details>
 
-## Fixes 🪲
+# Fixes 🪲
 
 <details><summary>Startup issue due to 'IAuthorizationService' injection</summary>
 
@@ -128,6 +126,6 @@ Due to the startup optimization mentioned above, you will now be greeted with th
 Unhandled exception. System.InvalidOperationException: Unable to find the required services. Please add all the required services by calling 'IServiceCollection.AddAuthorization' in the application startup code.
 ```
 
-It's because the `AddFastEndpoints()` call used to do the `AddAuthorization()` call internally which it no longer does. Simply add this call yourself to the middleware pipeline.
+It's because `AddFastEndpoints()` used to do the `AddAuthorization()` call internally which it no longer does. Simply add this call yourself to the middleware pipeline.
 
 </details>

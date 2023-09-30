@@ -37,13 +37,12 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
     //key: subscriber id
     //val: subscriber object
     private static readonly ConcurrentDictionary<string, Subscriber> _subscribers = new();
-    //key: type of the event
-    //val: the id of the subscriber that last received this type of event
-    private static readonly ConcurrentDictionary<Type, string> _lastReceivedBy = new();
     private static readonly Type _tEvent = typeof(TEvent);
     private static bool _isRoundRobinMode;
     private static TStorageProvider? _storage;
+    private static readonly object _lock = new();
 
+    private string? _lastReceivedBy;
     private readonly bool _isInMemoryProvider;
     private readonly EventHubExceptionReceiver? _errors;
     private readonly ILogger _logger;
@@ -197,7 +196,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             subscriber.IsConnected = false;
     }
 
-    private static IEnumerable<string> GetReceiveCandidates()
+    private IEnumerable<string> GetReceiveCandidates()
     {
         if (_isRoundRobinMode)
         {
@@ -209,11 +208,13 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             if (connectedSubIds.Length <= 1)
                 return connectedSubIds;
 
-            _lastReceivedBy.TryGetValue(_tEvent, out var lastSubId);
+            IEnumerable<string> qualified;
 
-            var qualified = connectedSubIds.SkipWhile(s => s == lastSubId).Take(1);
-
-            _lastReceivedBy[_tEvent] = qualified.Single();
+            lock (_lock)
+            {
+                qualified = connectedSubIds.SkipWhile(s => s == _lastReceivedBy).Take(1);
+                _lastReceivedBy = qualified.Single();
+            }
 
             return qualified;
         }

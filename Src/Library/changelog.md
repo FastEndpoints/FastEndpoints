@@ -9,7 +9,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <!-- <details><summary>title text</summary></details> -->
 
-# New 🎉
+## New 🎉
 
 <details><summary>Source generated DI registrations</summary>
 
@@ -19,7 +19,7 @@ Please see the [documentation](https://fast-endpoints.com/docs/dependency-inject
 
 <details><summary>Source generated access control lists</summary>
 
-Todo: update doc page and link from here.
+Please see the [documentation](https://fast-endpoints.com/docs/security#source-generated-access-control-lists) for details of this feature.
 
 </details>
 
@@ -39,14 +39,7 @@ It is now possible to deliver an event to only just one of the connected remote 
 
 </details>
 
-<details><summary>Allow customizing serialization/deserialization of Event/Command objects in Job/Event Queue storage</summary>
-
-Todo: update doc page and link from here.
-Ref: https://github.com/FastEndpoints/FastEndpoints/issues/480
-
-</details>
-
-# Improvements 🚀
+## Improvements 🚀
 
 <details><summary>Ability to get rid of null-forgiving operator '!' from test code</summary>
 
@@ -68,7 +61,7 @@ Authorization policy building is moved to the `MapFastEndpoints` stage avoiding 
 
 </details>
 
-# Fixes 🪲
+## Fixes 🪲
 
 <details><summary>Startup issue due to 'IAuthorizationService' injection</summary>
 
@@ -116,7 +109,13 @@ The swagger operation processor was creating an example field with the default v
 
 </details>
 
-## Minor Breaking Changes ⚠️
+<details><summary>Allow customizing serialization/deserialization of Event/Command objects in Job/Event Queue storage</summary>
+
+See [code example](https://gist.github.com/dj-nitehawk/02420788fb0a72c4be4752be8bd4c40b?permalink_comment_id=4710007#gistcomment-4710007) and related issue: #480
+
+</details>
+
+## Minor Breaking Change ⚠️
 
 <details><summary>'AddFastEndpoints()' no longer calls 'AddAuthorization()'</summary>
 

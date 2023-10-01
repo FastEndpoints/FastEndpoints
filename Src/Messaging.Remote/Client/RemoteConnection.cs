@@ -107,10 +107,9 @@ public sealed class RemoteConnection
 
     internal Task PublishEvent(IEvent evnt, Type tEvent, CallOptions opts)
     {
-        if (!_executorMap.TryGetValue(tEvent, out var publisher))
-            throw new InvalidOperationException($"No remote handler has been mapped for the event: [{tEvent.FullName}]");
-
-        return ((IEventPublisher)publisher).PublishEvent(evnt, opts);
+        return !_executorMap.TryGetValue(tEvent, out var publisher)
+            ? throw new InvalidOperationException($"No remote handler has been mapped for the event: [{tEvent.FullName}]")
+            : ((IEventPublisher)publisher).PublishEvent(evnt, opts);
     }
 
     /// <summary>
@@ -127,10 +126,9 @@ public sealed class RemoteConnection
 
     internal Task ExecuteVoid(ICommand cmd, Type tCommand, CallOptions opts)
     {
-        if (!_executorMap.TryGetValue(tCommand, out var executor))
-            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
-
-        return ((IVoidCommandExecutor)executor).ExecuteVoid(cmd, opts);
+        return !_executorMap.TryGetValue(tCommand, out var executor)
+            ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+            : ((IVoidCommandExecutor)executor).ExecuteVoid(cmd, opts);
     }
 
     /// <summary>
@@ -148,10 +146,9 @@ public sealed class RemoteConnection
 
     internal Task<TResult> ExecuteUnary<TResult>(ICommand<TResult> cmd, Type tCommand, CallOptions opts) where TResult : class
     {
-        if (!_executorMap.TryGetValue(tCommand, out var executor))
-            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
-
-        return ((IUnaryCommandExecutor<TResult>)executor).ExecuteUnary(cmd, opts);
+        return !_executorMap.TryGetValue(tCommand, out var executor)
+            ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+            : ((IUnaryCommandExecutor<TResult>)executor).ExecuteUnary(cmd, opts);
     }
 
     /// <summary>
@@ -169,10 +166,9 @@ public sealed class RemoteConnection
 
     internal IAsyncStreamReader<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts) where TResult : class
     {
-        if (!_executorMap.TryGetValue(tCommand, out var executor))
-            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
-
-        return ((IServerStreamCommandExecutor<TResult>)executor).ExecuteServerStream(cmd, opts);
+        return !_executorMap.TryGetValue(tCommand, out var executor)
+            ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+            : ((IServerStreamCommandExecutor<TResult>)executor).ExecuteServerStream(cmd, opts);
     }
 
     /// <summary>
@@ -190,9 +186,8 @@ public sealed class RemoteConnection
 
     internal Task<TResult> ExecuteClientStream<T, TResult>(IAsyncEnumerable<T> cmd, Type tCommand, CallOptions opts) where T : class where TResult : class
     {
-        if (!_executorMap.TryGetValue(tCommand, out var executor))
-            throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
-
-        return ((IClientStreamCommandExecutor<T, TResult>)executor).ExecuteClientStream(cmd, opts);
+        return !_executorMap.TryGetValue(tCommand, out var executor)
+            ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+            : ((IClientStreamCommandExecutor<T, TResult>)executor).ExecuteClientStream(cmd, opts);
     }
 }

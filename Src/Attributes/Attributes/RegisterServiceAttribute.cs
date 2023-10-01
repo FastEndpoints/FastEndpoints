@@ -22,7 +22,6 @@ public sealed class RegisterServiceAttribute<TService> : Attribute where TServic
     {
         _lifetime = serviceLifetime;
     }
-
 }
 
 /// <summary>

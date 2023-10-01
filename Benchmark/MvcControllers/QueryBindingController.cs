@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MvcControllers;
 
-
 public class QueryRequest
 {
     public int Id { get; set; }

@@ -37,19 +37,14 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         {
             _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
 
-            if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
+            return
+                ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
                 type.IsAbstract ||
-                type.GetAttributes().Any(a => a.AttributeClass!.Name == _dontRegisterAttribute ||
-                type.AllInterfaces.Length == 0))
-            {
-                return null;
-            }
-
-            if (type.AllInterfaces.Any(i => _whiteList.Contains(i.ToDisplayString())))
-            {
-                return type.ToDisplayString();
-            }
-            return null;
+                type.GetAttributes().Any(a => a.AttributeClass!.Name == _dontRegisterAttribute || type.AllInterfaces.Length == 0)
+                    ? null
+                    : type.AllInterfaces.Any(i => _whiteList.Contains(i.ToDisplayString()))
+                        ? type.ToDisplayString()
+                        : null;
         }
     }
 

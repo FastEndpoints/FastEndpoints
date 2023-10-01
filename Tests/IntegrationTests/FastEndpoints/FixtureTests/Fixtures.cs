@@ -23,7 +23,7 @@ public class FixtureB : TestFixture<Web.Program>
 {
     public FixtureB(IMessageSink s) : base(s) { }
 
-    private static string _id = Guid.NewGuid().ToString("N");
+    private static readonly string _id = Guid.NewGuid().ToString("N");
 
     protected override void ConfigureServices(IServiceCollection s)
     {

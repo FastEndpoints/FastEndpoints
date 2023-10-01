@@ -30,12 +30,10 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         static bool Match(SyntaxNode node, CancellationToken _)
         {
-            if (node is not InvocationExpressionSyntax inv || inv.ArgumentList.Arguments.Count == 0)
-                return false;
-
-            return
-                inv.Expression is IdentifierNameSyntax idn &&
-                idn.Identifier.ValueText == "AccessControl";
+            return node is InvocationExpressionSyntax inv &&
+                   inv.ArgumentList.Arguments.Count != 0 &&
+                   inv.Expression is IdentifierNameSyntax idn &&
+                   idn.Identifier.ValueText == "AccessControl";
         }
 
         static Permission? Transform(GeneratorSyntaxContext ctx, CancellationToken _)

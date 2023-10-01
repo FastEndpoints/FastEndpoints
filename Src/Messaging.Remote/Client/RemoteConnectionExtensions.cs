@@ -32,6 +32,7 @@ public static class RemoteConnectionExtensions
     /// event subscriptions can be specified using <see cref="RemoteConnection.Subscribe{TEvent, TEventHandler}(CallOptions)"/> method.
     /// </para>
     /// </summary>
+    /// <param name="host"></param>
     /// <param name="remoteAddress">the address of the remote server</param>
     /// <param name="r">a configuration action for the connection</param>
     public static IHost MapRemote(this IHost host, string remoteAddress, Action<RemoteConnection> r)
@@ -45,6 +46,7 @@ public static class RemoteConnectionExtensions
     /// <summary>
     /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker"/>
     /// </summary>
+    /// <param name="event"></param>
     /// <param name="options">call options</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
     public static Task RemotePublishAsync(this IEvent @event, CallOptions options = default)
@@ -60,6 +62,7 @@ public static class RemoteConnectionExtensions
     /// <summary>
     /// execute the command on the relevant remote server
     /// </summary>
+    /// <param name="command"></param>
     /// <param name="options">call options</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
     public static Task RemoteExecuteAsync(this ICommand command, CallOptions options = default)
@@ -76,6 +79,7 @@ public static class RemoteConnectionExtensions
     /// execute the command on the relevant remote server and get back a result
     /// </summary>
     /// <typeparam name="TResult">the type of the result</typeparam>
+    /// <param name="command"></param>
     /// <param name="options">call options</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
     public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, CallOptions options = default) where TResult : class
@@ -92,6 +96,7 @@ public static class RemoteConnectionExtensions
     /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult"/>
     /// </summary>
     /// <typeparam name="TResult">the type of the result stream</typeparam>
+    /// <param name="command"></param>
     /// <param name="options">call options</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
     public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CallOptions options = default) where TResult : class

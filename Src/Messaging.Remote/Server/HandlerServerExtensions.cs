@@ -18,6 +18,7 @@ public static class HandlerServerExtensions
     /// IMPORTANT: specify which handlers/hubs this server will be hosting via <see cref="MapHandlers{TStorageRecord, TStorageProvider}(IEndpointRouteBuilder, Action{HandlerOptions{TStorageRecord, TStorageProvider}})"/> method.
     /// </para>
     /// </summary>
+    /// <param name="bld"></param>
     /// <param name="o">optional grpc service settings</param>
     public static IGrpcServerBuilder AddHandlerServer(this WebApplicationBuilder bld, Action<GrpcServiceOptions>? o = null)
         => AddHandlerServer(bld.Services, o);
@@ -28,6 +29,7 @@ public static class HandlerServerExtensions
     /// IMPORTANT: specify which handlers this server will be hosting via <see cref="MapHandlers{TStorageRecord, TStorageProvider}(IEndpointRouteBuilder, Action{HandlerOptions{TStorageRecord, TStorageProvider}})"/> method.
     /// </para>
     /// </summary>
+    /// <param name="sc"></param>
     /// <param name="o">optional grpc service settings</param>
     public static IGrpcServerBuilder AddHandlerServer(this IServiceCollection sc, Action<GrpcServiceOptions>? o = null)
     {
@@ -44,6 +46,7 @@ public static class HandlerServerExtensions
     /// <summary>
     /// specify which handlers/event hubs this server will be hosting. the in-memory storage provider will be used.
     /// </summary>
+    /// <param name="b"></param>
     /// <param name="h">handler options</param>
     public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerOptions<InMemoryEventStorageRecord, InMemoryEventHubStorage>> h)
     {
@@ -56,6 +59,7 @@ public static class HandlerServerExtensions
     /// </summary>
     /// <typeparam name="TStorageRecord">the type of the event storage record</typeparam>
     /// <typeparam name="TStorageProvider">the type of the event storage provider</typeparam>
+    /// <param name="b"></param>
     /// <param name="h">handler options</param>
     public static IEndpointRouteBuilder MapHandlers<TStorageRecord, TStorageProvider>(this IEndpointRouteBuilder b, Action<HandlerOptions<TStorageRecord, TStorageProvider>> h)
         where TStorageRecord : IEventStorageRecord, new()

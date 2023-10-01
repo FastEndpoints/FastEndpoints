@@ -25,10 +25,9 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
         static bool Match(SyntaxNode node, CancellationToken _)
         {
-            if (node is not ClassDeclarationSyntax cds || cds.TypeParameterList is not null)
-                return false;
-
             return
+                node is ClassDeclarationSyntax cds &&
+                cds.TypeParameterList is null &&
                 cds.AttributeLists.Any(
                     al => al.Attributes.Any(
                         a => a.Name is GenericNameSyntax { Identifier.ValueText: _attribShortName }));

@@ -38,11 +38,6 @@ public class Endpoint : Endpoint<Request, int>
         var id_prop = Svc.GetId();
         var id_ctor = _id;
 
-        if (id_resolve == id_prop && id_prop == id_ctor)
-        {
-            return Task.FromResult(id_prop);
-        }
-
-        return Task.FromResult(0);
+        return id_resolve == id_prop && id_prop == id_ctor ? Task.FromResult(id_prop) : Task.FromResult(0);
     }
 }

@@ -21,10 +21,10 @@ internal abstract class JobQueueBase
     {
         var tCommand = command.GetType();
 
-        if (!_allQueues.TryGetValue(tCommand, out var queue))
-            throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]");
-
-        return queue.StoreJobAsync(command, executeAfter, expireOn, ct);
+        return
+            !_allQueues.TryGetValue(tCommand, out var queue)
+                ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
+                : queue.StoreJobAsync(command, executeAfter, expireOn, ct);
     }
 }
 

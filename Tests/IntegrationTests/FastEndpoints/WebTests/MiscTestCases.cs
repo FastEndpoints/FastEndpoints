@@ -1048,4 +1048,12 @@ public class MiscTestCases : TestClass<Fixture>
 
         res.Should().Equal("Scoped", "Transient", "Singleton");
     }
+
+    [Fact]
+    public async Task STJ_Infinite_Recursion()
+    {
+        var (rsp, _) = await fx.GuestClient.GETAsync<TestCases.STJInfiniteRecursionTest.Endpoint, TestCases.STJInfiniteRecursionTest.Response>();
+        rsp.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        (await rsp.Content.ReadAsStringAsync()).Should().Contain("A possible object cycle was detected.");
+    }
 }

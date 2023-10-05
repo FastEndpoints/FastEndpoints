@@ -45,6 +45,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     internal override async Task ExecAsync(CancellationToken ct)
     {
         TRequest req = default!;
+        bool ranPreProcessors = false;
 
         try
         {
@@ -94,6 +95,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         }
         catch (JsonException x) when (Conf.BndOpts.JsonExceptionTransformer is not null)
         {
+            if (ResponseStarted) //STJ already started response. it should be a showstopper at this point.
+                throw;
+
             ValidationFailures.Add(Conf.BndOpts.JsonExceptionTransformer(x));
             await ValidationFailed(x);
         }
@@ -108,7 +112,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
         async Task ValidationFailed(Exception x, int? statusCode = null)
         {
-            await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
+            if (!ranPreProcessors) //avoid running pre-procs twice
+                await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
 
             OnValidationFailed();
             await OnValidationFailedAsync(ct);

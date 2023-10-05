@@ -316,6 +316,26 @@
         }
       }
     },
+    "/api/testcases/stj-infinite-recursion": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesSTJInfiniteRecursionTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSTJInfiniteRecursionTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/service-reg-gen-test": {
       "get": {
         "tags": [
@@ -3873,6 +3893,24 @@
           "Id": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "TestCasesSTJInfiniteRecursionTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Res": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestCasesSTJInfiniteRecursionTestResponse"
+              }
+            ]
           }
         }
       },

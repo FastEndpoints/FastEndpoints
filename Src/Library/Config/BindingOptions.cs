@@ -29,7 +29,7 @@ public sealed class BindingOptions
     /// <see cref="ValidationFailure"/> when STJ throws an exception due to invalid json input.
     /// <para>NOTE: this only applies to STJ based operations. for customizing error messages of non-STJ binding failures, specify a <see cref="FailureMessage"/> func.</para>
     /// </summary>
-    public Func<JsonException, ValidationFailure>? JsonExceptionTransformer { internal get; set; } = (exception)
+    public Func<JsonException, ValidationFailure>? JsonExceptionTransformer { internal get; set; } = exception
         => new ValidationFailure(
             propertyName: exception.Path != "$" ? exception.Path?[2..] : Conf.SerOpts.SerializerErrorsField,
             errorMessage: exception.InnerException?.Message ?? exception.Message);

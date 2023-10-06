@@ -24,7 +24,7 @@ sealed class ServiceResolver : IServiceResolver
 
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
-        var factory = _factoryCache.GetOrAdd(type, (t) => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes));
+        var factory = _factoryCache.GetOrAdd(type, t => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes));
         return factory(serviceProvider ?? _ctxAccessor?.HttpContext?.RequestServices ?? _rootServiceProvider, null);
     }
 

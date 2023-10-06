@@ -102,7 +102,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
        c.Endpoints.RoutePrefix = "api";
        c.Endpoints.ShortNames = false;
        c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
-       c.Endpoints.Configurator = (ep) =>
+       c.Endpoints.Configurator = ep =>
        {
            ep.PreProcessors(Order.Before, new AdminHeaderChecker());
            if (ep.EndpointTags?.Contains("orders") is true)

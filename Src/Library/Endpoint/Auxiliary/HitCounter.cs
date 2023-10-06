@@ -2,12 +2,12 @@
 
 namespace FastEndpoints;
 
-internal sealed class HitCounter
+sealed class HitCounter
 {
     //key: header value as a unique client identifier
-    private ConcurrentDictionary<string, Counter> clients = new();
-    private readonly double _durationSeconds;
-    private readonly int _limit;
+    ConcurrentDictionary<string, Counter> clients = new();
+    readonly double _durationSeconds;
+    readonly int _limit;
 
     internal string? HeaderName { get; }
 
@@ -26,17 +26,17 @@ internal sealed class HitCounter
             ).LimitReached();
     }
 
-    private class Counter : IDisposable
+    class Counter : IDisposable
     {
-        private readonly string _self;
-        private readonly ConcurrentDictionary<string, Counter> _parent;
-        private Timer? _timer;
-        private long _expireAtTicks;
-        private readonly double _durationSecs;
-        private readonly int _limit;
-        private int _count;
+        readonly string _self;
+        readonly ConcurrentDictionary<string, Counter> _parent;
+        Timer? _timer;
+        long _expireAtTicks;
+        readonly double _durationSecs;
+        readonly int _limit;
+        int _count;
 
-        private bool Expired => DateTime.UtcNow.Ticks > _expireAtTicks;
+        bool Expired => DateTime.UtcNow.Ticks > _expireAtTicks;
 
         internal Counter(double durationSeconds, string key, int limit, ref ConcurrentDictionary<string, Counter> dictionary)
         {
@@ -48,7 +48,7 @@ internal sealed class HitCounter
             _expireAtTicks = GetNewExpiry();
         }
 
-        private long GetNewExpiry()
+        long GetNewExpiry()
             => DateTime.UtcNow.AddSeconds(_durationSecs).Ticks;
 
         internal bool LimitReached()
@@ -72,7 +72,7 @@ internal sealed class HitCounter
             return false;
         }
 
-        private void RemoveFromParentIfExpired(object? _)
+        void RemoveFromParentIfExpired(object? _)
         {
             //Console.WriteLine($"clean event: {GetHashCode()}");
 
@@ -87,7 +87,7 @@ internal sealed class HitCounter
             //}
         }
 
-        private bool disposedValue;
+        bool disposedValue;
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

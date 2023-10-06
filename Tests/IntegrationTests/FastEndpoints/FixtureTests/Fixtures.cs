@@ -9,7 +9,7 @@ public class FixtureA : TestFixture<Web.Program>
 {
     public FixtureA(IMessageSink s) : base(s) { }
 
-    private static readonly string _id = Guid.NewGuid().ToString("N");
+    static readonly string _id = Guid.NewGuid().ToString("N");
 
     protected override void ConfigureServices(IServiceCollection s)
     {
@@ -23,7 +23,7 @@ public class FixtureB : TestFixture<Web.Program>
 {
     public FixtureB(IMessageSink s) : base(s) { }
 
-    private static readonly string _id = Guid.NewGuid().ToString("N");
+    static readonly string _id = Guid.NewGuid().ToString("N");
 
     protected override void ConfigureServices(IServiceCollection s)
     {

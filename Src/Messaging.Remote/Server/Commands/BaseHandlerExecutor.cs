@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
-internal abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethodBinder<TSelf>
+abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethodBinder<TSelf>
     where TCommand : class
     where THandler : class
     where TResult : class
@@ -52,7 +52,7 @@ internal abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> 
         AddMethodToCtx(ctx, method, metadata);
     }
 
-    private static object[]? HandlerExecMethodAttributes(Type tExecutor)
+    static object[]? HandlerExecMethodAttributes(Type tExecutor)
     {
         var tHandler = tExecutor.GenericTypeArguments[1];
         var execMethod = tHandler.GetMethod(nameof(ICommandHandler<ICommand<object>, object>.ExecuteAsync));

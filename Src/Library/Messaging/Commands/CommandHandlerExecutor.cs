@@ -1,11 +1,11 @@
 ﻿namespace FastEndpoints;
 
-internal abstract class CommandHandlerExecutorBase
+abstract class CommandHandlerExecutorBase
 {
     internal abstract Task Execute(ICommand command, Type handlerType, CancellationToken ct);
 }
 
-internal sealed class CommandHandlerExecutor<TCommand> : CommandHandlerExecutorBase where TCommand : ICommand
+sealed class CommandHandlerExecutor<TCommand> : CommandHandlerExecutorBase where TCommand : ICommand
 {
     internal override Task Execute(ICommand command, Type tCommandHandler, CancellationToken ct)
     {
@@ -14,9 +14,9 @@ internal sealed class CommandHandlerExecutor<TCommand> : CommandHandlerExecutorB
     }
 }
 
-internal sealed class FakeCommandHandlerExecutor<TCommand> : CommandHandlerExecutorBase where TCommand : ICommand
+sealed class FakeCommandHandlerExecutor<TCommand> : CommandHandlerExecutorBase where TCommand : ICommand
 {
-    private readonly ICommandHandler<TCommand> _handler;
+    readonly ICommandHandler<TCommand> _handler;
 
     public FakeCommandHandlerExecutor(ICommandHandler<TCommand> handler)
     {
@@ -29,12 +29,12 @@ internal sealed class FakeCommandHandlerExecutor<TCommand> : CommandHandlerExecu
     }
 }
 
-internal abstract class CommandHandlerExecutorBase<TResult>
+abstract class CommandHandlerExecutorBase<TResult>
 {
     internal abstract Task<TResult> Execute(ICommand<TResult> command, Type handlerType, CancellationToken ct);
 }
 
-internal sealed class CommandHandlerExecutor<TCommand, TResult> : CommandHandlerExecutorBase<TResult> where TCommand : ICommand<TResult>
+sealed class CommandHandlerExecutor<TCommand, TResult> : CommandHandlerExecutorBase<TResult> where TCommand : ICommand<TResult>
 {
     internal override Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
@@ -43,9 +43,9 @@ internal sealed class CommandHandlerExecutor<TCommand, TResult> : CommandHandler
     }
 }
 
-internal sealed class FakeCommandHandlerExecutor<TCommand, TResult> : CommandHandlerExecutorBase<TResult> where TCommand : ICommand<TResult>
+sealed class FakeCommandHandlerExecutor<TCommand, TResult> : CommandHandlerExecutorBase<TResult> where TCommand : ICommand<TResult>
 {
-    private readonly ICommandHandler<TCommand, TResult> _handler;
+    readonly ICommandHandler<TCommand, TResult> _handler;
 
     public FakeCommandHandlerExecutor(ICommandHandler<TCommand, TResult> handler)
     {

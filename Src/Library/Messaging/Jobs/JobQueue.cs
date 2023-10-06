@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-internal abstract class JobQueueBase
+abstract class JobQueueBase
 {
     //key: tCommand
     //val: job queue for the command type
@@ -29,24 +29,24 @@ internal abstract class JobQueueBase
 }
 
 // created by DI as singleton
-internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
+sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     where TCommand : ICommand
     where TStorageRecord : IJobStorageRecord, new()
     where TStorageProvider : IJobStorageProvider<TStorageRecord>
 {
-    private static readonly Type _tCommand = typeof(TCommand);
-    private static readonly string _tCommandName = _tCommand.FullName!;
+    static readonly Type _tCommand = typeof(TCommand);
+    static readonly string _tCommandName = _tCommand.FullName!;
 
     //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
     public static readonly string _queueID = _tCommandName.ToHash();
 
-    private readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
-    private readonly CancellationToken _appCancellation;
-    private readonly TStorageProvider _storage;
-    private readonly SemaphoreSlim _sem = new(0);
-    private readonly ILogger _log;
-    private TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
-    private bool _isInUse;
+    readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
+    readonly CancellationToken _appCancellation;
+    readonly TStorageProvider _storage;
+    readonly SemaphoreSlim _sem = new(0);
+    readonly ILogger _log;
+    TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
+    bool _isInUse;
 
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TStorageRecord, TStorageProvider>> logger)
     {
@@ -80,7 +80,7 @@ internal sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : Job
         _sem.Release();
     }
 
-    private async Task CommandExecutorTask()
+    async Task CommandExecutorTask()
     {
         var records = Enumerable.Empty<TStorageRecord>();
         var batchSize = _parallelOptions.MaxDegreeOfParallelism * 2;

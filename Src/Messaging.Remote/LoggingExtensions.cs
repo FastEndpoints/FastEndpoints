@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints.Messaging.Remote;
 
-internal static partial class LoggingExtensions
+static partial class LoggingExtensions
 {
     [LoggerMessage(1, LogLevel.Information, "Event subscriber registered! [id: {subscriberId}] ({tHandler}<{tEvent}>)")]
     public static partial void SubscriberRegistered(this ILogger l, string subscriberId, string tHandler, string tEvent);

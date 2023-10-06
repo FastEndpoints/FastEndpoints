@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-internal sealed class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
+sealed class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
 {
     public Type? Type { get; set; }
 

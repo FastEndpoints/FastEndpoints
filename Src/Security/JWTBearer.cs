@@ -158,7 +158,7 @@ public static class JWTBearer
         return handler.WriteToken(handler.CreateToken(descriptor));
     }
 
-    private static SigningCredentials GetSigningCredentials(string key, TokenSigningStyle style)
+    static SigningCredentials GetSigningCredentials(string key, TokenSigningStyle style)
     {
         if (style == TokenSigningStyle.Asymmetric)
         {

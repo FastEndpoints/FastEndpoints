@@ -29,7 +29,7 @@ namespace FastEndpoints.Swagger.ValidationProcessor.Extensions;
 /// <summary>
 /// Extensions for some swagger specific work.
 /// </summary>
-internal static class ValidationExtensions
+static class ValidationExtensions
 {
     /// <summary>
     /// Is supported swagger numeric type.

@@ -2,7 +2,7 @@
 
 namespace FastEndpoints.Messaging.Jobs;
 
-internal static partial class LoggingExtensions
+static partial class LoggingExtensions
 {
     [LoggerMessage(1, LogLevel.Error, "Job storage 'get-next-batch' error for [queue-id:{queueID}]({tCommand}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageRetrieveError(this ILogger l, string queueID, string tCommand, string msg);

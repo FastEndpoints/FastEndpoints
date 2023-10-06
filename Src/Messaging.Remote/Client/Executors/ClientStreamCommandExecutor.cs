@@ -3,12 +3,12 @@ using Grpc.Net.Client;
 
 namespace FastEndpoints;
 
-internal interface IClientStreamCommandExecutor<TCommand, TResult> : ICommandExecutor where TCommand : class where TResult : class
+interface IClientStreamCommandExecutor<TCommand, TResult> : ICommandExecutor where TCommand : class where TResult : class
 {
     Task<TResult> ExecuteClientStream(IAsyncEnumerable<TCommand> commands, CallOptions opts);
 }
 
-internal sealed class ClientStreamCommandExecutor<TCommand, TResult> : BaseCommandExecutor<TCommand, TResult>, IClientStreamCommandExecutor<TCommand, TResult>
+sealed class ClientStreamCommandExecutor<TCommand, TResult> : BaseCommandExecutor<TCommand, TResult>, IClientStreamCommandExecutor<TCommand, TResult>
     where TCommand : class
     where TResult : class
 {

@@ -9,7 +9,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     where TRequest : notnull, TokenRequest, new()
     where TResponse : notnull, TokenResponse, new()
 {
-    private RefreshServiceOptions? opts;
+    RefreshServiceOptions? opts;
 
     /// <summary>
     /// WARNING: do not call this method!

@@ -22,7 +22,7 @@
 
 namespace FastEndpoints.Swagger.ValidationProcessor.Extensions;
 
-internal static class StringExtensions
+static class StringExtensions
 {
     /// <summary>
     /// Converts string to lowerCamelCase.
@@ -53,7 +53,7 @@ internal static class StringExtensions
 /// Returns string equality only by symbols ignore case.
 /// It can be used for comparing camelCase, PascalCase, snake_case, kebab-case identifiers.
 /// </summary>
-internal class IgnoreAllStringComparer : StringComparer
+class IgnoreAllStringComparer : StringComparer
 {
     /// <summary>
     /// Instance of StringComparer

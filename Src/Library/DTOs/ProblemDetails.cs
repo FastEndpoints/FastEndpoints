@@ -59,7 +59,7 @@ public sealed class ProblemDetails : IResult
         Initialize(failures, instance, traceId, statusCode);
     }
 
-    private void Initialize(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
+    void Initialize(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
     {
         Status = statusCode;
         Instance = instance;

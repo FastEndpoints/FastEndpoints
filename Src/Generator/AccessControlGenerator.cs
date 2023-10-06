@@ -10,8 +10,8 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class AccessControlGenerator : IIncrementalGenerator
 {
-    private static string? _assemblyName;
-    private static readonly StringBuilder b = new();
+    static string? _assemblyName;
+    static readonly StringBuilder b = new();
 
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
@@ -59,7 +59,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         }
     }
 
-    private static void Generate(SourceProductionContext spc, ImmutableArray<Permission> perms)
+    static void Generate(SourceProductionContext spc, ImmutableArray<Permission> perms)
     {
         if (!perms.Any()) return;
 
@@ -73,7 +73,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    private static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
+    static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
     {
         b.Clear().w(
 @"#nullable enable
@@ -128,7 +128,7 @@ public static partial class Allow
         }
     }
 
-    private static string RenderBase(string? assemblyName)
+    static string RenderBase(string? assemblyName)
     {
         return
 @$"#nullable enable
@@ -242,7 +242,7 @@ public static partial class Allow
 }}";
     }
 
-    private sealed class Permission : IEquatable<Permission>
+    sealed class Permission : IEquatable<Permission>
     {
         public int Hash { get; } //used as Roslyn cache key
         public string Name { get; }
@@ -270,8 +270,9 @@ public static partial class Allow
             }
         }
 
-        private static readonly SHA256 _sha256 = SHA256.Create();
-        private static string GetAclHash(string input)
+        static readonly SHA256 _sha256 = SHA256.Create();
+
+        static string GetAclHash(string input)
         {
             //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.ToAclKey() method also!
             var base64Hash = Convert.ToBase64String(_sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));

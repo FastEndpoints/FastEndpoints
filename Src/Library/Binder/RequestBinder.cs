@@ -18,18 +18,18 @@ namespace FastEndpoints;
 /// <typeparam name="TRequest">the type of the request dto this binder will be dealing with</typeparam>
 public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest : notnull
 {
-    private static readonly Type tRequest = typeof(TRequest);
-    private static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
-    private static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
-    private static PropCache? fromBodyProp;
-    private static PropCache? fromQueryParamsProp;
-    private static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
-    private static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
-    private static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
-    private static readonly List<SecondaryPropCacheEntry> hasPermissionProps = new();
+    static readonly Type tRequest = typeof(TRequest);
+    static readonly bool isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
+    static readonly bool skipModelBinding = tRequest == Types.EmptyRequest && !isPlainTextRequest;
+    static PropCache? fromBodyProp;
+    static PropCache? fromQueryParamsProp;
+    static readonly Dictionary<string, PrimaryPropCacheEntry> primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
+    static readonly List<SecondaryPropCacheEntry> fromClaimProps = new();
+    static readonly List<SecondaryPropCacheEntry> fromHeaderProps = new();
+    static readonly List<SecondaryPropCacheEntry> hasPermissionProps = new();
 
-    private static Func<TRequest> _dtoInitializer;
-    private static Func<TRequest> InitDto => _dtoInitializer ??= CompileDtoInitializer();
+    static Func<TRequest> _dtoInitializer;
+    static Func<TRequest> InitDto => _dtoInitializer ??= CompileDtoInitializer();
 
     static RequestBinder()
     {
@@ -100,13 +100,13 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private readonly bool bindJsonBody;
-    private readonly bool bindFormFields;
-    private readonly bool bindRouteValues;
-    private readonly bool bindQueryParams;
-    private readonly bool bindUserClaims;
-    private readonly bool bindHeaders;
-    private readonly bool bindPermissions;
+    readonly bool bindJsonBody;
+    readonly bool bindFormFields;
+    readonly bool bindRouteValues;
+    readonly bool bindQueryParams;
+    readonly bool bindUserClaims;
+    readonly bool bindHeaders;
+    readonly bool bindPermissions;
 
     /// <summary>
     /// default constructor which enables all binding sources
@@ -166,7 +166,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed!");
     }
 
-    private static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
+    static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
     {
         if (fromBodyProp is null)
             return (TRequest)(await SerOpts.RequestDeserializer(httpRequest, tRequest, serializerCtx, cancellation))! ?? InitDto();
@@ -180,7 +180,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return req;
     }
 
-    private static async ValueTask<TRequest> BindPlainTextBody(Stream body)
+    static async ValueTask<TRequest> BindPlainTextBody(Stream body)
     {
         var req = (IPlainTextRequest)InitDto();
         using var streamReader = new StreamReader(body);
@@ -188,7 +188,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return (TRequest)req;
     }
 
-    private static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures, bool dontAutoBindForm)
+    static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures, bool dontAutoBindForm)
     {
         if (!httpRequest.HasFormContentType || dontAutoBindForm) return;
 
@@ -209,7 +209,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void BindRouteValues(TRequest req, RouteValueDictionary routeValues, List<ValidationFailure> failures)
+    static void BindRouteValues(TRequest req, RouteValueDictionary routeValues, List<ValidationFailure> failures)
     {
         if (routeValues.Count == 0) return;
 
@@ -221,7 +221,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
+    static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
     {
         if (query.Count == 0) return;
 
@@ -246,7 +246,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
+    static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
     {
         for (var i = 0; i < fromClaimProps.Count; i++)
         {
@@ -278,7 +278,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void BindHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
+    static void BindHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
     {
         for (var i = 0; i < fromHeaderProps.Count; i++)
         {
@@ -299,7 +299,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void BindHasPermissionProps(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
+    static void BindHasPermissionProps(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
     {
         for (var i = 0; i < hasPermissionProps.Count; i++)
         {
@@ -322,7 +322,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    private static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures)
+    static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures)
     {
         if (primaryProps.TryGetValue(kvp.Key, out var prop))
         {
@@ -338,7 +338,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             => kvp.Value[0]?.Length == 0 && Nullable.GetUnderlyingType(prop.PropType) != null;
     }
 
-    private static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromClaimProps.Add(new()
         {
@@ -353,7 +353,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if claim is optional, return true so it will also be added as a PropCacheEntry
     }
 
-    private static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromHeaderProps.Add(new()
         {
@@ -367,7 +367,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if header is optional, return true so it will also be added as a PropCacheEntry;
     }
 
-    private static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         hasPermissionProps.Add(new()
         {
@@ -382,7 +382,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false; // don't allow binding from any other sources
     }
 
-    private static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         primaryProps.Add(fieldName ?? propInfo.Name, new()
         {
@@ -392,7 +392,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         });
     }
 
-    private static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromBodyProp = new()
         {
@@ -402,7 +402,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false;
     }
 
-    private static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         fromQueryParamsProp = new()
         {
@@ -412,7 +412,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false;
     }
 
-    private static Func<TRequest> CompileDtoInitializer()
+    static Func<TRequest> CompileDtoInitializer()
     {
         var ctor = tRequest
             .GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)

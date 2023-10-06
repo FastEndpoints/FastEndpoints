@@ -301,7 +301,7 @@ public static class HttpClientExtensions
         return new(rsp, res!);
     }
 
-    private static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
+    static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
         var form = new MultipartFormDataContent();
 

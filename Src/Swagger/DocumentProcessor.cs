@@ -3,11 +3,11 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-internal sealed class DocumentProcessor : IDocumentProcessor
+sealed class DocumentProcessor : IDocumentProcessor
 {
-    private readonly int maxEpVer;
-    private readonly int minEpVer;
-    private readonly bool showDeprecated;
+    readonly int maxEpVer;
+    readonly int minEpVer;
+    readonly bool showDeprecated;
 
     public DocumentProcessor(int minEndpointVersion, int maxEndpointVersion, bool showDeprecatedOps)
     {

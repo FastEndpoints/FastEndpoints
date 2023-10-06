@@ -3,12 +3,12 @@ using Grpc.Net.Client;
 
 namespace FastEndpoints;
 
-internal interface IUnaryCommandExecutor<TResult> : ICommandExecutor where TResult : class
+interface IUnaryCommandExecutor<TResult> : ICommandExecutor where TResult : class
 {
     Task<TResult> ExecuteUnary(ICommand<TResult> command, CallOptions opts);
 }
 
-internal sealed class UnaryCommandExecutor<TCommand, TResult> : BaseCommandExecutor<TCommand, TResult>, IUnaryCommandExecutor<TResult>
+sealed class UnaryCommandExecutor<TCommand, TResult> : BaseCommandExecutor<TCommand, TResult>, IUnaryCommandExecutor<TResult>
     where TCommand : class, ICommand<TResult>
     where TResult : class
 {

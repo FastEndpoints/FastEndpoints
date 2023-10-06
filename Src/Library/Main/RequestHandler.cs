@@ -6,7 +6,7 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-internal static class RequestHandler
+static class RequestHandler
 {
     internal static Task Invoke(HttpContext ctx, IEndpointFactory epFactory)
     {
@@ -53,7 +53,7 @@ internal static class RequestHandler
         return epInstance.ExecAsync(ctx.RequestAborted);
     }
 
-    private static bool PrepAndCheckAcceptsMetaData(HttpContext ctx, EndpointDefinition def, EndpointMetadataCollection epMeta)
+    static bool PrepAndCheckAcceptsMetaData(HttpContext ctx, EndpointDefinition def, EndpointMetadataCollection epMeta)
     {
         if (def.AcceptsMetaDataPresent is null) //only ever iterating the meta collection once on first request
         {

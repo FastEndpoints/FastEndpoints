@@ -3,9 +3,9 @@ using Grpc.Net.Client;
 
 namespace FastEndpoints;
 
-internal interface ICommandExecutor { }
+interface ICommandExecutor { }
 
-internal class BaseCommandExecutor<TCommand, TResult> where TCommand : class where TResult : class
+class BaseCommandExecutor<TCommand, TResult> where TCommand : class where TResult : class
 {
     protected readonly CallInvoker _invoker;
     protected readonly Method<TCommand, TResult> _method;

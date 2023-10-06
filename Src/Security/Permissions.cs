@@ -17,8 +17,9 @@ namespace FastEndpoints.Security;
 /// </summary>
 public abstract class Permissions : IEnumerable<(string PermissionName, string PermissionCode)>
 {
-    private static bool isInitialized;
-    private static IEnumerable<(string PermissionName, string PermissionCode)> permissions
+    static bool isInitialized;
+
+    static IEnumerable<(string PermissionName, string PermissionCode)> permissions
         = Enumerable.Empty<(string PermissionName, string PermissionCode)>();
 
     protected Permissions()

@@ -3,7 +3,7 @@ using Grpc.Core;
 
 namespace FastEndpoints;
 
-internal sealed class VoidHandlerExecutor<TCommand, THandler>
+sealed class VoidHandlerExecutor<TCommand, THandler>
     : BaseHandlerExecutor<TCommand, THandler, EmptyObject, VoidHandlerExecutor<TCommand, THandler>>
         where TCommand : class, ICommand
         where THandler : class, ICommandHandler<TCommand>

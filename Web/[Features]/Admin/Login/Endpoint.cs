@@ -4,7 +4,7 @@ namespace Admin.Login;
 
 public class Endpoint : Endpoint<Request, Response>
 {
-    private readonly IConfiguration _config;
+    readonly IConfiguration _config;
 
     public Endpoint(ILogger<Endpoint> logger, IEmailService emailService, IConfiguration configuration)
     {

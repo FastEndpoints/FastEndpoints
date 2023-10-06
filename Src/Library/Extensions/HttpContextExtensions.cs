@@ -63,7 +63,7 @@ public static class HttpContextExtensions
     }
 }
 
-internal static class CtxKey
+static class CtxKey
 {
     //values are strings to avoid boxing when doing dictionary lookups in HttpContext.Items
     internal const string ResponseStarted = "0";

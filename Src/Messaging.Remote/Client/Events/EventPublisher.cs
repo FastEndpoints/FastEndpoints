@@ -3,12 +3,12 @@ using Grpc.Net.Client;
 
 namespace FastEndpoints;
 
-internal interface IEventPublisher : ICommandExecutor
+interface IEventPublisher : ICommandExecutor
 {
     Task PublishEvent(IEvent evnt, CallOptions opts);
 }
 
-internal sealed class EventPublisher<TEvent> : BaseCommandExecutor<TEvent, EmptyObject>, IEventPublisher
+sealed class EventPublisher<TEvent> : BaseCommandExecutor<TEvent, EmptyObject>, IEventPublisher
     where TEvent : class, IEvent
 {
     public EventPublisher(GrpcChannel channel)

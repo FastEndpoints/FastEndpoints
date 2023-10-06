@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-internal static class ReflectionExtensions
+static class ReflectionExtensions
 {
     internal static IEnumerable<string> PropNames<T>(this Expression<Func<T, object>> expression)
     {

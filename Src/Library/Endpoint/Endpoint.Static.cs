@@ -6,7 +6,7 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
-    private static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def,
+    static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def,
                                                               HttpContext ctx,
                                                               List<ValidationFailure> failures,
                                                               CancellationToken ct)
@@ -25,7 +25,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return req;
     }
 
-    private static async Task RunPostProcessors(List<object> postProcessors,
+    static async Task RunPostProcessors(List<object> postProcessors,
                                                 TRequest req,
                                                 TResponse resp,
                                                 HttpContext ctx,
@@ -46,7 +46,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static async Task RunPreprocessors(List<object> preProcessors,
+    static async Task RunPreprocessors(List<object> preProcessors,
                                                TRequest req,
                                                HttpContext ctx,
                                                List<ValidationFailure> validationFailures,
@@ -66,7 +66,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         }
     }
 
-    private static Task RunResponseInterceptor(IResponseInterceptor interceptor,
+    static Task RunResponseInterceptor(IResponseInterceptor interceptor,
                                                object resp,
                                                int statusCode,
                                                HttpContext ctx,
@@ -76,7 +76,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         return interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
     }
 
-    private static Task AutoSendResponse(HttpContext ctx,
+    static Task AutoSendResponse(HttpContext ctx,
                                          TResponse responseDto,
                                          JsonSerializerContext? jsonSerializerContext,
                                          CancellationToken cancellation)
@@ -86,7 +86,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
     }
 
-    private static void AddProcessors(object[] processors, List<object> target)
+    static void AddProcessors(object[] processors, List<object> target)
     {
         for (var i = 0; i < processors.Length; i++)
         {

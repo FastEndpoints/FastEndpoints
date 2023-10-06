@@ -8,8 +8,8 @@ namespace FastEndpoints;
 /// </summary>
 public static class JobQueueExtensions
 {
-    private static Type tStorageRecord;
-    private static Type tStorageProvider;
+    static Type tStorageRecord;
+    static Type tStorageProvider;
 
     /// <summary>
     /// add job queue functionality

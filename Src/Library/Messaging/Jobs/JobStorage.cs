@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints;
 
-internal static class JobStorage<TStorageRecord, TStorageProvider>
+static class JobStorage<TStorageRecord, TStorageProvider>
     where TStorageRecord : IJobStorageRecord, new()
     where TStorageProvider : IJobStorageProvider<TStorageRecord>
 {
@@ -12,7 +12,7 @@ internal static class JobStorage<TStorageRecord, TStorageProvider>
         _ = StaleJobPurgingTask();
     }
 
-    private static async Task StaleJobPurgingTask()
+    static async Task StaleJobPurgingTask()
     {
         while (true)
         {

@@ -2,9 +2,9 @@
 
 namespace FastEndpoints;
 
-internal class ServiceMethodProvider<TExecutor> : IServiceMethodProvider<TExecutor> where TExecutor : class, IMethodBinder<TExecutor>
+class ServiceMethodProvider<TExecutor> : IServiceMethodProvider<TExecutor> where TExecutor : class, IMethodBinder<TExecutor>
 {
-    private readonly TExecutor executor;
+    readonly TExecutor executor;
 
     public ServiceMethodProvider(TExecutor executor)
     {

@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints;
 
-internal static class MiscExtensions
+static class MiscExtensions
 {
     internal static Dictionary<TKey, List<TValue>> GroupToDictionary<TItem, TKey, TValue>
         (this List<TItem> items,

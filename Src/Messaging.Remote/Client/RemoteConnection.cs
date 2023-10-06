@@ -19,9 +19,9 @@ public sealed class RemoteConnection
 
     //key: tCommand
     //val: command executor
-    private readonly Dictionary<Type, ICommandExecutor> _executorMap = new();
-    private GrpcChannel? _channel;
-    private readonly IServiceProvider _serviceProvider;
+    readonly Dictionary<Type, ICommandExecutor> _executorMap = new();
+    GrpcChannel? _channel;
+    readonly IServiceProvider _serviceProvider;
 
     /// <summary>
     /// grpc channel settings

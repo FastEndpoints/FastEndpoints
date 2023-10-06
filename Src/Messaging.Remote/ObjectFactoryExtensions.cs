@@ -2,7 +2,7 @@
 
 namespace FastEndpoints.Messaging.Remote;
 
-internal static class ObjectFactoryExtensions
+static class ObjectFactoryExtensions
 {
     internal static THandler GetEventHandlerOrCreateInstance<TEvent, THandler>(this ObjectFactory factory, IServiceProvider provider)
         where TEvent : IEvent

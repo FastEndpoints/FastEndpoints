@@ -2,7 +2,7 @@
 
 namespace FastEndpoints.Swagger.ValidationProcessor.Extensions;
 
-internal static class ReflectionExtension
+static class ReflectionExtension
 {
     internal static bool IsSubClassOfGeneric(this Type? child, Type parent)
     {
@@ -52,10 +52,10 @@ internal static class ReflectionExtension
         return false;
     }
 
-    private static Type GetFullTypeDefinition(Type type)
+    static Type GetFullTypeDefinition(Type type)
         => type.IsGenericType ? type.GetGenericTypeDefinition() : type;
 
-    private static bool VerifyGenericArguments(Type parent, Type child)
+    static bool VerifyGenericArguments(Type parent, Type child)
     {
         var childArguments = child.GetGenericArguments();
         var parentArguments = parent.GetGenericArguments();

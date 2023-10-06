@@ -5,7 +5,7 @@ using System.Reflection;
 namespace FastEndpoints;
 
 //lives as a singleton in each DI container instance
-internal sealed class EndpointData
+sealed class EndpointData
 {
     internal Stopwatch Stopwatch { get; } = new();
 
@@ -20,7 +20,7 @@ internal sealed class EndpointData
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
     }
 
-    private static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
+    static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
     {
         if (options.DisableAutoDiscovery && options.Assemblies?.Any() is false)
             throw new InvalidOperationException("If 'DisableAutoDiscovery' is true, a collection of `Assemblies` must be provided!");
@@ -222,7 +222,7 @@ internal sealed class EndpointData
         }).ToArray();
     }
 
-    private class ValDicItem
+    class ValDicItem
     {
         public Type ValidatorType;
         public bool HasDuplicates;

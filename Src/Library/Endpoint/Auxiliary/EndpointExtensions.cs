@@ -7,7 +7,7 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-internal static class EndpointExtensions
+static class EndpointExtensions
 {
     internal static string ActualTypeName(this Type type)
         => (Nullable.GetUnderlyingType(type) ?? type).Name;
@@ -74,7 +74,7 @@ internal static class EndpointExtensions
         def.IsInitialized = true;
     }
 
-    private static readonly Regex rgx = new("(@[\\w]*)", RegexOptions.Compiled);
+    static readonly Regex rgx = new("(@[\\w]*)", RegexOptions.Compiled);
     internal static string BuildRoute<TRequest>(this Expression<Func<TRequest, object>> expr, string pattern) where TRequest : notnull
     {
         var sb = new StringBuilder(pattern);

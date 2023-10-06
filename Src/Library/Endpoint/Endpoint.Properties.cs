@@ -10,12 +10,12 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
-    private Http? _httpMethod;
-    private string _baseURL;
-    private ILogger _logger;
-    private IWebHostEnvironment _env;
-    private TResponse _response;
-    private IConfiguration? _config;
+    Http? _httpMethod;
+    string _baseURL;
+    ILogger _logger;
+    IWebHostEnvironment _env;
+    TResponse _response;
+    IConfiguration? _config;
 
     /// <summary>
     /// the current user principal
@@ -79,9 +79,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         set => HttpContext.MarkResponseStart();
     }
 
-    private static readonly JsonObject emptyObject = new();
-    private static readonly JsonArray emptyArray = new();
-    private TResponse InitResponseDTO()
+    static readonly JsonObject emptyObject = new();
+    static readonly JsonArray emptyArray = new();
+
+    TResponse InitResponseDTO()
     {
         if (isStringResponse) //otherwise strings are detected as IEnumerable of chars
             return default!;

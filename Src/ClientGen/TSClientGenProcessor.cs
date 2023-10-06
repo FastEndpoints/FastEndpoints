@@ -5,12 +5,12 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.ClientGen;
 
-internal sealed class TSClientGenProcessor : IDocumentProcessor
+sealed class TSClientGenProcessor : IDocumentProcessor
 {
-    private readonly string destination;
-    private readonly ClientGeneratorOutputType outputType;
+    readonly string destination;
+    readonly ClientGeneratorOutputType outputType;
 
-    private readonly TypeScriptClientGeneratorSettings settings = new()
+    readonly TypeScriptClientGeneratorSettings settings = new()
     {
         ClassName = "ApiClient",
         TypeScriptGeneratorSettings = { Namespace = "FastEndpoints" }

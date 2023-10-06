@@ -21,8 +21,8 @@ public static class EventExtensions
 
     //key: tEvent
     //val: the PublishAsync compiled expression - Event<TEvent>.PublishAsync(...)
-    private static readonly ConcurrentDictionary<Type, Func<IEvent, Mode, CancellationToken, Task>> publishFuncCache = new();
-    private static EventBus<T> CreateEventInstance<T>() where T : IEvent => Conf.ServiceResolver.Resolve<EventBus<T>>();
+    static readonly ConcurrentDictionary<Type, Func<IEvent, Mode, CancellationToken, Task>> publishFuncCache = new();
+    static EventBus<T> CreateEventInstance<T>() where T : IEvent => Conf.ServiceResolver.Resolve<EventBus<T>>();
 
     /// <summary>
     /// publish the event to all subscribers registered to handle this type of event.

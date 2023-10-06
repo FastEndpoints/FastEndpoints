@@ -146,12 +146,12 @@ public class EventQueueTests
         writer.Responses[0].EventID.Should().Be(321);
     }
 
-    private class TestEvent : IEvent
+    class TestEvent : IEvent
     {
         public int EventID { get; set; }
     }
 
-    private class TestServerStreamWriter<T> : IServerStreamWriter<T>
+    class TestServerStreamWriter<T> : IServerStreamWriter<T>
     {
         public WriteOptions? WriteOptions { get; set; }
         public List<T> Responses { get; } = new List<T>();

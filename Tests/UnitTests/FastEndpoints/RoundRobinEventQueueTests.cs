@@ -154,22 +154,22 @@ public class RoundRobinEventQueueTests
         writer.Responses[2].EventID.Should().Be(333);
     }
 
-    private class RRTestEventOnlyOne : IEvent
+    class RRTestEventOnlyOne : IEvent
     {
         public int EventID { get; set; }
     }
 
-    private class RRTestEventMulti : IEvent
+    class RRTestEventMulti : IEvent
     {
         public int EventID { get; set; }
     }
 
-    private class RRTestEventOneConnected : IEvent
+    class RRTestEventOneConnected : IEvent
     {
         public int EventID { get; set; }
     }
 
-    private class TestServerStreamWriter<T> : IServerStreamWriter<T>
+    class TestServerStreamWriter<T> : IServerStreamWriter<T>
     {
         public WriteOptions? WriteOptions { get; set; }
         public List<T> Responses { get; } = new List<T>();

@@ -12,7 +12,7 @@
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public sealed class RegisterServiceAttribute<TService> : Attribute where TService : class
 {
-    private readonly LifeTime _lifetime;
+    readonly LifeTime _lifetime;
 
     /// <summary>
     /// mark a class for registration in DI using the 'FastEndpoints.Generator' package by specifying the service lifetime.

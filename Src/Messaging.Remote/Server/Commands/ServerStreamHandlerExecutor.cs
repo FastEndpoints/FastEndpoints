@@ -3,7 +3,7 @@ using Grpc.Core;
 
 namespace FastEndpoints;
 
-internal sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
+sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
     : BaseHandlerExecutor<TCommand, THandler, TResult, ServerStreamHandlerExecutor<TCommand, THandler, TResult>>
         where TCommand : class, IServerStreamCommand<TResult>
         where THandler : class, IServerStreamCommandHandler<TCommand, TResult>

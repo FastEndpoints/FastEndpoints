@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints;
 
-internal static class Constants
+static class Constants
 {
     //must match Microsoft.AspNetCore.Http.ProducesResponseTypeMetadata sealed class
     internal const string ProducesMetadata = "ProducesResponseTypeMetadata";

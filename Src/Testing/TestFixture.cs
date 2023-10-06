@@ -43,7 +43,7 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     /// </summary>
     public HttpClient Client { get; set; }
 
-    private readonly WebApplicationFactory<TProgram> _app;
+    readonly WebApplicationFactory<TProgram> _app;
 
     protected TestFixture(IMessageSink s)
     {

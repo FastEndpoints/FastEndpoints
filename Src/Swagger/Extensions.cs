@@ -204,7 +204,7 @@ public static class Extensions
                     .SelectMany(s => s.Select(s => s)));
     }
 
-    private static readonly NullabilityInfoContext nullCtx = new();
+    static readonly NullabilityInfoContext nullCtx = new();
     internal static bool IsNullable(this PropertyInfo p) => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
 
     internal static string? GetXmlExample(this PropertyInfo p)
@@ -233,7 +233,7 @@ public static class Extensions
             : paramName;
     }
 
-    private static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
+    static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaNameGenerator = new SchemaNameGenerator(opts.ShortSchemaNames);

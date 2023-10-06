@@ -7,7 +7,7 @@ using System.Text;
 
 namespace FastEndpoints;
 
-internal static class Extensions
+static class Extensions
 {
     internal static string ToHash(this string input)
     {

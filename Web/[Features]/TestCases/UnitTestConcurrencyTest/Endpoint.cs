@@ -7,7 +7,7 @@ public class Request
 
 public class SingltonSVC
 {
-    private readonly int _id;
+    readonly int _id;
 
     public SingltonSVC(int id)
         => _id = id;
@@ -17,7 +17,7 @@ public class SingltonSVC
 
 public class Endpoint : Endpoint<Request, int>
 {
-    private readonly int _id;
+    readonly int _id;
 
     public SingltonSVC Svc { get; set; }
 

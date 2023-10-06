@@ -7,7 +7,7 @@ public class JobQueueOptions
 {
     //key: tCommand
     //val: value tuple of concurrency and execution time limit
-    private readonly Dictionary<Type, (int concurrency, TimeSpan timeLimit)> _limitOverrides = new();
+    readonly Dictionary<Type, (int concurrency, TimeSpan timeLimit)> _limitOverrides = new();
 
     /// <summary>
     /// the default max concurrency per job type. default value is the number of logical processors of the computer.

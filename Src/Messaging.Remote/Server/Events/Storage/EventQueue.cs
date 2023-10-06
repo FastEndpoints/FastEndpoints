@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-internal sealed class InMemEventQueue
+sealed class InMemEventQueue
 {
     internal ConcurrentQueue<InMemoryEventStorageRecord> Records { get; set; } = new();
     internal DateTime LastDequeAt { get; set; } = DateTime.UtcNow;

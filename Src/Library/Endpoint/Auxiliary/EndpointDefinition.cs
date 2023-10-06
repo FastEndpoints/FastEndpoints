@@ -57,7 +57,7 @@ public sealed class EndpointDefinition
     internal bool AcceptsAnyContentType;
     internal bool? AcceptsMetaDataPresent;
     internal bool ExecuteAsyncImplemented;
-    private bool? _execReturnsIResults;
+    bool? _execReturnsIResults;
     internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);
     internal bool FoundDuplicateValidators;
     internal HitCounter? HitCounter { get; private set; }
@@ -67,14 +67,14 @@ public sealed class EndpointDefinition
     internal object? RequestBinder;
     internal List<object> PreProcessorList = new();
     internal List<object> PostProcessorList = new();
-    private ServiceBoundEpProp[]? _serviceBoundEpProps;
+    ServiceBoundEpProp[]? _serviceBoundEpProps;
     internal ServiceBoundEpProp[]? ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
 
-    private object? mapper;
+    object? mapper;
     internal object? GetMapper()
     {
         if (mapper is null && MapperType is not null)
@@ -83,7 +83,7 @@ public sealed class EndpointDefinition
         return mapper;
     }
 
-    private object? validator;
+    object? validator;
     internal object? GetValidator()
     {
         if (validator is null && ValidatorType is not null)
@@ -92,7 +92,7 @@ public sealed class EndpointDefinition
         return validator;
     }
 
-    private static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
+    static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
     {
         b.Add(epBuilder =>
         {
@@ -101,7 +101,7 @@ public sealed class EndpointDefinition
         });
     };
 
-    private static void AddProcessor(Order order, object[] processors, List<object> list)
+    static void AddProcessor(Order order, object[] processors, List<object> list)
     {
         var pos = 0;
         for (var i = 0; i < processors.Length; i++)
@@ -407,7 +407,7 @@ public sealed class EndpointDefinition
         ValidatorType = typeof(TValidator);
     }
 
-    private ServiceBoundEpProp[]? GetServiceBoundEpProps()
+    ServiceBoundEpProp[]? GetServiceBoundEpProps()
     {
         return EndpointType
             .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
@@ -436,14 +436,14 @@ public sealed class EpVersion
     }
 }
 
-internal sealed class ServiceBoundEpProp
+sealed class ServiceBoundEpProp
 {
     public string PropName { get; set; }
     public Type PropType { get; set; }
     public Action<object, object>? PropSetter { get; set; }
 }
 
-internal class TypeEqualityComparer : IEqualityComparer<object>
+class TypeEqualityComparer : IEqualityComparer<object>
 {
     internal static readonly TypeEqualityComparer Instance = new();
 

@@ -3,12 +3,12 @@ using Grpc.Net.Client;
 
 namespace FastEndpoints;
 
-internal interface IVoidCommandExecutor : ICommandExecutor
+interface IVoidCommandExecutor : ICommandExecutor
 {
     Task ExecuteVoid(ICommand command, CallOptions opts);
 }
 
-internal sealed class VoidCommandExecutor<TCommand> : BaseCommandExecutor<TCommand, EmptyObject>, IVoidCommandExecutor
+sealed class VoidCommandExecutor<TCommand> : BaseCommandExecutor<TCommand, EmptyObject>, IVoidCommandExecutor
     where TCommand : class, ICommand
 {
     public VoidCommandExecutor(GrpcChannel channel)

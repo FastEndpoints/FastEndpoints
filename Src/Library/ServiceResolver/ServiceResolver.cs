@@ -4,13 +4,13 @@ using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-internal sealed class ServiceResolver : IServiceResolver
+sealed class ServiceResolver : IServiceResolver
 {
-    private readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();
-    private readonly IServiceProvider _rootServiceProvider;
-    private readonly IHttpContextAccessor _ctxAccessor;
+    readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();
+    readonly IServiceProvider _rootServiceProvider;
+    readonly IHttpContextAccessor _ctxAccessor;
 
-    private readonly bool _isUnitTestMode;
+    readonly bool _isUnitTestMode;
 
     public ServiceResolver(IServiceProvider provider, IHttpContextAccessor ctxAccessor, bool isUnitTestMode = false)
     {

@@ -6,26 +6,26 @@ using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
-internal interface IEventSubscriber
+interface IEventSubscriber
 {
     void Start(CallOptions opts);
 }
 
-internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider> : BaseCommandExecutor<string, TEvent>, ICommandExecutor, IEventSubscriber
+sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider> : BaseCommandExecutor<string, TEvent>, ICommandExecutor, IEventSubscriber
     where TEvent : class, IEvent
     where TEventHandler : class, IEventHandler<TEvent>
     where TStorageRecord : IEventStorageRecord, new()
     where TStorageProvider : IEventSubscriberStorageProvider<TStorageRecord>
 {
-    private static TStorageProvider? _storage;
-    private static bool _isInMemProvider;
+    static TStorageProvider? _storage;
+    static bool _isInMemProvider;
 
-    private readonly SemaphoreSlim _sem = new(0);
-    private readonly ObjectFactory _handlerFactory;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly SubscriberExceptionReceiver? _errorReceiver;
-    private readonly ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>? _logger;
-    private readonly string _subscriberID;
+    readonly SemaphoreSlim _sem = new(0);
+    readonly ObjectFactory _handlerFactory;
+    readonly IServiceProvider _serviceProvider;
+    readonly SubscriberExceptionReceiver? _errorReceiver;
+    readonly ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>? _logger;
+    readonly string _subscriberID;
 
     public EventSubscriber(GrpcChannel channel, IServiceProvider serviceProvider)
         : base(channel: channel,
@@ -50,7 +50,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
         _ = EventExecutorTask(_storage!, _sem, opts, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
     }
 
-    private static async Task EventReceiverTask(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
+    static async Task EventReceiverTask(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, CallInvoker invoker, Method<string, TEvent> method, string subscriberID, ILogger? logger, SubscriberExceptionReceiver? errors)
     {
         var call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
         var createErrorCount = 0;
@@ -102,7 +102,7 @@ internal sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TSt
         }
     }
 
-    private static async Task EventExecutorTask(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider serviceProvider, SubscriberExceptionReceiver? errors)
+    static async Task EventExecutorTask(TStorageProvider storage, SemaphoreSlim sem, CallOptions opts, string subscriberID, ILogger? logger, ObjectFactory handlerFactory, IServiceProvider serviceProvider, SubscriberExceptionReceiver? errors)
     {
         var retrievalErrorCount = 0;
         var executionErrorCount = 0;

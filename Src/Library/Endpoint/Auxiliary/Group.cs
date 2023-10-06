@@ -16,7 +16,7 @@ public abstract class Group : IServiceResolverBase
     /// <param name="ep">the configuration action to be performed on the <see cref="EndpointDefinition"/></param>
     protected virtual void Configure(string routePrefix, Action<EndpointDefinition> ep) => Action = RouteModifier(routePrefix) + ep;
 
-    private static Action<EndpointDefinition> RouteModifier(string routePrefix) => e =>
+    static Action<EndpointDefinition> RouteModifier(string routePrefix) => e =>
     {
         if (e.Routes?.Length > 0)
         {

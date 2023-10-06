@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
 
-internal static class Types
+static class Types
 {
     //there's no performance benefit gained from this.
     //it's only there to make code more readable and save a few keystrokes.

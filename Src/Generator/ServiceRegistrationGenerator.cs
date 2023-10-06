@@ -9,10 +9,10 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class ServiceRegistrationGenerator : IIncrementalGenerator
 {
-    private static readonly StringBuilder b = new();
-    private static string? _assemblyName;
-    private const string _attribShortName = "RegisterService";
-    private const string _attribMetadataName = "RegisterServiceAttribute`1";
+    static readonly StringBuilder b = new();
+    static string? _assemblyName;
+    const string _attribShortName = "RegisterService";
+    const string _attribMetadataName = "RegisterServiceAttribute`1";
 
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
@@ -67,7 +67,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         }
     }
 
-    private static void Generate(SourceProductionContext ctx, ImmutableArray<Registration> regs)
+    static void Generate(SourceProductionContext ctx, ImmutableArray<Registration> regs)
     {
         if (!regs.Any())
             return;
@@ -95,7 +95,7 @@ public static class ServiceRegistrationExtensions
         ctx.AddSource("ServiceRegistrations.g.cs", SourceText.From(b.ToString(), Encoding.UTF8));
     }
 
-    private sealed class Registration : IEquatable<Registration>
+    sealed class Registration : IEquatable<Registration>
     {
         public int Hash { get; }
         public string ServiceType { get; }

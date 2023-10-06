@@ -5,13 +5,14 @@ using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
 
-internal static class QueryObjectBindingExtension
+static class QueryObjectBindingExtension
 {
-    private static readonly ConcurrentDictionary<Type, PropertyInfo[]?> propCache = new();
-    private static PropertyInfo[] AllProperties(this Type type)
+    static readonly ConcurrentDictionary<Type, PropertyInfo[]?> propCache = new();
+
+    static PropertyInfo[] AllProperties(this Type type)
         => propCache.GetOrAdd(type, type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy) ?? Array.Empty<PropertyInfo>())!;
 
-    private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool>> queryObjects = new();
+    static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool>> queryObjects = new();
     internal static Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool> QueryObjectSetter(this Type type)
     {
         return queryObjects.GetOrAdd(type, GetQueryObjectSetter(type));
@@ -85,8 +86,9 @@ internal static class QueryObjectBindingExtension
         }
     }
 
-    private static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>> queryArrays = new();
-    private static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool> QueryArraySetter(this Type type)
+    static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>> queryArrays = new();
+
+    static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool> QueryArraySetter(this Type type)
     {
         return queryArrays.GetOrAdd(type, GetQueryArraySetter(type)!);
 

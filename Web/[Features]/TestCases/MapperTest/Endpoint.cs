@@ -2,7 +2,7 @@
 
 public class Endpoint : Endpoint<Request, Response, Mapper>
 {
-    private readonly ILogger _logger;
+    readonly ILogger _logger;
 
     public Endpoint(ILogger<Endpoint> logger)
     {

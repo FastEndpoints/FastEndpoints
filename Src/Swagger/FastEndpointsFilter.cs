@@ -4,7 +4,7 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-internal sealed class FastEndpointsFilter : IOperationProcessor
+sealed class FastEndpointsFilter : IOperationProcessor
 {
     public bool Process(OperationProcessorContext ctx)
     {

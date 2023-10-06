@@ -402,8 +402,8 @@ public static class HttpResponseExtensions
 
 #pragma warning disable CS0649
     //this avoids allocation of a new struct instance on every call
-    private static readonly CancellationToken defaultToken;
-    private static CancellationToken IfDefault(this CancellationToken token, HttpResponse httpResponse)
+    static readonly CancellationToken defaultToken;
+    static CancellationToken IfDefault(this CancellationToken token, HttpResponse httpResponse)
         => token.Equals(defaultToken)
            ? httpResponse.HttpContext.RequestAborted
            : token;

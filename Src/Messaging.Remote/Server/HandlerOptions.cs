@@ -12,8 +12,9 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     where TStorageRecord : IEventStorageRecord, new()
     where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
 {
-    private readonly IEndpointRouteBuilder routeBuilder;
-    private static readonly MethodInfo _mapGrpcMethodInfo
+    readonly IEndpointRouteBuilder routeBuilder;
+
+    static readonly MethodInfo _mapGrpcMethodInfo
         = typeof(GrpcEndpointRouteBuilderExtensions).GetMethod(nameof(GrpcEndpointRouteBuilderExtensions.MapGrpcService))!;
 
     internal HandlerOptions(IEndpointRouteBuilder builder)

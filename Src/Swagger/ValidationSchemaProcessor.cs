@@ -33,12 +33,12 @@ using System.Collections.ObjectModel;
 
 namespace FastEndpoints.Swagger;
 
-internal sealed class ValidationSchemaProcessor : ISchemaProcessor
+sealed class ValidationSchemaProcessor : ISchemaProcessor
 {
-    private static Type[]? validatorTypes;
-    private readonly FluentValidationRule[] _rules;
-    private readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
-    private readonly ILogger<ValidationSchemaProcessor>? _logger;
+    static Type[]? validatorTypes;
+    readonly FluentValidationRule[] _rules;
+    readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
+    readonly ILogger<ValidationSchemaProcessor>? _logger;
 
     public ValidationSchemaProcessor()
     {
@@ -92,7 +92,7 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
         }
     }
 
-    private void ApplyValidator(JsonSchema schema, IValidator validator, string propertyPrefix)
+    void ApplyValidator(JsonSchema schema, IValidator validator, string propertyPrefix)
     {
         // Create dict of rules for this validator
         var rulesDict = validator.GetDictionaryOfRules();
@@ -100,7 +100,7 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
         ApplyRulesFromIncludedValidators(schema, validator);
     }
 
-    private void ApplyRulesToSchema(JsonSchema? schema,
+    void ApplyRulesToSchema(JsonSchema? schema,
                                     ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
                                     string propertyPrefix)
     {
@@ -118,7 +118,7 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
         ApplyRulesToSchema(schema.InheritedSchema, rulesDict, propertyPrefix);
     }
 
-    private void ApplyRulesFromIncludedValidators(JsonSchema schema, IValidator validator)
+    void ApplyRulesFromIncludedValidators(JsonSchema schema, IValidator validator)
     {
         if (validator is not IEnumerable<IValidationRule> rules) return;
 
@@ -149,7 +149,7 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
         }
     }
 
-    private void TryApplyValidation(JsonSchema schema,
+    void TryApplyValidation(JsonSchema schema,
                                     ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
                                     string propertyName,
                                     string parameterPrefix)
@@ -172,7 +172,7 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
             ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.");
     }
 
-    private void ApplyValidationRule(JsonSchema schema, IValidationRule validationRule, string propertyName)
+    void ApplyValidationRule(JsonSchema schema, IValidationRule validationRule, string propertyName)
     {
         foreach (var ruleComponent in validationRule.Components)
         {
@@ -218,7 +218,7 @@ internal sealed class ValidationSchemaProcessor : ISchemaProcessor
         }
     }
 
-    private static FluentValidationRule[] CreateDefaultRules() => new[]
+    static FluentValidationRule[] CreateDefaultRules() => new[]
     {
         new FluentValidationRule("Required")
         {

@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 namespace FastEndpoints;
 
 //NOTE: this is a singleton class
-internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<InMemoryEventStorageRecord>
+sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<InMemoryEventStorageRecord>
 {
     //key: subscriber ID (see EventSubscriber.ctor to see how subscriber id is generated)
     //val: queue of events for the subscriber
-    private readonly ConcurrentDictionary<string, ConcurrentQueue<InMemoryEventStorageRecord>> _subscribers = new();
+    readonly ConcurrentDictionary<string, ConcurrentQueue<InMemoryEventStorageRecord>> _subscribers = new();
 
     public ValueTask StoreEventAsync(InMemoryEventStorageRecord e, CancellationToken _)
     {
@@ -39,6 +39,6 @@ internal sealed class InMemoryEventSubscriberStorage : IEventSubscriberStoragePr
     public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<InMemoryEventStorageRecord> parameters)
         => throw new NotImplementedException();
 
-    private static ConcurrentQueue<InMemoryEventStorageRecord> QueueInitializer()
+    static ConcurrentQueue<InMemoryEventStorageRecord> QueueInitializer()
         => new();
 }

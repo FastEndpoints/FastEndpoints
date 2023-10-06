@@ -13,7 +13,7 @@ public class Job : IJobStorageRecord
 
 public class JobStorage : IJobStorageProvider<Job>
 {
-    private readonly List<Job> jobs = new();
+    readonly List<Job> jobs = new();
 
     public Task StoreJobAsync(Job r, CancellationToken ct)
     {

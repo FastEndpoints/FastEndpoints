@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Generator;
 
-internal static class Extensions
+static class Extensions
 {
     internal static StringBuilder w(this StringBuilder sb, string? val)
     {
@@ -12,6 +12,6 @@ internal static class Extensions
         return sb;
     }
 
-    private static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+    static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
     internal static string Sanitize(this string input, string replacement = "_") => regex.Replace(input, replacement);
 }

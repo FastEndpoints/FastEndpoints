@@ -21,7 +21,7 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object?> where TRe
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object?>, IHasMapper<TMapper> where TRequest : notnull where TMapper : notnull, IRequestMapper
 {
-    private TMapper? _mapper;
+    TMapper? _mapper;
 
     /// <summary>
     /// the entity mapper for the endpoint
@@ -263,7 +263,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper> where TRequest : notnull where TResponse : notnull where TMapper : notnull, IMapper
 {
-    private TMapper? _mapper;
+    TMapper? _mapper;
 
     /// <summary>
     /// the entity mapper for the endpoint
@@ -375,7 +375,7 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWithoutRequest<TResponse>, IHasMapper<TMapper> where TResponse : notnull where TMapper : notnull, IResponseMapper
 {
-    private TMapper? _mapper;
+    TMapper? _mapper;
 
     /// <summary>
     /// the entity mapper for the endpoint

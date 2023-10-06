@@ -11,7 +11,7 @@ namespace FastEndpoints;
 /// </summary>
 public abstract class BaseEndpoint : IEndpoint
 {
-    private List<ValidationFailure> _failures;
+    List<ValidationFailure> _failures;
 
     internal abstract Task ExecAsync(CancellationToken ct);
 
@@ -38,7 +38,7 @@ public abstract class BaseEndpoint : IEndpoint
     //this is here just so the derived endpoint class can seal it.
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
 
-    private static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+    static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
     protected internal static string GetAclHash(string input)
     {
         //NOTE: if modifying this algo, update FastEndpoints.Generator.AccessControlGenerator.Permission.GetAclHash() method also!

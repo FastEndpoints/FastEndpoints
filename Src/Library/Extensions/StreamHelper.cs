@@ -6,7 +6,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace FastEndpoints;
 
-internal static class StreamHelper
+static class StreamHelper
 {
     internal static (RangeItemHeaderValue? range, long rangeLength, bool shouldSendBody)
     ModifyHeaders(HttpContext ctx, string contentType, string? fileName, long? fileLength, bool processRanges, DateTimeOffset? lastModified)
@@ -85,13 +85,13 @@ internal static class StreamHelper
         }
     }
 
-    private static bool IfRangeValid(RequestHeaders reqHeaders, DateTimeOffset? lastModified)
+    static bool IfRangeValid(RequestHeaders reqHeaders, DateTimeOffset? lastModified)
     {
         var ifRange = reqHeaders.IfRange;
         return ifRange?.LastModified.HasValue != true || !lastModified.HasValue || lastModified <= ifRange.LastModified;
     }
 
-    private static Precondition PreconditionState(RequestHeaders httpRequestHeaders, DateTimeOffset? lastModified)
+    static Precondition PreconditionState(RequestHeaders httpRequestHeaders, DateTimeOffset? lastModified)
     {
         const Precondition ifMatchState = Precondition.Unspecified;
         const Precondition ifNoneMatchState = Precondition.Unspecified;
@@ -117,7 +117,7 @@ internal static class StreamHelper
         return MaxPreconditionState(ifMatchState, ifNoneMatchState, ifModifiedSinceState, ifUnmodifiedSinceState);
     }
 
-    private static (RangeItemHeaderValue? range, long rangeLength, bool serveBody)
+    static (RangeItemHeaderValue? range, long rangeLength, bool serveBody)
     SetRangeHeaders(HttpContext ctx, RequestHeaders reqHeaders, long fileLength)
     {
         var rspHeaders = ctx.Response.GetTypedHeaders();
@@ -144,7 +144,7 @@ internal static class StreamHelper
         return (range, rangeLength, sendBody);
     }
 
-    private static long SetContentLength(HttpResponse response, RangeItemHeaderValue range)
+    static long SetContentLength(HttpResponse response, RangeItemHeaderValue range)
     {
         var start = range.From!.Value;
         var end = range.To!.Value;
@@ -153,7 +153,7 @@ internal static class StreamHelper
         return length;
     }
 
-    private static void SetLastModified(HttpResponse response, DateTimeOffset? lastModified)
+    static void SetLastModified(HttpResponse response, DateTimeOffset? lastModified)
     {
         var rspHeaders = response.GetTypedHeaders();
 
@@ -161,7 +161,7 @@ internal static class StreamHelper
             rspHeaders.LastModified = lastModified;
     }
 
-    private static Precondition MaxPreconditionState(params Precondition[] states)
+    static Precondition MaxPreconditionState(params Precondition[] states)
     {
         var max = Precondition.Unspecified;
 
@@ -174,13 +174,13 @@ internal static class StreamHelper
         return max;
     }
 
-    private static DateTimeOffset RoundDownToWholeSeconds(DateTimeOffset dateTimeOffset)
+    static DateTimeOffset RoundDownToWholeSeconds(DateTimeOffset dateTimeOffset)
     {
         var ticksToRemove = dateTimeOffset.Ticks % TimeSpan.TicksPerSecond;
         return dateTimeOffset.Subtract(TimeSpan.FromTicks(ticksToRemove));
     }
 
-    private static class Range
+    static class Range
     {
         public static (bool isRangeRequest, RangeItemHeaderValue? range)
         Parse(HttpContext ctx, RequestHeaders reqHeaders, long length)
@@ -238,7 +238,7 @@ internal static class StreamHelper
         }
     }
 
-    private enum Precondition
+    enum Precondition
     {
         Unspecified,
         NotModified,

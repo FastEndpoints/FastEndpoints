@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
-internal static class ValidationExtensions
+static class ValidationExtensions
 {
     internal static bool ValidationFailed(this List<ValidationFailure> failures)
         => failures.Count > 0;

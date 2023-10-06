@@ -8,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
-internal abstract class EventHubBase
+abstract class EventHubBase
 {
     //key: tEvent
     //val: event hub for the event type
@@ -27,7 +27,7 @@ internal abstract class EventHubBase
     }
 }
 
-internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, IMethodBinder<EventHub<TEvent, TStorageRecord, TStorageProvider>>
+sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, IMethodBinder<EventHub<TEvent, TStorageRecord, TStorageProvider>>
     where TEvent : class, IEvent
     where TStorageRecord : IEventStorageRecord, new()
     where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
@@ -36,16 +36,16 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
 
     //key: subscriber id
     //val: subscriber object
-    private static readonly ConcurrentDictionary<string, Subscriber> _subscribers = new();
-    private static readonly Type _tEvent = typeof(TEvent);
-    private static bool _isRoundRobinMode;
-    private static TStorageProvider? _storage;
-    private static readonly object _lock = new();
+    static readonly ConcurrentDictionary<string, Subscriber> _subscribers = new();
+    static readonly Type _tEvent = typeof(TEvent);
+    static bool _isRoundRobinMode;
+    static TStorageProvider? _storage;
+    static readonly object _lock = new();
 
-    private string? _lastReceivedBy;
-    private readonly bool _isInMemoryProvider;
-    private readonly EventHubExceptionReceiver? _errors;
-    private readonly ILogger _logger;
+    string? _lastReceivedBy;
+    readonly bool _isInMemoryProvider;
+    readonly EventHubExceptionReceiver? _errors;
+    readonly ILogger _logger;
 
     public EventHub(IServiceProvider svcProvider)
     {
@@ -196,7 +196,7 @@ internal sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : Event
             subscriber.IsConnected = false;
     }
 
-    private IEnumerable<string> GetReceiveCandidates()
+    IEnumerable<string> GetReceiveCandidates()
     {
         if (_isRoundRobinMode)
         {

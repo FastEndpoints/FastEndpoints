@@ -7,9 +7,9 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-internal sealed class OperationSecurityProcessor : IOperationProcessor
+sealed class OperationSecurityProcessor : IOperationProcessor
 {
-    private readonly string schemeName;
+    readonly string schemeName;
 
     public OperationSecurityProcessor(string schemeName)
     {
@@ -49,7 +49,7 @@ internal sealed class OperationSecurityProcessor : IOperationProcessor
         return true;
     }
 
-    private static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
+    static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
     {
         return authorizeAttributes
             .Where(a => a.Roles != null)

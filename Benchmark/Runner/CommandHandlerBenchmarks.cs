@@ -7,8 +7,8 @@ namespace Runner;
 [MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, iterationCount: 10, invocationCount: 10000)]
 public class CommandHandlerBenchmarks
 {
-    private static HttpClient NoCommandHandlerClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
-    private static HttpClient WithCommandHandlerClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    static HttpClient NoCommandHandlerClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
+    static HttpClient WithCommandHandlerClient { get; } = new WebApplicationFactory<FEBench.Program>().CreateClient();
 
     [Benchmark(Baseline = true)]
     public Task NoCommandHandler()

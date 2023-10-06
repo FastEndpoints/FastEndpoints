@@ -9,7 +9,7 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-internal static class BinderExtensions
+static class BinderExtensions
 {
     internal static IEnumerable<PropertyInfo> BindableProps(this Type t)
     {
@@ -43,8 +43,8 @@ internal static class BinderExtensions
     }
 
     internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = new();
-    private static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
-    private static readonly ConstructorInfo parseResultCtor = Types.ParseResult.GetConstructor(new[] { Types.Bool, Types.Object })!;
+    static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
+    static readonly ConstructorInfo parseResultCtor = Types.ParseResult.GetConstructor(new[] { Types.Bool, Types.Object })!;
     internal static Func<object?, ParseResult> ValueParser(this Type type)
     {
         //we're only ever compiling a value parser for a given type once.

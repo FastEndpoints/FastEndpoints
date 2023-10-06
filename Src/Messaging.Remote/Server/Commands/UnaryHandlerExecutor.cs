@@ -3,7 +3,7 @@ using Grpc.Core;
 
 namespace FastEndpoints;
 
-internal sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>
+sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>
     : BaseHandlerExecutor<TCommand, THandler, TResult, UnaryHandlerExecutor<TCommand, THandler, TResult>>
         where TCommand : class, ICommand<TResult>
         where THandler : class, ICommandHandler<TCommand, TResult>

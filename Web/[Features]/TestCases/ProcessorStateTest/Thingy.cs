@@ -4,7 +4,7 @@ namespace TestCases.ProcessorStateTest;
 
 public class Thingy
 {
-    private readonly Stopwatch _stopWatch;
+    readonly Stopwatch _stopWatch;
 
     public int Id { get; set; }
     public string? Name { get; set; }

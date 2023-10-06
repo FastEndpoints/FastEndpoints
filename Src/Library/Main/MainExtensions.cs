@@ -222,7 +222,7 @@ public static class MainExtensions
         }
     }
 
-    private static IAuthorizeData[] BuildAuthorizeAttributes(EndpointDefinition ep)
+    static IAuthorizeData[] BuildAuthorizeAttributes(EndpointDefinition ep)
     {
         var policiesToAdd = new List<string>();
 
@@ -246,7 +246,7 @@ public static class MainExtensions
         }).ToArray();
     }
 
-    private static void AddSecurityPolicy(AuthorizationOptions opts, EndpointDefinition ep)
+    static void AddSecurityPolicy(AuthorizationOptions opts, EndpointDefinition ep)
     {
         if (!ep.RequiresAuthorization())
             return;
@@ -299,5 +299,6 @@ public static class MainExtensions
     }
 }
 
-internal sealed class StartupTimer { }
-internal sealed class DuplicateHandlerRegistration { }
+sealed class StartupTimer { }
+
+sealed class DuplicateHandlerRegistration { }

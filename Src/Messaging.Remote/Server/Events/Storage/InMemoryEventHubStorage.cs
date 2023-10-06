@@ -7,7 +7,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 {
     //key: subscriber ID (identifies a unique subscriber/client)
     //val: in memory event storage record queue
-    private readonly ConcurrentDictionary<string, InMemEventQueue> _subscribers = new();
+    readonly ConcurrentDictionary<string, InMemEventQueue> _subscribers = new();
 
     public ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<InMemoryEventStorageRecord> p)
         => ValueTask.FromResult(Enumerable.Empty<string>());

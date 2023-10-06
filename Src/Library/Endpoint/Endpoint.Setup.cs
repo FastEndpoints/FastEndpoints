@@ -13,10 +13,10 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
-    private static readonly Type tRequest = typeof(TRequest);
-    private static readonly Type tResponse = typeof(TResponse);
-    private static readonly bool isStringResponse = tResponse.IsAssignableFrom(Types.String);
-    private static readonly bool isCollectionResponse = tResponse.IsAssignableTo(Types.IEnumerable);
+    static readonly Type tRequest = typeof(TRequest);
+    static readonly Type tResponse = typeof(TResponse);
+    static readonly bool isStringResponse = tResponse.IsAssignableFrom(Types.String);
+    static readonly bool isCollectionResponse = tResponse.IsAssignableTo(Types.IEnumerable);
 
     /// <summary>
     /// if the 'FastEndpoints.Generator' package is used, calling this method will generate a static class called '{assembly-name}.Auth.Allow'
@@ -503,9 +503,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
 }
 
 #if NET7_0_OR_GREATER
-internal static class ProducesMetaForResultOfResponse
+static class ProducesMetaForResultOfResponse
 {
-    private static readonly MethodInfo _populateMethod = typeof(ProducesMetaForResultOfResponse).GetMethod(nameof(Populate), BindingFlags.NonPublic | BindingFlags.Static)!;
+    static readonly MethodInfo _populateMethod = typeof(ProducesMetaForResultOfResponse).GetMethod(nameof(Populate), BindingFlags.NonPublic | BindingFlags.Static)!;
 
     public static void AddMetadata(EndpointBuilder builder, Type tResponse)
     {
@@ -516,7 +516,7 @@ internal static class ProducesMetaForResultOfResponse
         }
     }
 
-    private static void Populate<T>(EndpointBuilder b)
+    static void Populate<T>(EndpointBuilder b)
         where T : IEndpointMetadataProvider
     {
         T.PopulateMetadata(_populateMethod, b);

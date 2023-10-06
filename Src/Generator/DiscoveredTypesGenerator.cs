@@ -9,10 +9,11 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
-    private static string? _assemblyName;
-    private static readonly StringBuilder b = new();
-    private const string _dontRegisterAttribute = "DontRegisterAttribute";
-    private static readonly string[] _whiteList = new[]
+    static string? _assemblyName;
+    static readonly StringBuilder b = new();
+    const string _dontRegisterAttribute = "DontRegisterAttribute";
+
+    static readonly string[] _whiteList = new[]
     {
         "FastEndpoints.IEndpoint",
         "FastEndpoints.IEventHandler",
@@ -48,14 +49,14 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         }
     }
 
-    private static void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
+    static void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
     {
         if (!typeNames.Any()) return;
         var fileContent = RenderClass(typeNames.OrderBy(t => t));
         spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    private static string RenderClass(IEnumerable<string> discoveredTypes)
+    static string RenderClass(IEnumerable<string> discoveredTypes)
     {
         b.Clear().w(
 "namespace ").w(_assemblyName).w(@";

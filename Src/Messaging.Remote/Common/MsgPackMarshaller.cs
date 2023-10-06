@@ -4,15 +4,15 @@ using MessagePack.Resolvers;
 
 namespace FastEndpoints;
 
-internal sealed class MessagePackMarshaller<T> : Marshaller<T> where T : class
+sealed class MessagePackMarshaller<T> : Marshaller<T> where T : class
 {
-    private static readonly MessagePackSerializerOptions options
+    static readonly MessagePackSerializerOptions options
         = MessagePackSerializerOptions
             .Standard
             .WithResolver(ContractlessStandardResolver.Instance)
             .WithCompression(MessagePackCompression.Lz4BlockArray);
 
-    private static readonly Type t = typeof(T);
+    static readonly Type t = typeof(T);
 
     public MessagePackMarshaller() : base(Serialize, Deserialize) { }
 

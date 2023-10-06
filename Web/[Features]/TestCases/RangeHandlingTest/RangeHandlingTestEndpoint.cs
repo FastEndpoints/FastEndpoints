@@ -4,7 +4,7 @@ namespace TestCases.RangeHandlingTest;
 
 public class Endpoint : EndpointWithoutRequest
 {
-    private static readonly byte[] content = Encoding.UTF8.GetBytes("abcdefghijklmnopqwstuvwxyz");
+    static readonly byte[] content = Encoding.UTF8.GetBytes("abcdefghijklmnopqwstuvwxyz");
 
     public override void Configure()
     {

@@ -5,12 +5,12 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.ClientGen;
 
-internal sealed class CSClientGenProcessor : IDocumentProcessor
+sealed class CSClientGenProcessor : IDocumentProcessor
 {
-    private readonly string destination;
-    private readonly ClientGeneratorOutputType outputType;
+    readonly string destination;
+    readonly ClientGeneratorOutputType outputType;
 
-    private readonly CSharpClientGeneratorSettings settings = new()
+    readonly CSharpClientGeneratorSettings settings = new()
     {
         ClassName = "ApiClient",
         CSharpGeneratorSettings = { Namespace = "FastEndpoints" }

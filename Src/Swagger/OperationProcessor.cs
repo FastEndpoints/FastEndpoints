@@ -16,12 +16,13 @@ using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Swagger;
 
-internal sealed class OperationProcessor : IOperationProcessor
+sealed class OperationProcessor : IOperationProcessor
 {
-    private static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
-    private static readonly Regex routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);
-    private static readonly Regex routeConstraintsRegex = new("(?<={)([^?:}]+)[^}]*(?=})", RegexOptions.Compiled);
-    private static readonly Dictionary<string, string> defaultDescriptions = new()
+    static readonly TextInfo textInfo = CultureInfo.InvariantCulture.TextInfo;
+    static readonly Regex routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);
+    static readonly Regex routeConstraintsRegex = new("(?<={)([^?:}]+)[^}]*(?=})", RegexOptions.Compiled);
+
+    static readonly Dictionary<string, string> defaultDescriptions = new()
     {
         { "200", "Success" },
         { "201", "Created" },
@@ -37,7 +38,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         { "500", "Server Error" },
     };
 
-    private readonly DocumentOptions opts;
+    readonly DocumentOptions opts;
 
     public OperationProcessor(DocumentOptions documentOptions)
     {
@@ -417,7 +418,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         return true;
     }
 
-    private static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGETRequest)
+    static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGETRequest)
     {
         var paramName = prop.Name;
 
@@ -444,7 +445,7 @@ internal sealed class OperationProcessor : IOperationProcessor
             prop.IsDefined(Types.QueryParamAttribute);
     }
 
-    private static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content, List<string> propsToRemoveFromExample)
+    static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content, List<string> propsToRemoveFromExample)
     {
         if (content is null) return;
 
@@ -469,7 +470,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         }
     }
 
-    private static string StripRouteConstraints(string relativePath)
+    static string StripRouteConstraints(string relativePath)
     {
         var parts = relativePath.Split('/');
 
@@ -479,7 +480,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         return string.Join("/", parts);
     }
 
-    private static string TagName(string input, TagCase tagCase)
+    static string TagName(string input, TagCase tagCase)
     {
         return tagCase switch
         {
@@ -490,7 +491,7 @@ internal sealed class OperationProcessor : IOperationProcessor
         };
     }
 
-    private static OpenApiParameter CreateParam(OperationProcessorContext ctx,
+    static OpenApiParameter CreateParam(OperationProcessorContext ctx,
                                                 PropertyInfo? prop,
                                                 string? paramName,
                                                 bool? isRequired,

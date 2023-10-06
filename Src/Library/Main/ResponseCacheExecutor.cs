@@ -5,7 +5,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace FastEndpoints;
 
-internal static class ResponseCacheExecutor
+static class ResponseCacheExecutor
 {
     public static void Execute(HttpContext context, ResponseCacheAttribute? attrib)
     {

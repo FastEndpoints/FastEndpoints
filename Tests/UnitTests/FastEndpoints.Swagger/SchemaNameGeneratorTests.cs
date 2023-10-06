@@ -5,8 +5,8 @@ namespace SchemaNameGen;
 
 public class SchemaNameGeneratorTests
 {
-    private static readonly SchemaNameGenerator shortNameGenerator = new(shortSchemaNames: true);
-    private static readonly SchemaNameGenerator longNameGenerator = new(shortSchemaNames: false);
+    static readonly SchemaNameGenerator shortNameGenerator = new(shortSchemaNames: true);
+    static readonly SchemaNameGenerator longNameGenerator = new(shortSchemaNames: false);
 
     [Fact]
     public void ShortNameNonGeneric()

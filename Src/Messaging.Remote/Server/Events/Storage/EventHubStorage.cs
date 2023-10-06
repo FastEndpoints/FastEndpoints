@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints;
 
-internal static class EventHubStorage<TStorageRecord, TStorageProvider>
+static class EventHubStorage<TStorageRecord, TStorageProvider>
     where TStorageRecord : IEventStorageRecord, new()
     where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
 {
@@ -12,7 +12,7 @@ internal static class EventHubStorage<TStorageRecord, TStorageProvider>
         _ = StaleJobPurgingTask();
     }
 
-    private static async Task StaleJobPurgingTask()
+    static async Task StaleJobPurgingTask()
     {
         while (true)
         {

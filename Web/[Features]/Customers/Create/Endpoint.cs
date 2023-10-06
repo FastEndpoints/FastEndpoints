@@ -22,7 +22,7 @@ public class Request
 
 public class Endpoint : Endpoint<Request>
 {
-    private readonly IEmailService? _emailer;
+    readonly IEmailService? _emailer;
 
     public Endpoint(IEmailService emailer)
     {

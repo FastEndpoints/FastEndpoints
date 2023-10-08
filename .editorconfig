@@ -25,7 +25,7 @@ csharp_style_allow_blank_line_after_colon_in_constructor_initializer_experimenta
 csharp_style_allow_blank_lines_between_consecutive_braces_experimental = false:suggestion
 csharp_style_allow_embedded_statements_on_same_line_experimental = true:silent
 csharp_style_expression_bodied_accessors = true:suggestion
-csharp_style_expression_bodied_constructors = false:suggestion
+csharp_style_expression_bodied_constructors = false:error
 csharp_style_expression_bodied_indexers = true:suggestion
 csharp_style_expression_bodied_lambdas = true:suggestion
 csharp_style_expression_bodied_local_functions = true:suggestion
@@ -106,3 +106,5 @@ end_of_line = crlf
 indent_size = 4
 indent_style = space
 tab_width = 4
+resharper_arrange_local_function_body_highlighting = suggestion
+resharper_local_function_body = expression_body

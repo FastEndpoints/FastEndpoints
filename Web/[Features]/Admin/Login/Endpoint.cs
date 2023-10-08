@@ -21,11 +21,11 @@ public class Endpoint : Endpoint<Request, Response>
         Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
         RequestBinder(new RequestBinder<Request>(BindingSource.JsonBody | BindingSource.QueryParams));
         Description(b => b
-            .Accepts<Request>("application/json")
-            .Produces<Response>(200, "application/json")
-            .Produces(400)
-            .Produces(403),
-        clearDefaults: true);
+                .Accepts<Request>("application/json")
+                .Produces<Response>(200, "application/json")
+                .Produces(400)
+                .Produces(403),
+            clearDefaults: true);
         Summary(s =>
         {
             s.Summary = "this is a short summary";
@@ -54,15 +54,19 @@ public class Endpoint : Endpoint<Request, Response>
 
             var userPermissions = Allow.Admin;
 
-            var userClaims = new[] {
-                    (Claim.UserName, r.UserName),
-                    (Claim.UserType, Role.Admin),
-                    (Claim.AdminID, "USR0001"),
-                    ("test-claim","test claim val")};
+            var userClaims = new[]
+            {
+                (Claim.UserName, r.UserName),
+                (Claim.UserType, Role.Admin),
+                (Claim.AdminID, "USR0001"),
+                ("test-claim", "test claim val")
+            };
 
-            var userRoles = new[] {
-                    Role.Admin,
-                    Role.Staff };
+            var userRoles = new[]
+            {
+                Role.Admin,
+                Role.Staff
+            };
 
             var token = JWTBearer.CreateToken(
                 _config["TokenKey"]!,
@@ -82,6 +86,7 @@ public class Endpoint : Endpoint<Request, Response>
         {
             AddError("Authentication Failed!");
         }
+
         return SendErrorsAsync();
     }
 }

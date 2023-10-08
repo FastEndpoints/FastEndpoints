@@ -1,10 +1,11 @@
 [*.cs]
+csharp_indent_braces = false
 csharp_indent_labels = no_change
 csharp_new_line_before_catch = true
 csharp_new_line_before_else = true
 csharp_new_line_before_members_in_anonymous_types = false
 csharp_new_line_before_members_in_object_initializers = false
-csharp_new_line_before_open_brace = object_collection_array_initializers, methods, control_blocks, types, lambdas
+csharp_new_line_before_open_brace = all
 csharp_prefer_braces = false:suggestion
 csharp_prefer_simple_default_expression = true
 csharp_prefer_simple_using_statement = true:suggestion
@@ -47,8 +48,8 @@ csharp_style_var_elsewhere = true
 csharp_style_var_for_built_in_types = true
 csharp_style_var_when_type_is_apparent = true
 csharp_using_directive_placement = outside_namespace
-dotnet_diagnostic.CA2007.severity = silent
-dotnet_diagnostic.RCS1158.severity = silent
+dotnet_diagnostic.ca2007.severity = silent
+dotnet_diagnostic.rcs1158.severity = silent
 dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
 dotnet_naming_rule.interface_should_be_begins_with_i.style = begins_with_i
 dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface

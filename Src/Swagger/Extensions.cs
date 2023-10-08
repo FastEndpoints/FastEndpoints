@@ -42,8 +42,11 @@ public static class Extensions
             generator.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
             doc.NewtonsoftSettings?.Invoke(generator.SerializerSettings);
             EnableFastEndpoints(generator, doc);
-            if (doc.EndpointFilter is not null) generator.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
-            if (doc.ExcludeNonFastEndpoints) generator.OperationProcessors.Insert(0, new FastEndpointsFilter());
+            if (doc.EndpointFilter is not null)
+                generator.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
+            if (doc.ExcludeNonFastEndpoints)
+                generator.OperationProcessors.Insert(0, new FastEndpointsFilter());
+
             if (doc.TagDescriptions is not null)
             {
                 var dict = new Dictionary<string, string>();
@@ -58,13 +61,17 @@ public static class Extensions
                             Description = kvp.Value
                         });
                     }
+
                     return true;
                 });
             }
-            if (doc.EnableJWTBearerAuth) generator.EnableJWTBearerAuth();
+            if (doc.EnableJWTBearerAuth)
+                generator.EnableJWTBearerAuth();
             doc.DocumentSettings?.Invoke(generator);
-            if (doc.RemoveEmptyRequestSchema || doc.FlattenSchema) generator.FlattenInheritanceHierarchy = true;
+            if (doc.RemoveEmptyRequestSchema || doc.FlattenSchema)
+                generator.FlattenInheritanceHierarchy = true;
         });
+
         return services;
     }
 
@@ -80,6 +87,7 @@ public static class Extensions
     {
         app.UseOpenApi(config);
         app.UseSwaggerUi3((c => c.ConfigureDefaults()) + uiConfig);
+
         return app;
     }
 
@@ -126,7 +134,7 @@ public static class Extensions
 
     /// <summary>
     /// the "Try It Out" button is activated by default. call this method to de-activate it by default.
-    /// set <see cref="SwaggerUi3Settings.EnableTryItOut"/> to <c>false</c> to remove the button from ui.
+    /// set <see cref="SwaggerUi3Settings.EnableTryItOut" /> to <c>false</c> to remove the button from ui.
     /// </summary>
     public static void DeActivateTryItOut(this SwaggerUi3Settings s)
         => s.AdditionalSettings.Remove("tryItOutEnabled");
@@ -161,18 +169,18 @@ public static class Extensions
         => x.SchemaProcessors.Add(new MarkNonNullablePropsAsRequired());
 
     /// <summary>
-    /// gets the <see cref="EndpointDefinition"/> from the nwag operation processor context if this is a FastEndpoint operation. otherwise returns null.
+    /// gets the <see cref="EndpointDefinition" /> from the nwag operation processor context if this is a FastEndpoint operation. otherwise returns null.
     /// </summary>
     public static EndpointDefinition? GetEndpointDefinition(this OperationProcessorContext ctx)
         => ((AspNetCoreOperationProcessorContext)ctx)
-            .ApiDescription
-            .ActionDescriptor
-            .EndpointMetadata
-            .OfType<EndpointDefinition>()
-            .SingleOrDefault();
+          .ApiDescription
+          .ActionDescriptor
+          .EndpointMetadata
+          .OfType<EndpointDefinition>()
+          .SingleOrDefault();
 
     /// <summary>
-    /// gets the example object if any, from a given <see cref="ProducesResponseTypeMetadata"/> internal class
+    /// gets the example object if any, from a given <see cref="ProducesResponseTypeMetadata" /> internal class
     /// </summary>
     public static object? GetExampleFromMetaData(this IProducesResponseTypeMetadata metadata)
         => (metadata as ProducesResponseTypeMetadata)?.Example;
@@ -180,6 +188,7 @@ public static class Extensions
     internal static string Remove(this string value, string removeString)
     {
         var index = value.IndexOf(removeString, StringComparison.Ordinal);
+
         return index < 0 ? value : value.Remove(index, removeString.Length);
     }
 
@@ -188,40 +197,46 @@ public static class Extensions
 
     internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllProperties(this KeyValuePair<string, OpenApiMediaType> mediaType)
     {
-        return
-            mediaType.Value.Schema.ActualSchema.ActualProperties.Union(
-                mediaType.Value.Schema.ActualSchema.AllInheritedSchemas
+        return mediaType
+              .Value.Schema.ActualSchema.ActualProperties
+              .Union(mediaType
+                    .Value.Schema.ActualSchema.AllInheritedSchemas
                     .Select(s => s.ActualProperties)
                     .SelectMany(s => s.Select(s => s)));
     }
 
     internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllProperties(this KeyValuePair<string, OpenApiResponse> response)
     {
-        return
-            response.Value.Schema.ActualSchema.ActualProperties.Union(
-                response.Value.Schema.ActualSchema.AllInheritedSchemas
-                    .Select(s => s.ActualProperties)
-                    .SelectMany(s => s.Select(s => s)));
+        return response
+              .Value.Schema.ActualSchema.ActualProperties
+              .Union(response.Value.Schema.ActualSchema.AllInheritedSchemas
+                             .Select(s => s.ActualProperties)
+                             .SelectMany(s => s.Select(s => s)));
     }
 
     static readonly NullabilityInfoContext nullCtx = new();
-    internal static bool IsNullable(this PropertyInfo p) => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
+
+    internal static bool IsNullable(this PropertyInfo p)
+        => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
 
     internal static string? GetXmlExample(this PropertyInfo p)
     {
         var example = p.GetXmlDocsTag("example");
+
         return string.IsNullOrEmpty(example) ? null : example;
     }
 
     internal static string? GetSummary(this Type p)
     {
         var summary = p.GetXmlDocsSummary();
+
         return string.IsNullOrEmpty(summary) ? null : summary;
     }
 
     internal static string? GetDescription(this Type p)
     {
         var remarks = p.GetXmlDocsRemarks();
+
         return string.IsNullOrEmpty(remarks) ? null : remarks;
     }
 
@@ -229,8 +244,8 @@ public static class Extensions
     {
         return
             documentOptions.UsePropertyNamingPolicyForParams && SelectedJsonNamingPolicy is not null
-            ? SelectedJsonNamingPolicy.ConvertName(paramName)
-            : paramName;
+                ? SelectedJsonNamingPolicy.ConvertName(paramName)
+                : paramName;
     }
 
     static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
@@ -264,23 +279,31 @@ public static class Extensions
 
     //todo: remove at next major version
     [Obsolete("Use the SwaggerDocument() method!")]
-    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services, Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null, Action<JsonSerializerOptions>? serializerSettings = null, bool addJWTBearerAuth = true, int tagIndex = 1, TagCase tagCase = TagCase.TitleCase, int minEndpointVersion = 0, int maxEndpointVersion = 0, bool shortSchemaNames = false, bool removeEmptySchemas = false, bool excludeNonFastEndpoints = false)
+    public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
+                                                   Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
+                                                   Action<JsonSerializerOptions>? serializerSettings = null,
+                                                   bool addJWTBearerAuth = true,
+                                                   int tagIndex = 1,
+                                                   TagCase tagCase = TagCase.TitleCase,
+                                                   int minEndpointVersion = 0,
+                                                   int maxEndpointVersion = 0,
+                                                   bool shortSchemaNames = false,
+                                                   bool removeEmptySchemas = false,
+                                                   bool excludeNonFastEndpoints = false)
     {
-        return SwaggerDocument(
-            services: services,
-            options: o =>
-            {
-                o.DocumentSettings = settings;
-                o.SerializerSettings = serializerSettings;
-                o.EnableJWTBearerAuth = addJWTBearerAuth;
-                o.AutoTagPathSegmentIndex = tagIndex;
-                o.TagCase = tagCase;
-                o.MinEndpointVersion = minEndpointVersion;
-                o.MaxEndpointVersion = maxEndpointVersion;
-                o.ShortSchemaNames = shortSchemaNames;
-                o.RemoveEmptyRequestSchema = removeEmptySchemas;
-                o.ExcludeNonFastEndpoints = excludeNonFastEndpoints;
-            });
+        return SwaggerDocument(services, o =>
+        {
+            o.DocumentSettings = settings;
+            o.SerializerSettings = serializerSettings;
+            o.EnableJWTBearerAuth = addJWTBearerAuth;
+            o.AutoTagPathSegmentIndex = tagIndex;
+            o.TagCase = tagCase;
+            o.MinEndpointVersion = minEndpointVersion;
+            o.MaxEndpointVersion = maxEndpointVersion;
+            o.ShortSchemaNames = shortSchemaNames;
+            o.RemoveEmptyRequestSchema = removeEmptySchemas;
+            o.ExcludeNonFastEndpoints = excludeNonFastEndpoints;
+        });
     }
 
     //todo: remove at next major version
@@ -297,6 +320,7 @@ public static class Extensions
                     Description = tagDescription
                 });
             }
+
             return true;
         });
     }

@@ -10,7 +10,9 @@ public class SingltonSVC
     readonly int _id;
 
     public SingltonSVC(int id)
-        => _id = id;
+    {
+        _id = id;
+    }
 
     public int GetId() => _id;
 }

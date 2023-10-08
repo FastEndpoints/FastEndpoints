@@ -18,13 +18,13 @@ public class Endpoint : Endpoint<Request, Response>
         Verbs(Http.POST, Http.PUT, Http.PATCH);
         Routes("admin/login");
         AllowAnonymous();
-        Options(b => b.RequireCors(b => b.AllowAnyOrigin()));
+        Options(b => b.RequireCors(p => p.AllowAnyOrigin()));
         RequestBinder(new RequestBinder<Request>(BindingSource.JsonBody | BindingSource.QueryParams));
-        Description(b => b
-                .Accepts<Request>("application/json")
-                .Produces<Response>(200, "application/json")
-                .Produces(400)
-                .Produces(403),
+        Description(
+            b => b.Accepts<Request>("application/json")
+                  .Produces<Response>(200, "application/json")
+                  .Produces(400)
+                  .Produces(403),
             clearDefaults: true);
         Summary(s =>
         {

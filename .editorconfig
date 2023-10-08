@@ -108,3 +108,4 @@ indent_style = space
 tab_width = 4
 resharper_arrange_local_function_body_highlighting = suggestion
 resharper_local_function_body = expression_body
+resharper_use_heuristics_for_body_style = true

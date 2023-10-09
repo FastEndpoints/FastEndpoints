@@ -107,5 +107,14 @@ indent_size = 4
 indent_style = space
 tab_width = 4
 resharper_arrange_local_function_body_highlighting = suggestion
+resharper_braces_for_dowhile = required_for_multiline
+resharper_braces_for_fixed = required_for_multiline
+resharper_braces_for_for = required_for_multiline
+resharper_braces_for_foreach = required_for_multiline
+resharper_braces_for_ifelse = required_for_multiline
+resharper_braces_for_lock = required_for_multiline
+resharper_braces_for_using = required_for_multiline
+resharper_braces_for_while = required_for_multiline
 resharper_local_function_body = expression_body
 resharper_use_heuristics_for_body_style = true
+

@@ -1,4 +1,3 @@
-
 ---
 
 ## ✨ Looking For Sponsors ✨
@@ -10,7 +9,6 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 <!-- <details><summary>title text</summary></details> -->
 
 <!-- ## New 🎉 -->
-
 
 ## Improvements 🚀
 
@@ -25,4 +23,3 @@ This can happen in rare cases such as when the DTO being serialized has an infin
 
 
 <!-- ## Minor Breaking Change ⚠️ -->
-

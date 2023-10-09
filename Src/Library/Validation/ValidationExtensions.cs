@@ -25,7 +25,11 @@ static class ValidationExtensions
             });
     }
 
-    internal static void AddError<T>(this List<ValidationFailure> failures, Expression<Func<T, object>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
+    internal static void AddError<T>(this List<ValidationFailure> failures,
+                                     Expression<Func<T, object>> property,
+                                     string errorMessage,
+                                     string? errorCode = null,
+                                     Severity severity = Severity.Error)
     {
         failures.AddError(
             new(property.PropertyName(), errorMessage)
@@ -45,6 +49,7 @@ static class ValidationExtensions
     internal static void ThrowError(this List<ValidationFailure> failures, ValidationFailure failure, int? statusCode)
     {
         failures.AddError(failure);
+
         throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called!") { StatusCode = statusCode };
     }
 
@@ -52,13 +57,18 @@ static class ValidationExtensions
     internal static void ThrowError(this List<ValidationFailure> failures, string message, int? statusCode)
     {
         failures.AddError(message);
+
         throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called!") { StatusCode = statusCode };
     }
 
     [DoesNotReturn]
-    internal static void ThrowError<T>(this List<ValidationFailure> failures, Expression<Func<T, object>> property, string errorMessage, int? statusCode)
+    internal static void ThrowError<T>(this List<ValidationFailure> failures,
+                                       Expression<Func<T, object>> property,
+                                       string errorMessage,
+                                       int? statusCode)
     {
         failures.AddError(property, errorMessage);
+
         throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called") { StatusCode = statusCode };
     }
 }

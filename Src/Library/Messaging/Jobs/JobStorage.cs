@@ -20,11 +20,12 @@ static class JobStorage<TStorageRecord, TStorageProvider>
 
             try
             {
-                await Provider.PurgeStaleJobsAsync(new()
-                {
-                    Match = r => r.IsComplete || r.ExpireOn <= DateTime.UtcNow,
-                    CancellationToken = AppCancellation
-                });
+                await Provider.PurgeStaleJobsAsync(
+                    new()
+                    {
+                        Match = r => r.IsComplete || r.ExpireOn <= DateTime.UtcNow,
+                        CancellationToken = AppCancellation
+                    });
             }
             catch { }
         }

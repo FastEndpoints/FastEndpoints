@@ -8,10 +8,7 @@ abstract class CommandHandlerExecutorBase
 sealed class CommandHandlerExecutor<TCommand> : CommandHandlerExecutorBase where TCommand : ICommand
 {
     internal override Task Execute(ICommand command, Type tCommandHandler, CancellationToken ct)
-    {
-        return ((ICommandHandler<TCommand>)Conf.ServiceResolver.CreateInstance(tCommandHandler))
-            .ExecuteAsync((TCommand)command, ct);
-    }
+        => ((ICommandHandler<TCommand>)Conf.ServiceResolver.CreateInstance(tCommandHandler)).ExecuteAsync((TCommand)command, ct);
 }
 
 sealed class FakeCommandHandlerExecutor<TCommand> : CommandHandlerExecutorBase where TCommand : ICommand
@@ -24,9 +21,7 @@ sealed class FakeCommandHandlerExecutor<TCommand> : CommandHandlerExecutorBase w
     }
 
     internal override Task Execute(ICommand command, Type tCommandHandler, CancellationToken ct)
-    {
-        return _handler.ExecuteAsync((TCommand)command, ct);
-    }
+        => _handler.ExecuteAsync((TCommand)command, ct);
 }
 
 abstract class CommandHandlerExecutorBase<TResult>
@@ -37,10 +32,7 @@ abstract class CommandHandlerExecutorBase<TResult>
 sealed class CommandHandlerExecutor<TCommand, TResult> : CommandHandlerExecutorBase<TResult> where TCommand : ICommand<TResult>
 {
     internal override Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
-    {
-        return ((ICommandHandler<TCommand, TResult>)Conf.ServiceResolver.CreateInstance(tCommandHandler))
-            .ExecuteAsync((TCommand)command, ct);
-    }
+        => ((ICommandHandler<TCommand, TResult>)Conf.ServiceResolver.CreateInstance(tCommandHandler)).ExecuteAsync((TCommand)command, ct);
 }
 
 sealed class FakeCommandHandlerExecutor<TCommand, TResult> : CommandHandlerExecutorBase<TResult> where TCommand : ICommand<TResult>
@@ -53,7 +45,5 @@ sealed class FakeCommandHandlerExecutor<TCommand, TResult> : CommandHandlerExecu
     }
 
     internal override Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
-    {
-        return _handler.ExecuteAsync((TCommand)command, ct);
-    }
+        => _handler.ExecuteAsync((TCommand)command, ct);
 }

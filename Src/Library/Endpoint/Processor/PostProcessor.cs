@@ -24,5 +24,10 @@ public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcesso
     /// <param name="ctx">the http context</param>
     /// <param name="failures">the collection of validation errors of the endpoint</param>
     /// <param name="ct">cancellation token</param>
-    public abstract Task PostProcessAsync(TRequest req, TState state, TResponse res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct);
+    public abstract Task PostProcessAsync(TRequest req,
+                                          TState state,
+                                          TResponse res,
+                                          HttpContext ctx,
+                                          IReadOnlyCollection<ValidationFailure> failures,
+                                          CancellationToken ct);
 }

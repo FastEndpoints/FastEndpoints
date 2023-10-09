@@ -12,23 +12,29 @@ public static class RouteHandlerBuilderExtensions
     /// <typeparam name="TResponse">the type of the error response</typeparam>
     /// <param name="statusCode">the status code of the error response</param>
     /// <param name="contentType">content type header value</param>
-    public static RouteHandlerBuilder ProducesProblemFE<TResponse>(this RouteHandlerBuilder hb, int statusCode = 400, string contentType = "application/problem+json")
+    public static RouteHandlerBuilder ProducesProblemFE<TResponse>(this RouteHandlerBuilder hb,
+                                                                   int statusCode = 400,
+                                                                   string contentType = "application/problem+json")
         => hb.Produces<TResponse>(statusCode, contentType);
 
     /// <summary>
-    /// adds produces metadata of type <see cref="ErrorResponse"/> to the endpoint description
+    /// adds produces metadata of type <see cref="ErrorResponse" /> to the endpoint description
     /// </summary>
     /// <param name="statusCode">the status code of the error response</param>
     /// <param name="contentType">content type header value</param>
-    public static RouteHandlerBuilder ProducesProblemFE(this RouteHandlerBuilder hb, int statusCode = 400, string contentType = "application/problem+json")
-         => hb.ProducesProblemFE<ErrorResponse>(statusCode, contentType);
+    public static RouteHandlerBuilder ProducesProblemFE(this RouteHandlerBuilder hb,
+                                                        int statusCode = 400,
+                                                        string contentType = "application/problem+json")
+        => hb.ProducesProblemFE<ErrorResponse>(statusCode, contentType);
 
     /// <summary>
-    /// adds produces metadata of type <see cref="ProblemDetails"/> (RFC7807 compatible) to the endpoint description
+    /// adds produces metadata of type <see cref="ProblemDetails" /> (RFC7807 compatible) to the endpoint description
     /// </summary>
     /// <param name="statusCode">the status code of the error response</param>
     /// <param name="contentType">content type header value</param>
-    public static RouteHandlerBuilder ProducesProblemDetails(this RouteHandlerBuilder hb, int statusCode = 400, string contentType = "application/problem+json")
+    public static RouteHandlerBuilder ProducesProblemDetails(this RouteHandlerBuilder hb,
+                                                             int statusCode = 400,
+                                                             string contentType = "application/problem+json")
         => hb.ProducesProblemFE<ProblemDetails>(statusCode, contentType);
 
     /// <summary>
@@ -36,15 +42,18 @@ public static class RouteHandlerBuilderExtensions
     /// </summary>
     public static RouteHandlerBuilder ClearDefaultAccepts(this RouteHandlerBuilder hb)
     {
-        hb.Add(epBuilder =>
-        {
-            var metaData = epBuilder.Metadata.ToArray(); //need to make a copy since we're modifying the list
-            for (var i = 0; i < metaData.Length; i++)
+        hb.Add(
+            epBuilder =>
             {
-                if (metaData[i] is IAcceptsMetadata)
-                    epBuilder.Metadata.Remove(metaData[i]);
-            }
-        });
+                var metaData = epBuilder.Metadata.ToArray(); //need to make a copy since we're modifying the list
+
+                for (var i = 0; i < metaData.Length; i++)
+                {
+                    if (metaData[i] is IAcceptsMetadata)
+                        epBuilder.Metadata.Remove(metaData[i]);
+                }
+            });
+
         return hb;
     }
 
@@ -55,15 +64,18 @@ public static class RouteHandlerBuilderExtensions
     /// <param name="statusCodes">one or more status codes of the defaults to remove</param>
     public static RouteHandlerBuilder ClearDefaultProduces(this RouteHandlerBuilder hb, params int[] statusCodes)
     {
-        hb.Add(epBuilder =>
-        {
-            var metaData = epBuilder.Metadata.ToArray(); //need to make a copy since we're modifying the list
-            for (var i = 0; i < metaData.Length; i++)
+        hb.Add(
+            epBuilder =>
             {
-                if (metaData[i] is IProducesResponseTypeMetadata meta && (statusCodes.Length == 0 || statusCodes.Contains(meta.StatusCode)))
-                    epBuilder.Metadata.Remove(metaData[i]);
-            }
-        });
+                var metaData = epBuilder.Metadata.ToArray(); //need to make a copy since we're modifying the list
+
+                for (var i = 0; i < metaData.Length; i++)
+                {
+                    if (metaData[i] is IProducesResponseTypeMetadata meta && (statusCodes.Length == 0 || statusCodes.Contains(meta.StatusCode)))
+                        epBuilder.Metadata.Remove(metaData[i]);
+                }
+            });
+
         return hb;
     }
 
@@ -74,6 +86,7 @@ public static class RouteHandlerBuilderExtensions
     public static RouteHandlerBuilder Accepts<TRequest>(this RouteHandlerBuilder hb) where TRequest : notnull
     {
         hb.ClearDefaultAccepts().Accepts<TRequest>("*/*");
+
         return hb;
     }
 }

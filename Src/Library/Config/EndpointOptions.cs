@@ -6,7 +6,8 @@
 public sealed class EndpointOptions
 {
     /// <summary>
-    /// set to true if you'd like the endpoint names/ swagger operation ids to be just the endpoint class names instead of the full names including namespace.
+    /// set to true if you'd like the endpoint names/ swagger operation ids to be just the endpoint class names instead of the full names including
+    /// namespace.
     /// </summary>
     public bool ShortNames { internal get; set; }
 
@@ -29,7 +30,8 @@ public sealed class EndpointOptions
     /// a configuration action to be performed on each endpoint definition during startup.
     /// some of the same methods you use inside `Configure()` method are available to be called on the `EndpointDefinition` parameter.
     /// this can be used to apply a set of common configuration settings globally to all endpoints.
-    /// i.e. apply globally applicable settings here and specify only the settings applicable to individual endpoints from within each endpoints' `Configure()` method.
+    /// i.e. apply globally applicable settings here and specify only the settings applicable to individual endpoints from within each endpoints'
+    /// `Configure()` method.
     /// <code>
     /// app.UseFastEndpoints(c => c.Configurator = ep =>
     /// {

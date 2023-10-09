@@ -7,7 +7,10 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IValidationErrors<TRequest> where TRequest : notnull
 {
-    static async Task ValidateRequest(TRequest req, EndpointDefinition def, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    static async Task ValidateRequest(TRequest req,
+                                      EndpointDefinition def,
+                                      List<ValidationFailure> validationFailures,
+                                      CancellationToken cancellation)
     {
         if (def.ValidatorType is null)
             return;
@@ -21,37 +24,40 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IVal
             throw new ValidationFailureException(validationFailures, "Request validation failed");
     }
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     public bool ValidationFailed => ValidationFailures.ValidationFailed();
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     public void AddError(ValidationFailure failure)
         => ValidationFailures.AddError(failure);
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     public void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
         => ValidationFailures.AddError(message, errorCode, severity);
 
-    ///<inheritdoc/>
-    public void AddError(Expression<Func<TRequest, object>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
+    /// <inheritdoc />
+    public void AddError(Expression<Func<TRequest, object>> property,
+                         string errorMessage,
+                         string? errorCode = null,
+                         Severity severity = Severity.Error)
         => ValidationFailures.AddError(property, errorMessage, errorCode, severity);
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     [DoesNotReturn]
     public void ThrowError(ValidationFailure failure, int? statusCode = null)
         => ValidationFailures.ThrowError(failure, statusCode);
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     [DoesNotReturn]
     public void ThrowError(string message, int? statusCode = null)
         => ValidationFailures.ThrowError(message, statusCode);
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     [DoesNotReturn]
     public void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage, int? statusCode = null)
         => ValidationFailures.ThrowError(property, errorMessage, statusCode);
 
-    ///<inheritdoc/>
-    public void ThrowIfAnyErrors(int? statusCode = null) =>
-        ValidationFailures.ThrowIfAnyErrors(statusCode);
+    /// <inheritdoc />
+    public void ThrowIfAnyErrors(int? statusCode = null)
+        => ValidationFailures.ThrowIfAnyErrors(statusCode);
 }

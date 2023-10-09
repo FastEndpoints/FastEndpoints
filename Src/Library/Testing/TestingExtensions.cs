@@ -16,7 +16,7 @@ public static class TestingExtensions
     public static void RegisterTestEventHandler<TEvent, THandler>(this IServiceCollection s)
         where TEvent : IEvent
         where THandler : class, IEventHandler<TEvent>
-            => s.AddSingleton<IEventHandler<TEvent>, THandler>();//event handlers are always singleton
+        => s.AddSingleton<IEventHandler<TEvent>, THandler>(); //event handlers are always singleton
 
     /// <summary>
     /// register test/fake/mock command handlers for integration testing commands that don't return a result
@@ -28,7 +28,7 @@ public static class TestingExtensions
         where THandler : class, ICommandHandler<TCommand>
     {
         s.TryAddSingleton<TestCommandHandlerMarker>();
-        s.AddSingleton<ICommandHandler<TCommand>, THandler>();//singleton here since only the type is needed at consumption.
+        s.AddSingleton<ICommandHandler<TCommand>, THandler>(); //singleton here since only the type is needed at consumption.
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ public static class TestingExtensions
         where THandler : class, ICommandHandler<TCommand, TResult>
     {
         s.TryAddSingleton<TestCommandHandlerMarker>();
-        s.AddSingleton<ICommandHandler<TCommand, TResult>, THandler>();//singleton here since only the type is needed at consumption.
+        s.AddSingleton<ICommandHandler<TCommand, TResult>, THandler>(); //singleton here since only the type is needed at consumption.
     }
 }
 

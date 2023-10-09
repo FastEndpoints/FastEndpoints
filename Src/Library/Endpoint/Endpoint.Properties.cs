@@ -26,16 +26,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// the response that is sent to the client.
     /// </summary>
     [DontInject]
-    public TResponse Response {
+    public TResponse Response
+    {
         get => _response is null ? InitResponseDTO() : _response;
         set => _response = value;
     }
 
     /// <summary>
-    /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config to <c>.AddFastEndpoints(config: builder.Configuration)</c>
+    /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config
+    /// to <c>.AddFastEndpoints(config: builder.Configuration)</c>
     /// </summary>
     [DontInject]
-    public IConfiguration Config {
+    public IConfiguration Config
+    {
         get => _config ??= Conf.ServiceResolver.Resolve<IConfiguration>();
         internal set => _config = value;
     }
@@ -74,7 +77,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// get or set whether the response has started. you'd only use this if you're writing to the response stream by yourself.
     /// </summary>
     [DontInject]
-    public bool ResponseStarted {
+    public bool ResponseStarted
+    {
         get => HttpContext.ResponseStarted();
         set => HttpContext.MarkResponseStart();
     }
@@ -92,7 +96,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             Conf.SerOpts.Options)!;
 
         return _response is null
-            ? throw new NotSupportedException($"Unable to create an instance of the response DTO. Please create it yourself and assign to the [{nameof(Response)}] property!")
-            : _response;
+                   ? throw new NotSupportedException(
+                         $"Unable to create an instance of the response DTO. Please create it yourself and assign to the [{nameof(Response)}] property!")
+                   : _response;
     }
 }

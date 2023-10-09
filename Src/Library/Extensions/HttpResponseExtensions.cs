@@ -26,13 +26,15 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
+
         return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
     /// <summary>
-    /// execute and send any <see cref="IResult"/> produced by the <see cref="Results"/> class in minimal apis.
+    /// execute and send any <see cref="IResult" /> produced by the <see cref="Results" /> class in minimal apis.
     /// </summary>
-    /// <param name="result">the <see cref="IResult"/> instance to execute such as:
+    /// <param name="result">
+    /// the <see cref="IResult" /> instance to execute such as:
     /// <code>
     /// Results.Forbid();
     /// Results.Ok(...);
@@ -41,13 +43,20 @@ public static class HttpResponseExtensions
     public static Task SendResultAsync(this HttpResponse rsp, IResult result)
     {
         rsp.HttpContext.MarkResponseStart();
+
         return result.ExecuteAsync(rsp.HttpContext);
     }
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
-    /// <para>HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint, specify the 'routeNumber' argument.</para>
-    /// <para>WARNING: this overload will not add a location header if you've set a custom endpoint name using .WithName() method. use the other overload that accepts a string endpoint name instead.</para>
+    /// <para>
+    /// HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint,
+    /// specify the 'routeNumber' argument.
+    /// </para>
+    /// <para>
+    /// WARNING: this overload will not add a location header if you've set a custom endpoint name using .WithName() method. use the other overload
+    /// that accepts a string endpoint name instead.
+    /// </para>
     /// </summary>
     /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
@@ -65,8 +74,7 @@ public static class HttpResponseExtensions
                                                      JsonSerializerContext? jsonSerializerContext = null,
                                                      bool generateAbsoluteUrl = false,
                                                      CancellationToken cancellation = default) where TEndpoint : IEndpoint
-    {
-        return SendCreatedAtAsync(
+        => SendCreatedAtAsync(
             rsp,
             typeof(TEndpoint).EndpointName(verb?.ToString("F"), routeNumber),
             routeValues,
@@ -74,11 +82,13 @@ public static class HttpResponseExtensions
             jsonSerializerContext,
             generateAbsoluteUrl,
             cancellation.IfDefault(rsp));
-    }
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
-    /// <para>WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi route endpoint.</para>
+    /// <para>
+    /// WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi
+    /// route endpoint.
+    /// </para>
     /// </summary>
     /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
@@ -95,18 +105,19 @@ public static class HttpResponseExtensions
                                           CancellationToken cancellation = default)
     {
         var linkGen = Conf.ServiceResolver.TryResolve<LinkGenerator>() ?? //unit tests (won't have the LinkGenerator registered)
-                      rsp.HttpContext.RequestServices?.GetService<LinkGenerator>() ?? //so get it from httpcontext (only applies to unit tests). do not change to Resolve<T>() here
+                      rsp.HttpContext.RequestServices
+                        ?.GetService<LinkGenerator>() ?? //so get it from httpcontext (only applies to unit tests). do not change to Resolve<T>() here
                       throw new InvalidOperationException("LinkGenerator is not registered! Have you done the unit test setup correctly?");
 
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 201;
         rsp.Headers.Location = generateAbsoluteUrl
-                               ? linkGen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
-                               : linkGen.GetPathByName(endpointName, routeValues);
+                                   ? linkGen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
+                                   : linkGen.GetPathByName(endpointName, routeValues);
 
         return responseBody is null
-               ? rsp.StartAsync(cancellation.IfDefault(rsp))
-               : SerOpts.ResponseSerializer(rsp, responseBody, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+                   ? rsp.StartAsync(cancellation.IfDefault(rsp))
+                   : SerOpts.ResponseSerializer(rsp, responseBody, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
     /// <summary>
@@ -125,6 +136,7 @@ public static class HttpResponseExtensions
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
         rsp.ContentType = contentType;
+
         return rsp.WriteAsync(content, cancellation.IfDefault(rsp));
     }
 
@@ -136,6 +148,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -152,6 +165,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
+
         return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
@@ -170,6 +184,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
+
         return SerOpts.ResponseSerializer(
             rsp,
             ErrOpts.ResponseBuilder(failures, rsp.HttpContext, statusCode),
@@ -186,6 +201,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 204;
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -197,6 +213,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 404;
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -208,6 +225,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 401;
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -219,6 +237,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 403;
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -232,6 +251,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.Redirect(location, isPermanant);
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -249,6 +269,7 @@ public static class HttpResponseExtensions
         headers(rsp.Headers);
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -294,8 +315,7 @@ public static class HttpResponseExtensions
                                      DateTimeOffset? lastModified = null,
                                      bool enableRangeProcessing = false,
                                      CancellationToken cancellation = default)
-    {
-        return SendStreamAsync(
+        => SendStreamAsync(
             rsp,
             fileInfo.OpenRead(),
             fileInfo.Name,
@@ -304,7 +324,6 @@ public static class HttpResponseExtensions
             lastModified,
             enableRangeProcessing,
             cancellation.IfDefault(rsp));
-    }
 
     /// <summary>
     /// send the contents of a stream to the client
@@ -325,7 +344,8 @@ public static class HttpResponseExtensions
                                              bool enableRangeProcessing = false,
                                              CancellationToken cancellation = default)
     {
-        if (stream is null) throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
+        if (stream is null)
+            throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
@@ -338,7 +358,12 @@ public static class HttpResponseExtensions
                 fileLength = stream.Length;
 
             var (range, rangeLength, shouldSendBody) = StreamHelper.ModifyHeaders(
-                rsp.HttpContext, contentType, fileName, fileLength, enableRangeProcessing, lastModified);
+                rsp.HttpContext,
+                contentType,
+                fileName,
+                fileLength,
+                enableRangeProcessing,
+                lastModified);
 
             if (!shouldSendBody)
                 return;
@@ -392,6 +417,7 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
+
         return SerOpts.ResponseSerializer(
             rsp,
             new JsonObject(),
@@ -401,11 +427,12 @@ public static class HttpResponseExtensions
     }
 
 #pragma warning disable CS0649
+
     //this avoids allocation of a new struct instance on every call
     static readonly CancellationToken defaultToken;
     static CancellationToken IfDefault(this CancellationToken token, HttpResponse httpResponse)
         => token.Equals(defaultToken)
-           ? httpResponse.HttpContext.RequestAborted
-           : token;
+               ? httpResponse.HttpContext.RequestAborted
+               : token;
 #pragma warning restore CS0649
 }

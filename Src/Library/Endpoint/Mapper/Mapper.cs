@@ -15,43 +15,59 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IMapper, IServiceRe
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto</param>
-    public virtual TEntity ToEntity(TRequest r) => throw new NotImplementedException($"Please override the {nameof(ToEntity)} method!");
+    public virtual TEntity ToEntity(TRequest r)
+        => throw new NotImplementedException($"Please override the {nameof(ToEntity)} method!");
+
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto to map from</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
+    public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default)
+        => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
 
     /// <summary>
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
-    public virtual TResponse FromEntity(TEntity e) => throw new NotImplementedException($"Please override the {nameof(FromEntity)} method!");
+    public virtual TResponse FromEntity(TEntity e)
+        => throw new NotImplementedException($"Please override the {nameof(FromEntity)} method!");
+
     /// <summary>
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task<TResponse> FromEntityAsync(TEntity e, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
+    public virtual Task<TResponse> FromEntityAsync(TEntity e, CancellationToken ct = default)
+        => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
 
     /// <summary>
     /// override this method and place the logic for mapping the updated request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto to update from</param>
     /// <param name="e">the domain entity to update</param>
-    public virtual TEntity UpdateEntity(TRequest r, TEntity e) => throw new NotImplementedException($"Please override the {nameof(UpdateEntity)} method!");
+    public virtual TEntity UpdateEntity(TRequest r, TEntity e)
+        => throw new NotImplementedException($"Please override the {nameof(UpdateEntity)} method!");
 
-    ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
-    ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
-    ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
-    ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
-    ///<inheritdoc/>
-    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
+    /// <inheritdoc />
+    public TService? TryResolve<TService>() where TService : class
+        => Conf.ServiceResolver.TryResolve<TService>();
+
+    /// <inheritdoc />
+    public object? TryResolve(Type typeOfService)
+        => Conf.ServiceResolver.TryResolve(typeOfService);
+
+    /// <inheritdoc />
+    public TService Resolve<TService>() where TService : class
+        => Conf.ServiceResolver.Resolve<TService>();
+
+    /// <inheritdoc />
+    public object Resolve(Type typeOfService)
+        => Conf.ServiceResolver.Resolve(typeOfService);
+
+    /// <inheritdoc />
+    public IServiceScope CreateScope()
+        => Conf.ServiceResolver.CreateScope();
 }
 
 /// <summary>
@@ -66,24 +82,36 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServic
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto</param>
-    public virtual TEntity ToEntity(TRequest r) => throw new NotImplementedException($"Please override the {nameof(ToEntity)} method!");
+    public virtual TEntity ToEntity(TRequest r)
+        => throw new NotImplementedException($"Please override the {nameof(ToEntity)} method!");
+
     /// <summary>
     /// override this method and place the logic for mapping the request dto to the desired domain entity
     /// </summary>
     /// <param name="r">the request dto to map from</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
+    public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default)
+        => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
 
-    ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
-    ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
-    ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
-    ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
-    ///<inheritdoc/>
-    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
+    /// <inheritdoc />
+    public TService? TryResolve<TService>() where TService : class
+        => Conf.ServiceResolver.TryResolve<TService>();
+
+    /// <inheritdoc />
+    public object? TryResolve(Type typeOfService)
+        => Conf.ServiceResolver.TryResolve(typeOfService);
+
+    /// <inheritdoc />
+    public TService Resolve<TService>() where TService : class
+        => Conf.ServiceResolver.Resolve<TService>();
+
+    /// <inheritdoc />
+    public object Resolve(Type typeOfService)
+        => Conf.ServiceResolver.Resolve(typeOfService);
+
+    /// <inheritdoc />
+    public IServiceScope CreateScope()
+        => Conf.ServiceResolver.CreateScope();
 }
 
 /// <summary>
@@ -98,22 +126,34 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper, ISer
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
-    public virtual TResponse FromEntity(TEntity e) => throw new NotImplementedException($"Please override the {nameof(FromEntity)} method!");
+    public virtual TResponse FromEntity(TEntity e)
+        => throw new NotImplementedException($"Please override the {nameof(FromEntity)} method!");
+
     /// <summary>
     /// override this method and place the logic for mapping a domain entity to a response dto
     /// </summary>
     /// <param name="e">the domain entity to map from</param>
     /// <param name="ct">a cancellation token</param>
-    public virtual Task<TResponse> FromEntityAsync(TEntity e, CancellationToken ct = default) => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
+    public virtual Task<TResponse> FromEntityAsync(TEntity e, CancellationToken ct = default)
+        => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
 
-    ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
-    ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
-    ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
-    ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
-    ///<inheritdoc/>
-    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
+    /// <inheritdoc />
+    public TService? TryResolve<TService>() where TService : class
+        => Conf.ServiceResolver.TryResolve<TService>();
+
+    /// <inheritdoc />
+    public object? TryResolve(Type typeOfService)
+        => Conf.ServiceResolver.TryResolve(typeOfService);
+
+    /// <inheritdoc />
+    public TService Resolve<TService>() where TService : class
+        => Conf.ServiceResolver.Resolve<TService>();
+
+    /// <inheritdoc />
+    public object Resolve(Type typeOfService)
+        => Conf.ServiceResolver.Resolve(typeOfService);
+
+    /// <inheritdoc />
+    public IServiceScope CreateScope()
+        => Conf.ServiceResolver.CreateScope();
 }

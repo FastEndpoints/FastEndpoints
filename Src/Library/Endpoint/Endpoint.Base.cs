@@ -15,15 +15,15 @@ public abstract class BaseEndpoint : IEndpoint
 
     internal abstract Task ExecAsync(CancellationToken ct);
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     [DontInject]
     public EndpointDefinition Definition { get; internal set; }
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     [DontInject]
     public HttpContext HttpContext { get; internal set; }
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     public List<ValidationFailure> ValidationFailures => _failures ??= new();
 
     /// <summary>
@@ -31,21 +31,26 @@ public abstract class BaseEndpoint : IEndpoint
     /// <para>HINT: it is only called once during endpoint auto registration during app startup.</para>
     /// </summary>
     [NotImplemented]
-    public virtual void Configure() => throw new NotImplementedException();
+    public virtual void Configure()
+        => throw new NotImplementedException();
 
-    public virtual void Verbs(params string[] methods) => throw new NotImplementedException();
+    public virtual void Verbs(params string[] methods)
+        => throw new NotImplementedException();
 
     //this is here just so the derived endpoint class can seal it.
-    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new() => throw new NotImplementedException();
+    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new()
+        => throw new NotImplementedException();
 
     static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+
     protected internal static string GetAclHash(string input)
     {
         //NOTE: if modifying this algo, update FastEndpoints.Generator.AccessControlGenerator.Permission.GetAclHash() method also!
         var base64Hash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(Sanitize(input).ToUpperInvariant())));
+
         return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
 
         static string Sanitize(string input)
-           => regex.Replace(input, "_");
+            => regex.Replace(input, "_");
     }
 }

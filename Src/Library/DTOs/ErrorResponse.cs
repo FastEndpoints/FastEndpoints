@@ -1,8 +1,10 @@
 ﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Metadata;
 using System.Reflection;
+#if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.Http.Metadata;
+#endif
 
 namespace FastEndpoints;
 
@@ -10,8 +12,8 @@ namespace FastEndpoints;
 /// the dto used to send an error response to the client
 /// </summary>
 public sealed class ErrorResponse : IResult
-#if NET7_0_OR_GREATER 
-    , IEndpointMetadataProvider
+                                #if NET7_0_OR_GREATER
+                                  , IEndpointMetadataProvider
 #endif
 {
     /// <summary>
@@ -47,22 +49,21 @@ public sealed class ErrorResponse : IResult
     }
 
     public Task ExecuteAsync(HttpContext httpContext)
-    {
-        return httpContext.Response.SendAsync(this, StatusCode);
-    }
+        => httpContext.Response.SendAsync(this, StatusCode);
 
 #if NET7_0_OR_GREATER
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Metadata.Add(new ProducesResponseTypeMetadata
-        {
-            ContentTypes = new[] { "application/problem+json" },
-            StatusCode = Config.ErrOpts.StatusCode,
-            Type = typeof(ProblemDetails)
-        });
+        builder.Metadata.Add(
+            new ProducesResponseTypeMetadata
+            {
+                ContentTypes = new[] { "application/problem+json" },
+                StatusCode = Config.ErrOpts.StatusCode,
+                Type = typeof(ProblemDetails)
+            });
     }
 #endif
 }

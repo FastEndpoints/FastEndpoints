@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1822 
+﻿#pragma warning disable CA1822
 
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -57,14 +57,23 @@ public readonly struct BinderContext : IServiceResolverBase
         DontAutoBindForms = dontAutoBindForms;
     }
 
-    ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
-    ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
-    ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
-    ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
-    ///<inheritdoc/>
-    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
+    /// <inheritdoc />
+    public TService? TryResolve<TService>() where TService : class
+        => Conf.ServiceResolver.TryResolve<TService>();
+
+    /// <inheritdoc />
+    public object? TryResolve(Type typeOfService)
+        => Conf.ServiceResolver.TryResolve(typeOfService);
+
+    /// <inheritdoc />
+    public TService Resolve<TService>() where TService : class
+        => Conf.ServiceResolver.Resolve<TService>();
+
+    /// <inheritdoc />
+    public object Resolve(Type typeOfService)
+        => Conf.ServiceResolver.Resolve(typeOfService);
+
+    /// <inheritdoc />
+    public IServiceScope CreateScope()
+        => Conf.ServiceResolver.CreateScope();
 }

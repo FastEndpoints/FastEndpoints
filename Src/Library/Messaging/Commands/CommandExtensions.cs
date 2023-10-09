@@ -34,10 +34,7 @@ public static class CommandExtensions
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
         static CommandHandlerExecutorBase CreateHandlerExecutor(Type tCommand)
-        {
-            return (CommandHandlerExecutorBase)
-                Conf.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
-        }
+            => (CommandHandlerExecutorBase)Conf.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
     }
 
     /// <summary>
@@ -68,10 +65,8 @@ public static class CommandExtensions
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
         static CommandHandlerExecutorBase<TResult> CreateHandlerExecutor(Type tCommand)
-        {
-            return (CommandHandlerExecutorBase<TResult>)
+            => (CommandHandlerExecutorBase<TResult>)
                 Conf.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
-        }
     }
 
     /// <summary>

@@ -26,6 +26,7 @@ static class RequestHandler
                 if (hdrVal.Count == 0)
                 {
                     ctx.Response.StatusCode = 403;
+
                     return ctx.Response.WriteAsync("Forbidden by rate limiting middleware!", ctx.RequestAborted);
                 }
             }
@@ -33,6 +34,7 @@ static class RequestHandler
             if (epDef.HitCounter.LimitReached(hdrVal[0]!))
             {
                 ctx.Response.StatusCode = 429;
+
                 return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!", ctx.RequestAborted);
             }
         }
@@ -40,6 +42,7 @@ static class RequestHandler
         if (PrepAndCheckAcceptsMetaData(ctx, epDef, epMeta))
         {
             ctx.Response.StatusCode = 415;
+
             return ctx.Response.StartAsync(ctx.RequestAborted);
         }
 
@@ -77,7 +80,7 @@ static class RequestHandler
         // we don't need to check for mismatched content-types (between request and endpoint)
         // because routing middleware already takes care of that.
         return !ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
-                def.AcceptsMetaDataPresent is true &&
+               def.AcceptsMetaDataPresent is true &&
                !def.AcceptsAnyContentType;
     }
 }

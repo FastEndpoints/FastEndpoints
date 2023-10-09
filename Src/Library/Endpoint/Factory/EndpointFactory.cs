@@ -29,8 +29,8 @@ public sealed class EndpointFactory : IEndpointFactory
             prop.PropSetter(
                 epInstance,
                 isAppStartup
-                 ? ctx.RequestServices.GetRequiredService(prop.PropType)
-                 : ctx.Resolve(prop.PropType));
+                    ? ctx.RequestServices.GetRequiredService(prop.PropType)
+                    : ctx.Resolve(prop.PropType));
         }
 
         return epInstance;

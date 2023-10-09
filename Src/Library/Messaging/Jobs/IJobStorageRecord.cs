@@ -12,8 +12,8 @@ public interface IJobStorageRecord
     /// if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
     /// <code>
     /// 1. add a [NotMapped] attribute to this property.
-    /// 2. add a new property, either a <see langword="string"/> or <see cref="byte"/> array
-    /// 3. implement both <see cref="GetCommand"/> and <see cref="SetCommand"/> to serialize/deserialize the command object back and forth and store it in the newly added property.
+    /// 2. add a new property, either a <see langword="string" /> or <see cref="byte" /> array
+    /// 3. implement both <see cref="GetCommand" /> and <see cref="SetCommand" /> to serialize/deserialize the command object back and forth and store it in the newly added property.
     /// </code>
     /// you may use any serializer you please. recommendation is to use MessagePack.
     /// </summary>
@@ -38,10 +38,12 @@ public interface IJobStorageRecord
     /// <summary>
     /// implement this function to customize command deserialization.
     /// </summary>
-    TCommand GetCommand<TCommand>() where TCommand : ICommand => (TCommand)Command;
+    TCommand GetCommand<TCommand>() where TCommand : ICommand
+        => (TCommand)Command;
 
     /// <summary>
     /// implement this method to customize command serialization.
     /// </summary>
-    void SetCommand<TCommand>(TCommand command) where TCommand : ICommand => Command = command;
+    void SetCommand<TCommand>(TCommand command) where TCommand : ICommand
+        => Command = command;
 }

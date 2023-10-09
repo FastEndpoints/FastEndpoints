@@ -9,12 +9,13 @@ namespace FastEndpoints;
 public interface IServiceResolverBase
 {
     /// <summary>
-    /// if you'd like to resolve scoped or transient services from the MS DI container, obtain a service scope from this method and dispose the scope when the work is complete.
-    ///<para>
-    /// <code>
-    /// using var scope = CreateScope();
-    /// var scopedService = scope.Resolve&lt;MyService&gt;();
-    /// </code>
+    /// if you'd like to resolve scoped or transient services from the MS DI container, obtain a service scope from this method and dispose the scope when
+    /// the work is complete.
+    /// <para>
+    ///     <code>
+    ///  using var scope = CreateScope();
+    ///  var scopedService = scope.Resolve&lt;MyService&gt;();
+    ///  </code>
     /// </para>
     /// </summary>
     IServiceScope CreateScope(); //todo: need to figure out how to get rid of this from this interface!
@@ -53,14 +54,16 @@ public interface IServiceResolverBase
 public interface IServiceResolver : IServiceResolverBase
 {
     /// <summary>
-    /// create an instance of a given type (which may not be registered in the DI container). this method will be called repeatedly per request. so a cached delegate/compiled expression such as <see cref="ActivatorUtilities.CreateFactory(Type, Type[])"/> should be used for instance creation.
+    /// create an instance of a given type (which may not be registered in the DI container). this method will be called repeatedly per request. so a cached
+    /// delegate/compiled expression such as <see cref="ActivatorUtilities.CreateFactory(Type, Type[])" /> should be used for instance creation.
     /// </summary>
     /// <param name="type">the type to create an instance of</param>
     /// <param name="serviceProvider">optional service provider</param>
     object CreateInstance(Type type, IServiceProvider? serviceProvider = null);
 
     /// <summary>
-    /// create an instance of a given type (which may not be registered in the DI container) which will be used as a singleton. a utility such as <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])"/> may be used.
+    /// create an instance of a given type (which may not be registered in the DI container) which will be used as a singleton. a utility such as
+    /// <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])" /> may be used.
     /// </summary>
     /// <param name="type">the type to create an instance of</param>
     object CreateSingleton(Type type);

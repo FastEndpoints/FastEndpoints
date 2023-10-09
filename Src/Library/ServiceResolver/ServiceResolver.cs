@@ -25,18 +25,18 @@ sealed class ServiceResolver : IServiceResolver
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
         var factory = _factoryCache.GetOrAdd(type, t => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes));
+
         return factory(serviceProvider ?? _ctxAccessor?.HttpContext?.RequestServices ?? _rootServiceProvider, null);
     }
 
     public object CreateSingleton(Type type)
-    {
-        return ActivatorUtilities.CreateInstance(_rootServiceProvider, type);
-    }
+        => ActivatorUtilities.CreateInstance(_rootServiceProvider, type);
 
     public IServiceScope CreateScope()
         => _isUnitTestMode
-            ? _ctxAccessor.HttpContext?.RequestServices.CreateScope() ?? throw new InvalidOperationException("Please follow documentation to configure unit test environment properly!")
-            : _rootServiceProvider.CreateScope();
+               ? _ctxAccessor.HttpContext?.RequestServices.CreateScope() ??
+                 throw new InvalidOperationException("Please follow documentation to configure unit test environment properly!")
+               : _rootServiceProvider.CreateScope();
 
     public TService Resolve<TService>() where TService : class
         => _ctxAccessor.HttpContext?.RequestServices.GetRequiredService<TService>() ??

@@ -35,20 +35,26 @@ public static class MainExtensions
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(EventBus<>));
+
         return services;
     }
 
     /// <summary>
     /// finalizes auto discovery of endpoints and prepares FastEndpoints to start processing requests
-    /// <para>HINT: you can use <see cref="MapFastEndpoints(IEndpointRouteBuilder, Action{Config}?)"/> instead of this method if you have some special requirement such as using "Startup.cs", etc.</para>
+    /// <para>
+    /// HINT: you can use <see cref="MapFastEndpoints(IEndpointRouteBuilder, Action{Config}?)" /> instead of this method if you have some special
+    /// requirement such as using "Startup.cs", etc.
+    /// </para>
     /// </summary>
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
-    /// <exception cref="InvalidCastException">thrown when the <c>app</c> cannot be cast to <see cref="IEndpointRouteBuilder"/></exception>
+    /// <exception cref="InvalidCastException">thrown when the <c>app</c> cannot be cast to <see cref="IEndpointRouteBuilder" /></exception>
     public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, Action<Config>? configAction = null)
     {
         if (app is not IEndpointRouteBuilder routeBuilder)
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
+
         MapFastEndpoints(routeBuilder, configAction);
+
         return app;
     }
 
@@ -57,16 +63,17 @@ public static class MainExtensions
         Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
         var jsonOpts = app.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Conf.SerOpts.Options = jsonOpts is not null
-                                ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
-                                : Conf.SerOpts.Options;
-        configAction?.Invoke(new Conf());
+                                   ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
+                                   : Conf.SerOpts.Options;
+        configAction?.Invoke(new());
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
         var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
         var authOptions = app.ServiceProvider.GetRequiredService<IOptions<AuthorizationOptions>>().Value;
         using var scope = app.ServiceProvider.CreateScope();
-        var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
-        var routeToHandlerCounts = new ConcurrentDictionary<string, int>();//key: {verb}:{route}
+        var httpCtx =
+            new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
+        var routeToHandlerCounts = new ConcurrentDictionary<string, int>();     //key: {verb}:{route}
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 
@@ -75,9 +82,13 @@ public static class MainExtensions
             var ep = epFactory.Create(def, httpCtx);
             def.Initialize(ep, httpCtx);
 
-            if (Conf.EpOpts.Filter is not null && !Conf.EpOpts.Filter(def)) continue;
-            if (def.Verbs?.Any() is not true) throw new ArgumentException($"No HTTP Verbs declared on: [{def.EndpointType.FullName}]");
-            if (def.Routes?.Any() is not true) throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
+            if (Conf.EpOpts.Filter is not null && !Conf.EpOpts.Filter(def))
+                continue;
+
+            if (def.Verbs?.Any() is not true)
+                throw new ArgumentException($"No HTTP Verbs declared on: [{def.EndpointType.FullName}]");
+            if (def.Routes?.Any() is not true)
+                throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
             Conf.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
 
@@ -127,7 +138,7 @@ public static class MainExtensions
                             hb.WithMetadata(pMeta);
                     }
 
-                    def.UserConfigAction?.Invoke(hb);//always do this last - allow user to override everything done above
+                    def.UserConfigAction?.Invoke(hb); //always do this last - allow user to override everything done above
 
                     var key = $"{verb}:{finalRoute}";
                     routeToHandlerCounts.AddOrUpdate(key, 1, (_, c) => c + 1);
@@ -193,6 +204,7 @@ public static class MainExtensions
 
         var final = builder.ToString();
         builder.Clear();
+
         return final;
 
         static void AppendVersion(StringBuilder builder, int epVersion, bool trailingSlash)
@@ -207,7 +219,8 @@ public static class MainExtensions
                 builder.Append(prefix)
                        .Append(epVersion);
 
-                if (trailingSlash) builder.Append('/');
+                if (trailingSlash)
+                    builder.Append('/');
             }
             else if (Conf.VerOpts.DefaultVersion != 0)
             {
@@ -217,7 +230,8 @@ public static class MainExtensions
                 builder.Append(prefix)
                        .Append(Conf.VerOpts.DefaultVersion);
 
-                if (trailingSlash) builder.Append('/');
+                if (trailingSlash)
+                    builder.Append('/');
             }
         }
     }
@@ -232,18 +246,19 @@ public static class MainExtensions
         if (ep.RequiresAuthorization())
             policiesToAdd.Add(ep.SecurityPolicyName);
 
-        return policiesToAdd.Select(p =>
-        {
-            var attr = new AuthorizeAttribute { Policy = p, };
+        return policiesToAdd.Select(
+            p =>
+            {
+                var attr = new AuthorizeAttribute { Policy = p };
 
-            if (ep.AuthSchemeNames is not null)
-                attr.AuthenticationSchemes = string.Join(',', ep.AuthSchemeNames);
+                if (ep.AuthSchemeNames is not null)
+                    attr.AuthenticationSchemes = string.Join(',', ep.AuthSchemeNames);
 
-            if (ep.AllowedRoles is not null)
-                attr.Roles = string.Join(',', ep.AllowedRoles);
+                if (ep.AllowedRoles is not null)
+                    attr.Roles = string.Join(',', ep.AllowedRoles);
 
-            return attr;
-        }).ToArray();
+                return attr;
+            }).ToArray();
     }
 
     static void AddSecurityPolicy(AuthorizationOptions opts, EndpointDefinition ep)
@@ -251,51 +266,47 @@ public static class MainExtensions
         if (!ep.RequiresAuthorization())
             return;
 
-        opts.AddPolicy(ep.SecurityPolicyName, b =>
-        {
-            b.RequireAuthenticatedUser();
-
-            if (ep.AllowedPermissions?.Count > 0)
+        opts.AddPolicy(
+            ep.SecurityPolicyName,
+            b =>
             {
-                if (ep.AllowAnyPermission)
-                {
-                    b.RequireAssertion(x =>
-                        x.User.Claims.Any(c =>
-                            string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                            ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
-                }
-                else
-                {
-                    b.RequireAssertion(x =>
-                        ep.AllowedPermissions.All(p =>
-                            x.User.Claims.Any(c =>
-                                string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                                string.Equals(c.Value, p, StringComparison.Ordinal))));
-                }
-            }
+                b.RequireAuthenticatedUser();
 
-            if (ep.AllowedClaimTypes?.Count > 0)
-            {
-                if (ep.AllowAnyClaim)
+                if (ep.AllowedPermissions?.Count > 0)
                 {
-                    b.RequireAssertion(x =>
-                        x.User.Claims.Any(c =>
-                            ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
+                    if (ep.AllowAnyPermission)
+                    {
+                        b.RequireAssertion(
+                            x => x.User.Claims.Any(
+                                c => string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                     ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
+                    }
+                    else
+                    {
+                        b.RequireAssertion(
+                            x => ep.AllowedPermissions.All(
+                                p => x.User.Claims.Any(
+                                    c => string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                         string.Equals(c.Value, p, StringComparison.Ordinal))));
+                    }
                 }
-                else
+
+                if (ep.AllowedClaimTypes?.Count > 0)
                 {
-                    b.RequireAssertion(x =>
-                        ep.AllowedClaimTypes.All(t =>
-                            x.User.Claims.Any(c =>
-                                string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
+                    if (ep.AllowAnyClaim)
+                        b.RequireAssertion(x => x.User.Claims.Any(c => ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
+                    else
+                    {
+                        b.RequireAssertion(
+                            x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
+                    }
                 }
-            }
 
-            ep.PolicyBuilder?.Invoke(b);
+                ep.PolicyBuilder?.Invoke(b);
 
-            //note: only claim/permission/policy builder requirements are added here in the security policy
-            //      roles and auth schemes are specified in the AuthorizeAttribute in BuildAuthorizeAttributes()
-        });
+                //note: only claim/permission/policy builder requirements are added here in the security policy
+                //      roles and auth schemes are specified in the AuthorizeAttribute in BuildAuthorizeAttributes()
+            });
     }
 }
 

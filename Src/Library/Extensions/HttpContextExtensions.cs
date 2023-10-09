@@ -35,7 +35,7 @@ public static class HttpContextExtensions
         => Conf.ServiceResolver.Resolve(typeOfService);
 
     /// <summary>
-    /// marks the current response as started so that <see cref="ResponseStarted(HttpContext)"/> can return the correct result.
+    /// marks the current response as started so that <see cref="ResponseStarted(HttpContext)" /> can return the correct result.
     /// </summary>
     /// <param name="ctx"></param>
     public static void MarkResponseStart(this HttpContext ctx)
@@ -51,14 +51,22 @@ public static class HttpContextExtensions
     /// retrieve the common processor state for the current http context.
     /// </summary>
     /// <typeparam name="TState">the type of the processor state</typeparam>
-    /// <exception cref="InvalidOperationException">thrown if the requested type of the processor state does not match with what's already stored in the context</exception>
+    /// <exception cref="InvalidOperationException">
+    /// thrown if the requested type of the processor state does not match with what's already stored in the
+    /// context
+    /// </exception>
     public static TState ProcessorState<TState>(this HttpContext ctx) where TState : class, new()
     {
         if (ctx.Items.TryGetValue(CtxKey.ProcessorState, out var state))
-            return state as TState ?? throw new InvalidOperationException($"Only a single type of state is supported across processors and endpoint handler! Requested: [{typeof(TState).Name}] Found: [{state!.GetType().Name}]");
+        {
+            return state as TState ??
+                   throw new InvalidOperationException(
+                       $"Only a single type of state is supported across processors and endpoint handler! Requested: [{typeof(TState).Name}] Found: [{state!.GetType().Name}]");
+        }
 
         var st = new TState();
         ctx.Items[CtxKey.ProcessorState] = st;
+
         return st;
     }
 }

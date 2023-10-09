@@ -48,7 +48,9 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
     bool _isInUse;
 
-    public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TStorageRecord, TStorageProvider>> logger)
+    public JobQueue(TStorageProvider storageProvider,
+                    IHostApplicationLifetime appLife,
+                    ILogger<JobQueue<TCommand, TStorageRecord, TStorageProvider>> logger)
     {
         _allQueues[_tCommand] = this;
         _storage = storageProvider;
@@ -69,7 +71,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     protected override async Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         _isInUse = true;
-        var job = new TStorageRecord()
+        var job = new TStorageRecord
         {
             QueueID = _queueID,
             ExecuteAfter = executeAfter ?? DateTime.UtcNow,
@@ -89,21 +91,23 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         {
             try
             {
-                records = await _storage.GetNextBatchAsync(new()
-                {
-                    Limit = batchSize,
-                    QueueID = _queueID,
-                    CancellationToken = _appCancellation,
-                    Match = r => r.QueueID == _queueID &&
-                                 !r.IsComplete &&
-                                 DateTime.UtcNow >= r.ExecuteAfter &&
-                                 DateTime.UtcNow <= r.ExpireOn
-                });
+                records = await _storage.GetNextBatchAsync(
+                              new()
+                              {
+                                  Limit = batchSize,
+                                  QueueID = _queueID,
+                                  CancellationToken = _appCancellation,
+                                  Match = r => r.QueueID == _queueID &&
+                                               !r.IsComplete &&
+                                               DateTime.UtcNow >= r.ExecuteAfter &&
+                                               DateTime.UtcNow <= r.ExpireOn
+                              });
             }
             catch (Exception x)
             {
                 _log.StorageRetrieveError(_queueID, _tCommandName, x.Message);
                 await Task.Delay(5000);
+
                 continue;
             }
 
@@ -116,14 +120,12 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 // without the 1 minute check, rescheduled jobs will only execute when there's a new job being queued.
                 // which could lead to the rescheduled job being already expired by the time it's executed.
                 await (
-                    _isInUse
-                        ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(60000))
-                        : Task.WhenAny(_sem.WaitAsync(_appCancellation)));
+                          _isInUse
+                              ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(60000))
+                              : Task.WhenAny(_sem.WaitAsync(_appCancellation)));
             }
             else
-            {
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
-            }
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
@@ -131,7 +133,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
             try
             {
                 await record.GetCommand<TCommand>()
-                    .ExecuteAsync(new CancellationTokenSource(_executionTimeLimit).Token);
+                            .ExecuteAsync(new CancellationTokenSource(_executionTimeLimit).Token);
             }
             catch (Exception x)
             {
@@ -142,15 +144,16 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                     try
                     {
                         await _storage.OnHandlerExecutionFailureAsync(record, x, _appCancellation);
+
                         break;
                     }
                     catch (Exception xx)
                     {
                         _log.StorageOnExecutionFailureError(_queueID, _tCommandName, xx.Message);
 
-#pragma warning disable CA2016
+                    #pragma warning disable CA2016
                         await Task.Delay(5000);
-#pragma warning restore CA2016
+                    #pragma warning restore CA2016
                     }
                 }
 
@@ -163,15 +166,16 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 {
                     record.IsComplete = true;
                     await _storage.MarkJobAsCompleteAsync(record, _appCancellation);
+
                     break;
                 }
                 catch (Exception x)
                 {
                     _log.StorageMarkAsCompleteError(_queueID, _tCommandName, x.Message);
 
-#pragma warning disable CA2016
+                #pragma warning disable CA2016
                     await Task.Delay(5000);
-#pragma warning restore CA2016
+                #pragma warning restore CA2016
                 }
             }
         }

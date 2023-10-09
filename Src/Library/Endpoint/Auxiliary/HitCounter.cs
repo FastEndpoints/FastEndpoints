@@ -22,8 +22,7 @@ sealed class HitCounter
     {
         return clients.GetOrAdd(
             headerValue,
-            hVal => new Counter(_durationSeconds, hVal, _limit, ref clients)
-            ).LimitReached();
+            hVal => new(_durationSeconds, hVal, _limit, ref clients)).LimitReached();
     }
 
     class Counter : IDisposable
@@ -44,7 +43,7 @@ sealed class HitCounter
             _limit = limit;
             _parent = dictionary;
             _durationSecs = durationSeconds;
-            _timer = new(RemoveFromParentIfExpired, null, 60000, 60000);//cleanup every 60 secs.
+            _timer = new(RemoveFromParentIfExpired, null, 60000, 60000); //cleanup every 60 secs.
             _expireAtTicks = GetNewExpiry();
         }
 
@@ -57,6 +56,7 @@ sealed class HitCounter
             {
                 Interlocked.Exchange(ref _expireAtTicks, GetNewExpiry());
                 Interlocked.Exchange(ref _count, 1);
+
                 //Console.WriteLine($"reset: {GetHashCode()}");
                 return false;
             }
@@ -69,6 +69,7 @@ sealed class HitCounter
 
             //Console.WriteLine($"hit: {GetHashCode()}");
             Interlocked.Increment(ref _count);
+
             return false;
         }
 
@@ -79,8 +80,10 @@ sealed class HitCounter
             if (Expired && _parent.TryRemove(_self, out var _))
             {
                 Dispose();
+
                 //Console.WriteLine($"disposed: {counter.GetHashCode()} / {GetHashCode()}");
             }
+
             //else if (Expired)
             //{
             //    Console.WriteLine($"failed cleanup: {GetHashCode()}");
@@ -88,6 +91,7 @@ sealed class HitCounter
         }
 
         bool disposedValue;
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

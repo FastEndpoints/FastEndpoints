@@ -54,6 +54,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                     BinderExtensions.ParserFuncCache.TryAdd(
                         propInfo.PropertyType,
                         input => parser(input, propInfo.PropertyType));
+
                     break;
                 }
             }
@@ -68,29 +69,39 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 switch (attribs[i])
                 {
                     case FromBodyAttribute:
-                        if (fromBodyProp is not null) throw new InvalidOperationException($"Only one [FromBody] attribute is allowed on [{tRequest.FullName}].");
+                        if (fromBodyProp is not null)
+                            throw new InvalidOperationException($"Only one [FromBody] attribute is allowed on [{tRequest.FullName}].");
+
                         addPrimary = SetFromBodyPropCache(propInfo, compiledSetter);
+
                         break;
 
                     case FromQueryParamsAttribute:
-                        if (fromQueryParamsProp is not null) throw new InvalidOperationException($"Only one [FromQueryParams] attribute is allowed on [{tRequest.FullName}].");
+                        if (fromQueryParamsProp is not null)
+                            throw new InvalidOperationException($"Only one [FromQueryParams] attribute is allowed on [{tRequest.FullName}].");
+
                         addPrimary = SetFromQueryParamsPropCache(propInfo, compiledSetter);
+
                         break;
 
                     case FromClaimAttribute fcAtt:
                         addPrimary = AddFromClaimPropCacheEntry(fcAtt, propInfo, compiledSetter);
+
                         break;
 
                     case FromHeaderAttribute fhAtt:
                         addPrimary = AddFromHeaderPropCacheEntry(fhAtt, propInfo, compiledSetter);
+
                         break;
 
                     case HasPermissionAttribute hpAtt:
                         addPrimary = AddHasPermissionPropCacheEntry(hpAtt, propInfo, compiledSetter);
+
                         break;
 
                     case BindFromAttribute bfAtt:
                         fieldName = bfAtt.Name;
+
                         break;
                 }
             }
@@ -149,21 +160,27 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             return InitDto();
 
         var req = !isPlainTextRequest && bindJsonBody && ctx.HttpContext.Request.HasJsonContentType()
-                   ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
-                   : isPlainTextRequest
-                     ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
-                     : InitDto();
+                      ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
+                      : isPlainTextRequest
+                          ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
+                          : InitDto();
 
-        if (bindFormFields) BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
-        if (bindRouteValues) BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
-        if (bindQueryParams) BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures, ctx.JsonSerializerContext);
-        if (bindUserClaims) BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
-        if (bindHeaders) BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
-        if (bindPermissions) BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+        if (bindFormFields)
+            BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
+        if (bindRouteValues)
+            BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
+        if (bindQueryParams)
+            BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures, ctx.JsonSerializerContext);
+        if (bindUserClaims)
+            BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+        if (bindHeaders)
+            BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
+        if (bindPermissions)
+            BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
 
         return ctx.ValidationFailures.Count == 0
-                ? req
-                : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed!");
+                   ? req
+                   : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed!");
     }
 
     static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
@@ -185,12 +202,14 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         var req = (IPlainTextRequest)InitDto();
         using var streamReader = new StreamReader(body);
         req.Content = await streamReader.ReadToEndAsync();
+
         return (TRequest)req;
     }
 
     static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures, bool dontAutoBindForm)
     {
-        if (!httpRequest.HasFormContentType || dontAutoBindForm) return;
+        if (!httpRequest.HasFormContentType || dontAutoBindForm)
+            return;
 
         foreach (var kvp in httpRequest.Form)
             Bind(req, kvp, failures);
@@ -211,7 +230,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindRouteValues(TRequest req, RouteValueDictionary routeValues, List<ValidationFailure> failures)
     {
-        if (routeValues.Count == 0) return;
+        if (routeValues.Count == 0)
+            return;
 
         foreach (var kvp in routeValues)
         {
@@ -223,7 +243,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
     {
-        if (query.Count == 0) return;
+        if (query.Count == 0)
+            return;
 
         foreach (var kvp in query)
             Bind(req, kvp, failures);
@@ -259,8 +280,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 {
                     claimVal =
                         prop.IsCollection || g.Count() > 1
-                         ? g.Select(v => v).ToArray()
-                         : g.FirstOrDefault();
+                            ? g.Select(v => v).ToArray()
+                            : g.FirstOrDefault();
                 }
             }
 
@@ -304,20 +325,26 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         for (var i = 0; i < hasPermissionProps.Count; i++)
         {
             var prop = hasPermissionProps[i];
-            var hasPerm = claims.Any(c =>
-               string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-               string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
+            var hasPerm = claims.Any(
+                c => string.Equals(c.Type, SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                     string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
 
-            if (!hasPerm && prop.ForbidIfMissing)
-                failures.Add(new(prop.Identifier, "User doesn't have this permission!"));
-
-            if (hasPerm)
+            switch (hasPerm)
             {
-                var res = prop.ValueParser(hasPerm);
-                prop.PropSetter(req, res.Value);
+                case false when prop.ForbidIfMissing:
+                    failures.Add(new(prop.Identifier, "User doesn't have this permission!"));
 
-                if (!res.IsSuccess)
-                    failures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
+                    break;
+                case true:
+                {
+                    var res = prop.ValueParser(hasPerm);
+                    prop.PropSetter(req, res.Value);
+
+                    if (!res.IsSuccess)
+                        failures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
+
+                    break;
+                }
             }
         }
     }
@@ -340,56 +367,61 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
-        fromClaimProps.Add(new()
-        {
-            Identifier = att.ClaimType ?? propInfo.Name,
-            ForbidIfMissing = att.IsRequired,
-            PropType = propInfo.PropertyType,
-            IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
-            ValueParser = propInfo.PropertyType.ValueParser(),
-            PropSetter = compiledSetter,
-        });
+        fromClaimProps.Add(
+            new()
+            {
+                Identifier = att.ClaimType ?? propInfo.Name,
+                ForbidIfMissing = att.IsRequired,
+                PropType = propInfo.PropertyType,
+                IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter
+            });
 
         return !att.IsRequired; //if claim is optional, return true so it will also be added as a PropCacheEntry
     }
 
     static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
-        fromHeaderProps.Add(new()
-        {
-            Identifier = att.HeaderName ?? propInfo.Name,
-            ForbidIfMissing = att.IsRequired,
-            PropType = propInfo.PropertyType,
-            ValueParser = propInfo.PropertyType.ValueParser(),
-            PropSetter = compiledSetter
-        });
+        fromHeaderProps.Add(
+            new()
+            {
+                Identifier = att.HeaderName ?? propInfo.Name,
+                ForbidIfMissing = att.IsRequired,
+                PropType = propInfo.PropertyType,
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter
+            });
 
         return !att.IsRequired; //if header is optional, return true so it will also be added as a PropCacheEntry;
     }
 
     static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
-        hasPermissionProps.Add(new()
-        {
-            Identifier = att.Permission ?? propInfo.Name,
-            ForbidIfMissing = att.IsRequired,
-            PropType = propInfo.PropertyType,
-            PropName = propInfo.Name,
-            ValueParser = propInfo.PropertyType.ValueParser(),
-            PropSetter = compiledSetter
-        });
+        hasPermissionProps.Add(
+            new()
+            {
+                Identifier = att.Permission ?? propInfo.Name,
+                ForbidIfMissing = att.IsRequired,
+                PropType = propInfo.PropertyType,
+                PropName = propInfo.Name,
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter
+            });
 
         return false; // don't allow binding from any other sources
     }
 
     static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
-        primaryProps.Add(fieldName ?? propInfo.Name, new()
-        {
-            PropType = propInfo.PropertyType,
-            ValueParser = propInfo.PropertyType.ValueParser(),
-            PropSetter = compiledSetter
-        });
+        primaryProps.Add(
+            fieldName ?? propInfo.Name,
+            new()
+            {
+                PropType = propInfo.PropertyType,
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter
+            });
     }
 
     static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
@@ -397,8 +429,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         fromBodyProp = new()
         {
             PropType = propInfo.PropertyType,
-            PropSetter = compiledSetter,
+            PropSetter = compiledSetter
         };
+
         return false;
     }
 
@@ -407,18 +440,20 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         fromQueryParamsProp = new()
         {
             PropType = propInfo.PropertyType,
-            PropSetter = compiledSetter,
+            PropSetter = compiledSetter
         };
+
         return false;
     }
 
     static Func<TRequest> CompileDtoInitializer()
     {
         var ctor = tRequest
-            .GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-            .OrderBy(c => c.GetParameters().Length)
-            .FirstOrDefault() ??
-                throw new NotSupportedException($"Only JSON requests (with an \"application/json\" content-type header) can be deserialized to a DTO type without a constructor! Offending type: [{tRequest.FullName}]");
+                  .GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                  .OrderBy(c => c.GetParameters().Length)
+                  .FirstOrDefault() ??
+                   throw new NotSupportedException(
+                       $"Only JSON requests (with an \"application/json\" content-type header) can be deserialized to a DTO type without a constructor! Offending type: [{tRequest.FullName}]");
 
         var args = ctor.GetParameters();
         var argExpressions = new List<Expression>(args.Length);

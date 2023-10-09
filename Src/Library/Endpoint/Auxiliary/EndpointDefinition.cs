@@ -75,6 +75,7 @@ public sealed class EndpointDefinition
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
 
     object? mapper;
+
     internal object? GetMapper()
     {
         if (mapper is null && MapperType is not null)
@@ -84,6 +85,7 @@ public sealed class EndpointDefinition
     }
 
     object? validator;
+
     internal object? GetValidator()
     {
         if (validator is null && ValidatorType is not null)
@@ -94,19 +96,22 @@ public sealed class EndpointDefinition
 
     static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
     {
-        b.Add(epBuilder =>
-        {
-            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
-                epBuilder.Metadata.Remove(m);
-        });
+        b.Add(
+            epBuilder =>
+            {
+                foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
+                    epBuilder.Metadata.Remove(m);
+            });
     };
 
     static void AddProcessor(Order order, object[] processors, List<object> list)
     {
         var pos = 0;
+
         for (var i = 0; i < processors.Length; i++)
         {
             var p = processors[i];
+
             if (!list.Contains(p, TypeEqualityComparer.Instance))
             {
                 if (order == Order.Before)
@@ -120,14 +125,15 @@ public sealed class EndpointDefinition
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
-    /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require authentication.
+    /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require
+    /// authentication.
     /// </summary>
     public void AllowAnonymous(params Http[] verbs)
     {
         AnonymousVerbs =
             verbs.Length > 0
-            ? verbs.Select(v => v.ToString("F")).ToArray()
-            : Enum.GetNames(Types.Http);
+                ? verbs.Select(v => v.ToString("F")).ToArray()
+                : Enum.GetNames(Types.Http);
     }
 
     /// <summary>
@@ -155,7 +161,8 @@ public sealed class EndpointDefinition
     /// enable form-data submissions
     /// </summary>
     /// <param name="urlEncoded">set to true to accept `application/x-www-form-urlencoded` content instead of `multipart/form-data` content.</param>
-    public void AllowFormData(bool urlEncoded = false) => FormDataContentType = urlEncoded ? "application/x-www-form-urlencoded" : "multipart/form-data";
+    public void AllowFormData(bool urlEncoded = false)
+        => FormDataContentType = urlEncoded ? "application/x-www-form-urlencoded" : "multipart/form-data";
 
     /// <summary>
     /// specify which authentication schemes to use for authenticating requests to this endpoint
@@ -203,27 +210,30 @@ public sealed class EndpointDefinition
     public void Description(Action<RouteHandlerBuilder> builder, bool clearDefaults = false)
     {
         UserConfigAction = clearDefaults
-                                  ? ClearDefaultAcceptsProducesMetadata + builder + UserConfigAction
-                                  : builder + UserConfigAction;
+                               ? ClearDefaultAcceptsProducesMetadata + builder + UserConfigAction
+                               : builder + UserConfigAction;
     }
 
     /// <summary>
     /// if swagger auto tagging based on path segment is enabled, calling this method will prevent a tag from being added to this endpoint.
     /// </summary>
-    public void DontAutoTag() => DontAutoTagEndpoints = true;
+    public void DontAutoTag()
+        => DontAutoTagEndpoints = true;
 
     /// <summary>
     /// use this only if you have your own exception catching middleware.
     /// if this method is called in config, an automatic error response will not be sent to the client by the library.
     /// all exceptions will be thrown and it would be your exception catching middleware to handle them.
     /// </summary>
-    public void DontCatchExceptions() => DoNotCatchExceptions = true;
+    public void DontCatchExceptions()
+        => DoNotCatchExceptions = true;
 
     /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint.
     /// <para>HINT: this only applies to request dto validation.</para>
     /// </summary>
-    public void DontThrowIfValidationFails() => ThrowIfValidationFails = false;
+    public void DontThrowIfValidationFails()
+        => ThrowIfValidationFails = false;
 
     /// <summary>
     /// specify the version of the endpoint if versioning is enabled
@@ -240,7 +250,8 @@ public sealed class EndpointDefinition
     /// set endpoint configurations options using an endpoint builder action ///
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
-    public void Options(Action<RouteHandlerBuilder> builder) => UserConfigAction = builder + UserConfigAction;
+    public void Options(Action<RouteHandlerBuilder> builder)
+        => UserConfigAction = builder + UserConfigAction;
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given permissions
@@ -271,10 +282,12 @@ public sealed class EndpointDefinition
     /// <para>HINT: these global level requirements will be combined with the requirements specified at the endpoint level if there's any.</para>
     /// </summary>
     /// <param name="policy">th policy builder action</param>
-    public void Policy(Action<AuthorizationPolicyBuilder> policy) => PolicyBuilder = policy + PolicyBuilder;
+    public void Policy(Action<AuthorizationPolicyBuilder> policy)
+        => PolicyBuilder = policy + PolicyBuilder;
 
     /// <summary>
-    /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be applied to this endpoint.
+    /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be
+    /// applied to this endpoint.
     /// <para>HINT: these policies will be applied in addition to endpoint level policies if there's any</para>
     /// </summary>
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
@@ -287,7 +300,10 @@ public sealed class EndpointDefinition
     /// <summary>
     /// adds global post-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
-    /// <param name="order">set to <see cref="Order.Before"/> if the global post-processors should be executed before endpoint post-processors. <see cref="Order.After"/> will execute global processors after endpoint level processors</param>
+    /// <param name="order">
+    /// set to <see cref="Order.Before" /> if the global post-processors should be executed before endpoint post-processors.
+    /// <see cref="Order.After" /> will execute global processors after endpoint level processors
+    /// </param>
     /// <param name="postProcessors">the post-processors to add</param>
     public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors)
     {
@@ -297,7 +313,10 @@ public sealed class EndpointDefinition
     /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
-    /// <param name="order">set to <see cref="Order.Before"/> if the global pre-processors should be executed before endpoint pre-processors. <see cref="Order.After"/> will execute global processors after endpoint level processors</param>
+    /// <param name="order">
+    /// set to <see cref="Order.Before" /> if the global pre-processors should be executed before endpoint pre-processors.
+    /// <see cref="Order.After" /> will execute global processors after endpoint level processors
+    /// </param>
     /// <param name="preProcessors">the pre-processors to add</param>
     public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
     {
@@ -312,7 +331,11 @@ public sealed class EndpointDefinition
     /// <param name="noStore">specify whether the data should be stored or not</param>
     /// <param name="varyByHeader">the value for the Vary response header</param>
     /// <param name="varyByQueryKeys">the query keys to vary by</param>
-    public void ResponseCache(int durationSeconds, ResponseCacheLocation location = ResponseCacheLocation.Any, bool noStore = false, string? varyByHeader = null, string[]? varyByQueryKeys = null)
+    public void ResponseCache(int durationSeconds,
+                              ResponseCacheLocation location = ResponseCacheLocation.Any,
+                              bool noStore = false,
+                              string? varyByHeader = null,
+                              string[]? varyByQueryKeys = null)
     {
         ResponseCacheSettings = new()
         {
@@ -329,7 +352,8 @@ public sealed class EndpointDefinition
     /// if the interceptor sends a response to the client, the SendAsync() will be ignored.
     /// </summary>
     /// <param name="responseInterceptor">the response interceptor to be configured for the endpoint</param>
-    public void ResponseInterceptor(IResponseInterceptor responseInterceptor) => ResponseIntrcptr = responseInterceptor;
+    public void ResponseInterceptor(IResponseInterceptor responseInterceptor)
+        => ResponseIntrcptr = responseInterceptor;
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given roles
@@ -346,16 +370,21 @@ public sealed class EndpointDefinition
     /// specify an override route prefix for this endpoint if a global route prefix is enabled.
     /// this is ignored if a global route prefix is not configured.
     /// global prefix can be ignored by setting <c>string.Empty</c>
-    /// <para>WARNING: setting a route prefix override globally makes the endpoint level override ineffective. i.e. RoutePrefixOverride() method call on endpoint level will be ignored.</para>
+    /// <para>
+    /// WARNING: setting a route prefix override globally makes the endpoint level override ineffective. i.e. RoutePrefixOverride() method call on
+    /// endpoint level will be ignored.
+    /// </para>
     /// </summary>
     /// <param name="routePrefix">route prefix value</param>
-    public void RoutePrefixOverride(string routePrefix) => OverriddenRoutePrefix = routePrefix;
+    public void RoutePrefixOverride(string routePrefix)
+        => OverriddenRoutePrefix = routePrefix;
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
-    public void Summary(Action<EndpointSummary> endpointSummary) => endpointSummary(EndpointSummary ??= new());
+    public void Summary(Action<EndpointSummary> endpointSummary)
+        => endpointSummary(EndpointSummary ??= new());
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
@@ -372,7 +401,8 @@ public sealed class EndpointDefinition
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an endpoint summary instance</param>
-    public void Summary(EndpointSummary endpointSummary) => EndpointSummary = endpointSummary;
+    public void Summary(EndpointSummary endpointSummary)
+        => EndpointSummary = endpointSummary;
 
     /// <summary>
     /// specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.
@@ -396,7 +426,8 @@ public sealed class EndpointDefinition
     /// header name can also be configured globally using <c>app.UseFastEndpoints(c=> c.Throttle...)</c>
     /// not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
     /// </param>
-    public void Throttle(int hitLimit, double durationSeconds, string? headerName = null) => HitCounter = new(headerName, durationSeconds, hitLimit);
+    public void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
+        => HitCounter = new(headerName, durationSeconds, hitLimit);
 
     /// <summary>
     /// validator that should be used for this endpoint
@@ -410,14 +441,15 @@ public sealed class EndpointDefinition
     ServiceBoundEpProp[]? GetServiceBoundEpProps()
     {
         return EndpointType
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-            .Where(p => p.CanRead && p.CanWrite && !p.IsDefined(Types.DontInjectAttribute))
-            .Select(p => new ServiceBoundEpProp()
-            {
-                PropName = p.Name,
-                PropType = p.PropertyType,
-            })
-            .ToArray();
+              .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+              .Where(p => p.CanRead && p.CanWrite && !p.IsDefined(Types.DontInjectAttribute))
+              .Select(
+                   p => new ServiceBoundEpProp
+                   {
+                       PropName = p.Name,
+                       PropType = p.PropertyType
+                   })
+              .ToArray();
     }
 }
 
@@ -447,6 +479,9 @@ class TypeEqualityComparer : IEqualityComparer<object>
 {
     internal static readonly TypeEqualityComparer Instance = new();
 
-    public new bool Equals(object? x, object? y) => x?.GetType() == y?.GetType();
-    public int GetHashCode([DisallowNull] object obj) => obj.GetType().GetHashCode();
+    public new bool Equals(object? x, object? y)
+        => x?.GetType() == y?.GetType();
+
+    public int GetHashCode([DisallowNull] object obj)
+        => obj.GetType().GetHashCode();
 }

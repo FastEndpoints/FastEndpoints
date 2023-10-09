@@ -11,21 +11,24 @@ public class EndpointSummary
 {
     internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
     internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; } = new(); //key: status-code //val: [propname]=description
-    internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b => b.Add(epBuilder =>
-    {
-        foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata).ToArray())
+
+    internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b => b.Add(
+        epBuilder =>
         {
-            if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
-                epBuilder.Metadata.Remove(m);
-        }
-    });
+            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata).ToArray())
+            {
+                if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
+                    epBuilder.Metadata.Remove(m);
+            }
+        });
 
     /// <summary>
     /// indexer for the response descriptions
     /// </summary>
     /// <param name="statusCode">the status code of the response you want to access</param>
     /// <returns>the text description</returns>
-    public string this[int statusCode] {
+    public string this[int statusCode]
+    {
         get => Responses[statusCode];
         set => Responses[statusCode] = value;
     }
@@ -87,7 +90,8 @@ public class EndpointSummary
     /// <summary>
     /// add a response description to the swagger document
     /// <para>
-    /// NOTE: if you use the this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it applies to your endpoint.
+    /// NOTE: if you use the this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it
+    /// applies to your endpoint.
     /// </para>
     /// </summary>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
@@ -95,15 +99,19 @@ public class EndpointSummary
     /// <param name="description">the description of the response</param>
     /// <param name="contentType">the media/content type of the response</param>
     /// <param name="example">and example response dto instance</param>
-    public void Response<TResponse>(int statusCode = 200, string? description = null, string contentType = "application/json", TResponse? example = default)
+    public void Response<TResponse>(int statusCode = 200,
+                                    string? description = null,
+                                    string contentType = "application/json",
+                                    TResponse? example = default)
     {
-        ProducesMetas.Add(new ProducesResponseTypeMetadata
-        {
-            ContentTypes = new[] { contentType },
-            StatusCode = statusCode,
-            Type = typeof(TResponse),
-            Example = example
-        });
+        ProducesMetas.Add(
+            new ProducesResponseTypeMetadata
+            {
+                ContentTypes = new[] { contentType },
+                StatusCode = statusCode,
+                Type = typeof(TResponse),
+                Example = example
+            });
 
         if (description is not null)
             Responses[statusCode] = description;
@@ -111,27 +119,29 @@ public class EndpointSummary
 
     /// <summary>
     /// add a response description that doesn't have a response dto to the swagger document
-    /// NOTE: if you use the this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it applies to your endpoint.
+    /// NOTE: if you use the this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it
+    /// applies to your endpoint.
     /// </summary>
     /// <param name="statusCode">http status code</param>
     /// <param name="description">the description of the response</param>
     /// <param name="contentType">the media/content type of the response</param>
     public void Response(int statusCode = 200, string? description = null, string? contentType = null)
     {
-        ProducesMetas.Add(new ProducesResponseTypeMetadata
-        {
-            ContentTypes = contentType is null ? Enumerable.Empty<string>() : new[] { contentType },
-            StatusCode = statusCode,
-            Type = typeof(void)
-        });
+        ProducesMetas.Add(
+            new ProducesResponseTypeMetadata
+            {
+                ContentTypes = contentType is null ? Enumerable.Empty<string>() : new[] { contentType },
+                StatusCode = statusCode,
+                Type = typeof(void)
+            });
 
         if (description is not null)
             Responses[statusCode] = description;
     }
 }
 
-///<inheritdoc/>
-///<typeparam name="TRequest">the type of the request dto</typeparam>
+/// <inheritdoc />
+/// <typeparam name="TRequest">the type of the request dto</typeparam>
 public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnull
 {
     /// <summary>
@@ -143,11 +153,11 @@ public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnul
         => Params[property.PropertyName()] = description;
 }
 
-///<inheritdoc/>
-///<typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
+/// <inheritdoc />
+/// <typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
 public abstract class Summary<TEndpoint> : EndpointSummary, ISummary where TEndpoint : IEndpoint { }
 
-///<inheritdoc/>
-///<typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
-///<typeparam name="TRequest">the type of the request dto</typeparam>
+/// <inheritdoc />
+/// <typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
+/// <typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Summary<TEndpoint, TRequest> : EndpointSummary<TRequest>, ISummary where TEndpoint : IEndpoint where TRequest : notnull { }

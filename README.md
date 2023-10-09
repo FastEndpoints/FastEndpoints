@@ -4,9 +4,11 @@
 
 ## **FastEndpoints** is a developer friendly alternative to Minimal APIs & MVC
 
-It nudges you towards the **[REPR Design Pattern (Request-Endpoint-Response)](https://deviq.com/design-patterns/repr-design-pattern)** for convenient & maintainable endpoint creation with virtually no boilerplate.
+It nudges you towards the **[REPR Design Pattern (Request-Endpoint-Response)](https://deviq.com/design-patterns/repr-design-pattern)** for
+convenient & maintainable endpoint creation with virtually no boilerplate.
 
-Performance is on par with Minimal APIs. It's faster, uses less memory and does around **[35k more requests per second](https://fast-endpoints.com/benchmarks)** than a MVC Controller in our benchmarks.
+Performance is on par with Minimal APIs. It's faster, uses less memory and does around *
+*[35k more requests per second](https://fast-endpoints.com/benchmarks)** than a MVC Controller in our benchmarks.
 
 ## Documentation: [https://fast-endpoints.com](https://fast-endpoints.com)
 
@@ -15,7 +17,9 @@ Please visit the official website for detailed documentation...
 ---
 
 ## Meet Our Sponsors:
-- [VeeFriends](https://veefriends.com/) - VeeFriends is an innovative entertainment company that uses its unique art, compelling storytelling, and collectibles to enhance its intellectual property.
+
+- [VeeFriends](https://veefriends.com/) - VeeFriends is an innovative entertainment company that uses its unique art, compelling storytelling, and
+  collectibles to enhance its intellectual property.
 
 - [EKBY'S](#) - EKBY'S provides digital sales & marketing solutions to the Food & Beverage industry.
 

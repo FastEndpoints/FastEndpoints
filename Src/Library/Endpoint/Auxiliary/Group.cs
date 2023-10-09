@@ -3,7 +3,8 @@
 namespace FastEndpoints;
 
 /// <summary>
-/// common configuration for a group of endpoints can be specified by implementing this abstract class and calling <see cref="Configure(string, Action{EndpointDefinition})"/> in the constructor.
+/// common configuration for a group of endpoints can be specified by implementing this abstract class and calling
+/// <see cref="Configure(string, Action{EndpointDefinition})" /> in the constructor.
 /// </summary>
 public abstract class Group : IServiceResolverBase
 {
@@ -13,41 +14,53 @@ public abstract class Group : IServiceResolverBase
     /// call this method in the constructor in order to configure the endpoint group.
     /// </summary>
     /// <param name="routePrefix">the route prefix for the group</param>
-    /// <param name="ep">the configuration action to be performed on the <see cref="EndpointDefinition"/></param>
-    protected virtual void Configure(string routePrefix, Action<EndpointDefinition> ep) => Action = RouteModifier(routePrefix) + ep;
+    /// <param name="ep">the configuration action to be performed on the <see cref="EndpointDefinition" /></param>
+    protected virtual void Configure(string routePrefix, Action<EndpointDefinition> ep)
+        => Action = RouteModifier(routePrefix) + ep;
 
-    static Action<EndpointDefinition> RouteModifier(string routePrefix) => e =>
-    {
-        if (e.Routes?.Length > 0)
+    static Action<EndpointDefinition> RouteModifier(string routePrefix)
+        => e =>
         {
-            for (var i = 0; i < e.Routes.Length; i++)
+            if (e.Routes?.Length > 0)
             {
-                var route = e.Routes[i];
-                var slash = !routePrefix.EndsWith("/") && !route.StartsWith("/") ? "/" : "";
-                e.Routes[i] = routePrefix + slash + route;
+                for (var i = 0; i < e.Routes.Length; i++)
+                {
+                    var route = e.Routes[i];
+                    var slash = !routePrefix.EndsWith("/") && !route.StartsWith("/") ? "/" : "";
+                    e.Routes[i] = routePrefix + slash + route;
+                }
             }
-        }
-    };
+        };
 
-    ///<inheritdoc/>
-    public TService? TryResolve<TService>() where TService : class => Conf.ServiceResolver.TryResolve<TService>();
-    ///<inheritdoc/>
-    public object? TryResolve(Type typeOfService) => Conf.ServiceResolver.TryResolve(typeOfService);
-    ///<inheritdoc/>
-    public TService Resolve<TService>() where TService : class => Conf.ServiceResolver.Resolve<TService>();
-    ///<inheritdoc/>
-    public object Resolve(Type typeOfService) => Conf.ServiceResolver.Resolve(typeOfService);
-    ///<inheritdoc/>
-    public IServiceScope CreateScope() => Conf.ServiceResolver.CreateScope();
+    /// <inheritdoc />
+    public TService? TryResolve<TService>() where TService : class
+        => Conf.ServiceResolver.TryResolve<TService>();
+
+    /// <inheritdoc />
+    public object? TryResolve(Type typeOfService)
+        => Conf.ServiceResolver.TryResolve(typeOfService);
+
+    /// <inheritdoc />
+    public TService Resolve<TService>() where TService : class
+        => Conf.ServiceResolver.Resolve<TService>();
+
+    /// <inheritdoc />
+    public object Resolve(Type typeOfService)
+        => Conf.ServiceResolver.Resolve(typeOfService);
+
+    /// <inheritdoc />
+    public IServiceScope CreateScope()
+        => Conf.ServiceResolver.CreateScope();
 }
 
 /// <summary>
-/// common configuration for a sub group of endpoints can be specified by implementing this abstract class and calling <see cref="Configure(string, Action{EndpointDefinition})"/> in the constructor.
+/// common configuration for a sub group of endpoints can be specified by implementing this abstract class and calling
+/// <see cref="Configure(string, Action{EndpointDefinition})" /> in the constructor.
 /// </summary>
 /// <typeparam name="TParent"></typeparam>
 public abstract class SubGroup<TParent> : Group where TParent : Group, new()
 {
-    ///<inheritdoc/>
+    /// <inheritdoc />
     protected sealed override void Configure(string routePrefix, Action<EndpointDefinition> ep)
     {
         base.Configure(routePrefix, ep);

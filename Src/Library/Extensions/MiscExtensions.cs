@@ -2,10 +2,9 @@
 
 static class MiscExtensions
 {
-    internal static Dictionary<TKey, List<TValue>> GroupToDictionary<TItem, TKey, TValue>
-        (this List<TItem> items,
-         Func<TItem, TKey> keySelector,
-         Func<TItem, TValue> valueSelector) where TKey : notnull
+    internal static Dictionary<TKey, List<TValue>> GroupToDictionary<TItem, TKey, TValue>(this List<TItem> items,
+                                                                                          Func<TItem, TKey> keySelector,
+                                                                                          Func<TItem, TValue> valueSelector) where TKey : notnull
     {
         var dict = new Dictionary<TKey, List<TValue>>();
 
@@ -13,6 +12,7 @@ static class MiscExtensions
         {
             var item = items[i];
             var key = keySelector(item);
+
             if (!dict.TryGetValue(key, out var group))
             {
                 group = new(1);

@@ -7,9 +7,9 @@ namespace FastEndpoints;
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
     static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def,
-                                                              HttpContext ctx,
-                                                              List<ValidationFailure> failures,
-                                                              CancellationToken ct)
+                                                      HttpContext ctx,
+                                                      List<ValidationFailure> failures,
+                                                      CancellationToken ct)
     {
         var binder = (IRequestBinder<TRequest>)
             (def.RequestBinder ??= Conf.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
@@ -17,8 +17,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         var binderCtx = new BinderContext(ctx, failures, def.SerializerContext, def.DontBindFormData);
 
         var req = await binder.BindAsync(
-            binderCtx,
-            ct);
+                      binderCtx,
+                      ct);
 
         Conf.BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
 
@@ -26,11 +26,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     }
 
     static async Task RunPostProcessors(List<object> postProcessors,
-                                                TRequest req,
-                                                TResponse resp,
-                                                HttpContext ctx,
-                                                List<ValidationFailure> validationFailures,
-                                                CancellationToken cancellation)
+                                        TRequest req,
+                                        TResponse resp,
+                                        HttpContext ctx,
+                                        List<ValidationFailure> validationFailures,
+                                        CancellationToken cancellation)
     {
         for (var i = 0; i < postProcessors.Count; i++)
         {
@@ -38,19 +38,21 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             {
                 case IGlobalPostProcessor gp:
                     await gp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
+
                     break;
                 case IPostProcessor<TRequest, TResponse> pp:
                     await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
+
                     break;
             }
         }
     }
 
     static async Task RunPreprocessors(List<object> preProcessors,
-                                               TRequest req,
-                                               HttpContext ctx,
-                                               List<ValidationFailure> validationFailures,
-                                               CancellationToken ct)
+                                       TRequest req,
+                                       HttpContext ctx,
+                                       List<ValidationFailure> validationFailures,
+                                       CancellationToken ct)
     {
         for (var i = 0; i < preProcessors.Count; i++)
         {
@@ -58,33 +60,31 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             {
                 case IGlobalPreProcessor gp:
                     await gp.PreProcessAsync(req, ctx, validationFailures, ct);
+
                     break;
                 case IPreProcessor<TRequest> pr:
                     await pr.PreProcessAsync(req, ctx, validationFailures, ct);
+
                     break;
             }
         }
     }
 
     static Task RunResponseInterceptor(IResponseInterceptor interceptor,
-                                               object resp,
-                                               int statusCode,
-                                               HttpContext ctx,
-                                               List<ValidationFailure> validationFailures,
-                                               CancellationToken cancellation)
-    {
-        return interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
-    }
+                                       object resp,
+                                       int statusCode,
+                                       HttpContext ctx,
+                                       List<ValidationFailure> validationFailures,
+                                       CancellationToken cancellation)
+        => interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
 
     static Task AutoSendResponse(HttpContext ctx,
-                                         TResponse responseDto,
-                                         JsonSerializerContext? jsonSerializerContext,
-                                         CancellationToken cancellation)
-    {
-        return responseDto is null
-            ? ctx.Response.SendNoContentAsync(cancellation)
-            : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
-    }
+                                 TResponse responseDto,
+                                 JsonSerializerContext? jsonSerializerContext,
+                                 CancellationToken cancellation)
+        => responseDto is null
+               ? ctx.Response.SendNoContentAsync(cancellation)
+               : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
 
     static void AddProcessors(object[] processors, List<object> target)
     {

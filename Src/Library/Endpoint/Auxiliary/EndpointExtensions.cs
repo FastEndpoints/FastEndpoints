@@ -13,14 +13,12 @@ static class EndpointExtensions
         => (Nullable.GetUnderlyingType(type) ?? type).Name;
 
     internal static bool RequiresAuthorization(this EndpointDefinition ep)
-    {
-        return ep.AllowedPermissions?.Any() is true ||
-               ep.AllowedClaimTypes?.Any() is true ||
-               ep.AllowedRoles?.Any() is true ||
-               ep.AuthSchemeNames?.Any() is true ||
-               ep.PolicyBuilder is not null ||
-               ep.PreBuiltUserPolicies is not null;
-    }
+        => ep.AllowedPermissions?.Any() is true ||
+           ep.AllowedClaimTypes?.Any() is true ||
+           ep.AllowedRoles?.Any() is true ||
+           ep.AuthSchemeNames?.Any() is true ||
+           ep.PolicyBuilder is not null ||
+           ep.PreBuiltUserPolicies is not null;
 
     internal static void Initialize(this EndpointDefinition def, BaseEndpoint instance, HttpContext? ctx)
     {
@@ -30,6 +28,7 @@ static class EndpointExtensions
         if (def.ImplementsConfigure)
         {
             instance.Configure();
+
             if (instance.Definition.FoundDuplicateValidators && instance.Definition.ValidatorType is null)
             {
                 throw new InvalidOperationException(
@@ -46,10 +45,12 @@ static class EndpointExtensions
                     case HttpAttribute httpAttr:
                         instance.Verbs(httpAttr.Verb.ToString("F"));
                         def.Routes = httpAttr.Routes;
+
                         break;
 
                     case AllowAnonymousAttribute:
                         def.AllowAnonymous();
+
                         break;
 
                     case AuthorizeAttribute authAttr:
@@ -60,12 +61,13 @@ static class EndpointExtensions
                             def.AuthSchemes(authAttr.AuthenticationSchemes.Split(','));
 
                         if (authAttr.Policy is not null)
-                            def.Policies(new[] { authAttr.Policy });
+                            def.Policies(authAttr.Policy);
 
                         break;
 
                     case ThrottleAttribute thrtAttr:
                         def.Throttle(thrtAttr.HitLimit, thrtAttr.DurationSeconds, thrtAttr.HeaderName);
+
                         break;
                 }
             }
@@ -75,11 +77,13 @@ static class EndpointExtensions
     }
 
     static readonly Regex rgx = new("(@[\\w]*)", RegexOptions.Compiled);
+
     internal static string BuildRoute<TRequest>(this Expression<Func<TRequest, object>> expr, string pattern) where TRequest : notnull
     {
         var sb = new StringBuilder(pattern);
         var matches = rgx.Matches(pattern);
         var i = 0;
+
         foreach (var prop in expr.PropNames())
         {
             if (i > matches.Count - 1)
@@ -91,14 +95,15 @@ static class EndpointExtensions
         }
 
         return i == 0 || i != matches.Count
-                ? throw new ArgumentException($"Failed to build route: [{sb}] due to incorrect number of replacements!")
-                : sb.ToString();
+                   ? throw new ArgumentException($"Failed to build route: [{sb}] due to incorrect number of replacements!")
+                   : sb.ToString();
     }
 
     internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
     {
         var vrb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
         var ep = EpOpts.ShortNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
-        return vrb + ep + routeNum.ToString();
+
+        return vrb + ep + routeNum;
     }
 }

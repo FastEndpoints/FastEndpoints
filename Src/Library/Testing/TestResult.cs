@@ -6,6 +6,5 @@
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <param name="Response">http response message object</param>
 /// <param name="Result">the resulting dto object</param>
-public sealed record TestResult<TResponse>(
-    HttpResponseMessage Response,
-    TResponse Result);
+public sealed record TestResult<TResponse>(HttpResponseMessage Response,
+                                           TResponse Result);

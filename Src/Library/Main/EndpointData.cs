@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -64,21 +63,24 @@ sealed class EndpointData
                 assemblies = assemblies.Where(options.AssemblyFilter);
 
             discoveredTypes = assemblies
-                .Where(a => !a.IsDynamic && (options.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
-                .SelectMany(a => a.GetTypes())
-                .Where(t =>
-                      !t.IsDefined(Types.DontRegisterAttribute) &&
-                      !t.IsAbstract &&
-                      !t.IsInterface &&
-                      !t.IsGenericType &&
-                       t.GetInterfaces().Intersect(new[] {
-                           Types.IEndpoint,
-                           Types.IEventHandler,
-                           Types.ICommandHandler,
-                           Types.ISummary,
-                           options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                       }).Any() &&
-                       (options.Filter is null || options.Filter(t)));
+                             .Where(a => !a.IsDynamic && (options.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
+                             .SelectMany(a => a.GetTypes())
+                             .Where(
+                                  t =>
+                                      !t.IsDefined(Types.DontRegisterAttribute) &&
+                                      !t.IsAbstract &&
+                                      !t.IsInterface &&
+                                      !t.IsGenericType &&
+                                      t.GetInterfaces().Intersect(
+                                          new[]
+                                          {
+                                              Types.IEndpoint,
+                                              Types.IEventHandler,
+                                              Types.ICommandHandler,
+                                              Types.ISummary,
+                                              options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                                          }).Any() &&
+                                      (options.Filter is null || options.Filter(t)));
         }
 
         //Endpoint<TRequest>
@@ -116,6 +118,7 @@ sealed class EndpointData
                         if (Types.IMapper.IsAssignableFrom(tMapper))
                             mapperDict[t] = tMapper;
                     }
+
                     continue;
                 }
 
@@ -137,6 +140,7 @@ sealed class EndpointData
                         t.GetGenericArgumentsOfType(Types.SummaryOf1)?[0]! ??
                         t.GetGenericArgumentsOfType(Types.SummaryOf2)?[0]!;
                     summaryDict.Add(tEndpoint, t);
+
                     continue;
                 }
 
@@ -158,73 +162,86 @@ sealed class EndpointData
                 {
                     cmdHandlerRegistry.TryAdd(
                         key: tInterface.GetGenericArguments()[0],
-                        value: new CommandHandlerDefinition(t));
+                        value: new(t));
 
                     //continue;
                 }
             }
         }
 
-        return epList.Select(x =>
-        {
-            var def = new EndpointDefinition(x.tEndpoint, x.tRequest, x.tResponse);
-
-            if (mapperDict.TryGetValue(x.tEndpoint, out var mapper))
-                def.MapperType = mapper;
-
-            var implementsConfigure = false;
-            var implementsHandleAsync = false;
-            var implementsExecuteAsync = false;
-
-            foreach (var m in x.tEndpoint.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
+        return epList.Select(
+            x =>
             {
-                if (m.Name == nameof(BaseEndpoint.Configure) && !m.IsDefined(Types.NotImplementedAttribute, false))
-                    implementsConfigure = true;
+                var def = new EndpointDefinition(x.tEndpoint, x.tRequest, x.tResponse);
 
-                if (m.Name == nameof(Endpoint<object>.HandleAsync) && !m.IsDefined(Types.NotImplementedAttribute, false))
-                    implementsHandleAsync = true;
+                if (mapperDict.TryGetValue(x.tEndpoint, out var mapper))
+                    def.MapperType = mapper;
 
-                if (m.Name == nameof(Endpoint<object>.ExecuteAsync) && !m.IsDefined(Types.NotImplementedAttribute, false))
+                var implementsConfigure = false;
+                var implementsHandleAsync = false;
+                var implementsExecuteAsync = false;
+
+                foreach (var m in x.tEndpoint.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
                 {
-                    implementsExecuteAsync = true;
-                    def.ExecuteAsyncImplemented = true;
+                    if (m.Name == nameof(BaseEndpoint.Configure) && !m.IsDefined(Types.NotImplementedAttribute, false))
+                        implementsConfigure = true;
+
+                    if (m.Name == nameof(Endpoint<object>.HandleAsync) && !m.IsDefined(Types.NotImplementedAttribute, false))
+                        implementsHandleAsync = true;
+
+                    if (m.Name == nameof(Endpoint<object>.ExecuteAsync) && !m.IsDefined(Types.NotImplementedAttribute, false))
+                    {
+                        implementsExecuteAsync = true;
+                        def.ExecuteAsyncImplemented = true;
+                    }
                 }
-            }
 
-            def.ImplementsConfigure = implementsConfigure;
-            def.EndpointAttributes = x.tEndpoint.GetCustomAttributes(true);
-            var hasHttpAttrib = def.EndpointAttributes.Any(a => a is HttpAttribute);
+                def.ImplementsConfigure = implementsConfigure;
+                def.EndpointAttributes = x.tEndpoint.GetCustomAttributes(true);
+                var hasHttpAttrib = def.EndpointAttributes.Any(a => a is HttpAttribute);
 
-            if (implementsConfigure && hasHttpAttrib)
-                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
+                if (implementsConfigure && hasHttpAttrib)
+                {
+                    throw new InvalidOperationException(
+                        $"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
+                }
 
-            if (!implementsConfigure && !hasHttpAttrib)
-                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] should either override the Configure() method or decorate the class with a [Http*(...)] attribute!");
+                if (!implementsConfigure && !hasHttpAttrib)
+                {
+                    throw new InvalidOperationException(
+                        $"The endpoint [{x.tEndpoint.FullName}] should either override the Configure() method or decorate the class with a [Http*(...)] attribute!");
+                }
 
-            if (!implementsHandleAsync && !implementsExecuteAsync)
-                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
+                if (!implementsHandleAsync && !implementsExecuteAsync)
+                {
+                    throw new InvalidOperationException(
+                        $"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
+                }
 
-            if (implementsHandleAsync && implementsExecuteAsync)
-                throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
+                if (implementsHandleAsync && implementsExecuteAsync)
+                {
+                    throw new InvalidOperationException(
+                        $"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
+                }
 
-            if (valDict.TryGetValue(def.ReqDtoType, out var val))
-            {
-                if (val.HasDuplicates)
-                    def.FoundDuplicateValidators = true;
-                else
-                    def.ValidatorType = val.ValidatorType;
-            }
+                if (valDict.TryGetValue(def.ReqDtoType, out var val))
+                {
+                    if (val.HasDuplicates)
+                        def.FoundDuplicateValidators = true;
+                    else
+                        def.ValidatorType = val.ValidatorType;
+                }
 
-            if (summaryDict.TryGetValue(def.EndpointType, out var tSummary))
-                def.Summary((EndpointSummary)Activator.CreateInstance(tSummary)!);
+                if (summaryDict.TryGetValue(def.EndpointType, out var tSummary))
+                    def.Summary((EndpointSummary)Activator.CreateInstance(tSummary)!);
 
-            return def;
-        }).ToArray();
+                return def;
+            }).ToArray();
     }
 
     class ValDicItem
     {
-        public Type ValidatorType;
+        public readonly Type ValidatorType;
         public bool HasDuplicates;
 
         public ValDicItem(Type validatorType, bool dupesFound)

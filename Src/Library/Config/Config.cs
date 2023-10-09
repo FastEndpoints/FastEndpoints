@@ -1,4 +1,5 @@
 ﻿global using Conf = FastEndpoints.Config;
+
 #pragma warning disable RCS1102,CA1822
 
 namespace FastEndpoints;
@@ -10,7 +11,9 @@ public sealed class Config
 {
     static IServiceResolver? _resolver;
     internal static bool ResolverIsNotSet => _resolver is null;
-    internal static IServiceResolver ServiceResolver {
+
+    internal static IServiceResolver ServiceResolver
+    {
         get => _resolver ?? throw new InvalidOperationException("Service resolver is null! Have you done the unit test setup correctly?");
         set => _resolver = value;
     }

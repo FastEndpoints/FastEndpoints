@@ -36,6 +36,7 @@ public static class Factory
             ep = epFactory.Create(epDef, httpContext); //ctor & property injection
 
         epDef.Initialize(ep, httpContext);
+
         return (ep as TEndpoint)!;
     }
 
@@ -45,10 +46,12 @@ public static class Factory
     /// <typeparam name="TEndpoint">the type of the endpoint to create an instance of</typeparam>
     /// <param name="httpContext">an action for configuring the default http context object</param>
     /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected arguments</param>
-    public static TEndpoint Create<TEndpoint>(Action<DefaultHttpContext> httpContext, params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
+    public static TEndpoint Create<TEndpoint>(Action<DefaultHttpContext> httpContext, params object?[] ctorDependencies)
+        where TEndpoint : class, IEndpoint
     {
         var ctx = new DefaultHttpContext();
         httpContext(ctx);
+
         return Create<TEndpoint>(ctx, ctorDependencies);
     }
 
@@ -58,27 +61,23 @@ public static class Factory
     /// <typeparam name="TEndpoint">the type of the endpoint to create an instance of</typeparam>
     /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected dependencies</param>
     public static TEndpoint Create<TEndpoint>(params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
-    {
-        return Create<TEndpoint>(new DefaultHttpContext(), ctorDependencies)!;
-    }
+        => Create<TEndpoint>(new DefaultHttpContext(), ctorDependencies)!;
 
     /// <summary>
     /// adds the minimum required set of services for unit testing FE endpoints
     /// </summary>
     public static IServiceCollection AddServicesForUnitTesting(this IServiceCollection services)
-    {
-        return services
-             .AddSingleton<ILoggerFactory, LoggerFactory>()
-             .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
-             .AddSingleton<CommandHandlerRegistry>()
-             .AddSingleton(typeof(EventBus<>));
-    }
+        => services
+          .AddSingleton<ILoggerFactory, LoggerFactory>()
+          .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
+          .AddSingleton<CommandHandlerRegistry>()
+          .AddSingleton(typeof(EventBus<>));
 
     /// <summary>
     /// register fake/mock/test services for the http context. typically only used with unit tests with the <c>Factory.Create()</c>" method/>
     /// </summary>
-    /// <param name="s">an action for adding services to the <see cref="IServiceCollection"/></param>
-    /// <exception cref="InvalidOperationException">thrown if the <see cref="HttpContext.RequestServices"/> is not empty</exception>
+    /// <param name="s">an action for adding services to the <see cref="IServiceCollection" /></param>
+    /// <exception cref="InvalidOperationException">thrown if the <see cref="HttpContext.RequestServices" /> is not empty</exception>
     public static void AddTestServices(this HttpContext ctx, Action<IServiceCollection> s)
     {
         if (ctx.RequestServices is not null)
@@ -86,9 +85,7 @@ public static class Factory
 
         if (Conf.ResolverIsNotSet)
         {
-            var testingProvider = new ServiceCollection()
-                .AddHttpContextAccessor()
-                .BuildServiceProvider();
+            var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
             Conf.ServiceResolver = new ServiceResolver(
                 provider: testingProvider,
                 ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
@@ -105,7 +102,7 @@ public static class Factory
     /// <summary>
     /// register fake/mock/test services for the current test execution context.
     /// </summary>
-    /// <param name="s">an action for adding services to the <see cref="IServiceCollection"/></param>
+    /// <param name="s">an action for adding services to the <see cref="IServiceCollection" /></param>
     public static void RegisterTestServices(Action<IServiceCollection> s)
     {
         new DefaultHttpContext().AddTestServices(s);
@@ -115,10 +112,11 @@ public static class Factory
     /// get an instance of a validator that uses Resolve&lt;T&gt;() methods to obtain services registered in the DI container.
     /// </summary>
     /// <typeparam name="TValidator">the type of the validator</typeparam>
-    /// <param name="s">an action for adding services to the <see cref="IServiceCollection"/></param>
+    /// <param name="s">an action for adding services to the <see cref="IServiceCollection" /></param>
     public static TValidator CreateValidator<TValidator>(Action<IServiceCollection> s) where TValidator : class, IValidator
     {
         new DefaultHttpContext().AddTestServices(s);
+
         return (TValidator)Conf.ServiceResolver.CreateInstance(typeof(TValidator));
     }
 
@@ -126,10 +124,11 @@ public static class Factory
     /// get an instance of a mapper that uses Resolve&lt;T&gt;() methods to obtain services registered in the DI container.
     /// </summary>
     /// <typeparam name="TMapper">the type of the mapper</typeparam>
-    /// <param name="s">an action for adding services to the <see cref="IServiceCollection"/></param>
+    /// <param name="s">an action for adding services to the <see cref="IServiceCollection" /></param>
     public static TMapper CreateMapper<TMapper>(Action<IServiceCollection> s) where TMapper : class, IMapper
     {
         new DefaultHttpContext().AddTestServices(s);
+
         return (TMapper)Conf.ServiceResolver.CreateInstance(typeof(TMapper));
     }
 
@@ -138,11 +137,13 @@ public static class Factory
     /// </summary>
     /// <typeparam name="TEvent">the type of the event</typeparam>
     /// <param name="handlers">the fake/mock event handlers to register for this event</param>
-    /// <param name="s">an optional action for adding services to the <see cref="IServiceCollection"/></param>
-    public static TEvent CreateEvent<TEvent>(IEnumerable<IEventHandler<TEvent>> handlers, Action<IServiceCollection>? s = null) where TEvent : class, IEvent
+    /// <param name="s">an optional action for adding services to the <see cref="IServiceCollection" /></param>
+    public static TEvent CreateEvent<TEvent>(IEnumerable<IEventHandler<TEvent>> handlers, Action<IServiceCollection>? s = null)
+        where TEvent : class, IEvent
     {
         Action<IServiceCollection> x = s => s.AddSingleton(handlers);
         new DefaultHttpContext().AddTestServices(x + s);
+
         return (TEvent)Conf.ServiceResolver.CreateInstance(typeof(TEvent));
     }
 }

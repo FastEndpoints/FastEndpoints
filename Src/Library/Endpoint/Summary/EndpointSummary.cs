@@ -153,11 +153,11 @@ public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnul
         => Params[property.PropertyName()] = description;
 }
 
-/// <inheritdoc />
+/// <inheritdoc cref="EndpointSummary" />
 /// <typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
 public abstract class Summary<TEndpoint> : EndpointSummary, ISummary where TEndpoint : IEndpoint { }
 
-/// <inheritdoc />
+/// <inheritdoc cref="EndpointSummary{TRequest}" />
 /// <typeparam name="TEndpoint">the type of the endpoint this summary is associated with</typeparam>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 public abstract class Summary<TEndpoint, TRequest> : EndpointSummary<TRequest>, ISummary where TEndpoint : IEndpoint where TRequest : notnull { }

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -11,12 +10,12 @@ namespace FastEndpoints;
 /// <summary>
 /// RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:
 /// <para>
-/// <c>app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);</c>
+///     <c>app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);</c>
 /// </para>
 /// </summary>
 public sealed class ProblemDetails : IResult
-#if NET7_0_OR_GREATER 
-    , IEndpointMetadataProvider
+                                 #if NET7_0_OR_GREATER
+                                   , IEndpointMetadataProvider
 #endif
 {
     /// <summary>
@@ -66,38 +65,40 @@ public sealed class ProblemDetails : IResult
         TraceId = traceId;
 
         if (AllowDuplicates)
-        {
             Errors = failures.Select(f => new Error(f));
-        }
         else
         {
             var set = new HashSet<Error>(failures.Count, Error.EqComparer);
             for (var i = 0; i < failures.Count; i++)
-                set.Add(new Error(failures[i]));
+                set.Add(new(failures[i]));
             Errors = set;
         }
     }
 
-    ///<inheritdoc/>
+    /// <inheritdoc />
     public Task ExecuteAsync(HttpContext httpContext)
     {
-        if (string.IsNullOrEmpty(TraceId)) TraceId = httpContext.TraceIdentifier;
-        if (string.IsNullOrEmpty(Instance)) Instance = httpContext.Request.Path;
+        if (string.IsNullOrEmpty(TraceId))
+            TraceId = httpContext.TraceIdentifier;
+        if (string.IsNullOrEmpty(Instance))
+            Instance = httpContext.Request.Path;
+
         return httpContext.Response.SendAsync(this, Status);
     }
 
 #if NET7_0_OR_GREATER
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Metadata.Add(new ProducesResponseTypeMetadata
-        {
-            ContentTypes = new[] { "application/problem+json" },
-            StatusCode = Config.ErrOpts.StatusCode,
-            Type = typeof(ProblemDetails)
-        });
+        builder.Metadata.Add(
+            new ProducesResponseTypeMetadata
+            {
+                ContentTypes = new[] { "application/problem+json" },
+                StatusCode = Config.ErrOpts.StatusCode,
+                Type = typeof(ProblemDetails)
+            });
     }
 #endif
 
@@ -133,8 +134,11 @@ public sealed class ProblemDetails : IResult
 
         internal sealed class Comparer : IEqualityComparer<Error>
         {
-            public bool Equals(Error? x, Error? y) => x?.Name.Equals(y?.Name, StringComparison.OrdinalIgnoreCase) is true;
-            public int GetHashCode([DisallowNull] Error obj) => obj.Name.GetHashCode();
+            public bool Equals(Error? x, Error? y)
+                => x?.Name.Equals(y?.Name, StringComparison.OrdinalIgnoreCase) is true;
+
+            public int GetHashCode(Error obj)
+                => obj.Name.GetHashCode();
         }
     }
 }

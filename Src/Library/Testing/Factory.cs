@@ -61,7 +61,7 @@ public static class Factory
     /// <typeparam name="TEndpoint">the type of the endpoint to create an instance of</typeparam>
     /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected dependencies</param>
     public static TEndpoint Create<TEndpoint>(params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
-        => Create<TEndpoint>(new DefaultHttpContext(), ctorDependencies)!;
+        => Create<TEndpoint>(new DefaultHttpContext(), ctorDependencies);
 
     /// <summary>
     /// adds the minimum required set of services for unit testing FE endpoints
@@ -141,9 +141,11 @@ public static class Factory
     public static TEvent CreateEvent<TEvent>(IEnumerable<IEventHandler<TEvent>> handlers, Action<IServiceCollection>? s = null)
         where TEvent : class, IEvent
     {
-        Action<IServiceCollection> x = s => s.AddSingleton(handlers);
-        new DefaultHttpContext().AddTestServices(x + s);
+        new DefaultHttpContext().AddTestServices(Action + s);
 
         return (TEvent)Conf.ServiceResolver.CreateInstance(typeof(TEvent));
+
+        void Action(IServiceCollection sc)
+            => sc.AddSingleton(handlers);
     }
 }

@@ -25,7 +25,7 @@ sealed class HitCounter
             hVal => new(_durationSeconds, hVal, _limit, ref _clients)).LimitReached();
     }
 
-    class Counter : IDisposable
+    sealed class Counter : IDisposable
     {
         readonly string _self;
         readonly ConcurrentDictionary<string, Counter> _parent;
@@ -92,7 +92,7 @@ sealed class HitCounter
 
         bool _disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             if (!_disposedValue)
             {

@@ -68,9 +68,7 @@ sealed class EndpointData
                              .Where(
                                   t =>
                                       !t.IsDefined(Types.DontRegisterAttribute) &&
-                                      !t.IsAbstract &&
-                                      !t.IsInterface &&
-                                      !t.IsGenericType &&
+                                      t is { IsAbstract: false, IsInterface: false, IsGenericType: false } &&
                                       t.GetInterfaces().Intersect(
                                           new[]
                                           {
@@ -136,9 +134,8 @@ sealed class EndpointData
 
                 if (tInterface == Types.ISummary)
                 {
-                    var tEndpoint =
-                        t.GetGenericArgumentsOfType(Types.SummaryOf1)?[0]! ??
-                        t.GetGenericArgumentsOfType(Types.SummaryOf2)?[0]!;
+                    var tEndpoint = t.GetGenericArgumentsOfType(Types.SummaryOf1)?[0] ??
+                                    t.GetGenericArgumentsOfType(Types.SummaryOf2)?[0]!;
                     summaryDict.Add(tEndpoint, t);
 
                     continue;
@@ -183,16 +180,21 @@ sealed class EndpointData
 
                 foreach (var m in x.tEndpoint.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
                 {
-                    if (m.Name == nameof(BaseEndpoint.Configure) && !m.IsDefined(Types.NotImplementedAttribute, false))
-                        implementsConfigure = true;
-
-                    if (m.Name == nameof(Endpoint<object>.HandleAsync) && !m.IsDefined(Types.NotImplementedAttribute, false))
-                        implementsHandleAsync = true;
-
-                    if (m.Name == nameof(Endpoint<object>.ExecuteAsync) && !m.IsDefined(Types.NotImplementedAttribute, false))
+                    switch (m.Name)
                     {
-                        implementsExecuteAsync = true;
-                        def.ExecuteAsyncImplemented = true;
+                        case nameof(BaseEndpoint.Configure) when !m.IsDefined(Types.NotImplementedAttribute, false):
+                            implementsConfigure = true;
+
+                            break;
+                        case nameof(Endpoint<object>.HandleAsync) when !m.IsDefined(Types.NotImplementedAttribute, false):
+                            implementsHandleAsync = true;
+
+                            break;
+                        case nameof(Endpoint<object>.ExecuteAsync) when !m.IsDefined(Types.NotImplementedAttribute, false):
+                            implementsExecuteAsync = true;
+                            def.ExecuteAsyncImplemented = true;
+
+                            break;
                     }
                 }
 

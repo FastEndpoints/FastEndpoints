@@ -306,16 +306,22 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var prop = _fromHeaderProps[i];
             var hdrVal = headers[prop.Identifier];
 
-            if (hdrVal.Count == 0 && prop.ForbidIfMissing)
-                failures.Add(new(prop.Identifier, "This header is missing from the request!"));
-
-            if (hdrVal.Count > 0)
+            switch (hdrVal.Count)
             {
-                var res = prop.ValueParser(hdrVal);
-                prop.PropSetter(req, res.Value);
+                case 0 when prop.ForbidIfMissing:
+                    failures.Add(new(prop.Identifier, "This header is missing from the request!"));
 
-                if (!res.IsSuccess)
-                    failures.Add(new(prop.Identifier, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
+                    break;
+                case > 0:
+                {
+                    var res = prop.ValueParser(hdrVal);
+                    prop.PropSetter(req, res.Value);
+
+                    if (!res.IsSuccess)
+                        failures.Add(new(prop.Identifier, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
+
+                    break;
+                }
             }
         }
     }

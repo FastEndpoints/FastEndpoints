@@ -301,7 +301,7 @@ public static class HttpClientExtensions
         TResponse? res = default!;
 
         if (typeof(TResponse) == Types.EmptyResponse)
-            return new(rsp, res!);
+            return new(rsp, res);
 
         try
         {
@@ -319,7 +319,10 @@ public static class HttpClientExtensions
                 res = await JsonSerializer.DeserializeAsync<TResponse>(copy, SerOpts.Options);
             }
         }
-        catch { }
+        catch
+        {
+            // ignored
+        }
 
         return new(rsp, res!);
     }
@@ -330,7 +333,7 @@ public static class HttpClientExtensions
 
         foreach (var p in req!.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
         {
-            if (!p.CanWrite && !p.CanRead)
+            if (p is { CanWrite: false, CanRead: false })
                 continue;
 
             if (p.PropertyType == Types.IFormFile)

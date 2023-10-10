@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
@@ -438,11 +437,13 @@ public sealed class EndpointDefinition
         ValidatorType = typeof(TValidator);
     }
 
-    ServiceBoundEpProp[]? GetServiceBoundEpProps()
+    ServiceBoundEpProp[] GetServiceBoundEpProps()
     {
         return EndpointType
               .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-              .Where(p => p.CanRead && p.CanWrite && !p.IsDefined(Types.DontInjectAttribute))
+              .Where(
+                   p => p is { CanRead: true, CanWrite: true } &&
+                        !p.IsDefined(Types.DontInjectAttribute))
               .Select(
                    p => new ServiceBoundEpProp
                    {
@@ -482,6 +483,6 @@ class TypeEqualityComparer : IEqualityComparer<object>
     public new bool Equals(object? x, object? y)
         => x?.GetType() == y?.GetType();
 
-    public int GetHashCode([DisallowNull] object obj)
+    public int GetHashCode(object obj)
         => obj.GetType().GetHashCode();
 }

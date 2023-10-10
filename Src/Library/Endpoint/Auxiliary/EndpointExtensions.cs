@@ -29,7 +29,7 @@ static class EndpointExtensions
         {
             instance.Configure();
 
-            if (instance.Definition.FoundDuplicateValidators && instance.Definition.ValidatorType is null)
+            if (instance.Definition is { FoundDuplicateValidators: true, ValidatorType: null })
             {
                 throw new InvalidOperationException(
                     $"More than one validator was found for the request dto [{def.ReqDtoType.FullName}]. " +

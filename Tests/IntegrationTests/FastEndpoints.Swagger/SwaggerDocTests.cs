@@ -13,6 +13,7 @@ public class SwaggerDocTests : TestClass<Fixture>
 
         var json = doc.ToJson();
         var currentDoc = JToken.Parse(json);
+
         //await File.WriteAllTextAsync("initial-release.json", json);
 
         var snapshot = File.ReadAllText("initial-release.json");
@@ -28,6 +29,7 @@ public class SwaggerDocTests : TestClass<Fixture>
 
         var json = doc.ToJson();
         var currentDoc = JToken.Parse(json);
+
         //await File.WriteAllTextAsync("release-1.json", json);
 
         var snapshot = File.ReadAllText("release-1.json");
@@ -43,6 +45,7 @@ public class SwaggerDocTests : TestClass<Fixture>
 
         var json = doc.ToJson();
         var currentDoc = JToken.Parse(json);
+
         //await File.WriteAllTextAsync("release-2.json", json);
 
         var snapshot = File.ReadAllText("release-2.json");

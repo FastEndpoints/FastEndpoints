@@ -9,7 +9,7 @@ public interface IHasMapper { }
 /// marker/constraint for endpoints that have a mapper generic argument
 /// </summary>
 /// <typeparam name="TMapper">the type of the mapper</typeparam>
-public interface IHasMapper<TMapper> : IHasMapper where TMapper : notnull, IMapper
+public interface IHasMapper<TMapper> : IHasMapper where TMapper : IMapper
 {
     /// <summary>
     /// the mapper property

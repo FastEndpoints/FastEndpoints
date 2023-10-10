@@ -56,15 +56,13 @@ public sealed class SerializerOptions
     /// </code>
     /// </summary>
     public Func<HttpResponse, object?, string, JsonSerializerContext?, CancellationToken, Task> ResponseSerializer { internal get; set; }
-        = (rsp, dto, contentType, jCtx, cancellation) =>
-        {
-            return dto is null
-                       ? Task.CompletedTask
-                       : rsp.WriteAsJsonAsync(
-                           value: dto,
-                           type: dto.GetType(),
-                           options: jCtx?.Options ?? SerOpts.Options,
-                           contentType: contentType,
-                           cancellationToken: cancellation);
-        };
+        = (rsp, dto, contentType, jCtx, cancellation)
+            => dto is null
+                   ? Task.CompletedTask
+                   : rsp.WriteAsJsonAsync(
+                       value: dto,
+                       type: dto.GetType(),
+                       options: jCtx?.Options ?? SerOpts.Options,
+                       contentType: contentType,
+                       cancellationToken: cancellation);
 }

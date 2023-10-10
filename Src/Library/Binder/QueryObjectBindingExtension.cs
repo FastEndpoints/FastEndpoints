@@ -10,12 +10,10 @@ static class QueryObjectBindingExtension
     static readonly ConcurrentDictionary<Type, PropertyInfo[]?> _propCache = new();
 
     static PropertyInfo[] AllProperties(this Type type)
-        => _propCache.GetOrAdd(
-            type,
-            type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy) ?? Array.Empty<PropertyInfo>())!;
+        => _propCache.GetOrAdd(type, type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))!;
 
-    static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool>> _queryObjects =
-        new();
+    static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool>> _queryObjects
+        = new();
 
     internal static Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool> QueryObjectSetter(this Type type)
     {
@@ -73,7 +71,7 @@ static class QueryObjectBindingExtension
                                     : null;
 
                         var props = tProp.AllProperties();
-                        for (var i = 0; i < props?.Length; i++)
+                        for (var i = 0; i < props.Length; i++)
                             props[i].PropertyType.QueryObjectSetter()(queryString, obj, route, props[i].Name, swaggerStyle);
                     };
                 }
@@ -114,7 +112,7 @@ static class QueryObjectBindingExtension
                     var tElement = tProp.GetElementType() ?? tProp.GetGenericArguments().FirstOrDefault();
 
                     return tElement == Types.Byte
-                               ? (queryString, parent, route, swaggerStyle) =>
+                               ? (queryString, parent, route, _) =>
                                {
                                    if (queryString.TryGetValue(route, out var values))
                                    {
@@ -136,7 +134,7 @@ static class QueryObjectBindingExtension
                                        {
                                            var array = new JsonArray();
                                            parent.Add(array);
-                                           tProp.QueryArraySetter()!(queryString, array, newRoute, swaggerStyle);
+                                           tProp.QueryArraySetter()(queryString, array, newRoute, swaggerStyle);
                                            i++;
                                            newRoute = $"{route}[" + i + "]";
                                        }

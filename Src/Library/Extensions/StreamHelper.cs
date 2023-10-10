@@ -22,18 +22,16 @@ static class StreamHelper
         var response = ctx.Response;
         SetLastModified(response, lastModified);
 
-        if (preconditionState == Precondition.NotModified)
+        switch (preconditionState)
         {
-            response.StatusCode = StatusCodes.Status304NotModified;
+            case Precondition.NotModified:
+                response.StatusCode = StatusCodes.Status304NotModified;
 
-            return (range: null, rangeLength: 0, shouldSendBody: false);
-        }
+                return (range: null, rangeLength: 0, shouldSendBody: false);
+            case Precondition.PreconditionFailed:
+                response.StatusCode = StatusCodes.Status412PreconditionFailed;
 
-        if (preconditionState == Precondition.PreconditionFailed)
-        {
-            response.StatusCode = StatusCodes.Status412PreconditionFailed;
-
-            return (range: null, rangeLength: 0, shouldSendBody: false);
+                return (range: null, rangeLength: 0, shouldSendBody: false);
         }
 
         response.ContentType = contentType;
@@ -55,7 +53,7 @@ static class StreamHelper
 
                 if (request.Method == HttpMethods.Head ||
                     (request.Method == HttpMethods.Get &&
-                     (preconditionState == Precondition.Unspecified || preconditionState == Precondition.ShouldProcess) &&
+                     preconditionState is Precondition.Unspecified or Precondition.ShouldProcess &&
                      IfRangeValid(reqHeaders, lastModified)))
                     return SetRangeHeaders(ctx, reqHeaders, fileLength.Value);
             }

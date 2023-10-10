@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Http.Metadata;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
+public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
 {
     static readonly Type _tRequest = typeof(TRequest);
     static readonly Type _tResponse = typeof(TResponse);
@@ -601,13 +601,12 @@ static class ProducesMetaForResultOfResponse
     {
         if (tResponse is not null && typeof(IEndpointMetadataProvider).IsAssignableFrom(tResponse))
         {
-            var invokeArgs = new object[1] { builder };
+            var invokeArgs = new object[] { builder };
             _populateMethod.MakeGenericMethod(tResponse).Invoke(null, invokeArgs);
         }
     }
 
-    static void Populate<T>(EndpointBuilder b)
-        where T : IEndpointMetadataProvider
+    static void Populate<T>(EndpointBuilder b) where T : IEndpointMetadataProvider
     {
         T.PopulateMetadata(_populateMethod, b);
     }

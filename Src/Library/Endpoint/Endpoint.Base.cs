@@ -38,7 +38,7 @@ public abstract class BaseEndpoint : IEndpoint
         => throw new NotImplementedException();
 
     //this is here just so the derived endpoint class can seal it.
-    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new()
+    protected virtual void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
         => throw new NotImplementedException();
 
     static readonly Regex _regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);

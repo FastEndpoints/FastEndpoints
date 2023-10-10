@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IValidationErrors<TRequest> where TRequest : notnull
+public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<TRequest> where TRequest : notnull
 {
     static async Task ValidateRequest(TRequest req,
                                       EndpointDefinition def,

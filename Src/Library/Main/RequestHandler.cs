@@ -79,8 +79,8 @@ static class RequestHandler
         // then return true so that a 415 response can be sent to the client.
         // we don't need to check for mismatched content-types (between request and endpoint)
         // because routing middleware already takes care of that.
-        return !ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
-               def.AcceptsMetaDataPresent is true &&
-               !def.AcceptsAnyContentType;
+        return
+            !ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
+            def is { AcceptsMetaDataPresent: true, AcceptsAnyContentType: false };
     }
 }

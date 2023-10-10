@@ -23,7 +23,7 @@ public sealed class BindingOptions
     /// <para><see cref="StringValues" />: the value that was attempted which resulted in the failure</para>
     /// use these input parameters and construct your own error message string and return it from the function.
     /// </summary>
-    public Func<Type, string, StringValues, string> FailureMessage { internal get; set; } = (tProp, propName, attemptedValue)
+    public Func<Type, string, StringValues, string> FailureMessage { internal get; set; } = (tProp, _, attemptedValue)
         => $"Value [{attemptedValue}] is not valid for a [{tProp.ActualTypeName()}] property!";
 
     /// <summary>

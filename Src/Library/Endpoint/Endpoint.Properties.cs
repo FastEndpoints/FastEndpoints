@@ -8,7 +8,7 @@ using System.Text.Json.Nodes;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
+public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
 {
     Http? _httpMethod;
     string _baseUrl;

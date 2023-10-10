@@ -12,7 +12,7 @@ static class ResponseCacheExecutor
         if (attrib is null)
             return;
 
-        if (!attrib.NoStore && attrib.Duration == 0)
+        if (attrib is { NoStore: false, Duration: 0 })
             throw new InvalidOperationException("ResponseCache duration MUST be set unless NoStore is true!");
 
         var headers = context.Response.Headers;

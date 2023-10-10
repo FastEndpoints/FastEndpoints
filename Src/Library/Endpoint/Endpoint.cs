@@ -20,7 +20,8 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object?> where TRe
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object?>, IHasMapper<TMapper>
-    where TRequest : notnull where TMapper : notnull, IRequestMapper
+    where TRequest : notnull
+    where TMapper : IRequestMapper
 {
     TMapper? _mapper;
 
@@ -69,6 +70,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             await OnAfterValidateAsync(req, ct);
 
             await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
+            ranPreProcessors = true;
 
             if (ResponseStarted) //HttpContext.Response.HasStarted doesn't work in AWS lambda!!!
                 return;          //response already sent to client (most likely from a preprocessor)
@@ -228,9 +230,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     {
         var reader = new MultipartReader(HttpContext.Request.GetMultipartBoundary(), HttpContext.Request.Body);
 
-        MultipartSection? section;
-
-        while ((section = await reader.ReadNextSectionAsync(cancellation)) is not null)
+        while (await reader.ReadNextSectionAsync(cancellation) is { } section)
         {
             if (section.GetContentDispositionHeader()?.IsFileDisposition() is true)
                 yield return section.AsFileSection();
@@ -275,7 +275,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper>
-    where TRequest : notnull where TResponse : notnull where TMapper : notnull, IMapper
+    where TRequest : notnull
+    where TResponse : notnull
+    where TMapper : IMapper
 {
     TMapper? _mapper;
 
@@ -399,7 +401,8 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
 public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWithoutRequest<TResponse>, IHasMapper<TMapper>
-    where TResponse : notnull where TMapper : notnull, IResponseMapper
+    where TResponse : notnull
+    where TMapper : IResponseMapper
 {
     TMapper? _mapper;
 

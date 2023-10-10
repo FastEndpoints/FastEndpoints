@@ -13,7 +13,7 @@ public interface IJobStorageRecord
     /// <code>
     /// 1. add a [NotMapped] attribute to this property.
     /// 2. add a new property, either a <see langword="string" /> or <see cref="byte" /> array
-    /// 3. implement both <see cref="GetCommand" /> and <see cref="SetCommand" /> to serialize/deserialize the command object back and forth and store it in the newly added property.
+    /// 3. implement both <see cref="GetCommand{TCommand}" /> and <see cref="SetCommand{TCommand}" /> to serialize/deserialize the command object back and forth and store it in the newly added property.
     /// </code>
     /// you may use any serializer you please. recommendation is to use MessagePack.
     /// </summary>

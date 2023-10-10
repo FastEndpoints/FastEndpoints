@@ -3622,7 +3622,7 @@
       },
       "FastEndpointsProblemDetails": {
         "type": "object",
-        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n\napp.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);",
+        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n\n    app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);",
         "additionalProperties": false,
         "properties": {
           "Type": {

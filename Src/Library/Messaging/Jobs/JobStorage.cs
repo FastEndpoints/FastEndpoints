@@ -27,7 +27,10 @@ static class JobStorage<TStorageRecord, TStorageProvider>
                         CancellationToken = AppCancellation
                     });
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
     }
 }

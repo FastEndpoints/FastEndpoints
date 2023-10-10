@@ -19,6 +19,12 @@ This can happen in rare cases such as when the DTO being serialized has an infin
 
 </details>
 
+<details><summary>Misc. improvements</summary>
+
+- Upgrade dependencies to latest
+
+</details>
+
 <!-- ## Fixes 🪲 -->
 
 

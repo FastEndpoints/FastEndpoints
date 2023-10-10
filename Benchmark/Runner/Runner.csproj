@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
         <IsPackable>false</IsPackable>
-        <TieredPGO>true</TieredPGO>        
+        <TieredPGO>true</TieredPGO>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -18,19 +18,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="BenchmarkDotNet.Artifacts\**" />
-        <None Remove="run.cmd" />
+        <None Remove="BenchmarkDotNet.Artifacts\**"/>
+        <None Remove="run.cmd"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.13.7" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.10" />
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.9"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.11"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FastEndpointsBench\FEBench.csproj" />
-        <ProjectReference Include="..\MinimalApi\MinimalApi.csproj" />
-        <ProjectReference Include="..\MvcControllers\MvcControllers.csproj" />
+        <ProjectReference Include="..\FastEndpointsBench\FEBench.csproj"/>
+        <ProjectReference Include="..\MinimalApi\MinimalApi.csproj"/>
+        <ProjectReference Include="..\MvcControllers\MvcControllers.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -76,12 +76,12 @@ static class EndpointExtensions
         def.IsInitialized = true;
     }
 
-    static readonly Regex rgx = new("(@[\\w]*)", RegexOptions.Compiled);
+    static readonly Regex _rgx = new("(@[\\w]*)", RegexOptions.Compiled);
 
     internal static string BuildRoute<TRequest>(this Expression<Func<TRequest, object>> expr, string pattern) where TRequest : notnull
     {
         var sb = new StringBuilder(pattern);
-        var matches = rgx.Matches(pattern);
+        var matches = _rgx.Matches(pattern);
         var i = 0;
 
         foreach (var prop in expr.PropNames())

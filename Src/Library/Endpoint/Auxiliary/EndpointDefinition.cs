@@ -74,27 +74,27 @@ public sealed class EndpointDefinition
     internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
 
-    object? mapper;
+    object? _mapper;
 
     internal object? GetMapper()
     {
-        if (mapper is null && MapperType is not null)
-            mapper = Conf.ServiceResolver.CreateSingleton(MapperType);
+        if (_mapper is null && MapperType is not null)
+            _mapper = Conf.ServiceResolver.CreateSingleton(MapperType);
 
-        return mapper;
+        return _mapper;
     }
 
-    object? validator;
+    object? _validator;
 
     internal object? GetValidator()
     {
-        if (validator is null && ValidatorType is not null)
-            validator = Conf.ServiceResolver.CreateSingleton(ValidatorType);
+        if (_validator is null && ValidatorType is not null)
+            _validator = Conf.ServiceResolver.CreateSingleton(ValidatorType);
 
-        return validator;
+        return _validator;
     }
 
-    static readonly Action<RouteHandlerBuilder> ClearDefaultAcceptsProducesMetadata = b =>
+    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata = b =>
     {
         b.Add(
             epBuilder =>
@@ -210,7 +210,7 @@ public sealed class EndpointDefinition
     public void Description(Action<RouteHandlerBuilder> builder, bool clearDefaults = false)
     {
         UserConfigAction = clearDefaults
-                               ? ClearDefaultAcceptsProducesMetadata + builder + UserConfigAction
+                               ? _clearDefaultAcceptsProducesMetadata + builder + UserConfigAction
                                : builder + UserConfigAction;
     }
 

@@ -44,8 +44,8 @@ static class BinderExtensions
     }
 
     internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = new();
-    static readonly MethodInfo toStringMethod = Types.Object.GetMethod("ToString")!;
-    static readonly ConstructorInfo parseResultCtor = Types.ParseResult.GetConstructor(new[] { Types.Bool, Types.Object })!;
+    static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
+    static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor(new[] { Types.Bool, Types.Object })!;
 
     internal static Func<object?, ParseResult> ValueParser(this Type type)
     {
@@ -103,7 +103,7 @@ static class BinderExtensions
             var toStringConversion = Expression.Condition(
                 Expression.ReferenceEqual(inputParameter, Expression.Constant(null, Types.Object)),
                 Expression.Constant(null, Types.String),
-                Expression.Call(inputParameter, toStringMethod));
+                Expression.Call(inputParameter, _toStringMethod));
 
             // 'res' variable used as the out parameter to the TryParse call
             var resultVar = Expression.Variable(tProp, "res");
@@ -127,21 +127,21 @@ static class BinderExtensions
             var block = Expression.Block(
                 new[] { resultVar, isSuccessVar },
                 Expression.Assign(isSuccessVar, tryParseCall),
-                Expression.New(parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
+                Expression.New(_parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 
             return Expression
                   .Lambda<Func<object?, ParseResult>>(block, inputParameter)
                   .Compile();
 
             static object? DeserializeJsonObjectString(object? input, Type tProp)
-                => input is not StringValues vals || vals.Count != 1
+                => input is not StringValues { Count: 1 } vals
                        ? null
                        : vals[0]!.StartsWith('{') && vals[0]!.EndsWith('}') // check if it's a json object
                            ? JsonSerializer.Deserialize(vals[0]!, tProp, SerOpts.Options)
                            : null;
 
             static object? DeserializeByteArray(object? input)
-                => input is not StringValues vals || vals.Count != 1
+                => input is not StringValues { Count: 1 } vals
                        ? null
                        : Convert.FromBase64String(vals[0]!);
 
@@ -158,7 +158,7 @@ static class BinderExtensions
                     // - ["one","two","three"] (as StringValues[0])
                     // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
 
-                    return JsonSerializer.Deserialize(vals[0], tProp, SerOpts.Options);
+                    return JsonSerializer.Deserialize(vals[0]!, tProp, SerOpts.Options);
                 }
 
                 // querystring: ?ids=one&ids=two

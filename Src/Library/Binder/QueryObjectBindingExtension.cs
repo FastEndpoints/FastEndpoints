@@ -7,19 +7,19 @@ namespace FastEndpoints;
 
 static class QueryObjectBindingExtension
 {
-    static readonly ConcurrentDictionary<Type, PropertyInfo[]?> propCache = new();
+    static readonly ConcurrentDictionary<Type, PropertyInfo[]?> _propCache = new();
 
     static PropertyInfo[] AllProperties(this Type type)
-        => propCache.GetOrAdd(
+        => _propCache.GetOrAdd(
             type,
             type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy) ?? Array.Empty<PropertyInfo>())!;
 
-    static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool>> queryObjects =
+    static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool>> _queryObjects =
         new();
 
     internal static Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool> QueryObjectSetter(this Type type)
     {
-        return queryObjects.GetOrAdd(type, GetQueryObjectSetter(type));
+        return _queryObjects.GetOrAdd(type, GetQueryObjectSetter(type));
 
         static Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool> GetQueryObjectSetter(Type tProp)
         {
@@ -92,11 +92,11 @@ static class QueryObjectBindingExtension
         }
     }
 
-    static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>> queryArrays = new();
+    static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>> _queryArrays = new();
 
     static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool> QueryArraySetter(this Type type)
     {
-        return queryArrays.GetOrAdd(type, GetQueryArraySetter(type)!);
+        return _queryArrays.GetOrAdd(type, GetQueryArraySetter(type)!);
 
         static Action<IReadOnlyDictionary<string, StringValues>, JsonArray, string, bool>? GetQueryArraySetter(Type type)
         {

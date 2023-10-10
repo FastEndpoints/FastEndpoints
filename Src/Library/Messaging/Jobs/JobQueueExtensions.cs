@@ -8,8 +8,8 @@ namespace FastEndpoints;
 /// </summary>
 public static class JobQueueExtensions
 {
-    static Type tStorageRecord;
-    static Type tStorageProvider;
+    static Type _tStorageRecord;
+    static Type _tStorageProvider;
 
     /// <summary>
     /// add job queue functionality
@@ -20,8 +20,8 @@ public static class JobQueueExtensions
         where TStorageRecord : IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
     {
-        tStorageProvider = typeof(TStorageProvider);
-        tStorageRecord = typeof(TStorageRecord);
+        _tStorageProvider = typeof(TStorageProvider);
+        _tStorageRecord = typeof(TStorageRecord);
         svc.AddSingleton<TStorageProvider>();
         svc.AddSingleton(typeof(JobQueue<,,>));
 
@@ -49,7 +49,7 @@ public static class JobQueueExtensions
             if (tHandler is not null)
                 registry[tCommand].HandlerType = tHandler;
 
-            var tJobQ = Types.JobQueueOf3.MakeGenericType(tCommand, tStorageRecord, tStorageProvider);
+            var tJobQ = Types.JobQueueOf3.MakeGenericType(tCommand, _tStorageRecord, _tStorageProvider);
             var jobQ = app.ApplicationServices.GetRequiredService(tJobQ);
             opts.SetExecutionLimits(tCommand, (JobQueueBase)jobQ);
         }

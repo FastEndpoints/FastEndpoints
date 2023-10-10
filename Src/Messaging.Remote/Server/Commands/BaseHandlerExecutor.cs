@@ -11,7 +11,7 @@ abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethod
     where TResult : class
     where TSelf : class
 {
-    protected static readonly ObjectFactory _handlerFactory = ActivatorUtilities.CreateFactory(typeof(THandler), Type.EmptyTypes);
+    protected static readonly ObjectFactory HandlerFactory = ActivatorUtilities.CreateFactory(typeof(THandler), Type.EmptyTypes);
 
     protected abstract MethodType MethodType();
 
@@ -46,7 +46,8 @@ abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethod
 
         var metadata = new List<object>();
         var handlerAttributes = HandlerExecMethodAttributes(tExecutor);
-        if (handlerAttributes?.Length > 0) metadata.AddRange(handlerAttributes);
+        if (handlerAttributes?.Length > 0)
+            metadata.AddRange(handlerAttributes);
         metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
 
         AddMethodToCtx(ctx, method, metadata);
@@ -56,6 +57,7 @@ abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethod
     {
         var tHandler = tExecutor.GenericTypeArguments[1];
         var execMethod = tHandler.GetMethod(nameof(ICommandHandler<ICommand<object>, object>.ExecuteAsync));
+
         return execMethod?.GetCustomAttributes(false);
     }
 }

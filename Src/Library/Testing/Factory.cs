@@ -10,7 +10,7 @@ namespace FastEndpoints;
 /// </summary>
 public static class Factory
 {
-    static readonly IEndpointFactory epFactory = new EndpointFactory();
+    static readonly IEndpointFactory _epFactory = new EndpointFactory();
 
     /// <summary>
     /// get an instance of an endpoint suitable for unit testing
@@ -33,7 +33,7 @@ public static class Factory
         if (ctorDependencies.Length > 0)
             ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, ctorDependencies)!; //ctor injection only
         else
-            ep = epFactory.Create(epDef, httpContext); //ctor & property injection
+            ep = _epFactory.Create(epDef, httpContext); //ctor & property injection
 
         epDef.Initialize(ep, httpContext);
 

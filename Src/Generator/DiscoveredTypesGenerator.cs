@@ -11,9 +11,9 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
     static string? _assemblyName;
     static readonly StringBuilder b = new();
-    const string _dontRegisterAttribute = "DontRegisterAttribute";
+    const string DontRegisterAttribute = "DontRegisterAttribute";
 
-    static readonly string[] _whiteList = new[]
+    static readonly string[] _whiteList =
     {
         "FastEndpoints.IEndpoint",
         "FastEndpoints.IEventHandler",
@@ -25,9 +25,9 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var syntaxProvider = ctx.SyntaxProvider
-            .CreateSyntaxProvider(Match, Transform)
-            .Where(static t => t is not null)
-            .Collect();
+                                .CreateSyntaxProvider(Match, Transform)
+                                .Where(static t => t is not null)
+                                .Collect();
 
         ctx.RegisterSourceOutput(syntaxProvider, Generate!);
 
@@ -41,7 +41,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
             return
                 ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
                 type.IsAbstract ||
-                type.GetAttributes().Any(a => a.AttributeClass!.Name == _dontRegisterAttribute || type.AllInterfaces.Length == 0)
+                type.GetAttributes().Any(a => a.AttributeClass!.Name == DontRegisterAttribute || type.AllInterfaces.Length == 0)
                     ? null
                     : type.AllInterfaces.Any(i => _whiteList.Contains(i.ToDisplayString()))
                         ? type.ToDisplayString()
@@ -51,15 +51,17 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
     static void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
     {
-        if (!typeNames.Any()) return;
+        if (!typeNames.Any())
+            return;
+
         var fileContent = RenderClass(typeNames.OrderBy(t => t));
         spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
     static string RenderClass(IEnumerable<string> discoveredTypes)
     {
-        b.Clear().w(
-"namespace ").w(_assemblyName).w(@";
+        b.Clear().w("namespace ").w(_assemblyName).w(
+            @";
 
 using System;
 
@@ -67,14 +69,18 @@ public static class DiscoveredTypes
 {
     public static readonly Type[] All = new Type[]
     {");
+
         foreach (var t in discoveredTypes)
         {
-            b.w(@"
+            b.w(
+                @"
         typeof(").w(t).w("),");
         }
-        b.w(@"
+        b.w(
+            @"
     };
 }");
+
         return b.ToString();
     }
 }

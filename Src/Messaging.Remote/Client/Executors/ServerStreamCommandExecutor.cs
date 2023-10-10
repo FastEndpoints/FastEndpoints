@@ -13,10 +13,10 @@ sealed class ServerStreamCommandExecutor<TCommand, TResult> : BaseCommandExecuto
     where TResult : class
 {
     public ServerStreamCommandExecutor(GrpcChannel channel)
-        : base(channel: channel,
-               methodType: MethodType.ServerStreaming)
-    { }
+        : base(
+            channel: channel,
+            methodType: MethodType.ServerStreaming) { }
 
     public IAsyncStreamReader<TResult> ExecuteServerStream(IServerStreamCommand<TResult> cmd, CallOptions opts)
-        => _invoker.AsyncServerStreamingCall(_method, null, opts, (TCommand)cmd).ResponseStream;
+        => Invoker.AsyncServerStreamingCall(Method, null, opts, (TCommand)cmd).ResponseStream;
 }

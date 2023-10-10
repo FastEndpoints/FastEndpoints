@@ -5,24 +5,24 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.ClientGen;
 
-sealed class TSClientGenProcessor : IDocumentProcessor
+sealed class TsClientGenProcessor : IDocumentProcessor
 {
-    readonly string destination;
-    readonly ClientGeneratorOutputType outputType;
+    readonly string _destination;
+    readonly ClientGeneratorOutputType _outputType;
 
-    readonly TypeScriptClientGeneratorSettings settings = new()
+    readonly TypeScriptClientGeneratorSettings _settings = new()
     {
         ClassName = "ApiClient",
         TypeScriptGeneratorSettings = { Namespace = "FastEndpoints" }
     };
 
-    internal TSClientGenProcessor(Action<TypeScriptClientGeneratorSettings> settings, string destination, ClientGeneratorOutputType outputType)
+    internal TsClientGenProcessor(Action<TypeScriptClientGeneratorSettings> settings, string destination, ClientGeneratorOutputType outputType)
     {
-        settings(this.settings);
-        this.destination = destination;
-        this.outputType = outputType;
+        settings(_settings);
+        _destination = destination;
+        _outputType = outputType;
     }
 
     public void Process(DocumentProcessorContext context)
-        => _ = File.WriteAllTextAsync(destination, new TypeScriptClientGenerator(context.Document, settings).GenerateFile(outputType));
+        => _ = File.WriteAllTextAsync(_destination, new TypeScriptClientGenerator(context.Document, _settings).GenerateFile(_outputType));
 }

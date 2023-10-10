@@ -11,7 +11,7 @@ namespace FastEndpoints;
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
     Http? _httpMethod;
-    string _baseURL;
+    string _baseUrl;
     ILogger _logger;
     IWebHostEnvironment _env;
     TResponse _response;
@@ -28,7 +28,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     [DontInject]
     public TResponse Response
     {
-        get => _response is null ? InitResponseDTO() : _response;
+        get => _response is null ? InitResponseDto() : _response;
         set => _response = value;
     }
 
@@ -56,7 +56,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// <summary>
     /// the base url of the current request
     /// </summary>
-    public string BaseURL => _baseURL ??= $"{HttpContext.Request?.Scheme}://{HttpContext.Request?.Host.ToString()}/";
+    public string BaseURL => _baseUrl ??= $"{HttpContext.Request?.Scheme}://{HttpContext.Request?.Host.ToString()}/";
 
     /// <summary>
     /// the http method of the current request
@@ -83,16 +83,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
         set => HttpContext.MarkResponseStart();
     }
 
-    static readonly JsonObject emptyObject = new();
-    static readonly JsonArray emptyArray = new();
+    static readonly JsonObject _emptyObject = new();
+    static readonly JsonArray _emptyArray = new();
 
-    TResponse InitResponseDTO()
+    TResponse InitResponseDto()
     {
-        if (isStringResponse) //otherwise strings are detected as IEnumerable of chars
+        if (_isStringResponse) //otherwise strings are detected as IEnumerable of chars
             return default!;
 
         _response = JsonSerializer.Deserialize<TResponse>(
-            isCollectionResponse ? emptyArray : emptyObject,
+            _isCollectionResponse ? _emptyArray : _emptyObject,
             Conf.SerOpts.Options)!;
 
         return _response is null

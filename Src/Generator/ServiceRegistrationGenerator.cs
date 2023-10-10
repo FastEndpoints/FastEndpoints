@@ -11,15 +11,15 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 {
     static readonly StringBuilder b = new();
     static string? _assemblyName;
-    const string _attribShortName = "RegisterService";
-    const string _attribMetadataName = "RegisterServiceAttribute`1";
+    const string AttribShortName = "RegisterService";
+    const string AttribMetadataName = "RegisterServiceAttribute`1";
 
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var provider = ctx.SyntaxProvider
-            .CreateSyntaxProvider(Match, Transform)
-            .Where(static r => r is not null)
-            .Collect();
+                          .CreateSyntaxProvider(Match, Transform)
+                          .Where(static r => r is not null)
+                          .Collect();
 
         ctx.RegisterSourceOutput(provider, Generate!);
 
@@ -28,9 +28,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             return
                 node is ClassDeclarationSyntax cds &&
                 cds.TypeParameterList is null &&
-                cds.AttributeLists.Any(
-                    al => al.Attributes.Any(
-                        a => a.Name is GenericNameSyntax { Identifier.ValueText: _attribShortName }));
+                cds.AttributeLists.Any(al => al.Attributes.Any(a => a.Name is GenericNameSyntax { Identifier.ValueText: AttribShortName }));
         }
 
         static Registration? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
@@ -43,24 +41,25 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
 
             var svcType = service
-                .GetAttributes()
-                .Single(a => a.AttributeClass!.MetadataName == _attribMetadataName)
-                .AttributeClass!
-                .TypeArguments[0]
-                .ToDisplayString();
+                         .GetAttributes()
+                         .Single(a => a.AttributeClass!.MetadataName == AttribMetadataName)
+                         .AttributeClass!
+                         .TypeArguments[0]
+                         .ToDisplayString();
 
             var implType = service.ToDisplayString();
 
             var attrib = (ctx.Node as ClassDeclarationSyntax)!
-                .AttributeLists
-                .SelectMany(al => al.Attributes)
-                .First(a => ((GenericNameSyntax)a.Name).Identifier.ValueText == _attribShortName);
-            var arg = (MemberAccessExpressionSyntax)attrib
-                .ArgumentList!
-                .Arguments
-                .OfType<AttributeArgumentSyntax>()
-                .Single()
-                .Expression;
+                        .AttributeLists
+                        .SelectMany(al => al.Attributes)
+                        .First(a => ((GenericNameSyntax)a.Name).Identifier.ValueText == AttribShortName);
+            var arg = (MemberAccessExpressionSyntax)
+                attrib
+                   .ArgumentList!
+                   .Arguments
+                   .OfType<AttributeArgumentSyntax>()
+                   .Single()
+                   .Expression;
             var lifetime = ((IdentifierNameSyntax)arg.Name).Identifier.ValueText;
 
             return new(svcType, implType, lifetime);
@@ -72,23 +71,26 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         if (!regs.Any())
             return;
 
-        b.Clear().w(
-"namespace ").w(_assemblyName).w(@";
+        b.Clear().w("namespace ").w(_assemblyName).w(
+            @";
 
 using Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceRegistrationExtensions
 {
-    public static IServiceCollection RegisterServicesFrom").w(_assemblyName?.Sanitize(string.Empty) ?? "Assembly").w(@"(this IServiceCollection sc)
+    public static IServiceCollection RegisterServicesFrom").w(_assemblyName?.Sanitize(string.Empty) ?? "Assembly").w(
+            @"(this IServiceCollection sc)
     {
 ");
+
         foreach (var reg in regs.OrderBy(r => r!.LifeTime).ThenBy(r => r!.ServiceType))
         {
-            b.w(
-"        sc.Add").w(reg!.LifeTime).w("<").w(reg.ServiceType).w(",").w(" ").w(reg.ImplType).w(@">();
+            b.w("        sc.Add").w(reg!.LifeTime).w("<").w(reg.ServiceType).w(",").w(" ").w(reg.ImplType).w(
+                @">();
 ");
         }
-        b.w(@"
+        b.w(
+            @"
         return sc;
     }
 }");
@@ -111,12 +113,13 @@ public static class ServiceRegistrationExtensions
             unchecked
             {
                 Hash = 17;
-                Hash = (Hash * 23) + svcType.GetHashCode();
-                Hash = (Hash * 23) + implType.GetHashCode();
-                Hash = (Hash * 23) + life.GetHashCode();
+                Hash = Hash * 23 + svcType.GetHashCode();
+                Hash = Hash * 23 + implType.GetHashCode();
+                Hash = Hash * 23 + life.GetHashCode();
             }
         }
 
-        public bool Equals(Registration other) => other.Hash.Equals(Hash);
+        public bool Equals(Registration other)
+            => other.Hash.Equals(Hash);
     }
 }

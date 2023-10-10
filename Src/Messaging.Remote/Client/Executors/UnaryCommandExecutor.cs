@@ -13,10 +13,10 @@ sealed class UnaryCommandExecutor<TCommand, TResult> : BaseCommandExecutor<TComm
     where TResult : class
 {
     public UnaryCommandExecutor(GrpcChannel channel)
-        : base(channel: channel,
-               methodType: MethodType.Unary)
-    { }
+        : base(
+            channel: channel,
+            methodType: MethodType.Unary) { }
 
     public Task<TResult> ExecuteUnary(ICommand<TResult> cmd, CallOptions opts)
-        => _invoker.AsyncUnaryCall(_method, null, opts, (TCommand)cmd).ResponseAsync;
+        => Invoker.AsyncUnaryCall(Method, null, opts, (TCommand)cmd).ResponseAsync;
 }

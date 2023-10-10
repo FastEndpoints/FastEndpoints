@@ -35,7 +35,7 @@ namespace FastEndpoints.Swagger;
 
 sealed class ValidationSchemaProcessor : ISchemaProcessor
 {
-    static Type[]? validatorTypes;
+    static Type[]? _validatorTypes;
     readonly FluentValidationRule[] _rules;
     readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
     readonly ILogger<ValidationSchemaProcessor>? _logger;
@@ -43,45 +43,48 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
     public ValidationSchemaProcessor()
     {
         if (Conf.ServiceResolver is null)
-            throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
+            throw new InvalidOperationException(
+                $"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
 
         _logger = Conf.ServiceResolver.Resolve<ILogger<ValidationSchemaProcessor>>();
         _rules = CreateDefaultRules();
 
-        validatorTypes ??= Conf.ServiceResolver.Resolve<EndpointData>().Found
-            .Where(e => e.ValidatorType != null)
-            .Select(e => e.ValidatorType!)
-            .Distinct()
-            .ToArray();
+        _validatorTypes ??= Conf.ServiceResolver.Resolve<EndpointData>().Found
+                                .Where(e => e.ValidatorType != null)
+                                .Select(e => e.ValidatorType!)
+                                .Distinct()
+                                .ToArray();
 
-        if (validatorTypes?.Length is null or 0)
-        {
+        if (_validatorTypes?.Length is null or 0)
             _logger?.LogInformation("No validators found in the system!");
-        }
     }
 
     public void Process(SchemaProcessorContext context)
     {
-        if (validatorTypes?.Length is null or 0)
+        if (_validatorTypes?.Length is null or 0)
             return;
 
         var tRequest = context.ContextualType;
 
         using var scope = Conf.ServiceResolver.CreateScope();
-        if (scope is null)
-            throw new InvalidOperationException($"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
 
-        foreach (var tValidator in validatorTypes)
+        if (scope is null)
+            throw new InvalidOperationException(
+                $"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
+
+        foreach (var tValidator in _validatorTypes)
         {
             try
             {
                 if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
                     var validator = Conf.ServiceResolver.CreateInstance(tValidator, scope.ServiceProvider);
+
                     if (validator is null)
                         throw new InvalidOperationException("Unable to instantiate validator!");
 
                     ApplyValidator(context.Schema, (IValidator)validator, "");
+
                     break;
                 }
             }
@@ -101,8 +104,8 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
     }
 
     void ApplyRulesToSchema(JsonSchema? schema,
-                                    ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
-                                    string propertyPrefix)
+                            ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
+                            string propertyPrefix)
     {
         if (schema is null)
             return;
@@ -120,29 +123,28 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
     void ApplyRulesFromIncludedValidators(JsonSchema schema, IValidator validator)
     {
-        if (validator is not IEnumerable<IValidationRule> rules) return;
+        if (validator is not IEnumerable<IValidationRule> rules)
+            return;
 
         // Note: IValidatorDescriptor doesn't return IncludeRules so we need to get validators manually.
         var childAdapters = rules
-           .Where(rule => rule.HasNoCondition() && rule is IIncludeRule)
-           .SelectMany(includeRule => includeRule.Components.Select(c => c.Validator))
-           .Where(x => x.GetType().IsGenericType && x.GetType().GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>))
-           .ToList();
+                           .Where(rule => rule.HasNoCondition() && rule is IIncludeRule)
+                           .SelectMany(includeRule => includeRule.Components.Select(c => c.Validator))
+                           .Where(x => x.GetType().IsGenericType && x.GetType().GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>))
+                           .ToList();
 
         foreach (var adapter in childAdapters)
         {
             var adapterMethod = adapter.GetType().GetMethod("GetValidator");
-            if (adapterMethod == null) continue;
+
+            if (adapterMethod == null)
+                continue;
 
             // Create validation context of generic type
-            var validationContext = Activator.CreateInstance(
-                adapterMethod.GetParameters().First().ParameterType, new object[] { null! }
-            );
+            var validationContext = Activator.CreateInstance(adapterMethod.GetParameters().First().ParameterType, new object[] { null! });
 
             if (adapterMethod.Invoke(adapter, new[] { validationContext, null! }) is not IValidator includeValidator)
-            {
                 break;
-            }
 
             ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(), string.Empty);
             ApplyRulesFromIncludedValidators(schema, includeValidator);
@@ -150,9 +152,9 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
     }
 
     void TryApplyValidation(JsonSchema schema,
-                                    ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
-                                    string propertyName,
-                                    string parameterPrefix)
+                            ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
+                            string propertyName,
+                            string parameterPrefix)
     {
         // Build the full propertyname with composition route: request.child.property
         var fullPropertyName = $"{parameterPrefix}{propertyName}";
@@ -184,8 +186,9 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             {
                 // Get underlying validator using reflection
                 var validatorTypeObj = propertyValidator.GetType()
-                    .GetProperty("ValidatorType")
-                    ?.GetValue(propertyValidator);
+                                                        .GetProperty("ValidatorType")
+                                                       ?.GetValue(propertyValidator);
+
                 // Check if something went wrong
                 if (validatorTypeObj is not Type validatorType)
                     throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
@@ -196,6 +199,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
                 // Apply the validator to the schema. Again, recursively
                 var childSchema = schema.ActualProperties[propertyName].ActualSchema;
+
                 // Check if it is an array (RuleForEach()). In this case we need to apply validator to an Item Schema
                 childSchema = childSchema.Type == JsonObjectType.Array ? childSchema.Item.ActualSchema : childSchema;
                 ApplyValidator(childSchema, childValidator, string.Empty);
@@ -211,160 +215,165 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
                 try
                 {
-                    rule.Apply(new RuleContext(schema, propertyName, propertyValidator));
+                    rule.Apply(new(schema, propertyName, propertyValidator));
                 }
                 catch { }
             }
         }
     }
 
-    static FluentValidationRule[] CreateDefaultRules() => new[]
-    {
-        new FluentValidationRule("Required")
+    static FluentValidationRule[] CreateDefaultRules()
+        => new[]
         {
-            Matches = propertyValidator => propertyValidator is INotNullValidator or INotEmptyValidator,
-            Apply = context =>
+            new FluentValidationRule("Required")
             {
-                var schema = context.Schema;
-                if (!schema.RequiredProperties.Contains(context.PropertyKey))
-                    schema.RequiredProperties.Add(context.PropertyKey);
-            }
-        },
-        new FluentValidationRule("NotNull")
-        {
-            Matches = propertyValidator => propertyValidator is INotNullValidator,
-            Apply = context =>
-            {
-                var schema = context.Schema;
-                var properties = schema.ActualProperties;
-                properties[context.PropertyKey].IsNullableRaw = false;
-                if (properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
-                    properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
-                var oneOfsWithReference = properties[context.PropertyKey].OneOf
-                    .Where(x => x.Reference != null)
-                    .ToList();
-                if (oneOfsWithReference.Count == 1)
+                Matches = propertyValidator => propertyValidator is INotNullValidator or INotEmptyValidator,
+                Apply = context =>
                 {
-                    // Set the Reference directly instead and clear the OneOf collection
-                    properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
-                    properties[context.PropertyKey].OneOf.Clear();
+                    var schema = context.Schema;
+                    if (!schema.RequiredProperties.Contains(context.PropertyKey))
+                        schema.RequiredProperties.Add(context.PropertyKey);
                 }
-            }
-        },
-        new FluentValidationRule("NotEmpty")
-        {
-            Matches = propertyValidator => propertyValidator is INotEmptyValidator,
-            Apply = context =>
+            },
+            new FluentValidationRule("NotNull")
             {
-                var schema = context.Schema;
-                var properties = schema.ActualProperties;
-                properties[context.PropertyKey].IsNullableRaw = false;
-                if (properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
-                    properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
-                var oneOfsWithReference = properties[context.PropertyKey].OneOf
-                    .Where(x => x.Reference != null)
-                    .ToList();
-                if (oneOfsWithReference.Count == 1)
+                Matches = propertyValidator => propertyValidator is INotNullValidator,
+                Apply = context =>
                 {
-                    // Set the Reference directly instead and clear the OneOf collection
-                    properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
-                    properties[context.PropertyKey].OneOf.Clear();
+                    var schema = context.Schema;
+                    var properties = schema.ActualProperties;
+                    properties[context.PropertyKey].IsNullableRaw = false;
+                    if (properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
+                        properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
+                    var oneOfsWithReference = properties[context.PropertyKey].OneOf
+                                                                             .Where(x => x.Reference != null)
+                                                                             .ToList();
+
+                    if (oneOfsWithReference.Count == 1)
+                    {
+                        // Set the Reference directly instead and clear the OneOf collection
+                        properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
+                        properties[context.PropertyKey].OneOf.Clear();
+                    }
                 }
-                properties[context.PropertyKey].MinLength = 1;
-            }
-        },
-        new FluentValidationRule("Length")
-        {
-            Matches = propertyValidator => propertyValidator is ILengthValidator,
-            Apply = context =>
+            },
+            new FluentValidationRule("NotEmpty")
             {
-                var schema = context.Schema;
-                var properties = schema.ActualProperties;
-                var lengthValidator = (ILengthValidator)context.PropertyValidator;
-                if (lengthValidator.Max > 0)
-                    properties[context.PropertyKey].MaxLength = lengthValidator.Max;
-                if (lengthValidator.GetType() == typeof(MinimumLengthValidator<>) ||
-                    lengthValidator.GetType() == typeof(ExactLengthValidator<>) ||
-                    properties[context.PropertyKey].MinLength == null)
+                Matches = propertyValidator => propertyValidator is INotEmptyValidator,
+                Apply = context =>
                 {
-                    properties[context.PropertyKey].MinLength = lengthValidator.Min;
+                    var schema = context.Schema;
+                    var properties = schema.ActualProperties;
+                    properties[context.PropertyKey].IsNullableRaw = false;
+                    if (properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
+                        properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
+                    var oneOfsWithReference = properties[context.PropertyKey].OneOf
+                                                                             .Where(x => x.Reference != null)
+                                                                             .ToList();
+
+                    if (oneOfsWithReference.Count == 1)
+                    {
+                        // Set the Reference directly instead and clear the OneOf collection
+                        properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
+                        properties[context.PropertyKey].OneOf.Clear();
+                    }
+                    properties[context.PropertyKey].MinLength = 1;
                 }
-            }
-        },
-        new FluentValidationRule("Pattern")
-        {
-            Matches = propertyValidator => propertyValidator is IRegularExpressionValidator,
-            Apply = context =>
+            },
+            new FluentValidationRule("Length")
             {
-                var regularExpressionValidator = (IRegularExpressionValidator)context.PropertyValidator;
-                var schema = context.Schema;
-                var properties = schema.ActualProperties;
-                properties[context.PropertyKey].Pattern = regularExpressionValidator.Expression;
-            }
-        },
-        new FluentValidationRule("Comparison")
-        {
-            Matches = propertyValidator => propertyValidator is IComparisonValidator,
-            Apply = context =>
-            {
-                var comparisonValidator = (IComparisonValidator)context.PropertyValidator;
-                if (comparisonValidator.ValueToCompare.IsNumeric())
+                Matches = propertyValidator => propertyValidator is ILengthValidator,
+                Apply = context =>
                 {
-                    var valueToCompare = Convert.ToDecimal(comparisonValidator.ValueToCompare);
+                    var schema = context.Schema;
+                    var properties = schema.ActualProperties;
+                    var lengthValidator = (ILengthValidator)context.PropertyValidator;
+                    if (lengthValidator.Max > 0)
+                        properties[context.PropertyKey].MaxLength = lengthValidator.Max;
+                    if (lengthValidator.GetType() == typeof(MinimumLengthValidator<>) ||
+                        lengthValidator.GetType() == typeof(ExactLengthValidator<>) ||
+                        properties[context.PropertyKey].MinLength == null)
+                        properties[context.PropertyKey].MinLength = lengthValidator.Min;
+                }
+            },
+            new FluentValidationRule("Pattern")
+            {
+                Matches = propertyValidator => propertyValidator is IRegularExpressionValidator,
+                Apply = context =>
+                {
+                    var regularExpressionValidator = (IRegularExpressionValidator)context.PropertyValidator;
+                    var schema = context.Schema;
+                    var properties = schema.ActualProperties;
+                    properties[context.PropertyKey].Pattern = regularExpressionValidator.Expression;
+                }
+            },
+            new FluentValidationRule("Comparison")
+            {
+                Matches = propertyValidator => propertyValidator is IComparisonValidator,
+                Apply = context =>
+                {
+                    var comparisonValidator = (IComparisonValidator)context.PropertyValidator;
+
+                    if (comparisonValidator.ValueToCompare.IsNumeric())
+                    {
+                        var valueToCompare = Convert.ToDecimal(comparisonValidator.ValueToCompare);
+                        var schema = context.Schema;
+                        var properties = schema.ActualProperties;
+                        var schemaProperty = properties[context.PropertyKey];
+
+                        if (comparisonValidator.Comparison == Comparison.GreaterThanOrEqual)
+                            schemaProperty.Minimum = valueToCompare;
+                        else if (comparisonValidator.Comparison == Comparison.GreaterThan)
+                        {
+                            schemaProperty.Minimum = valueToCompare;
+                            schemaProperty.IsExclusiveMinimum = true;
+                        }
+                        else if (comparisonValidator.Comparison == Comparison.LessThanOrEqual)
+                            schemaProperty.Maximum = valueToCompare;
+                        else if (comparisonValidator.Comparison == Comparison.LessThan)
+                        {
+                            schemaProperty.Maximum = valueToCompare;
+                            schemaProperty.IsExclusiveMaximum = true;
+                        }
+                    }
+                }
+            },
+            new FluentValidationRule("Between")
+            {
+                Matches = propertyValidator => propertyValidator is IBetweenValidator,
+                Apply = context =>
+                {
+                    var betweenValidator = (IBetweenValidator)context.PropertyValidator;
                     var schema = context.Schema;
                     var properties = schema.ActualProperties;
                     var schemaProperty = properties[context.PropertyKey];
-                    if (comparisonValidator.Comparison == Comparison.GreaterThanOrEqual)
+
+                    if (betweenValidator.From.IsNumeric())
                     {
-                        schemaProperty.Minimum = valueToCompare;
+                        if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
+                            schemaProperty.ExclusiveMinimum = Convert.ToDecimal(betweenValidator.From);
+                        else
+                            schemaProperty.Minimum = Convert.ToDecimal(betweenValidator.From);
                     }
-                    else if (comparisonValidator.Comparison == Comparison.GreaterThan)
+
+                    if (betweenValidator.To.IsNumeric())
                     {
-                        schemaProperty.Minimum = valueToCompare;
-                        schemaProperty.IsExclusiveMinimum = true;
-                    }
-                    else if (comparisonValidator.Comparison == Comparison.LessThanOrEqual) { schemaProperty.Maximum = valueToCompare; } else if (comparisonValidator.Comparison == Comparison.LessThan)
-                    {
-                        schemaProperty.Maximum = valueToCompare;
-                        schemaProperty.IsExclusiveMaximum = true;
+                        if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
+                            schemaProperty.ExclusiveMaximum = Convert.ToDecimal(betweenValidator.To);
+                        else
+                            schemaProperty.Maximum = Convert.ToDecimal(betweenValidator.To);
                     }
                 }
-            }
-        },
-        new FluentValidationRule("Between")
-        {
-            Matches = propertyValidator => propertyValidator is IBetweenValidator,
-            Apply = context =>
+            },
+            new FluentValidationRule("AspNetCoreCompatibleEmail")
             {
-                var betweenValidator = (IBetweenValidator)context.PropertyValidator;
-                var schema = context.Schema;
-                var properties = schema.ActualProperties;
-                var schemaProperty = properties[context.PropertyKey];
-                if (betweenValidator.From.IsNumeric())
+                Matches = propertyValidator => propertyValidator.GetType().IsSubClassOfGeneric(typeof(AspNetCoreCompatibleEmailValidator<>)),
+                Apply = context =>
                 {
-                    if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
-                        schemaProperty.ExclusiveMinimum = Convert.ToDecimal(betweenValidator.From);
-                    else
-                        schemaProperty.Minimum = Convert.ToDecimal(betweenValidator.From);
-                }
-                if (betweenValidator.To.IsNumeric())
-                {
-                    if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
-                        schemaProperty.ExclusiveMaximum = Convert.ToDecimal(betweenValidator.To);
-                    else
-                        schemaProperty.Maximum = Convert.ToDecimal(betweenValidator.To);
+                    var schema = context.Schema;
+                    var properties = schema.ActualProperties;
+                    properties[context.PropertyKey].Pattern = "^[^@]+@[^@]+$"; // [^@] All chars except @
                 }
             }
-        },
-        new FluentValidationRule("AspNetCoreCompatibleEmail")
-        {
-            Matches = propertyValidator => propertyValidator.GetType().IsSubClassOfGeneric(typeof(AspNetCoreCompatibleEmailValidator<>)),
-            Apply = context =>
-            {
-                var schema = context.Schema;
-                var properties = schema.ActualProperties;
-                properties[context.PropertyKey].Pattern = "^[^@]+@[^@]+$"; // [^@] All chars except @
-            }
-        },
-    };
+        };
 }

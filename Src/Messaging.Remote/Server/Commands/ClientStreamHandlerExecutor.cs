@@ -5,9 +5,9 @@ namespace FastEndpoints;
 
 sealed class ClientStreamHandlerExecutor<TCommand, THandler, TResult>
     : BaseHandlerExecutor<TCommand, THandler, TResult, ClientStreamHandlerExecutor<TCommand, THandler, TResult>>
-        where TCommand : class
-        where THandler : class, IClientStreamCommandHandler<TCommand, TResult>
-        where TResult : class
+    where TCommand : class
+    where THandler : class, IClientStreamCommandHandler<TCommand, TResult>
+    where TResult : class
 {
     protected override MethodType MethodType()
         => Grpc.Core.MethodType.ClientStreaming;
@@ -21,7 +21,8 @@ sealed class ClientStreamHandlerExecutor<TCommand, THandler, TResult>
                                                          IAsyncStreamReader<TCommand> requestStream,
                                                          ServerCallContext ctx)
     {
-        var handler = (THandler)_handlerFactory(ctx.GetHttpContext().RequestServices, null);
+        var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
+
         return handler.ExecuteAsync(requestStream.ReadAllAsync(ctx.CancellationToken), ctx.CancellationToken);
     }
 }

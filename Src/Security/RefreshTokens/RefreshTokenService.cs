@@ -9,7 +9,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     where TRequest : notnull, TokenRequest, new()
     where TResponse : notnull, TokenResponse, new()
 {
-    RefreshServiceOptions? opts;
+    RefreshServiceOptions? _opts;
 
     /// <summary>
     /// WARNING: do not call this method!
@@ -17,12 +17,12 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     [HideFromDocs]
     public sealed override void Configure()
     {
-        if (opts is null)
-            throw new InvalidOperationException($"Refresh token service is not configured!");
+        if (_opts is null)
+            throw new InvalidOperationException("Refresh token service is not configured!");
 
-        opts.epSettings?.Invoke(Definition);
+        _opts.EpSettings?.Invoke(Definition);
 
-        Post(opts.refreshRoute);
+        Post(_opts.RefreshRoute);
         AllowAnonymous();
     }
 
@@ -44,8 +44,8 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="options">action to be performed on the refresh service options object</param>
     public void Setup(Action<RefreshServiceOptions> options)
     {
-        opts = new();
-        options(opts);
+        _opts = new();
+        options(_opts);
     }
 
     /// <summary>
@@ -78,18 +78,19 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <typeparam name="T">the type to map to</typeparam>
     /// <param name="userId">the id of the user to create the token for</param>
     /// <param name="privileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
-    /// <param name="map">a func that maps properties from <typeparamref name="TResponse"/> to <typeparamref name="T"/></param>
+    /// <param name="map">a func that maps properties from <typeparamref name="TResponse" /> to <typeparamref name="T" /></param>
     public async Task<T> CreateCustomToken<T>(string userId, Action<UserPrivileges> privileges, Func<TResponse, T> map)
     {
         var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(userId, privileges, null);
+
         return map(res);
     }
 
     [HideFromDocs]
     async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPrivileges>? privileges, object? request)
     {
-        if (opts?.TokenSigningKey is null)
-            throw new ArgumentNullException($"{nameof(opts.TokenSigningKey)} must be specified for [{Definition.EndpointType.FullName}]");
+        if (_opts?.TokenSigningKey is null)
+            throw new ArgumentNullException($"{nameof(_opts.TokenSigningKey)} must be specified for [{Definition.EndpointType.FullName}]");
 
         var privs = new UserPrivileges();
 
@@ -100,20 +101,20 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
             await SetRenewalPrivilegesAsync((TRequest)request, privs);
 
         var time = Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
-        var accessExpiry = time.GetUtcNow().Add(opts.AccessTokenValidity).UtcDateTime;
-        var refreshExpiry = time.GetUtcNow().Add(opts.RefreshTokenValidity).UtcDateTime;
-        var token = new TResponse()
+        var accessExpiry = time.GetUtcNow().Add(_opts.AccessTokenValidity).UtcDateTime;
+        var refreshExpiry = time.GetUtcNow().Add(_opts.RefreshTokenValidity).UtcDateTime;
+        var token = new TResponse
         {
             UserId = userId,
             AccessToken = JWTBearer.CreateToken(
-                opts.TokenSigningKey,
+                _opts.TokenSigningKey,
                 accessExpiry,
                 privs.Permissions,
                 privs.Roles,
                 privs.Claims,
-                opts.Issuer,
-                opts.Audience,
-                opts.TokenSigningStyle),
+                _opts.Issuer,
+                _opts.Audience,
+                _opts.TokenSigningStyle),
             AccessExpiry = accessExpiry,
             RefreshToken = Guid.NewGuid().ToString("N"),
             RefreshExpiry = refreshExpiry

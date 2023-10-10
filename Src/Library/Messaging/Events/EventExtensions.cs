@@ -24,7 +24,7 @@ public static class EventExtensions
 
     //key: tEvent
     //val: the PublishAsync compiled expression - Event<TEvent>.PublishAsync(...)
-    static readonly ConcurrentDictionary<Type, Func<IEvent, Mode, CancellationToken, Task>> publishFuncCache = new();
+    static readonly ConcurrentDictionary<Type, Func<IEvent, Mode, CancellationToken, Task>> _publishFuncCache = new();
 
     static EventBus<T> CreateEventInstance<T>() where T : IEvent
         => Conf.ServiceResolver.Resolve<EventBus<T>>();
@@ -43,7 +43,7 @@ public static class EventExtensions
     /// </returns>
     public static Task PublishAsync(this IEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
     {
-        var publishFunc = publishFuncCache.GetOrAdd(
+        var publishFunc = _publishFuncCache.GetOrAdd(
             key: eventModel.GetType(),
             valueFactory: tEventModel =>
             {

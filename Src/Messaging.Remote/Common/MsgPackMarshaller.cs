@@ -6,22 +6,22 @@ namespace FastEndpoints;
 
 sealed class MessagePackMarshaller<T> : Marshaller<T> where T : class
 {
-    static readonly MessagePackSerializerOptions options
+    static readonly MessagePackSerializerOptions _options
         = MessagePackSerializerOptions
-            .Standard
-            .WithResolver(ContractlessStandardResolver.Instance)
-            .WithCompression(MessagePackCompression.Lz4BlockArray);
+         .Standard
+         .WithResolver(ContractlessStandardResolver.Instance)
+         .WithCompression(MessagePackCompression.Lz4BlockArray);
 
-    static readonly Type t = typeof(T);
+    static readonly Type _t = typeof(T);
 
     public MessagePackMarshaller() : base(Serialize, Deserialize) { }
 
     public static T Deserialize(DeserializationContext ctx)
-        => MessagePackSerializer.Deserialize<T>(ctx.PayloadAsReadOnlySequence(), options);
+        => MessagePackSerializer.Deserialize<T>(ctx.PayloadAsReadOnlySequence(), _options);
 
     public static void Serialize(T value, SerializationContext ctx)
     {
-        MessagePackSerializer.Serialize(t, ctx.GetBufferWriter(), value, options);
+        MessagePackSerializer.Serialize(_t, ctx.GetBufferWriter(), value, _options);
         ctx.Complete();
     }
 }

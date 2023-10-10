@@ -5,7 +5,7 @@ namespace FastEndpoints;
 sealed class HitCounter
 {
     //key: header value as a unique client identifier
-    ConcurrentDictionary<string, Counter> clients = new();
+    ConcurrentDictionary<string, Counter> _clients = new();
     readonly double _durationSeconds;
     readonly int _limit;
 
@@ -20,9 +20,9 @@ sealed class HitCounter
 
     internal bool LimitReached(string headerValue)
     {
-        return clients.GetOrAdd(
+        return _clients.GetOrAdd(
             headerValue,
-            hVal => new(_durationSeconds, hVal, _limit, ref clients)).LimitReached();
+            hVal => new(_durationSeconds, hVal, _limit, ref _clients)).LimitReached();
     }
 
     class Counter : IDisposable
@@ -90,18 +90,18 @@ sealed class HitCounter
             //}
         }
 
-        bool disposedValue;
+        bool _disposedValue;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
                     _timer!.Dispose();
                     _timer = null;
                 }
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 

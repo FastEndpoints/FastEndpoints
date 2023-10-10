@@ -18,7 +18,7 @@ public abstract class EventBase
 /// <typeparam name="TEvent">the type of notification event dto</typeparam>
 public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
 {
-    readonly IEnumerable<IEventHandler<TEvent>> handlers = Enumerable.Empty<IEventHandler<TEvent>>();
+    readonly IEnumerable<IEventHandler<TEvent>> _handlers = Enumerable.Empty<IEventHandler<TEvent>>();
 
     /// <summary>
     /// instantiates an event bus for the given event dto type.
@@ -27,9 +27,9 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     public EventBus(IEnumerable<IEventHandler<TEvent>>? eventHandlers = null)
     {
         if (eventHandlers?.Any() is true)
-            handlers = eventHandlers;
+            _handlers = eventHandlers;
         else if (HandlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
-            handlers = hndlrs.Select(Conf.ServiceResolver.CreateSingleton).Cast<IEventHandler<TEvent>>().ToArray(); //ToArray() is essential here!!!
+            _handlers = hndlrs.Select(Conf.ServiceResolver.CreateSingleton).Cast<IEventHandler<TEvent>>().ToArray(); //ToArray() is essential here!!!
     }
 
     /// <summary>
@@ -46,20 +46,20 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     /// </returns>
     public Task PublishAsync(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
     {
-        if (handlers.Any())
+        if (_handlers.Any())
         {
             switch (waitMode)
             {
                 case Mode.WaitForNone:
-                    _ = Parallel.ForEachAsync(handlers, cancellation, async (h, c) => await h.HandleAsync(eventModel, c));
+                    _ = Parallel.ForEachAsync(_handlers, cancellation, async (h, c) => await h.HandleAsync(eventModel, c));
 
                     return Task.CompletedTask;
 
                 case Mode.WaitForAny:
-                    return Task.WhenAny(handlers.Select(h => Task.Run(() => h.HandleAsync(eventModel, cancellation), cancellation)));
+                    return Task.WhenAny(_handlers.Select(h => Task.Run(() => h.HandleAsync(eventModel, cancellation), cancellation)));
 
                 case Mode.WaitForAll:
-                    return Parallel.ForEachAsync(handlers, cancellation, async (h, c) => await h.HandleAsync(eventModel, c));
+                    return Parallel.ForEachAsync(_handlers, cancellation, async (h, c) => await h.HandleAsync(eventModel, c));
 
                 default:
                     return Task.CompletedTask;

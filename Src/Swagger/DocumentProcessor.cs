@@ -5,44 +5,49 @@ namespace FastEndpoints.Swagger;
 
 sealed class DocumentProcessor : IDocumentProcessor
 {
-    readonly int maxEpVer;
-    readonly int minEpVer;
-    readonly bool showDeprecated;
+    readonly int _maxEpVer;
+    readonly int _minEpVer;
+    readonly bool _showDeprecated;
 
     public DocumentProcessor(int minEndpointVersion, int maxEndpointVersion, bool showDeprecatedOps)
     {
-        minEpVer = minEndpointVersion;
-        maxEpVer = maxEndpointVersion;
-        showDeprecated = showDeprecatedOps;
+        _minEpVer = minEndpointVersion;
+        _maxEpVer = maxEndpointVersion;
+        _showDeprecated = showDeprecatedOps;
 
-        if (maxEpVer < minEpVer)
+        if (_maxEpVer < _minEpVer)
             throw new ArgumentException($"{nameof(maxEndpointVersion)} must be greater than or equal to {nameof(minEndpointVersion)}");
     }
 
     public void Process(DocumentProcessorContext ctx)
     {
         var pathItems = ctx.Document.Paths
-            .SelectMany(p => p.Value.Values)
-            .Select(o =>
-            {
-                var tagSegments = o.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
-                return new {
-                    route = tagSegments?[1],
-                    ver = Convert.ToInt32(tagSegments?[2]),
-                    depVer = Convert.ToInt32(tagSegments?[3]),
-                    pathItm = o.Parent
-                };
-            })
-            .GroupBy(x => x.route)
-            .Select(g => new {
-                pathItm = g.Where(x => x.ver >= minEpVer && x.ver <= maxEpVer)
-                           .OrderByDescending(x => x.ver)
-                           .Take(showDeprecated ? g.Count() : 1)
-                           .Where(x => x.depVer == 0 || showDeprecated || x.depVer > maxEpVer)
-                           .Select(x => x.pathItm)
-            })
-            .SelectMany(x => x.pathItm)
-            .ToArray();
+                           .SelectMany(p => p.Value.Values)
+                           .Select(
+                                o =>
+                                {
+                                    var tagSegments = o.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
+
+                                    return new
+                                    {
+                                        route = tagSegments?[1],
+                                        ver = Convert.ToInt32(tagSegments?[2]),
+                                        depVer = Convert.ToInt32(tagSegments?[3]),
+                                        pathItm = o.Parent
+                                    };
+                                })
+                           .GroupBy(x => x.route)
+                           .Select(
+                                g => new
+                                {
+                                    pathItm = g.Where(x => x.ver >= _minEpVer && x.ver <= _maxEpVer)
+                                               .OrderByDescending(x => x.ver)
+                                               .Take(_showDeprecated ? g.Count() : 1)
+                                               .Where(x => x.depVer == 0 || _showDeprecated || x.depVer > _maxEpVer)
+                                               .Select(x => x.pathItm)
+                                })
+                           .SelectMany(x => x.pathItm)
+                           .ToArray();
 
         foreach (var p in ctx.Document.Paths)
         {
@@ -56,11 +61,11 @@ sealed class DocumentProcessor : IDocumentProcessor
 
             foreach (var op in p.Value.Values)
             {
-                if (showDeprecated)
+                if (_showDeprecated)
                 {
                     var tagSegments = op.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
                     var depVer = Convert.ToInt32(tagSegments?[3]);
-                    op.IsDeprecated = maxEpVer >= depVer && depVer != 0;
+                    op.IsDeprecated = _maxEpVer >= depVer && depVer != 0;
                 }
                 op.Tags.Remove(op.Tags.SingleOrDefault(t => t.StartsWith("|")));
             }

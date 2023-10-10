@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿// ReSharper disable InconsistentNaming
+
+using Microsoft.AspNetCore.Http;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;

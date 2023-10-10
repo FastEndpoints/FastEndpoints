@@ -12,7 +12,7 @@ public class RefreshTokenTests : TestClass<Fixture>
     [Fact]
     public async Task LoginEndpointGeneratesCorrectToken()
     {
-        var (rsp, res) = await fx.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
+        var (rsp, res) = await Fx.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.UserId.Should().Be("usr001");
 
@@ -25,11 +25,12 @@ public class RefreshTokenTests : TestClass<Fixture>
     [Fact]
     public async Task RefreshEndpointValidationWorks()
     {
-        var (rsp, res) = await fx.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, ErrorResponse>(new()
-        {
-            UserId = "bad-id",
-            RefreshToken = "bad-token"
-        });
+        var (rsp, res) = await Fx.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, ErrorResponse>(
+                             new()
+                             {
+                                 UserId = "bad-id",
+                                 RefreshToken = "bad-token"
+                             });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res.Errors["UserId"][0].Should().Be("invalid user id");
@@ -39,11 +40,12 @@ public class RefreshTokenTests : TestClass<Fixture>
     [Fact]
     public async Task RefreshEndpointReturnsCorrectTokenResponse()
     {
-        var (rsp, res) = await fx.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, TokenResponse>(new()
-        {
-            UserId = "usr001",
-            RefreshToken = "xyz"
-        });
+        var (rsp, res) = await Fx.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, TokenResponse>(
+                             new()
+                             {
+                                 UserId = "usr001",
+                                 RefreshToken = "xyz"
+                             });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.UserId.Should().Be("usr001");

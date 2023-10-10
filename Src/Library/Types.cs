@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿// ReSharper disable InconsistentNaming
+
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using System.Collections;

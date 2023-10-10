@@ -15,10 +15,10 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where TRequest : notnull
 {
-    static readonly Type tRequest = typeof(TRequest);
-    static readonly Type tResponse = typeof(TResponse);
-    static readonly bool isStringResponse = tResponse.IsAssignableFrom(Types.String);
-    static readonly bool isCollectionResponse = tResponse.IsAssignableTo(Types.IEnumerable);
+    static readonly Type _tRequest = typeof(TRequest);
+    static readonly Type _tResponse = typeof(TResponse);
+    static readonly bool _isStringResponse = _tResponse.IsAssignableFrom(Types.String);
+    static readonly bool _isCollectionResponse = _tResponse.IsAssignableTo(Types.IEnumerable);
 
     /// <summary>
     /// if the 'FastEndpoints.Generator' package is used, calling this method will generate a static class called '{assembly-name}.Auth.Allow'
@@ -42,7 +42,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
     /// </param>
     protected void AccessControl(string keyName, Apply? behavior = null, params string[] groupNames)
     {
-        if (behavior is not null and Apply.ToThisEndpoint)
+        if (behavior is Apply.ToThisEndpoint)
             Definition.Permissions(GetAclHash(keyName));
     }
 
@@ -555,12 +555,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
             if (Definition.ExecuteAsyncReturnsIResult)
             {
             #if NET7_0_OR_GREATER
-                b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, tResponse));
+                b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
             #endif
             }
             else
             {
-                if (tResponse == Types.Object || tResponse == Types.EmptyResponse)
+                if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)
                     b.Produces<TResponse>(200, "text/plain", "application/json");
                 else
                     b.Produces<TResponse>(200, "application/json");

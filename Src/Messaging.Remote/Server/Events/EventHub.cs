@@ -13,7 +13,7 @@ abstract class EventHubBase
     //key: tEvent
     //val: event hub for the event type
     //values get created when the DI container resolves each event hub type and the ctor is run.
-    protected static readonly ConcurrentDictionary<Type, EventHubBase> _allHubs = new();
+    protected static readonly ConcurrentDictionary<Type, EventHubBase> AllHubs = new();
 
     protected abstract Task BroadcastEvent(IEvent evnt, CancellationToken ct);
 
@@ -21,9 +21,9 @@ abstract class EventHubBase
     {
         var tEvent = evnt.GetType();
 
-        return _allHubs.TryGetValue(tEvent, out var hub)
-                ? hub.BroadcastEvent(evnt, ct)
-                : throw new InvalidOperationException($"An event hub has not been registered for [{tEvent.FullName}]");
+        return AllHubs.TryGetValue(tEvent, out var hub)
+                   ? hub.BroadcastEvent(evnt, ct)
+                   : throw new InvalidOperationException($"An event hub has not been registered for [{tEvent.FullName}]");
     }
 }
 
@@ -49,7 +49,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     public EventHub(IServiceProvider svcProvider)
     {
-        _allHubs[_tEvent] = this;
+        AllHubs[_tEvent] = this;
         _isRoundRobinMode = Mode.HasFlag(HubMode.RoundRobin);
         _storage ??= (TStorageProvider)ActivatorUtilities.CreateInstance(svcProvider, typeof(TStorageProvider));
         _isInMemoryProvider = _storage is InMemoryEventHubStorage;
@@ -58,13 +58,14 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         _errors = svcProvider.GetService<EventHubExceptionReceiver>();
         _logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
 
-        var t = _storage.RestoreSubscriberIDsForEventTypeAsync(new()
-        {
-            CancellationToken = CancellationToken.None,
-            EventType = _tEvent.FullName!,
-            Match = e => e.EventType == _tEvent.FullName! && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn,
-            Projection = e => e.SubscriberID
-        });
+        var t = _storage.RestoreSubscriberIDsForEventTypeAsync(
+            new()
+            {
+                CancellationToken = CancellationToken.None,
+                EventType = _tEvent.FullName!,
+                Match = e => e.EventType == _tEvent.FullName! && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn,
+                Projection = e => e.SubscriberID
+            });
 
         while (!t.IsCompleted)
             Thread.Sleep(100);
@@ -77,7 +78,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     {
         var metadata = new List<object>();
         var eventAttributes = _tEvent.GetCustomAttributes(false);
-        if (eventAttributes?.Length > 0) metadata.AddRange(eventAttributes);
+        if (eventAttributes?.Length > 0)
+            metadata.AddRange(eventAttributes);
         metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
 
         var sub = new Method<string, TEvent>(
@@ -103,7 +105,10 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     }
 
     //internal to allow unit testing
-    internal async Task OnSubscriberConnected(EventHub<TEvent, TStorageRecord, TStorageProvider> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
+    internal async Task OnSubscriberConnected(EventHub<TEvent, TStorageRecord, TStorageProvider> _,
+                                              string subscriberID,
+                                              IServerStreamWriter<TEvent> stream,
+                                              ServerCallContext ctx)
     {
         _logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
@@ -117,13 +122,14 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         {
             try
             {
-                records = await _storage!.GetNextBatchAsync(new()
-                {
-                    CancellationToken = ctx.CancellationToken,
-                    Limit = 25,
-                    SubscriberID = subscriberID,
-                    Match = e => e.SubscriberID == subscriberID && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn
-                });
+                records = await _storage!.GetNextBatchAsync(
+                              new()
+                              {
+                                  CancellationToken = ctx.CancellationToken,
+                                  Limit = 25,
+                                  SubscriberID = subscriberID,
+                                  Match = e => e.SubscriberID == subscriberID && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn
+                              });
                 retrievalErrorCount = 0;
             }
             catch (Exception ex)
@@ -132,6 +138,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 _errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, ctx.CancellationToken);
                 _logger.StorageGetNextBatchError(subscriberID, _tEvent.FullName!, ex.Message);
                 await Task.Delay(5000);
+
                 continue;
             }
 
@@ -171,6 +178,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                             record.IsComplete = true;
                             await _storage.MarkEventAsCompleteAsync(record, ctx.CancellationToken);
                             updateErrorCount = 0;
+
                             break;
                         }
                         catch (Exception ex)
@@ -201,9 +209,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         if (_isRoundRobinMode)
         {
             var connectedSubIds = _subscribers
-                .Where(kv => kv.Value.IsConnected)
-                .Select(kv => kv.Key)
-                .ToArray(); //take a snapshot of currently connected subscriber ids
+                                 .Where(kv => kv.Value.IsConnected)
+                                 .Select(kv => kv.Key)
+                                 .ToArray(); //take a snapshot of currently connected subscriber ids
 
             if (connectedSubIds.Length <= 1)
                 return connectedSubIds;
@@ -218,6 +226,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
             return qualified;
         }
+
         return _subscribers.Keys;
     }
 
@@ -226,12 +235,13 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         var subscribers = GetReceiveCandidates();
 
         var startTime = DateTime.Now;
+
         while (!subscribers.Any())
         {
             _logger.NoSubscribersWarning(_tEvent.FullName!);
-#pragma warning disable CA2016
+        #pragma warning disable CA2016
             await Task.Delay(5000);
-#pragma warning restore CA2016
+        #pragma warning restore CA2016
             if (ct.IsCancellationRequested || (DateTime.Now - startTime).TotalSeconds >= 60)
                 break;
         }
@@ -255,6 +265,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     await _storage!.StoreEventAsync(record, ct);
                     _subscribers[subId].Sem.Release();
                     createErrorCount = 0;
+
                     break;
                 }
                 catch (OverflowException)
@@ -263,6 +274,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     sub?.Sem?.Dispose();
                     _errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
                     _logger.QueueOverflowWarning(subId, _tEvent.FullName!);
+
                     break;
                 }
                 catch (Exception ex)
@@ -270,9 +282,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     createErrorCount++;
                     _errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, ct);
                     _logger.StoreEventError(subId, _tEvent.FullName!, ex.Message);
-#pragma warning disable CA2016
+                #pragma warning disable CA2016
                     await Task.Delay(5000);
-#pragma warning restore CA2016
+                #pragma warning restore CA2016
                 }
             }
         }
@@ -282,17 +294,18 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     internal Task<EmptyObject> OnEventReceived(EventHub<TEvent, TStorageRecord, TStorageProvider> __, TEvent evnt, ServerCallContext ctx)
     {
         _ = AddToSubscriberQueues(evnt, ctx.CancellationToken);
+
         return Task.FromResult(EmptyObject.Instance);
     }
 
     class Subscriber
     {
-        public SemaphoreSlim Sem { get; init; } //semaphorslim for waiting on record availability
+        public SemaphoreSlim Sem { get; } //semaphorslim for waiting on record availability
         public bool IsConnected { get; set; }
 
         public Subscriber()
         {
-            Sem = new SemaphoreSlim(0);
+            Sem = new(0);
         }
     }
 }

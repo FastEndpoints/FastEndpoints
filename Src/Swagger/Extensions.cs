@@ -34,43 +34,46 @@ public static class Extensions
         var doc = new DocumentOptions();
         options?.Invoke(doc);
         services.AddEndpointsApiExplorer();
-        services.AddOpenApiDocument(generator =>
-        {
-            var stjOpts = new JsonSerializerOptions(Conf.SerOpts.Options);
-            SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
-            doc.SerializerSettings?.Invoke(stjOpts);
-            generator.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
-            doc.NewtonsoftSettings?.Invoke(generator.SerializerSettings);
-            EnableFastEndpoints(generator, doc);
-            if (doc.EndpointFilter is not null)
-                generator.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
-            if (doc.ExcludeNonFastEndpoints)
-                generator.OperationProcessors.Insert(0, new FastEndpointsFilter());
-
-            if (doc.TagDescriptions is not null)
+        services.AddOpenApiDocument(
+            generator =>
             {
-                var dict = new Dictionary<string, string>();
-                doc.TagDescriptions(dict);
-                generator.AddOperationFilter(ctx =>
-                {
-                    foreach (var kvp in dict)
-                    {
-                        ctx.Document.Tags.Add(new OpenApiTag
-                        {
-                            Name = kvp.Key,
-                            Description = kvp.Value
-                        });
-                    }
+                var stjOpts = new JsonSerializerOptions(Conf.SerOpts.Options);
+                SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
+                doc.SerializerSettings?.Invoke(stjOpts);
+                generator.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
+                doc.NewtonsoftSettings?.Invoke(generator.SerializerSettings);
+                EnableFastEndpoints(generator, doc);
+                if (doc.EndpointFilter is not null)
+                    generator.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
+                if (doc.ExcludeNonFastEndpoints)
+                    generator.OperationProcessors.Insert(0, new FastEndpointsFilter());
 
-                    return true;
-                });
-            }
-            if (doc.EnableJWTBearerAuth)
-                generator.EnableJWTBearerAuth();
-            doc.DocumentSettings?.Invoke(generator);
-            if (doc.RemoveEmptyRequestSchema || doc.FlattenSchema)
-                generator.FlattenInheritanceHierarchy = true;
-        });
+                if (doc.TagDescriptions is not null)
+                {
+                    var dict = new Dictionary<string, string>();
+                    doc.TagDescriptions(dict);
+                    generator.AddOperationFilter(
+                        ctx =>
+                        {
+                            foreach (var kvp in dict)
+                            {
+                                ctx.Document.Tags.Add(
+                                    new()
+                                    {
+                                        Name = kvp.Key,
+                                        Description = kvp.Value
+                                    });
+                            }
+
+                            return true;
+                        });
+                }
+                if (doc.EnableJWTBearerAuth)
+                    generator.EnableJWTBearerAuth();
+                doc.DocumentSettings?.Invoke(generator);
+                if (doc.RemoveEmptyRequestSchema || doc.FlattenSchema)
+                    generator.FlattenInheritanceHierarchy = true;
+            });
 
         return services;
     }
@@ -107,13 +110,15 @@ public static class Extensions
     /// </summary>
     public static void EnableJWTBearerAuth(this AspNetCoreOpenApiDocumentGeneratorSettings settings)
     {
-        settings.AddAuth("JWTBearerAuth", new OpenApiSecurityScheme
-        {
-            Type = OpenApiSecuritySchemeType.Http,
-            Scheme = "Bearer",
-            BearerFormat = "JWT",
-            Description = "Enter a JWT token to authorize the requests..."
-        });
+        settings.AddAuth(
+            "JWTBearerAuth",
+            new()
+            {
+                Type = OpenApiSecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                Description = "Enter a JWT token to authorize the requests..."
+            });
     }
 
     /// <summary>
@@ -128,7 +133,8 @@ public static class Extensions
         s.AdditionalSettings["tryItOutEnabled"] = true;
         s.TagsSorter = "alpha";
         s.OperationsSorter = "alpha";
-        s.CustomInlineStyles = ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0} .swagger-ui .info .title{font-size:25px} .swagger-ui textarea{min-height:150px}";
+        s.CustomInlineStyles =
+            ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0} .swagger-ui .info .title{font-size:25px} .swagger-ui textarea{min-height:150px}";
         settings?.Invoke(s);
     }
 
@@ -199,25 +205,27 @@ public static class Extensions
     {
         return mediaType
               .Value.Schema.ActualSchema.ActualProperties
-              .Union(mediaType
-                    .Value.Schema.ActualSchema.AllInheritedSchemas
-                    .Select(s => s.ActualProperties)
-                    .SelectMany(s => s.Select(s => s)));
+              .Union(
+                   mediaType
+                      .Value.Schema.ActualSchema.AllInheritedSchemas
+                      .Select(s => s.ActualProperties)
+                      .SelectMany(s => s.Select(s => s)));
     }
 
     internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllProperties(this KeyValuePair<string, OpenApiResponse> response)
     {
         return response
               .Value.Schema.ActualSchema.ActualProperties
-              .Union(response.Value.Schema.ActualSchema.AllInheritedSchemas
-                             .Select(s => s.ActualProperties)
-                             .SelectMany(s => s.Select(s => s)));
+              .Union(
+                   response.Value.Schema.ActualSchema.AllInheritedSchemas
+                           .Select(s => s.ActualProperties)
+                           .SelectMany(s => s.Select(s => s)));
     }
 
-    static readonly NullabilityInfoContext nullCtx = new();
+    static readonly NullabilityInfoContext _nullCtx = new();
 
     internal static bool IsNullable(this PropertyInfo p)
-        => nullCtx.Create(p).WriteState == NullabilityState.Nullable;
+        => _nullCtx.Create(p).WriteState == NullabilityState.Nullable;
 
     internal static string? GetXmlExample(this PropertyInfo p)
     {
@@ -241,12 +249,9 @@ public static class Extensions
     }
 
     internal static string ApplyPropNamingPolicy(this string paramName, DocumentOptions documentOptions)
-    {
-        return
-            documentOptions.UsePropertyNamingPolicyForParams && SelectedJsonNamingPolicy is not null
-                ? SelectedJsonNamingPolicy.ConvertName(paramName)
-                : paramName;
-    }
+        => documentOptions.UsePropertyNamingPolicyForParams && SelectedJsonNamingPolicy is not null
+               ? SelectedJsonNamingPolicy.ConvertName(paramName)
+               : paramName;
 
     static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
     {
@@ -259,17 +264,25 @@ public static class Extensions
 
     //todo: remove at next major version
     [Obsolete("Use EnableFastEndpoints(Action<DocumentOptions>) instead!")]
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, int tagIndex, TagCase tagCase, int minEndpointVersion, int maxEndpointVersion, bool shortSchemaNames, bool removeEmptySchemas)
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
+                                           int tagIndex,
+                                           TagCase tagCase,
+                                           int minEndpointVersion,
+                                           int maxEndpointVersion,
+                                           bool shortSchemaNames,
+                                           bool removeEmptySchemas)
     {
-        EnableFastEndpoints(settings, new DocumentOptions()
-        {
-            AutoTagPathSegmentIndex = tagIndex,
-            TagCase = tagCase,
-            MinEndpointVersion = minEndpointVersion,
-            MaxEndpointVersion = maxEndpointVersion,
-            ShortSchemaNames = shortSchemaNames,
-            RemoveEmptyRequestSchema = removeEmptySchemas
-        });
+        EnableFastEndpoints(
+            settings,
+            new DocumentOptions
+            {
+                AutoTagPathSegmentIndex = tagIndex,
+                TagCase = tagCase,
+                MinEndpointVersion = minEndpointVersion,
+                MaxEndpointVersion = maxEndpointVersion,
+                ShortSchemaNames = shortSchemaNames,
+                RemoveEmptyRequestSchema = removeEmptySchemas
+            });
     }
 
     //todo: remove at next major version
@@ -282,7 +295,7 @@ public static class Extensions
     public static IServiceCollection AddSwaggerDoc(this IServiceCollection services,
                                                    Action<AspNetCoreOpenApiDocumentGeneratorSettings>? settings = null,
                                                    Action<JsonSerializerOptions>? serializerSettings = null,
-                                                   bool addJWTBearerAuth = true,
+                                                   bool addJwtBearerAuth = true,
                                                    int tagIndex = 1,
                                                    TagCase tagCase = TagCase.TitleCase,
                                                    int minEndpointVersion = 0,
@@ -291,37 +304,42 @@ public static class Extensions
                                                    bool removeEmptySchemas = false,
                                                    bool excludeNonFastEndpoints = false)
     {
-        return SwaggerDocument(services, o =>
-        {
-            o.DocumentSettings = settings;
-            o.SerializerSettings = serializerSettings;
-            o.EnableJWTBearerAuth = addJWTBearerAuth;
-            o.AutoTagPathSegmentIndex = tagIndex;
-            o.TagCase = tagCase;
-            o.MinEndpointVersion = minEndpointVersion;
-            o.MaxEndpointVersion = maxEndpointVersion;
-            o.ShortSchemaNames = shortSchemaNames;
-            o.RemoveEmptyRequestSchema = removeEmptySchemas;
-            o.ExcludeNonFastEndpoints = excludeNonFastEndpoints;
-        });
+        return SwaggerDocument(
+            services,
+            o =>
+            {
+                o.DocumentSettings = settings;
+                o.SerializerSettings = serializerSettings;
+                o.EnableJWTBearerAuth = addJwtBearerAuth;
+                o.AutoTagPathSegmentIndex = tagIndex;
+                o.TagCase = tagCase;
+                o.MinEndpointVersion = minEndpointVersion;
+                o.MaxEndpointVersion = maxEndpointVersion;
+                o.ShortSchemaNames = shortSchemaNames;
+                o.RemoveEmptyRequestSchema = removeEmptySchemas;
+                o.ExcludeNonFastEndpoints = excludeNonFastEndpoints;
+            });
     }
 
     //todo: remove at next major version
     [Obsolete("Use the TagDescriptions property on the DocumentOptions object at the top level!")]
-    public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings, params (string tagName, string tagDescription)[] documentTags)
+    public static void TagDescriptions(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
+                                       params (string tagName, string tagDescription)[] documentTags)
     {
-        settings.AddOperationFilter(ctx =>
-        {
-            foreach (var (tagName, tagDescription) in documentTags)
+        settings.AddOperationFilter(
+            ctx =>
             {
-                ctx.Document.Tags.Add(new OpenApiTag
+                foreach (var (tagName, tagDescription) in documentTags)
                 {
-                    Name = tagName,
-                    Description = tagDescription
-                });
-            }
+                    ctx.Document.Tags.Add(
+                        new()
+                        {
+                            Name = tagName,
+                            Description = tagDescription
+                        });
+                }
 
-            return true;
-        });
+                return true;
+            });
     }
 }

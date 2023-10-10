@@ -100,7 +100,7 @@ public static class MainExtensions
             foreach (var route in def.Routes)
             {
                 var finalRoute = routeBuilder.BuildRoute(def.Version.Current, route, def.OverriddenRoutePrefix);
-                IEndpoint.SetTestURL(def.EndpointType, finalRoute);
+                IEndpoint.SetTestUrl(def.EndpointType, finalRoute);
 
                 routeNum++;
 

@@ -5,8 +5,8 @@ namespace FastEndpoints;
 
 sealed class VoidHandlerExecutor<TCommand, THandler>
     : BaseHandlerExecutor<TCommand, THandler, EmptyObject, VoidHandlerExecutor<TCommand, THandler>>
-        where TCommand : class, ICommand
-        where THandler : class, ICommandHandler<TCommand>
+    where TCommand : class, ICommand
+    where THandler : class, ICommandHandler<TCommand>
 {
     protected override MethodType MethodType()
         => Grpc.Core.MethodType.Unary;
@@ -18,8 +18,9 @@ sealed class VoidHandlerExecutor<TCommand, THandler>
 
     protected override async Task<EmptyObject> ExecuteUnary(VoidHandlerExecutor<TCommand, THandler> _, TCommand cmd, ServerCallContext ctx)
     {
-        var handler = (THandler)_handlerFactory(ctx.GetHttpContext().RequestServices, null);
+        var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
         await handler.ExecuteAsync(cmd, ctx.CancellationToken);
+
         return EmptyObject.Instance;
     }
 }

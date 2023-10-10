@@ -4,13 +4,13 @@ namespace FastEndpoints;
 
 class ServiceMethodProvider<TExecutor> : IServiceMethodProvider<TExecutor> where TExecutor : class, IMethodBinder<TExecutor>
 {
-    readonly TExecutor executor;
+    readonly TExecutor _executor;
 
     public ServiceMethodProvider(TExecutor executor)
     {
-        this.executor = executor;
+        _executor = executor;
     }
 
     public void OnServiceMethodDiscovery(ServiceMethodProviderContext<TExecutor> ctx)
-        => executor.Bind(ctx);
+        => _executor.Bind(ctx);
 }

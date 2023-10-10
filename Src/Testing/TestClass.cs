@@ -7,12 +7,12 @@ namespace FastEndpoints.Testing;
 
 /// <summary>
 /// abstract class for implementing a test-class, which is a collection of integration tests that may be related to each other.
-/// test methods can be run in a given order by decorating the methods with <see cref="PriorityAttribute"/>
+/// test methods can be run in a given order by decorating the methods with <see cref="PriorityAttribute" />
 /// </summary>
 /// <typeparam name="TFixture">
 /// the type of the test fixture. a fixture is a shared data context for all tests of this class.
 /// the fixture is instantiated before any of the tests are executed and torn down after all tests have run.
-/// fixtures are implemented by inheriting <see cref="TestFixture{TProgram}"/> abstract class.
+/// fixtures are implemented by inheriting <see cref="TestFixture{TProgram}" /> abstract class.
 /// </typeparam>
 [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
 public abstract class TestClass<TFixture> : IClassFixture<TFixture> where TFixture : class, IFixture
@@ -26,7 +26,7 @@ public abstract class TestClass<TFixture> : IClassFixture<TFixture> where TFixtu
     /// <summary>
     /// fixture data that is shared among all tests of this class
     /// </summary>
-    protected TFixture fx => Fixture;
+    protected TFixture Fx => Fixture;
 #pragma warning restore IDE1006
 
     /// <summary>

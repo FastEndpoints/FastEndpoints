@@ -20,7 +20,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint where
                       binderCtx,
                       ct);
 
-        Conf.BndOpts.Modifier?.Invoke(req, tRequest, binderCtx, ct);
+        Conf.BndOpts.Modifier?.Invoke(req, _tRequest, binderCtx, ct);
 
         return req;
     }

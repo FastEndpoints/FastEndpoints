@@ -12,14 +12,14 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     where TStorageRecord : IEventStorageRecord, new()
     where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
 {
-    readonly IEndpointRouteBuilder routeBuilder;
+    readonly IEndpointRouteBuilder _routeBuilder;
 
     static readonly MethodInfo _mapGrpcMethodInfo
         = typeof(GrpcEndpointRouteBuilderExtensions).GetMethod(nameof(GrpcEndpointRouteBuilderExtensions.MapGrpcService))!;
 
     internal HandlerOptions(IEndpointRouteBuilder builder)
     {
-        routeBuilder = builder;
+        _routeBuilder = builder;
     }
 
     /// <summary>
@@ -31,14 +31,17 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
         where TCommand : class, ICommand
         where THandler : class, ICommandHandler<TCommand>
     {
-        var tHandler = routeBuilder.ServiceProvider.GetService<ICommandHandler<TCommand>>()?.GetType();
+        var tHandler = _routeBuilder.ServiceProvider.GetService<ICommandHandler<TCommand>>()?.GetType();
+
         if (tHandler is not null)
         {
             var tService = typeof(VoidHandlerExecutor<,>).MakeGenericType(typeof(TCommand), tHandler);
             var mapMethod = _mapGrpcMethodInfo.MakeGenericMethod(tService);
-            return (GrpcServiceEndpointConventionBuilder)mapMethod.Invoke(null, new[] { routeBuilder })!;
+
+            return (GrpcServiceEndpointConventionBuilder)mapMethod.Invoke(null, new[] { _routeBuilder })!;
         }
-        return routeBuilder.MapGrpcService<VoidHandlerExecutor<TCommand, THandler>>();
+
+        return _routeBuilder.MapGrpcService<VoidHandlerExecutor<TCommand, THandler>>();
     }
 
     /// <summary>
@@ -51,7 +54,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
         where TCommand : class, ICommand<TResult>
         where THandler : class, ICommandHandler<TCommand, TResult>
         where TResult : class
-            => routeBuilder.MapGrpcService<UnaryHandlerExecutor<TCommand, THandler, TResult>>();
+        => _routeBuilder.MapGrpcService<UnaryHandlerExecutor<TCommand, THandler, TResult>>();
 
     /// <summary>
     /// registers a "server stream" command handler this server is hosting.
@@ -63,7 +66,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
         where TCommand : class, IServerStreamCommand<TResult>
         where THandler : class, IServerStreamCommandHandler<TCommand, TResult>
         where TResult : class
-            => routeBuilder.MapGrpcService<ServerStreamHandlerExecutor<TCommand, THandler, TResult>>();
+        => _routeBuilder.MapGrpcService<ServerStreamHandlerExecutor<TCommand, THandler, TResult>>();
 
     /// <summary>
     /// registers a "client stream" command handler this server is hosting.
@@ -75,7 +78,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
         where T : class
         where THandler : class, IClientStreamCommandHandler<T, TResult>
         where TResult : class
-            => routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
+        => _routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
 
     /// <summary>
     /// registers an "event hub" that broadcasts events of the given type to all remote subscribers in an asynchronous manner
@@ -86,6 +89,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
         where TEvent : class, IEvent
     {
         EventHub<TEvent, TStorageRecord, TStorageProvider>.Mode = mode;
-        return routeBuilder.MapGrpcService<EventHub<TEvent, TStorageRecord, TStorageProvider>>();
+
+        return _routeBuilder.MapGrpcService<EventHub<TEvent, TStorageRecord, TStorageProvider>>();
     }
 }

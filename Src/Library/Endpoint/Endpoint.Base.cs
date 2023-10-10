@@ -41,7 +41,7 @@ public abstract class BaseEndpoint : IEndpoint
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : notnull, Group, new()
         => throw new NotImplementedException();
 
-    static readonly Regex regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+    static readonly Regex _regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
 
     protected internal static string GetAclHash(string input)
     {
@@ -51,6 +51,6 @@ public abstract class BaseEndpoint : IEndpoint
         return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
 
         static string Sanitize(string input)
-            => regex.Replace(input, "_");
+            => _regex.Replace(input, "_");
     }
 }

@@ -16,16 +16,17 @@ namespace FastEndpoints.Testing;
 public abstract class BaseFixture
 {
     protected static readonly Faker _faker = new();
-    protected static readonly ConcurrentDictionary<Type, object> _appCache = new();
+    protected static readonly ConcurrentDictionary<Type, object> AppCache = new();
 }
 
 /// <summary>
-/// inherit this class to create a class fixture for an implementation of <see cref="TestClass{TFixture}"/>.
+/// inherit this class to create a class fixture for an implementation of <see cref="TestClass{TFixture}" />.
 /// </summary>
-/// <typeparam name="TProgram">the type of the web application to bootstrap via <see cref="WebApplicationFactory{TEntryPoint}"/></typeparam>
+/// <typeparam name="TProgram">the type of the web application to bootstrap via <see cref="WebApplicationFactory{TEntryPoint}" /></typeparam>
 public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixture where TProgram : class
 {
-    /// <inheritdoc/>>
+    /// <inheritdoc />
+    /// >
     public Faker Fake => _faker;
 
     /// <summary>
@@ -34,7 +35,7 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     public IServiceProvider Services => _app.Services;
 
     /// <summary>
-    /// the test server of the underlying <see cref="WebApplicationFactory{TEntryPoint}"/>
+    /// the test server of the underlying <see cref="WebApplicationFactory{TEntryPoint}" />
     /// </summary>
     public TestServer Server => _app.Server;
 
@@ -48,15 +49,16 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     protected TestFixture(IMessageSink s)
     {
         _app = (WebApplicationFactory<TProgram>)
-            _appCache.GetOrAdd(
+            AppCache.GetOrAdd(
                 GetType(),
-                _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(b =>
-                {
-                    b.UseEnvironment("Testing");
-                    b.ConfigureLogging(l => l.ClearProviders().AddXUnit(s));
-                    b.ConfigureTestServices(ConfigureServices);
-                    ConfigureApp(b);
-                }));
+                _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
+                    b =>
+                    {
+                        b.UseEnvironment("Testing");
+                        b.ConfigureLogging(l => l.ClearProviders().AddXUnit(s));
+                        b.ConfigureTestServices(ConfigureServices);
+                        ConfigureApp(b);
+                    }));
         Client = _app.CreateClient();
     }
 
@@ -64,16 +66,19 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     /// override this method if you'd like to do some one-time setup for the test-class.
     /// it is run before any of the test-methods of the class is executed.
     /// </summary>
-    protected virtual Task SetupAsync() => Task.CompletedTask;
+    protected virtual Task SetupAsync()
+        => Task.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do some one-time teardown for the test-class.
     /// it is run after all test-methods have executed.
     /// </summary>
-    protected virtual Task TearDownAsync() => Task.CompletedTask;
+    protected virtual Task TearDownAsync()
+        => Task.CompletedTask;
 
     /// <summary>
-    /// override this method if you'd like to provide any configuration for the web host of the underlying <see cref="WebApplicationFactory{TEntryPoint}"/>/>
+    /// override this method if you'd like to provide any configuration for the web host of the underlying <see cref="WebApplicationFactory{TEntryPoint}" />
+    /// />
     /// </summary>
     protected virtual void ConfigureApp(IWebHostBuilder a) { }
 
@@ -86,7 +91,8 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     /// create a client for the underlying web application
     /// </summary>
     /// <param name="o">optional client options for the WAF</param>
-    public HttpClient CreateClient(WebApplicationFactoryClientOptions? o = null) => CreateClient(_ => { }, o);
+    public HttpClient CreateClient(WebApplicationFactoryClientOptions? o = null)
+        => CreateClient(_ => { }, o);
 
     /// <summary>
     /// create a client for the underlying web application
@@ -97,6 +103,7 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     {
         var client = o is null ? _app.CreateClient() : _app.CreateClient(o);
         c(client);
+
         return client;
     }
 
@@ -111,11 +118,13 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
         => _app.Server.CreateHandler();
 #endif
 
-    public Task InitializeAsync() => SetupAsync();
+    public Task InitializeAsync()
+        => SetupAsync();
 
     public virtual Task DisposeAsync()
     {
         Client.Dispose();
+
         return TearDownAsync();
     }
 }

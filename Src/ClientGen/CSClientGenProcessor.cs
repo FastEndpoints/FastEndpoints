@@ -5,24 +5,24 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.ClientGen;
 
-sealed class CSClientGenProcessor : IDocumentProcessor
+sealed class CsClientGenProcessor : IDocumentProcessor
 {
-    readonly string destination;
-    readonly ClientGeneratorOutputType outputType;
+    readonly string _destination;
+    readonly ClientGeneratorOutputType _outputType;
 
-    readonly CSharpClientGeneratorSettings settings = new()
+    readonly CSharpClientGeneratorSettings _settings = new()
     {
         ClassName = "ApiClient",
         CSharpGeneratorSettings = { Namespace = "FastEndpoints" }
     };
 
-    internal CSClientGenProcessor(Action<CSharpClientGeneratorSettings> settings, string destination, ClientGeneratorOutputType outputType)
+    internal CsClientGenProcessor(Action<CSharpClientGeneratorSettings> settings, string destination, ClientGeneratorOutputType outputType)
     {
-        settings(this.settings);
-        this.destination = destination;
-        this.outputType = outputType;
+        settings(_settings);
+        _destination = destination;
+        _outputType = outputType;
     }
 
     public void Process(DocumentProcessorContext context)
-        => _ = File.WriteAllTextAsync(destination, new CSharpClientGenerator(context.Document, settings).GenerateFile(outputType));
+        => _ = File.WriteAllTextAsync(_destination, new CSharpClientGenerator(context.Document, _settings).GenerateFile(_outputType));
 }

@@ -38,7 +38,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     static readonly string _tCommandName = _tCommand.FullName!;
 
     //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
-    public static readonly string _queueID = _tCommandName.ToHash();
+    public static readonly string QueueID = _tCommandName.ToHash();
 
     readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
     readonly CancellationToken _appCancellation;
@@ -73,7 +73,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         _isInUse = true;
         var job = new TStorageRecord
         {
-            QueueID = _queueID,
+            QueueID = QueueID,
             ExecuteAfter = executeAfter ?? DateTime.UtcNow,
             ExpireOn = expireOn ?? DateTime.UtcNow.AddHours(4)
         };
@@ -95,9 +95,9 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                               new()
                               {
                                   Limit = batchSize,
-                                  QueueID = _queueID,
+                                  QueueID = QueueID,
                                   CancellationToken = _appCancellation,
-                                  Match = r => r.QueueID == _queueID &&
+                                  Match = r => r.QueueID == QueueID &&
                                                !r.IsComplete &&
                                                DateTime.UtcNow >= r.ExecuteAfter &&
                                                DateTime.UtcNow <= r.ExpireOn
@@ -105,7 +105,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
             }
             catch (Exception x)
             {
-                _log.StorageRetrieveError(_queueID, _tCommandName, x.Message);
+                _log.StorageRetrieveError(QueueID, _tCommandName, x.Message);
                 await Task.Delay(5000);
 
                 continue;
@@ -149,7 +149,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                     }
                     catch (Exception xx)
                     {
-                        _log.StorageOnExecutionFailureError(_queueID, _tCommandName, xx.Message);
+                        _log.StorageOnExecutionFailureError(QueueID, _tCommandName, xx.Message);
 
                     #pragma warning disable CA2016
                         await Task.Delay(5000);
@@ -171,7 +171,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 }
                 catch (Exception x)
                 {
-                    _log.StorageMarkAsCompleteError(_queueID, _tCommandName, x.Message);
+                    _log.StorageMarkAsCompleteError(QueueID, _tCommandName, x.Message);
 
                 #pragma warning disable CA2016
                     await Task.Delay(5000);

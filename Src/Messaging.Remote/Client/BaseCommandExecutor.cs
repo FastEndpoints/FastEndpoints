@@ -7,13 +7,13 @@ interface ICommandExecutor { }
 
 class BaseCommandExecutor<TCommand, TResult> where TCommand : class where TResult : class
 {
-    protected readonly CallInvoker _invoker;
-    protected readonly Method<TCommand, TResult> _method;
+    protected readonly CallInvoker Invoker;
+    protected readonly Method<TCommand, TResult> Method;
 
     public BaseCommandExecutor(GrpcChannel channel, MethodType methodType, string? endpointName = null)
     {
-        _invoker = channel.CreateCallInvoker();
-        _method = new Method<TCommand, TResult>(
+        Invoker = channel.CreateCallInvoker();
+        Method = new(
             type: methodType,
             serviceName: endpointName ?? typeof(TCommand).FullName!,
             name: "",

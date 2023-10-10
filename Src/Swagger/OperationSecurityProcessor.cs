@@ -46,7 +46,7 @@ sealed class OperationSecurityProcessor : IOperationProcessor
         (context.OperationDescription.Operation.Security ??= new List<OpenApiSecurityRequirement>()).Add(
             new()
             {
-                { _schemeName, BuildScopes(epMeta!.OfType<AuthorizeAttribute>()) }
+                { _schemeName, BuildScopes(epMeta.OfType<AuthorizeAttribute>()) }
             });
 
         return true;

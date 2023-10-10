@@ -32,7 +32,7 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
             _permissions = GetType()
                           .GetFields(BindingFlags.Public | BindingFlags.Static)
                           .Select(f => (f.Name, (string)f.GetValue(this)!))
-                          .ToArray()!;
+                          .ToArray();
         }
     }
 

@@ -64,7 +64,7 @@ sealed class SchemaNameGenerator : ISchemaNameGenerator
                 var index = type.Name.IndexOf('`');
                 index = index == -1 ? 0 : index;
 
-                return type.Name![..index];
+                return type.Name[..index];
             }
         }
     }

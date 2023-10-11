@@ -8,7 +8,22 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <!-- <details><summary>title text</summary></details> -->
 
-<!-- ## New 🎉 -->
+## New 🎉
+
+<details><summary>Ability to model bind collections of 'IFormFile' from incoming form data</summary>
+
+The following forms of properties can now be model bound from file form data fields.
+
+```csharp
+class Request
+{
+    public IEnumerable<IFormFile> Cars { get; set; }
+    public List<IFormFile> Boats { get; set; }    
+    public IFormFileCollection Jets { get; set; }
+}
+```
+
+</details>
 
 ## Improvements 🚀
 

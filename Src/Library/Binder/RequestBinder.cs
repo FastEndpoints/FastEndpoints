@@ -28,7 +28,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = new();
     static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = new();
 
-    static Func<TRequest> _dtoInitializer;
+    static Func<TRequest>? _dtoInitializer;
     static Func<TRequest> InitDto => _dtoInitializer ??= CompileDtoInitializer();
 
     static RequestBinder()
@@ -49,14 +49,14 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             foreach (var (matcher, parser) in BindingOptions.PropertyMatchers)
             {
-                if (matcher(propInfo))
-                {
-                    BinderExtensions.ParserFuncCache.TryAdd(
-                        propInfo.PropertyType,
-                        input => parser(input, propInfo.PropertyType));
+                if (!matcher(propInfo))
+                    continue;
 
-                    break;
-                }
+                BinderExtensions.ParserFuncCache.TryAdd(
+                    propInfo.PropertyType,
+                    input => parser(input, propInfo.PropertyType));
+
+                break;
             }
 
             string? fieldName = null;
@@ -186,7 +186,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
     {
         if (_fromBodyProp is null)
-            return (TRequest)(await SerOpts.RequestDeserializer(httpRequest, _tRequest, serializerCtx, cancellation))! ?? InitDto();
+            return (TRequest)(await SerOpts.RequestDeserializer(httpRequest, _tRequest, serializerCtx, cancellation) ?? InitDto());
 
         var req = InitDto();
 
@@ -218,13 +218,13 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             var formFile = httpRequest.Form.Files[y];
 
-            if (_primaryProps.TryGetValue(formFile.Name, out var prop))
-            {
-                if (prop.PropType == Types.IFormFile)
-                    prop.PropSetter(req, formFile);
-                else
-                    failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
-            }
+            if (!_primaryProps.TryGetValue(formFile.Name, out var prop))
+                continue;
+
+            if (prop.PropType == Types.IFormFile)
+                prop.PropSetter(req, formFile);
+            else
+                failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
         }
     }
 
@@ -407,7 +407,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         _hasPermissionProps.Add(
             new()
             {
-                Identifier = att.Permission ?? propInfo.Name,
+                Identifier = att.Permission,
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
                 PropName = propInfo.Name,

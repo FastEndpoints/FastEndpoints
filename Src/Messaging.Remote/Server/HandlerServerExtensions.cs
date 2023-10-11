@@ -15,7 +15,8 @@ public static class HandlerServerExtensions
     /// <summary>
     /// configure the handler server which will host a collection of command handlers and event hubs. this should only be called once per application.
     /// <para>
-    /// IMPORTANT: specify which handlers/hubs this server will be hosting via <see cref="MapHandlers{TStorageRecord, TStorageProvider}(IEndpointRouteBuilder, Action{HandlerOptions{TStorageRecord, TStorageProvider}})"/> method.
+    /// IMPORTANT: specify which handlers/hubs this server will be hosting via
+    /// <see cref="MapHandlers{TStorageRecord, TStorageProvider}(IEndpointRouteBuilder, Action{HandlerOptions{TStorageRecord, TStorageProvider}})" /> method.
     /// </para>
     /// </summary>
     /// <param name="bld"></param>
@@ -26,7 +27,8 @@ public static class HandlerServerExtensions
     /// <summary>
     /// configure the handler server which will host a collection of command handlers. this should only be called once per application.
     /// <para>
-    /// IMPORTANT: specify which handlers this server will be hosting via <see cref="MapHandlers{TStorageRecord, TStorageProvider}(IEndpointRouteBuilder, Action{HandlerOptions{TStorageRecord, TStorageProvider}})"/> method.
+    /// IMPORTANT: specify which handlers this server will be hosting via
+    /// <see cref="MapHandlers{TStorageRecord, TStorageProvider}(IEndpointRouteBuilder, Action{HandlerOptions{TStorageRecord, TStorageProvider}})" /> method.
     /// </para>
     /// </summary>
     /// <param name="sc"></param>
@@ -39,8 +41,11 @@ public static class HandlerServerExtensions
         sc.TryAddSingleton(typeof(ClientStreamHandlerExecutor<,,>));
         sc.TryAddSingleton(typeof(EventHub<,,>));
         sc.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IServiceMethodProvider<>), typeof(ServiceMethodProvider<>)));
-        Action<GrpcServiceOptions> defaultOpts = o => o.IgnoreUnknownServices = true;
-        return sc.AddGrpc(defaultOpts + o);
+
+        return sc.AddGrpc(DefaultOpts + o);
+
+        void DefaultOpts(GrpcServiceOptions opts)
+            => opts.IgnoreUnknownServices = true;
     }
 
     /// <summary>
@@ -48,9 +53,11 @@ public static class HandlerServerExtensions
     /// </summary>
     /// <param name="b"></param>
     /// <param name="h">handler options</param>
-    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerOptions<InMemoryEventStorageRecord, InMemoryEventHubStorage>> h)
+    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b,
+                                                    Action<HandlerOptions<InMemoryEventStorageRecord, InMemoryEventHubStorage>> h)
     {
         h(new(b));
+
         return b;
     }
 
@@ -61,11 +68,13 @@ public static class HandlerServerExtensions
     /// <typeparam name="TStorageProvider">the type of the event storage provider</typeparam>
     /// <param name="b"></param>
     /// <param name="h">handler options</param>
-    public static IEndpointRouteBuilder MapHandlers<TStorageRecord, TStorageProvider>(this IEndpointRouteBuilder b, Action<HandlerOptions<TStorageRecord, TStorageProvider>> h)
-        where TStorageRecord : IEventStorageRecord, new()
+    public static IEndpointRouteBuilder MapHandlers<TStorageRecord, TStorageProvider>(this IEndpointRouteBuilder b,
+                                                                                      Action<HandlerOptions<TStorageRecord, TStorageProvider>> h)
+        where TStorageRecord : class, IEventStorageRecord, new()
         where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
     {
         h(new(b));
+
         return b;
     }
 }

@@ -12,8 +12,7 @@ static class ReflectionExtensions
     }
 
     internal static string PropertyName<T>(this Expression<T> expression)
-        => (
-               expression.Body switch
+        => (expression.Body switch
                {
                    MemberExpression m => m.Member,
                    UnaryExpression { Operand: MemberExpression m } => m.Member,

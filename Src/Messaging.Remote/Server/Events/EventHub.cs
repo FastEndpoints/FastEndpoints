@@ -29,7 +29,7 @@ abstract class EventHubBase
 
 sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, IMethodBinder<EventHub<TEvent, TStorageRecord, TStorageProvider>>
     where TEvent : class, IEvent
-    where TStorageRecord : IEventStorageRecord, new()
+    where TStorageRecord : class, IEventStorageRecord, new()
     where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
 {
     internal static HubMode Mode = HubMode.EventPublisher;
@@ -78,7 +78,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     {
         var metadata = new List<object>();
         var eventAttributes = _tEvent.GetCustomAttributes(false);
-        if (eventAttributes?.Length > 0)
+        if (eventAttributes.Length > 0)
             metadata.AddRange(eventAttributes);
         metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
 
@@ -91,17 +91,17 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         ctx.AddServerStreamingMethod(sub, metadata, OnSubscriberConnected);
 
-        if (Mode.HasFlag(HubMode.EventBroker))
-        {
-            var pub = new Method<TEvent, EmptyObject>(
-                type: MethodType.Unary,
-                serviceName: _tEvent.FullName!,
-                name: "pub",
-                requestMarshaller: new MessagePackMarshaller<TEvent>(),
-                responseMarshaller: new MessagePackMarshaller<EmptyObject>());
+        if (!Mode.HasFlag(HubMode.EventBroker))
+            return;
 
-            ctx.AddUnaryMethod(pub, metadata, OnEventReceived);
-        }
+        var pub = new Method<TEvent, EmptyObject>(
+            type: MethodType.Unary,
+            serviceName: _tEvent.FullName!,
+            name: "pub",
+            requestMarshaller: new MessagePackMarshaller<TEvent>(),
+            responseMarshaller: new MessagePackMarshaller<EmptyObject>());
+
+        ctx.AddUnaryMethod(pub, metadata, OnEventReceived);
     }
 
     //internal to allow unit testing
@@ -116,10 +116,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         subscriber.IsConnected = true;
         var retrievalErrorCount = 0;
         var updateErrorCount = 0;
-        IEnumerable<TStorageRecord> records;
 
         while (!ctx.CancellationToken.IsCancellationRequested)
         {
+            IEnumerable<TStorageRecord> records;
+
             try
             {
                 records = await _storage!.GetNextBatchAsync(
@@ -271,7 +272,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 catch (OverflowException)
                 {
                     _subscribers.Remove(subId, out var sub);
-                    sub?.Sem?.Dispose();
+                    sub?.Sem.Dispose();
                     _errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
                     _logger.QueueOverflowWarning(subId, _tEvent.FullName!);
 

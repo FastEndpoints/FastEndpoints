@@ -13,11 +13,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
 
     public override void Configure()
     {
-        Verbs(Http.POST);
-        Routes(
-            "/sales/orders/create/{guidTest}",
-            "/sales/orders/create");
-        //Permissions(Allow.Sales_Order_Create);
+        Post("/sales/orders/create/{guidTest}", "/sales/orders/create");
         AccessControl("Sales_Order_Create", Apply.ToThisEndpoint);
         PreProcessors(new MyRequestLogger<Request>());
         PostProcessors(new MyResponseLogger<Request, Response>());
@@ -27,11 +23,11 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
     public override async Task HandleAsync(Request r, CancellationToken t)
     {
         var fullName = await new SomeCommand
-        {
-            FirstName = "x",
-            LastName = "y"
-        }
-        .ExecuteAsync(t);
+                           {
+                               FirstName = "x",
+                               LastName = "y"
+                           }
+                          .ExecuteAsync(t);
 
         var userType = User.ClaimValue(Claim.UserType);
 
@@ -39,7 +35,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
         {
             CustomerName = $"new customer ({fullName}) ({userType})",
             OrderID = Random.Shared.Next(0, 10000),
-            OrderTotal = 12345.67m,
+            OrderTotal = 12345.67m
         };
 
         await PublishAsync(saleNotification, Mode.WaitForNone, t);
@@ -47,14 +43,15 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
         IEvent evnt = new SomeEvent();
         await evnt.PublishAsync();
 
-        await SendAsync(new Response
-        {
-            Message = "order created!",
-            AnotherMsg = Map.ToEntity(r),
-            OrderID = 54321,
-            GuidTest = r.GuidTest,
-            Event = (SomeEvent)evnt
-        });
+        await SendAsync(
+            new()
+            {
+                Message = "order created!",
+                AnotherMsg = Map.ToEntity(r),
+                OrderID = 54321,
+                GuidTest = r.GuidTest,
+                Event = (SomeEvent)evnt
+            });
     }
 }
 
@@ -63,6 +60,7 @@ public class MyMapper : Mapper<Request, Response, string>
     public override string ToEntity(Request r)
     {
         var x = Resolve<IEmailService>();
+
         return x.SendEmail();
     }
 }

@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// handler registration options
 /// </summary>
 public class HandlerOptions<TStorageRecord, TStorageProvider>
-    where TStorageRecord : IEventStorageRecord, new()
+    where TStorageRecord : class, IEventStorageRecord, new()
     where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
 {
     readonly IEndpointRouteBuilder _routeBuilder;

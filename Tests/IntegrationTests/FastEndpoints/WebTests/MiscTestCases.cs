@@ -747,6 +747,55 @@ public class MiscTestCases : TestClass<Fixture>
     }
 
     [Fact]
+    public async Task FormFileCollectionBinding()
+    {
+        using var stream1 = File.OpenRead("test.png");
+        using var stream2 = File.OpenRead("test.png");
+        using var stream3 = File.OpenRead("test.png");
+        using var stream4 = File.OpenRead("test.png");
+        using var stream5 = File.OpenRead("test.png");
+        using var stream6 = File.OpenRead("test.png");
+
+        var req = new TestCases.FormFileBindingTest.Request
+        {
+            File1 = new FormFile(stream1, 0, stream1.Length, "File1", "test1.png")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/png"
+            },
+            File2 = new FormFile(stream2, 0, stream2.Length, "File2", "test2.png"),
+
+            Cars = new FormFileCollection
+            {
+                new FormFile(stream3, 0, stream3.Length, "Car1", "car1.png"),
+                new FormFile(stream4, 0, stream4.Length, "Car2", "car2.png")
+            },
+
+            Jets = new FormFileCollection
+            {
+                new FormFile(stream5, 0, stream5.Length, "jet1", "jet1.png"),
+                new FormFile(stream6, 0, stream6.Length, "jet2", "jet2.png")
+            },
+
+            Width = 500,
+            Height = 500
+        };
+
+        var (rsp, res) = await Fixture
+                              .AdminClient
+                              .POSTAsync<
+                                   TestCases.FormFileBindingTest.Endpoint,
+                                   TestCases.FormFileBindingTest.Request,
+                                   TestCases.FormFileBindingTest.Response>(req, sendAsFormData: true);
+
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.File1Name.Should().Be("test1.png");
+        res.File2Name.Should().Be("test2.png");
+        res.CarNames.Should().Equal("car1.png", "car2.png");
+        res.JetNames.Should().Equal("jet1.png", "jet2.png");
+    }
+
+    [Fact]
     public async Task PreProcessorShortCircuitingWhileValidatorFails()
     {
         var x = await Fixture.GuestClient.GETAsync<

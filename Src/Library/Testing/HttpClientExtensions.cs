@@ -341,6 +341,16 @@ public static class HttpClientExtensions
                 var file = (IFormFile)p.GetValue(req)!;
                 form.Add(new StreamContent(file.OpenReadStream()), p.Name, file.FileName);
             }
+            else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
+            {
+                var files = (IFormFileCollection)p.GetValue(req)!;
+
+                if (files?.Count is 0 or null)
+                    continue;
+
+                foreach (var file in files)
+                    form.Add(new StreamContent(file.OpenReadStream()), p.Name, file.FileName);
+            }
             else
                 form.Add(new StringContent(p.GetValue(req)?.ToString() ?? ""), p.Name);
         }

@@ -1624,6 +1624,47 @@
         }
       }
     },
+    "/api/test-cases/form-file-collection-binding": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesFormFileBindingTestEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesFormFileBindingTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesFormFileBindingTestResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/test-cases/event-bus-test": {
       "get": {
         "tags": [
@@ -3820,6 +3861,17 @@
           "File2": {
             "type": "string",
             "format": "binary"
+          },
+          "Cars": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "Jets": {
+            "type": "array",
+            "items": {}
           }
         }
       },
@@ -4693,6 +4745,66 @@
             "type": "number",
             "description": "product price goes here",
             "format": "decimal"
+          }
+        }
+      },
+      "TestCasesFormFileBindingTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "File1Name": {
+            "type": "string"
+          },
+          "File2Name": {
+            "type": "string"
+          },
+          "CarNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "JetNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TestCasesFormFileBindingTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ID": {
+            "type": "string"
+          },
+          "Width": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Height": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "File1": {
+            "type": "string",
+            "format": "binary"
+          },
+          "File2": {
+            "type": "string",
+            "format": "binary"
+          },
+          "Cars": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "Jets": {
+            "type": "array",
+            "items": {}
           }
         }
       },

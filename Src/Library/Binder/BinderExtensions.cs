@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Linq.Expressions;
@@ -11,6 +12,13 @@ namespace FastEndpoints;
 
 static class BinderExtensions
 {
+    internal static string BareFieldName(this IFormFile file)
+    {
+        var indexOfOpeningBracket = file.Name.IndexOf('[');
+
+        return indexOfOpeningBracket != -1 ? file.Name[..indexOfOpeningBracket] : file.Name;
+    }
+
     internal static IEnumerable<PropertyInfo> BindableProps(this Type t)
     {
         return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)

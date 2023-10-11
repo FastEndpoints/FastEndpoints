@@ -35,6 +35,7 @@ static class Types
     internal static readonly Type IEndpointFeature = typeof(IEndpointFeature);
     internal static readonly Type IEndpointValidator = typeof(IEndpointValidator);
     internal static readonly Type IEnumerable = typeof(IEnumerable);
+    internal static readonly Type IEnumerableOfIFormFile = typeof(IEnumerable<IFormFile>);
     internal static readonly Type IEventHandler = typeof(IEventHandler);
     internal static readonly Type IEventHandlerOf1 = typeof(IEventHandler<>);
     internal static readonly Type IFormFile = typeof(IFormFile);

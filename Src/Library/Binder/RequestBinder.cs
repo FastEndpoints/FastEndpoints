@@ -24,6 +24,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static PropCache? _fromBodyProp;
     static PropCache? _fromQueryParamsProp;
     static readonly Dictionary<string, PrimaryPropCacheEntry> _primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
+    static readonly Dictionary<string, FormFileCollectionPropCacheEntry> _formFileCollectionProps = new(StringComparer.OrdinalIgnoreCase);
     static readonly List<SecondaryPropCacheEntry> _fromClaimProps = new();
     static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = new();
     static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = new();
@@ -106,8 +107,17 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 }
             }
 
-            if (addPrimary)
-                AddPrimaryPropCacheEntry(fieldName, propInfo, compiledSetter);
+            if (propInfo.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
+            {
+                AddFormFileCollectionPropCacheEntry(fieldName, propInfo, compiledSetter);
+
+                continue;
+            }
+
+            {
+                if (addPrimary)
+                    AddPrimaryPropCacheEntry(fieldName, propInfo, compiledSetter);
+            }
         }
     }
 
@@ -218,13 +228,19 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         {
             var formFile = httpRequest.Form.Files[y];
 
-            if (!_primaryProps.TryGetValue(formFile.Name, out var prop))
+            if (_primaryProps.TryGetValue(formFile.Name, out var prop))
+            {
+                if (prop.PropType == Types.IFormFile)
+                    prop.PropSetter(req, formFile);
+                else
+                    failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
+            }
+
+            if (!_formFileCollectionProps.TryGetValue(formFile.BareFieldName(), out var collProp))
                 continue;
 
-            if (prop.PropType == Types.IFormFile)
-                prop.PropSetter(req, formFile);
-            else
-                failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
+            collProp.Files.Add(formFile);
+            collProp.PropSetter(req, collProp.Files);
         }
     }
 
@@ -426,6 +442,18 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             {
                 PropType = propInfo.PropertyType,
                 ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter
+            });
+    }
+
+    static void AddFormFileCollectionPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    {
+        _formFileCollectionProps.Add(
+            fieldName ?? propInfo.Name,
+            new()
+            {
+                Files = new(),
+                PropType = propInfo.PropertyType,
                 PropSetter = compiledSetter
             });
     }

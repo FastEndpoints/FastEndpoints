@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace FastEndpoints;
 
 class PropCache
 {
@@ -9,6 +11,11 @@ class PropCache
 class PrimaryPropCacheEntry : PropCache
 {
     public Func<object?, ParseResult> ValueParser { get; init; }
+}
+
+class FormFileCollectionPropCacheEntry : PropCache
+{
+    public FormFileCollection Files { get; set; }
 }
 
 sealed class SecondaryPropCacheEntry : PrimaryPropCacheEntry

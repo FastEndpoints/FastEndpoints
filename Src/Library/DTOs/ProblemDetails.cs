@@ -1,9 +1,11 @@
 ﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Metadata;
-using System.Reflection;
 using System.Text.Json.Serialization;
+#if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.AspNetCore.Builder;
+using System.Reflection;
+#endif
 
 namespace FastEndpoints;
 
@@ -13,9 +15,11 @@ namespace FastEndpoints;
 ///     <c>app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);</c>
 /// </para>
 /// </summary>
+
+#if NET7_0_OR_GREATER
+public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
+#else
 public sealed class ProblemDetails : IResult
-                                 #if NET7_0_OR_GREATER
-                                   , IEndpointMetadataProvider
 #endif
 {
     /// <summary>

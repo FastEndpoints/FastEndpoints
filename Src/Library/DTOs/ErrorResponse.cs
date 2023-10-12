@@ -1,8 +1,8 @@
 ﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using System.Reflection;
 #if NET7_0_OR_GREATER
+using Microsoft.AspNetCore.Builder;
+using System.Reflection;
 using Microsoft.AspNetCore.Http.Metadata;
 #endif
 
@@ -11,9 +11,10 @@ namespace FastEndpoints;
 /// <summary>
 /// the dto used to send an error response to the client
 /// </summary>
+#if NET7_0_OR_GREATER
+public sealed class ErrorResponse : IResult, IEndpointMetadataProvider
+#else
 public sealed class ErrorResponse : IResult
-                                #if NET7_0_OR_GREATER
-                                  , IEndpointMetadataProvider
 #endif
 {
     /// <summary>

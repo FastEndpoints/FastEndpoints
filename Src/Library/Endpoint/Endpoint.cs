@@ -30,9 +30,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
     /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     /// </summary>
     [DontInject]
-
-    //access is public to support testing
-    public TMapper Map
+    public TMapper Map //access is public to support testing
     {
         get => _mapper ??= (TMapper)Definition.GetMapper()!;
         set => _mapper = value; //allow unit tests to set mapper from outside
@@ -222,8 +220,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     }
 
     /// <summary>
-    /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk as done with
-    /// IFormFile
+    /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk
+    /// as done with IFormFile
     /// </summary>
     /// <param name="cancellation">optional cancellation token</param>
     protected async IAsyncEnumerable<FileMultipartSection?> FormFileSectionsAsync([EnumeratorCancellation] CancellationToken cancellation = default)
@@ -268,8 +266,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 }
 
 /// <summary>
-/// use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity using a
-/// seperate entity mapper.
+/// use this base class for defining endpoints that use both request and response dtos as well as require mapping to and from a domain entity
+/// using a seperate entity mapper.
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>

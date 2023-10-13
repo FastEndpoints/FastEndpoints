@@ -61,7 +61,10 @@ public static class HttpContextExtensions
         {
             return state as TState ??
                    throw new InvalidOperationException(
-                       $"Only a single type of state is supported across processors and endpoint handler! Requested: [{typeof(TState).Name}] Found: [{state!.GetType().Name}]");
+                       $"""
+                        Only a single type of state is supported across processors and endpoint handler! Requested: [{typeof(TState).Name}]
+                        Found: [{state!.GetType().Name}]
+                        """);
         }
 
         var st = new TState();

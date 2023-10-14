@@ -25,6 +25,29 @@ class Request
 
 </details>
 
+<details><summary>Ability to specify multiple request examples for Swagger</summary>
+
+Multiple examples for the request DTO can be specified by setting the `ExampleRequest` property of the Summary class multiple times like so:
+
+```csharp
+Summary(s =>
+{
+    s.ExampleRequest = new()
+    {
+        Description = "first",
+        Name = "name one",
+    };
+    
+    s.ExampleRequest = new()
+    {
+        Description = "second",
+        Name = "name two",
+    };
+});
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Prevent swallowing of STJ exceptions in edge cases</summary>

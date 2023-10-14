@@ -1,4 +1,8 @@
-﻿namespace Inventory.Manage.Create;
+﻿using System.Security.Claims;
+using TestCases.EventHandlingTest;
+using Claim = Web.Auth.Claim;
+
+namespace Inventory.Manage.Create;
 
 public class Endpoint : Endpoint<Request>
 {
@@ -13,15 +17,35 @@ public class Endpoint : Endpoint<Request>
         ClaimsAll(
             Claim.AdminID,
             "test-claim");
-        Policy(b =>
-               b.RequireClaim(System.Security.Claims.ClaimTypes.Role, Role.Admin));
-        Description(x => x
-            .Accepts<Request>("application/json")
-            .Produces(201)
-            .Produces(500)
-            .WithTags("test")
-            .WithName("CreateInventoryItem"),
+        Policy(b => b.RequireClaim(ClaimTypes.Role, Role.Admin));
+        Description(
+            x => x.Accepts<Request>("application/json")
+                  .Produces(201)
+                  .Produces(500)
+                  .WithTags("test")
+                  .WithName("CreateInventoryItem"),
             clearDefaults: true);
+        Summary(
+            s =>
+            {
+                s.ExampleRequest = new()
+                {
+                    Description = "first description",
+                    Price = 10,
+                    QtyOnHand = 10,
+                    Id = 1,
+                    Name = "first name",
+                    Username = "blah"
+                };
+                s.ExampleRequest = new()
+                {
+                    Description = "description two",
+                    Price = 209,
+                    QtyOnHand = 290,
+                    Id = 200,
+                    Name = "second  name"
+                };
+            });
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
@@ -37,7 +61,7 @@ public class Endpoint : Endpoint<Request>
             validation.AddError(x => x.Price, "Price is too high!");
         }
 
-        var eventdto = new TestCases.EventHandlingTest.NewItemAddedToStock
+        var eventdto = new NewItemAddedToStock
         {
             Name = req.Name,
             Quantity = 1

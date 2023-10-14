@@ -11,6 +11,7 @@ public class EndpointSummary
 {
     internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
     internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; } = new(); //key: status-code //val: [propname]=description
+    internal List<object> RequestExamples { get; } = new();
 
     internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b => b.Add(
         epBuilder =>
@@ -46,7 +47,11 @@ public class EndpointSummary
     /// <summary>
     /// an example request object to be used in swagger/ openapi.
     /// </summary>
-    public object? ExampleRequest { get; set; } //todo: support for multiple example requests
+    public object? ExampleRequest
+    {
+        get => RequestExamples.Count > 0 ? RequestExamples[0] : null;
+        set => RequestExamples.Add(value ?? throw new ArgumentNullException(nameof(ExampleRequest)));
+    }
 
     /// <summary>
     /// the descriptions for endpoint parameters. you can add descriptions for route/query params and request dto properties.
@@ -151,6 +156,12 @@ public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnul
     /// <param name="description">the description text</param>
     public void RequestParam(Expression<Func<TRequest, object>> property, string description)
         => Params[property.PropertyName()] = description;
+
+    public new TRequest? ExampleRequest
+    {
+        get => (TRequest?)base.ExampleRequest;
+        set => base.ExampleRequest = value;
+    }
 }
 
 /// <inheritdoc cref="EndpointSummary" />

@@ -26,22 +26,23 @@ public class Endpoint : Endpoint<Request, Response>
                   .Produces(400)
                   .Produces(403),
             clearDefaults: true);
-        Summary(s =>
-        {
-            s.Summary = "this is a short summary";
-            s.Description = "this is the long description of the endpoint";
-            s.RequestParam(r => r.UserName, "overriden username text");
-            s.ExampleRequest = new Request
+        Summary(
+            s =>
             {
-                UserName = "custom example user name from summary",
-                Password = "custom example password from summary"
-            };
-            s[200] = "all good";
-            s[400] = "indicates an error";
-            s[403] = "forbidden when login fails";
-            s[201] = "new resource created";
-            s.ResponseHeaders.Add(new(200, "x-some-custom-header"));
-        });
+                s.Summary = "this is a short summary";
+                s.Description = "this is the long description of the endpoint";
+                s.RequestParam(r => r.UserName, "overriden username text");
+                s.ExampleRequest = new()
+                {
+                    UserName = "custom example user name from summary",
+                    Password = "custom example password from summary"
+                };
+                s[200] = "all good";
+                s[400] = "indicates an error";
+                s[403] = "forbidden when login fails";
+                s[201] = "new resource created";
+                s.ResponseHeaders.Add(new(200, "x-some-custom-header"));
+            });
         SerializerContext(AdminLogin.Default);
         Version(0, 1);
     }
@@ -75,17 +76,15 @@ public class Endpoint : Endpoint<Request, Response>
                 userRoles,
                 userClaims);
 
-            return SendAsync(new Response()
-            {
-                JWTToken = token,
-                ExpiryDate = expiryDate,
-                Permissions = Allow.NamesFor(userPermissions)
-            });
+            return SendAsync(
+                new()
+                {
+                    JWTToken = token,
+                    ExpiryDate = expiryDate,
+                    Permissions = Allow.NamesFor(userPermissions)
+                });
         }
-        else
-        {
-            AddError("Authentication Failed!");
-        }
+        AddError("Authentication Failed!");
 
         return SendErrorsAsync();
     }
@@ -93,7 +92,10 @@ public class Endpoint : Endpoint<Request, Response>
 
 public class Endpoint_V1 : Endpoint
 {
-    public Endpoint_V1(ILogger<Endpoint_V1> logger, IEmailService emailService, IConfiguration configuration) : base(logger, emailService, configuration) { }
+    public Endpoint_V1(ILogger<Endpoint_V1> logger, IEmailService emailService, IConfiguration configuration) : base(
+        logger,
+        emailService,
+        configuration) { }
 
     public override void Configure()
     {
@@ -113,7 +115,5 @@ public class Endpoint_V2 : Endpoint<EmptyRequest, object>
     }
 
     public override Task HandleAsync(EmptyRequest r, CancellationToken ct)
-    {
-        return SendAsync(2);
-    }
+        => SendAsync(2);
 }

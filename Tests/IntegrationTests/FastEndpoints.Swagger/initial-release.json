@@ -2311,6 +2311,30 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/InventoryManageCreateRequest"
+              },
+              "examples": {
+                "Example 1": {
+                  "value": {
+                    "Id": 1,
+                    "Name": "first name",
+                    "Description": "first description",
+                    "Price": 10.0,
+                    "QtyOnHand": 10,
+                    "ModifiedBy": null,
+                    "GenerateFullUrl": false
+                  }
+                },
+                "Example 2": {
+                  "value": {
+                    "Id": 200,
+                    "Name": "second  name",
+                    "Description": "description two",
+                    "Price": 209.0,
+                    "QtyOnHand": 290,
+                    "ModifiedBy": null,
+                    "GenerateFullUrl": false
+                  }
+                }
               }
             }
           },

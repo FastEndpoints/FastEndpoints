@@ -414,25 +414,47 @@ sealed class OperationProcessor : IOperationProcessor
             }
         }
 
-        //set request example if provided by user
-        if (epDef.EndpointSummary?.ExampleRequest is not null)
+        //set request examples if provided by user
+        if (epDef.EndpointSummary?.RequestExamples.Count > 0)
         {
             foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
             {
-                if (epDef.EndpointSummary.ExampleRequest.GetType().IsAssignableTo(typeof(IEnumerable)))
-                    requestBody.ActualSchema.Example = JToken.FromObject(epDef.EndpointSummary.ExampleRequest, serializer);
+                var exCount = epDef.EndpointSummary!.RequestExamples.Count;
+
+                if (exCount == 1)
+                    requestBody.ActualSchema.Example = GetExampleFrom(epDef.EndpointSummary?.RequestExamples[0]);
                 else
                 {
-                    var jObj = JObject.FromObject(epDef.EndpointSummary.ExampleRequest, serializer);
+                    for (var i = 0; i < epDef.EndpointSummary.RequestExamples.Count; i++)
+                    {
+                        reqContent?.First().Value.Examples.Add(
+                            key: $"Example {i + 1}",
+                            value: new() { Value = GetExampleFrom(epDef.EndpointSummary.RequestExamples[i]) });
+                    }
+                }
+            }
 
-                    foreach (var p in jObj.Properties().ToArray())
+            object? GetExampleFrom(object? requestExample)
+            {
+                if (requestExample is null)
+                    return null;
+
+                object example;
+
+                if (requestExample.GetType().IsAssignableTo(typeof(IEnumerable)))
+                    example = JToken.FromObject(requestExample, serializer);
+                else
+                {
+                    example = JObject.FromObject(requestExample, serializer);
+
+                    foreach (var p in ((JObject)example).Properties().ToArray())
                     {
                         if (propsToRemoveFromExample.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
                             p.Remove();
                     }
-
-                    requestBody.ActualSchema.Example = jObj;
                 }
+
+                return example;
             }
         }
 

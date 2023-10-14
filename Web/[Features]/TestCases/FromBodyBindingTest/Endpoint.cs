@@ -37,21 +37,23 @@ public class Endpoint : Endpoint<Request, Response>
     {
         Post("test-cases/from-body-binding/{id}");
         AllowAnonymous();
-        Summary(s => s.ExampleRequest = new Product()
-        {
-            Id = 201,
-            Name = "test product name",
-            Price = 200.22m
-        });
+        Summary(
+            s => s.ExampleRequest = new Product
+            {
+                Id = 201,
+                Name = "test product name",
+                Price = 200.22m
+            });
     }
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        await SendAsync(new Response
-        {
-            Id = req.Id,
-            CustomerID = req.CustomerID,
-            Product = req.Product,
-        });
+        await SendAsync(
+            new()
+            {
+                Id = req.Id,
+                CustomerID = req.CustomerID,
+                Product = req.Product
+            });
     }
 }

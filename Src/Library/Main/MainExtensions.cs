@@ -61,7 +61,7 @@ public static class MainExtensions
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
         Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
-        var jsonOpts = app.ServiceProvider.GetRequiredService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
+        var jsonOpts = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Conf.SerOpts.Options = jsonOpts is not null
                                    ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
                                    : Conf.SerOpts.Options;
@@ -71,9 +71,8 @@ public static class MainExtensions
         var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
         var authOptions = app.ServiceProvider.GetRequiredService<IOptions<AuthorizationOptions>>().Value;
         using var scope = app.ServiceProvider.CreateScope();
-        var httpCtx =
-            new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
-        var routeToHandlerCounts = new ConcurrentDictionary<string, int>();     //key: {verb}:{route}
+        var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider }; //only because endpoint factory requires the service provider
+        var routeToHandlerCounts = new ConcurrentDictionary<string, int>();               //key: {verb}:{route}
         var totalEndpointCount = 0;
         var routeBuilder = new StringBuilder();
 
@@ -297,8 +296,7 @@ public static class MainExtensions
                         b.RequireAssertion(x => x.User.Claims.Any(c => ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
                     else
                     {
-                        b.RequireAssertion(
-                            x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
+                        b.RequireAssertion(x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
                     }
                 }
 

@@ -160,6 +160,12 @@ sealed class OperationProcessor : IOperationProcessor
         //set endpoint summary & description
         op.Summary = epDef.EndpointSummary?.Summary ?? epDef.EndpointType.GetSummary();
         op.Description = epDef.EndpointSummary?.Description ?? epDef.EndpointType.GetDescription();
+        //set endpoint deprecated status when marked [Obsolete]
+        var isObsolete = epDef.EndpointType.GetCustomAttribute<ObsoleteAttribute>() != null;
+        if (isObsolete)
+        {
+            op.IsDeprecated = true;
+        }
 
         //set response descriptions
         op.Responses

@@ -1,14 +1,15 @@
 ﻿using FluentValidation;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace TestCases.DataAnnotationCompliant;
-
 
 public class Request
 {
     /// <summary>
     /// id of the plain text request
     /// </summary>
+    [Description("CurrentId")]
     public int Id { get; set; }
 
     [Required, StringLength(10, MinimumLength = 2)]
@@ -30,7 +31,7 @@ public class Request
 }
 
 
-
+[Obsolete("Obsolete", false)]
 public class Endpoint : Endpoint<Request, Request>
 {
     public override void Configure()

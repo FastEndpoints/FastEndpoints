@@ -48,6 +48,28 @@ Summary(s =>
 
 </details>
 
+<details><summary>Support for simple validation with 'DataAnnotations'</summary>
+
+```csharp
+sealed class Request
+{
+    [Required, StringLength(10, MinimumLength = 2)]
+    public string Name { get; set; }
+}
+
+//can be used together with `FluentValidations` rules if need be
+
+sealed class MyValidator : Validator<Request>
+{
+    public MyValidator()
+    {
+        RuleFor(x => x.Id).InclusiveBetween(10, 100);
+    }
+}
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Prevent swallowing of STJ exceptions in edge cases</summary>

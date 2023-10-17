@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Extensions.DependencyInjection;
+using MSDA = System.ComponentModel.DataAnnotations;
 
 namespace FastEndpoints;
 
@@ -32,4 +34,27 @@ public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServic
     /// <inheritdoc />
     public IServiceScope CreateScope()
         => Conf.ServiceResolver.CreateScope();
+
+
+    /// <summary>
+    /// PreValidate compliant DataAnnotation
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    protected override bool PreValidate(FluentValidation.ValidationContext<TRequest> context, ValidationResult result)
+    {
+        var req = context.InstanceToValidate;
+
+        //support DataAnnotation
+        var mc = new MSDA.ValidationContext(req);
+        var validationResults = new List<MSDA.ValidationResult>();
+        var flag = MSDA.Validator.TryValidateObject(req, mc, validationResults, true);
+        if (!flag)
+        {
+            result.Errors.AddRange(validationResults.Select(x => new ValidationFailure(x.MemberNames.FirstOrDefault(), x.ErrorMessage)));
+        }
+        return base.PreValidate(context, result);
+    }
+
 }

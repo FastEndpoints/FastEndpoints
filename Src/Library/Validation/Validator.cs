@@ -35,7 +35,6 @@ public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServic
     public IServiceScope CreateScope()
         => Conf.ServiceResolver.CreateScope();
 
-
     /// <summary>
     /// PreValidate compliant DataAnnotation
     /// </summary>

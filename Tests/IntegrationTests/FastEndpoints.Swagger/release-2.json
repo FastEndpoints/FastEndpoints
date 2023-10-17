@@ -1902,6 +1902,49 @@
         }
       }
     },
+    "/api/test-cases/data-annotation": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesDataAnnotationCompliantEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesDataAnnotationCompliantRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesDataAnnotationCompliantRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/custom-request-binder": {
       "post": {
         "tags": [
@@ -4868,6 +4911,27 @@
       "TestCasesDontCatchExceptionsRequest": {
         "type": "object",
         "additionalProperties": false
+      },
+      "TestCasesDataAnnotationCompliantRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "Name"
+        ],
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "description": "CurrentId",
+            "format": "int32",
+            "maximum": 99.0,
+            "minimum": 10.0
+          },
+          "Name": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 2
+          }
+        }
       },
       "TestCasesCustomRequestBinderResponse": {
         "allOf": [

@@ -207,4 +207,70 @@ public class WebTests
             (await ep.ExecuteAsync(new() { Id = id }, default)).Should().Be(id);
         });
     }
+    
+    [Fact]
+    public async Task unit_test_list_element_validation_error()
+    {
+        var ep = Factory.Create<TestCases.ValidationErrorTest.ListValidationErrorTestEndpoint>();
+        await ep.HandleAsync(new TestCases.ValidationErrorTest.ListRequest() { NumbersList = new List<int> { 1, 2, 3 } }, default);
+
+
+        ep.ValidationFailed.Should().BeTrue();
+        ep.ValidationFailures.Count.Should().Be(3);
+        ep.ValidationFailures[0].PropertyName.Should().Be("NumbersList[0]");
+        ep.ValidationFailures[1].PropertyName.Should().Be("NumbersList[1]");
+        ep.ValidationFailures[2].PropertyName.Should().Be("NumbersList[2]");
+    }
+
+    [Fact]
+    public async Task unit_test_dict_element_validation_error()
+    {
+        var ep = Factory.Create<TestCases.ValidationErrorTest.DictionaryValidationErrorTestEndpoint>();
+        await ep.HandleAsync(
+            new TestCases.ValidationErrorTest.DictionaryRequest()
+                { StringDictionary = new Dictionary<string, string> { { "a", "1" }, { "b", "2" } } }, default);
+        
+        ep.ValidationFailed.Should().BeTrue();
+        ep.ValidationFailures.Count.Should().Be(2);
+        ep.ValidationFailures[0].PropertyName.Should().Be("StringDictionary[\"a\"]");
+        ep.ValidationFailures[1].PropertyName.Should().Be("StringDictionary[\"b\"]");
+    }
+
+    [Fact]
+    public async Task unit_test_array_element_validation_error()
+    {
+        var ep = Factory.Create<TestCases.ValidationErrorTest.ArrayValidationErrorTestEndpoint>();
+        await ep.HandleAsync(new TestCases.ValidationErrorTest.ArrayRequest() { StringArray = new[] { "a", "b" } }, default);
+        
+        ep.ValidationFailed.Should().BeTrue();
+        ep.ValidationFailures.Count.Should().Be(2);
+        ep.ValidationFailures[0].PropertyName.Should().Be("StringArray[0]");
+        ep.ValidationFailures[1].PropertyName.Should().Be("StringArray[1]");
+    }
+
+    [Fact]
+    public async Task unit_test_array_element_object_property_validation_error()
+    {
+        var ep = Factory.Create<TestCases.ValidationErrorTest.ObjectArrayValidationErrorTestEndpoint>();
+        await ep.HandleAsync(new TestCases.ValidationErrorTest.ObjectArrayRequest() { ObjectArray = new[] { new TestCases.ValidationErrorTest.TObject() { Test = "a" }, new TestCases.ValidationErrorTest.TObject() { Test = "b" } } }, default);
+        
+        ep.ValidationFailed.Should().BeTrue();
+        ep.ValidationFailures.Count.Should().Be(2);
+        ep.ValidationFailures[0].PropertyName.Should().Be("ObjectArray[0].Test");
+        ep.ValidationFailures[1].PropertyName.Should().Be("ObjectArray[1].Test");
+    }
+
+    [Fact]
+    public async Task unit_test_list_in_list_validation_error()
+    {
+        var ep = Factory.Create<TestCases.ValidationErrorTest.ListInListValidationErrorTestEndpoint>();
+        await ep.HandleAsync(new TestCases.ValidationErrorTest.ListInListRequest() { NumbersList = new List<List<int>> { new List<int> { 1, 2 }, new List<int> { 3, 4 } } }, default);
+        
+        ep.ValidationFailed.Should().BeTrue();
+        ep.ValidationFailures.Count.Should().Be(4);
+        ep.ValidationFailures[0].PropertyName.Should().Be("NumbersList[0][0]");
+        ep.ValidationFailures[1].PropertyName.Should().Be("NumbersList[0][1]");
+        ep.ValidationFailures[2].PropertyName.Should().Be("NumbersList[1][0]");
+        ep.ValidationFailures[3].PropertyName.Should().Be("NumbersList[1][1]");
+    }
 }

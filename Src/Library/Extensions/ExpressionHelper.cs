@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace FastEndpoints;
 
@@ -17,27 +18,61 @@ internal static class ExpressionHelper
         };
     }
 
-    private static bool IsItemAccessor(MethodCallExpression mce)
+    static bool IsItemAccessor(MethodCallExpression mce)
         => mce.Method.Name == "get_Item" && mce.Arguments.Count == 1;
 
-    private static string FormatIndexerExpression(Expression objectExpression, Expression indexExpression)
+    static string FormatIndexerExpression(Expression objectExpression, Expression indexExpression)
     {
         if (objectExpression is null)
             throw new ArgumentNullException(nameof(objectExpression), "Object expression cannot be null.");
 
-        return $"{GetPropertyChain(objectExpression)}[{EvaluateExpression(indexExpression)}]";
+        return $"{GetPropertyChain(objectExpression)}[{GetIndexerValueText(indexExpression)}]";
     }
 
-    private static string EvaluateExpression(Expression expression)
-        => Expression.Lambda(expression).Compile().DynamicInvoke() switch
+    static string? GetIndexerValueText(Expression expression)
+        => GetValue(expression) switch
         {
-            null => throw new ArgumentNullException(nameof(expression), "The evaluated expression resulted in null."),
             string s => $"\"{s}\"",
-            var v => v.ToString() ?? throw new InvalidOperationException("Value's ToString method returned null.")
+            var v => v?.ToString()
         };
 
-    private static string BuildMemberChain(MemberExpression memberExpression)
+    static string BuildMemberChain(MemberExpression memberExpression)
         => memberExpression.Expression is null or ParameterExpression
             ? memberExpression.Member.Name
             : $"{GetPropertyChain(memberExpression.Expression)}.{memberExpression.Member.Name}";
+    
+    
+    
+    internal static object? GetValue(Expression? expression)
+        => expression switch
+        {
+            null => throw new ArgumentNullException(nameof(expression), "Expression cannot be null."),
+            ConstantExpression ce => ce.Value,
+            MemberExpression me => GetValue(me),
+            MethodCallExpression mce => GetValue(mce),
+            _ => GetValueCompiled(expression)
+        };
+
+    static object? GetValue(MemberExpression expression)
+    {
+        var value = GetValue(expression.Expression);
+        return expression.Member switch
+        {
+            FieldInfo fi => fi.GetValue(value),
+            PropertyInfo pi => pi.GetValue(value),
+            _ => throw new NotSupportedException($"[{expression}] is not a supported member expression!")
+        };
+    }
+    
+    static object? GetValue(MethodCallExpression expression)
+    {
+        var args = expression.Arguments.Select(GetValue).ToArray();
+        var obj = GetValue(expression.Object);
+        return expression.Method.Invoke(obj, args);
+    }
+
+    static object? GetValueCompiled(Expression expression)
+    {
+        return Expression.Lambda(expression).Compile().DynamicInvoke();
+    }
 }

@@ -23,18 +23,14 @@ internal static class ExpressionHelper
 
     static string FormatIndexerExpression(Expression objectExpression, Expression indexExpression)
     {
-        if (objectExpression is null)
-            throw new ArgumentNullException(nameof(objectExpression), "Object expression cannot be null.");
-
-        return $"{GetPropertyChain(objectExpression)}[{GetIndexerValueText(indexExpression)}]";
-    }
-
-    static string? GetIndexerValueText(Expression expression)
-        => GetValue(expression) switch
+        var indexValueText = GetValue(indexExpression) switch
         {
             string s => $"\"{s}\"",
             var v => v?.ToString()
         };
+
+        return $"{GetPropertyChain(objectExpression)}[{indexValueText}]";
+    }
 
     static string BuildMemberChain(MemberExpression memberExpression)
         => memberExpression.Expression is null or ParameterExpression

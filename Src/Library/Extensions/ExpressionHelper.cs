@@ -46,6 +46,7 @@ internal static class ExpressionHelper
             ConstantExpression ce => ce.Value,
             MemberExpression me => GetValue(me),
             MethodCallExpression mce => GetValue(mce),
+            BinaryExpression be => GetValue(be),
             _ => GetValueCompiled(expression)
         };
 
@@ -58,6 +59,20 @@ internal static class ExpressionHelper
             PropertyInfo pi => pi.GetValue(value),
             _ => throw new NotSupportedException($"[{expression}] is not a supported member expression!")
         };
+    }
+    
+    static object? GetValue(BinaryExpression expression)
+    {
+        if (expression.NodeType != ExpressionType.ArrayIndex)
+            return GetValueCompiled(expression);
+
+        if (GetValue(expression.Left) is not Array array)
+            throw new NullReferenceException($"[{expression.Left}] is null!");
+        
+        if (GetValue(expression.Right) is not int index)
+            throw new NullReferenceException($"[{expression.Right}] is null or unsupported value!");
+        
+        return array.GetValue(index);
     }
     
     static object? GetValue(MethodCallExpression expression)

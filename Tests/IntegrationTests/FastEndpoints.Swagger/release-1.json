@@ -3840,6 +3840,11 @@
             "type": "string",
             "description": "the code of the error",
             "nullable": true
+          },
+          "Severity": {
+            "type": "string",
+            "description": "the severity of the error",
+            "nullable": true
           }
         }
       },

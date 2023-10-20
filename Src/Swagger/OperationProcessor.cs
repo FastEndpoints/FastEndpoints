@@ -96,8 +96,8 @@ sealed class OperationProcessor : IOperationProcessor
         if (op.Responses.Count > 0)
         {
             var metas = metaData
-                       .OfType<IProducesResponseTypeMetadata>()
-                       .GroupBy(
+                        .OfType<IProducesResponseTypeMetadata>()
+                        .GroupBy(
                             m => m.StatusCode,
                             (k, g) =>
                             {
@@ -119,7 +119,7 @@ sealed class OperationProcessor : IOperationProcessor
                                     headers = epDef.EndpointSummary?.ResponseHeaders.Where(h => h.StatusCode == k).ToArray()
                                 };
                             })
-                       .ToDictionary(x => x.key);
+                        .ToDictionary(x => x.key);
 
             if (metas.Count > 0)
             {
@@ -161,35 +161,39 @@ sealed class OperationProcessor : IOperationProcessor
         op.Summary = epDef.EndpointSummary?.Summary ?? epDef.EndpointType.GetSummary();
         op.Description = epDef.EndpointSummary?.Description ?? epDef.EndpointType.GetDescription();
 
+        //set endpoint deprecated status when marked with [Obsolete] attribute
+        var isObsolete = epDef.EndpointType.GetCustomAttribute<ObsoleteAttribute>() is not null;
+        if (isObsolete)
+            op.IsDeprecated = true;
+
         //set response descriptions
         op.Responses
           .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
           .ToList()
           .ForEach(
-               res =>
-               {
-                   if (_defaultDescriptions.ContainsKey(res.Key))
-                       res.Value.Description = _defaultDescriptions[res.Key]; //first set the default text
+              res =>
+              {
+                  if (_defaultDescriptions.TryGetValue(res.Key, out var description))
+                      res.Value.Description = description; //first set the default text
 
-                   var key = Convert.ToInt32(res.Key);
+                  var key = Convert.ToInt32(res.Key);
 
-                   if (epDef.EndpointSummary?.Responses.ContainsKey(key) is true)
-                       res.Value.Description = epDef.EndpointSummary.Responses[key]; //then take values from summary object
+                  if (epDef.EndpointSummary?.Responses.ContainsKey(key) is true)
+                      res.Value.Description = epDef.EndpointSummary.Responses[key]; //then take values from summary object
 
-                   if (epDef.EndpointSummary?.ResponseParams.ContainsKey(key) is true && res.Value.Schema is not null)
-                   {
-                       //set response dto property descriptions
+                  if (epDef.EndpointSummary?.ResponseParams.ContainsKey(key) is true && res.Value.Schema is not null)
+                  {
+                      //set response dto property descriptions
 
-                       var responseSchema = res.Value.Schema.ActualSchema;
-                       var responseDescriptions = epDef.EndpointSummary.ResponseParams[key];
+                      var responseDescriptions = epDef.EndpointSummary.ResponseParams[key];
 
-                       foreach (var prop in res.GetAllProperties())
-                       {
-                           if (responseDescriptions.ContainsKey(prop.Key))
-                               prop.Value.Description = responseDescriptions[prop.Key];
-                       }
-                   }
-               });
+                      foreach (var prop in res.GetAllProperties())
+                      {
+                          if (responseDescriptions.TryGetValue(prop.Key, out var responseDescription))
+                              prop.Value.Description = responseDescription;
+                      }
+                  }
+              });
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);
@@ -226,13 +230,12 @@ sealed class OperationProcessor : IOperationProcessor
             {
                 foreach (var prop in c.GetAllProperties())
                 {
-                    if (reqParamDescriptions.ContainsKey(prop.Key))
-                        prop.Value.Description = reqParamDescriptions[prop.Key];
+                    if (reqParamDescriptions.TryGetValue(prop.Key, out var description))
+                        prop.Value.Description = description;
                 }
             }
         }
 
-        var reqParams = new List<OpenApiParameter>();
         var propsToRemoveFromExample = new List<string>();
 
         //remove dto props that are either marked with [JsonIgnore] or not publicly settable
@@ -247,47 +250,45 @@ sealed class OperationProcessor : IOperationProcessor
         }
 
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
-        reqParams = _routeParamsRegex
-                   .Matches(opPath)
-                   .Select(
-                        m =>
-                        {
-                            var pInfo = reqDtoProps?.SingleOrDefault(
-                                p =>
-                                {
-                                    var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-
-                                    if (string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
+        var reqParams = _routeParamsRegex
+                        .Matches(opPath)
+                        .Select(
+                            m =>
+                            {
+                                var pInfo = reqDtoProps?.SingleOrDefault(
+                                    p =>
                                     {
+                                        var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
+
+                                        if (!string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
+                                            return false;
+
                                         RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
 
                                         return true;
-                                    }
+                                    });
 
-                                    return false;
-                                });
-
-                            return CreateParam(
-                                ctx: ctx,
-                                prop: pInfo,
-                                paramName: m.Value,
-                                isRequired: true,
-                                kind: OpenApiParameterKind.Path,
-                                descriptions: reqParamDescriptions,
-                                docOpts: _opts);
-                        })
-                   .ToList();
+                                return CreateParam(
+                                    ctx: ctx,
+                                    prop: pInfo,
+                                    paramName: m.Value,
+                                    isRequired: true,
+                                    kind: OpenApiParameterKind.Path,
+                                    descriptions: reqParamDescriptions,
+                                    docOpts: _opts);
+                            })
+                        .ToList();
 
         //add query params for properties marked with [QueryParam] or for all props if it's a GET request
         if (reqDtoType is not null)
         {
             var qParams = reqDtoProps?
-                         .Where(
+                          .Where(
                               p => ShouldAddQueryParam(
                                   p,
                                   reqParams,
                                   isGetRequest && !_opts.EnableGetRequestsWithBody)) //user wants body in GET requests
-                         .Select(
+                          .Select(
                               p =>
                               {
                                   RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
@@ -301,7 +302,7 @@ sealed class OperationProcessor : IOperationProcessor
                                       descriptions: reqParamDescriptions,
                                       docOpts: _opts);
                               })
-                         .ToList();
+                          .ToList();
 
             if (qParams?.Count > 0)
                 reqParams.AddRange(qParams);
@@ -514,8 +515,7 @@ sealed class OperationProcessor : IOperationProcessor
 
             schema.Properties.Remove(key);
             schema.RequiredProperties
-                  .Remove(
-                       key); //because validation schema processor may have added this prop/key, which should be removed when the prop is being removed from the schema
+                  .Remove(key); //because validation schema processor may have added this prop/key, which should be removed when the prop is being removed from the schema
             foreach (var s in schema.AllOf.Union(schema.AllInheritedSchemas))
                 Remove(s, key);
         }
@@ -551,8 +551,7 @@ sealed class OperationProcessor : IOperationProcessor
                                         DocumentOptions docOpts)
     {
         paramName = paramName?.ApplyPropNamingPolicy(docOpts) ??
-                    prop?.GetCustomAttribute<BindFromAttribute>()?.Name //don't apply naming policy to attribute value
-                    ??
+                    prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
                     prop?.Name.ApplyPropNamingPolicy(docOpts) ?? throw new InvalidOperationException("param name is required!");
 
         var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(
@@ -561,7 +560,6 @@ sealed class OperationProcessor : IOperationProcessor
             (prop?.PropertyType ?? Types.String).ToContextualType());
 
         prm.Kind = kind;
-
         prm.IsRequired = isRequired ?? !(prop?.IsNullable() ?? true);
 
         if (ctx.Settings.SchemaType == SchemaType.Swagger2)
@@ -579,7 +577,6 @@ sealed class OperationProcessor : IOperationProcessor
                 prm.Example = jToken.HasValues ? jToken : null;
             }
         }
-
         prm.IsNullableRaw = null; //if this is not null, nswag generates an incorrect swagger spec for some unknown reason.
 
         return prm;

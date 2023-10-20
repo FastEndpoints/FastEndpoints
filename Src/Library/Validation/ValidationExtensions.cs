@@ -32,7 +32,7 @@ static class ValidationExtensions
                                      Severity severity = Severity.Error)
     {
         failures.AddError(
-            new(property.PropertyChain(), errorMessage)
+            new(property.Body.GetPropertyChain(), errorMessage)
             {
                 ErrorCode = errorCode,
                 Severity = severity

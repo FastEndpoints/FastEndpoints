@@ -3,10 +3,9 @@ using System.Reflection;
 
 namespace FastEndpoints;
 
-
-internal static class ExpressionHelper
+static class PropertyChainExtensions
 {
-    internal static string GetPropertyChain(Expression expression)
+    internal static string GetPropertyChain(this Expression expression)
     {
         return expression switch
         {
@@ -34,12 +33,10 @@ internal static class ExpressionHelper
 
     static string BuildMemberChain(MemberExpression memberExpression)
         => memberExpression.Expression is null or ParameterExpression
-            ? memberExpression.Member.Name
-            : $"{GetPropertyChain(memberExpression.Expression)}.{memberExpression.Member.Name}";
-    
-    
-    
-    internal static object? GetValue(Expression? expression)
+               ? memberExpression.Member.Name
+               : $"{GetPropertyChain(memberExpression.Expression)}.{memberExpression.Member.Name}";
+
+    static object? GetValue(Expression? expression)
         => expression switch
         {
             null => throw new ArgumentNullException(nameof(expression), "Expression cannot be null."),
@@ -53,6 +50,7 @@ internal static class ExpressionHelper
     static object? GetValue(MemberExpression expression)
     {
         var value = GetValue(expression.Expression);
+
         return expression.Member switch
         {
             FieldInfo fi => fi.GetValue(value),
@@ -60,7 +58,7 @@ internal static class ExpressionHelper
             _ => throw new NotSupportedException($"[{expression}] is not a supported member expression!")
         };
     }
-    
+
     static object? GetValue(BinaryExpression expression)
     {
         if (expression.NodeType != ExpressionType.ArrayIndex)
@@ -68,22 +66,21 @@ internal static class ExpressionHelper
 
         if (GetValue(expression.Left) is not Array array)
             throw new NullReferenceException($"[{expression.Left}] is null!");
-        
+
         if (GetValue(expression.Right) is not int index)
             throw new NullReferenceException($"[{expression.Right}] is null or unsupported value!");
-        
+
         return array.GetValue(index);
     }
-    
+
     static object? GetValue(MethodCallExpression expression)
     {
         var args = expression.Arguments.Select(GetValue).ToArray();
         var obj = GetValue(expression.Object);
+
         return expression.Method.Invoke(obj, args);
     }
 
     static object? GetValueCompiled(Expression expression)
-    {
-        return Expression.Lambda(expression).Compile().DynamicInvoke();
-    }
+        => Expression.Lambda(expression).Compile().DynamicInvoke();
 }

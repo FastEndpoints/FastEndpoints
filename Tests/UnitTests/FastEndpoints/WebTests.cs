@@ -19,7 +19,7 @@ public class WebTests
         //arrange
         var logger = A.Fake<ILogger<TestCases.MapperTest.Endpoint>>();
         var ep = Factory.Create<TestCases.MapperTest.Endpoint>(logger);
-        ep.Map = new TestCases.MapperTest.Mapper();
+        ep.Map = new();
         var req = new TestCases.MapperTest.Request
         {
             FirstName = "john",
@@ -46,7 +46,7 @@ public class WebTests
 
         var req = new Customers.Create.Request
         {
-            CreatedBy = "by harry potter",
+            CreatedBy = "by harry potter"
         };
 
         await ep.HandleAsync(req, default);
@@ -60,14 +60,15 @@ public class WebTests
         var emailer = A.Fake<IEmailService>();
         A.CallTo(() => emailer.SendEmail()).Returns("test email");
 
-        var ep = Factory.Create<Customers.CreateWithPropertiesDI.Endpoint>(ctx =>
-        {
-            ctx.AddTestServices(s => s.AddSingleton(emailer));
-        });
+        var ep = Factory.Create<Customers.CreateWithPropertiesDI.Endpoint>(
+            ctx =>
+            {
+                ctx.AddTestServices(s => s.AddSingleton(emailer));
+            });
 
         var req = new Customers.CreateWithPropertiesDI.Request
         {
-            CreatedBy = "by harry potter",
+            CreatedBy = "by harry potter"
         };
 
         await ep.HandleAsync(req, default);
@@ -142,15 +143,15 @@ public class WebTests
     {
         var ep = new MultiResultEndpoint();
 
-        var res0 = await ep.ExecuteAsync(new Request { Id = 0 }, CancellationToken.None);
+        var res0 = await ep.ExecuteAsync(new() { Id = 0 }, CancellationToken.None);
         res0.Result.Should().BeOfType<NotFound>();
 
-        var res1 = await ep.ExecuteAsync(new Request { Id = 1 }, CancellationToken.None);
+        var res1 = await ep.ExecuteAsync(new() { Id = 1 }, CancellationToken.None);
         var errors = res1.Result.As<ProblemDetails>()!.Errors;
         errors.Count().Should().Be(1);
         errors.Single(e => e.Name == nameof(Request.Id)).Reason.Should().Be("value has to be greater than 1");
 
-        var res2 = await ep.ExecuteAsync(new Request { Id = 2 }, CancellationToken.None);
+        var res2 = await ep.ExecuteAsync(new() { Id = 2 }, CancellationToken.None);
         var response = res2.Result.As<Ok<Response>>();
         response.StatusCode.Should().Be(200);
         response.Value!.RequestId.Should().Be(2);
@@ -161,19 +162,22 @@ public class WebTests
     {
         var linkgen = A.Fake<LinkGenerator>();
 
-        var ep = Factory.Create<Inventory.Manage.Create.Endpoint>(ctx =>
-        {
-            ctx.AddTestServices(s => s.AddSingleton(linkgen));
-        });
+        var ep = Factory.Create<Inventory.Manage.Create.Endpoint>(
+            ctx =>
+            {
+                ctx.AddTestServices(s => s.AddSingleton(linkgen));
+            });
 
-        await ep.HandleAsync(new()
-        {
-            Name = "Grape Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100,
-            GenerateFullUrl = false
-        }, default);
+        await ep.HandleAsync(
+            new()
+            {
+                Name = "Grape Juice",
+                Description = "description",
+                ModifiedBy = "me",
+                Price = 100,
+                GenerateFullUrl = false
+            },
+            default);
     }
 
     [Fact]
@@ -197,23 +201,33 @@ public class WebTests
     [Fact]
     public async Task unit_test_concurrency_and_httpContext_isolation()
     {
-        await Parallel.ForEachAsync(Enumerable.Range(1, 100), async (id, _) =>
-        {
-            var ep = Factory.Create<TestCases.UnitTestConcurrencyTest.Endpoint>(ctx =>
+        await Parallel.ForEachAsync(
+            Enumerable.Range(1, 100),
+            async (id, _) =>
             {
-                ctx.AddTestServices(s => s.AddSingleton(new TestCases.UnitTestConcurrencyTest.SingltonSVC(id)));
-            });
+                var ep = Factory.Create<TestCases.UnitTestConcurrencyTest.Endpoint>(
+                    ctx =>
+                    {
+                        ctx.AddTestServices(s => s.AddSingleton(new TestCases.UnitTestConcurrencyTest.SingltonSVC(id)));
+                    });
 
-            (await ep.ExecuteAsync(new() { Id = id }, default)).Should().Be(id);
-        });
+                (await ep.ExecuteAsync(new() { Id = id }, default)).Should().Be(id);
+            });
     }
-    
+
     [Fact]
-    public async Task unit_test_list_element_validation_error()
+    public async Task list_element_validation_error()
     {
         var ep = Factory.Create<TestCases.ValidationErrorTest.ListValidationErrorTestEndpoint>();
-        await ep.HandleAsync(new TestCases.ValidationErrorTest.ListRequest() { NumbersList = new List<int> { 1, 2, 3 } }, default);
-
+        await ep.HandleAsync(
+            new()
+            {
+                NumbersList = new()
+                {
+                    1, 2, 3
+                }
+            },
+            default);
 
         ep.ValidationFailed.Should().BeTrue();
         ep.ValidationFailures.Count.Should().Be(3);
@@ -223,13 +237,20 @@ public class WebTests
     }
 
     [Fact]
-    public async Task unit_test_dict_element_validation_error()
+    public async Task dict_element_validation_error()
     {
         var ep = Factory.Create<TestCases.ValidationErrorTest.DictionaryValidationErrorTestEndpoint>();
         await ep.HandleAsync(
-            new TestCases.ValidationErrorTest.DictionaryRequest()
-                { StringDictionary = new Dictionary<string, string> { { "a", "1" }, { "b", "2" } } }, default);
-        
+            new()
+            {
+                StringDictionary = new()
+                {
+                    { "a", "1" },
+                    { "b", "2" }
+                }
+            },
+            default);
+
         ep.ValidationFailed.Should().BeTrue();
         ep.ValidationFailures.Count.Should().Be(2);
         ep.ValidationFailures[0].PropertyName.Should().Be("StringDictionary[\"a\"]");
@@ -237,11 +258,20 @@ public class WebTests
     }
 
     [Fact]
-    public async Task unit_test_array_element_validation_error()
+    public async Task array_element_validation_error()
     {
         var ep = Factory.Create<TestCases.ValidationErrorTest.ArrayValidationErrorTestEndpoint>();
-        await ep.HandleAsync(new TestCases.ValidationErrorTest.ArrayRequest() { StringArray = new[] { "a", "b" } }, default);
-        
+        await ep.HandleAsync(
+            new()
+            {
+                StringArray = new[]
+                {
+                    "a",
+                    "b"
+                }
+            },
+            default);
+
         ep.ValidationFailed.Should().BeTrue();
         ep.ValidationFailures.Count.Should().Be(2);
         ep.ValidationFailures[0].PropertyName.Should().Be("StringArray[0]");
@@ -249,11 +279,20 @@ public class WebTests
     }
 
     [Fact]
-    public async Task unit_test_array_element_object_property_validation_error()
+    public async Task array_element_object_property_validation_error()
     {
         var ep = Factory.Create<TestCases.ValidationErrorTest.ObjectArrayValidationErrorTestEndpoint>();
-        await ep.HandleAsync(new TestCases.ValidationErrorTest.ObjectArrayRequest() { ObjectArray = new[] { new TestCases.ValidationErrorTest.TObject() { Test = "a" }, new TestCases.ValidationErrorTest.TObject() { Test = "b" } } }, default);
-        
+        await ep.HandleAsync(
+            new()
+            {
+                ObjectArray = new[]
+                {
+                    new TestCases.ValidationErrorTest.TObject { Test = "a" },
+                    new TestCases.ValidationErrorTest.TObject { Test = "b" }
+                }
+            },
+            default);
+
         ep.ValidationFailed.Should().BeTrue();
         ep.ValidationFailures.Count.Should().Be(2);
         ep.ValidationFailures[0].PropertyName.Should().Be("ObjectArray[0].Test");
@@ -261,11 +300,20 @@ public class WebTests
     }
 
     [Fact]
-    public async Task unit_test_list_in_list_validation_error()
+    public async Task list_in_list_validation_error()
     {
         var ep = Factory.Create<TestCases.ValidationErrorTest.ListInListValidationErrorTestEndpoint>();
-        await ep.HandleAsync(new TestCases.ValidationErrorTest.ListInListRequest() { NumbersList = new List<List<int>> { new List<int> { 1, 2 }, new List<int> { 3, 4 } } }, default);
-        
+        await ep.HandleAsync(
+            new()
+            {
+                NumbersList = new()
+                {
+                    new() { 1, 2 },
+                    new() { 3, 4 }
+                }
+            },
+            default);
+
         ep.ValidationFailed.Should().BeTrue();
         ep.ValidationFailures.Count.Should().Be(4);
         ep.ValidationFailures[0].PropertyName.Should().Be("NumbersList[0][0]");

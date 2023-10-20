@@ -53,7 +53,7 @@ public class Endpoint : Endpoint<Request>
         var validation = ValidationContext<Request>.Instance;
 
         if (string.IsNullOrEmpty(req.Description))
-            AddError(x => x.Description!, "Please enter a product descriptions!");
+            AddError(x => x.Description, "Please enter a product descriptions!");
 
         if (req.Price > 1000)
         {

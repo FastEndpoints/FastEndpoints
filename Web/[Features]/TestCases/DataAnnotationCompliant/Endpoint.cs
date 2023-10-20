@@ -10,7 +10,7 @@ public class Request
     /// id of the plain text request
     /// </summary>
     [Description("CurrentId")]
-    public int Id { get; set; }
+    public int Id { get; init; }
 
     [Required, StringLength(10, MinimumLength = 2)]
     public string Name { get; set; }

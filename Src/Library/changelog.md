@@ -48,18 +48,29 @@ Summary(s =>
 
 </details>
 
-<details><summary>Ability to show error severity in 'ProblemDetails' response</summary>
-
-The `FluentValidation.Severity` can now be serialized to the `ProblemDetails` response by enabling it like so:
+<details><summary>Support for simple validation with 'DataAnnotations'</summary>
 
 ```csharp
-app.UseFastEndpoints(
-    c =>
+sealed class Request
+{
+    [Required, StringLength(10, MinimumLength = 2)]
+    public string Name { get; set; }
+}
+
+//can be used together with `FluentValidations` rules if need be
+
+sealed class MyValidator : Validator<Request>
+{
+    public MyValidator()
     {
-        ProblemDetails.Error.IndicateSeverity = true;
-        c.Errors.UseProblemDetails();
-    });
+        RuleFor(x => x.Id).InclusiveBetween(10, 100);
+    }
+}
 ```
+
+Note: there's no swagger integration for data annotations.
+
+Thank you 万雅虎 for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/500).
 
 </details>
 

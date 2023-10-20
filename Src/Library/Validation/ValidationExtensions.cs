@@ -26,7 +26,7 @@ static class ValidationExtensions
     }
 
     internal static void AddError<T>(this List<ValidationFailure> failures,
-                                     Expression<Func<T, object>> property,
+                                     Expression<Func<T, object?>> property,
                                      string errorMessage,
                                      string? errorCode = null,
                                      Severity severity = Severity.Error)
@@ -63,7 +63,7 @@ static class ValidationExtensions
 
     [DoesNotReturn]
     internal static void ThrowError<T>(this List<ValidationFailure> failures,
-                                       Expression<Func<T, object>> property,
+                                       Expression<Func<T, object?>> property,
                                        string errorMessage,
                                        int? statusCode)
     {

@@ -84,11 +84,12 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
 
     async Task CommandExecutorTask()
     {
-        var records = Enumerable.Empty<TStorageRecord>();
         var batchSize = _parallelOptions.MaxDegreeOfParallelism * 2;
 
         while (!_appCancellation.IsCancellationRequested)
         {
+            IEnumerable<TStorageRecord> records;
+
             try
             {
                 records = await _storage.GetNextBatchAsync(

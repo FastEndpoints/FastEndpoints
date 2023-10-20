@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
 #if NET7_0_OR_GREATER

@@ -104,9 +104,9 @@ public static class HttpResponseExtensions
                                           bool generateAbsoluteUrl = false,
                                           CancellationToken cancellation = default)
     {
-        var linkGen = Conf.ServiceResolver.TryResolve<LinkGenerator>() ?? //unit tests (won't have the LinkGenerator registered)
-                      rsp.HttpContext.RequestServices
-                        ?.GetService<LinkGenerator>() ?? //so get it from httpcontext (only applies to unit tests). do not change to Resolve<T>() here
+        var linkGen = Conf.ServiceResolver.TryResolve<LinkGenerator>() ??             //unit tests (won't have the LinkGenerator registered)
+                      rsp.HttpContext.RequestServices?.GetService<LinkGenerator>() ?? //so get it from httpcontext (only applies to unit tests).
+                      //                                                                do not change to Resolve<T>() here
                       throw new InvalidOperationException("LinkGenerator is not registered! Have you done the unit test setup correctly?");
 
         rsp.HttpContext.MarkResponseStart();

@@ -77,7 +77,7 @@ public class EndpointSummary
     /// <param name="statusCode">the status code of the response you want to add the descriptions for</param>
     /// <param name="property">a member expression for specifying which property the description is for</param>
     /// <param name="description">the description text</param>
-    public void ResponseParam<TResponse>(int statusCode, Expression<Func<TResponse, object>> property, string description)
+    public void ResponseParam<TResponse>(int statusCode, Expression<Func<TResponse, object?>> property, string description)
     {
         if (!ResponseParams.ContainsKey(statusCode))
             ResponseParams[statusCode] = new(StringComparer.OrdinalIgnoreCase);
@@ -89,7 +89,7 @@ public class EndpointSummary
     /// </summary>
     /// <param name="property">a member expression for specifying which property the description is for</param>
     /// <param name="description">the description text</param>
-    public void ResponseParam<TResponse>(Expression<Func<TResponse, object>> property, string description)
+    public void ResponseParam<TResponse>(Expression<Func<TResponse, object?>> property, string description)
         => ResponseParam(200, property, description);
 
     /// <summary>
@@ -154,7 +154,7 @@ public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnul
     /// </summary>
     /// <param name="property">a member expression for specifying which property the description is for</param>
     /// <param name="description">the description text</param>
-    public void RequestParam(Expression<Func<TRequest, object>> property, string description)
+    public void RequestParam(Expression<Func<TRequest, object?>> property, string description)
         => Params[property.PropertyName()] = description;
 
     public new TRequest? ExampleRequest

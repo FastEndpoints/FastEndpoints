@@ -10,7 +10,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
-<details><summary>Ability to model bind collections of 'IFormFile' from incoming form data</summary>
+<details><summary>Model binding collections of 'IFormFile' from incoming form data</summary>
 
 The following forms of properties can now be model bound from file form data fields.
 
@@ -25,7 +25,7 @@ class Request
 
 </details>
 
-<details><summary>Ability to specify multiple request examples for Swagger</summary>
+<details><summary>Multiple request examples for Swagger</summary>
 
 Multiple examples for the request DTO can be specified by setting the `ExampleRequest` property of the Summary class multiple times like so:
 
@@ -48,24 +48,17 @@ Summary(s =>
 
 </details>
 
-<details><summary>Support for simple validation with 'DataAnnotations'</summary>
+<details><summary>Ability to show error severity in 'ProblemDetails' response</summary>
+
+The `FluentValidation.Severity` can now be serialized to the `ProblemDetails` response by enabling it like so:
 
 ```csharp
-sealed class Request
-{
-    [Required, StringLength(10, MinimumLength = 2)]
-    public string Name { get; set; }
-}
-
-//can be used together with `FluentValidations` rules if need be
-
-sealed class MyValidator : Validator<Request>
-{
-    public MyValidator()
+app.UseFastEndpoints(
+    c =>
     {
-        RuleFor(x => x.Id).InclusiveBetween(10, 100);
-    }
-}
+        ProblemDetails.Error.IndicateSeverity = true;
+        c.Errors.UseProblemDetails();
+    });
 ```
 
 </details>
@@ -79,18 +72,23 @@ This can happen in rare cases such as when the DTO being serialized has an infin
 
 </details>
 
-<details><summary>Ability to show error severity in ProblemDetails response</summary>
+<details><summary>Deep nested collection property name serialization support with 'AddError(expression, ...)' method</summary>
 
-The `FluentValidation.Severity` can now be serialized to the `ProblemDetails` response by enabling it like so:
+When doing a manual add error call like this:
 
 ```csharp
-app.UseFastEndpoints(
-    c =>
-    {
-        ProblemDetails.Error.IndicateSeverity = true;
-        c.Errors.UseProblemDetails();
-    });
+AddError(r => r.ObjectArray[i].Test, "Some error message");
 ```
+
+Previous output was:
+
+![](https://github.com/FastEndpoints/FastEndpoints/assets/10120072/99b866ff-30bb-4ec7-bf19-7957ecc1b882)
+
+New output:
+
+![](https://github.com/FastEndpoints/FastEndpoints/assets/10120072/b4d14887-bb99-4654-9e75-6fa31741f27e)
+
+Thank you Mattis Bratland for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/506)
 
 </details>
 

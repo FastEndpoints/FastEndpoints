@@ -238,6 +238,216 @@
         ]
       }
     },
+    "/api/test-cases/array-validation-error-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesValidationErrorTestArrayValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "ArrayRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestArrayRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/test-cases/dictionary-validation-error-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesValidationErrorTestDictionaryValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "DictionaryRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestDictionaryRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/test-cases/list-in-list-validation-error-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesValidationErrorTestListInListValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "ListInListRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestListInListRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/test-cases/list-validation-error-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesValidationErrorTestListValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "ListRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestListRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/test-cases/object-array-validation-error-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "ObjectArrayRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestObjectArrayRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/test-cases/unit-test-concurrency": {
       "get": {
         "tags": [
@@ -3939,6 +4149,80 @@
           "Jets": {
             "type": "array",
             "items": {}
+          }
+        }
+      },
+      "TestCasesValidationErrorTestArrayRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "StringArray": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TestCasesValidationErrorTestDictionaryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "StringDictionary": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TestCasesValidationErrorTestListInListRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "NumbersList": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        }
+      },
+      "TestCasesValidationErrorTestListRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "NumbersList": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "TestCasesValidationErrorTestObjectArrayRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ObjectArray": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestCasesValidationErrorTestTObject"
+            }
+          }
+        }
+      },
+      "TestCasesValidationErrorTestTObject": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Test": {
+            "type": "string"
           }
         }
       },

@@ -79,6 +79,21 @@ This can happen in rare cases such as when the DTO being serialized has an infin
 
 </details>
 
+<details><summary>Ability to show error severity in ProblemDetails response</summary>
+
+The `FluentValidation.Severity` can now be serialized to the `ProblemDetails` response by enabling it like so:
+
+```csharp
+app.UseFastEndpoints(
+    c =>
+    {
+        ProblemDetails.Error.IndicateSeverity = true;
+        c.Errors.UseProblemDetails();
+    });
+```
+
+</details>
+
 <details><summary>Misc. improvements</summary>
 
 - Upgrade dependencies to latest

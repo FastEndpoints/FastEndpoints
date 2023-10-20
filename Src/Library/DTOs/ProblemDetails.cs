@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
 #if NET7_0_OR_GREATER
@@ -111,7 +112,12 @@ public sealed class ProblemDetails : IResult
     /// </summary>
     public sealed class Error
     {
-        internal static Comparer EqComparer = new();
+        internal static readonly Comparer EqComparer = new();
+
+        /// <summary>
+        /// if set to true, the <see cref="FluentValidation.Severity" /> value of the failure will be serialized to the response.
+        /// </summary>
+        public static bool IndicateSeverity { get; set; } = false;
 
         /// <summary>
         /// the name of the error or property of the dto that caused the error
@@ -129,11 +135,18 @@ public sealed class ProblemDetails : IResult
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Code { get; init; }
 
+        /// <summary>
+        /// the severity of the error
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Severity { get; init; }
+
         public Error(ValidationFailure failure)
         {
             Name = Conf.SerOpts.Options.PropertyNamingPolicy?.ConvertName(failure.PropertyName) ?? failure.PropertyName;
             Reason = failure.ErrorMessage;
             Code = failure.ErrorCode;
+            Severity = IndicateSeverity ? failure.Severity.ToString() : null;
         }
 
         internal sealed class Comparer : IEqualityComparer<Error>

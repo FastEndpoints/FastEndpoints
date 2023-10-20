@@ -36,7 +36,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
         => ValidationFailures.AddError(message, errorCode, severity);
 
     /// <inheritdoc />
-    public void AddError(Expression<Func<TRequest, object>> property,
+    public void AddError(Expression<Func<TRequest, object?>> property,
                          string errorMessage,
                          string? errorCode = null,
                          Severity severity = Severity.Error)
@@ -54,7 +54,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
 
     /// <inheritdoc />
     [DoesNotReturn]
-    public void ThrowError(Expression<Func<TRequest, object>> property, string errorMessage, int? statusCode = null)
+    public void ThrowError(Expression<Func<TRequest, object?>> property, string errorMessage, int? statusCode = null)
         => ValidationFailures.ThrowError(property, errorMessage, statusCode);
 
     /// <inheritdoc />

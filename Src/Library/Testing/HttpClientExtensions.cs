@@ -343,7 +343,7 @@ public static class HttpClientExtensions
             }
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {
-                var files = (IFormFileCollection)p.GetValue(req)!;
+                var files = p.GetValue(req) as IFormFileCollection;
 
                 if (files?.Count is 0 or null)
                     continue;

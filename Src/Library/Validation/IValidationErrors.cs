@@ -38,7 +38,7 @@ interface IValidationErrors<T>
     /// <param name="errorMessage">the error message</param>
     /// <param name="errorCode">the error code associated with the error</param>
     /// <param name="severity">the severity of the error</param>
-    void AddError(Expression<Func<T, object>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error);
+    void AddError(Expression<Func<T, object?>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error);
 
     /// <summary>
     /// interrupt the flow of handler execution and send a 400 bad request with error details if there are any validation failures in the current request. if
@@ -73,5 +73,5 @@ interface IValidationErrors<T>
     /// <param name="errorMessage">the error message</param>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
     [DoesNotReturn]
-    void ThrowError(Expression<Func<T, object>> property, string errorMessage, int? statusCode = null);
+    void ThrowError(Expression<Func<T, object?>> property, string errorMessage, int? statusCode = null);
 }

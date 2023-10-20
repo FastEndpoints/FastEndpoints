@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
+using System.Net.Mime;
 
 namespace FastEndpoints.Middleware;
 
@@ -8,6 +9,8 @@ internal sealed class AntiforgeryMiddleware
     private readonly RequestDelegate _next;
     private readonly IAntiforgery _antiforgery;
 
+    const string urlEncodedFormContentType = "application/x-www-form-urlencoded";
+    const string multipartFormContentType = "multipart/form-data";
     public AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforgery)
     {
         _next = next;
@@ -25,19 +28,28 @@ internal sealed class AntiforgeryMiddleware
             await _next(context);
             return;
         }
-
-        var endpointDefinition = context.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>();
-        if (endpointDefinition?.IsEnlableAntiforgery is true)
+        var contentType = context.Request.ContentType;
+        if (string.IsNullOrEmpty(contentType))
         {
-            try
+            await _next(context);
+            return;
+        }
+        if (contentType.Equals(urlEncodedFormContentType, StringComparison.OrdinalIgnoreCase) ||
+            contentType.StartsWith(multipartFormContentType, StringComparison.OrdinalIgnoreCase))
+        {
+            var endpointDefinition = context.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>();
+            if (endpointDefinition?.IsEnlableAntiforgery is true)
             {
-                await _antiforgery.ValidateRequestAsync(context);
-            }
-            catch (AntiforgeryValidationException)
-            {
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await context.Response.WriteAsync("Invalid anti-forgery token");
-                return;
+                try
+                {
+                    await _antiforgery.ValidateRequestAsync(context);
+                }
+                catch (AntiforgeryValidationException)
+                {
+                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    await context.Response.WriteAsync("Invalid anti-forgery token");
+                    return;
+                }
             }
         }
         await _next(context);

@@ -44,11 +44,11 @@ public class ValidationContext<T> : ValidationContext, IValidationErrors<T>
     public static new ValidationContext<T> Instance => new();
 
     /// <inheritdoc />
-    public void AddError(Expression<Func<T, object>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
+    public void AddError(Expression<Func<T, object?>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
         => ValidationFailures.AddError(property, errorMessage, errorCode, severity);
 
     /// <inheritdoc />
     [DoesNotReturn]
-    public void ThrowError(Expression<Func<T, object>> property, string errorMessage, int? statusCode = null)
+    public void ThrowError(Expression<Func<T, object?>> property, string errorMessage, int? statusCode = null)
         => ValidationFailures.ThrowError(property, errorMessage, statusCode);
 }

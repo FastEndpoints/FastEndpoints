@@ -64,13 +64,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         AccessControl(keyName, Apply.ToThisEndpoint, groupNames);
     }
 
-
-    /// <summary>
-    /// enlable antiforgery
-    /// </summary>
-    protected void EnlableAntiforgery() => Definition.EnlableAntiforgery();
-
-
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
     /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require

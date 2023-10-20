@@ -13,21 +13,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
 
-        <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj" />
-        <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj" />
+        <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
+        <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
 
-        <PackageReference Include="FluentValidation" Version="11.7.1" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+        <PackageReference Include="FluentValidation" Version="11.7.1"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
-        <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false" />
-        <None Include="changelog.md" Pack="false" Visible="false" />
-        <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net6.0" CopyToOutputDirectory="Never" Pack="true" Visible="false" />
-        <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net7.0" CopyToOutputDirectory="Never" Pack="true" Visible="false" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="changelog.md" Pack="false" Visible="false"/>
+        <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net6.0" CopyToOutputDirectory="Never" Pack="true" Visible="false"/>
+        <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net7.0" CopyToOutputDirectory="Never" Pack="true" Visible="false"/>
     </ItemGroup>
 
     <!--    <ItemGroup>-->

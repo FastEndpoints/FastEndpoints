@@ -36,11 +36,6 @@ public static class MainExtensions
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(EventBus<>));
 
-        //Antiforgery
-        services.AddAntiforgery();
-
-
-
         return services;
     }
 
@@ -65,10 +60,6 @@ public static class MainExtensions
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
-
-        //use AntiforgeryMiddleware middleware
-        (app as WebApplication)?.UseMiddleware<Middleware.AntiforgeryMiddleware>();
-
         Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
         var jsonOpts = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Conf.SerOpts.Options = jsonOpts is not null

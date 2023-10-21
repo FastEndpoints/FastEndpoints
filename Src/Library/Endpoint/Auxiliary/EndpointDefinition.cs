@@ -39,6 +39,14 @@ public sealed class EndpointDefinition
     public List<string>? AllowedClaimTypes { get; private set; }
     public List<string>? AllowedRoles { get; private set; }
     public string[]? AnonymousVerbs { get; private set; }
+
+    /// <summary>
+    /// Antiforgery,default:false
+    /// </summary>
+    public bool IsEnlableAntiforgery { get; private set; } = false;
+
+
+
     public List<string>? AuthSchemeNames { get; private set; }
     public bool DontAutoTagEndpoints { get; private set; }
     public bool DontBindFormData { get; private set; }
@@ -121,6 +129,14 @@ public sealed class EndpointDefinition
             }
         }
     }
+
+    public void EnlableAntiforgery()
+    {
+        IsEnlableAntiforgery = Conf.SecOpts.EnableAntiForgeryTokens ?
+            true :
+            throw new NotSupportedException("should set SecurityOptions.EnableAntiForgeryTokens=true to use the features !");
+    }
+
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.

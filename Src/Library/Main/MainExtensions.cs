@@ -36,6 +36,9 @@ public static class MainExtensions
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(EventBus<>));
 
+        //Antiforgery
+        services.AddAntiforgery();
+
         return services;
     }
 
@@ -172,6 +175,11 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
+        if (scope.ServiceProvider.GetService<IOptions<Config>>()?.Value.Security.EnableAntiForgeryTokens is true)
+        {
+            //use AntiforgeryMiddleware middleware
+            (app as WebApplication)?.UseMiddleware<Middleware.AntiforgeryMiddleware>();
+        }
         return app;
     }
 

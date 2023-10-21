@@ -121,6 +121,10 @@ app.UseRequestLocalization(
 
             c.Throttle.HeaderName = "X-Custom-Throttle-Header";
             c.Throttle.Message = "Custom Error Response";
+
+            //enlable antiforgery
+            c.Security.EnableAntiForgeryTokens = true;
+
         })
    .UseEndpoints(
         c => //this must go after usefastendpoints (only if using endpoints)

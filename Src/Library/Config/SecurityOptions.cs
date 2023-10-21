@@ -13,4 +13,11 @@ public sealed class SecurityOptions
     /// </summary>
     public string PermissionsClaimType { internal get; set; }
         = "permissions"; //should never change from "permissions" or third party auth providers such as Auth0 won't work.
+
+
+    /// <summary>
+    /// antiForgery, default:false
+    /// </summary>
+    public bool EnableAntiForgeryTokens { internal get; set; } = false;
+
 }

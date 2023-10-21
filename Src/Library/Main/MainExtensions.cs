@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -91,6 +92,9 @@ public static class MainExtensions
 
             Conf.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
 
+            if (def.AntiforgeryEnabled && (app.ServiceProvider.GetService<IAntiforgery>() is null || AntiforgeryMiddleware.IsRegistered is false))
+                throw new InvalidOperationException("AntiForgery middleware setup is incorrect!");
+
             AddSecurityPolicy(authOptions, def);
 
             var authorizeAttributes = BuildAuthorizeAttributes(def);
@@ -159,11 +163,11 @@ public static class MainExtensions
 
             foreach (var kvp in routeToHandlerCounts)
             {
-                if (kvp.Value > 1)
-                {
-                    duplicatesDetected = true;
-                    logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
-                }
+                if (kvp.Value <= 1)
+                    continue;
+
+                duplicatesDetected = true;
+                logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
             }
 
             if (duplicatesDetected)
@@ -295,9 +299,7 @@ public static class MainExtensions
                     if (ep.AllowAnyClaim)
                         b.RequireAssertion(x => x.User.Claims.Any(c => ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
                     else
-                    {
                         b.RequireAssertion(x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
-                    }
                 }
 
                 ep.PolicyBuilder?.Invoke(b);

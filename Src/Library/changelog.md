@@ -12,7 +12,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>Model binding collections of 'IFormFile' from incoming form data</summary>
 
-The following forms of properties can now be model bound from file form data fields.
+The following forms of properties can now be automatically model bound from file form data fields.
 
 ```csharp
 class Request
@@ -70,7 +70,15 @@ sealed class MyValidator : Validator<Request>
 
 Note: there's no swagger integration for data annotations.
 
-Thank you 万雅虎 for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/500).
+Thank you Wàn Yǎhǔ for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/500).
+
+</details>
+
+<details><summary>Anti-forgery token validation middleware</summary>
+
+todo: update doc page and link from here
+
+Thank you Wàn Yǎhǔ for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/509).
 
 </details>
 

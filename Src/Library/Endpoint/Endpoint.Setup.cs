@@ -179,6 +179,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.DontThrowIfValidationFails();
 
     /// <summary>
+    /// enables antiforgery token verification for this endpoint
+    /// </summary>
+    protected void EnableAntiforgery()
+        => Definition.EnableAntiforgery();
+
+    /// <summary>
     /// specify to listen for GET requests on one or more routes.
     /// </summary>
     protected void Get(params string[] routePatterns)

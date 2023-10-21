@@ -39,6 +39,7 @@ public sealed class EndpointDefinition
     public List<string>? AllowedClaimTypes { get; private set; }
     public List<string>? AllowedRoles { get; private set; }
     public string[]? AnonymousVerbs { get; private set; }
+    public bool AntiforgeryEnabled { get; private set; }
     public List<string>? AuthSchemeNames { get; private set; }
     public bool DontAutoTagEndpoints { get; private set; }
     public bool DontBindFormData { get; private set; }
@@ -62,10 +63,9 @@ public sealed class EndpointDefinition
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction;
     internal bool ImplementsConfigure;
-    internal bool IsInitialized;
     internal object? RequestBinder;
-    internal List<object> PreProcessorList = new();
-    internal List<object> PostProcessorList = new();
+    internal readonly List<object> PreProcessorList = new();
+    internal readonly List<object> PostProcessorList = new();
     ServiceBoundEpProp[]? _serviceBoundEpProps;
     internal ServiceBoundEpProp[]? ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;
@@ -233,6 +233,14 @@ public sealed class EndpointDefinition
     /// </summary>
     public void DontThrowIfValidationFails()
         => ThrowIfValidationFails = false;
+
+    /// <summary>
+    /// enable antiforgery token verification for an endpoint
+    /// </summary>
+    public void EnableAntiforgery()
+    {
+        AntiforgeryEnabled = true;
+    }
 
     /// <summary>
     /// specify the version of the endpoint if versioning is enabled
@@ -440,17 +448,17 @@ public sealed class EndpointDefinition
     ServiceBoundEpProp[] GetServiceBoundEpProps()
     {
         return EndpointType
-              .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-              .Where(
+               .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+               .Where(
                    p => p is { CanRead: true, CanWrite: true } &&
                         !p.IsDefined(Types.DontInjectAttribute))
-              .Select(
+               .Select(
                    p => new ServiceBoundEpProp
                    {
                        PropName = p.Name,
                        PropType = p.PropertyType
                    })
-              .ToArray();
+               .ToArray();
     }
 }
 

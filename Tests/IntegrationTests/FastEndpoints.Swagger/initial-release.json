@@ -2290,6 +2290,80 @@
         }
       }
     },
+    "/api/test-cases/antiforgery/token": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesAntiforgeryTestGetAfTokenEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesAntiforgeryTestTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/antiforgery/render-form": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesAntiforgeryTestRenderFormHtml",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/antiforgery/validate": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesAntiforgeryTestVerifyAfToken",
+        "requestBody": {
+          "x-name": "VerificationRequest",
+          "description": "",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesAntiforgeryTestVerificationRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sales/orders/retrieve/{OrderID}": {
       "get": {
         "tags": [
@@ -5087,6 +5161,32 @@
       "TestCasesByteArrayQueryParamBindingTestRequest": {
         "type": "object",
         "additionalProperties": false
+      },
+      "TestCasesAntiforgeryTestTokenResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "TokenName": {
+            "type": "string"
+          },
+          "Value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TestCasesAntiforgeryTestVerificationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "File": {
+            "type": "string",
+            "format": "binary"
+          },
+          "TokenResponse": {
+            "$ref": "#/components/schemas/TestCasesAntiforgeryTestTokenResponse"
+          }
+        }
       },
       "SalesOrdersRetrieveResponse": {
         "type": "object",

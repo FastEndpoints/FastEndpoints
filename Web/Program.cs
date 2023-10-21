@@ -123,7 +123,7 @@ app.UseRequestLocalization(
             c.Throttle.Message = "Custom Error Response";
 
             //enlable antiforgery
-            //c.Security.EnableAntiForgeryTokens = true;
+            c.Security.EnableAntiForgeryTokens = true;
 
         })
    .UseEndpoints(

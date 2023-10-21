@@ -132,7 +132,9 @@ public sealed class EndpointDefinition
 
     public void EnlableAntiforgery()
     {
-        IsEnlableAntiforgery = true;
+        IsEnlableAntiforgery = Conf.SecOpts.EnableAntiForgeryTokens ?
+            true :
+            throw new NotSupportedException("should set SecurityOptions.EnableAntiForgeryTokens=true to use the features !");
     }
 
 

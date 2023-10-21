@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using TestClass = TestCases.AntiforgeryTest;
@@ -41,8 +42,9 @@ public class AntiforgeryTest : TestClass<Fixture>
                       });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var content = rsp.Content.ReadAsStringAsync();
-        content.Result.Should().Contain("Invalid");
+        var errResponse = await rsp.Content.ReadFromJsonAsync<ErrorResponse>();
+        errResponse!.Errors.Count.Should().Be(1);
+        errResponse.Errors["GeneralErrors"][0].Should().Be("Anti-forgery token is invalid!");
     }
 
     [Fact]

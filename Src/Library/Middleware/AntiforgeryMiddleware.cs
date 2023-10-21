@@ -53,8 +53,13 @@ sealed class AntiforgeryMiddleware
                 }
                 catch (AntiforgeryValidationException)
                 {
-                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    await context.Response.WriteAsync("Invalid anti-forgery token!");
+                    await context.Response.SendErrorsAsync(
+                        new()
+                        {
+                            new(
+                                propertyName: Conf.ErrOpts.GeneralErrorsField,
+                                errorMessage: "Anti-forgery token is invalid!")
+                        });
 
                     return;
                 }

@@ -9,21 +9,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="[Features]\Inventory\List\Search\**" />
-        <Content Remove="[Features]\Inventory\List\Search\**" />
-        <EmbeddedResource Remove="[Features]\Inventory\List\Search\**" />
-        <None Remove="[Features]\Inventory\List\Search\**" />
+        <Compile Remove="[Features]\Inventory\List\Search\**"/>
+        <Content Remove="[Features]\Inventory\List\Search\**"/>
+        <EmbeddedResource Remove="[Features]\Inventory\List\Search\**"/>
+        <None Remove="[Features]\Inventory\List\Search\**"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.7.1" />
+        <PackageReference Include="FluentValidation" Version="11.7.1"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Src\Library\FastEndpoints.csproj" />
-        <ProjectReference Include="..\Src\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" />
-        <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj" />
-        <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj" />
+        <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
+        <ProjectReference Include="..\Src\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>
+        <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>
+        <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
     </ItemGroup>
 
     <!--<PropertyGroup>

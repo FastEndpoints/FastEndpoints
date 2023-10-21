@@ -73,7 +73,6 @@ static class EndpointExtensions
             }
         }
         def.Version.Init();
-        def.IsInitialized = true;
     }
 
     static readonly Regex _rgx = new("(@[\\w]*)", RegexOptions.Compiled);

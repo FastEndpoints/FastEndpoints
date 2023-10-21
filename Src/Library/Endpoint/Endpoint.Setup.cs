@@ -64,13 +64,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         AccessControl(keyName, Apply.ToThisEndpoint, groupNames);
     }
 
-
-    /// <summary>
-    /// enlable antiforgery
-    /// </summary>
-    protected void EnlableAntiforgery() => Definition.EnlableAntiforgery();
-
-
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
     /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require
@@ -184,6 +177,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     protected void DontThrowIfValidationFails()
         => Definition.DontThrowIfValidationFails();
+
+    /// <summary>
+    /// enables antiforgery token verification for this endpoint
+    /// </summary>
+    protected void EnableAntiforgery()
+        => Definition.EnableAntiforgery();
 
     /// <summary>
     /// specify to listen for GET requests on one or more routes.
@@ -561,9 +560,9 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
             if (Definition.ExecuteAsyncReturnsIResult)
             {
-#if NET7_0_OR_GREATER
+            #if NET7_0_OR_GREATER
                 b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
-#endif
+            #endif
             }
             else
             {

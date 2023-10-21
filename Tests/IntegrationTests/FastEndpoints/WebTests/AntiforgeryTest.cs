@@ -10,39 +10,35 @@ using TestClass = TestCases.AntiforgeryTest;
 
 namespace Int.FastEndpoints.WebTests;
 
-
-
-
 public class AntiforgeryTest : TestClass<Fixture>
 {
     public AntiforgeryTest(Fixture f, ITestOutputHelper o) : base(f, o) { }
 
-
     [Fact]
-    public async Task WithNoNeed()
+    public async Task Html_Form_Renders_With_Af_Token()
     {
-        var (rsp, res) = await Fixture.GuestClient.GETAsync<TestClass.AntUiEndpoint, ErrorResponse>();
+        var (rsp, _) = await Fx.GuestClient.GETAsync<TestClass.RenderFormHtml, ErrorResponse>();
         var content = await rsp.Content.ReadAsStringAsync();
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        rsp.IsSuccessStatusCode.Should().BeTrue();
         content.Should().Contain("__RequestVerificationToken");
     }
 
     [Fact]
-    public async Task WithBadToken()
+    public async Task Af_Middleware_Blocks_Request_With_Bad_Token()
     {
-        var sendData = new MultipartFormDataContent
+        var form = new MultipartFormDataContent
         {
-            { new StringContent("qweryuiopasdfghjklzxcvbnm"), "__RequestVerificationToken" },
+            { new StringContent("qweryuiopasdfghjklzxcvbnm"), "__RequestVerificationToken" }
         };
 
-        //RequestUri = new($"{client.BaseAddress}{requestUri.TrimStart('/')}")
-        var rsp = await Fixture.GuestClient.SendAsync(new HttpRequestMessage
-        {
-            Content = sendData,
-            RequestUri = new Uri($"{Fixture.GuestClient.BaseAddress}api/{TestClass.Endpoints.Post}"),
-            Method = HttpMethod.Post
-        });
+        var rsp = await Fx.GuestClient.SendAsync(
+                      new()
+                      {
+                          Content = form,
+                          RequestUri = new($"{Fixture.GuestClient.BaseAddress}api/{TestClass.Routes.Validate}"),
+                          Method = HttpMethod.Post
+                      });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var content = rsp.Content.ReadAsStringAsync();
@@ -50,27 +46,25 @@ public class AntiforgeryTest : TestClass<Fixture>
     }
 
     [Fact]
-    public async Task WithOkToken()
+    public async Task Af_Token_Verification_Succeeds()
     {
-        //得到token
-        var (rsp1, res1) = await Fixture.GuestClient.GETAsync<TestClass.AntTokenEndpoint, TestClass.Token>();
+        var (_, tokenRsp) = await Fx.GuestClient.GETAsync<TestClass.GetAfTokenEndpoint, TestClass.TokenResponse>();
 
-        var sendData = new MultipartFormDataContent
+        var form = new MultipartFormDataContent
         {
-            { new StringContent(res1.value!), "__RequestVerificationToken" },
+            { new StringContent(tokenRsp.Value!), "__RequestVerificationToken" }
         };
 
-        //Post
-        var rsp = await Fixture.GuestClient.SendAsync(new HttpRequestMessage
-        {
-            Content = sendData,
-            RequestUri = new Uri($"{Fixture.GuestClient.BaseAddress}api/{TestClass.Endpoints.Post}"),
-            Method = HttpMethod.Post
-        });
+        var rsp = await Fx.GuestClient.SendAsync(
+                      new()
+                      {
+                          Content = form,
+                          RequestUri = new($"{Fx.GuestClient.BaseAddress}api/{TestClass.Routes.Validate}"),
+                          Method = HttpMethod.Post
+                      });
 
-        var content =await rsp.Content.ReadAsStringAsync();
-
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        var content = await rsp.Content.ReadAsStringAsync();
         content.Should().Contain("antiforgery success");
     }
 }

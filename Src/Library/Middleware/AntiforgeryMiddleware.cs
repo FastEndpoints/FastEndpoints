@@ -1,16 +1,18 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
-using System.Net.Mime;
 
-namespace FastEndpoints.Middleware;
+namespace FastEndpoints;
 
-internal sealed class AntiforgeryMiddleware
+sealed class AntiforgeryMiddleware
 {
-    private readonly RequestDelegate _next;
-    private readonly IAntiforgery _antiforgery;
+    internal static bool IsRegistered { get; set; }
 
-    const string urlEncodedFormContentType = "application/x-www-form-urlencoded";
-    const string multipartFormContentType = "multipart/form-data";
+    readonly RequestDelegate _next;
+    readonly IAntiforgery _antiforgery;
+
+    const string UrlEncodedFormContentType = "application/x-www-form-urlencoded";
+    const string MultipartFormContentType = "multipart/form-data";
+
     public AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforgery)
     {
         _next = next;
@@ -19,26 +21,31 @@ internal sealed class AntiforgeryMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        //GET请求不需要防伪验证
         if (context.Request.Method == HttpMethods.Get ||
             context.Request.Method == HttpMethods.Trace ||
             context.Request.Method == HttpMethods.Options ||
             context.Request.Method == HttpMethods.Head)
         {
             await _next(context);
+
             return;
         }
+
         var contentType = context.Request.ContentType;
+
         if (string.IsNullOrEmpty(contentType))
         {
             await _next(context);
+
             return;
         }
-        if (contentType.Equals(urlEncodedFormContentType, StringComparison.OrdinalIgnoreCase) ||
-            contentType.StartsWith(multipartFormContentType, StringComparison.OrdinalIgnoreCase))
+
+        if (contentType.Equals(UrlEncodedFormContentType, StringComparison.OrdinalIgnoreCase) ||
+            contentType.StartsWith(MultipartFormContentType, StringComparison.OrdinalIgnoreCase))
         {
             var endpointDefinition = context.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>();
-            if (endpointDefinition?.IsEnlableAntiforgery is true)
+
+            if (endpointDefinition?.AntiforgeryEnabled is true)
             {
                 try
                 {
@@ -47,7 +54,8 @@ internal sealed class AntiforgeryMiddleware
                 catch (AntiforgeryValidationException)
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    await context.Response.WriteAsync("Invalid anti-forgery token");
+                    await context.Response.WriteAsync("Invalid anti-forgery token!");
+
                     return;
                 }
             }

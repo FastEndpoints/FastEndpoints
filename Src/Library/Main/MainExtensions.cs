@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,9 +36,6 @@ public static class MainExtensions
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(EventBus<>));
-
-        //Antiforgery
-        services.AddAntiforgery();
 
         return services;
     }
@@ -93,6 +91,9 @@ public static class MainExtensions
                 throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
             Conf.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
+
+            if (def.AntiforgeryEnabled && (app.ServiceProvider.GetService<IAntiforgery>() is null || AntiforgeryMiddleware.IsRegistered is false))
+                throw new InvalidOperationException("AntiForgery middleware setup is incorrect!");
 
             AddSecurityPolicy(authOptions, def);
 
@@ -162,11 +163,11 @@ public static class MainExtensions
 
             foreach (var kvp in routeToHandlerCounts)
             {
-                if (kvp.Value > 1)
-                {
-                    duplicatesDetected = true;
-                    logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
-                }
+                if (kvp.Value <= 1)
+                    continue;
+
+                duplicatesDetected = true;
+                logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
             }
 
             if (duplicatesDetected)
@@ -175,11 +176,6 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
-        if (scope.ServiceProvider.GetService<IOptions<Config>>()?.Value.Security.EnableAntiForgeryTokens is true)
-        {
-            //use AntiforgeryMiddleware middleware
-            (app as WebApplication)?.UseMiddleware<Middleware.AntiforgeryMiddleware>();
-        }
         return app;
     }
 
@@ -303,9 +299,7 @@ public static class MainExtensions
                     if (ep.AllowAnyClaim)
                         b.RequireAssertion(x => x.User.Claims.Any(c => ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
                     else
-                    {
                         b.RequireAssertion(x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
-                    }
                 }
 
                 ep.PolicyBuilder?.Invoke(b);

@@ -63,9 +63,6 @@ public static class MainExtensions
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
     {
-        //use AntiforgeryMiddleware middleware
-        (app as WebApplication)?.UseMiddleware<Middleware.AntiforgeryMiddleware>();
-
         Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
         var jsonOpts = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Conf.SerOpts.Options = jsonOpts is not null
@@ -178,6 +175,11 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
+        if (scope.ServiceProvider.GetService<IOptions<Config>>()?.Value.Security.EnableAntiForgeryTokens is true)
+        {
+            //use AntiforgeryMiddleware middleware
+            (app as WebApplication)?.UseMiddleware<Middleware.AntiforgeryMiddleware>();
+        }
         return app;
     }
 

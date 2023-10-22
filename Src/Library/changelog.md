@@ -74,7 +74,7 @@ Thank you Wàn Yǎhǔ for the [contribution](https://github.com/FastEndpoints/Fa
 
 <details><summary>Anti-forgery token validation middleware</summary>
 
-todo: update doc page and link from here
+Please see the [documentation page](https://fast-endpoints.com/docs/security#csrf-protection-for-form-submissions-antiforgery-tokens) for details of this feature.
 
 Thank you Wàn Yǎhǔ for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/509).
 

@@ -11,7 +11,6 @@ public class EndpointSummary
 {
     internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
     internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; } = new(); //key: status-code //val: [propname]=description
-    internal List<object> RequestExamples { get; } = new();
 
     internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b => b.Add(
         epBuilder =>
@@ -45,11 +44,17 @@ public class EndpointSummary
     public string Description { get; set; }
 
     /// <summary>
+    /// specify multiple request examples by adding to this collection.
+    /// </summary>
+    public ICollection<object> RequestExamples { get; } = new List<object>();
+
+    /// <summary>
     /// an example request object to be used in swagger/ openapi.
+    /// multiple examples can be specified by setting this property multiple times or by adding to the <see cref="RequestExamples" /> collection.
     /// </summary>
     public object? ExampleRequest
     {
-        get => RequestExamples.Count > 0 ? RequestExamples[0] : null;
+        get => RequestExamples.FirstOrDefault();
         set => RequestExamples.Add(value ?? throw new ArgumentNullException(nameof(ExampleRequest)));
     }
 

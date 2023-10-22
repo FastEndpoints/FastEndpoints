@@ -40,10 +40,7 @@ sealed class OperationProcessor : IOperationProcessor
 
     readonly DocumentOptions _opts;
 
-    public OperationProcessor(DocumentOptions documentOptions)
-    {
-        _opts = documentOptions;
-    }
+    public OperationProcessor(DocumentOptions documentOptions) { _opts = documentOptions; }
 
     public bool Process(OperationProcessorContext ctx)
     {
@@ -423,14 +420,16 @@ sealed class OperationProcessor : IOperationProcessor
                 var exCount = epDef.EndpointSummary!.RequestExamples.Count;
 
                 if (exCount == 1)
-                    requestBody.ActualSchema.Example = GetExampleFrom(epDef.EndpointSummary?.RequestExamples[0]);
+                    requestBody.ActualSchema.Example = GetExampleFrom(epDef.EndpointSummary?.RequestExamples.First());
                 else
                 {
-                    for (var i = 0; i < epDef.EndpointSummary.RequestExamples.Count; i++)
+                    var i = 1;
+
+                    foreach (var example in epDef.EndpointSummary.RequestExamples)
                     {
                         reqContent?.First().Value.Examples.Add(
-                            key: $"Example {i + 1}",
-                            value: new() { Value = GetExampleFrom(epDef.EndpointSummary.RequestExamples[i]) });
+                            key: $"Example {i++}",
+                            value: new() { Value = GetExampleFrom(example) });
                     }
                 }
             }

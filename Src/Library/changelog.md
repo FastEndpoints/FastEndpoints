@@ -12,7 +12,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>Model binding collections of 'IFormFile' from incoming form data</summary>
 
-The following forms of properties can now be automatically model bound from file form data fields.
+The following types of properties can now be automatically model bound from `file` form data fields.
 
 ```csharp
 class Request
@@ -22,27 +22,25 @@ class Request
     public IFormFileCollection Jets { get; set; }
 }
 ```
+When submitting collections of form files, the incoming field names can be one of the following 3 formats:
+
+|       | Format One  | Format Two | Format Three |
+| ----- | ----------- | ---------- | ------------ |
+| # 1   | Cars        | Boats[1]   | Jets[]       |
+| # 2   | Cars        | Boats[2]   | Jets[]       |
 
 </details>
 
 <details><summary>Multiple request examples for Swagger</summary>
 
-Multiple examples for the request DTO can be specified by setting the `ExampleRequest` property of the Summary class multiple times like so:
+Multiple examples for the request DTO can be specified by either setting the `ExampleRequest` property of the Summary class multiple times or adding to the `RequestExamples` collection like so:
 
 ```csharp
 Summary(s =>
 {
-    s.ExampleRequest = new()
-    {
-        Description = "first",
-        Name = "name one",
-    };
-    
-    s.ExampleRequest = new()
-    {
-        Description = "second",
-        Name = "name two",
-    };
+    s.ExampleRequest = new MyRequest {...};  
+    s.ExampleRequest = new MyRequest {...};
+    s.RequestExamples.Add(new MyRequest {...});
 });
 ```
 

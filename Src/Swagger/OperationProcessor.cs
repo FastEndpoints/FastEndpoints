@@ -12,6 +12,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace FastEndpoints.Swagger;
@@ -168,25 +169,43 @@ sealed class OperationProcessor : IOperationProcessor
           .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
           .ToList()
           .ForEach(
-              res =>
+              oaResp =>
               {
-                  if (_defaultDescriptions.TryGetValue(res.Key, out var description))
-                      res.Value.Description = description; //first set the default text
+                  //first set the default descriptions
+                  if (_defaultDescriptions.TryGetValue(oaResp.Key, out var description))
+                      oaResp.Value.Description = description;
 
-                  var key = Convert.ToInt32(res.Key);
+                  var statusCode = Convert.ToInt32(oaResp.Key);
 
-                  if (epDef.EndpointSummary?.Responses.ContainsKey(key) is true)
-                      res.Value.Description = epDef.EndpointSummary.Responses[key]; //then take values from summary object
+                  //then override with user supplied values from EndpointSummary.Responses
+                  if (epDef.EndpointSummary?.Responses.ContainsKey(statusCode) is true)
+                      oaResp.Value.Description = epDef.EndpointSummary.Responses[statusCode];
 
-                  if (epDef.EndpointSummary?.ResponseParams.ContainsKey(key) is true && res.Value.Schema is not null)
+                  //set response dto property descriptions
+                  if (epDef.EndpointSummary?.ResponseParams.ContainsKey(statusCode) is true && oaResp.Value.Schema is not null)
                   {
-                      //set response dto property descriptions
+                      var propDescriptions = epDef.EndpointSummary.ResponseParams[statusCode];
+                      var respDtoProps = apiDescription
+                                         .SupportedResponseTypes
+                                         .SingleOrDefault(x => x.StatusCode == statusCode)?
+                                         .Type?
+                                         .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                                         .Select(
+                                             p => new
+                                             {
+                                                 key = p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name,
+                                                 val = p.Name
+                                             })
+                                         .Where(x => x.key is not null)
+                                         .ToDictionary(x => x.key!, x => x.val);
 
-                      var responseDescriptions = epDef.EndpointSummary.ResponseParams[key];
-
-                      foreach (var prop in res.GetAllProperties())
+                      foreach (var prop in oaResp.GetAllProperties())
                       {
-                          if (responseDescriptions.TryGetValue(prop.Key, out var responseDescription))
+                          string? propName = null;
+                          respDtoProps?.TryGetValue(prop.Key, out propName);
+                          propName ??= prop.Key;
+
+                          if (propDescriptions.TryGetValue(propName, out var responseDescription))
                               prop.Value.Description = responseDescription;
                       }
                   }

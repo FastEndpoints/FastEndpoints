@@ -1,23 +1,14 @@
-
 [*]
-charset = utf-8-bom
+charset = utf-8
 end_of_line = crlf
 insert_final_newline = false
 indent_style = space
 indent_size = 4
 
 [{*.har,*.json}]
-indent_style = space
 indent_size = 2
 
-[*.{appxmanifest,asax,ascx,aspx,axaml,build,cg,cginc,compute,cs,cshtml,dtd,fx,fxh,hlsl,hlsli,hlslinc,master,nuspec,paml,razor,resw,resx,skin,usf,ush,vb,xaml,xamlx,xoml,xsd}]
-indent_style = space
-indent_size = 4
-tab_width = 4
-
 [*.cs]
-
-# Microsoft .NET properties
 csharp_new_line_before_members_in_object_initializers = false
 csharp_new_line_between_query_expression_clauses = false
 csharp_preferred_modifier_order = public, private, protected, internal, file, new, static, abstract, virtual, sealed, readonly, override, extern, unsafe, volatile, async, required:suggestion
@@ -49,7 +40,7 @@ dotnet_naming_symbols.private_constants_symbols.applicable_kinds = field
 dotnet_naming_symbols.private_constants_symbols.required_modifiers = const
 dotnet_naming_symbols.private_static_readonly_symbols.applicable_accessibilities = private
 dotnet_naming_symbols.private_static_readonly_symbols.applicable_kinds = field
-dotnet_naming_symbols.private_static_readonly_symbols.required_modifiers = static,readonly
+dotnet_naming_symbols.private_static_readonly_symbols.required_modifiers = static, readonly
 dotnet_style_parentheses_in_arithmetic_binary_operators = never_if_unnecessary:none
 dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:none
 dotnet_style_parentheses_in_relational_binary_operators = never_if_unnecessary:none
@@ -61,7 +52,6 @@ dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_require_accessibility_modifiers = never:error
 
-# ReSharper properties
 resharper_align_linq_query = true
 resharper_align_multiline_binary_patterns = true
 resharper_align_multiline_calls_chain = true
@@ -143,7 +133,6 @@ resharper_wrap_chained_binary_patterns = chop_if_long
 resharper_xmldoc_blank_line_after_pi = false
 resharper_xmldoc_indent_text = ZeroIndent
 
-# ReSharper inspection severities
 resharper_arrange_attributes_highlighting = suggestion
 resharper_arrange_constructor_or_destructor_body_highlighting = suggestion
 resharper_arrange_default_value_when_type_not_evident_highlighting = suggestion
@@ -185,3 +174,6 @@ resharper_unused_method_return_value_global_highlighting = none
 resharper_web_config_module_not_resolved_highlighting = warning
 resharper_web_config_type_not_resolved_highlighting = warning
 resharper_web_config_wrong_module_highlighting = warning
+
+[{*Request.cs,*Response.cs,Models.cs,Data.cs,*Endpoint.cs}]
+dotnet_diagnostic.CS8618.severity = none

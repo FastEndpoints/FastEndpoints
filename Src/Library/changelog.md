@@ -6,7 +6,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ---
 
-<!-- <details><summary>title text</summary></details> -->
+[//]: # (<details><summary>title text</summary></details>)
 
 ## New 🎉
 
@@ -22,18 +22,20 @@ class Request
     public IFormFileCollection Jets { get; set; }
 }
 ```
+
 When submitting collections of form files, the incoming field names can be one of the following 3 formats:
 
-|       | Format One  | Format Two | Format Three |
-| ----- | ----------- | ---------- | ------------ |
-| # 1   | Cars        | Boats[1]   | Jets[]       |
-| # 2   | Cars        | Boats[2]   | Jets[]       |
+|     | Format One | Format Two | Format Three |
+|-----|------------|------------|--------------|
+| # 1 | Cars       | Boats[1]   | Jets[]       |
+| # 2 | Cars       | Boats[2]   | Jets[]       |
 
 </details>
 
 <details><summary>Multiple request examples for Swagger</summary>
 
-Multiple examples for the request DTO can be specified by either setting the `ExampleRequest` property of the Summary class multiple times or adding to the `RequestExamples` collection like so:
+Multiple examples for the request DTO can be specified by either setting the `ExampleRequest` property of the Summary class multiple times or adding to
+the `RequestExamples` collection like so:
 
 ```csharp
 Summary(s =>
@@ -115,7 +117,13 @@ Thank you Mattis Bratland for the [contribution](https://github.com/FastEndpoint
 
 </details>
 
-<!-- ## Fixes 🪲 -->
+## Fixes 🪲
 
+<details><summary>Response DTO property description not being detected</summary>
 
-<!-- ## Minor Breaking Change ⚠️ -->
+When the response DTO property description was provided by a lambda expression and the respective DTO property is also decorated with `[JsonPropertyName]` attribute,
+the Swagger operation processor was not correctly setting the property description in generated Swagger spec. See #511 for more details.
+
+</details>
+
+[//]: # (## Minor Breaking Change ⚠️)

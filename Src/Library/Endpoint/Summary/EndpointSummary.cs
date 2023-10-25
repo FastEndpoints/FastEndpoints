@@ -86,6 +86,7 @@ public class EndpointSummary
     {
         if (!ResponseParams.ContainsKey(statusCode))
             ResponseParams[statusCode] = new(StringComparer.OrdinalIgnoreCase);
+
         ResponseParams[statusCode][property.PropertyName()] = description;
     }
 

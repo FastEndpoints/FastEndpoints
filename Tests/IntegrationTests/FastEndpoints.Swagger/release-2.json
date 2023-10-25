@@ -5586,6 +5586,7 @@
           },
           "Last_Moddded": {
             "type": "integer",
+            "description": "blah blah blah",
             "format": "int64"
           }
         }

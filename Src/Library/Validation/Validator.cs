@@ -37,20 +37,21 @@ public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServic
 
     protected override bool PreValidate(FluentValidation.ValidationContext<TRequest> context, ValidationResult result)
     {
-        var req = context.InstanceToValidate;
-        var mc = new System.ComponentModel.DataAnnotations.ValidationContext(req);
-        var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
-        var passed = Validator.TryValidateObject(req, mc, validationResults, true);
+        if (!Conf.ValOpts.EnableDataAnnotationsSupport)
+            return true;
 
-        if (!passed)
+        var req = context.InstanceToValidate;
+        var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+
+        if (Validator.TryValidateObject(req, new(req), validationResults, true))
+            return true;
+
+        for (var i = 0; i < validationResults.Count; i++)
         {
-            for (var i = 0; i < validationResults.Count; i++)
-            {
-                var res = validationResults[i];
-                result.Errors.Add(new(res.MemberNames.FirstOrDefault(), res.ErrorMessage));
-            }
+            var res = validationResults[i];
+            result.Errors.Add(new(res.MemberNames.FirstOrDefault(), res.ErrorMessage));
         }
 
-        return base.PreValidate(context, result);
+        return true;
     }
 }

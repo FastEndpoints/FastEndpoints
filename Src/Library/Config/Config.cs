@@ -1,5 +1,6 @@
 ﻿global using Conf = FastEndpoints.Config;
 
+// ReSharper disable MemberCanBeMadeStatic.Global
 #pragma warning disable RCS1102,CA1822
 
 namespace FastEndpoints;
@@ -18,13 +19,14 @@ public sealed class Config
         set => _resolver = value;
     }
 
-    internal static BindingOptions BndOpts = new();
-    internal static EndpointOptions EpOpts = new();
-    internal static ErrorOptions ErrOpts = new();
-    internal static SecurityOptions SecOpts = new();
-    internal static SerializerOptions SerOpts = new();
-    internal static ThrottleOptions ThrOpts = new();
-    internal static VersioningOptions VerOpts = new();
+    internal static readonly BindingOptions BndOpts = new();
+    internal static readonly EndpointOptions EpOpts = new();
+    internal static readonly ErrorOptions ErrOpts = new();
+    internal static readonly SecurityOptions SecOpts = new();
+    internal static readonly SerializerOptions SerOpts = new();
+    internal static readonly ThrottleOptions ThrOpts = new();
+    internal static readonly VersioningOptions VerOpts = new();
+    internal static readonly ValidationOptions ValOpts = new();
 
     /// <summary>
     /// request binding settings
@@ -60,4 +62,9 @@ public sealed class Config
     /// endpoint versioning settings
     /// </summary>
     public VersioningOptions Versioning => VerOpts;
+
+    /// <summary>
+    /// endpoint validation settings
+    /// </summary>
+    public ValidationOptions Validation => ValOpts;
 }

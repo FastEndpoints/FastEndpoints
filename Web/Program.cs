@@ -105,6 +105,7 @@ app.UseRequestLocalization(
    .UseFastEndpoints(
        c =>
        {
+           c.Validation.EnableDataAnnotationsSupport = true;
            c.Serializer.Options.PropertyNamingPolicy = null;
 
            c.Binding.ValueParserFor<Guid>(x => new(Guid.TryParse(x?.ToString(), out var res), res));

@@ -10,10 +10,7 @@ static class ValidationExtensions
     internal static bool ValidationFailed(this List<ValidationFailure> failures)
         => failures.Count > 0;
 
-    internal static void AddError(this List<ValidationFailure> failures, ValidationFailure failure)
-    {
-        failures.Add(failure);
-    }
+    internal static void AddError(this List<ValidationFailure> failures, ValidationFailure failure) { failures.Add(failure); }
 
     internal static void AddError(this List<ValidationFailure> failures, string message, string? errorCode = null, Severity severity = Severity.Error)
     {

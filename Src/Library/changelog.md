@@ -48,16 +48,30 @@ Summary(s =>
 
 </details>
 
+<details><summary>Anti-forgery token validation middleware</summary>
+
+Please see the [documentation page](https://fast-endpoints.com/docs/security#csrf-protection-for-form-submissions-antiforgery-tokens) for details of this feature.
+
+Thank you Wàn Yǎhǔ for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/509).
+
+</details>
+
 <details><summary>Support for simple validation with 'DataAnnotations'</summary>
 
 ```csharp
+//enable the feature at startup.
+
+app.UseFastEndpoints(c.Validation.EnableDataAnnotationsSupport = true;)
+
+//decorate properties with DataAnnotations attributes
+
 sealed class Request
 {
     [Required, StringLength(10, MinimumLength = 2)]
     public string Name { get; set; }
 }
 
-//can be used together with `FluentValidations` rules if need be
+//can be used together with `FluentValidations` rules
 
 sealed class MyValidator : Validator<Request>
 {
@@ -71,14 +85,6 @@ sealed class MyValidator : Validator<Request>
 Note: there's no swagger integration for data annotations.
 
 Thank you Wàn Yǎhǔ for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/500).
-
-</details>
-
-<details><summary>Anti-forgery token validation middleware</summary>
-
-Please see the [documentation page](https://fast-endpoints.com/docs/security#csrf-protection-for-form-submissions-antiforgery-tokens) for details of this feature.
-
-Thank you Wàn Yǎhǔ for the [contribution](https://github.com/FastEndpoints/FastEndpoints/pull/509).
 
 </details>
 

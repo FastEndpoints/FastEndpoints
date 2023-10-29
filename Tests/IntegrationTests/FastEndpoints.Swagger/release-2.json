@@ -1814,7 +1814,7 @@
               "example": {
                 "Id": 0,
                 "Name": "Name",
-                "Price": 0.0
+                "Price": 200.1
               }
             }
           },
@@ -1827,6 +1827,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
                 }
               }
             }
@@ -5174,7 +5184,9 @@
           "Price": {
             "type": "number",
             "description": "product price goes here",
-            "format": "decimal"
+            "format": "decimal",
+            "minimum": 200.0,
+            "exclusiveMinimum": true
           }
         }
       },

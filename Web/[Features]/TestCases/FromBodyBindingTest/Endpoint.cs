@@ -1,3 +1,5 @@
+using FluentValidation;
+
 namespace TestCases.FromBodyJsonBinding;
 
 public class Product
@@ -27,6 +29,11 @@ public class Request
 
     [FromHeader]
     public int CustomerID { get; set; }
+
+    public sealed class Validator : Validator<Request>
+    {
+        public Validator() { RuleFor(x => x.Product.Price).GreaterThan(200); }
+    }
 }
 
 public class Response : Request { }

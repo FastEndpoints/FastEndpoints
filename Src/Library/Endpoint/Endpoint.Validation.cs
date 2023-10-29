@@ -18,7 +18,19 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
         var valResult = await ((IValidator<TRequest>)def.GetValidator()!).ValidateAsync(req, cancellation);
 
         if (!valResult.IsValid)
+        {
             validationFailures.AddRange(valResult.Errors);
+
+            if (def.ReqDtoFromBodyPropName().Length != 0)
+            {
+                foreach (var f in validationFailures.Where(f => f.PropertyName.StartsWith(def.ReqDtoFromBodyPropName())))
+                {
+                    f.PropertyName = f.PropertyName.Substring(
+                        def.ReqDtoFromBodyPropName().Length + 1,
+                        f.PropertyName.Length - def.ReqDtoFromBodyPropName().Length - 1);
+                }
+            }
+        }
 
         if (validationFailures.Count > 0 && def.ThrowIfValidationFails)
             throw new ValidationFailureException(validationFailures, "Request validation failed");

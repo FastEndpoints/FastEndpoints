@@ -93,6 +93,18 @@ public sealed class EndpointDefinition
         return _validator;
     }
 
+    string? _reqDtoFromBodyPropName;
+
+    internal string ReqDtoFromBodyPropName()
+    {
+        //only ever do the iteration once and cache the prop name when first validation error occurs
+        //return the cached prop name on subsequent calls
+        return _reqDtoFromBodyPropName ??= ReqDtoType
+                                           .BindableProps()
+                                           .FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name ??
+                                           string.Empty;
+    }
+
     static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata = b =>
     {
         b.Add(
@@ -138,10 +150,7 @@ public sealed class EndpointDefinition
     /// <summary>
     /// allow unauthenticated requests to this endpoint for a specified set of http verbs.
     /// </summary>
-    public void AllowAnonymous(string[] verbs)
-    {
-        AnonymousVerbs = verbs;
-    }
+    public void AllowAnonymous(string[] verbs) { AnonymousVerbs = verbs; }
 
     /// <summary>
     /// enable file uploads with multipart/form-data content type
@@ -237,10 +246,7 @@ public sealed class EndpointDefinition
     /// <summary>
     /// enable antiforgery token verification for an endpoint
     /// </summary>
-    public void EnableAntiforgery()
-    {
-        AntiforgeryEnabled = true;
-    }
+    public void EnableAntiforgery() { AntiforgeryEnabled = true; }
 
     /// <summary>
     /// specify the version of the endpoint if versioning is enabled
@@ -312,10 +318,7 @@ public sealed class EndpointDefinition
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="postProcessors">the post-processors to add</param>
-    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors)
-    {
-        AddProcessor(order, postProcessors, PostProcessorList);
-    }
+    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors) { AddProcessor(order, postProcessors, PostProcessorList); }
 
     /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -325,10 +328,7 @@ public sealed class EndpointDefinition
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="preProcessors">the pre-processors to add</param>
-    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
-    {
-        AddProcessor(order, preProcessors, PreProcessorList);
-    }
+    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors) { AddProcessor(order, preProcessors, PreProcessorList); }
 
     /// <summary>
     /// specify response caching settings for this endpoint
@@ -440,10 +440,7 @@ public sealed class EndpointDefinition
     /// validator that should be used for this endpoint
     /// </summary>
     /// <typeparam name="TValidator">the type of the validator</typeparam>
-    public void Validator<TValidator>() where TValidator : IValidator
-    {
-        ValidatorType = typeof(TValidator);
-    }
+    public void Validator<TValidator>() where TValidator : IValidator { ValidatorType = typeof(TValidator); }
 
     ServiceBoundEpProp[] GetServiceBoundEpProps()
     {

@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.7.1"/>
+        <PackageReference Include="FluentValidation" Version="11.8.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -29,9 +29,10 @@
     <!--<PropertyGroup>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
         <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-    </PropertyGroup>    
+    </PropertyGroup>-->
+
     <ItemGroup>
-        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
-    </ItemGroup>-->
+        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <!--<Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs"/>-->
+    </ItemGroup>
 </Project>

@@ -12,7 +12,8 @@ public static class Extensions
     /// <summary>
     /// enables communicating with a remote gRPC server in the WAF testing environment
     /// </summary>
-    /// <param name="remote">the <see cref="TestServer"/> of the target WAF</param>
+    /// <param name="s"></param>
+    /// <param name="remote">the <see cref="TestServer" /> of the target WAF</param>
     public static void RegisterTestRemote(this IServiceCollection s, TestServer remote)
         => s.AddSingleton(remote.CreateHandler());
 

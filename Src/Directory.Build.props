@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
 
-        <Version>5.18.0.9-beta</Version>
+        <Version>5.19.0</Version>
 
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>
@@ -10,7 +10,7 @@
         <Authors>FastEndpoints</Authors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/FastEndpoints/Library.git</RepositoryUrl>
+        <RepositoryUrl>https://github.com/FastEndpoints/FastEndpoints.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

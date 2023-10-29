@@ -120,6 +120,7 @@ Thank you Mattis Bratland for the [contribution](https://github.com/FastEndpoint
 <details><summary>Misc. improvements</summary>
 
 - Upgrade dependencies to latest
+- Minor internal code refactors/optimizations
 
 </details>
 

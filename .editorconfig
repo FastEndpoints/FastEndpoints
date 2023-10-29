@@ -175,5 +175,5 @@ resharper_web_config_module_not_resolved_highlighting = warning
 resharper_web_config_type_not_resolved_highlighting = warning
 resharper_web_config_wrong_module_highlighting = warning
 
-[{*Request.cs,*Response.cs,Models.cs,Data.cs,*Endpoint.cs}]
+[{*Request.cs,*Response.cs,*Models.cs,*Endpoint.cs}]
 dotnet_diagnostic.CS8618.severity = none

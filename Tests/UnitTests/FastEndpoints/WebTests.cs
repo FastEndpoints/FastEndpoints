@@ -141,7 +141,7 @@ public class WebTests
     [Fact]
     public async Task union_type_result_returning_endpoint()
     {
-        var ep = new MultiResultEndpoint();
+        var ep = Factory.Create<MultiResultEndpoint>();
 
         var res0 = await ep.ExecuteAsync(new() { Id = 0 }, CancellationToken.None);
         res0.Result.Should().BeOfType<NotFound>();

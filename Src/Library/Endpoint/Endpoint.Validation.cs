@@ -19,17 +19,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
 
         if (!valResult.IsValid)
         {
-            validationFailures.AddRange(valResult.Errors);
-
-            if (def.ReqDtoFromBodyPropName().Length != 0)
-            {
-                foreach (var f in validationFailures.Where(f => f.PropertyName.StartsWith(def.ReqDtoFromBodyPropName())))
-                {
-                    f.PropertyName = f.PropertyName.Substring(
-                        def.ReqDtoFromBodyPropName().Length + 1,
-                        f.PropertyName.Length - def.ReqDtoFromBodyPropName().Length - 1);
-                }
-            }
+            for (var i = 0; i < valResult.Errors.Count; i++)
+                validationFailures.AddError(valResult.Errors[i], def.ReqDtoFromBodyPropName);
         }
 
         if (validationFailures.Count > 0 && def.ThrowIfValidationFails)
@@ -41,7 +32,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
 
     /// <inheritdoc />
     public void AddError(ValidationFailure failure)
-        => ValidationFailures.AddError(failure);
+        => ValidationFailures.AddError(failure, Definition.ReqDtoFromBodyPropName);
 
     /// <inheritdoc />
     public void AddError(string message, string? errorCode = null, Severity severity = Severity.Error)
@@ -52,12 +43,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
                          string errorMessage,
                          string? errorCode = null,
                          Severity severity = Severity.Error)
-        => ValidationFailures.AddError(property, errorMessage, errorCode, severity);
+        => ValidationFailures.AddError(property, errorMessage, errorCode, severity, Definition.ReqDtoFromBodyPropName);
 
     /// <inheritdoc />
     [DoesNotReturn]
     public void ThrowError(ValidationFailure failure, int? statusCode = null)
-        => ValidationFailures.ThrowError(failure, statusCode);
+        => ValidationFailures.ThrowError(failure, statusCode, Definition.ReqDtoFromBodyPropName);
 
     /// <inheritdoc />
     [DoesNotReturn]
@@ -67,7 +58,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
     /// <inheritdoc />
     [DoesNotReturn]
     public void ThrowError(Expression<Func<TRequest, object?>> property, string errorMessage, int? statusCode = null)
-        => ValidationFailures.ThrowError(property, errorMessage, statusCode);
+        => ValidationFailures.ThrowError(property, errorMessage, statusCode, Definition.ReqDtoFromBodyPropName);
 
     /// <inheritdoc />
     public void ThrowIfAnyErrors(int? statusCode = null)

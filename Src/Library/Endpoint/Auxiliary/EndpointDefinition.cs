@@ -95,15 +95,8 @@ public sealed class EndpointDefinition
 
     string? _reqDtoFromBodyPropName;
 
-    internal string ReqDtoFromBodyPropName()
-    {
-        //only ever do the iteration once and cache the prop name when first validation error occurs
-        //return the cached prop name on subsequent calls
-        return _reqDtoFromBodyPropName ??= ReqDtoType
-                                           .BindableProps()
-                                           .FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name ??
-                                           string.Empty;
-    }
+    internal string ReqDtoFromBodyPropName
+        => _reqDtoFromBodyPropName ??= $"{ReqDtoType.BindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
 
     static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata = b =>
     {

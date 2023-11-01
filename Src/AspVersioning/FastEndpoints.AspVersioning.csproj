@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net7.0;</TargetFrameworks>
+        <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>Asp.Versioning.Http package integration for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>

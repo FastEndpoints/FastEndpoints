@@ -18,10 +18,11 @@ public class EventBusTests
          .Returns(Task.CompletedTask)
          .Once();
 
-        var evnt = Factory.CreateEvent(new IEventHandler<NewItemAddedToStock>[]
-        {
-            fakeHandler
-        });
+        var evnt = Factory.CreateEvent(
+            new[]
+            {
+                fakeHandler
+            });
         await evnt.PublishAsync();
     }
 
@@ -56,9 +57,12 @@ public class EventBusTests
     {
         var logger = A.Fake<ILogger<NotifyCustomers>>();
 
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(async ()
-            => await new EventBus<NewItemAddedToStock>(new[] { new NotifyCustomers(logger) })
-                .PublishAsync(new NewItemAddedToStock()));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => new EventBus<NewItemAddedToStock>(
+                new[]
+                {
+                    new NotifyCustomers(logger)
+                }).PublishAsync(new()));
     }
 
     [Fact]
@@ -66,10 +70,11 @@ public class EventBusTests
     {
         var fakeHandler = new FakeEventHandler();
 
-        Factory.RegisterTestServices(s =>
-        {
-            s.AddSingleton<IEventHandler<NewItemAddedToStock>>(fakeHandler);
-        });
+        Factory.RegisterTestServices(
+            s =>
+            {
+                s.AddSingleton<IEventHandler<NewItemAddedToStock>>(fakeHandler);
+            });
 
         await new NewItemAddedToStock { Name = "xyz" }.PublishAsync();
 
@@ -84,6 +89,7 @@ file class FakeEventHandler : IEventHandler<NewItemAddedToStock>
     public Task HandleAsync(NewItemAddedToStock eventModel, CancellationToken ct)
     {
         Name = eventModel.Name;
+
         return Task.CompletedTask;
     }
 }

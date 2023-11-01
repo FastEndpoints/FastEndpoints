@@ -10,7 +10,11 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 [//]: # (## New 🎉)
 
-[//]: # (## Improvements 🚀)
+## Improvements 🚀
+
+<details><summary>.Net 8.0 support</summary>
+
+</details>
 
 ## Fixes 🪲
 

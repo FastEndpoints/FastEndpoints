@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -26,7 +26,6 @@ public abstract class BaseFixture
 public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixture where TProgram : class
 {
     /// <inheritdoc />
-    /// >
     public Faker Fake => _faker;
 
     /// <summary>

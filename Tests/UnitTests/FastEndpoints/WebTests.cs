@@ -81,7 +81,7 @@ public class WebTests
     {
         //arrange
         var fakeConfig = A.Fake<IConfiguration>();
-        A.CallTo(() => fakeConfig["TokenKey"]).Returns("0000000000000000");
+        A.CallTo(() => fakeConfig["TokenKey"]).Returns("00000000000000000000000000000000");
 
         var ep = Factory.Create<Admin.Login.Endpoint>(
             A.Fake<ILogger<Admin.Login.Endpoint>>(),

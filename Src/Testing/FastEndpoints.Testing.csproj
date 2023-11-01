@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <IsTestProject>false</IsTestProject>
@@ -14,6 +14,7 @@
     <ItemGroup>
         <PackageReference Condition="'$(TargetFramework)' == 'net6.0'" Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.22"/>
         <PackageReference Condition="'$(TargetFramework)' == 'net7.0'" Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.11"/>
+        <PackageReference Condition="'$(TargetFramework)' == 'net8.0'" Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0-rc*"/>
         <PackageReference Include="Bogus" Version="34.0.2"/>
         <PackageReference Include="Xunit.Priority" Version="1.1.6"/>
         <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0"/>

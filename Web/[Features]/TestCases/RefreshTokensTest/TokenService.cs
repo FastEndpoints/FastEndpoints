@@ -6,7 +6,7 @@ public class TokenService : RefreshTokenService<TokenRequest, TokenResponse>
     {
         Setup(o =>
         {
-            o.TokenSigningKey = "token_signing_key";
+            o.TokenSigningKey = "token_signing_key_token_signing_key";
             o.Endpoint("/tokens/refresh-token", ep => { });
         });
     }

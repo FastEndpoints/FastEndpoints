@@ -14,8 +14,8 @@ jobs:
       - name: Setup .Net SDK
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: 7.x
-          include-prerelease: false
+          dotnet-version: 8.x
+          include-prerelease: true
 
       - name: Modify xUnit Runner Config
         run: |

@@ -28,6 +28,7 @@
         <None Include="changelog.md" Pack="false" Visible="false"/>
         <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net6.0" CopyToOutputDirectory="Never" Pack="true" Visible="false"/>
         <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net7.0" CopyToOutputDirectory="Never" Pack="true" Visible="false"/>
+        <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net8.0" CopyToOutputDirectory="Never" Pack="true" Visible="false"/>
     </ItemGroup>
 
     <!--    <ItemGroup>-->
@@ -36,8 +37,3 @@
     <!--    </ItemGroup>-->
 
 </Project>
-
-
-
-        
-  

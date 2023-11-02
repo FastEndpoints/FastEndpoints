@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -23,7 +23,7 @@ public static class ExceptionHandlerExtensions
     /// </summary>
     /// <param name="logger">an optional logger instance</param>
     /// <param name="logStructuredException">set to true if you'd like to log the error in a structured manner</param>
-    public static IApplicationBuilder UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null, bool logStructuredException = false)
+    public static IApplicationBuilder UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null, bool logStructuredException = false, bool UseGenericReason = false)
     {
         app.UseExceptionHandler(
             errApp =>
@@ -60,7 +60,7 @@ public static class ExceptionHandlerExtensions
                                 {
                                     Status = "Internal Server Error!",
                                     Code = ctx.Response.StatusCode,
-                                    Reason = error,
+                                    Reason = UseGenericReason ? "Something unexpected has happened" : error,
                                     Note = "See application log for stack trace."
                                 });
                         }

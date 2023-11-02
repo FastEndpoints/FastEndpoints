@@ -1,4 +1,6 @@
-﻿using FluentValidation.Results;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
 
@@ -29,20 +31,38 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                                         TRequest req,
                                         TResponse resp,
                                         HttpContext ctx,
+                                        ExceptionDispatchInfo? exceptionDispatchInfo,
                                         List<ValidationFailure> validationFailures,
                                         CancellationToken cancellation)
     {
-        for (var i = 0; i < postProcessors.Count; i++)
+        var context = new PostProcessorContext<TRequest, TResponse>
         {
-            switch (postProcessors[i])
+            Request = req,
+            Response = resp,
+            HttpContext = ctx,
+            ExceptionDispatchInfo = exceptionDispatchInfo,
+            ValidationFailures = validationFailures
+        };
+        
+        // Couldn't find a better way to do this, since Unsafe.As would confuse JIT.
+        var globalContext = new PostProcessorContext<object, object?>
+        {
+            Request = req,
+            Response = resp,
+            HttpContext = ctx,
+            ExceptionDispatchInfo = exceptionDispatchInfo,
+            ValidationFailures = validationFailures
+        };
+
+        foreach (var processor in postProcessors)
+        {
+            switch (processor)
             {
                 case IGlobalPostProcessor gp:
-                    await gp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
-
+                    await gp.PostProcessAsync(globalContext, cancellation);
                     break;
                 case IPostProcessor<TRequest, TResponse> pp:
-                    await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
-
+                    await pp.PostProcessAsync(context, cancellation);
                     break;
             }
         }

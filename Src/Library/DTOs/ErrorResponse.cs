@@ -1,5 +1,7 @@
-﻿using FluentValidation.Results;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
+
 #if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.Builder;
 using System.Reflection;
@@ -20,11 +22,13 @@ public sealed class ErrorResponse : IResult
     /// <summary>
     /// the http status code sent to the client. default is 400.
     /// </summary>
+    [DefaultValue(400)]
     public int StatusCode { get; set; }
 
     /// <summary>
     /// the message for the error response
     /// </summary>
+    [DefaultValue("One or more errors occurred!")]
     public string Message { get; set; } = "One or more errors occurred!";
 
     /// <summary>

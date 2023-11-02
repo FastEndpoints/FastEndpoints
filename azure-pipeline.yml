@@ -17,7 +17,7 @@ steps:
     displayName: "Use .Net Core SDK 8.x"
     inputs:
       packageType: "sdk"
-      version: "7.x"
+      version: "8.x"
       includePreviewVersions: true
 
   - task: Bash@3

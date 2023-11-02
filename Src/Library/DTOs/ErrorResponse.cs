@@ -1,5 +1,7 @@
-﻿using FluentValidation.Results;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
+
 #if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.Builder;
 using System.Reflection;
@@ -20,11 +22,13 @@ public sealed class ErrorResponse : IResult
     /// <summary>
     /// the http status code sent to the client. default is 400.
     /// </summary>
+    [DefaultValue(400)]
     public int StatusCode { get; set; }
 
     /// <summary>
     /// the message for the error response
     /// </summary>
+    [DefaultValue("One or more errors occurred!")]
     public string Message { get; set; } = "One or more errors occurred!";
 
     /// <summary>
@@ -40,7 +44,7 @@ public sealed class ErrorResponse : IResult
     /// <summary>
     /// instantiate an error response with the given collection validation failures
     /// </summary>
-    /// <param name="failures"></param>
+    /// <param name="failures">validation failures to initialize the DTO with</param>
     public ErrorResponse(List<ValidationFailure> failures, int statusCode = 400)
     {
         StatusCode = statusCode;
@@ -53,6 +57,8 @@ public sealed class ErrorResponse : IResult
         => httpContext.Response.SendAsync(this, StatusCode);
 
 #if NET7_0_OR_GREATER
+    static readonly string[] _item = { "application/problem+json" };
+
     /// <inheritdoc />
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
     {
@@ -61,7 +67,7 @@ public sealed class ErrorResponse : IResult
         builder.Metadata.Add(
             new ProducesResponseTypeMetadata
             {
-                ContentTypes = new[] { "application/problem+json" },
+                ContentTypes = _item,
                 StatusCode = Config.ErrOpts.StatusCode,
                 Type = typeof(ProblemDetails)
             });

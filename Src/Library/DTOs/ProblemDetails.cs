@@ -48,15 +48,20 @@ public sealed class ProblemDetails : IResult
 #pragma warning disable CA1822
     [DefaultValue("https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1")]
     public string Type => TypeValue;
+
     [DefaultValue("One or more validation errors occurred.")]
     public string Title => TitleValue;
 #pragma warning restore CA1822
+
     [DefaultValue(400)]
     public int Status { get; private set; }
-    [DefaultValue("/api/test/666")]
+
+    [DefaultValue("/api/route")]
     public string Instance { get; private set; }
+
     [DefaultValue("0HMPNHL0JHL76:00000001")]
     public string TraceId { get; private set; }
+
     public IEnumerable<Error> Errors { get; private set; }
 
     public ProblemDetails(List<ValidationFailure> failures, int? statusCode = null)
@@ -128,7 +133,7 @@ public sealed class ProblemDetails : IResult
         /// <summary>
         /// the name of the error or property of the dto that caused the error
         /// </summary>
-        [DefaultValue("Error or property name")]
+        [DefaultValue("Error or field name")]
         public string Name { get; init; }
 
         /// <summary>

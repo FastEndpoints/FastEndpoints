@@ -4346,7 +4346,7 @@
           },
           "Instance": {
             "type": "string",
-            "default": "/api/test/666"
+            "default": "/api/route"
           },
           "TraceId": {
             "type": "string",
@@ -4368,7 +4368,7 @@
           "Name": {
             "type": "string",
             "description": "the name of the error or property of the dto that caused the error",
-            "default": "Error or property name"
+            "default": "Error or field name"
           },
           "Reason": {
             "type": "string",

@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Json;
+using FluentAssertions.Json;
 
 namespace Swagger;
 

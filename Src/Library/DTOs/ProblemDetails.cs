@@ -1,6 +1,8 @@
-﻿using FluentValidation.Results;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
+using System.ComponentModel;
+
 #if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Builder;
@@ -44,23 +46,27 @@ public sealed class ProblemDetails : IResult
     public static string TitleValue { private get; set; } = "One or more validation errors occurred.";
 
 #pragma warning disable CA1822
+    [DefaultValue("https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1")]
     public string Type => TypeValue;
+
+    [DefaultValue("One or more validation errors occurred.")]
     public string Title => TitleValue;
 #pragma warning restore CA1822
+
+    [DefaultValue(400)]
     public int Status { get; private set; }
+
+    [DefaultValue("/api/route")]
     public string Instance { get; private set; }
+
+    [DefaultValue("0HMPNHL0JHL76:00000001")]
     public string TraceId { get; private set; }
+
     public IEnumerable<Error> Errors { get; private set; }
 
-    public ProblemDetails(List<ValidationFailure> failures, int? statusCode = null)
-    {
-        Initialize(failures, null!, null!, statusCode ?? Config.ErrOpts.StatusCode);
-    }
+    public ProblemDetails(List<ValidationFailure> failures, int? statusCode = null) { Initialize(failures, null!, null!, statusCode ?? Config.ErrOpts.StatusCode); }
 
-    public ProblemDetails(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
-    {
-        Initialize(failures, instance, traceId, statusCode);
-    }
+    public ProblemDetails(List<ValidationFailure> failures, string instance, string traceId, int statusCode) { Initialize(failures, instance, traceId, statusCode); }
 
     void Initialize(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
     {
@@ -121,11 +127,13 @@ public sealed class ProblemDetails : IResult
         /// <summary>
         /// the name of the error or property of the dto that caused the error
         /// </summary>
+        [DefaultValue("Error or field name")]
         public string Name { get; init; }
 
         /// <summary>
         /// the reason for the error
         /// </summary>
+        [DefaultValue("Error reason")]
         public string Reason { get; init; }
 
         /// <summary>

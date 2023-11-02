@@ -64,15 +64,9 @@ public sealed class ProblemDetails : IResult
 
     public IEnumerable<Error> Errors { get; private set; }
 
-    public ProblemDetails(List<ValidationFailure> failures, int? statusCode = null)
-    {
-        Initialize(failures, null!, null!, statusCode ?? Config.ErrOpts.StatusCode);
-    }
+    public ProblemDetails(List<ValidationFailure> failures, int? statusCode = null) { Initialize(failures, null!, null!, statusCode ?? Config.ErrOpts.StatusCode); }
 
-    public ProblemDetails(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
-    {
-        Initialize(failures, instance, traceId, statusCode);
-    }
+    public ProblemDetails(List<ValidationFailure> failures, string instance, string traceId, int statusCode) { Initialize(failures, instance, traceId, statusCode); }
 
     void Initialize(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
     {

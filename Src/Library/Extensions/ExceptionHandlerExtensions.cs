@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -23,7 +23,11 @@ public static class ExceptionHandlerExtensions
     /// </summary>
     /// <param name="logger">an optional logger instance</param>
     /// <param name="logStructuredException">set to true if you'd like to log the error in a structured manner</param>
-    public static IApplicationBuilder UseDefaultExceptionHandler(this IApplicationBuilder app, ILogger? logger = null, bool logStructuredException = false)
+    /// <param name="useGenericReason">set to true if you don't want to expose the actual exception reason in the json response sent to the client</param>
+    public static IApplicationBuilder UseDefaultExceptionHandler(this IApplicationBuilder app,
+                                                                 ILogger? logger = null,
+                                                                 bool logStructuredException = false,
+                                                                 bool useGenericReason = false)
     {
         app.UseExceptionHandler(
             errApp =>
@@ -38,18 +42,18 @@ public static class ExceptionHandlerExtensions
                             logger ??= ctx.Resolve<ILogger<ExceptionHandler>>();
                             var http = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
                             var type = exHandlerFeature.Error.GetType().Name;
-                            var error = exHandlerFeature.Error.Message;
+                            var reason = exHandlerFeature.Error.Message;
                             var msg =
                                 $"""
                                  =================================
                                  {http}
                                  TYPE: {type}
-                                 REASON: {error}
+                                 REASON: {reason}
                                  ---------------------------------
                                  {exHandlerFeature.Error.StackTrace}
                                  """;
                             if (logStructuredException)
-                                logger.LogError("{@http}{@type}{@reason}{@exception}", http, type, error, exHandlerFeature.Error);
+                                logger.LogError("{@http}{@type}{@reason}{@exception}", http, type, reason, exHandlerFeature.Error);
                             else
                                 logger.LogError(msg);
 
@@ -60,7 +64,7 @@ public static class ExceptionHandlerExtensions
                                 {
                                     Status = "Internal Server Error!",
                                     Code = ctx.Response.StatusCode,
-                                    Reason = error,
+                                    Reason = useGenericReason ? "Something unexpected has happened" : reason,
                                     Note = "See application log for stack trace."
                                 });
                         }

@@ -43,23 +43,13 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
             ExceptionDispatchInfo = exceptionDispatchInfo,
             ValidationFailures = validationFailures
         };
-        
-        // Couldn't find a better way to do this, since Unsafe.As would confuse JIT.
-        var globalContext = new PostProcessorContext<object, object?>
-        {
-            Request = req,
-            Response = resp,
-            HttpContext = ctx,
-            ExceptionDispatchInfo = exceptionDispatchInfo,
-            ValidationFailures = validationFailures
-        };
 
         foreach (var processor in postProcessors)
         {
             switch (processor)
             {
                 case IGlobalPostProcessor gp:
-                    await gp.PostProcessAsync(globalContext, cancellation);
+                    await gp.PostProcessAsync(context, cancellation);
                     break;
                 case IPostProcessor<TRequest, TResponse> pp:
                     await pp.PostProcessAsync(context, cancellation);

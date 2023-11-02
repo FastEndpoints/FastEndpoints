@@ -1,7 +1,4 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 /// <summary>
 /// Inherit this class to create a post-processor with access to the common processor state of the endpoint.
@@ -11,6 +8,7 @@ namespace FastEndpoints;
 /// <typeparam name="TResponse">Type of the response.</typeparam>
 public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcessor<TRequest, TResponse>
     where TState : class, new()
+    where TRequest : notnull
 {
     /// <summary>
     /// This method is called internally to prepare the state and invoke the abstract PostProcessAsync method.
@@ -19,7 +17,7 @@ public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcesso
     /// <param name="context">The context containing the request, response, HttpContext, validation failures, and any exception information.</param>
     /// <param name="ct">Cancellation token.</param>
     [HideFromDocs]
-    public Task PostProcessAsync(PostProcessorContext<TRequest, TResponse> context, CancellationToken ct)
+    public Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> context, CancellationToken ct)
         => PostProcessAsync(context, context.HttpContext.ProcessorState<TState>(), ct);
 
     /// <summary>
@@ -29,7 +27,7 @@ public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcesso
     /// <param name="state">The common processor state object, derived from the HttpContext or newly instantiated.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    public abstract Task PostProcessAsync(PostProcessorContext<TRequest, TResponse> context,
+    public abstract Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> context,
                                           TState state,
                                           CancellationToken ct);
 }

@@ -64,17 +64,22 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                                        List<ValidationFailure> validationFailures,
                                        CancellationToken ct)
     {
-        for (var i = 0; i < preProcessors.Count; i++)
+        var context = new PreProcessorContext<TRequest>
         {
-            switch (preProcessors[i])
+            Request = req,
+            HttpContext = ctx,
+            ValidationFailures = validationFailures
+        };
+
+        foreach (var processor in preProcessors)
+        {
+            switch (processor)
             {
                 case IGlobalPreProcessor gp:
-                    await gp.PreProcessAsync(req, ctx, validationFailures, ct);
-
+                    await gp.PreProcessAsync(context, ct);
                     break;
-                case IPreProcessor<TRequest> pr:
-                    await pr.PreProcessAsync(req, ctx, validationFailures, ct);
-
+                case IPreProcessor<TRequest> pp:
+                    await pp.PreProcessAsync(context, ct);
                     break;
             }
         }

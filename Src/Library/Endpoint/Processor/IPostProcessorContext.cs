@@ -1,4 +1,5 @@
-﻿using System.Runtime.ExceptionServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.ExceptionServices;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
@@ -39,6 +40,7 @@ public interface IPostProcessorContext
     /// <summary>
     /// Determines if an exception has occurred during processing.
     /// </summary>
+    [MemberNotNullWhen(true, nameof(ExceptionDispatchInfo))]
     sealed bool HasExceptionOccurred => ExceptionDispatchInfo is not null;
 
     /// <summary>

@@ -6,6 +6,7 @@ using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.EventQueueTest;
 using TestCases.JobQueueTest;
+using TestCases.ProcessorStateTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
 using Web;
@@ -115,6 +116,7 @@ app.UseRequestLocalization(
            c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
            c.Endpoints.Configurator = ep =>
            {
+               ep.PreProcessors(Order.Before, new GlobalStatePreProcessor());
                ep.PreProcessors(Order.Before, new AdminHeaderChecker());
                if (ep.EndpointTags?.Contains("orders") is true)
                    ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));

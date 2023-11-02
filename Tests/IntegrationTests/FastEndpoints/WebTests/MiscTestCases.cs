@@ -897,7 +897,7 @@ public class MiscTestCases : TestClass<Fixture>
                     string>(new() { Id = 10101 });
 
         x.Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        x.Result.Should().Be("10101 jane doe");
+        x.Result.Should().Be("10101 jane doe True");
     }
 
     [Fact]

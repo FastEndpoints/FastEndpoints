@@ -16,6 +16,6 @@ public class Endpoint : Endpoint<Request, string>
     {
         var state = ProcessorState<Thingy>();
         await Task.Delay(100);
-        await SendAsync(state.Id + " " + state.Name);
+        await SendAsync(state.Id + " " + state.Name + " " + state.GlobalStateApplied);
     }
 }

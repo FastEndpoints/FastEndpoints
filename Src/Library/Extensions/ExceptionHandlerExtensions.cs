@@ -40,22 +40,24 @@ public static class ExceptionHandlerExtensions
                         if (exHandlerFeature is not null)
                         {
                             logger ??= ctx.Resolve<ILogger<ExceptionHandler>>();
-                            var http = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
-                            var type = exHandlerFeature.Error.GetType().Name;
+                            var route = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
+                            var exceptionType = exHandlerFeature.Error.GetType().Name;
                             var reason = exHandlerFeature.Error.Message;
-                            var msg =
-                                $"""
-                                 =================================
-                                 {http}
-                                 TYPE: {type}
-                                 REASON: {reason}
-                                 ---------------------------------
-                                 {exHandlerFeature.Error.StackTrace}
-                                 """;
+
                             if (logStructuredException)
-                                logger.LogError("{@http}{@type}{@reason}{@exception}", http, type, reason, exHandlerFeature.Error);
+                                logger.LogError("{@route}{@exceptionType}{@reason}{@exception}", route, exceptionType, reason, exHandlerFeature.Error);
                             else
-                                logger.LogError(msg);
+                            {
+                                logger.LogError(
+                                    $"""
+                                     =================================
+                                     {route}
+                                     TYPE: {exceptionType}
+                                     REASON: {reason}
+                                     ---------------------------------
+                                     {exHandlerFeature.Error.StackTrace}
+                                     """);
+                            }
 
                             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             ctx.Response.ContentType = "application/problem+json";
@@ -64,7 +66,7 @@ public static class ExceptionHandlerExtensions
                                 {
                                     Status = "Internal Server Error!",
                                     Code = ctx.Response.StatusCode,
-                                    Reason = useGenericReason ? "Something unexpected has happened" : reason,
+                                    Reason = useGenericReason ? "An unexpected error has occurred." : reason,
                                     Note = "See application log for stack trace."
                                 });
                         }

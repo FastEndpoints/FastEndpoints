@@ -5,40 +5,51 @@ using Microsoft.AspNetCore.Http;
 namespace FastEndpoints;
 
 /// <summary>
-/// Represents the context for a post-processing operation with a request and response pair.
+/// represents the context for a post-processing operation with a request and response pair.
 /// </summary>
-/// <typeparam name="TRequest">The type of the request object, which must be non-nullable.</typeparam>
-/// <typeparam name="TResponse">The type of the response object.</typeparam>
-public sealed class PostProcessorContext<TRequest, TResponse> : IPostProcessorContext<TRequest, TResponse>
+/// <typeparam name="TRequest">the type of the request object, which must be non-nullable.</typeparam>
+/// <typeparam name="TResponse">the type of the response object.</typeparam>
+public readonly struct PostProcessorContext<TRequest, TResponse> : IPostProcessorContext<TRequest, TResponse>
     where TRequest : notnull
+
 {
     /// <summary>
-    /// Gets the request associated with the post-processing context.
-    /// This property is required and must be initialized.
+    /// gets the request associated with the post-processing context.
     /// </summary>
     public TRequest Request { get; init; }
 
     /// <summary>
-    /// Gets the response associated with the post-processing context.
-    /// This property may be null if the response is not available or not yet created.
+    /// gets the response associated with the post-processing context.
+    /// may be null if the response is not available or not yet created.
     /// </summary>
     public TResponse? Response { get; init; }
 
     /// <summary>
-    /// Gets the <see cref="HttpContext"/> associated with the current request and response.
-    /// This property is required and must be initialized.
+    /// gets the <see cref="HttpContext" /> associated with the current request and response.
     /// </summary>
     public HttpContext HttpContext { get; init; }
 
     /// <summary>
-    /// Gets a collection of <see cref="ValidationFailure"/> instances that describe any validation failures.
-    /// This property is required and must be initialized.
+    /// gets a collection of <see cref="ValidationFailure" /> instances that describe any validation failures.
     /// </summary>
     public IReadOnlyCollection<ValidationFailure> ValidationFailures { get; init; }
 
     /// <summary>
-    /// Gets the <see cref="ExceptionDispatchInfo"/> if an exception was captured during the processing.
-    /// This property may be null if no exception was captured.
+    /// gets the <see cref="ExceptionDispatchInfo" /> if an exception was captured during the processing.
+    /// may be null if no exception was captured.
     /// </summary>
     public ExceptionDispatchInfo? ExceptionDispatchInfo { get; init; }
+
+    internal PostProcessorContext(TRequest request,
+                                  TResponse? response,
+                                  HttpContext httpContext,
+                                  ExceptionDispatchInfo? exceptionDispatchInfo,
+                                  IReadOnlyCollection<ValidationFailure> validationFailures)
+    {
+        Request = request;
+        Response = response;
+        HttpContext = httpContext;
+        ExceptionDispatchInfo = exceptionDispatchInfo;
+        ValidationFailures = validationFailures;
+    }
 }

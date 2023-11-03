@@ -1240,6 +1240,27 @@
         }
       }
     },
+    "/api/testcases/post-processor-handles-exception/no-post-processor": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesPostProcessorTestEpNoPostProcessor",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/test-cases/plaintext/{Id}": {
       "post": {
         "tags": [

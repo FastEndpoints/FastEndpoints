@@ -18,10 +18,12 @@ public class Processor : IPostProcessor<Request, ExceptionDetailsResponse>
             return;
 
         var error = context.ExceptionDispatchInfo.SourceException;
-        await context.HttpContext.Response.SendAsync(new ExceptionDetailsResponse
-        {
-            Type = error.GetType().Name
-        }, 412);
+        await context.HttpContext.Response.SendAsync(
+            new ExceptionDetailsResponse
+            {
+                Type = error.GetType().Name
+            },
+            412);
     }
 }
 
@@ -35,5 +37,17 @@ public class Endpoint : Endpoint<Request, ExceptionDetailsResponse>
     }
 
     public override Task HandleAsync(Request r, CancellationToken c)
+        => throw new NotImplementedException();
+}
+
+public class EpNoPostProcessor : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("testcases/post-processor-handles-exception/no-post-processor");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken c)
         => throw new NotImplementedException();
 }

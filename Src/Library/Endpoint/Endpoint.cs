@@ -106,14 +106,18 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         {
             await ValidationFailed(x, x.StatusCode);
         }
-
         catch (Exception x)
         {
-            edi = ExceptionDispatchInfo.Capture(x);
+            edi = ExceptionDispatchInfo.Capture(x); //capturing the exception to allow post-procs to handle "uncaught" exceptions
         }
         finally
         {
             await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, edi, ValidationFailures, ct);
+
+            //if a post-proc hasn't handled the captured exception and already written to the response, throw the captured exception.
+            //without this UseDefaultExceptionHandler() or user's custom exception handling middleware becomes useless as the exception is silently swallowed.
+            if (edi is not null && !ResponseStarted)
+                edi.Throw();
         }
 
         async Task ValidationFailed(Exception x, int? statusCode = null)

@@ -106,6 +106,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         {
             await ValidationFailed(x, x.StatusCode);
         }
+
         catch (Exception x)
         {
             edi = ExceptionDispatchInfo.Capture(x);

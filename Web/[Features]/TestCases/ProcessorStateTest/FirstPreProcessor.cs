@@ -6,6 +6,7 @@ public class FirstPreProcessor : PreProcessor<Request, Thingy>
     {
         state.Id = context.Request.Id;
         state.Name = "john doe";
+
         return Task.CompletedTask;
     }
 }

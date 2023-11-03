@@ -901,6 +901,27 @@ public class MiscTestCases : TestClass<Fixture>
     }
 
     [Fact]
+    public async Task PostProcessorCanHandleExceptions()
+    {
+        var x = await Fixture.GuestClient.GETAsync<
+                    TestCases.PostProcessorTest.Endpoint,
+                    TestCases.PostProcessorTest.Request,
+                    TestCases.PostProcessorTest.ExceptionDetailsResponse>(new() { Id = 10101 });
+
+        x.Response.StatusCode.Should().Be(HttpStatusCode.PreconditionFailed);
+        x.Result.Type.Should().Be(nameof(NotImplementedException));
+    }
+
+    [Fact]
+    public async Task ExceptionIsThrownWhenAPostProcDoesntHandleExceptions()
+    {
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<TestCases.PostProcessorTest.EpNoPostProcessor, InternalErrorResponse>();
+        rsp.IsSuccessStatusCode.Should().BeFalse();
+        res.Code.Should().Be(500);
+        res.Reason.Should().Be("The method or operation is not implemented.");
+    }
+
+    [Fact]
     public async Task PlainTextBodyModelBinding()
     {
         using var stringContent = new StringContent("this is the body content");

@@ -1,14 +1,13 @@
-﻿using FluentValidation.Results;
+﻿namespace Web.PipelineBehaviors.PreProcessors;
 
-namespace Web.PipelineBehaviors.PreProcessors;
-
-public class MyRequestLogger<TRequest> : IPreProcessor<TRequest>
+public class MyRequestLogger<TRequest> : IPreProcessor<TRequest> 
+    where TRequest : notnull
 {
-    public Task PreProcessAsync(TRequest req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    public Task PreProcessAsync(IPreProcessorContext<TRequest> context, CancellationToken ct)
     {
-        var logger = ctx.Resolve<ILogger<TRequest>>();
+        var logger = context.HttpContext.Resolve<ILogger<TRequest>>();
 
-        logger.LogInformation($"request:{req?.GetType().FullName} path: {ctx.Request.Path}");
+        logger.LogInformation($"request:{context.Request?.GetType().FullName} path: {context.HttpContext.Request.Path}");
 
         return Task.CompletedTask;
     }

@@ -1,14 +1,14 @@
-using FluentValidation.Results;
-
 namespace Web.PipelineBehaviors.PreProcessors;
 
 public class AdminHeaderChecker : IGlobalPreProcessor
 {
-    public async Task PreProcessAsync(object req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    public async Task PreProcessAsync(IPreProcessorContext context, CancellationToken ct)
     {
-        if (req is Customers.Create.Request && !ctx.Request.Headers.TryGetValue("tenant-id", out _) && !ctx.Response.HasStarted)
+        if (context.Request is Customers.Create.Request &&
+            !context.HttpContext.Request.Headers.TryGetValue("tenant-id", out _) &&
+            !context.HttpContext.Response.HasStarted)
         {
-            await ctx.Response.SendForbiddenAsync(ct);
+            await context.HttpContext.Response.SendForbiddenAsync(ct);
         }
     }
 }

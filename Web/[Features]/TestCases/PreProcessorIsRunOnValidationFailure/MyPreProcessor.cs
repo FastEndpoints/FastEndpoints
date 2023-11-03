@@ -1,12 +1,10 @@
-﻿using FluentValidation.Results;
-
-namespace TestCases.PreProcessorIsRunOnValidationFailure;
+﻿namespace TestCases.PreProcessorIsRunOnValidationFailure;
 
 public class MyPreProcessor : IPreProcessor<Request>
 {
-    public Task PreProcessAsync(Request req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    public Task PreProcessAsync(IPreProcessorContext<Request> context, CancellationToken ct)
     {
-        failures.Add(new("x", "blah"));
+        context.ValidationFailures.Add(new("x", "blah"));
         return Task.CompletedTask;
     }
 }

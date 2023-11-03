@@ -1185,6 +1185,58 @@
         }
       }
     },
+    "/api/testcases/post-processor-handles-exception": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesPostProcessorTestEndpoint",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesPostProcessorTestExceptionDetailsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testcases/post-processor-handles-exception/no-post-processor": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesPostProcessorTestEpNoPostProcessor",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/test-cases/plaintext/{Id}": {
       "post": {
         "tags": [
@@ -4913,6 +4965,19 @@
         }
       },
       "TestCasesPrecessorShortWhileValidatorFailsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesPostProcessorTestExceptionDetailsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesPostProcessorTestRequest": {
         "type": "object",
         "additionalProperties": false
       },

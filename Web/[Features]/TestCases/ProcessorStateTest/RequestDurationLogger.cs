@@ -1,13 +1,12 @@
-﻿using FluentValidation.Results;
-
-namespace TestCases.ProcessorStateTest;
+﻿namespace TestCases.ProcessorStateTest;
 
 public class RequestDurationLogger : PostProcessor<Request, Thingy, string>
 {
-    public override Task PostProcessAsync(Request req, Thingy state, string res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct)
+    public override Task PostProcessAsync(IPostProcessorContext<Request, string> context, Thingy state, CancellationToken ct)
     {
-        var logger = ctx.Resolve<ILogger<RequestDurationLogger>>();
+        var logger = context.HttpContext.Resolve<ILogger<RequestDurationLogger>>();
         logger.LogInformation("Requst took: {@duration} ms.", state.Duration);
+
         return Task.CompletedTask;
     }
 }

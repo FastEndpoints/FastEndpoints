@@ -1,6 +1,7 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
+﻿using System.Runtime.ExceptionServices;
 using System.Text.Json.Serialization;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
@@ -25,45 +26,52 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         return req;
     }
 
-    static async Task RunPostProcessors(List<object> postProcessors,
-                                        TRequest req,
-                                        TResponse resp,
-                                        HttpContext ctx,
-                                        List<ValidationFailure> validationFailures,
-                                        CancellationToken cancellation)
+    static async Task RunPreprocessors(List<object> preProcessors, TRequest req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken ct)
     {
-        for (var i = 0; i < postProcessors.Count; i++)
+        if (preProcessors.Count == 0)
+            return;
+
+        var ppContext = new PreProcessorContext<TRequest>(req, ctx, validationFailures);
+
+        foreach (var processor in preProcessors)
         {
-            switch (postProcessors[i])
+            switch (processor)
             {
-                case IGlobalPostProcessor gp:
-                    await gp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
+                case IGlobalPreProcessor gp:
+                    await gp.PreProcessAsync(ppContext, ct);
 
                     break;
-                case IPostProcessor<TRequest, TResponse> pp:
-                    await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
+                case IPreProcessor<TRequest> pp:
+                    await pp.PreProcessAsync(ppContext, ct);
 
                     break;
             }
         }
     }
 
-    static async Task RunPreprocessors(List<object> preProcessors,
-                                       TRequest req,
-                                       HttpContext ctx,
-                                       List<ValidationFailure> validationFailures,
-                                       CancellationToken ct)
+    static async Task RunPostProcessors(List<object> postProcessors,
+                                        TRequest req,
+                                        TResponse resp,
+                                        HttpContext ctx,
+                                        ExceptionDispatchInfo? exceptionDispatchInfo,
+                                        List<ValidationFailure> validationFailures,
+                                        CancellationToken cancellation)
     {
-        for (var i = 0; i < preProcessors.Count; i++)
+        if (postProcessors.Count == 0)
+            return;
+
+        var ppContext = new PostProcessorContext<TRequest, TResponse>(req, resp, ctx, exceptionDispatchInfo, validationFailures);
+
+        foreach (var processor in postProcessors)
         {
-            switch (preProcessors[i])
+            switch (processor)
             {
-                case IGlobalPreProcessor gp:
-                    await gp.PreProcessAsync(req, ctx, validationFailures, ct);
+                case IGlobalPostProcessor gp:
+                    await gp.PostProcessAsync(ppContext, cancellation);
 
                     break;
-                case IPreProcessor<TRequest> pr:
-                    await pr.PreProcessAsync(req, ctx, validationFailures, ct);
+                case IPostProcessor<TRequest, TResponse> pp:
+                    await pp.PostProcessAsync(ppContext, cancellation);
 
                     break;
             }

@@ -1,10 +1,8 @@
-﻿using FluentValidation.Results;
-
-namespace TestCases.ProcessorStateTest;
+﻿namespace TestCases.ProcessorStateTest;
 
 public class SecondProcessor : FirstPreProcessor
 {
-    public override Task PreProcessAsync(Request req, Thingy state, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    public override Task PreProcessAsync(IPreProcessorContext<Request> context, Thingy state, CancellationToken ct)
     {
         state.Name = "jane doe";
         return Task.CompletedTask;

@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FluentValidation.Results;
 
 namespace TestCases.PrecessorShortWhileValidatorFails;
 
@@ -18,9 +17,9 @@ public class Request
 
 public class Processor : IPreProcessor<Request>
 {
-    public async Task PreProcessAsync(Request req, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    public async Task PreProcessAsync(IPreProcessorContext<Request> context, CancellationToken ct)
     {
-        await ctx.Response.SendAsync("hello from pre-processor!");
+        await context.HttpContext.Response.SendAsync("hello from pre-processor!");
     }
 }
 

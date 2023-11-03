@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
 
 namespace FastEndpoints;
@@ -48,6 +49,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     {
         TRequest req = default!;
         var ranPreProcessors = false;
+        ExceptionDispatchInfo? edi = null;
 
         try
         {
@@ -104,9 +106,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         {
             await ValidationFailed(x, x.StatusCode);
         }
+        catch (Exception x)
+        {
+            edi = ExceptionDispatchInfo.Capture(x);
+        }
         finally
         {
-            await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, ValidationFailures, ct);
+            await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, edi, ValidationFailures, ct);
         }
 
         async Task ValidationFailed(Exception x, int? statusCode = null)

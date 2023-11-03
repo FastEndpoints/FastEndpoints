@@ -1,33 +1,33 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 /// <summary>
-/// inherit this class to create a post-processor with access to the common processor state of the endpoint
+/// Inherit this class to create a post-processor with access to the common processor state of the endpoint.
 /// </summary>
-/// <typeparam name="TRequest">type of the request dto</typeparam>
-/// <typeparam name="TState">type of the common processor state</typeparam>
-/// <typeparam name="TResponse">type of the response</typeparam>
-public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcessor<TRequest, TResponse> where TState : class, new()
+/// <typeparam name="TRequest">Type of the request DTO.</typeparam>
+/// <typeparam name="TState">Type of the common processor state.</typeparam>
+/// <typeparam name="TResponse">Type of the response.</typeparam>
+public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcessor<TRequest, TResponse>
+    where TState : class, new()
+    where TRequest : notnull
 {
+    /// <summary>
+    /// This method is called internally to prepare the state and invoke the abstract PostProcessAsync method.
+    /// It's not intended for direct external use.
+    /// </summary>
+    /// <param name="context">The context containing the request, response, HttpContext, validation failures, and any exception information.</param>
+    /// <param name="ct">Cancellation token.</param>
     [HideFromDocs]
-    public Task PostProcessAsync(TRequest req, TResponse res, HttpContext ctx, IReadOnlyCollection<ValidationFailure> failures, CancellationToken ct)
-        => PostProcessAsync(req, ctx.ProcessorState<TState>(), res, ctx, failures, ct);
+    public Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> context, CancellationToken ct)
+        => PostProcessAsync(context, context.HttpContext.ProcessorState<TState>(), ct);
 
     /// <summary>
-    /// this method is called with the given arguments when the post-processor executes.
+    /// Implement this method to define the post-processing logic using the provided context and state.
     /// </summary>
-    /// <param name="req">the request dto object</param>
-    /// <param name="state">the common processor state object</param>
-    /// <param name="res">the response dto object</param>
-    /// <param name="ctx">the http context</param>
-    /// <param name="failures">the collection of validation errors of the endpoint</param>
-    /// <param name="ct">cancellation token</param>
-    public abstract Task PostProcessAsync(TRequest req,
+    /// <param name="context">The context object encapsulating all necessary information for post-processing.</param>
+    /// <param name="state">The common processor state object, derived from the HttpContext or newly instantiated.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>A Task representing the asynchronous operation.</returns>
+    public abstract Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> context,
                                           TState state,
-                                          TResponse res,
-                                          HttpContext ctx,
-                                          IReadOnlyCollection<ValidationFailure> failures,
                                           CancellationToken ct);
 }

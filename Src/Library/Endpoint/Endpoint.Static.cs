@@ -1,4 +1,6 @@
-﻿using FluentValidation.Results;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
 
@@ -29,20 +31,28 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                                         TRequest req,
                                         TResponse resp,
                                         HttpContext ctx,
+                                        ExceptionDispatchInfo? exceptionDispatchInfo,
                                         List<ValidationFailure> validationFailures,
                                         CancellationToken cancellation)
     {
-        for (var i = 0; i < postProcessors.Count; i++)
+        var context = new PostProcessorContext<TRequest, TResponse>
         {
-            switch (postProcessors[i])
+            Request = req,
+            Response = resp,
+            HttpContext = ctx,
+            ExceptionDispatchInfo = exceptionDispatchInfo,
+            ValidationFailures = validationFailures
+        };
+
+        foreach (var processor in postProcessors)
+        {
+            switch (processor)
             {
                 case IGlobalPostProcessor gp:
-                    await gp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
-
+                    await gp.PostProcessAsync(context, cancellation);
                     break;
                 case IPostProcessor<TRequest, TResponse> pp:
-                    await pp.PostProcessAsync(req, resp, ctx, validationFailures, cancellation);
-
+                    await pp.PostProcessAsync(context, cancellation);
                     break;
             }
         }
@@ -54,17 +64,22 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                                        List<ValidationFailure> validationFailures,
                                        CancellationToken ct)
     {
-        for (var i = 0; i < preProcessors.Count; i++)
+        var context = new PreProcessorContext<TRequest>
         {
-            switch (preProcessors[i])
+            Request = req,
+            HttpContext = ctx,
+            ValidationFailures = validationFailures
+        };
+
+        foreach (var processor in preProcessors)
+        {
+            switch (processor)
             {
                 case IGlobalPreProcessor gp:
-                    await gp.PreProcessAsync(req, ctx, validationFailures, ct);
-
+                    await gp.PreProcessAsync(context, ct);
                     break;
-                case IPreProcessor<TRequest> pr:
-                    await pr.PreProcessAsync(req, ctx, validationFailures, ct);
-
+                case IPreProcessor<TRequest> pp:
+                    await pp.PreProcessAsync(context, ct);
                     break;
             }
         }

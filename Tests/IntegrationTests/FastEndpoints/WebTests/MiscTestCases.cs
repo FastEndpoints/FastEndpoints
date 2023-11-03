@@ -901,6 +901,19 @@ public class MiscTestCases : TestClass<Fixture>
     }
 
     [Fact]
+    public async Task PostProcessorCanHandleExceptions()
+    {
+        var x = await Fixture.GuestClient.GETAsync<
+                    TestCases.PostProcessorTest.Endpoint,
+                    TestCases.PostProcessorTest.Request,
+                    TestCases.PostProcessorTest.ExceptionDetailsResponse>
+                    (new() { Id = 10101 });
+
+        x.Response.StatusCode.Should().Be(HttpStatusCode.PreconditionFailed);
+        x.Result.Type.Should().Be(nameof(NotImplementedException));
+    }
+
+    [Fact]
     public async Task PlainTextBodyModelBinding()
     {
         using var stringContent = new StringContent("this is the body content");

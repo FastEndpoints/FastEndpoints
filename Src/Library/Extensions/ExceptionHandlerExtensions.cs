@@ -43,19 +43,18 @@ public static class ExceptionHandlerExtensions
                             var http = exHandlerFeature.Endpoint?.DisplayName?.Split(" => ")[0];
                             var type = exHandlerFeature.Error.GetType().Name;
                             var reason = exHandlerFeature.Error.Message;
-                            var msg =
-                                $"""
+
+                            if (logStructuredException)
+                                logger.LogError("{@http}{@type}{@reason}{@exception}", http, type, reason, exHandlerFeature.Error);
+                            else
+                                logger.LogError($"""
                                  =================================
                                  {http}
                                  TYPE: {type}
                                  REASON: {reason}
                                  ---------------------------------
                                  {exHandlerFeature.Error.StackTrace}
-                                 """;
-                            if (logStructuredException)
-                                logger.LogError("{@http}{@type}{@reason}{@exception}", http, type, reason, exHandlerFeature.Error);
-                            else
-                                logger.LogError(msg);
+                                 """);
 
                             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             ctx.Response.ContentType = "application/problem+json";

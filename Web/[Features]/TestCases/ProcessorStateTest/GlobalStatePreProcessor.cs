@@ -4,9 +4,10 @@ namespace TestCases.ProcessorStateTest;
 
 public class GlobalStatePreProcessor : GlobalPreProcessor<Thingy>
 {
-    public override Task PreProcessAsync(object req, Thingy state, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
+    public override Task PreProcessAsync(IPreProcessorContext context, Thingy state, CancellationToken ct)
     {
         state.GlobalStateApplied = true;
+
         return Task.CompletedTask;
     }
 }

@@ -16,6 +16,7 @@ public abstract class PreProcessor<TRequest, TState> : IPreProcessor<TRequest>
     public Task PreProcessAsync(IPreProcessorContext<TRequest> context, CancellationToken ct)
         => PreProcessAsync(context, context.HttpContext.ProcessorState<TState>(), ct);
 
+    // ReSharper disable once MemberCanBeProtected.Global
     /// <summary>
     /// this method is called with the given arguments when the pre-processor executes.
     /// </summary>

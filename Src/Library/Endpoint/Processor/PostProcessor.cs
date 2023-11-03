@@ -17,6 +17,7 @@ public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcesso
     public Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> context, CancellationToken ct)
         => PostProcessAsync(context, context.HttpContext.ProcessorState<TState>(), ct);
 
+    // ReSharper disable once MemberCanBeProtected.Global
     /// <summary>
     /// implement this method to define the post-processing logic using the provided context and state.
     /// </summary>

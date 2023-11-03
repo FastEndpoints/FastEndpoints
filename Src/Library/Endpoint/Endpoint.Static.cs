@@ -1,8 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
+﻿using System.Runtime.ExceptionServices;
+using System.Text.Json.Serialization;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using System.Text.Json.Serialization;
 
 namespace FastEndpoints;
 

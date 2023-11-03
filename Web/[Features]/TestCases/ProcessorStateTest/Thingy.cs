@@ -9,6 +9,7 @@ public class Thingy
     public int Id { get; set; }
     public string? Name { get; set; }
     public long Duration => _stopWatch.ElapsedMilliseconds;
+    public bool GlobalStateApplied { get; set; }
 
     public Thingy()
     {

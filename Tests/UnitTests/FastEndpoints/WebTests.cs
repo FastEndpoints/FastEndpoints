@@ -194,7 +194,8 @@ public class WebTests
         await ep.HandleAsync(new() { Id = 0 }, default);
 
         //assert
-        ep.Response.Should().Be("101 blah");
+        // False represents the lack of global state addition from endpoint without global preprocessor
+        ep.Response.Should().Be("101 blah False");
         state.Duration.Should().BeGreaterThan(95);
     }
 

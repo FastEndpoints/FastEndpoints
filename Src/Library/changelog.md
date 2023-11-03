@@ -10,7 +10,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
-<details><summary>.Net 8.0 support</summary>
+<details><summary>Support for .Net 8.0</summary>
 
 todo: write description
 
@@ -22,7 +22,13 @@ todo: update doc page and link here
 
 </details>
 
-<details><summary>Ability to hide the actual error reason in the response with 'UseDefaultExceptionHandler(...)'</summary>
+<details><summary>Shared state support for global Pre/Post Processors</summary>
+
+ref: https://github.com/FastEndpoints/FastEndpoints/pull/523
+
+</details>
+
+<details><summary>Ability to hide the error reason in the JSON response when using the default exception handler middleware</summary>
 
 todo: write description
 

@@ -13,11 +13,6 @@ class PrimaryPropCacheEntry : PropCache
     public Func<object?, ParseResult> ValueParser { get; init; }
 }
 
-class FormFileCollectionPropCacheEntry : PropCache
-{
-    public FormFileCollection Files { get; set; }
-}
-
 sealed class SecondaryPropCacheEntry : PrimaryPropCacheEntry
 {
     public string Identifier { get; init; }

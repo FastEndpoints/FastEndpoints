@@ -7,6 +7,7 @@ namespace FastEndpoints;
 sealed class ServiceResolver : IServiceResolver
 {
     readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();
+    readonly ConcurrentDictionary<Type, object> _singletonCache = new();
     readonly IServiceProvider _rootServiceProvider;
     readonly IHttpContextAccessor _ctxAccessor;
 
@@ -30,7 +31,7 @@ sealed class ServiceResolver : IServiceResolver
     }
 
     public object CreateSingleton(Type type)
-        => ActivatorUtilities.CreateInstance(_rootServiceProvider, type);
+        => _singletonCache.GetOrAdd(type, t => ActivatorUtilities.CreateInstance(_rootServiceProvider, t));
 
     public IServiceScope CreateScope()
         => _isUnitTestMode

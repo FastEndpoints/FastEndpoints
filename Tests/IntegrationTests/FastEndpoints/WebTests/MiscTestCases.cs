@@ -720,30 +720,33 @@ public class MiscTestCases : TestClass<Fixture>
     [Fact]
     public async Task FileHandlingFileBinding()
     {
-        using var stream1 = File.OpenRead("test.png");
-        using var stream2 = File.OpenRead("test.png");
-
-        var req = new Uploads.Image.SaveTyped.Request
+        for (var i = 0; i < 3; i++) //repeat upload multiple times
         {
-            File1 = new FormFile(stream1, 0, stream1.Length, "File1", "test.png")
+            using var stream1 = File.OpenRead("test.png");
+            using var stream2 = File.OpenRead("test.png");
+
+            var req = new Uploads.Image.SaveTyped.Request
             {
-                Headers = new HeaderDictionary(),
-                ContentType = "image/png"
-            },
-            File2 = new FormFile(stream2, 0, stream2.Length, "File2", "test.png"),
-            Width = 500,
-            Height = 500
-        };
+                File1 = new FormFile(stream1, 0, stream1.Length, "File1", "test.png")
+                {
+                    Headers = new HeaderDictionary(),
+                    ContentType = "image/png"
+                },
+                File2 = new FormFile(stream2, 0, stream2.Length, "File2", "test.png"),
+                Width = 500,
+                Height = 500
+            };
 
-        var res = await Fixture.AdminClient.POSTAsync<
-                      Uploads.Image.SaveTyped.Endpoint,
-                      Uploads.Image.SaveTyped.Request>(req, sendAsFormData: true);
+            var res = await Fixture.AdminClient.POSTAsync<
+                          Uploads.Image.SaveTyped.Endpoint,
+                          Uploads.Image.SaveTyped.Request>(req, sendAsFormData: true);
 
-        using var md5Instance = MD5.Create();
-        using var stream = await res.Content.ReadAsStreamAsync();
-        var resMD5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
+            using var md5Instance = MD5.Create();
+            using var stream = await res.Content.ReadAsStreamAsync();
+            var resMd5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
 
-        resMD5.Should().Be("8A1F6A8E27D2E440280050DA549CBE3E");
+            resMd5.Should().Be("8A1F6A8E27D2E440280050DA549CBE3E");
+        }
     }
 
     [Fact]

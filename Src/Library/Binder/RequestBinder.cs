@@ -24,7 +24,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static PropCache? _fromBodyProp;
     static PropCache? _fromQueryParamsProp;
     static readonly Dictionary<string, PrimaryPropCacheEntry> _primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
-    static readonly Dictionary<string, FormFileCollectionPropCacheEntry> _formFileCollectionProps = new(StringComparer.OrdinalIgnoreCase);
+    static readonly Dictionary<string, PropCache> _formFileCollectionProps = new(StringComparer.OrdinalIgnoreCase);
     static readonly List<SecondaryPropCacheEntry> _fromClaimProps = new();
     static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = new();
     static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = new();
@@ -224,9 +224,24 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         foreach (var kvp in httpRequest.Form)
             Bind(req, kvp, failures);
 
+        Dictionary<string, FormFileCollection>? formFileCollections = null;
+        if (_formFileCollectionProps.Count > 0)
+            formFileCollections = new();
+
         for (var y = 0; y < httpRequest.Form.Files.Count; y++)
         {
             var formFile = httpRequest.Form.Files[y];
+            var fieldName = formFile.BareFieldName();
+
+            if (formFileCollections is not null && _formFileCollectionProps.ContainsKey(fieldName))
+            {
+                if (formFileCollections.TryGetValue(fieldName, out var fileCollection))
+                    fileCollection.Add(formFile);
+                else
+                    formFileCollections[fieldName] = new() { formFile };
+
+                continue;
+            }
 
             if (_primaryProps.TryGetValue(formFile.Name, out var prop))
             {
@@ -235,12 +250,15 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 else
                     failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
             }
+        }
 
-            if (!_formFileCollectionProps.TryGetValue(formFile.BareFieldName(), out var collProp))
-                continue;
-
-            collProp.Files.Add(formFile);
-            collProp.PropSetter(req, collProp.Files);
+        if (formFileCollections is not null)
+        {
+            foreach (var (key, value) in formFileCollections)
+            {
+                if (_formFileCollectionProps.TryGetValue(key, out var prop))
+                    prop.PropSetter(req, value);
+            }
         }
     }
 
@@ -452,7 +470,6 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             fieldName ?? propInfo.Name,
             new()
             {
-                Files = new(),
                 PropType = propInfo.PropertyType,
                 PropSetter = compiledSetter
             });
@@ -483,8 +500,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static Func<TRequest> CompileDtoInitializer()
     {
         var ctor = _tRequest
-                  .GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                  .MinBy(c => c.GetParameters().Length) ??
+                   .GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                   .MinBy(c => c.GetParameters().Length) ??
                    throw new NotSupportedException(
                        "Only JSON requests (with an \"application/json\" content-type header) can be deserialized to a DTO type without " +
                        $"a constructor! Offending type: [{_tRequest.FullName}]");

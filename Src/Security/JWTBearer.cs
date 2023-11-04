@@ -24,11 +24,7 @@ public static class JWTBearer
                                      IEnumerable<string>? permissions = null,
                                      IEnumerable<string>? roles = null,
                                      params (string claimType, string claimValue)[] claims)
-    => CreateToken(signingKey,
-                   expireAt,
-                   permissions,
-                   roles,
-                   claims.Select(c => new Claim(c.claimType, c.claimValue)));
+        => CreateToken(signingKey, expireAt, permissions, roles, claims.Select(c => new Claim(c.claimType, c.claimValue)));
 
     /// <summary>
     /// generate a jwt token with the supplied parameters
@@ -47,13 +43,7 @@ public static class JWTBearer
                                      IEnumerable<string>? permissions = null,
                                      IEnumerable<string>? roles = null,
                                      params (string claimType, string claimValue)[] claims)
-     => CreateToken(signingKey,
-                    expireAt,
-                    permissions,
-                    roles,
-                    claims.Select(c => new Claim(c.claimType, c.claimValue)),
-                    issuer,
-                    audience);
+        => CreateToken(signingKey, expireAt, permissions, roles, claims.Select(c => new Claim(c.claimType, c.claimValue)), issuer, audience);
 
     /// <summary>
     /// generate a jwt token with the supplied parameters and token signing style
@@ -74,14 +64,7 @@ public static class JWTBearer
                                      IEnumerable<string>? permissions = null,
                                      IEnumerable<string>? roles = null,
                                      params (string claimType, string claimValue)[] claims)
-     => CreateToken(signingKey,
-                    expireAt,
-                    permissions,
-                    roles,
-                    claims.Select(c => new Claim(c.claimType, c.claimValue)),
-                    issuer,
-                    audience,
-                    signingStyle);
+        => CreateToken(signingKey, expireAt, permissions, roles, claims.Select(c => new Claim(c.claimType, c.claimValue)), issuer, audience, signingStyle);
 
     /// <summary>
     /// generate a jwt token with the supplied parameters
@@ -102,15 +85,7 @@ public static class JWTBearer
         var privs = new UserPrivileges();
         privileges(privs);
 
-        return CreateToken(
-            signingKey,
-            expireAt,
-            privs.Permissions,
-            privs.Roles,
-            privs.Claims,
-            issuer,
-            audience,
-            signingStyle);
+        return CreateToken(signingKey, expireAt, privs.Permissions, privs.Roles, privs.Claims, issuer, audience, signingStyle);
     }
 
     /// <summary>
@@ -149,12 +124,13 @@ public static class JWTBearer
             Issuer = issuer,
             Audience = audience,
             IssuedAt = (Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime,
-            Subject = new ClaimsIdentity(claimList),
+            Subject = new(claimList),
             Expires = expireAt,
             SigningCredentials = GetSigningCredentials(signingKey, signingStyle)
         };
 
         var handler = new JwtSecurityTokenHandler();
+
         return handler.WriteToken(handler.CreateToken(descriptor));
     }
 
@@ -164,12 +140,13 @@ public static class JWTBearer
         {
             var rsa = RSA.Create(); // don't dispose this
             rsa.ImportRSAPrivateKey(Convert.FromBase64String(key), out _);
-            return new SigningCredentials(
+
+            return new(
                 new RsaSecurityKey(rsa),
                 SecurityAlgorithms.RsaSha256);
         }
 
-        return new SigningCredentials(
+        return new(
             new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
             SecurityAlgorithms.HmacSha256Signature);
     }

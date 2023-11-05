@@ -30,7 +30,7 @@ public class EndpointDataTests
         sut?.Found[0]?.Routes?[0].Should().BeEquivalentTo(typename);
     }
 
-    EndpointDefinition WireupPreProcessorEndpoint()
+    EndpointDefinition WireupProcessorEndpoint()
     {
         var services = new ServiceCollection();
         services.AddHttpContextAccessor();
@@ -50,13 +50,15 @@ public class EndpointDataTests
     }
     
     [Fact]
-    public void BaselinePreProcessorOrder()
+    public void BaselineProcessorOrder()
     {
-        var epDef = WireupPreProcessorEndpoint();
+        var epDef = WireupProcessorEndpoint();
 
         // Simulate global definition
         epDef.PreProcessors(Order.Before, new ProcOne(), new ProcTwo());
         epDef.PreProcessors(Order.After, new ProcThree(), new ProcFour());
+        epDef.PostProcessors(Order.Before, new PostProcOne(), new PostProcTwo());
+        epDef.PostProcessors(Order.After, new PostProcThree(), new PostProcFour());
 
         epDef.PreProcessorList.Should().HaveCount(5);
         epDef.PreProcessorList[0].Should().BeOfType<ProcOne>();
@@ -64,18 +66,29 @@ public class EndpointDataTests
         epDef.PreProcessorList[2].Should().BeOfType<ProcRequest>();
         epDef.PreProcessorList[3].Should().BeOfType<ProcThree>();
         epDef.PreProcessorList[4].Should().BeOfType<ProcFour>();
+
+        epDef.PostProcessorList.Should().HaveCount(5);
+        epDef.PostProcessorList[0].Should().BeOfType<PostProcOne>();
+        epDef.PostProcessorList[1].Should().BeOfType<PostProcTwo>();
+        epDef.PostProcessorList[2].Should().BeOfType<PostProcRequest>();
+        epDef.PostProcessorList[3].Should().BeOfType<PostProcThree>();
+        epDef.PostProcessorList[4].Should().BeOfType<PostProcFour>();
     }
 
     [Fact]
-    public void MultiCallPreProcessorOrder()
+    public void MultiCallProcessorOrder()
     {
-        var epDef = WireupPreProcessorEndpoint();
+        var epDef = WireupProcessorEndpoint();
 
         // Simulate global definition
         epDef.PreProcessors(Order.Before, new ProcOne());
         epDef.PreProcessors(Order.Before, new ProcTwo());
         epDef.PreProcessors(Order.After, new ProcThree());
         epDef.PreProcessors(Order.After, new ProcFour());
+        epDef.PostProcessors(Order.Before, new PostProcOne());
+        epDef.PostProcessors(Order.Before, new PostProcTwo());
+        epDef.PostProcessors(Order.After, new PostProcThree());
+        epDef.PostProcessors(Order.After, new PostProcFour());
 
         epDef.PreProcessorList.Should().HaveCount(5);
         epDef.PreProcessorList[0].Should().BeOfType<ProcOne>();
@@ -83,17 +96,27 @@ public class EndpointDataTests
         epDef.PreProcessorList[2].Should().BeOfType<ProcRequest>();
         epDef.PreProcessorList[3].Should().BeOfType<ProcThree>();
         epDef.PreProcessorList[4].Should().BeOfType<ProcFour>();
+        epDef.PostProcessorList.Should().HaveCount(5);
+        epDef.PostProcessorList[0].Should().BeOfType<PostProcOne>();
+        epDef.PostProcessorList[1].Should().BeOfType<PostProcTwo>();
+        epDef.PostProcessorList[2].Should().BeOfType<PostProcRequest>();
+        epDef.PostProcessorList[3].Should().BeOfType<PostProcThree>();
+        epDef.PostProcessorList[4].Should().BeOfType<PostProcFour>();
     }
 
     [Fact]
-    public void ServiceResolvedPreProcessorOrder()
+    public void ServiceResolvedProcessorOrder()
     {
-        var epDef = WireupPreProcessorEndpoint();
+        var epDef = WireupProcessorEndpoint();
         // Simulate global definition
         epDef.PreProcessor<ProcOne>(Order.Before);
         epDef.PreProcessor<ProcTwo>(Order.Before);
         epDef.PreProcessor<ProcThree>(Order.After);
         epDef.PreProcessor<ProcFour>(Order.After);
+        epDef.PostProcessor<PostProcOne>(Order.Before);
+        epDef.PostProcessor<PostProcTwo>(Order.Before);
+        epDef.PostProcessor<PostProcThree>(Order.After);
+        epDef.PostProcessor<PostProcFour>(Order.After);
 
         epDef.PreProcessorList.Should().HaveCount(5);
         epDef.PreProcessorList[0].Should().BeOfType<ProcOne>();
@@ -101,6 +124,12 @@ public class EndpointDataTests
         epDef.PreProcessorList[2].Should().BeOfType<ProcRequest>();
         epDef.PreProcessorList[3].Should().BeOfType<ProcThree>();
         epDef.PreProcessorList[4].Should().BeOfType<ProcFour>();
+        epDef.PostProcessorList.Should().HaveCount(5);
+        epDef.PostProcessorList[0].Should().BeOfType<PostProcOne>();
+        epDef.PostProcessorList[1].Should().BeOfType<PostProcTwo>();
+        epDef.PostProcessorList[2].Should().BeOfType<PostProcRequest>();
+        epDef.PostProcessorList[3].Should().BeOfType<PostProcThree>();
+        epDef.PostProcessorList[4].Should().BeOfType<PostProcFour>();
     }
 }
 
@@ -122,6 +151,7 @@ public class PreProcessorRegistration : EndpointWithoutRequest
     {
         Get(nameof(PreProcessorRegistration));
         PreProcessors(new ProcRequest());
+        PostProcessors(new PostProcRequest());
     }
 }
 
@@ -131,14 +161,32 @@ public class ProcOne : IGlobalPreProcessor
         => throw new NotImplementedException();
 }
 
+public class PostProcOne : IGlobalPostProcessor
+{
+    public async Task PostProcessAsync(IPostProcessorContext context, CancellationToken ct)
+        => throw new NotImplementedException();
+}
+
 public class ProcTwo : ProcOne { }
+
+public class PostProcTwo : PostProcOne { }
 
 public class ProcThree : ProcOne { }
 
+public class PostProcThree : PostProcOne { }
+
 public class ProcFour : ProcOne { }
+
+public class PostProcFour : PostProcOne { }
 
 public class ProcRequest : IPreProcessor<EmptyRequest>
 {
     public async Task PreProcessAsync(IPreProcessorContext<EmptyRequest> context, CancellationToken ct)
+        => throw new NotImplementedException();
+}
+
+public class PostProcRequest : IPostProcessor<EmptyRequest, object?>
+{
+    public Task PostProcessAsync(IPostProcessorContext<EmptyRequest, object?> context, CancellationToken ct)
         => throw new NotImplementedException();
 }

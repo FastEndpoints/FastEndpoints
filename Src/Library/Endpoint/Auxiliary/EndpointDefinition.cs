@@ -114,8 +114,7 @@ public sealed class EndpointDefinition
     {
         for (var i = 0; i < processors.Length; i++)
         {
-            var p = processors[i];
-            AddProcessor(order, p, list, ref pos);
+            AddProcessor(order, processors[i], list, ref pos);
         }
     }
 
@@ -124,9 +123,7 @@ public sealed class EndpointDefinition
         if (!list.Contains(processor, TypeEqualityComparer.Instance))
         {
             if (order == Order.Before)
-            {
                 list.Insert(pos++, processor);
-            }
             else
                 list.Add(processor);
 
@@ -320,7 +317,8 @@ public sealed class EndpointDefinition
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="postProcessors">the post-processors to add</param>
-    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors) { AddProcessors(order, postProcessors, PostProcessorList, ref PostProcessorPosition); }
+    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors) 
+        => AddProcessors(order, postProcessors, PostProcessorList, ref PostProcessorPosition);
 
     /// <summary>
     /// adds global post-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -332,17 +330,7 @@ public sealed class EndpointDefinition
     /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
     public void PostProcessor<TPostProcessor>(Order order)
         where TPostProcessor : class, IGlobalPostProcessor
-    {
-        try
-        {
-            var postProcessor = Conf.ServiceResolver.CreateSingleton(typeof(TPostProcessor)) as TPostProcessor;
-            AddProcessor(order, postProcessor!, PostProcessorList, ref PostProcessorPosition);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Could not find/construct post processor type {typeof(TPostProcessor).FullName}", ex);
-        }
-    }
+        => Processor<TPostProcessor>(order, PostProcessorList, ref PostProcessorPosition);
     
     /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -352,7 +340,8 @@ public sealed class EndpointDefinition
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="preProcessors">the pre-processors to add</param>
-    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors) { AddProcessors(order, preProcessors, PreProcessorList, ref PreProcessorPosition); }
+    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors) 
+        => AddProcessors(order, preProcessors, PreProcessorList, ref PreProcessorPosition);
     
     /// <summary>
     /// adds global pre-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -364,18 +353,7 @@ public sealed class EndpointDefinition
     /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
     public void PreProcessor<TPreProcessor>(Order order)
         where TPreProcessor : class, IGlobalPreProcessor
-    {
-        try
-        {
-            var preProcessor = Conf.ServiceResolver.CreateSingleton(typeof(TPreProcessor)) as TPreProcessor;
-            AddProcessor(order, preProcessor!, PreProcessorList, ref PreProcessorPosition);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Could not find/construct pre processor type {typeof(TPreProcessor).FullName}", ex);
-        }
-        
-    }
+        => Processor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
 
     /// <summary>
     /// specify response caching settings for this endpoint
@@ -503,6 +481,19 @@ public sealed class EndpointDefinition
                        PropType = p.PropertyType
                    })
                .ToArray();
+    }
+
+    void Processor<TProcessor>(Order order, List<object> list, ref int pos)
+    {
+        try
+        {
+            var processor = Conf.ServiceResolver.CreateSingleton(typeof(TProcessor));
+            AddProcessor(order, processor!, list, ref pos);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Could not find/construct processor type {typeof(TProcessor).FullName}", ex);
+        }
     }
 }
 

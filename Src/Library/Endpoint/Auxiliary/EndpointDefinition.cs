@@ -125,7 +125,6 @@ public sealed class EndpointDefinition
         {
             if (order == Order.Before)
             {
-                Console.WriteLine($"adding processor {processor.GetType().FullName} at position {pos}");
                 list.Insert(pos++, processor);
             }
             else

@@ -65,7 +65,9 @@ public sealed class EndpointDefinition
     internal bool ImplementsConfigure;
     internal object? RequestBinder;
     internal readonly List<object> PreProcessorList = new();
+    internal int PreProcessorPosition = 0;
     internal readonly List<object> PostProcessorList = new();
+    internal int PostProcessorPosition = 0;
     ServiceBoundEpProp[]? _serviceBoundEpProps;
     internal ServiceBoundEpProp[]? ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;
@@ -107,24 +109,28 @@ public sealed class EndpointDefinition
                     epBuilder.Metadata.Remove(m);
             });
     };
-
-    static void AddProcessor(Order order, object[] processors, List<object> list)
+    
+    static void AddProcessors(Order order, object[] processors, List<object> list, ref int pos)
     {
-        var pos = 0;
-
         for (var i = 0; i < processors.Length; i++)
         {
-            var p = processors[i];
-
-            if (!list.Contains(p, TypeEqualityComparer.Instance))
-            {
-                if (order == Order.Before)
-                    list.Insert(pos, p);
-                else
-                    list.Add(p);
-                pos++;
-            }
+            AddProcessor(order, processors[i], list, ref pos);
         }
+    }
+
+    static bool AddProcessor(Order order, object processor, List<object> list, ref int pos)
+    {
+        if (!list.Contains(processor, TypeEqualityComparer.Instance))
+        {
+            if (order == Order.Before)
+                list.Insert(pos++, processor);
+            else
+                list.Add(processor);
+
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -311,8 +317,21 @@ public sealed class EndpointDefinition
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="postProcessors">the post-processors to add</param>
-    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors) { AddProcessor(order, postProcessors, PostProcessorList); }
+    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors) 
+        => AddProcessors(order, postProcessors, PostProcessorList, ref PostProcessorPosition);
 
+    /// <summary>
+    /// adds global post-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
+    /// </summary>
+    /// <param name="order">
+    /// set to <see cref="Order.Before" /> if the global post-processors should be executed before endpoint post-processors.
+    /// <see cref="Order.After" /> will execute global processors after endpoint level processors
+    /// </param>
+    /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
+    public void PostProcessor<TPostProcessor>(Order order)
+        where TPostProcessor : class, IGlobalPostProcessor
+        => Processor<TPostProcessor>(order, PostProcessorList, ref PostProcessorPosition);
+    
     /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
@@ -321,7 +340,20 @@ public sealed class EndpointDefinition
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="preProcessors">the pre-processors to add</param>
-    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors) { AddProcessor(order, preProcessors, PreProcessorList); }
+    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors) 
+        => AddProcessors(order, preProcessors, PreProcessorList, ref PreProcessorPosition);
+    
+    /// <summary>
+    /// adds global pre-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
+    /// </summary>
+    /// <param name="order">
+    /// set to <see cref="Order.Before" /> if the global pre-processors should be executed before endpoint pre-processors.
+    /// <see cref="Order.After" /> will execute global processors after endpoint level processors
+    /// </param>
+    /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
+    public void PreProcessor<TPreProcessor>(Order order)
+        where TPreProcessor : class, IGlobalPreProcessor
+        => Processor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
 
     /// <summary>
     /// specify response caching settings for this endpoint
@@ -449,6 +481,19 @@ public sealed class EndpointDefinition
                        PropType = p.PropertyType
                    })
                .ToArray();
+    }
+
+    void Processor<TProcessor>(Order order, List<object> list, ref int pos)
+    {
+        try
+        {
+            var processor = Conf.ServiceResolver.CreateSingleton(typeof(TProcessor));
+            AddProcessor(order, processor!, list, ref pos);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Could not find/construct processor type {typeof(TProcessor).FullName}", ex);
+        }
     }
 }
 

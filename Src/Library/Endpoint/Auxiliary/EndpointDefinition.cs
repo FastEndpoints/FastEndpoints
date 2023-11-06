@@ -61,13 +61,15 @@ public sealed class EndpointDefinition
     internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);
     internal bool FoundDuplicateValidators;
     internal HitCounter? HitCounter { get; private set; }
-    internal Action<RouteHandlerBuilder> InternalConfigAction;
+    internal Action<RouteHandlerBuilder> InternalConfigAction = null!;
     internal bool ImplementsConfigure;
     internal object? RequestBinder;
     internal readonly List<object> PreProcessorList = new();
+    internal int PreProcessorPosition;
     internal readonly List<object> PostProcessorList = new();
+    internal int PostProcessorPosition;
     ServiceBoundEpProp[]? _serviceBoundEpProps;
-    internal ServiceBoundEpProp[]? ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
+    internal ServiceBoundEpProp[] ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
@@ -97,35 +99,6 @@ public sealed class EndpointDefinition
 
     internal string ReqDtoFromBodyPropName
         => _reqDtoFromBodyPropName ??= $"{ReqDtoType.BindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
-
-    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata = b =>
-    {
-        b.Add(
-            epBuilder =>
-            {
-                foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
-                    epBuilder.Metadata.Remove(m);
-            });
-    };
-
-    static void AddProcessor(Order order, object[] processors, List<object> list)
-    {
-        var pos = 0;
-
-        for (var i = 0; i < processors.Length; i++)
-        {
-            var p = processors[i];
-
-            if (!list.Contains(p, TypeEqualityComparer.Instance))
-            {
-                if (order == Order.Before)
-                    list.Insert(pos, p);
-                else
-                    list.Add(p);
-                pos++;
-            }
-        }
-    }
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
@@ -311,7 +284,19 @@ public sealed class EndpointDefinition
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="postProcessors">the post-processors to add</param>
-    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors) { AddProcessor(order, postProcessors, PostProcessorList); }
+    public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors)
+        => AddProcessors(order, postProcessors, PostProcessorList, ref PostProcessorPosition);
+
+    /// <summary>
+    /// adds global post-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
+    /// </summary>
+    /// <param name="order">
+    /// set to <see cref="Order.Before" /> if the global post-processors should be executed before endpoint post-processors.
+    /// <see cref="Order.After" /> will execute global processors after endpoint level processors
+    /// </param>
+    /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
+    public void PostProcessor<TPostProcessor>(Order order) where TPostProcessor : class, IGlobalPostProcessor
+        => Processor<TPostProcessor>(order, PostProcessorList, ref PostProcessorPosition);
 
     /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -321,7 +306,19 @@ public sealed class EndpointDefinition
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="preProcessors">the pre-processors to add</param>
-    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors) { AddProcessor(order, preProcessors, PreProcessorList); }
+    public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
+        => AddProcessors(order, preProcessors, PreProcessorList, ref PreProcessorPosition);
+
+    /// <summary>
+    /// adds global pre-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
+    /// </summary>
+    /// <param name="order">
+    /// set to <see cref="Order.Before" /> if the global pre-processors should be executed before endpoint pre-processors.
+    /// <see cref="Order.After" /> will execute global processors after endpoint level processors
+    /// </param>
+    /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
+    public void PreProcessor<TPreProcessor>(Order order) where TPreProcessor : class, IGlobalPreProcessor
+        => Processor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
 
     /// <summary>
     /// specify response caching settings for this endpoint
@@ -450,6 +447,46 @@ public sealed class EndpointDefinition
                    })
                .ToArray();
     }
+
+    static void Processor<TProcessor>(Order order, IList<object> list, ref int pos)
+    {
+        try
+        {
+            var processor = Conf.ServiceResolver.CreateSingleton(typeof(TProcessor));
+            AddProcessor(order, processor, list, ref pos);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Could not find/construct processor type {typeof(TProcessor).FullName}", ex);
+        }
+    }
+
+    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata = b =>
+    {
+        b.Add(
+            epBuilder =>
+            {
+                foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
+                    epBuilder.Metadata.Remove(m);
+            });
+    };
+
+    static void AddProcessors(Order order, IReadOnlyList<object> processors, IList<object> list, ref int pos)
+    {
+        for (var i = 0; i < processors.Count; i++)
+            AddProcessor(order, processors[i], list, ref pos);
+    }
+
+    static void AddProcessor(Order order, object processor, IList<object> list, ref int pos)
+    {
+        if (list.Contains(processor, TypeEqualityComparer.Instance))
+            return;
+
+        if (order == Order.Before)
+            list.Insert(pos++, processor);
+        else
+            list.Add(processor);
+    }
 }
 
 /// <summary>
@@ -469,8 +506,8 @@ public sealed class EpVersion
 
 sealed class ServiceBoundEpProp
 {
-    public string PropName { get; set; }
-    public Type PropType { get; set; }
+    public string PropName { get; init; } = null!;
+    public Type PropType { get; init; } = null!;
     public Action<object, object>? PropSetter { get; set; }
 }
 

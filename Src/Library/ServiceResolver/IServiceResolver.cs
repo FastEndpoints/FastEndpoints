@@ -54,8 +54,8 @@ public interface IServiceResolverBase
 public interface IServiceResolver : IServiceResolverBase
 {
     /// <summary>
-    /// create an instance of a given type (which may not be registered in the DI container). this method will be called repeatedly per request. so a cached
-    /// delegate/compiled expression such as <see cref="ActivatorUtilities.CreateFactory(Type, Type[])" /> should be used for instance creation.
+    /// create an instance of a given type (which may not be registered in the DI container). this method will be called repeatedly. so a cached
+    /// delegate/compiled expression using something like <see cref="ActivatorUtilities.CreateFactory(Type, Type[])" /> should be used for instance creation.
     /// </summary>
     /// <param name="type">the type to create an instance of</param>
     /// <param name="serviceProvider">optional service provider</param>
@@ -63,7 +63,8 @@ public interface IServiceResolver : IServiceResolverBase
 
     /// <summary>
     /// create an instance of a given type (which may not be registered in the DI container) which will be used as a singleton. a utility such as
-    /// <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])" /> may be used.
+    /// <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])" /> may be used. repeated calls with the same input type should return the same singleton
+    /// instance by utilizing an internal concurrent/thread-safe cache.
     /// </summary>
     /// <param name="type">the type to create an instance of</param>
     object CreateSingleton(Type type);

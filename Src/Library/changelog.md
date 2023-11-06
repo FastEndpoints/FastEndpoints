@@ -16,6 +16,12 @@ todo: write description
 
 </details>
 
+<details><summary>Simpler way to register Pre/Post Processors with DI support</summary>
+
+ref: https://github.com/FastEndpoints/FastEndpoints/pull/528
+
+</details>
+
 <details><summary>Exception handling capability for Post-Processors</summary>
 
 todo: update doc page and link here

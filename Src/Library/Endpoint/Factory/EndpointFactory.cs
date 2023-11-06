@@ -20,9 +20,10 @@ public sealed class EndpointFactory : IEndpointFactory
 
         var epInstance = (BaseEndpoint)Conf.ServiceResolver.CreateInstance(definition.EndpointType, ctx.RequestServices);
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         var isAppStartup = ctx.Connection.Id == null;
 
-        for (var i = 0; i < definition.ServiceBoundEpProps?.Length; i++)
+        for (var i = 0; i < definition.ServiceBoundEpProps.Length; i++)
         {
             var prop = definition.ServiceBoundEpProps[i];
             prop.PropSetter ??= definition.EndpointType.SetterForProp(prop.PropName);

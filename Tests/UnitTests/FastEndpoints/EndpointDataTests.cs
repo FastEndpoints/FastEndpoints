@@ -30,7 +30,7 @@ public class EndpointDataTests
         sut?.Found[0]?.Routes?[0].Should().BeEquivalentTo(typename);
     }
 
-    EndpointDefinition WireupProcessorEndpoint()
+    static EndpointDefinition WireUpProcessorEndpoint()
     {
         var services = new ServiceCollection();
         services.AddHttpContextAccessor();
@@ -48,11 +48,11 @@ public class EndpointDataTests
 
         return epDef;
     }
-    
+
     [Fact]
     public void BaselineProcessorOrder()
     {
-        var epDef = WireupProcessorEndpoint();
+        var epDef = WireUpProcessorEndpoint();
 
         // Simulate global definition
         epDef.PreProcessors(Order.Before, new ProcOne(), new ProcTwo());
@@ -78,7 +78,7 @@ public class EndpointDataTests
     [Fact]
     public void MultiCallProcessorOrder()
     {
-        var epDef = WireupProcessorEndpoint();
+        var epDef = WireUpProcessorEndpoint();
 
         // Simulate global definition
         epDef.PreProcessors(Order.Before, new ProcOne());
@@ -107,7 +107,8 @@ public class EndpointDataTests
     [Fact]
     public void ServiceResolvedProcessorOrder()
     {
-        var epDef = WireupProcessorEndpoint();
+        var epDef = WireUpProcessorEndpoint();
+
         // Simulate global definition
         epDef.PreProcessor<ProcOne>(Order.Before);
         epDef.PreProcessor<ProcTwo>(Order.Before);
@@ -135,14 +136,20 @@ public class EndpointDataTests
 
 public class Foo : EndpointWithoutRequest
 {
-    public override void Configure() => Get(nameof(Foo));
-    public override async Task HandleAsync(CancellationToken ct) => await SendOkAsync(ct);
+    public override void Configure()
+        => Get(nameof(Foo));
+
+    public override async Task HandleAsync(CancellationToken ct)
+        => await SendOkAsync(ct);
 }
 
 public class Boo : EndpointWithoutRequest
 {
-    public override void Configure() => Get(nameof(Boo));
-    public override async Task HandleAsync(CancellationToken ct) => await SendOkAsync(ct);
+    public override void Configure()
+        => Get(nameof(Boo));
+
+    public override async Task HandleAsync(CancellationToken ct)
+        => await SendOkAsync(ct);
 }
 
 public class PreProcessorRegistration : EndpointWithoutRequest

@@ -19,11 +19,7 @@ sealed class HitCounter
     }
 
     internal bool LimitReached(string headerValue)
-    {
-        return _clients.GetOrAdd(
-            headerValue,
-            hVal => new(_durationSeconds, hVal, _limit, ref _clients)).LimitReached();
-    }
+        => _clients.GetOrAdd(headerValue, new Counter(_durationSeconds, headerValue, _limit, ref _clients)).LimitReached();
 
     sealed class Counter : IDisposable
     {

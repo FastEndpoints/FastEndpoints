@@ -25,13 +25,13 @@ sealed class ServiceResolver : IServiceResolver
 
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
-        var factory = _factoryCache.GetOrAdd(type, t => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes));
+        var factory = _factoryCache.GetOrAdd(type, ActivatorUtilities.CreateFactory(type, Type.EmptyTypes));
 
         return factory(serviceProvider ?? _ctxAccessor?.HttpContext?.RequestServices ?? _rootServiceProvider, null);
     }
 
     public object CreateSingleton(Type type)
-        => _singletonCache.GetOrAdd(type, t => ActivatorUtilities.GetServiceOrCreateInstance(_rootServiceProvider, t));
+        => _singletonCache.GetOrAdd(type, ActivatorUtilities.GetServiceOrCreateInstance(_rootServiceProvider, type));
 
     public IServiceScope CreateScope()
         => _isUnitTestMode

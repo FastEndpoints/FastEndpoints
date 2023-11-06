@@ -45,28 +45,30 @@ public static class EventExtensions
     {
         var publishFunc = _publishFuncCache.GetOrAdd(
             key: eventModel.GetType(),
-            valueFactory: tEventModel =>
-            {
-                var tBus = typeof(EventBus<>).MakeGenericType(tEventModel);
-                var publishMethod = tBus.GetMethod(nameof(EventBus<IEvent>.PublishAsync))!;
-                var eventParam = Expression.Parameter(typeof(IEvent), "eventModel");
-                var waitModeParam = Expression.Parameter(typeof(Mode), "waitMode");
-                var cancellationParam = Expression.Parameter(typeof(CancellationToken), "cancellation");
-                var instanceParam = Expression.Variable(tBus, "instance");
-                var eventModelCast = Expression.Convert(eventParam, tEventModel);
-                var instanceInit = Expression.Assign(
-                    instanceParam,
-                    Expression.Call(typeof(EventExtensions), nameof(CreateEventInstance), new[] { tEventModel }));
-                var publishCall = Expression.Call(instanceParam, publishMethod, eventModelCast, waitModeParam, cancellationParam);
-                var lambda = Expression.Lambda<Func<IEvent, Mode, CancellationToken, Task>>(
-                    Expression.Block(new[] { instanceParam }, instanceInit, publishCall),
-                    eventParam,
-                    waitModeParam,
-                    cancellationParam);
-
-                return lambda.Compile();
-            });
+            valueFactory: PublishAsyncFuncFactory);
 
         return publishFunc(eventModel, waitMode, cancellation);
+
+        static Func<IEvent, Mode, CancellationToken, Task> PublishAsyncFuncFactory(Type tEventModel)
+        {
+            var tBus = typeof(EventBus<>).MakeGenericType(tEventModel);
+            var publishMethod = tBus.GetMethod(nameof(EventBus<IEvent>.PublishAsync))!;
+            var eventParam = Expression.Parameter(typeof(IEvent), "eventModel");
+            var waitModeParam = Expression.Parameter(typeof(Mode), "waitMode");
+            var cancellationParam = Expression.Parameter(typeof(CancellationToken), "cancellation");
+            var instanceParam = Expression.Variable(tBus, "instance");
+            var eventModelCast = Expression.Convert(eventParam, tEventModel);
+            var instanceInit = Expression.Assign(
+                instanceParam,
+                Expression.Call(typeof(EventExtensions), nameof(CreateEventInstance), new[] { tEventModel }));
+            var publishCall = Expression.Call(instanceParam, publishMethod, eventModelCast, waitModeParam, cancellationParam);
+            var lambda = Expression.Lambda<Func<IEvent, Mode, CancellationToken, Task>>(
+                Expression.Block(new[] { instanceParam }, instanceInit, publishCall),
+                eventParam,
+                waitModeParam,
+                cancellationParam);
+
+            return lambda.Compile();
+        }
     }
 }

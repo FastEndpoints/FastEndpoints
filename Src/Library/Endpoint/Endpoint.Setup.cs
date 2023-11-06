@@ -59,10 +59,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// group, you'd specify it with this parameter. The generated const/key is accessible via "Allow.Admin.Edit_Stock_Item" as well as
     /// "Allow.Manager.Edit_Stock_Item"
     /// </param>
-    protected void AccessControl(string keyName, params string[] groupNames)
-    {
-        AccessControl(keyName, Apply.ToThisEndpoint, groupNames);
-    }
+    protected void AccessControl(string keyName, params string[] groupNames) { AccessControl(keyName, Apply.ToThisEndpoint, groupNames); }
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
@@ -352,13 +349,25 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         Routes(members.BuildRoute(routePattern));
     }
 
+    //this int is not applicable for endpoint level processor ordering
+    //because Order.After below ultimately causes an append via list.Add()
+    static int _unused;
+
+    //todo: write tests
+    protected void PostProcessor<TPostProcessor>() where TPostProcessor : class, IPostProcessor<TRequest, TResponse>
+        => EndpointDefinition.AddProcessor<TPostProcessor>(Order.After, Definition.PostProcessorList, ref _unused);
+
     /// <summary>
     /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are
     /// defined here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
     protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors)
-        => AddProcessors(postProcessors, Definition.PostProcessorList);
+        => EndpointDefinition.AddProcessors(Order.After, postProcessors, Definition.PostProcessorList, ref _unused);
+
+    //todo: write tests
+    protected void PreProcessor<TPreProcessor>() where TPreProcessor : class, IPreProcessor<TRequest>
+        => EndpointDefinition.AddProcessor<TPreProcessor>(Order.After, Definition.PreProcessorList, ref _unused);
 
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are
@@ -366,7 +375,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>
     protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors)
-        => AddProcessors(preProcessors, Definition.PreProcessorList);
+        => EndpointDefinition.AddProcessors(Order.After, preProcessors, Definition.PreProcessorList, ref _unused);
 
     /// <summary>
     /// specify to listen for PUT requests on one or more routes.
@@ -521,10 +530,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
-    protected void Verbs(params Http[] methods)
-    {
-        Verbs(methods.Select(m => m.ToString()).ToArray());
-    }
+    protected void Verbs(params Http[] methods) { Verbs(methods.Select(m => m.ToString()).ToArray()); }
 
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
@@ -612,9 +618,6 @@ static class ProducesMetaForResultOfResponse
         }
     }
 
-    static void Populate<T>(EndpointBuilder b) where T : IEndpointMetadataProvider
-    {
-        T.PopulateMetadata(_populateMethod, b);
-    }
+    static void Populate<T>(EndpointBuilder b) where T : IEndpointMetadataProvider { T.PopulateMetadata(_populateMethod, b); }
 }
 #endif

@@ -82,7 +82,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                                        object resp,
                                        int statusCode,
                                        HttpContext ctx,
-                                       List<ValidationFailure> validationFailures,
+                                       IReadOnlyCollection<ValidationFailure> validationFailures,
                                        CancellationToken cancellation)
         => interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
 
@@ -93,15 +93,4 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => responseDto is null
                ? ctx.Response.SendNoContentAsync(cancellation)
                : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
-
-    static void AddProcessors(object[] processors, List<object> target)
-    {
-        for (var i = 0; i < processors.Length; i++)
-        {
-            var p = processors[i];
-
-            if (!target.Contains(p, TypeEqualityComparer.Instance))
-                target.Add(p);
-        }
-    }
 }

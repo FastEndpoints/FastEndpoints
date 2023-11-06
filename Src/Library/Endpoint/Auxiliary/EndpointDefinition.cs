@@ -296,7 +296,7 @@ public sealed class EndpointDefinition
     /// </param>
     /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
     public void PostProcessor<TPostProcessor>(Order order) where TPostProcessor : class, IGlobalPostProcessor
-        => Processor<TPostProcessor>(order, PostProcessorList, ref PostProcessorPosition);
+        => AddProcessor<TPostProcessor>(order, PostProcessorList, ref PostProcessorPosition);
 
     /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -318,7 +318,7 @@ public sealed class EndpointDefinition
     /// </param>
     /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
     public void PreProcessor<TPreProcessor>(Order order) where TPreProcessor : class, IGlobalPreProcessor
-        => Processor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
+        => AddProcessor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
 
     /// <summary>
     /// specify response caching settings for this endpoint
@@ -448,7 +448,17 @@ public sealed class EndpointDefinition
                .ToArray();
     }
 
-    static void Processor<TProcessor>(Order order, IList<object> list, ref int pos)
+    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata = b =>
+    {
+        b.Add(
+            epBuilder =>
+            {
+                foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
+                    epBuilder.Metadata.Remove(m);
+            });
+    };
+
+    internal static void AddProcessor<TProcessor>(Order order, IList<object> list, ref int pos)
     {
         try
         {
@@ -461,17 +471,7 @@ public sealed class EndpointDefinition
         }
     }
 
-    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata = b =>
-    {
-        b.Add(
-            epBuilder =>
-            {
-                foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
-                    epBuilder.Metadata.Remove(m);
-            });
-    };
-
-    static void AddProcessors(Order order, IReadOnlyList<object> processors, IList<object> list, ref int pos)
+    internal static void AddProcessors(Order order, IReadOnlyList<object> processors, IList<object> list, ref int pos)
     {
         for (var i = 0; i < processors.Count; i++)
             AddProcessor(order, processors[i], list, ref pos);

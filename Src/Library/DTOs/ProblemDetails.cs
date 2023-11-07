@@ -54,21 +54,29 @@ public sealed class ProblemDetails : IResult
 #pragma warning restore CA1822
 
     [DefaultValue(400)]
-    public int Status { get; private set; }
+    public int Status { get; set; }
 
     [DefaultValue("/api/route")]
-    public string Instance { get; private set; }
+    public string Instance { get; set; } = null!;
 
     [DefaultValue("0HMPNHL0JHL76:00000001")]
-    public string TraceId { get; private set; }
+    public string TraceId { get; set; } = null!;
 
-    public IEnumerable<Error> Errors { get; private set; }
+    public IEnumerable<Error> Errors { get; set; } = null!;
 
-    public ProblemDetails(List<ValidationFailure> failures, int? statusCode = null) { Initialize(failures, null!, null!, statusCode ?? Config.ErrOpts.StatusCode); }
+    public ProblemDetails() { }
 
-    public ProblemDetails(List<ValidationFailure> failures, string instance, string traceId, int statusCode) { Initialize(failures, instance, traceId, statusCode); }
+    public ProblemDetails(IReadOnlyList<ValidationFailure> failures, int? statusCode = null)
+    {
+        Initialize(failures, null!, null!, statusCode ?? Config.ErrOpts.StatusCode);
+    }
 
-    void Initialize(List<ValidationFailure> failures, string instance, string traceId, int statusCode)
+    public ProblemDetails(IReadOnlyList<ValidationFailure> failures, string instance, string traceId, int statusCode)
+    {
+        Initialize(failures, instance, traceId, statusCode);
+    }
+
+    void Initialize(IReadOnlyList<ValidationFailure> failures, string instance, string traceId, int statusCode)
     {
         Status = statusCode;
         Instance = instance;
@@ -128,25 +136,27 @@ public sealed class ProblemDetails : IResult
         /// the name of the error or property of the dto that caused the error
         /// </summary>
         [DefaultValue("Error or field name")]
-        public string Name { get; init; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// the reason for the error
         /// </summary>
         [DefaultValue("Error reason")]
-        public string Reason { get; init; }
+        public string Reason { get; set; } = null!;
 
         /// <summary>
         /// the code of the error
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Code { get; init; }
+        public string? Code { get; set; }
 
         /// <summary>
         /// the severity of the error
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Severity { get; init; }
+        public string? Severity { get; set; }
+
+        public Error() { }
 
         public Error(ValidationFailure failure)
         {

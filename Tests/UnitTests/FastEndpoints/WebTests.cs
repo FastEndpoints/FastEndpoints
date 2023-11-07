@@ -1,5 +1,7 @@
+using System.Text.Json;
 using FakeItEasy;
 using FastEndpoints;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -321,5 +323,25 @@ public class WebTests
         ep.ValidationFailures[1].PropertyName.Should().Be("NumbersList[0][1]");
         ep.ValidationFailures[2].PropertyName.Should().Be("NumbersList[1][0]");
         ep.ValidationFailures[3].PropertyName.Should().Be("NumbersList[1][1]");
+    }
+
+    [Fact]
+    public async Task problem_details_serialization_test()
+    {
+        var problemDetails = new ProblemDetails(
+            new List<ValidationFailure>
+            {
+                new("p1", "v1"),
+                new("p2", "v2")
+            },
+            "instance",
+            "trace",
+            400);
+
+        var json = JsonSerializer.Serialize(problemDetails);
+
+        var res = JsonSerializer.Deserialize<ProblemDetails>(json)!;
+
+        res.Should().BeEquivalentTo(problemDetails);
     }
 }

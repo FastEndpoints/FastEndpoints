@@ -4327,13 +4327,16 @@
           },
           "Status": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "default": 400
           },
           "Instance": {
-            "type": "string"
+            "type": "string",
+            "default": "/api/route"
           },
           "TraceId": {
-            "type": "string"
+            "type": "string",
+            "default": "0HMPNHL0JHL76:00000001"
           },
           "Errors": {
             "type": "array",
@@ -4350,11 +4353,13 @@
         "properties": {
           "Name": {
             "type": "string",
-            "description": "the name of the error or property of the dto that caused the error"
+            "description": "the name of the error or property of the dto that caused the error",
+            "default": "Error or field name"
           },
           "Reason": {
             "type": "string",
-            "description": "the reason for the error"
+            "description": "the reason for the error",
+            "default": "Error reason"
           },
           "Code": {
             "type": "string",

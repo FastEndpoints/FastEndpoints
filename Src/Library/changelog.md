@@ -57,6 +57,12 @@ ref: https://discord.com/channels/933662816458645504/1168177198415482972
 
 </details>
 
+<details><summary>Test assertions couldn't be done on ProblemDetails DTO</summary>
+
+The `ProblemDetails` DTO properties had private setter properties preventing STJ from being able to deserialize the JSON which has now been corrected.
+
+</details>
+
 ## Breaking Changes ⚠️
 
 <details><summary>Pre/Post Processor interface changes</summary>

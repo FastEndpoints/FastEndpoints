@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace FastEndpoints.Security;
 
@@ -117,7 +118,7 @@ public static class JWTBearer
             claimList.AddRange(permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
 
         if (roles != null)
-            claimList.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+            claimList.AddRange(roles.Select(r => new Claim(Conf.SecOpts.RoleClaimType, r)));
 
         var descriptor = new SecurityTokenDescriptor
         {
@@ -129,9 +130,13 @@ public static class JWTBearer
             SigningCredentials = GetSigningCredentials(signingKey, signingStyle)
         };
 
+        #if NET8_0_OR_GREATER
+        var handler = new JsonWebTokenHandler();
+        return handler.CreateToken(descriptor);
+        #else
         var handler = new JwtSecurityTokenHandler();
-
         return handler.WriteToken(handler.CreateToken(descriptor));
+        #endif
     }
 
     static SigningCredentials GetSigningCredentials(string key, TokenSigningStyle style)

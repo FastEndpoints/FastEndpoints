@@ -19,6 +19,29 @@ public static class AuthExtensions
     /// configure and enable jwt bearer authentication
     /// </summary>
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
+    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
+                                                      string tokenSigningKey)
+    {
+        return services.AddJWTBearerAuth(tokenSigningKey, TokenSigningStyle.Symmetric, null);
+    }
+
+
+    /// <summary>
+    /// configure and enable jwt bearer authentication
+    /// </summary>
+    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
+    /// <param name="tokenSigningStyle">specify the token signing style</param>
+    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
+                                                      string tokenSigningKey,
+                                                      TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric)
+    {
+        return services.AddJWTBearerAuth(tokenSigningKey, tokenSigningStyle, null);
+    }
+
+    /// <summary>
+    /// configure and enable jwt bearer authentication
+    /// </summary>
+    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
     /// <param name="tokenSigningStyle">specify the token signing style</param>
     /// <param name="tokenValidation">configuration action to specify additional token validation parameters</param>
     /// <param name="bearerEvents">configuration action to specify custom jwt bearer events</param>
@@ -28,40 +51,65 @@ public static class AuthExtensions
                                                       Action<TokenValidationParameters>? tokenValidation = null,
                                                       Action<JwtBearerEvents>? bearerEvents = null)
     {
+        return services.AddJWTBearerAuth(
+            tokenSigningKey,
+            tokenSigningStyle,
+            o =>
+            {
+                tokenValidation?.Invoke(o.TokenValidationParameters);
+                bearerEvents?.Invoke(o.Events ??= new());
+            });
+    }
+
+    /// <summary>
+    /// configure and enable jwt bearer authentication
+    /// </summary>
+    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
+    /// <param name="tokenSigningStyle">specify the token signing style</param>
+    /// <param name="jwtOptions">configuration action to specify options for the authentication scheme</param>
+    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
+                                                      string tokenSigningKey,
+                                                      TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric,
+                                                      Action<JwtBearerOptions>? jwtOptions = null)
+    {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(o =>
-        {
-            SecurityKey key;
-            if (tokenSigningStyle == TokenSigningStyle.Symmetric)
-            {
-                key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey));
-            }
-            else
-            {
-                var rsa = RSA.Create();
-                rsa.ImportRSAPublicKey(Convert.FromBase64String(tokenSigningKey), out _);
-                key = new RsaSecurityKey(rsa);
-            }
+                .AddJwtBearer(
+                    o =>
+                    {
+                        SecurityKey key;
 
-            //set defaults
-            o.TokenValidationParameters.IssuerSigningKey = key;
-            o.TokenValidationParameters.ValidateIssuerSigningKey = true;
-            o.TokenValidationParameters.ValidateLifetime = true;
-            o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
-            o.TokenValidationParameters.ValidAudience = null;
-            o.TokenValidationParameters.ValidateAudience = false;
-            o.TokenValidationParameters.ValidIssuer = null;
-            o.TokenValidationParameters.ValidateIssuer = false;
+                        if (tokenSigningStyle == TokenSigningStyle.Symmetric)
+                        {
+                            key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey));
+                        }
+                        else
+                        {
+                            var rsa = RSA.Create();
+                            rsa.ImportRSAPublicKey(Convert.FromBase64String(tokenSigningKey), out _);
+                            key = new RsaSecurityKey(rsa);
+                        }
 
-            //override defaults with user supplied values
-            tokenValidation?.Invoke(o.TokenValidationParameters);
+                        //set defaults
+                        o.TokenValidationParameters.IssuerSigningKey = key;
+                        o.TokenValidationParameters.ValidateIssuerSigningKey = true;
+                        o.TokenValidationParameters.ValidateLifetime = true;
+                        o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
+                        o.TokenValidationParameters.ValidAudience = null;
+                        o.TokenValidationParameters.ValidateAudience = false;
+                        o.TokenValidationParameters.ValidIssuer = null;
+                        o.TokenValidationParameters.ValidateIssuer = false;
 
-            //correct any user mistake
-            o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
-            o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
+                        //set sensible defaults (based on configuration) for the claim mapping so tokens created with JWTBearer.CreateToken() will not be modified
+                        o.TokenValidationParameters.NameClaimType = Conf.SecOpts.NameClaimType;
+                        o.TokenValidationParameters.RoleClaimType = Conf.SecOpts.RoleClaimType;
+                        o.MapInboundClaims = false;
 
-            bearerEvents?.Invoke(o.Events ??= new());
-        });
+                        jwtOptions?.Invoke(o);
+                        
+                        //correct any user mistake
+                        o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
+                        o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
+                    });
 
         return services;
     }

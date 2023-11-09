@@ -1,8 +1,13 @@
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+#if NET8_0_OR_GREATER
+using Microsoft.IdentityModel.JsonWebTokens;
+
+#else
+using System.IdentityModel.Tokens.Jwt;
+#endif
 
 namespace FastEndpoints.Security;
 
@@ -117,7 +122,7 @@ public static class JWTBearer
             claimList.AddRange(permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
 
         if (roles != null)
-            claimList.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+            claimList.AddRange(roles.Select(r => new Claim(Conf.SecOpts.RoleClaimType, r)));
 
         var descriptor = new SecurityTokenDescriptor
         {
@@ -129,9 +134,15 @@ public static class JWTBearer
             SigningCredentials = GetSigningCredentials(signingKey, signingStyle)
         };
 
+    #if NET8_0_OR_GREATER
+        var handler = new JsonWebTokenHandler();
+
+        return handler.CreateToken(descriptor);
+    #else
         var handler = new JwtSecurityTokenHandler();
 
         return handler.WriteToken(handler.CreateToken(descriptor));
+    #endif
     }
 
     static SigningCredentials GetSigningCredentials(string key, TokenSigningStyle style)
@@ -141,14 +152,10 @@ public static class JWTBearer
             var rsa = RSA.Create(); // don't dispose this
             rsa.ImportRSAPrivateKey(Convert.FromBase64String(key), out _);
 
-            return new(
-                new RsaSecurityKey(rsa),
-                SecurityAlgorithms.RsaSha256);
+            return new(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256);
         }
 
-        return new(
-            new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-            SecurityAlgorithms.HmacSha256Signature);
+        return new(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)), SecurityAlgorithms.HmacSha256Signature);
     }
 
     /// <summary>

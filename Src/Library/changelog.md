@@ -70,3 +70,23 @@ The `ProblemDetails` DTO properties had private setter properties preventing STJ
 todo: describe the change and how to migrate
 
 </details>
+
+<details><summary>AddJWTBearerAuth() default claim type mapping behavior change</summary>
+
+The `JwtSecurityTokenHandler.DefaultInboundClaimTypeMap` static dictionary is presently used by ASP.NET for mapping claim types for inbound claim type mapping. In most
+cases people use `JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear()` to not have long claim types such
+as `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier` as the claim type for the `sub` claim for example.
+
+The default behavior has now been changed to make the claim types not use the SOAP type identifies like above. If for some reason you'd like to revert to the old
+behavior, it can be achieved like so:
+
+```csharp
+.AddJWTBearerAuth("jwt_signing_key", o =>
+{
+    o.MapInboundClaims = true;
+});
+```
+
+See #526 for more info.
+
+</details>

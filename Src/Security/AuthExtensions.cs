@@ -28,40 +28,73 @@ public static class AuthExtensions
                                                       Action<TokenValidationParameters>? tokenValidation = null,
                                                       Action<JwtBearerEvents>? bearerEvents = null)
     {
+        return services.AddJWTBearerAuth(
+            tokenSigningKey,
+            tokenSigningStyle,
+            o =>
+            {
+                tokenValidation?.Invoke(o.TokenValidationParameters);
+                bearerEvents?.Invoke(o.Events ??= new());
+            });
+    }
+
+    /// <summary>
+    /// configure and enable jwt bearer authentication
+    /// </summary>
+    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
+    /// <param name="jwtOptions">configuration action to specify options for the authentication scheme</param>
+    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
+                                                      string tokenSigningKey,
+                                                      Action<JwtBearerOptions> jwtOptions)
+        => AddJWTBearerAuth(services, tokenSigningKey, TokenSigningStyle.Asymmetric, jwtOptions);
+
+    /// <summary>
+    /// configure and enable jwt bearer authentication
+    /// </summary>
+    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
+    /// <param name="tokenSigningStyle">specify the token signing style</param>
+    /// <param name="jwtOptions">configuration action to specify options for the authentication scheme</param>
+    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
+                                                      string tokenSigningKey,
+                                                      TokenSigningStyle tokenSigningStyle,
+                                                      Action<JwtBearerOptions>? jwtOptions = null)
+    {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(o =>
-        {
-            SecurityKey key;
-            if (tokenSigningStyle == TokenSigningStyle.Symmetric)
-            {
-                key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey));
-            }
-            else
-            {
-                var rsa = RSA.Create();
-                rsa.ImportRSAPublicKey(Convert.FromBase64String(tokenSigningKey), out _);
-                key = new RsaSecurityKey(rsa);
-            }
+                .AddJwtBearer(
+                    o =>
+                    {
+                        SecurityKey key;
 
-            //set defaults
-            o.TokenValidationParameters.IssuerSigningKey = key;
-            o.TokenValidationParameters.ValidateIssuerSigningKey = true;
-            o.TokenValidationParameters.ValidateLifetime = true;
-            o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
-            o.TokenValidationParameters.ValidAudience = null;
-            o.TokenValidationParameters.ValidateAudience = false;
-            o.TokenValidationParameters.ValidIssuer = null;
-            o.TokenValidationParameters.ValidateIssuer = false;
+                        if (tokenSigningStyle == TokenSigningStyle.Symmetric)
+                            key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey));
+                        else
+                        {
+                            var rsa = RSA.Create();
+                            rsa.ImportRSAPublicKey(Convert.FromBase64String(tokenSigningKey), out _);
+                            key = new RsaSecurityKey(rsa);
+                        }
 
-            //override defaults with user supplied values
-            tokenValidation?.Invoke(o.TokenValidationParameters);
+                        //set defaults
+                        o.TokenValidationParameters.IssuerSigningKey = key;
+                        o.TokenValidationParameters.ValidateIssuerSigningKey = true;
+                        o.TokenValidationParameters.ValidateLifetime = true;
+                        o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
+                        o.TokenValidationParameters.ValidAudience = null;
+                        o.TokenValidationParameters.ValidateAudience = false;
+                        o.TokenValidationParameters.ValidIssuer = null;
+                        o.TokenValidationParameters.ValidateIssuer = false;
 
-            //correct any user mistake
-            o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
-            o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
+                        //set sensible defaults (based on configuration) for the claim mapping so tokens created with JWTBearer.CreateToken() will not be modified
+                        o.TokenValidationParameters.NameClaimType = Conf.SecOpts.NameClaimType;
+                        o.TokenValidationParameters.RoleClaimType = Conf.SecOpts.RoleClaimType;
+                        o.MapInboundClaims = false;
 
-            bearerEvents?.Invoke(o.Events ??= new());
-        });
+                        jwtOptions?.Invoke(o);
+
+                        //correct any user mistake
+                        o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
+                        o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
+                    });
 
         return services;
     }
@@ -69,21 +102,22 @@ public static class AuthExtensions
     /// <summary>
     /// configure and enable cookie based authentication
     /// </summary>
-    /// <param name="validFor">specify how long the created cookie is valid for with a <see cref="TimeSpan"/></param>
+    /// <param name="validFor">specify how long the created cookie is valid for with a <see cref="TimeSpan" /></param>
     /// <param name="options">optional action for configuring cookie authentication options</param>
     public static IServiceCollection AddCookieAuth(this IServiceCollection services,
                                                    TimeSpan validFor,
                                                    Action<CookieAuthenticationOptions>? options = null)
     {
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(o =>
-            {
-                o.ExpireTimeSpan = validFor;
-                o.Cookie.MaxAge = validFor;
-                o.Cookie.HttpOnly = true;
-                o.Cookie.SameSite = SameSiteMode.Lax;
-                options?.Invoke(o);
-            });
+                .AddCookie(
+                    o =>
+                    {
+                        o.ExpireTimeSpan = validFor;
+                        o.Cookie.MaxAge = validFor;
+                        o.Cookie.HttpOnly = true;
+                        o.Cookie.SameSite = SameSiteMode.Lax;
+                        options?.Invoke(o);
+                    });
 
         return services;
     }
@@ -110,29 +144,21 @@ public static class AuthExtensions
         => principal.FindFirstValue(claimType);
 
     /// <summary>
-    /// adds multiple <see cref="Claim"/>s to the list.
+    /// adds multiple <see cref="Claim" />s to the list.
     /// </summary>
-    /// <param name="claims">the <see cref="Claim"/>s to append to the list.</param>
-    public static void Add(this List<Claim> list, params Claim[] claims)
-    {
-        list.AddRange(claims);
-    }
+    /// <param name="claims">the <see cref="Claim" />s to append to the list.</param>
+    public static void Add(this List<Claim> list, params Claim[] claims) { list.AddRange(claims); }
 
     /// <summary>
-    /// adds multiple <see cref="Claim"/>s to the list.
+    /// adds multiple <see cref="Claim" />s to the list.
     /// </summary>
     /// <param name="claims">the claim <c>Type</c> &amp; <c>Value</c> tuples to add to the list.</param>
     public static void Add(this List<Claim> list, params (string claimType, string claimValue)[] claims)
-    {
-        list.AddRange(claims.Select(c => new Claim(c.claimType, c.claimValue)));
-    }
+        => list.AddRange(claims.Select(c => new Claim(c.claimType, c.claimValue)));
 
     /// <summary>
     /// adds multiple strings to a list.
     /// </summary>
     /// <param name="values">the strings to append to the list.</param>
-    public static void Add(this List<string> list, params string[] values)
-    {
-        list.AddRange(values);
-    }
+    public static void Add(this List<string> list, params string[] values) { list.AddRange(values); }
 }

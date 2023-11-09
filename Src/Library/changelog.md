@@ -63,7 +63,7 @@ The `ProblemDetails` DTO properties had private setter properties preventing STJ
 
 </details>
 
-## Breaking Changes ⚠️
+## Minor Breaking Changes ⚠️
 
 <details><summary>Pre/Post Processor interface changes</summary>
 

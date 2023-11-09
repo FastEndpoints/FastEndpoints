@@ -353,25 +353,31 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     //because Order.After below ultimately causes an append via list.Add()
     static int _unused;
 
-    //todo: write tests
+    /// <summary>
+    /// configure a  post-processor to be executed after the main handler function is done. call this method multiple times to add multiple post-processors.
+    /// processors are executed in the order they are configured in the endpoint.
+    /// </summary>
+    /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
     protected void PostProcessor<TPostProcessor>() where TPostProcessor : class, IPostProcessor<TRequest, TResponse>
         => EndpointDefinition.AddProcessor<TPostProcessor>(Order.After, Definition.PostProcessorList, ref _unused);
 
     /// <summary>
-    /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are
-    /// defined here.
+    /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are  defined here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
     protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors)
         => EndpointDefinition.AddProcessors(Order.After, postProcessors, Definition.PostProcessorList, ref _unused);
 
-    //todo: write tests
+    /// <summary>
+    /// configure a  pre-processor to be executed before the main handler function is called. call this method multiple times to add multiple pre-processors.
+    /// processors are executed in the order they are configured in the endpoint.
+    /// </summary>
+    /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
     protected void PreProcessor<TPreProcessor>() where TPreProcessor : class, IPreProcessor<TRequest>
         => EndpointDefinition.AddProcessor<TPreProcessor>(Order.After, Definition.PreProcessorList, ref _unused);
 
     /// <summary>
-    /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are
-    /// defined here.
+    /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined here.
     /// </summary>
     /// <param name="preProcessors">the pre processors to be executed</param>
     protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors)

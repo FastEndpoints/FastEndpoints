@@ -33,7 +33,7 @@ public class Endpoint : Endpoint<Request, ExceptionDetailsResponse>
     {
         Get("testcases/post-processor-handles-exception");
         AllowAnonymous();
-        PostProcessors(new Processor());
+        PostProcessor<Processor>();
     }
 
     public override Task HandleAsync(Request r, CancellationToken c)

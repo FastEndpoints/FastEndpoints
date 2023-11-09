@@ -7,13 +7,11 @@ public class Endpoint : Endpoint<Request, Response>
     public override void Configure()
     {
         Get("/sales/orders/retrieve/{@id}", r => new { r.OrderID });
-        PreProcessors(new SecurityProcessor<Request>());
+        PreProcessor<SecurityProcessor<Request>>();
         AllowAnonymous();
         Tags("orders");
     }
 
     public override Task HandleAsync(Request r, CancellationToken c)
-    {
-        return SendAsync(Response);
-    }
+        => SendAsync(Response);
 }

@@ -6,12 +6,14 @@
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions.Json" Version="6.1.0"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2"/>
-        <PackageReference Include="xunit" Version="2.6.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
+        <PackageReference Include="xunit" Version="2.6.1"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
-        
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+
+        <!-- REMOVE AFTER NSWAG SUPPORTS .NET 8 -->
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0"/>
+        <!-- REMOVE AFTER NSWAG SUPPORTS .NET 8 -->
     </ItemGroup>
 
     <ItemGroup>

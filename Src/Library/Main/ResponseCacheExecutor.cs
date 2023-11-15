@@ -9,11 +9,18 @@ static class ResponseCacheExecutor
 {
     public static void Execute(HttpContext context, ResponseCacheAttribute? attrib)
     {
-        if (attrib is null)
-            return;
+        switch (attrib)
+        {
+            case null:
+                return;
+            case { NoStore: false, Duration: 0 }:
+                throw new InvalidOperationException("ResponseCache duration MUST be set unless NoStore is true!");
+        }
 
-        if (attrib is { NoStore: false, Duration: 0 })
-            throw new InvalidOperationException("ResponseCache duration MUST be set unless NoStore is true!");
+        var cachingFeature = context.Features.Get<IResponseCachingFeature>();
+
+        if (cachingFeature is null) //endpoint specifies caching but middleware not setup correctly
+            throw new InvalidOperationException("Please enable response caching middleware!");
 
         var headers = context.Response.Headers;
 
@@ -25,14 +32,7 @@ static class ResponseCacheExecutor
             headers.Vary = attrib.VaryByHeader;
 
         if (attrib.VaryByQueryKeys != null)
-        {
-            var responseCachingFeature = context.Features.Get<IResponseCachingFeature>();
-
-            if (responseCachingFeature == null)
-                throw new InvalidOperationException("Please enable response caching middleware!");
-
-            responseCachingFeature.VaryByQueryKeys = attrib.VaryByQueryKeys;
-        }
+            cachingFeature.VaryByQueryKeys = attrib.VaryByQueryKeys;
 
         if (attrib.NoStore)
         {

@@ -95,7 +95,7 @@ The `JwtSecurityTokenHandler.DefaultInboundClaimTypeMap` static dictionary is pr
 cases people use `JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear()` to not have long claim types such
 as `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier` as the claim type for the `sub` claim for example.
 
-The default behavior has now been changed to make the claim types not use the SOAP type identifies like above. If for some reason you'd like to revert to the old
+The default behavior has now been changed to make the claim types not use the SOAP type identifiers like above. If for some reason you'd like to revert to the old
 behavior, it can be achieved like so:
 
 ```csharp

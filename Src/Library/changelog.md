@@ -12,7 +12,25 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>Support for .Net 8.0</summary>
 
-todo: write description
+The project is now developed and built using .NET 8.0 while supporting .NET 6 & 7 as well. You can upgrade your existing projects simply by targeting .NET 8
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+     </PropertyGroup>
+</Project>
+```
+
+After changing the SDK version to `net8.0`, you may get a build/compilation error with `NSwag` not being updated for .NET 8 yet. As a temporary workaround, you can add the following to your `.csproj` until NSwag is updated:
+```xml
+<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+```
+
+The .NET 8 [Request Delegate Generator](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/aot/request-delegate-generator/rdg?view=aspnetcore-8.0) is not yet 
+compatible with FastEndpoints as FE has it's own endpoint mapping and model binding system which will require a complete rewrite as a Source Generator to properly 
+support Native AOT. We're currently investigating ways to achieve that but cannot give a timeframe on completion as it's a massive undertaking.
 
 </details>
 

@@ -20,7 +20,7 @@ public interface IPostProcessor
 /// </summary>
 /// <typeparam name="TRequest">the type of the request object, which must be non-nullable.</typeparam>
 /// <typeparam name="TResponse">the type of the response object.</typeparam>
-public interface IPostProcessor<in TRequest, in TResponse> : IPostProcessor where TRequest : notnull
+public interface IPostProcessor<in TRequest, in TResponse> : IPostProcessor
 {
     /// <summary>
     /// explicit interface method implementation for <see cref="IPostProcessor" />.

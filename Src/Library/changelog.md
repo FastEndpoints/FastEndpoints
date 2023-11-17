@@ -30,7 +30,7 @@ After changing the SDK version to `net8.0`, you may get a build/compilation erro
 
 The .NET 8 [Request Delegate Generator](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/aot/request-delegate-generator/rdg?view=aspnetcore-8.0) is not yet 
 compatible with FastEndpoints as FE has it's own endpoint mapping and model binding system which will require a complete rewrite as a Source Generator to properly 
-support Native AOT. We're currently investigating ways to achieve that but cannot give a timeframe on completion as it's a massive undertaking.
+support Native AOT. We're currently investigating ways to achieve that but cannot give a timeframe on completion as it's a massive undertaking. You can see our [internal discussion](https://discord.com/channels/933662816458645504/1174563570013442098) about this matter on discord.
 
 </details>
 

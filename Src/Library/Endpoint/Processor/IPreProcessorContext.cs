@@ -26,14 +26,14 @@ public interface IPreProcessorContext
     /// <summary>
     /// determines if any validation failures have occurred during processing.
     /// </summary>
-    sealed bool HasValidationFailures => ValidationFailures.Any();
+    sealed bool HasValidationFailures => ValidationFailures.Count > 0;
 }
 
 /// <summary>
 /// defines the generic interface for a pre-processor context with a specific type for the request.
 /// </summary>
 /// <typeparam name="TRequest">The type of the request object, which must be non-nullable.</typeparam>
-public interface IPreProcessorContext<out TRequest> : IPreProcessorContext where TRequest : notnull
+public interface IPreProcessorContext<out TRequest> : IPreProcessorContext
 {
     /// <summary>
     /// gets the request object of the generic type <typeparamref name="TRequest" />.
@@ -44,5 +44,5 @@ public interface IPreProcessorContext<out TRequest> : IPreProcessorContext where
     /// <summary>
     /// explicit implementation to return the request object from the non-generic context.
     /// </summary>
-    object IPreProcessorContext.Request => Request;
+    object IPreProcessorContext.Request => Request!;
 }

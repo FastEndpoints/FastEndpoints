@@ -19,7 +19,7 @@ public interface IPreProcessor
 /// enabling type-safe pre-processing.
 /// </summary>
 /// <typeparam name="TRequest">the type of the request object, which must be non-nullable.</typeparam>
-public interface IPreProcessor<in TRequest> : IPreProcessor where TRequest : notnull
+public interface IPreProcessor<in TRequest> : IPreProcessor
 {
     /// <summary>
     /// explicit interface method implementation for <see cref="IPreProcessor" />.

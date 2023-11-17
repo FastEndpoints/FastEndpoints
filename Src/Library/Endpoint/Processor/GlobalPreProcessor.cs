@@ -14,6 +14,7 @@ public abstract class GlobalPreProcessor<TState> : IGlobalPreProcessor where TSt
         => PreProcessAsync(context, context.HttpContext.ProcessorState<TState>(), ct);
 
     // ReSharper disable once MemberCanBeProtected.Global
+    // ReSharper disable UnusedParameter.Global
     /// <summary>
     /// this method is called with the given arguments when the pre-processor executes.
     /// </summary>

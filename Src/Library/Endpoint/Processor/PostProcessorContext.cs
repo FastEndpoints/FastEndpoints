@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// </summary>
 /// <typeparam name="TRequest">the type of the request object, which must be non-nullable.</typeparam>
 /// <typeparam name="TResponse">the type of the response object.</typeparam>
-public sealed class PostProcessorContext<TRequest, TResponse> : IPostProcessorContext<TRequest, TResponse> where TRequest : notnull
+public sealed class PostProcessorContext<TRequest, TResponse> : IPostProcessorContext<TRequest, TResponse>
 {
     /// <summary>
     /// gets the request associated with the post-processing context.

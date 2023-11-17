@@ -6,9 +6,7 @@
 /// <typeparam name="TRequest">type of the request DTO.</typeparam>
 /// <typeparam name="TState">type of the common processor state.</typeparam>
 /// <typeparam name="TResponse">type of the response.</typeparam>
-public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcessor<TRequest, TResponse>
-    where TState : class, new()
-    where TRequest : notnull
+public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcessor<TRequest, TResponse> where TState : class, new()
 {
     /// <summary>
     /// not intended for direct external use.
@@ -18,6 +16,7 @@ public abstract class PostProcessor<TRequest, TState, TResponse> : IPostProcesso
         => PostProcessAsync(context, context.HttpContext.ProcessorState<TState>(), ct);
 
     // ReSharper disable once MemberCanBeProtected.Global
+    // ReSharper disable once UnusedParameter.Global
     /// <summary>
     /// implement this method to define the post-processing logic using the provided context and state.
     /// </summary>

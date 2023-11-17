@@ -8,6 +8,7 @@ namespace FastEndpoints;
 /// </summary>
 public interface IResponseInterceptor
 {
+    // ReSharper disable UnusedParameter.Global
     /// <summary>
     /// implement this method to intercept the http response with the use of SendInterceptedAsync() method.
     /// </summary>

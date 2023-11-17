@@ -5,9 +5,7 @@
 /// </summary>
 /// <typeparam name="TRequest">type of the request dto</typeparam>
 /// <typeparam name="TState">type of the common processor state</typeparam>
-public abstract class PreProcessor<TRequest, TState> : IPreProcessor<TRequest>
-    where TState : class, new()
-    where TRequest : notnull
+public abstract class PreProcessor<TRequest, TState> : IPreProcessor<TRequest> where TState : class, new()
 {
     /// <summary>
     /// not intended for direct external use.
@@ -17,6 +15,7 @@ public abstract class PreProcessor<TRequest, TState> : IPreProcessor<TRequest>
         => PreProcessAsync(context, context.HttpContext.ProcessorState<TState>(), ct);
 
     // ReSharper disable once MemberCanBeProtected.Global
+    // ReSharper disable once UnusedParameter.Global
     /// <summary>
     /// this method is called with the given arguments when the pre-processor executes.
     /// </summary>

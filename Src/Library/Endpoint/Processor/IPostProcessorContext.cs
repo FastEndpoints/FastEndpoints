@@ -46,7 +46,7 @@ public interface IPostProcessorContext
     /// <summary>
     /// determines if any validation failures have occurred during processing.
     /// </summary>
-    sealed bool HasValidationFailures => ValidationFailures.Any();
+    sealed bool HasValidationFailures => ValidationFailures.Count > 0;
 }
 
 /// <summary>
@@ -54,7 +54,7 @@ public interface IPostProcessorContext
 /// </summary>
 /// <typeparam name="TRequest">the type of the request object, which must be non-nullable.</typeparam>
 /// <typeparam name="TResponse">the type of the response object.</typeparam>
-public interface IPostProcessorContext<out TRequest, out TResponse> : IPostProcessorContext where TRequest : notnull
+public interface IPostProcessorContext<out TRequest, out TResponse> : IPostProcessorContext
 {
     /// <summary>
     /// gets the request object of the generic type <typeparamref name="TRequest" />.
@@ -72,7 +72,7 @@ public interface IPostProcessorContext<out TRequest, out TResponse> : IPostProce
     /// <summary>
     /// explicit implementation to return the request object from the non-generic context.
     /// </summary>
-    object IPostProcessorContext.Request => Request;
+    object IPostProcessorContext.Request => Request!;
 
     /// <summary>
     /// explicit implementation to return the response object from the non-generic context.

@@ -1,6 +1,9 @@
-﻿using System.Runtime.ExceptionServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.ExceptionServices;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+
+#pragma warning disable CS8618
 
 namespace FastEndpoints;
 
@@ -14,6 +17,7 @@ public sealed class PostProcessorContext<TRequest, TResponse> : IPostProcessorCo
     /// <summary>
     /// gets the request associated with the post-processing context.
     /// </summary>
+    [NotNull]
     public TRequest Request { get; init; }
 
     /// <summary>

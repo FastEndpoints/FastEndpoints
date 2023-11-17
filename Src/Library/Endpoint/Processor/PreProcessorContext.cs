@@ -1,5 +1,8 @@
-﻿using FluentValidation.Results;
+﻿using System.Diagnostics.CodeAnalysis;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+
+#pragma warning disable CS8618
 
 namespace FastEndpoints;
 
@@ -12,6 +15,7 @@ public sealed class PreProcessorContext<TRequest> : IPreProcessorContext<TReques
     /// <summary>
     /// gets the request associated with the pre-processing context.
     /// </summary>
+    [NotNull]
     public TRequest Request { get; init; }
 
     /// <summary>

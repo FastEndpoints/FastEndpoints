@@ -60,6 +60,7 @@ public interface IPostProcessorContext<out TRequest, out TResponse> : IPostProce
     /// gets the request object of the generic type <typeparamref name="TRequest" />.
     /// this hides the non-generic version from <see cref="IPostProcessorContext" />.
     /// </summary>
+    [NotNull]
     new TRequest Request { get; }
 
     /// <summary>
@@ -72,7 +73,7 @@ public interface IPostProcessorContext<out TRequest, out TResponse> : IPostProce
     /// <summary>
     /// explicit implementation to return the request object from the non-generic context.
     /// </summary>
-    object IPostProcessorContext.Request => Request!;
+    object IPostProcessorContext.Request => Request;
 
     /// <summary>
     /// explicit implementation to return the response object from the non-generic context.

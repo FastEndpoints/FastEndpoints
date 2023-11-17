@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using System.Diagnostics.CodeAnalysis;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
@@ -39,10 +40,11 @@ public interface IPreProcessorContext<out TRequest> : IPreProcessorContext
     /// gets the request object of the generic type <typeparamref name="TRequest" />.
     /// This hides the non-generic version from <see cref="IPreProcessorContext" />.
     /// </summary>
+    [NotNull]
     new TRequest Request { get; }
 
     /// <summary>
     /// explicit implementation to return the request object from the non-generic context.
     /// </summary>
-    object IPreProcessorContext.Request => Request!;
+    object IPreProcessorContext.Request => Request;
 }

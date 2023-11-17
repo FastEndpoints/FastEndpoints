@@ -36,25 +36,44 @@ support Native AOT. We're currently investigating ways to achieve that but canno
 
 <details><summary>Simpler way to register Pre/Post Processors with DI support</summary>
 
-ref: https://github.com/FastEndpoints/FastEndpoints/pull/528
-
+Processors can now be configured just by specifying the type of the processor without the need for instantiating them yourself.
+```cs
+public class MyEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        ...
+        PreProcessor<PreProcessorOne>();
+        PreProcessor<PreProcessorTwo>();
+    }
+}
+```
+While the old **PreProcessors(...)** method continues to work, the new method automatically resolves any constructor injected dependencies without you having to manually register the processors in DI.
 </details>
 
 <details><summary>Exception handling capability for Post-Processors</summary>
 
-todo: update doc page and link here
+Post-Processors can now handle uncaught exceptions as an alternative to an exception handling middleware.
+Please see the [documentation page](https://fast-endpoints.com/docs/pre-post-processors#handling-unhandled-exceptions-with-post-processors) for details.
 
 </details>
 
 <details><summary>Shared state support for global Pre/Post Processors</summary>
 
-ref: https://github.com/FastEndpoints/FastEndpoints/pull/523
+Global Pre/Post Processors now have [shared state](https://fast-endpoints.com/docs/pre-post-processors#sharing-state) support with the following two newly added abstract types:
+
+- GlobalPreProcessor\<TState\>
+- GlobalPostProcessor\<TState\>
 
 </details>
 
-<details><summary>Ability to hide the error reason in the JSON response when using the default exception handler middleware</summary>
+<details><summary>Ability to hide the error reason in the JSON response when using the default exception handler middleware</Summary>
 
-todo: write description
+The actual error reason can now be hidden from the client by configuring the [exception handler middleware](https://fast-endpoints.com/docs/exception-handler#unhandled-exception-handler) like so:
+
+```cs
+app.UseDefaultExceptionHandler(useGenericReason: true);
+```
 
 </details>
 
@@ -64,7 +83,7 @@ todo: write description
 
 <details><summary>Auto binding collections of form files fails after first request</summary>
 
-An object disposed error was being thrown in subsequent for file collection submissions due to a flaw in the model binding logic, which has now been corrected.
+An object disposed error was being thrown in subsequent requests for file collection submissions due to a flaw in the model binding logic, which has now been corrected.
 
 </details>
 

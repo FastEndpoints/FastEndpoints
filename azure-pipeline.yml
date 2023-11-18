@@ -18,7 +18,7 @@ steps:
     inputs:
       packageType: "sdk"
       version: "8.x"
-      includePreviewVersions: true
+      includePreviewVersions: false
 
   - task: Bash@3
     displayName: "Update xUnit Runner Config"

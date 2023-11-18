@@ -87,10 +87,17 @@ An object disposed error was being thrown in subsequent requests for file collec
 
 </details>
 
-<details><summary>Incorrect validation error field names for nested request DTO classes with [FromBody] attribute</summary>
+<details><summary>Incorrect validation error field names when nested request DTO property has [FromBody] attribute</summary>
 
-todo: write description
-ref: https://discord.com/channels/933662816458645504/1168177198415482972
+JSON error responses didn't correctly render the deeply nested property chain/paths when the following conditions were met:
+
+- Request DTO has a property annotated with `[FromBody]` attribute
+- The bound property is a complex object graph
+- Some validation errors occur for deeply nested items
+
+This has been fixed to correctly render the property chain of the actual item that caused the validation failure.
+
+More info [here](https://discord.com/channels/933662816458645504/1168177198415482972).
 
 </details>
 
@@ -104,7 +111,29 @@ The `ProblemDetails` DTO properties had private setter properties preventing STJ
 
 <details><summary>Pre/Post Processor interface changes</summary>
 
-todo: describe the change and how to migrate
+Due to the Processor related new features introduced in this release, the `*ProcessAsync(...)` method signatures had to be changed. The previous arguments are still available but they have been grouped/pushed into a processor context object. The new method signatures look like the following. Migrating your existing pre/post processors shouldn't take more than a few minutes.
+
+**PreProcessor Signature:**
+```cs
+sealed class MyProcessor : IPreProcessor<MyRequest>
+{
+    public Task PreProcessAsync(IPreProcessorContext<MyRequest> ctx, CancellationToken c)
+    {
+        ...
+    }
+}
+```
+
+**PostProcessor Signature:**
+```cs
+sealed class MyProcessor : IPostProcessor<MyRequest, MyResponse>
+{
+    public Task PostProcessAsync(IPostProcessorContext<MyRequest, MyResponse> ctx, CancellationToken c)
+    {
+        ...
+    }
+}
+```
 
 </details>
 
@@ -123,6 +152,8 @@ behavior, it can be achieved like so:
     o.MapInboundClaims = true;
 });
 ```
+
+> If using the new default behavior, it is **highly** recommended to invalidate any previously issued JWTs by resetting your JWT signing keys or any other means neccessary to avoid any potential issues with claim types not matching. This obviously means your clients/users will have re-login (obtain new JWTs). If that's not an option, simply set `.MapInboundClaims = true;` as mentioned above to use the previous behavior.
 
 See #526 for more info.
 

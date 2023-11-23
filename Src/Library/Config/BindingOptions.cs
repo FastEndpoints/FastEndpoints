@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1822
+﻿using System.Diagnostics.CodeAnalysis;
 using FluentValidation.Results;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
@@ -9,6 +9,7 @@ namespace FastEndpoints;
 /// <summary>
 /// request binding options
 /// </summary>
+[SuppressMessage("Performance", "CA1822:Mark members as static")]
 public sealed class BindingOptions
 {
     /// <summary>
@@ -35,10 +36,9 @@ public sealed class BindingOptions
     /// <see cref="FailureMessage" /> func.
     /// </para>
     /// </summary>
-    public Func<JsonException, ValidationFailure>? JsonExceptionTransformer { internal get; set; } = exception
-        => new(
-            propertyName: exception.Path != "$" ? exception.Path?[2..] : Conf.SerOpts.SerializerErrorsField,
-            errorMessage: exception.InnerException?.Message ?? exception.Message);
+    public Func<JsonException, ValidationFailure>? JsonExceptionTransformer { internal get; set; } = exception => new(
+        propertyName: exception.Path is null or "$" ? Conf.SerOpts.SerializerErrorsField : exception.Path[2..],
+        errorMessage: exception.InnerException?.Message ?? exception.Message);
 
     /// <summary>
     /// an optional action to be run after the endpoint level request binding has occured.

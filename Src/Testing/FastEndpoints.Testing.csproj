@@ -18,7 +18,7 @@
         <PackageReference Include="Bogus" Version="34.0.2"/>
         <PackageReference Include="Xunit.Priority" Version="1.1.6"/>
         <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>

@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.8.0"/>
+        <PackageReference Include="FluentValidation" Version="11.8.1" />
 
         <!-- REMOVE AFTER NSWAG SUPPORTS .NET 8 -->
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0"/>

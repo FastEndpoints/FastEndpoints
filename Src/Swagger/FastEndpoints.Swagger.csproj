@@ -13,7 +13,7 @@
         <ProjectReference Include="..\Library\FastEndpoints.csproj" />
         
         <PackageReference Include="NSwag.AspNetCore" Version="13.20.0" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>

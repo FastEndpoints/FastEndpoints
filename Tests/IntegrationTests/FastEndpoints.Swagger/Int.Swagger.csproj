@@ -5,10 +5,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions.Json" Version="6.1.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-        <PackageReference Include="xunit" Version="2.6.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+        <PackageReference Include="Verify.Xunit" Version="22.5.0"/>
+        <PackageReference Include="xunit" Version="2.6.2"/>
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
 
         <!-- REMOVE AFTER NSWAG SUPPORTS .NET 8 -->
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0"/>
@@ -23,9 +23,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="initial-release.json" CopyToOutputDirectory="Always"/>
-        <Content Include="release-1.json" CopyToOutputDirectory="Always"/>
-        <Content Include="release-2.json" CopyToOutputDirectory="Always"/>
         <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
     </ItemGroup>
 

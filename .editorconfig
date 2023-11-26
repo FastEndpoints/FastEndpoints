@@ -8,6 +8,15 @@ indent_size = 4
 [{*.har,*.json}]
 indent_size = 2
 
+[*.{received,verified}.{txt,xml,json}]
+charset = "utf-8-bom"
+end_of_line = lf
+indent_size = unset
+indent_style = unset
+insert_final_newline = false
+tab_width = unset
+trim_trailing_whitespace = false
+
 [*.cs]
 csharp_new_line_before_members_in_object_initializers = false
 csharp_new_line_between_query_expression_clauses = false

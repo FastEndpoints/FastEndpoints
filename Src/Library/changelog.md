@@ -22,21 +22,17 @@ The project is now developed and built using .NET 8.0 while supporting .NET 6 & 
 </Project>
 ```
 
-After changing the SDK version to `net8.0`, you may get a build/compilation error with `NSwag` not being updated for .NET 8 yet. As a temporary workaround, you can add the following to your `.csproj` until NSwag is updated:
-```xml
-<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
-<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
-```
-
-The .NET 8 [Request Delegate Generator](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/aot/request-delegate-generator/rdg?view=aspnetcore-8.0) is not yet 
-compatible with FastEndpoints as FE has it's own endpoint mapping and model binding system which will require a complete rewrite as a Source Generator to properly 
-support Native AOT. We're currently investigating ways to achieve that but cannot give a timeframe on completion as it's a massive undertaking. You can see our [internal discussion](https://discord.com/channels/933662816458645504/1174563570013442098) about this matter on discord.
+The .NET 8 [Request Delegate Generator](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/aot/request-delegate-generator/rdg?view=aspnetcore-8.0) is not yet
+compatible with FastEndpoints as FE has it's own endpoint mapping and model binding system which will require a complete rewrite as a Source Generator to properly
+support Native AOT. We're currently investigating ways to achieve that but cannot give a timeframe on completion as it's a massive undertaking. You can see
+our [internal discussion](https://discord.com/channels/933662816458645504/1174563570013442098) about this matter on discord.
 
 </details>
 
 <details><summary>Simpler way to register Pre/Post Processors with DI support</summary>
 
 Processors can now be configured just by specifying the type of the processor without the need for instantiating them yourself.
+
 ```cs
 public class MyEndpoint : EndpointWithoutRequest
 {
@@ -48,7 +44,9 @@ public class MyEndpoint : EndpointWithoutRequest
     }
 }
 ```
-While the old **PreProcessors(...)** method continues to work, the new method automatically resolves any constructor injected dependencies without you having to manually register the processors in DI.
+
+While the old **PreProcessors(...)** method continues to work, the new method automatically resolves any constructor injected dependencies without you having to manually
+register the processors in DI.
 </details>
 
 <details><summary>Exception handling capability for Post-Processors</summary>
@@ -60,7 +58,8 @@ Please see the [documentation page](https://fast-endpoints.com/docs/pre-post-pro
 
 <details><summary>Shared state support for global Pre/Post Processors</summary>
 
-Global Pre/Post Processors now have [shared state](https://fast-endpoints.com/docs/pre-post-processors#sharing-state) support with the following two newly added abstract types:
+Global Pre/Post Processors now have [shared state](https://fast-endpoints.com/docs/pre-post-processors#sharing-state) support with the following two newly added abstract
+types:
 
 - GlobalPreProcessor\<TState\>
 - GlobalPostProcessor\<TState\>
@@ -69,7 +68,8 @@ Global Pre/Post Processors now have [shared state](https://fast-endpoints.com/do
 
 <details><summary>Ability to hide the error reason in the JSON response when using the default exception handler middleware</Summary>
 
-The actual error reason can now be hidden from the client by configuring the [exception handler middleware](https://fast-endpoints.com/docs/exception-handler#unhandled-exception-handler) like so:
+The actual error reason can now be hidden from the client by configuring
+the [exception handler middleware](https://fast-endpoints.com/docs/exception-handler#unhandled-exception-handler) like so:
 
 ```cs
 app.UseDefaultExceptionHandler(useGenericReason: true);
@@ -111,9 +111,12 @@ The `ProblemDetails` DTO properties had private setter properties preventing STJ
 
 <details><summary>Pre/Post Processor interface changes</summary>
 
-Due to the Processor related new features introduced in this release, the `*ProcessAsync(...)` method signatures had to be changed. The previous arguments are still available but they have been grouped/pushed into a processor context object. The new method signatures look like the following. Migrating your existing pre/post processors shouldn't take more than a few minutes.
+Due to the Processor related new features introduced in this release, the `*ProcessAsync(...)` method signatures had to be changed. The previous arguments are still
+available but they have been grouped/pushed into a processor context object. The new method signatures look like the following. Migrating your existing pre/post
+processors shouldn't take more than a few minutes.
 
 **PreProcessor Signature:**
+
 ```cs
 sealed class MyProcessor : IPreProcessor<MyRequest>
 {
@@ -125,6 +128,7 @@ sealed class MyProcessor : IPreProcessor<MyRequest>
 ```
 
 **PostProcessor Signature:**
+
 ```cs
 sealed class MyProcessor : IPostProcessor<MyRequest, MyResponse>
 {
@@ -153,7 +157,9 @@ behavior, it can be achieved like so:
 });
 ```
 
-> If using the new default behavior, it is **highly** recommended to invalidate any previously issued JWTs by resetting your JWT signing keys or any other means neccessary to avoid any potential issues with claim types not matching. This obviously means your clients/users will have re-login (obtain new JWTs). If that's not an option, simply set `.MapInboundClaims = true;` as mentioned above to use the previous behavior.
+> If using the new default behavior, it is **highly** recommended to invalidate any previously issued JWTs by resetting your JWT signing keys or any other means
+> neccessary to avoid any potential issues with claim types not matching. This obviously means your clients/users will have re-login (obtain new JWTs). If that's not an
+> option, simply set `.MapInboundClaims = true;` as mentioned above to use the previous behavior.
 
 See #526 for more info.
 

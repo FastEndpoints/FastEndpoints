@@ -43,8 +43,10 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
     public ValidationSchemaProcessor()
     {
         if (Conf.ServiceResolver is null)
+        {
             throw new InvalidOperationException(
                 $"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
+        }
 
         _logger = Conf.ServiceResolver.Resolve<ILogger<ValidationSchemaProcessor>>();
         _rules = CreateDefaultRules();
@@ -69,8 +71,10 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
         using var scope = Conf.ServiceResolver.CreateScope();
 
         if (scope is null)
+        {
             throw new InvalidOperationException(
                 $"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
+        }
 
         foreach (var tValidator in _validatorTypes)
         {
@@ -128,10 +132,10 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
         // Note: IValidatorDescriptor doesn't return IncludeRules so we need to get validators manually.
         var childAdapters = rules
-                           .Where(rule => rule.HasNoCondition() && rule is IIncludeRule)
-                           .SelectMany(includeRule => includeRule.Components.Select(c => c.Validator))
-                           .Where(x => x.GetType().IsGenericType && x.GetType().GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>))
-                           .ToList();
+                            .Where(rule => rule.HasNoCondition() && rule is IIncludeRule)
+                            .SelectMany(includeRule => includeRule.Components.Select(c => c.Validator))
+                            .Where(x => x.GetType().IsGenericType && x.GetType().GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>))
+                            .ToList();
 
         foreach (var adapter in childAdapters)
         {
@@ -187,7 +191,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                 // Get underlying validator using reflection
                 var validatorTypeObj = propertyValidator.GetType()
                                                         .GetProperty("ValidatorType")
-                                                       ?.GetValue(propertyValidator);
+                                                        ?.GetValue(propertyValidator);
 
                 // Check if something went wrong
                 if (validatorTypeObj is not Type validatorType)
@@ -201,7 +205,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                 var childSchema = schema.ActualProperties[propertyName].ActualSchema;
 
                 // Check if it is an array (RuleForEach()). In this case we need to apply validator to an Item Schema
-                childSchema = childSchema.Type == JsonObjectType.Array ? childSchema.Item.ActualSchema : childSchema;
+                childSchema = childSchema.Type == JsonObjectType.Array ? childSchema.Item!.ActualSchema : childSchema;
                 ApplyValidator(childSchema, childValidator, string.Empty);
 
                 continue;

@@ -34,7 +34,7 @@ bld.Services
                s.DocumentName = "Initial Release";
                s.Title = "Web API";
                s.Version = "v0.0";
-               s.SchemaType = SchemaType.OpenApi3;
+               s.SchemaSettings.SchemaType = SchemaType.OpenApi3;
            };
            o.TagCase = TagCase.TitleCase;
            o.RemoveEmptyRequestSchema = false;

@@ -9,22 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove="[Features]\Inventory\List\Search\**"/>
-        <Content Remove="[Features]\Inventory\List\Search\**"/>
-        <EmbeddedResource Remove="[Features]\Inventory\List\Search\**"/>
-        <None Remove="[Features]\Inventory\List\Search\**"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.8.1" />
-
-        <!-- REMOVE AFTER NSWAG SUPPORTS .NET 8 -->
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0"/>
-        <!-- REMOVE AFTER NSWAG SUPPORTS .NET 8 -->
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>

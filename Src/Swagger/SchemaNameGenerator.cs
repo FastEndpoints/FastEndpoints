@@ -12,7 +12,7 @@ sealed class SchemaNameGenerator : ISchemaNameGenerator
         _shortSchemaNames = shortSchemaNames;
     }
 
-    public string? Generate(Type type)
+    public string Generate(Type type)
     {
         var isGeneric = type.IsGenericType;
         var fullNameWithoutGenericArgs =

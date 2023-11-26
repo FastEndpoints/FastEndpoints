@@ -14,6 +14,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using NJsonSchema.NewtonsoftJson.Generation;
 
 namespace FastEndpoints.Swagger;
 
@@ -41,7 +42,10 @@ sealed class OperationProcessor : IOperationProcessor
 
     readonly DocumentOptions _opts;
 
-    public OperationProcessor(DocumentOptions documentOptions) { _opts = documentOptions; }
+    public OperationProcessor(DocumentOptions documentOptions)
+    {
+        _opts = documentOptions;
+    }
 
     public bool Process(OperationProcessorContext ctx)
     {
@@ -60,7 +64,7 @@ sealed class OperationProcessor : IOperationProcessor
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;
         var reqContent = op.RequestBody?.Content;
-        var serializer = JsonSerializer.Create(ctx.SchemaGenerator.Settings.ActualSerializerSettings);
+        var serializer = JsonSerializer.Create(((NewtonsoftJsonSchemaGeneratorSettings)ctx.SchemaGenerator.Settings).SerializerSettings);
 
         //set operation id if user has specified
         if (nameMetaData is not null)
@@ -104,7 +108,7 @@ sealed class OperationProcessor : IOperationProcessor
                                 example = g.Last().GetExampleFromMetaData() ?? example;
                                 example = example is not null ? JToken.FromObject(example, serializer) : null;
 
-                                if (ctx.Settings.SchemaType == SchemaType.Swagger2 &&
+                                if (ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2 &&
                                     example is JToken token &&
                                     token.Type == JTokenType.Array)
                                     example = token.ToString();
@@ -142,7 +146,7 @@ sealed class OperationProcessor : IOperationProcessor
                                         {
                                             Description = hdr.Description,
                                             Example = hdr.Example is not null ? JToken.FromObject(hdr.Example, serializer) : null,
-                                            Schema = hdr.Example is not null ? ctx.SchemaGenerator.Generate(hdr.Example?.GetType()) : null
+                                            Schema = hdr.Example is not null ? ctx.SchemaGenerator.Generate(hdr.Example.GetType()) : null
                                         }));
                             }
                         }
@@ -228,7 +232,7 @@ sealed class OperationProcessor : IOperationProcessor
             foreach (var c in reqContent)
             {
                 foreach (var prop in c.GetAllProperties())
-                    reqParamDescriptions[prop.Key] = prop.Value.Description;
+                    reqParamDescriptions[prop.Key] = prop.Value.Description!;
             }
         }
 
@@ -362,7 +366,7 @@ sealed class OperationProcessor : IOperationProcessor
         }
 
         //fix IFormFile props in OAS2 - remove from request body and add as a request param
-        if (ctx.Settings.SchemaType == SchemaType.Swagger2 && reqDtoProps is not null)
+        if (ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2 && reqDtoProps is not null)
         {
             foreach (var p in reqDtoProps.ToArray())
             {
@@ -580,16 +584,16 @@ sealed class OperationProcessor : IOperationProcessor
         prm.Kind = kind;
         prm.IsRequired = isRequired ?? !(prop?.IsNullable() ?? true);
 
-        if (ctx.Settings.SchemaType == SchemaType.Swagger2)
+        if (ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2)
             prm.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
         else
             prm.Schema.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
 
-        if (ctx.Settings.GenerateExamples)
+        if (ctx.Settings.SchemaSettings.GenerateExamples)
         {
             prm.Example = prop?.GetXmlExample();
 
-            if (prm.Example is null && prm.Default is null && prm.Schema.Default is null && prm.IsRequired)
+            if (prm.Example is null && prm.Default is null && prm.Schema?.Default is null && prm.IsRequired)
             {
                 var jToken = prm.ActualSchema.ToSampleJson();
                 prm.Example = jToken.HasValues ? jToken : null;

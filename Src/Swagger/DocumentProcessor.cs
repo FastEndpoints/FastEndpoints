@@ -70,5 +70,11 @@ sealed class DocumentProcessor : IDocumentProcessor
                 op.Tags.Remove(op.Tags.SingleOrDefault(t => t.StartsWith("|")));
             }
         }
+
+        //without ordering paths, Verify snapshots doesn't work in ci/cd
+        var orderedPaths = ctx.Document.Paths.OrderBy(p => p.Key).ToArray();
+        ctx.Document.Paths.Clear();
+        foreach (var p in orderedPaths)
+            ctx.Document.Paths.Add(p.Key, p.Value);
     }
 }

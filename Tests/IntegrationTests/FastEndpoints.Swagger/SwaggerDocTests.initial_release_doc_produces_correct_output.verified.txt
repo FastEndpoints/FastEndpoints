@@ -6,6 +6,3199 @@
     version: v0.0
   },
   paths: {
+    /api/admin/login: {
+      post: {
+        tags: [
+          Admin
+        ],
+        summary: this is a short summary,
+        description: this is the long description of the endpoint,
+        operationId: PostAdminLoginEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: all good,
+            headers: {},
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          400: {
+            description: indicates an error
+          },
+          403: {
+            description: forbidden when login fails
+          }
+        }
+      },
+      put: {
+        tags: [
+          Admin
+        ],
+        summary: this is a short summary,
+        description: this is the long description of the endpoint,
+        operationId: PutAdminLoginEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: all good,
+            headers: {},
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          400: {
+            description: indicates an error
+          },
+          403: {
+            description: forbidden when login fails
+          }
+        }
+      },
+      patch: {
+        tags: [
+          Admin
+        ],
+        summary: this is a short summary,
+        description: this is the long description of the endpoint,
+        operationId: PatchAdminLoginEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: all good,
+            headers: {},
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          400: {
+            description: indicates an error
+          },
+          403: {
+            description: forbidden when login fails
+          }
+        }
+      }
+    },
+    /api/customer/{cID}/new/{SourceID}: {
+      post: {
+        tags: [
+          Customer Save
+        ],
+        operationId: PostCustomersCreateEndpoint2,
+        parameters: [
+          {
+            name: cID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: SourceID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      },
+      get: {
+        tags: [
+          Customer Save
+        ],
+        operationId: GetCustomersCreateEndpoint2,
+        parameters: [
+          {
+            name: cID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: SourceID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: CustomerName,
+            in: query,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: PhoneNumbers,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string
+              }
+            },
+            example: [
+              
+            ]
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/customer/{cID}/new2/{SourceID}: {
+      post: {
+        tags: [
+          Customer Save
+        ],
+        operationId: PostCustomersCreateWithPropertiesDIEndpoint2,
+        parameters: [
+          {
+            name: cID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: SourceID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      },
+      get: {
+        tags: [
+          Customer Save
+        ],
+        operationId: GetCustomersCreateWithPropertiesDIEndpoint2,
+        parameters: [
+          {
+            name: cID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: SourceID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: CustomerName,
+            in: query,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: PhoneNumbers,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string
+              }
+            },
+            example: [
+              
+            ]
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/customer/list/recent: {
+      get: {
+        tags: [
+          Customer
+        ],
+        operationId: CustomersListRecentEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {
+            JWTBearerAuth: [
+              admin,
+              staff
+            ]
+          }
+        ]
+      }
+    },
+    /api/customer/login: {
+      get: {
+        tags: [
+          Customer
+        ],
+        operationId: CustomersLoginEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          }
+        }
+      }
+    },
+    /api/customer/new/{RefererID}: {
+      post: {
+        tags: [
+          Customer Save
+        ],
+        operationId: PostCustomersCreateEndpoint1,
+        parameters: [
+          {
+            name: RefererID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            */*: {
+              schema: null
+            },
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      },
+      get: {
+        tags: [
+          Customer Save
+        ],
+        operationId: GetCustomersCreateEndpoint1,
+        parameters: [
+          {
+            name: RefererID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: cID,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: CustomerName,
+            in: query,
+            description: the name of the cutomer goes here,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: PhoneNumbers,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string
+              }
+            },
+            example: [
+              
+            ]
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/customer/new/2{RefererID}: {
+      post: {
+        tags: [
+          Customer Save
+        ],
+        operationId: PostCustomersCreateWithPropertiesDIEndpoint1,
+        parameters: [
+          {
+            name: RefererID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            */*: {
+              schema: null
+            },
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      },
+      get: {
+        tags: [
+          Customer Save
+        ],
+        operationId: GetCustomersCreateWithPropertiesDIEndpoint1,
+        parameters: [
+          {
+            name: RefererID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: cID,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: CustomerName,
+            in: query,
+            description: the name of the cutomer goes here,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: PhoneNumbers,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string
+              }
+            },
+            example: [
+              
+            ]
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/customer/save: {
+      put: {
+        tags: [
+          Customer
+        ],
+        operationId: CustomersUpdateEndpoint2,
+        parameters: [
+          {
+            name: CustomerID,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              default: test default val,
+              nullable: true
+            }
+          },
+          {
+            name: Name,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              default: query test default val,
+              nullable: true
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      },
+      post: {
+        tags: [
+          Customer Save
+        ],
+        operationId: PostCustomersCreateEndpoint3,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      },
+      get: {
+        tags: [
+          Customer Save
+        ],
+        operationId: GetCustomersCreateEndpoint3,
+        parameters: [
+          {
+            name: cID,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: CustomerName,
+            in: query,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: PhoneNumbers,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string
+              }
+            },
+            example: [
+              
+            ]
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/customer/save2: {
+      post: {
+        tags: [
+          Customer Save
+        ],
+        operationId: PostCustomersCreateWithPropertiesDIEndpoint3,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      },
+      get: {
+        tags: [
+          Customer Save
+        ],
+        operationId: GetCustomersCreateWithPropertiesDIEndpoint3,
+        parameters: [
+          {
+            name: cID,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: CustomerName,
+            in: query,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: PhoneNumbers,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string
+              }
+            },
+            example: [
+              
+            ]
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/customer/update: {
+      put: {
+        tags: [
+          Customer
+        ],
+        operationId: CustomersUpdateEndpoint1,
+        parameters: [
+          {
+            name: CustomerID,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              default: test default val,
+              nullable: true
+            }
+          },
+          {
+            name: Name,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              default: query test default val,
+              nullable: true
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/customer/update-with-header: {
+      put: {
+        tags: [
+          Customer
+        ],
+        operationId: CustomersUpdateWithHeaderEndpoint,
+        parameters: [
+          {
+            name: CustomerID,
+            in: header,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          },
+          {
+            name: tenant-id,
+            in: header,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/inventory/get-product/{ProductID}: {
+      get: {
+        tags: [
+          Inventory
+        ],
+        operationId: InventoryGetProductEndpoint,
+        parameters: [
+          {
+            name: ProductID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          403: {
+            description: Forbidden
+          }
+        }
+      }
+    },
+    /api/inventory/list/recent/{CategoryID}: {
+      get: {
+        tags: [
+          Inventory
+        ],
+        operationId: InventoryListRecentEndpoint,
+        parameters: [
+          {
+            name: CategoryID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        }
+      }
+    },
+    /api/inventory/manage/create: {
+      post: {
+        tags: [
+          test,
+          Inventory
+        ],
+        operationId: CreateInventoryItem,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null,
+              examples: {
+                Example 1: {
+                  value: {
+                    Id: 1,
+                    Name: first name,
+                    Description: first description,
+                    Price: 10.0,
+                    QtyOnHand: 10,
+                    ModifiedBy: null,
+                    GenerateFullUrl: false
+                  }
+                },
+                Example 2: {
+                  value: {
+                    Id: 200,
+                    Name: second  name,
+                    Description: description two,
+                    Price: 209.0,
+                    QtyOnHand: 290,
+                    ModifiedBy: null,
+                    GenerateFullUrl: false
+                  }
+                }
+              }
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          201: {
+            description: Created
+          },
+          500: {
+            description: Server Error
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/inventory/manage/delete/{itemID}: {
+      delete: {
+        tags: [
+          Inventory
+        ],
+        operationId: InventoryManageDeleteEndpoint,
+        parameters: [
+          {
+            name: itemID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              default: test default val,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          403: {
+            description: Forbidden
+          }
+        }
+      }
+    },
+    /api/inventory/manage/update: {
+      put: {
+        tags: [
+          Inventory
+        ],
+        operationId: InventoryManageUpdateEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/multi-test: {
+      post: {
+        tags: [
+          Multi-Test
+        ],
+        operationId: TestCasesTypedResultTestMultiResultEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          404: {
+            description: Not Found
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/sales/orders/create: {
+      post: {
+        tags: [
+          Sales
+        ],
+        operationId: SalesOrdersCreateEndpoint2,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/sales/orders/create/{guidTest}: {
+      post: {
+        tags: [
+          Sales
+        ],
+        operationId: SalesOrdersCreateEndpoint1,
+        parameters: [
+          {
+            name: guidTest,
+            in: path,
+            required: true,
+            description: this is a guid property description,
+            schema: {
+              type: string,
+              format: guid
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/sales/orders/retrieve/{OrderID}: {
+      get: {
+        tags: [
+          Sales
+        ],
+        operationId: SalesOrdersRetrieveEndpoint,
+        parameters: [
+          {
+            name: OrderID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: tenant-id,
+            in: header,
+            description: this is the tenant id,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/{number}: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesDontCatchExceptionsEndpoint,
+        parameters: [
+          {
+            name: number,
+            in: path,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/antiforgery/render-form: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesAntiforgeryTestRenderFormHtml,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/antiforgery/token: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesAntiforgeryTestGetAfTokenEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/antiforgery/validate: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesAntiforgeryTestVerifyAfToken,
+        requestBody: {
+          x-name: VerificationRequest,
+          description: ,
+          content: {
+            multipart/form-data: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: string
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/array-validation-error-test: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesValidationErrorTestArrayValidationErrorTestEndpoint,
+        requestBody: {
+          x-name: ArrayRequest,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/byte-array-query-param-binding-test: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        summary: summary,
+        description: descr,
+        operationId: ByteArrayQueryParamBindingTest,
+        parameters: [
+          {
+            name: Timestamp,
+            in: query,
+            required: true,
+            schema: {
+              type: string,
+              format: byte,
+              nullable: true
+            }
+          },
+          {
+            name: ObjectWithByteArrays,
+            in: query,
+            required: true,
+            schema: {
+              nullable: true,
+              oneOf: [
+                null
+              ]
+            },
+            example: {
+              Timestamp: Timestamp,
+              Timestamps: [
+                
+              ]
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/custom-request-binder: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesCustomRequestBinderEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/data-annotation: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesDataAnnotationCompliantEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        },
+        deprecated: true
+      }
+    },
+    /api/test-cases/dictionary-validation-error-test: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesValidationErrorTestDictionaryValidationErrorTestEndpoint,
+        requestBody: {
+          x-name: DictionaryRequest,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/dupe-param-binding-for-ienumerable-props: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesDupeParamBindingForIEnumerablePropsEndpoint,
+        parameters: [
+          {
+            name: Strings,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string
+              }
+            },
+            example: [
+              
+            ]
+          },
+          {
+            name: MoreStrings,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string
+              }
+            },
+            example: [
+              
+            ]
+          },
+          {
+            name: Doubles,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: number,
+                format: double
+              }
+            },
+            example: [
+              0.0
+            ]
+          },
+          {
+            name: Ints,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: integer,
+                format: int32
+              }
+            },
+            example: [
+              0
+            ]
+          },
+          {
+            name: Guids,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string,
+                format: guid
+              }
+            },
+            example: [
+              
+            ]
+          },
+          {
+            name: Dates,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string,
+                format: date-time
+              }
+            },
+            example: ["2020-10-10"]
+          },
+          {
+            name: Persons,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: null
+            },
+            example: [
+              {
+                Name: Name,
+                Age: 0
+              }
+            ]
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/empty-request-test: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesEmptyRequestTestEmptyRequestEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {
+                schema: null
+              },
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          403: {
+            description: Forbidden
+          }
+        },
+        security: [
+          {
+            JWTBearerAuth: [
+              admin
+            ]
+          }
+        ]
+      }
+    },
+    /api/test-cases/ep-witout-req-query-param-binding-test: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesQueryParamBindingInEpWithoutReqEpWithoutReqQueryParamBindingTest,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/ep-witout-req-route-binding-test/{CustomerID}/{OtherID}: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesRouteBindingInEpWithoutReqEpWithoutReqRouteBindingTest,
+        parameters: [
+          {
+            name: CustomerID,
+            in: path,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: OtherID,
+            in: path,
+            required: true,
+            description: the description for other id,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/event-bus-test: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesEventBusTestEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: integer,
+                  format: int32
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/form-file-collection-binding: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesFormFileBindingTestEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            multipart/form-data: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/from-body-binding/{id}: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesFromBodyJsonBindingEndpoint,
+        parameters: [
+          {
+            name: id,
+            in: path,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          },
+          {
+            name: CustomerID,
+            in: header,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Product,
+          content: {
+            application/json: {
+              schema: {
+                nullable: true,
+                oneOf: [
+                  null
+                ]
+              },
+              example: {
+                Id: 0,
+                Name: Name,
+                Price: 200.1
+              }
+            }
+          },
+          required: true
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/global-throttle-error-response: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesRateLimitTestsGlobalErrorResponseTest,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/json-array-binding-for-ienumerable-props: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesJsonArrayBindingForIEnumerablePropsEndpoint,
+        parameters: [
+          {
+            name: Doubles,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: number,
+                format: double
+              }
+            },
+            example: [
+              0.0
+            ]
+          },
+          {
+            name: Ints,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: integer,
+                format: int32
+              }
+            },
+            example: [
+              0
+            ]
+          },
+          {
+            name: Guids,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string,
+                format: guid
+              }
+            },
+            example: [
+              
+            ]
+          },
+          {
+            name: Dates,
+            in: query,
+            style: form,
+            explode: true,
+            required: true,
+            schema: {
+              type: array,
+              nullable: true,
+              items: {
+                type: string,
+                format: date-time
+              }
+            },
+            example: ["2020-10-10"]
+          },
+          {
+            name: Steven,
+            in: query,
+            required: true,
+            schema: {
+              nullable: true,
+              oneOf: [
+                null
+              ]
+            },
+            example: {
+              Age: 0,
+              Name: Name
+            }
+          },
+          {
+            name: Dict,
+            in: query,
+            required: true,
+            schema: {
+              type: object,
+              nullable: true,
+              additionalProperties: {
+                type: string
+              }
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/json-array-binding-to-ienumerable-dto: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesJsonArrayBindingToIEnumerableDtoEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: array,
+                  items: null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/json-array-binding-to-list-of-models: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesJsonArrayBindingToListOfModelsEndpoint,
+        requestBody: {
+          x-name: List`1,
+          description: ,
+          content: {
+            application/json: {
+              schema: {
+                type: array,
+                items: null
+              }
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: array,
+                  items: null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/list-in-list-validation-error-test: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesValidationErrorTestListInListValidationErrorTestEndpoint,
+        requestBody: {
+          x-name: ListInListRequest,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/list-validation-error-test: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesValidationErrorTestListValidationErrorTestEndpoint,
+        requestBody: {
+          x-name: ListRequest,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/mapper-test: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesMapperTestEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/missing-claim-test: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesMissingClaimTestThrowIfMissingEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/missing-claim-test/dont-throw: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesMissingClaimTestDontThrowIfMissingEndpoint,
+        parameters: [
+          {
+            name: TestProp,
+            in: query,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/missing-header-test: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesMissingHeaderTestThrowIfMissingEndpoint,
+        parameters: [
+          {
+            name: TenantID,
+            in: header,
+            required: true,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/missing-header-test/dont-throw: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesMissingHeaderTestDontThrowIfMissingEndpoint,
+        parameters: [
+          {
+            name: TenantID,
+            in: header,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          }
+        ],
+        requestBody: {
+          x-name: DontThrowIfMissingRequest,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/object-array-validation-error-test: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint,
+        requestBody: {
+          x-name: ObjectArrayRequest,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/on-before-on-after-validate: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesOnBeforeAfterValidationTestEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/pre-processor-is-run-on-validation-failure: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesPreProcessorIsRunOnValidationFailureEndpoint,
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/test-cases/processor-state-sharing: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesProcessorStateTestEndpoint,
+        parameters: [
+          {
+            name: Id,
+            in: query,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: string
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/query-arrays-of-objects-binding-test: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        summary: summary,
+        description: descr,
+        operationId: QueryArraysOfObjectsBindingTest,
+        parameters: [
+          {
+            name: Person,
+            in: query,
+            required: true,
+            schema: {
+              nullable: true,
+              oneOf: [
+                null
+              ]
+            },
+            example: {
+              Child: {
+                Objects: [
+                  {
+                    String: String,
+                    Bool: false,
+                    Int: 0,
+                    Long: 0,
+                    Double: 0.0,
+                    Enum: 0
+                  }
+                ]
+              },
+              Objects: [
+                {
+                  String: String,
+                  Bool: false,
+                  Int: 0,
+                  Long: 0,
+                  Double: 0.0,
+                  Enum: 0
+                }
+              ],
+              ArraysOfObjects: [
+                [
+                  {
+                    String: String,
+                    Bool: false,
+                    Int: 0,
+                    Long: 0,
+                    Double: 0.0,
+                    Enum: 0
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/query-object-binding-test: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        summary: summary,
+        description: descr,
+        operationId: QueryObjectBindingTest,
+        parameters: [
+          {
+            name: String,
+            in: query,
+            required: true,
+            description: this is a string prop xml comment,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: Bool,
+            in: query,
+            required: true,
+            schema: {
+              type: boolean
+            }
+          },
+          {
+            name: Int,
+            in: query,
+            schema: {
+              type: integer,
+              format: int32,
+              nullable: true
+            }
+          },
+          {
+            name: Long,
+            in: query,
+            required: true,
+            schema: {
+              type: integer,
+              format: int64
+            }
+          },
+          {
+            name: Double,
+            in: query,
+            required: true,
+            schema: {
+              type: number,
+              format: double
+            }
+          },
+          {
+            name: Enum,
+            in: query,
+            required: true,
+            schema: null
+          },
+          {
+            name: Person,
+            in: query,
+            required: true,
+            schema: {
+              nullable: true,
+              oneOf: [
+                null
+              ]
+            },
+            example: {
+              Id: Id,
+              Name: Name,
+              Age: 0,
+              Child: {
+                Id: Id,
+                Name: Name,
+                Age: 0,
+                Strings: [
+                  
+                ],
+                FavoriteDays: [
+                  0
+                ],
+                IsHidden: false
+              },
+              Numbers: [
+                0
+              ],
+              FavoriteDay: 0,
+              ByteEnum: 0,
+              IsHidden: false
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/range: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesRangeHandlingTestEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          206: {
+            description: ,
+            content: {
+              text/plain: {
+                schema: {
+                  type: string
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        summary: summary,
+        description: descr,
+        operationId: RouteBindingTest,
+        parameters: [
+          {
+            name: string,
+            in: path,
+            required: true,
+            description: this is a string prop xml comment,
+            schema: {
+              type: string,
+              nullable: true
+            }
+          },
+          {
+            name: bool,
+            in: path,
+            required: true,
+            schema: {
+              type: boolean
+            }
+          },
+          {
+            name: int,
+            in: path,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32,
+              nullable: true
+            }
+          },
+          {
+            name: long,
+            in: path,
+            required: true,
+            schema: {
+              type: integer,
+              format: int64
+            }
+          },
+          {
+            name: double,
+            in: path,
+            required: true,
+            schema: {
+              type: number,
+              format: double
+            }
+          },
+          {
+            name: decimal,
+            in: path,
+            required: true,
+            schema: {
+              type: number,
+              format: decimal
+            }
+          },
+          {
+            name: Person,
+            in: query,
+            required: true,
+            schema: {
+              nullable: true,
+              oneOf: [
+                null
+              ]
+            },
+            example: {
+              Id: Id,
+              Name: Name,
+              Age: 0,
+              Child: {
+                Id: Id,
+                Name: Name,
+                Age: 0,
+                Strings: [
+                  
+                ]
+              },
+              Numbers: [
+                0
+              ]
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            },
+            test1/test1: {
+              schema: null
+            },
+            test2/test2: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/service-reg-gen-test: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesServiceRegistrationGeneratorTestEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: array,
+                  items: {
+                    type: string
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/test-cases/unit-test-concurrency: {
+      get: {
+        tags: [
+          Test-Cases
+        ],
+        operationId: TestCasesUnitTestConcurrencyTestEndpoint,
+        parameters: [
+          {
+            name: Id,
+            in: query,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: integer,
+                  format: int32
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/testcases/post-processor-handles-exception: {
+      get: {
+        tags: [
+          Testcases
+        ],
+        operationId: TestCasesPostProcessorTestEndpoint,
+        parameters: [
+          {
+            name: Id,
+            in: query,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/testcases/post-processor-handles-exception/no-post-processor: {
+      get: {
+        tags: [
+          Testcases
+        ],
+        operationId: TestCasesPostProcessorTestEpNoPostProcessor,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          }
+        }
+      }
+    },
+    /api/testcases/pre-processor-shortcircuit-while-validator-fails: {
+      get: {
+        tags: [
+          Testcases
+        ],
+        operationId: TestCasesPrecessorShortWhileValidatorFailsEndpoint,
+        parameters: [
+          {
+            name: Id,
+            in: query,
+            required: true,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          }
+        ],
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {},
+              application/json: {}
+            }
+          },
+          400: {
+            description: Bad Request,
+            content: {
+              application/problem+json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/testcases/stj-infinite-recursion: {
+      get: {
+        tags: [
+          Testcases
+        ],
+        operationId: TestCasesSTJInfiniteRecursionTestEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/tests/command-handler: {
+      get: {
+        tags: [
+          Tests
+        ],
+        operationId: TestCasesCommandHandlerTestEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: string
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/tests/commands: {
+      get: {
+        tags: [
+          Tests
+        ],
+        operationId: TestCasesCommandBusTestEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: string
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/tests/iauth-injection: {
+      get: {
+        tags: [
+          Tests
+        ],
+        operationId: TestCasesIAuthorizationServiceInjectionTestEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: {
+                  type: boolean
+                }
+              }
+            }
+          },
+          401: {
+            description: Unauthorized
+          }
+        },
+        security: [
+          {}
+        ]
+      }
+    },
+    /api/tokens/login: {
+      get: {
+        tags: [
+          Tokens
+        ],
+        operationId: TestCasesRefreshTokensTestLoginEndpoint,
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
+    /api/tokens/refresh-token: {
+      post: {
+        tags: [
+          Tokens
+        ],
+        operationId: TestCasesRefreshTokensTestTokenService,
+        requestBody: {
+          x-name: TokenRequest,
+          description: ,
+          content: {
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              application/json: {
+                schema: null
+              }
+            }
+          }
+        }
+      }
+    },
     /api/uploads/image/save: {
       post: {
         tags: [
@@ -210,1369 +3403,6 @@
         ]
       }
     },
-    /api/test-cases/array-validation-error-test: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesValidationErrorTestArrayValidationErrorTestEndpoint,
-        requestBody: {
-          x-name: ArrayRequest,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/dictionary-validation-error-test: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesValidationErrorTestDictionaryValidationErrorTestEndpoint,
-        requestBody: {
-          x-name: DictionaryRequest,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/list-in-list-validation-error-test: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesValidationErrorTestListInListValidationErrorTestEndpoint,
-        requestBody: {
-          x-name: ListInListRequest,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/list-validation-error-test: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesValidationErrorTestListValidationErrorTestEndpoint,
-        requestBody: {
-          x-name: ListRequest,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/object-array-validation-error-test: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint,
-        requestBody: {
-          x-name: ObjectArrayRequest,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/unit-test-concurrency: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesUnitTestConcurrencyTestEndpoint,
-        parameters: [
-          {
-            name: Id,
-            in: query,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: integer,
-                  format: int32
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/multi-test: {
-      post: {
-        tags: [
-          Multi-Test
-        ],
-        operationId: TestCasesTypedResultTestMultiResultEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          404: {
-            description: Not Found
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/testcases/stj-infinite-recursion: {
-      get: {
-        tags: [
-          Testcases
-        ],
-        operationId: TestCasesSTJInfiniteRecursionTestEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/service-reg-gen-test: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesServiceRegistrationGeneratorTestEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: array,
-                  items: {
-                    type: string
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        summary: summary,
-        description: descr,
-        operationId: RouteBindingTest,
-        parameters: [
-          {
-            name: string,
-            in: path,
-            required: true,
-            description: this is a string prop xml comment,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: bool,
-            in: path,
-            required: true,
-            schema: {
-              type: boolean
-            }
-          },
-          {
-            name: int,
-            in: path,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32,
-              nullable: true
-            }
-          },
-          {
-            name: long,
-            in: path,
-            required: true,
-            schema: {
-              type: integer,
-              format: int64
-            }
-          },
-          {
-            name: double,
-            in: path,
-            required: true,
-            schema: {
-              type: number,
-              format: double
-            }
-          },
-          {
-            name: decimal,
-            in: path,
-            required: true,
-            schema: {
-              type: number,
-              format: decimal
-            }
-          },
-          {
-            name: Person,
-            in: query,
-            required: true,
-            schema: {
-              nullable: true,
-              oneOf: [
-                null
-              ]
-            },
-            example: {
-              Id: Id,
-              Name: Name,
-              Age: 0,
-              Child: {
-                Id: Id,
-                Name: Name,
-                Age: 0,
-                Strings: [
-                  
-                ]
-              },
-              Numbers: [
-                0
-              ]
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            },
-            test1/test1: {
-              schema: null
-            },
-            test2/test2: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/ep-witout-req-route-binding-test/{CustomerID}/{OtherID}: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesRouteBindingInEpWithoutReqEpWithoutReqRouteBindingTest,
-        parameters: [
-          {
-            name: CustomerID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: OtherID,
-            in: path,
-            required: true,
-            description: the description for other id,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/tokens/login: {
-      get: {
-        tags: [
-          Tokens
-        ],
-        operationId: TestCasesRefreshTokensTestLoginEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/tokens/refresh-token: {
-      post: {
-        tags: [
-          Tokens
-        ],
-        operationId: TestCasesRefreshTokensTestTokenService,
-        requestBody: {
-          x-name: TokenRequest,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/global-throttle-error-response: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesRateLimitTestsGlobalErrorResponseTest,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/range: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesRangeHandlingTestEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          206: {
-            description: ,
-            content: {
-              text/plain: {
-                schema: {
-                  type: string
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/ep-witout-req-query-param-binding-test: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesQueryParamBindingInEpWithoutReqEpWithoutReqQueryParamBindingTest,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/query-arrays-of-objects-binding-test: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        summary: summary,
-        description: descr,
-        operationId: QueryArraysOfObjectsBindingTest,
-        parameters: [
-          {
-            name: Person,
-            in: query,
-            required: true,
-            schema: {
-              nullable: true,
-              oneOf: [
-                null
-              ]
-            },
-            example: {
-              Child: {
-                Objects: [
-                  {
-                    String: String,
-                    Bool: false,
-                    Int: 0,
-                    Long: 0,
-                    Double: 0.0,
-                    Enum: 0
-                  }
-                ]
-              },
-              Objects: [
-                {
-                  String: String,
-                  Bool: false,
-                  Int: 0,
-                  Long: 0,
-                  Double: 0.0,
-                  Enum: 0
-                }
-              ],
-              ArraysOfObjects: [
-                [
-                  {
-                    String: String,
-                    Bool: false,
-                    Int: 0,
-                    Long: 0,
-                    Double: 0.0,
-                    Enum: 0
-                  }
-                ]
-              ]
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/query-object-binding-test: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        summary: summary,
-        description: descr,
-        operationId: QueryObjectBindingTest,
-        parameters: [
-          {
-            name: String,
-            in: query,
-            required: true,
-            description: this is a string prop xml comment,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: Bool,
-            in: query,
-            required: true,
-            schema: {
-              type: boolean
-            }
-          },
-          {
-            name: Int,
-            in: query,
-            schema: {
-              type: integer,
-              format: int32,
-              nullable: true
-            }
-          },
-          {
-            name: Long,
-            in: query,
-            required: true,
-            schema: {
-              type: integer,
-              format: int64
-            }
-          },
-          {
-            name: Double,
-            in: query,
-            required: true,
-            schema: {
-              type: number,
-              format: double
-            }
-          },
-          {
-            name: Enum,
-            in: query,
-            required: true,
-            schema: null
-          },
-          {
-            name: Person,
-            in: query,
-            required: true,
-            schema: {
-              nullable: true,
-              oneOf: [
-                null
-              ]
-            },
-            example: {
-              Id: Id,
-              Name: Name,
-              Age: 0,
-              Child: {
-                Id: Id,
-                Name: Name,
-                Age: 0,
-                Strings: [
-                  
-                ],
-                FavoriteDays: [
-                  0
-                ],
-                IsHidden: false
-              },
-              Numbers: [
-                0
-              ],
-              FavoriteDay: 0,
-              ByteEnum: 0,
-              IsHidden: false
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/processor-state-sharing: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesProcessorStateTestEndpoint,
-        parameters: [
-          {
-            name: Id,
-            in: query,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: string
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/pre-processor-is-run-on-validation-failure: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesPreProcessorIsRunOnValidationFailureEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/testcases/pre-processor-shortcircuit-while-validator-fails: {
-      get: {
-        tags: [
-          Testcases
-        ],
-        operationId: TestCasesPrecessorShortWhileValidatorFailsEndpoint,
-        parameters: [
-          {
-            name: Id,
-            in: query,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/testcases/post-processor-handles-exception: {
-      get: {
-        tags: [
-          Testcases
-        ],
-        operationId: TestCasesPostProcessorTestEndpoint,
-        parameters: [
-          {
-            name: Id,
-            in: query,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/testcases/post-processor-handles-exception/no-post-processor: {
-      get: {
-        tags: [
-          Testcases
-        ],
-        operationId: TestCasesPostProcessorTestEpNoPostProcessor,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          }
-        }
-      }
-    },
-    /test-cases/plaintext/{Id}: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        summary: plain request endpoint summary,
-        operationId: TestCasesPlainTextRequestTestEndpoint,
-        parameters: [
-          {
-            name: Id,
-            in: path,
-            required: true,
-            description: overriden id text,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            text/plain: {
-              schema: null
-            },
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {
-                schema: null
-              },
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/on-before-on-after-validate: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesOnBeforeAfterValidationTestEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/missing-header-test/dont-throw: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesMissingHeaderTestDontThrowIfMissingEndpoint,
-        parameters: [
-          {
-            name: TenantID,
-            in: header,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        requestBody: {
-          x-name: DontThrowIfMissingRequest,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/missing-header-test: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesMissingHeaderTestThrowIfMissingEndpoint,
-        parameters: [
-          {
-            name: TenantID,
-            in: header,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/missing-claim-test/dont-throw: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesMissingClaimTestDontThrowIfMissingEndpoint,
-        parameters: [
-          {
-            name: TestProp,
-            in: query,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/missing-claim-test: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesMissingClaimTestThrowIfMissingEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/mapper-test: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesMapperTestEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/json-array-binding-to-list-of-models: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesJsonArrayBindingToListOfModelsEndpoint,
-        requestBody: {
-          x-name: List`1,
-          description: ,
-          content: {
-            application/json: {
-              schema: {
-                type: array,
-                items: null
-              }
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: array,
-                  items: null
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/json-array-binding-to-ienumerable-dto: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesJsonArrayBindingToIEnumerableDtoEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: array,
-                  items: null
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/json-array-binding-for-ienumerable-props: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesJsonArrayBindingForIEnumerablePropsEndpoint,
-        parameters: [
-          {
-            name: Doubles,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: number,
-                format: double
-              }
-            },
-            example: [
-              0.0
-            ]
-          },
-          {
-            name: Ints,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: integer,
-                format: int32
-              }
-            },
-            example: [
-              0
-            ]
-          },
-          {
-            name: Guids,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string,
-                format: guid
-              }
-            },
-            example: [
-              
-            ]
-          },
-          {
-            name: Dates,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string,
-                format: date-time
-              }
-            },
-            example: ["2020-10-10"]
-          },
-          {
-            name: Steven,
-            in: query,
-            required: true,
-            schema: {
-              nullable: true,
-              oneOf: [
-                null
-              ]
-            },
-            example: {
-              Age: 0,
-              Name: Name
-            }
-          },
-          {
-            name: Dict,
-            in: query,
-            required: true,
-            schema: {
-              type: object,
-              nullable: true,
-              additionalProperties: {
-                type: string
-              }
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/tests/iauth-injection: {
-      get: {
-        tags: [
-          Tests
-        ],
-        operationId: TestCasesIAuthorizationServiceInjectionTestEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: boolean
-                }
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
     /mobile/api/test-cases/global-prefix-override/{Id}: {
       post: {
         tags: [
@@ -1621,1884 +3451,6 @@
         }
       }
     },
-    /api/test-cases/from-body-binding/{id}: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesFromBodyJsonBindingEndpoint,
-        parameters: [
-          {
-            name: id,
-            in: path,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          },
-          {
-            name: CustomerID,
-            in: header,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Product,
-          content: {
-            application/json: {
-              schema: {
-                nullable: true,
-                oneOf: [
-                  null
-                ]
-              },
-              example: {
-                Id: 0,
-                Name: Name,
-                Price: 200.1
-              }
-            }
-          },
-          required: true
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/form-file-collection-binding: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesFormFileBindingTestEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            multipart/form-data: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/test-cases/event-bus-test: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesEventBusTestEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: integer,
-                  format: int32
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/empty-request-test: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesEmptyRequestTestEmptyRequestEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {
-                schema: null
-              },
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {
-            JWTBearerAuth: [
-              admin
-            ]
-          }
-        ]
-      }
-    },
-    /api/test-cases/dupe-param-binding-for-ienumerable-props: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesDupeParamBindingForIEnumerablePropsEndpoint,
-        parameters: [
-          {
-            name: Strings,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string
-              }
-            },
-            example: [
-              
-            ]
-          },
-          {
-            name: MoreStrings,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string
-              }
-            },
-            example: [
-              
-            ]
-          },
-          {
-            name: Doubles,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: number,
-                format: double
-              }
-            },
-            example: [
-              0.0
-            ]
-          },
-          {
-            name: Ints,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: integer,
-                format: int32
-              }
-            },
-            example: [
-              0
-            ]
-          },
-          {
-            name: Guids,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string,
-                format: guid
-              }
-            },
-            example: [
-              
-            ]
-          },
-          {
-            name: Dates,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string,
-                format: date-time
-              }
-            },
-            example: ["2020-10-10"]
-          },
-          {
-            name: Persons,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: null
-            },
-            example: [
-              {
-                Name: Name,
-                Age: 0
-              }
-            ]
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/{number}: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesDontCatchExceptionsEndpoint,
-        parameters: [
-          {
-            name: number,
-            in: path,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/data-annotation: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesDataAnnotationCompliantEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        },
-        deprecated: true
-      }
-    },
-    /api/test-cases/custom-request-binder: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesCustomRequestBinderEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/tests/command-handler: {
-      get: {
-        tags: [
-          Tests
-        ],
-        operationId: TestCasesCommandHandlerTestEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: string
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/tests/commands: {
-      get: {
-        tags: [
-          Tests
-        ],
-        operationId: TestCasesCommandBusTestEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: string
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/byte-array-query-param-binding-test: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        summary: summary,
-        description: descr,
-        operationId: ByteArrayQueryParamBindingTest,
-        parameters: [
-          {
-            name: Timestamp,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              format: byte,
-              nullable: true
-            }
-          },
-          {
-            name: ObjectWithByteArrays,
-            in: query,
-            required: true,
-            schema: {
-              nullable: true,
-              oneOf: [
-                null
-              ]
-            },
-            example: {
-              Timestamp: Timestamp,
-              Timestamps: [
-                
-              ]
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/antiforgery/token: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesAntiforgeryTestGetAfTokenEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/antiforgery/render-form: {
-      get: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesAntiforgeryTestRenderFormHtml,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          }
-        }
-      }
-    },
-    /api/test-cases/antiforgery/validate: {
-      post: {
-        tags: [
-          Test-Cases
-        ],
-        operationId: TestCasesAntiforgeryTestVerifyAfToken,
-        requestBody: {
-          x-name: VerificationRequest,
-          description: ,
-          content: {
-            multipart/form-data: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: {
-                  type: string
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/sales/orders/retrieve/{OrderID}: {
-      get: {
-        tags: [
-          Sales
-        ],
-        operationId: SalesOrdersRetrieveEndpoint,
-        parameters: [
-          {
-            name: OrderID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: tenant-id,
-            in: header,
-            description: this is the tenant id,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        }
-      }
-    },
-    /api/sales/orders/create/{guidTest}: {
-      post: {
-        tags: [
-          Sales
-        ],
-        operationId: SalesOrdersCreateEndpoint1,
-        parameters: [
-          {
-            name: guidTest,
-            in: path,
-            required: true,
-            description: this is a guid property description,
-            schema: {
-              type: string,
-              format: guid
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/sales/orders/create: {
-      post: {
-        tags: [
-          Sales
-        ],
-        operationId: SalesOrdersCreateEndpoint2,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/inventory/manage/update: {
-      put: {
-        tags: [
-          Inventory
-        ],
-        operationId: InventoryManageUpdateEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          },
-          400: {
-            description: Bad Request,
-            content: {
-              application/problem+json: {
-                schema: null
-              }
-            }
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/inventory/manage/delete/{itemID}: {
-      delete: {
-        tags: [
-          Inventory
-        ],
-        operationId: InventoryManageDeleteEndpoint,
-        parameters: [
-          {
-            name: itemID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              default: test default val,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          403: {
-            description: Forbidden
-          }
-        }
-      }
-    },
-    /api/inventory/manage/create: {
-      post: {
-        tags: [
-          test,
-          Inventory
-        ],
-        operationId: CreateInventoryItem,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null,
-              examples: {
-                Example 1: {
-                  value: {
-                    Id: 1,
-                    Name: first name,
-                    Description: first description,
-                    Price: 10.0,
-                    QtyOnHand: 10,
-                    ModifiedBy: null,
-                    GenerateFullUrl: false
-                  }
-                },
-                Example 2: {
-                  value: {
-                    Id: 200,
-                    Name: second  name,
-                    Description: description two,
-                    Price: 209.0,
-                    QtyOnHand: 290,
-                    ModifiedBy: null,
-                    GenerateFullUrl: false
-                  }
-                }
-              }
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          201: {
-            description: Created
-          },
-          500: {
-            description: Server Error
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/inventory/list/recent/{CategoryID}: {
-      get: {
-        tags: [
-          Inventory
-        ],
-        operationId: InventoryListRecentEndpoint,
-        parameters: [
-          {
-            name: CategoryID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        }
-      }
-    },
-    /api/inventory/get-product/{ProductID}: {
-      get: {
-        tags: [
-          Inventory
-        ],
-        operationId: InventoryGetProductEndpoint,
-        parameters: [
-          {
-            name: ProductID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          403: {
-            description: Forbidden
-          }
-        }
-      }
-    },
-    /api/customer/update: {
-      put: {
-        tags: [
-          Customer
-        ],
-        operationId: CustomersUpdateEndpoint1,
-        parameters: [
-          {
-            name: CustomerID,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              default: test default val,
-              nullable: true
-            }
-          },
-          {
-            name: Name,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              default: query test default val,
-              nullable: true
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/customer/save: {
-      put: {
-        tags: [
-          Customer
-        ],
-        operationId: CustomersUpdateEndpoint2,
-        parameters: [
-          {
-            name: CustomerID,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              default: test default val,
-              nullable: true
-            }
-          },
-          {
-            name: Name,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              default: query test default val,
-              nullable: true
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      },
-      post: {
-        tags: [
-          Customer Save
-        ],
-        operationId: PostCustomersCreateEndpoint3,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      },
-      get: {
-        tags: [
-          Customer Save
-        ],
-        operationId: GetCustomersCreateEndpoint3,
-        parameters: [
-          {
-            name: cID,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: CustomerName,
-            in: query,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: PhoneNumbers,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string
-              }
-            },
-            example: [
-              
-            ]
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/customer/update-with-header: {
-      put: {
-        tags: [
-          Customer
-        ],
-        operationId: CustomersUpdateWithHeaderEndpoint,
-        parameters: [
-          {
-            name: CustomerID,
-            in: header,
-            required: true,
-            schema: {
-              type: integer,
-              format: int32
-            }
-          },
-          {
-            name: tenant-id,
-            in: header,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/customer/login: {
-      get: {
-        tags: [
-          Customer
-        ],
-        operationId: CustomersLoginEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          }
-        }
-      }
-    },
-    /api/customer/list/recent: {
-      get: {
-        tags: [
-          Customer
-        ],
-        operationId: CustomersListRecentEndpoint,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {
-            JWTBearerAuth: [
-              admin,
-              staff
-            ]
-          }
-        ]
-      }
-    },
-    /api/customer/new/{RefererID}: {
-      post: {
-        tags: [
-          Customer Save
-        ],
-        operationId: PostCustomersCreateEndpoint1,
-        parameters: [
-          {
-            name: RefererID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            */*: {
-              schema: null
-            },
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      },
-      get: {
-        tags: [
-          Customer Save
-        ],
-        operationId: GetCustomersCreateEndpoint1,
-        parameters: [
-          {
-            name: RefererID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: cID,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: CustomerName,
-            in: query,
-            description: the name of the cutomer goes here,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: PhoneNumbers,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string
-              }
-            },
-            example: [
-              
-            ]
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/customer/{cID}/new/{SourceID}: {
-      post: {
-        tags: [
-          Customer Save
-        ],
-        operationId: PostCustomersCreateEndpoint2,
-        parameters: [
-          {
-            name: cID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: SourceID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      },
-      get: {
-        tags: [
-          Customer Save
-        ],
-        operationId: GetCustomersCreateEndpoint2,
-        parameters: [
-          {
-            name: cID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: SourceID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: CustomerName,
-            in: query,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: PhoneNumbers,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string
-              }
-            },
-            example: [
-              
-            ]
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/customer/new/2{RefererID}: {
-      post: {
-        tags: [
-          Customer Save
-        ],
-        operationId: PostCustomersCreateWithPropertiesDIEndpoint1,
-        parameters: [
-          {
-            name: RefererID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            */*: {
-              schema: null
-            },
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      },
-      get: {
-        tags: [
-          Customer Save
-        ],
-        operationId: GetCustomersCreateWithPropertiesDIEndpoint1,
-        parameters: [
-          {
-            name: RefererID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: cID,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: CustomerName,
-            in: query,
-            description: the name of the cutomer goes here,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: PhoneNumbers,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string
-              }
-            },
-            example: [
-              
-            ]
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/customer/{cID}/new2/{SourceID}: {
-      post: {
-        tags: [
-          Customer Save
-        ],
-        operationId: PostCustomersCreateWithPropertiesDIEndpoint2,
-        parameters: [
-          {
-            name: cID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: SourceID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      },
-      get: {
-        tags: [
-          Customer Save
-        ],
-        operationId: GetCustomersCreateWithPropertiesDIEndpoint2,
-        parameters: [
-          {
-            name: cID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: SourceID,
-            in: path,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: CustomerName,
-            in: query,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: PhoneNumbers,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string
-              }
-            },
-            example: [
-              
-            ]
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/customer/save2: {
-      post: {
-        tags: [
-          Customer Save
-        ],
-        operationId: PostCustomersCreateWithPropertiesDIEndpoint3,
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      },
-      get: {
-        tags: [
-          Customer Save
-        ],
-        operationId: GetCustomersCreateWithPropertiesDIEndpoint3,
-        parameters: [
-          {
-            name: cID,
-            in: query,
-            required: true,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: CustomerName,
-            in: query,
-            schema: {
-              type: string,
-              nullable: true
-            }
-          },
-          {
-            name: PhoneNumbers,
-            in: query,
-            style: form,
-            explode: true,
-            required: true,
-            schema: {
-              type: array,
-              nullable: true,
-              items: {
-                type: string
-              }
-            },
-            example: [
-              
-            ]
-          }
-        ],
-        responses: {
-          200: {
-            description: Success,
-            content: {
-              text/plain: {},
-              application/json: {}
-            }
-          },
-          401: {
-            description: Unauthorized
-          },
-          403: {
-            description: Forbidden
-          }
-        },
-        security: [
-          {}
-        ]
-      }
-    },
-    /api/admin/login: {
-      post: {
-        tags: [
-          Admin
-        ],
-        summary: this is a short summary,
-        description: this is the long description of the endpoint,
-        operationId: PostAdminLoginEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: all good,
-            headers: {},
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          400: {
-            description: indicates an error
-          },
-          403: {
-            description: forbidden when login fails
-          }
-        }
-      },
-      put: {
-        tags: [
-          Admin
-        ],
-        summary: this is a short summary,
-        description: this is the long description of the endpoint,
-        operationId: PutAdminLoginEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: all good,
-            headers: {},
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          400: {
-            description: indicates an error
-          },
-          403: {
-            description: forbidden when login fails
-          }
-        }
-      },
-      patch: {
-        tags: [
-          Admin
-        ],
-        summary: this is a short summary,
-        description: this is the long description of the endpoint,
-        operationId: PatchAdminLoginEndpoint,
-        requestBody: {
-          x-name: Request,
-          description: ,
-          content: {
-            application/json: {
-              schema: null
-            }
-          },
-          required: true,
-          x-position: 1
-        },
-        responses: {
-          200: {
-            description: all good,
-            headers: {},
-            content: {
-              application/json: {
-                schema: null
-              }
-            }
-          },
-          400: {
-            description: indicates an error
-          },
-          403: {
-            description: forbidden when login fails
-          }
-        }
-      }
-    },
     /test: {
       get: {
         tags: [
@@ -3513,6 +3465,54 @@
                 schema: {
                   type: string
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    /test-cases/plaintext/{Id}: {
+      post: {
+        tags: [
+          Test-Cases
+        ],
+        summary: plain request endpoint summary,
+        operationId: TestCasesPlainTextRequestTestEndpoint,
+        parameters: [
+          {
+            name: Id,
+            in: path,
+            required: true,
+            description: overriden id text,
+            schema: {
+              type: integer,
+              format: int32
+            }
+          }
+        ],
+        requestBody: {
+          x-name: Request,
+          description: ,
+          content: {
+            text/plain: {
+              schema: null
+            },
+            application/json: {
+              schema: null
+            }
+          },
+          required: true,
+          x-position: 1
+        },
+        responses: {
+          200: {
+            description: Success,
+            content: {
+              text/plain: {
+                schema: null
+              },
+              application/json: {
+                schema: null
               }
             }
           }

@@ -361,3 +361,4 @@ Src/Documentation/api/
 
 # ignor verify libs received files
 *.received.*
+.vscode/

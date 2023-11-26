@@ -23,7 +23,7 @@ jobs:
             "parallelizeAssembly": false,
             "parallelizeTestCollections": false,
             "diagnosticMessages": false
-          }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json          
+          }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json
 
       - name: Run Tests
         run: dotnet test FastEndpoints.sln --configuration Release --verbosity minimal
@@ -36,10 +36,10 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: ${{ !contains(github.ref, 'beta') }}
-        with:
-          draft: false
-          name: ${{ github.ref_name }} Release
-          body_path: Src/Library/changelog.md
+      # - name: Create Release
+      #   uses: softprops/action-gh-release@v1
+      #   if: ${{ !contains(github.ref, 'beta') }}
+      #   with:
+      #     draft: false
+      #     name: ${{ github.ref_name }} Release
+      #     body_path: Src/Library/changelog.md

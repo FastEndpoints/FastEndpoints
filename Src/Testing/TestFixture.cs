@@ -61,6 +61,22 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
         Client = _app.CreateClient();
     }
 
+    protected TestFixture(ITestOutputHelper h)
+    {
+        _app = (WebApplicationFactory<TProgram>)
+            AppCache.GetOrAdd(
+                GetType(),
+                _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
+                    b =>
+                    {
+                        b.UseEnvironment("Testing");
+                        b.ConfigureLogging(l => l.ClearProviders().AddXUnit(h));
+                        b.ConfigureTestServices(ConfigureServices);
+                        ConfigureApp(b);
+                    }));
+        Client = _app.CreateClient();
+    }
+
     /// <summary>
     /// override this method if you'd like to do some one-time setup for the test-class.
     /// it is run before any of the test-methods of the class is executed.

@@ -17,7 +17,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
         AccessControl("Sales_Order_Create", Apply.ToThisEndpoint);
         PreProcessors(new MyRequestLogger<Request>());
         PostProcessors(new MyResponseLogger<Request, Response>());
-        Tags("orders");
+        Tags("Orders");
     }
 
     public override async Task HandleAsync(Request r, CancellationToken t)
@@ -27,7 +27,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
                                FirstName = "x",
                                LastName = "y"
                            }
-                          .ExecuteAsync(t);
+                           .ExecuteAsync(t);
 
         var userType = User.ClaimValue(Claim.UserType);
 

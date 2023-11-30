@@ -134,6 +134,149 @@
         }
       }
     },
+    "/api/customer/new/{RefererID}": {
+      "post": {
+        "tags": [
+          "Customer Save"
+        ],
+        "operationId": "PostCustomersCreateEndpoint1",
+        "parameters": [
+          {
+            "name": "RefererID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomersCreateRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomersCreateRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Customer Save"
+        ],
+        "operationId": "GetCustomersCreateEndpoint1",
+        "parameters": [
+          {
+            "name": "RefererID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "cID",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "CustomerName",
+            "in": "query",
+            "description": "the name of the cutomer goes here",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "PhoneNumbers",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "required": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": [
+              ""
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
     "/api/customer/{cID}/new/{SourceID}": {
       "post": {
         "tags": [
@@ -215,6 +358,321 @@
           {
             "name": "CustomerName",
             "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "PhoneNumbers",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "required": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": [
+              ""
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/api/customer/save": {
+      "post": {
+        "tags": [
+          "Customer Save"
+        ],
+        "operationId": "PostCustomersCreateEndpoint3",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Customer Save"
+        ],
+        "operationId": "GetCustomersCreateEndpoint3",
+        "parameters": [
+          {
+            "name": "cID",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "CustomerName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "PhoneNumbers",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "required": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": [
+              ""
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "CustomersUpdateEndpoint2",
+        "parameters": [
+          {
+            "name": "CustomerID",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "test default val",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "query test default val",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomersUpdateRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/api/customer/new/2{RefererID}": {
+      "post": {
+        "tags": [
+          "Customer Save"
+        ],
+        "operationId": "PostCustomersCreateWithPropertiesDIEndpoint1",
+        "parameters": [
+          {
+            "name": "RefererID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomersCreateWithPropertiesDIRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomersCreateWithPropertiesDIRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Customer Save"
+        ],
+        "operationId": "GetCustomersCreateWithPropertiesDIEndpoint1",
+        "parameters": [
+          {
+            "name": "RefererID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "cID",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "CustomerName",
+            "in": "query",
+            "description": "the name of the cutomer goes here",
             "schema": {
               "type": "string",
               "nullable": true
@@ -400,519 +858,6 @@
         ]
       }
     },
-    "/api/customer/list/recent/ver1": {
-      "get": {
-        "tags": [
-          "Customer"
-        ],
-        "operationId": "CustomersListRecentEndpoint_V1",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CustomersListRecentResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "ApiKey": [
-              "admin",
-              "staff"
-            ]
-          }
-        ]
-      }
-    },
-    "/api/customer/login": {
-      "get": {
-        "tags": [
-          "Customer"
-        ],
-        "operationId": "CustomersLoginEndpoint",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/customer/new/{RefererID}": {
-      "post": {
-        "tags": [
-          "Customer Save"
-        ],
-        "operationId": "PostCustomersCreateEndpoint1",
-        "parameters": [
-          {
-            "name": "RefererID",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          }
-        ],
-        "requestBody": {
-          "x-name": "Request",
-          "description": "",
-          "content": {
-            "*/*": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomersCreateRequest"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomersCreateRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      },
-      "get": {
-        "tags": [
-          "Customer Save"
-        ],
-        "operationId": "GetCustomersCreateEndpoint1",
-        "parameters": [
-          {
-            "name": "RefererID",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "cID",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "CustomerName",
-            "in": "query",
-            "description": "the name of the cutomer goes here",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "PhoneNumbers",
-            "in": "query",
-            "style": "form",
-            "explode": true,
-            "required": true,
-            "schema": {
-              "type": "array",
-              "nullable": true,
-              "items": {
-                "type": "string"
-              }
-            },
-            "example": [
-              ""
-            ]
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/api/customer/new/2{RefererID}": {
-      "post": {
-        "tags": [
-          "Customer Save"
-        ],
-        "operationId": "PostCustomersCreateWithPropertiesDIEndpoint1",
-        "parameters": [
-          {
-            "name": "RefererID",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          }
-        ],
-        "requestBody": {
-          "x-name": "Request",
-          "description": "",
-          "content": {
-            "*/*": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomersCreateWithPropertiesDIRequest"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomersCreateWithPropertiesDIRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      },
-      "get": {
-        "tags": [
-          "Customer Save"
-        ],
-        "operationId": "GetCustomersCreateWithPropertiesDIEndpoint1",
-        "parameters": [
-          {
-            "name": "RefererID",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "cID",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "CustomerName",
-            "in": "query",
-            "description": "the name of the cutomer goes here",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "PhoneNumbers",
-            "in": "query",
-            "style": "form",
-            "explode": true,
-            "required": true,
-            "schema": {
-              "type": "array",
-              "nullable": true,
-              "items": {
-                "type": "string"
-              }
-            },
-            "example": [
-              ""
-            ]
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/api/customer/save": {
-      "put": {
-        "tags": [
-          "Customer"
-        ],
-        "operationId": "CustomersUpdateEndpoint2",
-        "parameters": [
-          {
-            "name": "CustomerID",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "default": "test default val",
-              "nullable": true
-            }
-          },
-          {
-            "name": "Name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "default": "query test default val",
-              "nullable": true
-            }
-          }
-        ],
-        "requestBody": {
-          "x-name": "Request",
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CustomersUpdateRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Customer Save"
-        ],
-        "operationId": "PostCustomersCreateEndpoint3",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      },
-      "get": {
-        "tags": [
-          "Customer Save"
-        ],
-        "operationId": "GetCustomersCreateEndpoint3",
-        "parameters": [
-          {
-            "name": "cID",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "CustomerName",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "PhoneNumbers",
-            "in": "query",
-            "style": "form",
-            "explode": true,
-            "required": true,
-            "schema": {
-              "type": "array",
-              "nullable": true,
-              "items": {
-                "type": "string"
-              }
-            },
-            "example": [
-              ""
-            ]
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
     "/api/customer/save2": {
       "post": {
         "tags": [
@@ -1015,6 +960,61 @@
             "ApiKey": []
           }
         ]
+      }
+    },
+    "/api/customer/list/recent/ver1": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "CustomersListRecentEndpoint_V1",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomersListRecentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": [
+              "admin",
+              "staff"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/customer/login": {
+      "get": {
+        "tags": [
+          "Customer"
+        ],
+        "operationId": "CustomersLoginEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
       }
     },
     "/api/customer/update": {
@@ -1382,115 +1382,12 @@
         ]
       }
     },
-    "/api/multi-test": {
-      "post": {
-        "tags": [
-          "Multi-Test"
-        ],
-        "operationId": "TestCasesTypedResultTestMultiResultEndpoint",
-        "requestBody": {
-          "x-name": "Request",
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesTypedResultTestRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesTypedResultTestResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/sales/orders/create": {
-      "post": {
-        "tags": [
-          "Sales"
-        ],
-        "operationId": "SalesOrdersCreateEndpoint2",
-        "requestBody": {
-          "x-name": "Request",
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SalesOrdersCreateRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SalesOrdersCreateResponse"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
     "/api/sales/orders/create/{guidTest}": {
       "post": {
         "tags": [
           "Sales"
         ],
-        "operationId": "SalesOrdersCreateEndpoint1",
+        "operationId": "Orders_SalesOrdersCreateEndpoint1",
         "parameters": [
           {
             "name": "guidTest",
@@ -1554,12 +1451,69 @@
         ]
       }
     },
+    "/api/sales/orders/create": {
+      "post": {
+        "tags": [
+          "Sales"
+        ],
+        "operationId": "Orders_SalesOrdersCreateEndpoint2",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SalesOrdersCreateRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesOrdersCreateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
     "/api/sales/orders/retrieve/{OrderID}": {
       "get": {
         "tags": [
           "Sales"
         ],
-        "operationId": "SalesOrdersRetrieveEndpoint",
+        "operationId": "Orders_SalesOrdersRetrieveEndpoint",
         "parameters": [
           {
             "name": "OrderID",
@@ -1604,65 +1558,12 @@
         }
       }
     },
-    "/api/test-cases/{number}": {
-      "get": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "operationId": "TestCasesDontCatchExceptionsEndpoint",
-        "parameters": [
-          {
-            "name": "number",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/test-cases/antiforgery/render-form": {
-      "get": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "operationId": "TestCasesAntiforgeryTestRenderFormHtml",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/test-cases/antiforgery/token": {
       "get": {
         "tags": [
           "Test-Cases"
         ],
-        "operationId": "TestCasesAntiforgeryTestGetAfTokenEndpoint",
+        "operationId": "antiforgery_TestCasesAntiforgeryTestGetAfTokenEndpoint",
         "responses": {
           "200": {
             "description": "Success",
@@ -1677,12 +1578,33 @@
         }
       }
     },
+    "/api/test-cases/antiforgery/render-form": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "antiforgery_TestCasesAntiforgeryTestRenderFormHtml",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/antiforgery/validate": {
       "post": {
         "tags": [
           "Test-Cases"
         ],
-        "operationId": "TestCasesAntiforgeryTestVerifyAfToken",
+        "operationId": "antiforgery_TestCasesAntiforgeryTestVerifyAfToken",
         "requestBody": {
           "x-name": "VerificationRequest",
           "description": "",
@@ -1708,51 +1630,6 @@
             }
           }
         }
-      }
-    },
-    "/api/test-cases/array-validation-error-test": {
-      "post": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "operationId": "TestCasesValidationErrorTestArrayValidationErrorTestEndpoint",
-        "requestBody": {
-          "x-name": "ArrayRequest",
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesValidationErrorTestArrayRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
       }
     },
     "/api/test-cases/byte-array-query-param-binding-test": {
@@ -1801,6 +1678,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/commands": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesCommandBusTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/command-handler": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesCommandHandlerTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1896,25 +1813,23 @@
         "deprecated": true
       }
     },
-    "/api/test-cases/dictionary-validation-error-test": {
-      "post": {
+    "/api/test-cases/{number}": {
+      "get": {
         "tags": [
           "Test-Cases"
         ],
-        "operationId": "TestCasesValidationErrorTestDictionaryValidationErrorTestEndpoint",
-        "requestBody": {
-          "x-name": "DictionaryRequest",
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesValidationErrorTestDictionaryRequest"
-              }
+        "operationId": "TestCasesDontCatchExceptionsEndpoint",
+        "parameters": [
+          {
+            "name": "number",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
-          },
-          "required": true,
-          "x-position": 1
-        },
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -1926,19 +1841,8 @@
                 "schema": {}
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized"
           }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
+        }
       }
     },
     "/api/test-cases/dupe-param-binding-for-ienumerable-props": {
@@ -2130,67 +2034,6 @@
         ]
       }
     },
-    "/api/test-cases/ep-witout-req-query-param-binding-test": {
-      "get": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "operationId": "TestCasesQueryParamBindingInEpWithoutReqEpWithoutReqQueryParamBindingTest",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesQueryParamBindingInEpWithoutReqResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/test-cases/ep-witout-req-route-binding-test/{CustomerID}/{OtherID}": {
-      "get": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "operationId": "TestCasesRouteBindingInEpWithoutReqEpWithoutReqRouteBindingTest",
-        "parameters": [
-          {
-            "name": "CustomerID",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          },
-          {
-            "name": "OtherID",
-            "in": "path",
-            "required": true,
-            "description": "the description for other id",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesRouteBindingInEpWithoutReqResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/test-cases/event-bus-test": {
       "get": {
         "tags": [
@@ -2327,24 +2170,91 @@
         }
       }
     },
-    "/api/test-cases/global-throttle-error-response": {
+    "/mobile/api/test-cases/global-prefix-override/{Id}": {
+      "post": {
+        "tags": [
+          "Mobile"
+        ],
+        "summary": "plain request endpoint summary",
+        "operationId": "TestCasesGlobalRoutePrefixOverrideTestEndpoint",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "description": "overriden id text",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesGlobalRoutePrefixOverrideTestRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesGlobalRoutePrefixOverrideTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesGlobalRoutePrefixOverrideTestResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesGlobalRoutePrefixOverrideTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/iauth-injection": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "Tests"
         ],
-        "operationId": "TestCasesRateLimitTestsGlobalErrorResponseTest",
+        "operationId": "TestCasesIAuthorizationServiceInjectionTestEndpoint",
         "responses": {
           "200": {
             "description": "Success",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TestCasesRateLimitTestsResponse"
+                  "type": "boolean"
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
-        }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
       }
     },
     "/api/test-cases/json-array-binding-for-ienumerable-props": {
@@ -2543,96 +2453,6 @@
         }
       }
     },
-    "/api/test-cases/list-in-list-validation-error-test": {
-      "post": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "operationId": "TestCasesValidationErrorTestListInListValidationErrorTestEndpoint",
-        "requestBody": {
-          "x-name": "ListInListRequest",
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesValidationErrorTestListInListRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/api/test-cases/list-validation-error-test": {
-      "post": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "operationId": "TestCasesValidationErrorTestListValidationErrorTestEndpoint",
-        "requestBody": {
-          "x-name": "ListRequest",
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesValidationErrorTestListRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
     "/api/test-cases/mapper-test": {
       "post": {
         "tags": [
@@ -2660,38 +2480,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesMapperTestResponse"
                 }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "security": [
-          {
-            "JWTBearerAuth": []
-          },
-          {
-            "ApiKey": []
-          }
-        ]
-      }
-    },
-    "/api/test-cases/missing-claim-test": {
-      "post": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "operationId": "TestCasesMissingClaimTestThrowIfMissingEndpoint",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
               }
             }
           },
@@ -2751,23 +2539,12 @@
         ]
       }
     },
-    "/api/test-cases/missing-header-test": {
+    "/api/test-cases/missing-claim-test": {
       "post": {
         "tags": [
           "Test-Cases"
         ],
-        "operationId": "TestCasesMissingHeaderTestThrowIfMissingEndpoint",
-        "parameters": [
-          {
-            "name": "TenantID",
-            "in": "header",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            }
-          }
-        ],
+        "operationId": "TestCasesMissingClaimTestThrowIfMissingEndpoint",
         "responses": {
           "200": {
             "description": "Success",
@@ -2849,25 +2626,23 @@
         ]
       }
     },
-    "/api/test-cases/object-array-validation-error-test": {
+    "/api/test-cases/missing-header-test": {
       "post": {
         "tags": [
           "Test-Cases"
         ],
-        "operationId": "TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint",
-        "requestBody": {
-          "x-name": "ObjectArrayRequest",
-          "description": "",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesValidationErrorTestObjectArrayRequest"
-              }
+        "operationId": "TestCasesMissingHeaderTestThrowIfMissingEndpoint",
+        "parameters": [
+          {
+            "name": "TenantID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
             }
-          },
-          "required": true,
-          "x-position": 1
-        },
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
@@ -2948,6 +2723,156 @@
         ]
       }
     },
+    "/test-cases/plaintext/{Id}": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "summary": "plain request endpoint summary",
+        "operationId": "TestCasesPlainTextRequestTestEndpoint",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "description": "overriden id text",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesPlainTextRequestTestRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesPlainTextRequestTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesPlainTextRequestTestResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesPlainTextRequestTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testcases/post-processor-handles-exception": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesPostProcessorTestEndpoint",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesPostProcessorTestExceptionDetailsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testcases/post-processor-handles-exception/no-post-processor": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesPostProcessorTestEpNoPostProcessor",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/testcases/pre-processor-shortcircuit-while-validator-fails": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesPrecessorShortWhileValidatorFailsEndpoint",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/pre-processor-is-run-on-validation-failure": {
       "post": {
         "tags": [
@@ -3026,79 +2951,6 @@
               "application/json": {
                 "schema": {
                   "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/test-cases/query-arrays-of-objects-binding-test": {
-      "get": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "summary": "summary",
-        "description": "descr",
-        "operationId": "QueryArraysOfObjectsBindingTest",
-        "parameters": [
-          {
-            "name": "Person",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "nullable": true,
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
-                }
-              ]
-            },
-            "example": {
-              "Child": {
-                "Objects": [
-                  {
-                    "String": "String",
-                    "Bool": false,
-                    "Int": 0,
-                    "Long": 0,
-                    "Double": 0.0,
-                    "Enum": 0
-                  }
-                ]
-              },
-              "Objects": [
-                {
-                  "String": "String",
-                  "Bool": false,
-                  "Int": 0,
-                  "Long": 0,
-                  "Double": 0.0,
-                  "Enum": 0
-                }
-              ],
-              "ArraysOfObjects": [
-                [
-                  {
-                    "String": "String",
-                    "Bool": false,
-                    "Int": 0,
-                    "Long": 0,
-                    "Double": 0.0,
-                    "Enum": 0
-                  }
-                ]
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestResponse"
                 }
               }
             }
@@ -3219,6 +3071,99 @@
         }
       }
     },
+    "/api/test-cases/query-arrays-of-objects-binding-test": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "summary": "summary",
+        "description": "descr",
+        "operationId": "QueryArraysOfObjectsBindingTest",
+        "parameters": [
+          {
+            "name": "Person",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
+                }
+              ]
+            },
+            "example": {
+              "Child": {
+                "Objects": [
+                  {
+                    "String": "String",
+                    "Bool": false,
+                    "Int": 0,
+                    "Long": 0,
+                    "Double": 0.0,
+                    "Enum": 0
+                  }
+                ]
+              },
+              "Objects": [
+                {
+                  "String": "String",
+                  "Bool": false,
+                  "Int": 0,
+                  "Long": 0,
+                  "Double": 0.0,
+                  "Enum": 0
+                }
+              ],
+              "ArraysOfObjects": [
+                [
+                  {
+                    "String": "String",
+                    "Bool": false,
+                    "Int": 0,
+                    "Long": 0,
+                    "Double": 0.0,
+                    "Enum": 0
+                  }
+                ]
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/ep-witout-req-query-param-binding-test": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesQueryParamBindingInEpWithoutReqEpWithoutReqQueryParamBindingTest",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesQueryParamBindingInEpWithoutReqResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/range": {
       "get": {
         "tags": [
@@ -3243,6 +3188,120 @@
               "text/plain": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/global-throttle-error-response": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesRateLimitTestsGlobalErrorResponseTest",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesRateLimitTestsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tokens/login": {
+      "get": {
+        "tags": [
+          "Tokens"
+        ],
+        "operationId": "TestCasesRefreshTokensTestLoginEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsSecurityTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tokens/refresh-token": {
+      "post": {
+        "tags": [
+          "Tokens"
+        ],
+        "operationId": "TestCasesRefreshTokensTestTokenService",
+        "requestBody": {
+          "x-name": "TokenRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FastEndpointsSecurityTokenRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsSecurityTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/ep-witout-req-route-binding-test/{CustomerID}/{OtherID}": {
+      "get": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesRouteBindingInEpWithoutReqEpWithoutReqRouteBindingTest",
+        "parameters": [
+          {
+            "name": "CustomerID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "OtherID",
+            "in": "path",
+            "required": true,
+            "description": "the description for other id",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesRouteBindingInEpWithoutReqResponse"
                 }
               }
             }
@@ -3414,6 +3473,72 @@
         }
       }
     },
+    "/api/testcases/stj-infinite-recursion": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesSTJInfiniteRecursionTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSTJInfiniteRecursionTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/multi-test": {
+      "post": {
+        "tags": [
+          "Multi-Test"
+        ],
+        "operationId": "TestCasesTypedResultTestMultiResultEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesTypedResultTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesTypedResultTestResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/unit-test-concurrency": {
       "get": {
         "tags": [
@@ -3446,174 +3571,34 @@
         }
       }
     },
-    "/api/testcases/post-processor-handles-exception": {
-      "get": {
+    "/api/test-cases/array-validation-error-test": {
+      "post": {
         "tags": [
-          "Testcases"
+          "Test-Cases"
         ],
-        "operationId": "TestCasesPostProcessorTestEndpoint",
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesPostProcessorTestExceptionDetailsResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/testcases/post-processor-handles-exception/no-post-processor": {
-      "get": {
-        "tags": [
-          "Testcases"
-        ],
-        "operationId": "TestCasesPostProcessorTestEpNoPostProcessor",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/testcases/pre-processor-shortcircuit-while-validator-fails": {
-      "get": {
-        "tags": [
-          "Testcases"
-        ],
-        "operationId": "TestCasesPrecessorShortWhileValidatorFailsEndpoint",
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {}
-              },
-              "application/json": {
-                "schema": {}
+        "operationId": "TestCasesValidationErrorTestArrayValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "ArrayRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestArrayRequest"
               }
             }
           },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/testcases/stj-infinite-recursion": {
-      "get": {
-        "tags": [
-          "Testcases"
-        ],
-        "operationId": "TestCasesSTJInfiniteRecursionTestEndpoint",
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "Success",
             "content": {
+              "text/plain": {
+                "schema": {}
+              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesSTJInfiniteRecursionTestResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/tests/command-handler": {
-      "get": {
-        "tags": [
-          "Tests"
-        ],
-        "operationId": "TestCasesCommandHandlerTestEndpoint",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/tests/commands": {
-      "get": {
-        "tags": [
-          "Tests"
-        ],
-        "operationId": "TestCasesCommandBusTestEndpoint",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/tests/iauth-injection": {
-      "get": {
-        "tags": [
-          "Tests"
-        ],
-        "operationId": "TestCasesIAuthorizationServiceInjectionTestEndpoint",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
+                "schema": {}
               }
             }
           },
@@ -3631,39 +3616,19 @@
         ]
       }
     },
-    "/api/tokens/login": {
-      "get": {
-        "tags": [
-          "Tokens"
-        ],
-        "operationId": "TestCasesRefreshTokensTestLoginEndpoint",
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsSecurityTokenResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/tokens/refresh-token": {
+    "/api/test-cases/dictionary-validation-error-test": {
       "post": {
         "tags": [
-          "Tokens"
+          "Test-Cases"
         ],
-        "operationId": "TestCasesRefreshTokensTestTokenService",
+        "operationId": "TestCasesValidationErrorTestDictionaryValidationErrorTestEndpoint",
         "requestBody": {
-          "x-name": "TokenRequest",
+          "x-name": "DictionaryRequest",
           "description": "",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/FastEndpointsSecurityTokenRequest"
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestDictionaryRequest"
               }
             }
           },
@@ -3674,14 +3639,161 @@
           "200": {
             "description": "Success",
             "content": {
+              "text/plain": {
+                "schema": {}
+              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsSecurityTokenResponse"
-                }
+                "schema": {}
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
-        }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/api/test-cases/list-in-list-validation-error-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesValidationErrorTestListInListValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "ListInListRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestListInListRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/api/test-cases/list-validation-error-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesValidationErrorTestListValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "ListRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestListRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/api/test-cases/object-array-validation-error-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint",
+        "requestBody": {
+          "x-name": "ObjectArrayRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesValidationErrorTestObjectArrayRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
       }
     },
     "/api/uploads/image/save": {
@@ -3922,62 +4034,6 @@
         ]
       }
     },
-    "/mobile/api/test-cases/global-prefix-override/{Id}": {
-      "post": {
-        "tags": [
-          "Mobile"
-        ],
-        "summary": "plain request endpoint summary",
-        "operationId": "TestCasesGlobalRoutePrefixOverrideTestEndpoint",
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "description": "overriden id text",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "x-name": "Request",
-          "description": "",
-          "content": {
-            "text/plain": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesGlobalRoutePrefixOverrideTestRequest"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesGlobalRoutePrefixOverrideTestRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesGlobalRoutePrefixOverrideTestResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesGlobalRoutePrefixOverrideTestResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/test": {
       "get": {
         "tags": [
@@ -3991,62 +4047,6 @@
               "application/json": {
                 "schema": {
                   "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/test-cases/plaintext/{Id}": {
-      "post": {
-        "tags": [
-          "Test-Cases"
-        ],
-        "summary": "plain request endpoint summary",
-        "operationId": "TestCasesPlainTextRequestTestEndpoint",
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "description": "overriden id text",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "x-name": "Request",
-          "description": "",
-          "content": {
-            "text/plain": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesPlainTextRequestTestRequest"
-              }
-            },
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TestCasesPlainTextRequestTestRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesPlainTextRequestTestResponse"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesPlainTextRequestTestResponse"
                 }
               }
             }
@@ -4090,6 +4090,192 @@
   },
   "components": {
     "schemas": {
+      "AdminLoginResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "JWTToken": {
+            "type": "string",
+            "description": "the jwt token",
+            "example": "blahblahblah"
+          },
+          "ExpiryDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "Permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AdminLoginRequest": {
+        "type": "object",
+        "description": "the admin login request",
+        "example": {
+          "UserName": "custom example user name from summary",
+          "Password": "custom example password from summary"
+        },
+        "additionalProperties": false,
+        "required": [
+          "UserName",
+          "Password"
+        ],
+        "properties": {
+          "UserName": {
+            "type": "string",
+            "description": "overriden username text",
+            "default": "admin",
+            "maxLength": 50,
+            "minLength": 1,
+            "nullable": false,
+            "example": "example username"
+          },
+          "Password": {
+            "type": "string",
+            "description": "the admin password",
+            "minLength": 1,
+            "nullable": false,
+            "example": "example password"
+          }
+        }
+      },
+      "CustomersCreateRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CustomersCreateWithPropertiesDIRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "CustomersListRecentResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Customers": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/SystemCollectionsGenericKeyValuePairOfStringAndInt32"
+            }
+          }
+        }
+      },
+      "SystemCollectionsGenericKeyValuePairOfStringAndInt32": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Key": {
+            "type": "string",
+            "nullable": true
+          },
+          "Value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CustomersUpdateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Address": {
+            "type": "string"
+          }
+        }
+      },
+      "CustomersUpdateWithHeaderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Address": {
+            "type": "string"
+          }
+        }
+      },
+      "InventoryGetProductResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ProductID": {
+            "type": "string",
+            "nullable": true
+          },
+          "Last_Moddded": {
+            "type": "integer",
+            "description": "blah blah blah",
+            "format": "int64"
+          }
+        }
+      },
+      "InventoryListRecentResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Category": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "InventoryManageCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "Name",
+          "ModifiedBy"
+        ],
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": false
+          },
+          "Description": {
+            "type": "string",
+            "nullable": true
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0.0,
+            "exclusiveMinimum": true
+          },
+          "QtyOnHand": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ModifiedBy": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": false
+          },
+          "GenerateFullUrl": {
+            "type": "boolean"
+          }
+        }
+      },
+      "InventoryManageDeleteRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
       "FastEndpointsErrorResponse": {
         "type": "object",
         "description": "the dto used to send an error response to the client",
@@ -4118,32 +4304,314 @@
           }
         }
       },
-      "UploadsImageSaveRequest": {
+      "InventoryManageUpdateRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "Id",
+          "Name",
+          "ModifiedBy"
+        ],
         "properties": {
-          "ID": {
-            "type": "string"
-          },
-          "Width": {
+          "Id": {
             "type": "integer",
             "format": "int32",
-            "maximum": 2000.0,
-            "minimum": 10.0,
-            "exclusiveMaximum": true,
+            "minLength": 1,
+            "nullable": false
+          },
+          "Name": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": false
+          },
+          "Description": {
+            "type": "string",
+            "nullable": true
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0.0,
             "exclusiveMinimum": true
           },
-          "Height": {
+          "QtyOnHand": {
             "type": "integer",
-            "format": "int32",
-            "maximum": 2000.0,
-            "minimum": 10.0,
-            "exclusiveMaximum": true,
-            "exclusiveMinimum": true
+            "format": "int32"
+          },
+          "ModifiedBy": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": false
           }
         }
       },
-      "UploadsImageSaveTypedRequest": {
+      "SalesOrdersCreateResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "OrderID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Message": {
+            "type": "string",
+            "nullable": true
+          },
+          "AnotherMsg": {
+            "type": "string",
+            "nullable": true
+          },
+          "GuidTest": {
+            "type": "string",
+            "format": "guid"
+          },
+          "Event": {
+            "$ref": "#/components/schemas/TestCasesEventHandlingTestSomeEvent"
+          }
+        }
+      },
+      "TestCasesEventHandlingTestSomeEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "One": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Two": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SalesOrdersCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CustomerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ProductID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SalesOrdersRetrieveResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Message": {
+            "type": "string"
+          }
+        }
+      },
+      "SalesOrdersRetrieveRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "TenantID": {
+            "type": "string",
+            "description": "this is the tenant id"
+          }
+        }
+      },
+      "TestCasesAntiforgeryTestTokenResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "TokenName": {
+            "type": "string"
+          },
+          "Value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TestCasesAntiforgeryTestVerificationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "File": {
+            "type": "string",
+            "format": "binary"
+          },
+          "TokenResponse": {
+            "$ref": "#/components/schemas/TestCasesAntiforgeryTestTokenResponse"
+          }
+        }
+      },
+      "TestCasesByteArrayQueryParamBindingTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Timestamp": {
+            "type": "string",
+            "format": "byte"
+          },
+          "ObjectWithByteArrays": {
+            "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays"
+          }
+        }
+      },
+      "TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Timestamp": {
+            "type": "string",
+            "format": "byte"
+          },
+          "Timestamps": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "byte"
+            }
+          }
+        }
+      },
+      "TestCasesByteArrayQueryParamBindingTestRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesCustomRequestBinderResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TestCasesCustomRequestBinderRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TestCasesCustomRequestBinderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Product": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestCasesCustomRequestBinderProduct"
+              }
+            ]
+          },
+          "CustomerID": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesCustomRequestBinderProduct": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Price": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "TestCasesDataAnnotationCompliantRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "Name"
+        ],
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "description": "CurrentId",
+            "format": "int32",
+            "maximum": 99.0,
+            "minimum": 10.0
+          },
+          "Name": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 2
+          }
+        }
+      },
+      "TestCasesDontCatchExceptionsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesDupeParamBindingForIEnumerablePropsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TestCasesDupeParamBindingForIEnumerablePropsRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TestCasesDupeParamBindingForIEnumerablePropsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesDupeParamBindingForIEnumerablePropsRequest_Person": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "FastEndpointsEmptyResponse": {
+        "type": "object",
+        "description": "a response dto that doesn't have any properties",
+        "additionalProperties": false
+      },
+      "TestCasesFormFileBindingTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "File1Name": {
+            "type": "string"
+          },
+          "File2Name": {
+            "type": "string"
+          },
+          "CarNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "JetNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TestCasesFormFileBindingTestRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4152,19 +4620,11 @@
           },
           "Width": {
             "type": "integer",
-            "format": "int32",
-            "maximum": 2000.0,
-            "minimum": 10.0,
-            "exclusiveMaximum": true,
-            "exclusiveMinimum": true
+            "format": "int32"
           },
           "Height": {
             "type": "integer",
-            "format": "int32",
-            "maximum": 2000.0,
-            "minimum": 10.0,
-            "exclusiveMaximum": true,
-            "exclusiveMinimum": true
+            "format": "int32"
           },
           "File1": {
             "type": "string",
@@ -4187,180 +4647,658 @@
           }
         }
       },
-      "TestCasesValidationErrorTestArrayRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "StringArray": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "TestCasesValidationErrorTestDictionaryRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "StringDictionary": {
+      "TestCasesFromBodyJsonBindingResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingRequest"
+          },
+          {
             "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
+            "additionalProperties": false
           }
-        }
+        ]
       },
-      "TestCasesValidationErrorTestListInListRequest": {
+      "TestCasesFromBodyJsonBindingRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "NumbersList": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
+          "Product": {
+            "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
+          }
+        }
+      },
+      "TestCasesFromBodyJsonBindingProduct": {
+        "type": "object",
+        "example": {
+          "Name": "test product name",
+          "Price": 200.22
+        },
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "description": "product id goes here",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string",
+            "description": "this is the name of the product"
+          },
+          "Price": {
+            "type": "number",
+            "description": "product price goes here",
+            "format": "decimal",
+            "minimum": 200.0,
+            "exclusiveMinimum": true
+          }
+        }
+      },
+      "TestCasesGlobalRoutePrefixOverrideTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "BodyContent": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesGlobalRoutePrefixOverrideTestRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FastEndpointsPlainTextRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "FastEndpointsPlainTextRequest": {
+        "type": "object",
+        "description": "use this dto if you need to model bind the raw content body of an incoming http request or you may implement the IPlainTextRequest interface on your own request dto.",
+        "additionalProperties": false,
+        "properties": {
+          "Content": {
+            "type": "string",
+            "description": "overriden content text"
+          }
+        }
+      },
+      "TestCasesJsonArrayBindingForIEnumerablePropsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TestCasesJsonArrayBindingForIEnumerablePropsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesJsonArrayBindingToIEnumerableDtoResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoItem"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TestCasesJsonArrayBindingToIEnumerableDtoItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesJsonArrayBindingToIEnumerableDtoRequest": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoItem"
+        }
+      },
+      "TestCasesJsonArrayBindingToListOfModelsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TestCasesJsonArrayBindingToListOfModelsRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Id": {
                 "type": "integer",
                 "format": "int32"
               }
             }
           }
-        }
+        ]
       },
-      "TestCasesValidationErrorTestListRequest": {
+      "TestCasesJsonArrayBindingToListOfModelsRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "NumbersList": {
+          "Name": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesMapperTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TestCasesMapperTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "FirstName": {
+            "type": "string"
+          },
+          "LastName": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TestCasesMissingClaimTestDontThrowIfMissingRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesMissingClaimTestThrowIfMissingRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesMissingHeaderTestDontThrowIfMissingRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "TenantID": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TestCasesMissingHeaderTestThrowIfMissingRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesOnBeforeAfterValidationTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Host": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TestCasesOnBeforeAfterValidationTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Verb": {
+            "$ref": "#/components/schemas/FastEndpointsHttp"
+          },
+          "Host": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "FastEndpointsHttp": {
+        "type": "integer",
+        "description": "enum for specifying a http verb",
+        "x-enumNames": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "HEAD"
+        ],
+        "enum": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "TestCasesPlainTextRequestTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "BodyContent": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesPlainTextRequestTestRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FastEndpointsPlainTextRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TestCasesPostProcessorTestExceptionDetailsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesPostProcessorTestRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesPrecessorShortWhileValidatorFailsRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesPreProcessorIsRunOnValidationFailureResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Message": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesPreProcessorIsRunOnValidationFailureRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "FirstName"
+        ],
+        "properties": {
+          "FirstName": {
+            "type": "string",
+            "minLength": 1,
+            "nullable": false
+          },
+          "FailureCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TestCasesProcessorStateTestRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesQueryObjectBindingTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "String": {
+            "type": "string",
+            "description": "Some string property"
+          },
+          "Bool": {
+            "type": "boolean",
+            "description": "Some bool property"
+          },
+          "Int": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Long": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Double": {
+            "type": "number",
+            "format": "double"
+          },
+          "Enum": {
+            "$ref": "#/components/schemas/SystemDayOfWeek"
+          },
+          "Person": {
+            "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
+          }
+        }
+      },
+      "SystemDayOfWeek": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "TestCasesQueryObjectBindingTestPerson": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Child": {
+            "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestNestedPerson"
+          },
+          "Numbers": {
             "type": "array",
             "items": {
               "type": "integer",
               "format": "int32"
             }
+          },
+          "FavoriteDay": {
+            "$ref": "#/components/schemas/SystemDayOfWeek"
+          },
+          "ByteEnum": {
+            "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestByteEnum"
+          },
+          "IsHidden": {
+            "type": "boolean"
           }
         }
       },
-      "TestCasesValidationErrorTestObjectArrayRequest": {
+      "TestCasesQueryObjectBindingTestNestedPerson": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "ObjectArray": {
+          "Id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "Age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Strings": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/TestCasesValidationErrorTestTObject"
+              "type": "string"
             }
+          },
+          "FavoriteDays": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SystemDayOfWeek"
+            }
+          },
+          "IsHidden": {
+            "type": "boolean"
           }
         }
       },
-      "TestCasesValidationErrorTestTObject": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Test": {
-            "type": "string"
-          }
-        }
+      "TestCasesQueryObjectBindingTestByteEnum": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Check",
+          "Test",
+          "AnotherCheck"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
       },
-      "TestCasesUnitTestConcurrencyTestRequest": {
+      "TestCasesQueryObjectBindingTestRequest": {
         "type": "object",
         "additionalProperties": false
       },
-      "TestCasesTypedResultTestResponse": {
+      "TestCasesQueryObjectWithObjectsArrayBindingTestResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "RequestId": {
-            "type": "integer",
-            "format": "int32"
+          "Person": {
+            "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
           }
         }
       },
-      "FastEndpointsProblemDetails": {
+      "TestCasesQueryObjectWithObjectsArrayBindingTestPerson": {
         "type": "object",
-        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n\n    app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);",
         "additionalProperties": false,
         "properties": {
-          "Type": {
-            "type": "string",
-            "default": "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1"
+          "Child": {
+            "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestNestedPerson"
           },
-          "Title": {
-            "type": "string",
-            "default": "One or more validation errors occurred."
-          },
-          "Status": {
-            "type": "integer",
-            "format": "int32",
-            "default": 400
-          },
-          "Instance": {
-            "type": "string",
-            "default": "/api/route"
-          },
-          "TraceId": {
-            "type": "string",
-            "default": "0HMPNHL0JHL76:00000001"
-          },
-          "Errors": {
+          "Objects": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/FastEndpointsProblemDetails_Error"
+              "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
+            }
+          },
+          "ArraysOfObjects": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
+              }
             }
           }
         }
       },
-      "FastEndpointsProblemDetails_Error": {
+      "TestCasesQueryObjectWithObjectsArrayBindingTestNestedPerson": {
         "type": "object",
-        "description": "the error details object",
         "additionalProperties": false,
         "properties": {
-          "Name": {
-            "type": "string",
-            "description": "the name of the error or property of the dto that caused the error",
-            "default": "Error or field name"
+          "Objects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
+            }
+          }
+        }
+      },
+      "TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "String": {
+            "type": "string"
           },
-          "Reason": {
-            "type": "string",
-            "description": "the reason for the error",
-            "default": "Error reason"
+          "Bool": {
+            "type": "boolean"
           },
-          "Code": {
-            "type": "string",
-            "description": "the code of the error",
+          "Int": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
-          "Severity": {
-            "type": "string",
-            "description": "the severity of the error",
+          "Long": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "Double": {
+            "type": "number",
+            "format": "double"
+          },
+          "Enum": {
+            "$ref": "#/components/schemas/SystemDayOfWeek"
+          }
+        }
+      },
+      "TestCasesQueryObjectWithObjectsArrayBindingTestRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesQueryParamBindingInEpWithoutReqResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CustomerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "OtherID": {
+            "type": "integer",
+            "description": "optional other id",
+            "format": "int32",
+            "nullable": true
+          },
+          "Doubles": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Ints": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "Guids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          "Floaty": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "TestCasesRateLimitTestsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CustomerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "OtherID": {
+            "type": "integer",
+            "description": "optional other id",
+            "format": "int32",
             "nullable": true
           }
         }
       },
-      "TestCasesTypedResultTestRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "TestCasesSTJInfiniteRecursionTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32"
+      "FastEndpointsSecurityTokenResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FastEndpointsSecurityTokenRequest"
           },
-          "Res": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/TestCasesSTJInfiniteRecursionTestResponse"
+          {
+            "type": "object",
+            "description": "base dto for access/refresh token responses",
+            "additionalProperties": false,
+            "properties": {
+              "AccessToken": {
+                "type": "string",
+                "description": "the jwt access token which will be valid for the duration specified by AccessExpiry"
               }
-            ]
+            }
+          }
+        ]
+      },
+      "FastEndpointsSecurityTokenRequest": {
+        "type": "object",
+        "description": "base dto for access/refresh token renewal requests",
+        "additionalProperties": false,
+        "properties": {
+          "UserId": {
+            "type": "string",
+            "description": "unique identifier of a user"
+          },
+          "RefreshToken": {
+            "type": "string",
+            "description": "a single-use refresh token which will be valid for the duration specified by RefreshExpiry"
+          }
+        }
+      },
+      "TestCasesRouteBindingInEpWithoutReqResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "CustomerID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "OtherID": {
+            "type": "integer",
+            "description": "optional other id",
+            "format": "int32",
+            "nullable": true
           }
         }
       },
@@ -4506,686 +5444,184 @@
           }
         }
       },
-      "TestCasesRouteBindingInEpWithoutReqResponse": {
+      "TestCasesSTJInfiniteRecursionTestResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "CustomerID": {
+          "Id": {
             "type": "integer",
             "format": "int32"
           },
-          "OtherID": {
-            "type": "integer",
-            "description": "optional other id",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
-      "FastEndpointsSecurityTokenResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/FastEndpointsSecurityTokenRequest"
-          },
-          {
-            "type": "object",
-            "description": "base dto for access/refresh token responses",
-            "additionalProperties": false,
-            "properties": {
-              "AccessToken": {
-                "type": "string",
-                "description": "the jwt access token which will be valid for the duration specified by AccessExpiry"
+          "Res": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestCasesSTJInfiniteRecursionTestResponse"
               }
-            }
-          }
-        ]
-      },
-      "FastEndpointsSecurityTokenRequest": {
-        "type": "object",
-        "description": "base dto for access/refresh token renewal requests",
-        "additionalProperties": false,
-        "properties": {
-          "UserId": {
-            "type": "string",
-            "description": "unique identifier of a user"
-          },
-          "RefreshToken": {
-            "type": "string",
-            "description": "a single-use refresh token which will be valid for the duration specified by RefreshExpiry"
+            ]
           }
         }
       },
-      "TestCasesRateLimitTestsResponse": {
+      "TestCasesTypedResultTestResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "CustomerID": {
+          "RequestId": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "FastEndpointsProblemDetails": {
+        "type": "object",
+        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n\n    app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);",
+        "additionalProperties": false,
+        "properties": {
+          "Type": {
+            "type": "string",
+            "default": "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1"
           },
-          "OtherID": {
+          "Title": {
+            "type": "string",
+            "default": "One or more validation errors occurred."
+          },
+          "Status": {
             "type": "integer",
-            "description": "optional other id",
             "format": "int32",
+            "default": 400
+          },
+          "Instance": {
+            "type": "string",
+            "default": "/api/route"
+          },
+          "TraceId": {
+            "type": "string",
+            "default": "0HMPNHL0JHL76:00000001"
+          },
+          "Errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FastEndpointsProblemDetails_Error"
+            }
+          }
+        }
+      },
+      "FastEndpointsProblemDetails_Error": {
+        "type": "object",
+        "description": "the error details object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string",
+            "description": "the name of the error or property of the dto that caused the error",
+            "default": "Error or field name"
+          },
+          "Reason": {
+            "type": "string",
+            "description": "the reason for the error",
+            "default": "Error reason"
+          },
+          "Code": {
+            "type": "string",
+            "description": "the code of the error",
+            "nullable": true
+          },
+          "Severity": {
+            "type": "string",
+            "description": "the severity of the error",
             "nullable": true
           }
         }
       },
-      "TestCasesQueryParamBindingInEpWithoutReqResponse": {
+      "TestCasesTypedResultTestRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "CustomerID": {
+          "Id": {
             "type": "integer",
             "format": "int32"
-          },
-          "OtherID": {
-            "type": "integer",
-            "description": "optional other id",
-            "format": "int32",
-            "nullable": true
-          },
-          "Doubles": {
-            "type": "array",
-            "items": {
-              "type": "number",
-              "format": "double"
-            }
-          },
-          "Ints": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          "Guids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "guid"
-            }
-          },
-          "Floaty": {
-            "type": "number",
-            "format": "float"
           }
         }
       },
-      "TestCasesQueryObjectWithObjectsArrayBindingTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Person": {
-            "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
-          }
-        }
-      },
-      "TestCasesQueryObjectWithObjectsArrayBindingTestPerson": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Child": {
-            "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestNestedPerson"
-          },
-          "Objects": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
-            }
-          },
-          "ArraysOfObjects": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
-              }
-            }
-          }
-        }
-      },
-      "TestCasesQueryObjectWithObjectsArrayBindingTestNestedPerson": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Objects": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
-            }
-          }
-        }
-      },
-      "TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "String": {
-            "type": "string"
-          },
-          "Bool": {
-            "type": "boolean"
-          },
-          "Int": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "Long": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "Double": {
-            "type": "number",
-            "format": "double"
-          },
-          "Enum": {
-            "$ref": "#/components/schemas/SystemDayOfWeek"
-          }
-        }
-      },
-      "SystemDayOfWeek": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ]
-      },
-      "TestCasesQueryObjectWithObjectsArrayBindingTestRequest": {
+      "TestCasesUnitTestConcurrencyTestRequest": {
         "type": "object",
         "additionalProperties": false
       },
-      "TestCasesQueryObjectBindingTestResponse": {
+      "TestCasesValidationErrorTestArrayRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "String": {
-            "type": "string",
-            "description": "Some string property"
-          },
-          "Bool": {
-            "type": "boolean",
-            "description": "Some bool property"
-          },
-          "Int": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "Long": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "Double": {
-            "type": "number",
-            "format": "double"
-          },
-          "Enum": {
-            "$ref": "#/components/schemas/SystemDayOfWeek"
-          },
-          "Person": {
-            "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
-          }
-        }
-      },
-      "TestCasesQueryObjectBindingTestPerson": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "Name": {
-            "type": "string"
-          },
-          "Age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Child": {
-            "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestNestedPerson"
-          },
-          "Numbers": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          "FavoriteDay": {
-            "$ref": "#/components/schemas/SystemDayOfWeek"
-          },
-          "ByteEnum": {
-            "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestByteEnum"
-          },
-          "IsHidden": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TestCasesQueryObjectBindingTestNestedPerson": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "Name": {
-            "type": "string"
-          },
-          "Age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Strings": {
+          "StringArray": {
             "type": "array",
             "items": {
               "type": "string"
             }
-          },
-          "FavoriteDays": {
+          }
+        }
+      },
+      "TestCasesValidationErrorTestDictionaryRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "StringDictionary": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TestCasesValidationErrorTestListInListRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "NumbersList": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SystemDayOfWeek"
-            }
-          },
-          "IsHidden": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TestCasesQueryObjectBindingTestByteEnum": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Check",
-          "Test",
-          "AnotherCheck"
-        ],
-        "enum": [
-          0,
-          1,
-          2
-        ]
-      },
-      "TestCasesQueryObjectBindingTestRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesProcessorStateTestRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesPreProcessorIsRunOnValidationFailureResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Message": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesPreProcessorIsRunOnValidationFailureRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "FirstName"
-        ],
-        "properties": {
-          "FirstName": {
-            "type": "string",
-            "minLength": 1,
-            "nullable": false
-          },
-          "FailureCount": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "TestCasesPrecessorShortWhileValidatorFailsRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesPostProcessorTestExceptionDetailsResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Type": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesPostProcessorTestRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesPlainTextRequestTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "BodyContent": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesPlainTextRequestTestRequest": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/FastEndpointsPlainTextRequest"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
-      },
-      "FastEndpointsPlainTextRequest": {
-        "type": "object",
-        "description": "use this dto if you need to model bind the raw content body of an incoming http request or you may implement the IPlainTextRequest interface on your own request dto.",
-        "additionalProperties": false,
-        "properties": {
-          "Content": {
-            "type": "string",
-            "description": "overriden content text"
-          }
-        }
-      },
-      "TestCasesOnBeforeAfterValidationTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Host": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "TestCasesOnBeforeAfterValidationTestRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Verb": {
-            "$ref": "#/components/schemas/FastEndpointsHttp"
-          },
-          "Host": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "FastEndpointsHttp": {
-        "type": "integer",
-        "description": "enum for specifying a http verb",
-        "x-enumNames": [
-          "GET",
-          "POST",
-          "PUT",
-          "PATCH",
-          "DELETE",
-          "HEAD"
-        ],
-        "enum": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ]
-      },
-      "TestCasesMissingHeaderTestDontThrowIfMissingRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "TenantID": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "TestCasesMissingHeaderTestThrowIfMissingRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesMissingClaimTestDontThrowIfMissingRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesMissingClaimTestThrowIfMissingRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesMapperTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Name": {
-            "type": "string"
-          },
-          "Age": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "TestCasesMapperTestRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "FirstName": {
-            "type": "string"
-          },
-          "LastName": {
-            "type": "string"
-          },
-          "Age": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "TestCasesJsonArrayBindingToListOfModelsResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TestCasesJsonArrayBindingToListOfModelsRequest"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "Id": {
+              "type": "array",
+              "items": {
                 "type": "integer",
                 "format": "int32"
               }
             }
           }
-        ]
+        }
       },
-      "TestCasesJsonArrayBindingToListOfModelsRequest": {
+      "TestCasesValidationErrorTestListRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Name": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesJsonArrayBindingToIEnumerableDtoResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoItem"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
-      },
-      "TestCasesJsonArrayBindingToIEnumerableDtoItem": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Name": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesJsonArrayBindingToIEnumerableDtoRequest": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoItem"
-        }
-      },
-      "TestCasesJsonArrayBindingForIEnumerablePropsResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
-      },
-      "TestCasesJsonArrayBindingForIEnumerablePropsRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Name": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesGlobalRoutePrefixOverrideTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "BodyContent": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesGlobalRoutePrefixOverrideTestRequest": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/FastEndpointsPlainTextRequest"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
-      },
-      "TestCasesFromBodyJsonBindingResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingRequest"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
-      },
-      "TestCasesFromBodyJsonBindingRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Product": {
-            "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
-          }
-        }
-      },
-      "TestCasesFromBodyJsonBindingProduct": {
-        "type": "object",
-        "example": {
-          "Name": "test product name",
-          "Price": 200.22
-        },
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "description": "product id goes here",
-            "format": "int32"
-          },
-          "Name": {
-            "type": "string",
-            "description": "this is the name of the product"
-          },
-          "Price": {
-            "type": "number",
-            "description": "product price goes here",
-            "format": "decimal",
-            "minimum": 200.0,
-            "exclusiveMinimum": true
-          }
-        }
-      },
-      "TestCasesFormFileBindingTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "File1Name": {
-            "type": "string"
-          },
-          "File2Name": {
-            "type": "string"
-          },
-          "CarNames": {
+          "NumbersList": {
             "type": "array",
             "items": {
-              "type": "string"
-            }
-          },
-          "JetNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           }
         }
       },
-      "TestCasesFormFileBindingTestRequest": {
+      "TestCasesValidationErrorTestObjectArrayRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ObjectArray": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestCasesValidationErrorTestTObject"
+            }
+          }
+        }
+      },
+      "TestCasesValidationErrorTestTObject": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Test": {
+            "type": "string"
+          }
+        }
+      },
+      "UploadsImageSaveRequest": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5194,11 +5630,44 @@
           },
           "Width": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "maximum": 2000.0,
+            "minimum": 10.0,
+            "exclusiveMaximum": true,
+            "exclusiveMinimum": true
           },
           "Height": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "maximum": 2000.0,
+            "minimum": 10.0,
+            "exclusiveMaximum": true,
+            "exclusiveMinimum": true
+          }
+        }
+      },
+      "UploadsImageSaveTypedRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ID": {
+            "type": "string"
+          },
+          "Width": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2000.0,
+            "minimum": 10.0,
+            "exclusiveMaximum": true,
+            "exclusiveMinimum": true
+          },
+          "Height": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2000.0,
+            "minimum": 10.0,
+            "exclusiveMaximum": true,
+            "exclusiveMinimum": true
           },
           "File1": {
             "type": "string",
@@ -5218,475 +5687,6 @@
           "Jets": {
             "type": "array",
             "items": {}
-          }
-        }
-      },
-      "FastEndpointsEmptyResponse": {
-        "type": "object",
-        "description": "a response dto that doesn't have any properties",
-        "additionalProperties": false
-      },
-      "TestCasesDupeParamBindingForIEnumerablePropsResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TestCasesDupeParamBindingForIEnumerablePropsRequest"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
-      },
-      "TestCasesDupeParamBindingForIEnumerablePropsRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesDupeParamBindingForIEnumerablePropsRequest_Person": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Name": {
-            "type": "string"
-          },
-          "Age": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "TestCasesDontCatchExceptionsRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesDataAnnotationCompliantRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "Name"
-        ],
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "description": "CurrentId",
-            "format": "int32",
-            "maximum": 99.0,
-            "minimum": 10.0
-          },
-          "Name": {
-            "type": "string",
-            "maxLength": 10,
-            "minLength": 2
-          }
-        }
-      },
-      "TestCasesCustomRequestBinderResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/TestCasesCustomRequestBinderRequest"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
-      },
-      "TestCasesCustomRequestBinderRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "string"
-          },
-          "Product": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/TestCasesCustomRequestBinderProduct"
-              }
-            ]
-          },
-          "CustomerID": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesCustomRequestBinderProduct": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Name": {
-            "type": "string"
-          },
-          "Price": {
-            "type": "number",
-            "format": "decimal"
-          }
-        }
-      },
-      "TestCasesByteArrayQueryParamBindingTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Timestamp": {
-            "type": "string",
-            "format": "byte"
-          },
-          "ObjectWithByteArrays": {
-            "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays"
-          }
-        }
-      },
-      "TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Timestamp": {
-            "type": "string",
-            "format": "byte"
-          },
-          "Timestamps": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "byte"
-            }
-          }
-        }
-      },
-      "TestCasesByteArrayQueryParamBindingTestRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "TestCasesAntiforgeryTestTokenResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "TokenName": {
-            "type": "string"
-          },
-          "Value": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "TestCasesAntiforgeryTestVerificationRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "File": {
-            "type": "string",
-            "format": "binary"
-          },
-          "TokenResponse": {
-            "$ref": "#/components/schemas/TestCasesAntiforgeryTestTokenResponse"
-          }
-        }
-      },
-      "SalesOrdersRetrieveResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Message": {
-            "type": "string"
-          }
-        }
-      },
-      "SalesOrdersRetrieveRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "TenantID": {
-            "type": "string",
-            "description": "this is the tenant id"
-          }
-        }
-      },
-      "SalesOrdersCreateResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "OrderID": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Message": {
-            "type": "string",
-            "nullable": true
-          },
-          "AnotherMsg": {
-            "type": "string",
-            "nullable": true
-          },
-          "GuidTest": {
-            "type": "string",
-            "format": "guid"
-          },
-          "Event": {
-            "$ref": "#/components/schemas/TestCasesEventHandlingTestSomeEvent"
-          }
-        }
-      },
-      "TestCasesEventHandlingTestSomeEvent": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "One": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Two": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "SalesOrdersCreateRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "CustomerID": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "ProductID": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Quantity": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "InventoryManageUpdateRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "Id",
-          "Name",
-          "ModifiedBy"
-        ],
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32",
-            "minLength": 1,
-            "nullable": false
-          },
-          "Name": {
-            "type": "string",
-            "minLength": 1,
-            "nullable": false
-          },
-          "Description": {
-            "type": "string",
-            "nullable": true
-          },
-          "Price": {
-            "type": "number",
-            "format": "decimal",
-            "minimum": 0.0,
-            "exclusiveMinimum": true
-          },
-          "QtyOnHand": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "ModifiedBy": {
-            "type": "string",
-            "minLength": 1,
-            "nullable": false
-          }
-        }
-      },
-      "InventoryManageDeleteRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "InventoryManageCreateRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "Name",
-          "ModifiedBy"
-        ],
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Name": {
-            "type": "string",
-            "minLength": 1,
-            "nullable": false
-          },
-          "Description": {
-            "type": "string",
-            "nullable": true
-          },
-          "Price": {
-            "type": "number",
-            "format": "decimal",
-            "minimum": 0.0,
-            "exclusiveMinimum": true
-          },
-          "QtyOnHand": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "ModifiedBy": {
-            "type": "string",
-            "minLength": 1,
-            "nullable": false
-          },
-          "GenerateFullUrl": {
-            "type": "boolean"
-          }
-        }
-      },
-      "InventoryListRecentResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Category": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "InventoryGetProductResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "ProductID": {
-            "type": "string",
-            "nullable": true
-          },
-          "Last_Moddded": {
-            "type": "integer",
-            "description": "blah blah blah",
-            "format": "int64"
-          }
-        }
-      },
-      "CustomersUpdateRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Address": {
-            "type": "string"
-          }
-        }
-      },
-      "CustomersUpdateWithHeaderRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Name": {
-            "type": "string"
-          },
-          "Age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Address": {
-            "type": "string"
-          }
-        }
-      },
-      "CustomersListRecentResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Customers": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/SystemCollectionsGenericKeyValuePairOfStringAndInt32"
-            }
-          }
-        }
-      },
-      "SystemCollectionsGenericKeyValuePairOfStringAndInt32": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Key": {
-            "type": "string",
-            "nullable": true
-          },
-          "Value": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "CustomersCreateRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "CustomersCreateWithPropertiesDIRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
-      "AdminLoginResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "JWTToken": {
-            "type": "string",
-            "description": "the jwt token",
-            "example": "blahblahblah"
-          },
-          "ExpiryDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "Permissions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "AdminLoginRequest": {
-        "type": "object",
-        "description": "the admin login request",
-        "example": {
-          "UserName": "custom example user name from summary",
-          "Password": "custom example password from summary"
-        },
-        "additionalProperties": false,
-        "required": [
-          "UserName",
-          "Password"
-        ],
-        "properties": {
-          "UserName": {
-            "type": "string",
-            "description": "overriden username text",
-            "default": "admin",
-            "maxLength": 50,
-            "minLength": 1,
-            "nullable": false,
-            "example": "example username"
-          },
-          "Password": {
-            "type": "string",
-            "description": "the admin password",
-            "minLength": 1,
-            "nullable": false,
-            "example": "example password"
           }
         }
       }

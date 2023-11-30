@@ -18,7 +18,7 @@ bld.AddHandlerServer();
 bld.Services
    .AddCors()
    .AddResponseCaching()
-   .AddFastEndpoints() //(o => o.SourceGeneratorDiscoveredTypes.AddRange(Web.DiscoveredTypes.All))
+   .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes.AddRange(DiscoveredTypes.All))
    .AddJWTBearerAuth(bld.Configuration["TokenKey"]!)
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))
    .AddScoped<IEmailService, EmailService>()
@@ -113,12 +113,13 @@ app.UseRequestLocalization(
 
            c.Endpoints.RoutePrefix = "api";
            c.Endpoints.ShortNames = false;
+           c.Endpoints.PrefixNameWithFirstTag = true;
            c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
            c.Endpoints.Configurator = ep =>
            {
                ep.PreProcessor<GlobalStatePreProcessor>(Order.Before);
                ep.PreProcessors(Order.Before, new AdminHeaderChecker());
-               if (ep.EndpointTags?.Contains("orders") is true)
+               if (ep.EndpointTags?.Contains("Orders") is true)
                    ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
            };
 

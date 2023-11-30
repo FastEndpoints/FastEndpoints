@@ -80,7 +80,10 @@ static class EndpointExtensions
     }
 
 #if NET7_0_OR_GREATER
-    static readonly Regex _rgx = MyRegex();
+    [GeneratedRegex("(@[\\w]*)", RegexOptions.Compiled)]
+    private static partial Regex RouteBuilderRegex();
+
+    static readonly Regex _rgx = RouteBuilderRegex();
 #else
     static readonly Regex _rgx = new("(@[\\w]*)", RegexOptions.Compiled);
 #endif
@@ -106,16 +109,12 @@ static class EndpointExtensions
                    : sb.ToString();
     }
 
-    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
+    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null, string? tagPrefix = null)
     {
-        var vrb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
+        tagPrefix = EpOpts.PrefixNameWithFirstTag && tagPrefix is not null ? $"{tagPrefix}_" : null;
+        verb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
         var ep = EpOpts.ShortNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
 
-        return vrb + ep + routeNum;
+        return $"{tagPrefix}{verb}{ep}{routeNum}";
     }
-
-#if NET7_0_OR_GREATER
-    [GeneratedRegex("(@[\\w]*)", RegexOptions.Compiled)]
-    private static partial Regex MyRegex();
-#endif
 }

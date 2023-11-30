@@ -7,16 +7,20 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
+#if NET7_0_OR_GREATER
+static partial class EndpointExtensions
+#else
 static class EndpointExtensions
+#endif
 {
     internal static string ActualTypeName(this Type type)
         => (Nullable.GetUnderlyingType(type) ?? type).Name;
 
     internal static bool RequiresAuthorization(this EndpointDefinition ep)
-        => ep.AllowedPermissions?.Any() is true ||
-           ep.AllowedClaimTypes?.Any() is true ||
-           ep.AllowedRoles?.Any() is true ||
-           ep.AuthSchemeNames?.Any() is true ||
+        => ep.AllowedPermissions?.Count > 0 ||
+           ep.AllowedClaimTypes?.Count > 0 ||
+           ep.AllowedRoles?.Count > 0 ||
+           ep.AuthSchemeNames?.Count > 0 ||
            ep.PolicyBuilder is not null ||
            ep.PreBuiltUserPolicies is not null;
 
@@ -75,7 +79,11 @@ static class EndpointExtensions
         def.Version.Init();
     }
 
+#if NET7_0_OR_GREATER
+    static readonly Regex _rgx = MyRegex();
+#else
     static readonly Regex _rgx = new("(@[\\w]*)", RegexOptions.Compiled);
+#endif
 
     internal static string BuildRoute<TRequest>(this Expression<Func<TRequest, object>> expr, string pattern) where TRequest : notnull
     {
@@ -105,4 +113,9 @@ static class EndpointExtensions
 
         return vrb + ep + routeNum;
     }
+
+#if NET7_0_OR_GREATER
+    [GeneratedRegex("(@[\\w]*)", RegexOptions.Compiled)]
+    private static partial Regex MyRegex();
+#endif
 }

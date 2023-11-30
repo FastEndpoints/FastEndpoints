@@ -8,7 +8,7 @@ namespace FastEndpoints;
 /// </summary>
 public abstract class Group : IServiceResolverBase
 {
-    internal Action<EndpointDefinition> Action { get; set; }
+    internal Action<EndpointDefinition> Action { get; set; } = null!;
 
     /// <summary>
     /// call this method in the constructor in order to configure the endpoint group.
@@ -21,14 +21,14 @@ public abstract class Group : IServiceResolverBase
     static Action<EndpointDefinition> RouteModifier(string routePrefix)
         => e =>
         {
-            if (e.Routes?.Length > 0)
+            if (!(e.Routes?.Length > 0))
+                return;
+
+            for (var i = 0; i < e.Routes.Length; i++)
             {
-                for (var i = 0; i < e.Routes.Length; i++)
-                {
-                    var route = e.Routes[i];
-                    var slash = !routePrefix.EndsWith("/") && !route.StartsWith("/") ? "/" : "";
-                    e.Routes[i] = routePrefix + slash + route;
-                }
+                var route = e.Routes[i];
+                var slash = !routePrefix.EndsWith('/') && !route.StartsWith('/') ? "/" : "";
+                e.Routes[i] = routePrefix + slash + route;
             }
         };
 

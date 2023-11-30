@@ -117,7 +117,8 @@ public static class MainExtensions
                     hb.WithName(
                         def.EndpointType.EndpointName(
                             def.Verbs.Length > 1 ? verb : null,
-                            def.Routes.Length > 1 ? routeNum : null)); //user can override this via Options(x=>x.WithName(...))
+                            def.Routes.Length > 1 ? routeNum : null,
+                            def.EndpointTags?.Count > 0 ? def.EndpointTags[0] : null)); //user can override this via Options(x=>x.WithName(...))
 
                     hb.WithMetadata(def);
 

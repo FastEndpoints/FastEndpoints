@@ -24,28 +24,28 @@ sealed class DocumentProcessor : IDocumentProcessor
         var pathItems = ctx.Document.Paths
                            .SelectMany(p => p.Value.Values)
                            .Select(
-                                o =>
-                                {
-                                    var tagSegments = o.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
+                               o =>
+                               {
+                                   var tagSegments = o.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
 
-                                    return new
-                                    {
-                                        route = tagSegments?[1],
-                                        ver = Convert.ToInt32(tagSegments?[2]),
-                                        depVer = Convert.ToInt32(tagSegments?[3]),
-                                        pathItm = o.Parent
-                                    };
-                                })
+                                   return new
+                                   {
+                                       route = tagSegments?[1],
+                                       ver = Convert.ToInt32(tagSegments?[2]),
+                                       depVer = Convert.ToInt32(tagSegments?[3]),
+                                       pathItm = o.Parent
+                                   };
+                               })
                            .GroupBy(x => x.route)
                            .Select(
-                                g => new
-                                {
-                                    pathItm = g.Where(x => x.ver >= _minEpVer && x.ver <= _maxEpVer)
-                                               .OrderByDescending(x => x.ver)
-                                               .Take(_showDeprecated ? g.Count() : 1)
-                                               .Where(x => x.depVer == 0 || _showDeprecated || x.depVer > _maxEpVer)
-                                               .Select(x => x.pathItm)
-                                })
+                               g => new
+                               {
+                                   pathItm = g.Where(x => x.ver >= _minEpVer && x.ver <= _maxEpVer)
+                                              .OrderByDescending(x => x.ver)
+                                              .Take(_showDeprecated ? g.Count() : 1)
+                                              .Where(x => x.depVer == 0 || _showDeprecated || x.depVer > _maxEpVer)
+                                              .Select(x => x.pathItm)
+                               })
                            .SelectMany(x => x.pathItm)
                            .ToArray();
 
@@ -70,11 +70,5 @@ sealed class DocumentProcessor : IDocumentProcessor
                 op.Tags.Remove(op.Tags.SingleOrDefault(t => t.StartsWith("|")));
             }
         }
-
-        //without ordering paths, Verify snapshots doesn't work in ci/cd
-        var orderedPaths = ctx.Document.Paths.OrderBy(p => p.Key).ToArray();
-        ctx.Document.Paths.Clear();
-        foreach (var p in orderedPaths)
-            ctx.Document.Paths.Add(p.Key, p.Value);
     }
 }

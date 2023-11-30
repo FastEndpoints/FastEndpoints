@@ -1,0 +1,15 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Web-Watch" type="RunDotNetWatch" factoryName="RunDotNetWatch" focusToolWindowBeforeRun="true">
+    <option name="exePath" value="$PROJECT_DIR$/Web/bin/Debug/net8.0/Web.exe" />
+    <option name="programParameters" value="" />
+    <option name="projectFilePath" value="$PROJECT_DIR$/Web/Web.csproj" />
+    <option name="projectTfm" value="net8.0" />
+    <option name="restartOnRudeEditEditor" value="true" />
+    <option name="suppressBrowserLaunch" value="true" />
+    <option name="suppressBrowserRefresh" value="true" />
+    <option name="suppressHotReload" value="true" />
+    <option name="verbosity" value="QUIET" />
+    <option name="workingDirectory" value="$PROJECT_DIR$/Web" />
+    <method v="2" />
+  </configuration>
+</component>

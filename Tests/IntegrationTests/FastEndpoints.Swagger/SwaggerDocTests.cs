@@ -1,4 +1,4 @@
-using FluentAssertions;
+using FluentAssertions.Json; //this is highly important. the BeEquivalentTo() extension method from FluentAssertions main namespace doesn't work
 
 namespace Swagger;
 

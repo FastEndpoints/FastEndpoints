@@ -7,16 +7,20 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
+#if NET7_0_OR_GREATER
+static partial class EndpointExtensions
+#else
 static class EndpointExtensions
+#endif
 {
     internal static string ActualTypeName(this Type type)
         => (Nullable.GetUnderlyingType(type) ?? type).Name;
 
     internal static bool RequiresAuthorization(this EndpointDefinition ep)
-        => ep.AllowedPermissions?.Any() is true ||
-           ep.AllowedClaimTypes?.Any() is true ||
-           ep.AllowedRoles?.Any() is true ||
-           ep.AuthSchemeNames?.Any() is true ||
+        => ep.AllowedPermissions?.Count > 0 ||
+           ep.AllowedClaimTypes?.Count > 0 ||
+           ep.AllowedRoles?.Count > 0 ||
+           ep.AuthSchemeNames?.Count > 0 ||
            ep.PolicyBuilder is not null ||
            ep.PreBuiltUserPolicies is not null;
 
@@ -75,7 +79,14 @@ static class EndpointExtensions
         def.Version.Init();
     }
 
+#if NET7_0_OR_GREATER
+    [GeneratedRegex("(@[\\w]*)", RegexOptions.Compiled)]
+    private static partial Regex RouteBuilderRegex();
+
+    static readonly Regex _rgx = RouteBuilderRegex();
+#else
     static readonly Regex _rgx = new("(@[\\w]*)", RegexOptions.Compiled);
+#endif
 
     internal static string BuildRoute<TRequest>(this Expression<Func<TRequest, object>> expr, string pattern) where TRequest : notnull
     {
@@ -98,11 +109,12 @@ static class EndpointExtensions
                    : sb.ToString();
     }
 
-    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null)
+    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null, string? tagPrefix = null)
     {
-        var vrb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
+        tagPrefix = EpOpts.PrefixNameWithFirstTag && tagPrefix is not null ? $"{tagPrefix}_" : null;
+        verb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
         var ep = EpOpts.ShortNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
 
-        return vrb + ep + routeNum;
+        return $"{tagPrefix}{verb}{ep}{routeNum}";
     }
 }

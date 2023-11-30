@@ -12,6 +12,13 @@ public sealed class EndpointOptions
     public bool ShortNames { internal get; set; }
 
     /// <summary>
+    /// set to true if you'd like to automatically prefix endpoint name (swagger operation id) with the first endpoint tag.
+    /// the generated the operation id would be in the form of: <c>MyTag_CreateOrderEndpoint</c>.  this should come in handy with generating separate api clients with nswag
+    /// using the "MultipleClientsFromOperationId" setting  which requires operation ids to be have a group name prefix with an underscore.
+    /// </summary>
+    public bool PrefixNameWithFirstTag { internal get; set; }
+
+    /// <summary>
     /// prefix for all routes (example 'api').
     /// </summary>
     public string? RoutePrefix { internal get; set; }

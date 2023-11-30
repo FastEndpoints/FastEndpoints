@@ -15,7 +15,7 @@ namespace FastEndpoints.Testing;
 
 public abstract class BaseFixture
 {
-    protected static readonly Faker _faker = new();
+    protected static readonly Faker Faker = new();
     protected static readonly ConcurrentDictionary<Type, object> AppCache = new();
 }
 
@@ -26,7 +26,7 @@ public abstract class BaseFixture
 public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixture where TProgram : class
 {
     /// <inheritdoc />
-    public Faker Fake => _faker;
+    public Faker Fake => Faker;
 
     /// <summary>
     /// the service provider of the bootstrapped web application
@@ -41,36 +41,49 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     /// <summary>
     /// the default http client
     /// </summary>
-    public HttpClient Client { get; set; }
+    public HttpClient Client { get; set; } = null!;
 
-    readonly WebApplicationFactory<TProgram> _app;
+    WebApplicationFactory<TProgram> _app = null!;
 
+    //reason for ctor overloads: https://github.com/FastEndpoints/FastEndpoints/pull/548
     protected TestFixture(IMessageSink s)
     {
-        _app = (WebApplicationFactory<TProgram>)
-            AppCache.GetOrAdd(
-                GetType(),
-                _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
-                    b =>
-                    {
-                        b.UseEnvironment("Testing");
-                        b.ConfigureLogging(l => l.ClearProviders().AddXUnit(s));
-                        b.ConfigureTestServices(ConfigureServices);
-                        ConfigureApp(b);
-                    }));
-        Client = _app.CreateClient();
+        Initialize(s);
     }
 
     protected TestFixture(ITestOutputHelper h)
     {
+        Initialize(null, h);
+    }
+
+    protected TestFixture(IMessageSink s, ITestOutputHelper h)
+    {
+        Initialize(s, h);
+    }
+
+    protected TestFixture()
+    {
+        Initialize();
+    }
+
+    void Initialize(IMessageSink? s = null, ITestOutputHelper? h = null)
+    {
         _app = (WebApplicationFactory<TProgram>)
             AppCache.GetOrAdd(
-                GetType(),
-                _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
+                key: GetType(),
+                valueFactory: _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
                     b =>
                     {
                         b.UseEnvironment("Testing");
-                        b.ConfigureLogging(l => l.ClearProviders().AddXUnit(h));
+                        b.ConfigureLogging(
+                            l =>
+                            {
+                                l.ClearProviders();
+                                if (s is not null)
+                                    l.AddXUnit(s);
+                                if (h is not null)
+                                    l.AddXUnit(h);
+                            });
                         b.ConfigureTestServices(ConfigureServices);
                         ConfigureApp(b);
                     }));

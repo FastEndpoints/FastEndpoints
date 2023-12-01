@@ -105,7 +105,7 @@ public class Benchmarks
         return MvcClient.SendAsync(msg);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public Task FastEndpointsThrottling()
     {
         var msg = new HttpRequestMessage

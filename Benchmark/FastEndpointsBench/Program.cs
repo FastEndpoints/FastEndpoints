@@ -3,12 +3,10 @@ using FEBench;
 
 var builder = WebApplication.CreateBuilder();
 builder.Logging.ClearProviders();
-builder.Services.AddAuthorization();
 builder.Services.AddFastEndpoints();
 builder.Services.AddScoped<ScopedValidator>();
 
 var app = builder.Build();
-app.UseAuthorization();
 app.UseFastEndpoints();
 app.Run();
 

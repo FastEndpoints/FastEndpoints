@@ -43,9 +43,7 @@ public static class EventExtensions
     /// </returns>
     public static Task PublishAsync(this IEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
     {
-        var publishFunc = _publishFuncCache.GetOrAdd(
-            key: eventModel.GetType(),
-            valueFactory: PublishAsyncFuncFactory);
+        var publishFunc = _publishFuncCache.GetOrAdd(eventModel.GetType(), PublishAsyncFuncFactory);
 
         return publishFunc(eventModel, waitMode, cancellation);
 

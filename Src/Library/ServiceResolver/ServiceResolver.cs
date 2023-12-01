@@ -25,9 +25,14 @@ sealed class ServiceResolver : IServiceResolver
 
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
-        var factory = _factoryCache.GetOrAdd(type, ActivatorUtilities.CreateFactory(type, Type.EmptyTypes));
+        //WARNING: DO NOT DO THIS!!! it results in a perf degradation. no idea why.
+        //  factory = _factoryCache.GetOrAdd(type, ActivatorUtilities.CreateFactory(type, Type.EmptyTypes));
+        var factory = _factoryCache.GetOrAdd(type, FactoryInitializer);
 
         return factory(serviceProvider ?? _ctxAccessor?.HttpContext?.RequestServices ?? _rootServiceProvider, null);
+
+        static ObjectFactory FactoryInitializer(Type t)
+            => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes);
     }
 
     public object CreateSingleton(Type type)

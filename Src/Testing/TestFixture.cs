@@ -1,4 +1,4 @@
-using Bogus;
+﻿using Bogus;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -68,26 +68,26 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
 
     void Initialize(IMessageSink? s = null, ITestOutputHelper? h = null)
     {
-        _app = (WebApplicationFactory<TProgram>)
-            AppCache.GetOrAdd(
-                key: GetType(),
-                valueFactory: _ => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
-                    b =>
-                    {
-                        b.UseEnvironment("Testing");
-                        b.ConfigureLogging(
-                            l =>
-                            {
-                                l.ClearProviders();
-                                if (s is not null)
-                                    l.AddXUnit(s);
-                                if (h is not null)
-                                    l.AddXUnit(h);
-                            });
-                        b.ConfigureTestServices(ConfigureServices);
-                        ConfigureApp(b);
-                    }));
+        _app = (WebApplicationFactory<TProgram>)AppCache.GetOrAdd(GetType(), WafInitializer);
         Client = _app.CreateClient();
+
+        object WafInitializer(Type _)
+            => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
+                b =>
+                {
+                    b.UseEnvironment("Testing");
+                    b.ConfigureLogging(
+                        l =>
+                        {
+                            l.ClearProviders();
+                            if (s is not null)
+                                l.AddXUnit(s);
+                            if (h is not null)
+                                l.AddXUnit(h);
+                        });
+                    b.ConfigureTestServices(ConfigureServices);
+                    ConfigureApp(b);
+                });
     }
 
     /// <summary>

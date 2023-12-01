@@ -8,10 +8,15 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 [//]: # (<details><summary>title text</summary></details>)
 
-## New 🎉
+[//]: # (## New 🎉)
 
 ## Improvements 🚀
 
-## Fixes 🪲
+<details><summary>Micro optimization with 'Concurrent Dictionary' usage</summary></details>
 
-## Breaking Changes ⚠️
+Concurrent dictionary `GetOrAdd()` overload with lambda parameter seems to perform a bit better in .NET 8. All locations that were using the other overload was
+changed to use the overload with the lambda.
+
+[//]: # (## Fixes 🪲)
+
+[//]: # (## Breaking Changes ⚠️)

@@ -36,10 +36,10 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: ${{ !contains(github.ref, 'beta') }}
-        with:
-          draft: false
-          name: ${{ github.ref_name }} Release
-          body_path: Src/Library/changelog.md
+      # - name: Create Release
+      #   uses: softprops/action-gh-release@v1
+      #   if: ${{ !contains(github.ref, 'beta') }}
+      #   with:
+      #     draft: false
+      #     name: ${{ github.ref_name }} Release
+      #     body_path: Src/Library/changelog.md

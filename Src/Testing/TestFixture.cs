@@ -16,7 +16,7 @@ namespace FastEndpoints.Testing;
 public abstract class BaseFixture
 {
     protected static readonly Faker Faker = new();
-    protected static readonly ConcurrentDictionary<Type, object> AppCache = new();
+    protected static readonly ConcurrentDictionary<Type, object> WafCache = new();
 }
 
 /// <summary>
@@ -68,7 +68,10 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
 
     void Initialize(IMessageSink? s = null, ITestOutputHelper? h = null)
     {
-        _app = (WebApplicationFactory<TProgram>)AppCache.GetOrAdd(GetType(), WafInitializer);
+        _app = (WebApplicationFactory<TProgram>)
+            WafCache.GetOrAdd(
+                GetType(), //each derived fixture type  gets it's own waf/app instance. it is cached and reused.
+                WafInitializer);
         Client = _app.CreateClient();
 
         object WafInitializer(Type _)

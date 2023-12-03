@@ -17,6 +17,9 @@ insert_final_newline = false
 tab_width = unset
 trim_trailing_whitespace = false
 
+[{*Request.cs,*Response.cs,*Model*.cs,*Endpoint.cs}]
+dotnet_diagnostic.CS8618.severity = none
+
 [*.cs]
 csharp_new_line_before_members_in_object_initializers = false
 csharp_new_line_between_query_expression_clauses = false
@@ -60,7 +63,6 @@ dotnet_style_qualification_for_field = false:suggestion
 dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_require_accessibility_modifiers = never:error
-
 resharper_align_linq_query = true
 resharper_align_multiline_binary_patterns = true
 resharper_align_multiline_calls_chain = true
@@ -91,7 +93,7 @@ resharper_csharp_int_align_comments = true
 resharper_csharp_keep_blank_lines_in_code = 1
 resharper_csharp_keep_blank_lines_in_declarations = 1
 resharper_csharp_stick_comment = false
-resharper_csharp_wrap_after_invocation_lpar = true
+resharper_csharp_wrap_after_invocation_lpar = false
 resharper_csharp_wrap_arguments_style = chop_if_long
 resharper_csharp_wrap_before_first_type_parameter_constraint = true
 resharper_csharp_wrap_multiple_declaration_style = chop_always
@@ -141,7 +143,6 @@ resharper_wrap_chained_binary_expressions = chop_if_long
 resharper_wrap_chained_binary_patterns = chop_if_long
 resharper_xmldoc_blank_line_after_pi = false
 resharper_xmldoc_indent_text = ZeroIndent
-
 resharper_arrange_attributes_highlighting = suggestion
 resharper_arrange_constructor_or_destructor_body_highlighting = suggestion
 resharper_arrange_default_value_when_type_not_evident_highlighting = suggestion
@@ -183,6 +184,3 @@ resharper_unused_method_return_value_global_highlighting = none
 resharper_web_config_module_not_resolved_highlighting = warning
 resharper_web_config_type_not_resolved_highlighting = warning
 resharper_web_config_wrong_module_highlighting = warning
-
-[{*Request.cs,*Response.cs,*Model*.cs,*Endpoint.cs}]
-dotnet_diagnostic.CS8618.severity = none

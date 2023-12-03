@@ -348,17 +348,12 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 
-# Ignore only specific Rider files/directories
-/.idea/*
-!/.idea/.idea.*
-/.idea/.idea.*/*
-!/.idea/.idea.*/.idea
-/.idea/.idea.*/.idea/*
-!/.idea/.idea.*/.idea/runConfigurations
-
 # ignore doc api folder
 Src/Documentation/api/
 
 # ignor verify libs received files
 *.received.*
+
 .vscode/
+
+.idea/

@@ -18,17 +18,14 @@
         <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
         <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
 
-        <PackageReference Include="FluentValidation" Version="11.8.1" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Include="FluentValidation" Version="11.8.1"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false"/>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false"/>
         <None Include="changelog.md" Pack="false" Visible="false"/>
-        <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net6.0" CopyToOutputDirectory="Never" Pack="true" Visible="false"/>
-        <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net7.0" CopyToOutputDirectory="Never" Pack="true" Visible="false"/>
-        <None Include="FastEndpoints.ExternalAnnotations.xml" PackagePath="lib/net8.0" CopyToOutputDirectory="Never" Pack="true" Visible="false"/>
     </ItemGroup>
 
     <!--    <ItemGroup>-->

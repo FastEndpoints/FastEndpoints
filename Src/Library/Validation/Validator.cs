@@ -1,6 +1,7 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel.DataAnnotations;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace FastEndpoints;
@@ -13,6 +14,7 @@ namespace FastEndpoints;
 /// </para>
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServiceResolverBase, IEndpointValidator where TRequest : class
 {
     /// <inheritdoc />

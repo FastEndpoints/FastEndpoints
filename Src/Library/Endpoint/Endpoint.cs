@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
+using System.Text.Json;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
-using System.Text.Json;
 
 namespace FastEndpoints;
 
@@ -13,6 +14,7 @@ namespace FastEndpoints;
 /// use this base class for defining endpoints that only use a request dto and don't use a response dto.
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class Endpoint<TRequest> : Endpoint<TRequest, object?> where TRequest : notnull { }
 
 /// <summary>
@@ -20,6 +22,7 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object?> where TRe
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object?>, IHasMapper<TMapper>
     where TRequest : notnull
     where TMapper : IRequestMapper
@@ -43,6 +46,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEventBus, IServiceResolverBase where TRequest : notnull
 {
     internal override async Task ExecAsync(CancellationToken ct)
@@ -60,11 +64,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req, ct);
 
-            await ValidateRequest(
-                req,
-                Definition,
-                ValidationFailures,
-                ct); //execution stops here if ValidationFailureException is thrown and continues at try/catch below
+            //execution stops here if ValidationFailureException is thrown and continues at try/catch below
+            await ValidateRequest(req, Definition, ValidationFailures, ct);
 
             OnAfterValidate(req);
             await OnAfterValidateAsync(req, ct);
@@ -283,6 +284,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper>
     where TRequest : notnull
     where TResponse : notnull
@@ -334,6 +336,7 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
 /// <summary>
 /// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
 /// </summary>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object?>
 {
     /// <summary>
@@ -371,6 +374,7 @@ public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object?>
 /// use this base class for defining endpoints that doesn't need a request dto but return a response dto.
 /// </summary>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse>
 {
     /// <summary>
@@ -409,6 +413,7 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 /// </summary>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TMapper">the type of the entity mapper</typeparam>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWithoutRequest<TResponse>, IHasMapper<TMapper>
     where TResponse : notnull
     where TMapper : IResponseMapper
@@ -460,6 +465,7 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity that will be mapped to/from</typeparam>
+[UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class EndpointWithMapping<TRequest, TResponse, TEntity> : Endpoint<TRequest, TResponse> where TRequest : notnull
 {
     /// <summary>

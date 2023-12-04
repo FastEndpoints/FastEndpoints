@@ -1,11 +1,12 @@
-﻿using FluentValidation;
+﻿using System.Linq.Expressions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using FluentValidation;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 #if NET7_0_OR_GREATER
 using System.Reflection;
 using Microsoft.AspNetCore.Http.Metadata;
@@ -40,6 +41,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// group, you'd specify it with this parameter. The generated const/key is accessible via "Allow.Admin.Edit_Stock_Item" as well as
     /// "Allow.Manager.Edit_Stock_Item"
     /// </param>
+
+    // ReSharper disable once UnusedParameter.Global
     protected void AccessControl(string keyName, Apply? behavior = null, params string[] groupNames)
     {
         if (behavior is Apply.ToThisEndpoint)
@@ -59,7 +62,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// group, you'd specify it with this parameter. The generated const/key is accessible via "Allow.Admin.Edit_Stock_Item" as well as
     /// "Allow.Manager.Edit_Stock_Item"
     /// </param>
-    protected void AccessControl(string keyName, params string[] groupNames) { AccessControl(keyName, Apply.ToThisEndpoint, groupNames); }
+    protected void AccessControl(string keyName, params string[] groupNames)
+    {
+        AccessControl(keyName, Apply.ToThisEndpoint, groupNames);
+    }
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
@@ -118,7 +124,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for DELETE requests on one or more routes.
     /// </summary>
-    protected void Delete(params string[] routePatterns)
+    protected void Delete([RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.DELETE);
         Routes(routePatterns);
@@ -137,7 +143,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID }</c>
     /// </param>
-    protected void Delete(string routePattern, Expression<Func<TRequest, object>> members)
+    protected void Delete([RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.DELETE);
         Routes(members.BuildRoute(routePattern));
@@ -184,7 +190,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for GET requests on one or more routes.
     /// </summary>
-    protected void Get(params string[] routePatterns)
+    protected void Get([RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.GET);
         Routes(routePatterns);
@@ -203,7 +209,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
-    protected void Get(string routePattern, Expression<Func<TRequest, object>> members)
+    protected void Get([RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.GET);
         Routes(members.BuildRoute(routePattern));
@@ -232,7 +238,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for HEAD requests on one or more routes.
     /// </summary>
-    protected void Head(params string[] routePatterns)
+    protected void Head([RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.HEAD);
         Routes(routePatterns);
@@ -251,7 +257,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
-    protected void Head(string routePattern, Expression<Func<TRequest, object>> members)
+    protected void Head([RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.HEAD);
         Routes(members.BuildRoute(routePattern));
@@ -267,7 +273,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for PATCH requests on one or more routes.
     /// </summary>
-    protected void Patch(params string[] routePatterns)
+    protected void Patch([RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.PATCH);
         Routes(routePatterns);
@@ -286,7 +292,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID }</c>
     /// </param>
-    protected void Patch(string routePattern, Expression<Func<TRequest, object>> members)
+    protected void Patch([RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.PATCH);
         Routes(members.BuildRoute(routePattern));
@@ -324,7 +330,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for POST requests on one or more routes.
     /// </summary>
-    protected void Post(params string[] routePatterns)
+    protected void Post([RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.POST);
         Routes(routePatterns);
@@ -343,7 +349,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
-    protected void Post(string routePattern, Expression<Func<TRequest, object>> members)
+    protected void Post([RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.POST);
         Routes(members.BuildRoute(routePattern));
@@ -386,7 +392,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for PUT requests on one or more routes.
     /// </summary>
-    protected void Put(params string[] routePatterns)
+    protected void Put([RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.PUT);
         Routes(routePatterns);
@@ -405,7 +411,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
-    protected void Put(string routePattern, Expression<Func<TRequest, object>> members)
+    protected void Put([RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.PUT);
         Routes(members.BuildRoute(routePattern));
@@ -462,7 +468,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
-    protected void Routes(params string[] patterns)
+    protected void Routes([RouteTemplate] params string[] patterns)
         => Definition.Routes = patterns;
 
     /// <summary>
@@ -536,7 +542,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
-    protected void Verbs(params Http[] methods) { Verbs(methods.Select(m => m.ToString()).ToArray()); }
+    protected void Verbs(params Http[] methods)
+    {
+        Verbs(methods.Select(m => m.ToString()).ToArray());
+    }
 
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
@@ -591,8 +600,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
                 if (Conf.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
                 {
-                    b.Produces(
-                        Conf.ErrOpts.StatusCode,
+                    b.Produces(Conf.ErrOpts.StatusCode,
                         Conf.ErrOpts.ProducesMetadataType,
                         "application/problem+json");
                 }
@@ -617,6 +625,7 @@ static class ProducesMetaForResultOfResponse
 
     public static void AddMetadata(EndpointBuilder builder, Type tResponse)
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (tResponse is not null && typeof(IEndpointMetadataProvider).IsAssignableFrom(tResponse))
         {
             var invokeArgs = new object[] { builder };
@@ -624,6 +633,9 @@ static class ProducesMetaForResultOfResponse
         }
     }
 
-    static void Populate<T>(EndpointBuilder b) where T : IEndpointMetadataProvider { T.PopulateMetadata(_populateMethod, b); }
+    static void Populate<T>(EndpointBuilder b) where T : IEndpointMetadataProvider
+    {
+        T.PopulateMetadata(_populateMethod, b);
+    }
 }
 #endif

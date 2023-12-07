@@ -160,7 +160,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             string propertyName,
                             string parameterPrefix)
     {
-        // Build the full propertyname with composition route: request.child.property
+        // Build the full property name with composition route: request.child.property
         var fullPropertyName = $"{parameterPrefix}{propertyName}";
 
         // Try get a list of valid rules that matches this property name
@@ -219,9 +219,12 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
                 try
                 {
-                    rule.Apply(new(schema, propertyName, propertyValidator));
+                    rule.Apply(new(schema, propertyName, propertyValidator, ruleComponent.HasCondition()));
                 }
-                catch { }
+                catch
+                {
+                    //do nothing
+                }
             }
         }
     }
@@ -235,7 +238,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                 Apply = context =>
                 {
                     var schema = context.Schema;
-                    if (!schema.RequiredProperties.Contains(context.PropertyKey))
+                    if (!schema.RequiredProperties.Contains(context.PropertyKey) && !context.HasCondition)
                         schema.RequiredProperties.Add(context.PropertyKey);
                 }
             },

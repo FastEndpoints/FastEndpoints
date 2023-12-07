@@ -25,27 +25,20 @@ using FluentValidation.Validators;
 namespace FastEndpoints.Swagger.ValidationProcessor;
 
 [HideFromDocs]
-public class FluentValidationRule
+public class FluentValidationRule(string name)
 {
     /// <summary>
     /// Rule name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; } = name;
 
     /// <summary>
     /// Predicate to match property validator.
     /// </summary>
-    public Func<IPropertyValidator, bool> Matches { get; set; } = _ => false;
+    public Func<IPropertyValidator, bool> Matches { get; init; } = _ => false;
 
     /// <summary>
     /// Modify Swagger schema action.
     /// </summary>
-    public Action<RuleContext> Apply { get; set; } = _ =>
-    {
-    };
-
-    public FluentValidationRule(string name)
-    {
-        Name = name;
-    }
+    public Action<RuleContext> Apply { get; init; } = _ => { };
 }

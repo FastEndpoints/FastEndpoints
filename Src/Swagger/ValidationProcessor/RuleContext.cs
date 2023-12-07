@@ -26,18 +26,13 @@ using NJsonSchema;
 namespace FastEndpoints.Swagger.ValidationProcessor;
 
 [HideFromDocs]
-public class RuleContext
+public class RuleContext(JsonSchema schema, string propertyKey, IPropertyValidator propertyValidator, bool hasCondition)
 {
-    public JsonSchema Schema { get; }
+    public JsonSchema Schema { get; } = schema;
 
-    public string PropertyKey { get; }
+    public string PropertyKey { get; } = propertyKey;
 
-    public IPropertyValidator PropertyValidator { get; }
+    public IPropertyValidator PropertyValidator { get; } = propertyValidator;
 
-    public RuleContext(JsonSchema schema, string propertyKey, IPropertyValidator propertyValidator)
-    {
-        Schema = schema;
-        PropertyKey = propertyKey;
-        PropertyValidator = propertyValidator;
-    }
+    public bool HasCondition { get; set; } = hasCondition; //used to determine if a property should be marked required or not. if has condition, not required.
 }

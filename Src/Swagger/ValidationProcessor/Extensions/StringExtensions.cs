@@ -35,7 +35,7 @@ static class StringExtensions
         {
             null => null,
             "" => string.Empty,
-            _ => char.IsLower(inputString[0]) ? inputString : inputString[..1].ToLower() + inputString[1..],
+            _ => char.IsLower(inputString[0]) ? inputString : inputString[..1].ToLower() + inputString[1..]
         };
     }
 
@@ -46,7 +46,8 @@ static class StringExtensions
     /// <param name="left">Left string to compare.</param>
     /// <param name="right">Right string to compare.</param>
     /// <returns><c>true</c> if input strings are equals in terms of identifier formatting.</returns>
-    internal static bool EqualsIgnoreAll(this string left, string right) => IgnoreAllStringComparer.Instance.Equals(left, right);
+    internal static bool EqualsIgnoreAll(this string left, string right)
+        => IgnoreAllStringComparer.Instance.Equals(left, right);
 }
 
 /// <summary>
@@ -66,14 +67,14 @@ class IgnoreAllStringComparer : StringComparer
         var leftIndex = 0;
         var rightIndex = 0;
         int compare;
+
         do
         {
             GetNextSymbol(left, ref leftIndex, out var leftSymbol);
             GetNextSymbol(right, ref rightIndex, out var rightSymbol);
 
             compare = leftSymbol.CompareTo(rightSymbol);
-        }
-        while (compare == 0 && leftIndex >= 0 && rightIndex >= 0);
+        } while (compare == 0 && leftIndex >= 0 && rightIndex >= 0);
 
         return compare;
     }
@@ -94,6 +95,7 @@ class IgnoreAllStringComparer : StringComparer
             var hasRightSymbol = GetNextSymbol(right, ref rightIndex, out var rightSymbol);
 
             equals = leftSymbol == rightSymbol;
+
             if (!equals || !hasLeftSymbol || !hasRightSymbol)
                 break;
         }
@@ -109,7 +111,7 @@ class IgnoreAllStringComparer : StringComparer
             var index = 0;
             var hash = 0;
             while (GetNextSymbol(obj, ref index, out var symbol))
-                hash = (31 * hash) + char.ToUpperInvariant(symbol).GetHashCode();
+                hash = 31 * hash + char.ToUpperInvariant(symbol).GetHashCode();
 
             return hash;
         }
@@ -120,15 +122,18 @@ class IgnoreAllStringComparer : StringComparer
         while (startIndex >= 0 && startIndex < value?.Length)
         {
             var current = value[startIndex++];
-            if (char.IsLetterOrDigit(current))
-            {
-                symbol = char.ToUpperInvariant(current);
-                return true;
-            }
+
+            if (!char.IsLetterOrDigit(current))
+                continue;
+
+            symbol = char.ToUpperInvariant(current);
+
+            return true;
         }
 
         startIndex = -1;
         symbol = char.MinValue;
+
         return false;
     }
 }

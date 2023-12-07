@@ -27,6 +27,8 @@ public class Validator : Validator<Request>
         RuleFor(x => x.Name).NotEmpty().WithMessage("Product name is required!");
         RuleFor(x => x.Price).GreaterThan(0).WithMessage("Product price is required!");
         RuleFor(x => x.ModifiedBy).NotEmpty().WithMessage("ModifiedBy is required!");
+        RuleFor(x => x.Description)
+            .NotEmpty().When(x => false); //due to having a condition, swagger spec should treat this property as not required.
     }
 }
 

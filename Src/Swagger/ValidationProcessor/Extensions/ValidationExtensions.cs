@@ -23,6 +23,7 @@
 using FluentValidation;
 using System.Collections.ObjectModel;
 using System.Text.Json;
+using FluentValidation.Internal;
 
 namespace FastEndpoints.Swagger.ValidationProcessor.Extensions;
 
@@ -34,12 +35,14 @@ static class ValidationExtensions
     /// <summary>
     /// Is supported swagger numeric type.
     /// </summary>
-    public static bool IsNumeric(this object value) => value is int or long or float or double or decimal;
+    public static bool IsNumeric(this object value)
+        => value is int or long or float or double or decimal;
 
     /// <summary>
     /// Returns not null enumeration.
     /// </summary>
-    public static IEnumerable<TValue> NotNull<TValue>(this IEnumerable<TValue>? collection) => collection ?? Array.Empty<TValue>();
+    public static IEnumerable<TValue> NotNull<TValue>(this IEnumerable<TValue>? collection)
+        => collection ?? Array.Empty<TValue>();
 
     /// <summary>
     /// Creates a dictionary with the validation rules.
@@ -61,11 +64,11 @@ static class ValidationExtensions
                 if (rulesDict.TryGetValue(propertyNameWithSchemaCasing, out var propertyRules))
                     propertyRules.Add(rule.ValidationRule);
                 else
-                    rulesDict.Add(propertyNameWithSchemaCasing, new List<IValidationRule> { rule.ValidationRule });
+                    rulesDict.Add(propertyNameWithSchemaCasing, new() { rule.ValidationRule });
             }
         }
 
-        return new ReadOnlyDictionary<string, List<IValidationRule>>(rulesDict);
+        return new(rulesDict);
     }
 
     /// <summary>
@@ -90,24 +93,30 @@ static class ValidationExtensions
     /// Returns all IValidationRules that are PropertyRule.
     /// If rule is CollectionPropertyRule then isCollectionRule set to true.
     /// </summary>
-    internal static IEnumerable<ValidationRuleContext> GetPropertyRules(
-            this IEnumerable<IValidationRule> validationRules)
+    internal static IEnumerable<ValidationRuleContext> GetPropertyRules(this IEnumerable<IValidationRule> validationRules)
     {
         foreach (var validationRule in validationRules)
         {
-            if (validationRule.Member is null || string.IsNullOrEmpty(validationRule.PropertyName)) continue;
+            if (validationRule.Member is null || string.IsNullOrEmpty(validationRule.PropertyName))
+                continue;
+
             var isCollectionRule = validationRule.GetType() == typeof(ICollectionRule<,>);
-            yield return new ValidationRuleContext(validationRule, isCollectionRule);
+
+            yield return new(validationRule, isCollectionRule);
         }
     }
 
     /// <summary>
-    /// Returns a <see cref="bool"/> indicating if the <paramref name="propertyRule"/> is conditional.
+    /// Returns a <see cref="bool" /> indicating if the <paramref name="propertyRule" /> is conditional.
     /// </summary>
-    internal static bool HasNoCondition(this IValidationRule propertyRule) => !propertyRule.HasCondition && !propertyRule.HasAsyncCondition;
+    internal static bool HasNoCondition(this IValidationRule propertyRule)
+        => propertyRule is { HasCondition: false, HasAsyncCondition: false };
+
+    internal static bool HasCondition(this IRuleComponent component)
+        => component.HasCondition || component.HasAsyncCondition;
 
     /// <summary>
-    /// Contains <see cref="IValidationRule"/> and additional info.
+    /// Contains <see cref="IValidationRule" /> and additional info.
     /// </summary>
     public readonly struct ValidationRuleContext
     {
@@ -117,12 +126,12 @@ static class ValidationExtensions
         public readonly IValidationRule ValidationRule;
 
         /// <summary>
-        /// Flag indication whether the <see cref="IValidationRule"/> is the CollectionRule.
+        /// Flag indication whether the <see cref="IValidationRule" /> is the CollectionRule.
         /// </summary>
         public readonly bool IsCollectionRule;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ValidationRuleContext"/> struct.
+        /// Initializes a new instance of the <see cref="ValidationRuleContext" /> struct.
         /// </summary>
         /// <param name="validationRule">PropertyRule.</param>
         /// <param name="isCollectionRule">Is a CollectionPropertyRule.</param>

@@ -2,14 +2,13 @@ using FluentAssertions.Json; //this is highly important. the BeEquivalentTo() ex
 
 namespace Swagger;
 
-//NOTE: the Verify snapshot testing doesn't seem to work in gh workflow for some reason
-//      so we're doing manual json file comparison.
-//      to update the golden master (verified json files), copy them from the bin folder in to the project root.
-//      uncomment the File.WriteAllTextAsync() methods to put new golden masters in the bin folder.
-
-//[UsesVerify]
 public class SwaggerDocTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {
+    //NOTE: the Verify snapshot testing doesn't seem to work in gh workflow for some reason
+    //      so we're doing manual json file comparison.
+    //      to update the golden master (verified json files), copy them from the bin folder in to the project root.
+    //      uncomment the File.WriteAllTextAsync() methods to put new golden masters in the bin folder.
+
     [Fact]
     public async Task initial_release_doc_produces_correct_output()
     {

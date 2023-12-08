@@ -59,6 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Rem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Testing", "Src\Testing\FastEndpoints.Testing.csproj", "{EE160081-CEC5-4DEB-A376-67D321F1B006}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.ClientGen.Kiota", "Src\ClientGen.Kiota\FastEndpoints.ClientGen.Kiota.csproj", "{3A973DDC-4156-457F-901B-3E47A92DED59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,6 +229,14 @@ Global
 		{EE160081-CEC5-4DEB-A376-67D321F1B006}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EE160081-CEC5-4DEB-A376-67D321F1B006}.Release|x86.ActiveCfg = Release|Any CPU
 		{EE160081-CEC5-4DEB-A376-67D321F1B006}.Release|x86.Build.0 = Release|Any CPU
+		{3A973DDC-4156-457F-901B-3E47A92DED59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A973DDC-4156-457F-901B-3E47A92DED59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A973DDC-4156-457F-901B-3E47A92DED59}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3A973DDC-4156-457F-901B-3E47A92DED59}.Debug|x86.Build.0 = Debug|Any CPU
+		{3A973DDC-4156-457F-901B-3E47A92DED59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A973DDC-4156-457F-901B-3E47A92DED59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A973DDC-4156-457F-901B-3E47A92DED59}.Release|x86.ActiveCfg = Release|Any CPU
+		{3A973DDC-4156-457F-901B-3E47A92DED59}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

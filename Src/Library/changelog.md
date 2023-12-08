@@ -8,7 +8,15 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 [//]: # (<details><summary>title text</summary></details>)
 
-[//]: # (## New 🎉)
+## New 🎉
+
+<details><summary>Api Client generation using Kiota</summary>
+
+Todo: update doc page and link here.
+
+ref: https://discord.com/channels/933662816458645504/1114736030109683782/1182711087901184021
+
+</details>
 
 ## Improvements 🚀
 

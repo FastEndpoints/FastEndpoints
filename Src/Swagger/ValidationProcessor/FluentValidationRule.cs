@@ -25,12 +25,14 @@ using FluentValidation.Validators;
 namespace FastEndpoints.Swagger.ValidationProcessor;
 
 [HideFromDocs]
+#pragma warning disable CS9113 // Parameter is unread.
 public class FluentValidationRule(string name)
+#pragma warning restore CS9113 // Parameter is unread.
 {
-    /// <summary>
-    /// Rule name.
-    /// </summary>
-    public string Name { get; } = name;
+    // /// <summary>
+    // /// Rule name.
+    // /// </summary>
+    // public string Name { get; } = name;
 
     /// <summary>
     /// Predicate to match property validator.

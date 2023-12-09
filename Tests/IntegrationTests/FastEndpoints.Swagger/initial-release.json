@@ -4137,8 +4137,7 @@
           },
           "Description": {
             "type": "string",
-            "minLength": 1,
-            "nullable": false
+            "nullable": true
           },
           "Price": {
             "type": "number",

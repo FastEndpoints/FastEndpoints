@@ -38,10 +38,19 @@ For this to work, the rules have to be written separately as above. I.e. the `.W
 
 </details>
 
-<details><summary>Micro optimization with 'Concurrent Dictionary' usage</summary></details>
+<details><summary>Support for 'UrlSegmentApiVersionReader' of 'Asp.Versioning.Http'</summary>
+
+Only the `HeaderApiVersionReader` was previously supported. Support for doing versioning based on URL segments using the `Asp.Versioning.Http` package is now working
+correctly.
+
+</details>
+
+<details><summary>Micro optimization with 'Concurrent Dictionary' usage</summary>
 
 Concurrent dictionary `GetOrAdd()` overload with lambda parameter seems to perform a bit better in .NET 8. All locations that were using the other overload was
 changed to use the overload with the lambda.
+
+</details>
 
 [//]: # (## Fixes 🪲)
 

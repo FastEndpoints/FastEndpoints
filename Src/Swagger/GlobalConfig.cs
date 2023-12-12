@@ -16,4 +16,9 @@ public static class GlobalConfig
     /// prefix for all routes (example 'api').
     /// </summary>
     public static string? EndpointRoutePrefix => Conf.EpOpts.RoutePrefix;
+
+    /// <summary>
+    /// Asp.Versioning.Http library is being used for versioning
+    /// </summary>
+    public static bool IsUsingAspVersioning => Conf.VerOpts.IsUsingAspVersioning;
 }

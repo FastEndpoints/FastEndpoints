@@ -1,24 +1,24 @@
-﻿using Microsoft.AspNetCore.Http.Metadata;
-using Microsoft.AspNetCore.Routing;
-using Namotion.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NJsonSchema;
-using NSwag;
-using NSwag.Generation.AspNetCore;
-using NSwag.Generation.Processors;
-using NSwag.Generation.Processors.Contexts;
-using System.Collections;
+﻿using System.Collections;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.AspNetCore.Routing;
+using Namotion.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NJsonSchema;
 using NJsonSchema.NewtonsoftJson.Generation;
+using NSwag;
+using NSwag.Generation.AspNetCore;
+using NSwag.Generation.Processors;
+using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
-sealed class OperationProcessor : IOperationProcessor
+sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 {
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
     static readonly Regex _routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);
@@ -39,13 +39,6 @@ sealed class OperationProcessor : IOperationProcessor
         { "429", "Too Many Requests" },
         { "500", "Server Error" }
     };
-
-    readonly DocumentOptions _opts;
-
-    public OperationProcessor(DocumentOptions documentOptions)
-    {
-        _opts = documentOptions;
-    }
 
     public bool Process(OperationProcessorContext ctx)
     {
@@ -71,11 +64,11 @@ sealed class OperationProcessor : IOperationProcessor
             op.OperationId = nameMetaData.EndpointName;
 
         //set operation tag
-        if (_opts.AutoTagPathSegmentIndex > 0 && !epDef.DontAutoTagEndpoints)
+        if (docOpts.AutoTagPathSegmentIndex > 0 && !epDef.DontAutoTagEndpoints)
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
-            if (segments.Length >= _opts.AutoTagPathSegmentIndex)
-                op.Tags.Add(TagName(segments[_opts.AutoTagPathSegmentIndex - 1], _opts.TagCase));
+            if (segments.Length >= docOpts.AutoTagPathSegmentIndex)
+                op.Tags.Add(TagName(segments[docOpts.AutoTagPathSegmentIndex - 1], docOpts.TagCase));
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
@@ -215,6 +208,13 @@ sealed class OperationProcessor : IOperationProcessor
                   }
               });
 
+        if (GlobalConfig.IsUsingAspVersioning)
+        {
+            //because asp-versioning adds the version route segment as a path parameter
+            foreach (var prm in apiDescription.ParameterDescriptions.ToArray().Where(p => p.Source != Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body))
+                apiDescription.ParameterDescriptions.Remove(prm);
+        }
+
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);
         var reqDtoProps = reqDtoIsList is true
@@ -295,7 +295,7 @@ sealed class OperationProcessor : IOperationProcessor
                                     isRequired: true,
                                     kind: OpenApiParameterKind.Path,
                                     descriptions: reqParamDescriptions,
-                                    docOpts: _opts);
+                                    docOpts: docOpts);
                             })
                         .ToList();
 
@@ -307,7 +307,7 @@ sealed class OperationProcessor : IOperationProcessor
                               p => ShouldAddQueryParam(
                                   p,
                                   reqParams,
-                                  isGetRequest && !_opts.EnableGetRequestsWithBody)) //user wants body in GET requests
+                                  isGetRequest && !docOpts.EnableGetRequestsWithBody)) //user wants body in GET requests
                           .Select(
                               p =>
                               {
@@ -320,7 +320,7 @@ sealed class OperationProcessor : IOperationProcessor
                                       isRequired: null,
                                       kind: OpenApiParameterKind.Query,
                                       descriptions: reqParamDescriptions,
-                                      docOpts: _opts);
+                                      docOpts: docOpts);
                               })
                           .ToList();
 
@@ -347,7 +347,7 @@ sealed class OperationProcessor : IOperationProcessor
                                 isRequired: hAttrib.IsRequired,
                                 kind: OpenApiParameterKind.Header,
                                 descriptions: reqParamDescriptions,
-                                docOpts: _opts));
+                                docOpts: docOpts));
 
                         //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
@@ -382,19 +382,28 @@ sealed class OperationProcessor : IOperationProcessor
                             isRequired: null,
                             kind: OpenApiParameterKind.FormData,
                             descriptions: reqParamDescriptions,
-                            docOpts: _opts));
+                            docOpts: docOpts));
                 }
             }
         }
 
         foreach (var p in reqParams)
+        {
+            if (GlobalConfig.IsUsingAspVersioning)
+            {
+                //remove any duplicate params - ref: https://github.com/FastEndpoints/FastEndpoints/issues/560
+                foreach (var prm in op.Parameters.Where(prm => prm.Name == p.Name && prm.Kind == p.Kind).ToArray())
+                    op.Parameters.Remove(prm);
+            }
+
             op.Parameters.Add(p);
+        }
 
         //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body).
         //note: user can decide to allow GET requests with body via EnableGetRequestsWithBody setting.
         //or if there are no properties left on the request dto after above operations.
         //only if the request dto is not a list.
-        if ((isGetRequest && !_opts.EnableGetRequestsWithBody) || reqContent?.HasNoProperties() is true)
+        if ((isGetRequest && !docOpts.EnableGetRequestsWithBody) || reqContent?.HasNoProperties() is true)
         {
             if (reqDtoIsList is false)
             {
@@ -404,7 +413,7 @@ sealed class OperationProcessor : IOperationProcessor
             }
         }
 
-        if (_opts.RemoveEmptyRequestSchema)
+        if (docOpts.RemoveEmptyRequestSchema)
         {
             //remove all empty schemas that has no props left
             //these schemas have been flattened so no need to worry about inheritance
@@ -431,7 +440,7 @@ sealed class OperationProcessor : IOperationProcessor
                         isRequired: true,
                         kind: OpenApiParameterKind.Body,
                         descriptions: reqParamDescriptions,
-                        docOpts: _opts));
+                        docOpts: docOpts));
             }
         }
 
@@ -512,9 +521,7 @@ sealed class OperationProcessor : IOperationProcessor
             prop.IsDefined(Types.QueryParamAttribute);
     }
 
-    static void RemovePropFromRequestBodyContent(string propName,
-                                                 IDictionary<string, OpenApiMediaType>? content,
-                                                 List<string> propsToRemoveFromExample)
+    static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content, List<string> propsToRemoveFromExample)
     {
         if (content is null)
             return;

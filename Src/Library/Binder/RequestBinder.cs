@@ -224,9 +224,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         foreach (var kvp in httpRequest.Form)
             Bind(req, kvp, failures);
 
-        Dictionary<string, FormFileCollection>? formFileCollections = null;
-        if (_formFileCollectionProps.Count > 0)
-            formFileCollections = new();
+        Dictionary<string, FormFileCollection>? formFileCollections =
+            _formFileCollectionProps.Count > 0
+                ? new()
+                : null;
 
         for (var y = 0; y < httpRequest.Form.Files.Count; y++)
         {

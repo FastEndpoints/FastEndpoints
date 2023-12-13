@@ -15,9 +15,9 @@
 
         <PackageReference Include="Grpc.Net.Client" Version="2.59.0"/>
         <PackageReference Include="Grpc.AspNetCore.Server" Version="2.59.0"/>
-        <PackageReference Include="MessagePack" Version="2.5.129"/>
+        <PackageReference Include="MessagePack" Version="2.5.140"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>

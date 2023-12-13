@@ -13,10 +13,14 @@
     <ItemGroup>
         <ProjectReference Include="..\Library\FastEndpoints.csproj"/>
 
-        <PackageReference Include="Asp.Versioning.Http" Version="7.1.0"/>
-        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.1.0"/>
-        <PackageReference Include="NSwag.Generation.AspNetCore" Version="13.20.0"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Include="Asp.Versioning.Http" Version="7.1.0"/>
+        <PackageReference Condition="'$(TargetFramework)' == 'net8.0'" Include="Asp.Versioning.Http" Version="8.0.0"/>
+
+        <PackageReference Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.1.0"/>
+        <PackageReference Condition="'$(TargetFramework)' == 'net8.0'" Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.0.0"/>
+
+        <PackageReference Include="NSwag.Generation.AspNetCore" Version="14.0.0-preview012"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>

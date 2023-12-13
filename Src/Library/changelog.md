@@ -18,6 +18,20 @@ ref: https://discord.com/channels/933662816458645504/1114736030109683782/1182711
 
 </details>
 
+<details><summary>[HideFromDocs] attribute for removing properties from Swagger schema</summary>
+
+```csharp
+sealed class MyRequest
+{
+    [HideFromDocs]
+    public int Internal { get; set; } //this will not appear in swagger schema
+
+    public string Name { get; set; }
+}
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Treat validation rules with conditions attached as optional properties in Swagger spec.</summary>

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -18,6 +19,7 @@ using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
+[SuppressMessage("Performance", "SYSLIB1045:Convert to \'GeneratedRegexAttribute\'.")]
 sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 {
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
@@ -258,11 +260,14 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
         var propsToRemoveFromExample = new List<string>();
 
-        //remove dto props that are either marked with [JsonIgnore] or not publicly settable
+        //remove dto props that are either marked with [JsonIgnore]/[HideFromDocs] or not publicly settable
         if (reqDtoProps != null)
         {
-            foreach (var p in reqDtoProps.Where(p => p.IsDefined(Types.JsonIgnoreAttribute) || p.GetSetMethod()?.IsPublic is not true)
-                                         .ToArray()) //prop has no public setter or has ignore attribute
+            foreach (var p in reqDtoProps.Where(
+                                             p => p.IsDefined(Types.JsonIgnoreAttribute) ||
+                                                  p.IsDefined(Types.HideFromDocsAttribute) ||
+                                                  p.GetSetMethod()?.IsPublic is not true)
+                                         .ToArray()) //prop has no public setter or has ignore/hide attribute
             {
                 RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
                 reqDtoProps.Remove(p);

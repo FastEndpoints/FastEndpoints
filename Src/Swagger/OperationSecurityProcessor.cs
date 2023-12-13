@@ -55,8 +55,8 @@ sealed class OperationSecurityProcessor : IOperationProcessor
     static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
     {
         return authorizeAttributes
-              .Where(a => a.Roles != null)
-              .SelectMany(a => a.Roles!.Split(','))
-              .Distinct();
+               .Where(a => a.Roles != null)
+               .SelectMany(a => a.Roles!.Split(','))
+               .Distinct();
     }
 }

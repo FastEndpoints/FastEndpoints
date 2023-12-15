@@ -41,8 +41,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// group, you'd specify it with this parameter. The generated const/key is accessible via "Allow.Admin.Edit_Stock_Item" as well as
     /// "Allow.Manager.Edit_Stock_Item"
     /// </param>
-
-    // ReSharper disable once UnusedParameter.Global
     protected void AccessControl(string keyName, Apply? behavior = null, params string[] groupNames)
     {
         if (behavior is Apply.ToThisEndpoint)
@@ -559,53 +557,54 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
         //set default openapi descriptions
         Definition.InternalConfigAction = b =>
-        {
-            var tRequest = typeof(TRequest);
-            var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
+                                          {
+                                              var tRequest = typeof(TRequest);
+                                              var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
 
-            if (isPlainTextRequest)
-            {
-                b.Accepts<TRequest>("text/plain", "application/json");
-                b.Produces<TResponse>(200, "text/plain", "application/json");
+                                              if (isPlainTextRequest)
+                                              {
+                                                  b.Accepts<TRequest>("text/plain", "application/json");
+                                                  b.Produces<TResponse>(200, "text/plain", "application/json");
 
-                return;
-            }
+                                                  return;
+                                              }
 
-            if (tRequest != Types.EmptyRequest)
-            {
-                if (methods.Any(m => m is "GET" or "HEAD" or "DELETE"))
-                    b.Accepts<TRequest>("*/*", "application/json");
-                else
-                    b.Accepts<TRequest>("application/json");
-            }
+                                              if (tRequest != Types.EmptyRequest)
+                                              {
+                                                  if (methods.Any(m => m is "GET" or "HEAD" or "DELETE"))
+                                                      b.Accepts<TRequest>("*/*", "application/json");
+                                                  else
+                                                      b.Accepts<TRequest>("application/json");
+                                              }
 
-            if (Definition.ExecuteAsyncReturnsIResult)
-            {
-            #if NET7_0_OR_GREATER
-                b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
-            #endif
-            }
-            else
-            {
-                if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)
-                    b.Produces<TResponse>(200, "text/plain", "application/json");
-                else
-                    b.Produces<TResponse>(200, "application/json");
+                                              if (Definition.ExecuteAsyncReturnsIResult)
+                                              {
+                                              #if NET7_0_OR_GREATER
+                                                  b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
+                                              #endif
+                                              }
+                                              else
+                                              {
+                                                  if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)
+                                                      b.Produces<TResponse>(200, "text/plain", "application/json");
+                                                  else
+                                                      b.Produces<TResponse>(200, "application/json");
 
-                if (Definition.AnonymousVerbs?.Any() is not true)
-                    b.Produces(401);
+                                                  if (Definition.AnonymousVerbs?.Any() is not true)
+                                                      b.Produces(401);
 
-                if (Definition.RequiresAuthorization())
-                    b.Produces(403);
+                                                  if (Definition.RequiresAuthorization())
+                                                      b.Produces(403);
 
-                if (Conf.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
-                {
-                    b.Produces(Conf.ErrOpts.StatusCode,
-                        Conf.ErrOpts.ProducesMetadataType,
-                        "application/problem+json");
-                }
-            }
-        };
+                                                  if (Conf.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+                                                  {
+                                                      b.Produces(
+                                                          Conf.ErrOpts.StatusCode,
+                                                          Conf.ErrOpts.ProducesMetadataType,
+                                                          "application/problem+json");
+                                                  }
+                                              }
+                                          };
     }
 
     /// <summary>

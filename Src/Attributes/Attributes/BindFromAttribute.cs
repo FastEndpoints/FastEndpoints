@@ -3,7 +3,7 @@
 /// <summary>
 /// use this attribute to specify the name of route param, query param, or form field if it's different from the name of the property being bound to.
 /// </summary>
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Property)]
 public sealed class BindFromAttribute : Attribute
 {
     /// <summary>

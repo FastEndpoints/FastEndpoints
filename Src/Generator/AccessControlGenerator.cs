@@ -1,9 +1,10 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 
 namespace FastEndpoints.Generator;
 
@@ -51,7 +52,9 @@ public class AccessControlGenerator : IIncrementalGenerator
                           .OfType<LiteralExpressionSyntax>()
                           .Select(l => l.Token.ValueText.Sanitize());
 
-            return new(endpoint, args.First(), args.Skip(1));
+            var desc = inv.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia)).ToString();
+
+            return new(endpoint, args.First(), desc, args.Skip(1));
         }
     }
 
@@ -92,23 +95,27 @@ public class AccessControlGenerator : IIncrementalGenerator
             b.w(
                 """
                 
-                    /// <summary><see cref="
+                    /// <summary>
+                """).w(p.Description).w(
+                """
+                </summary><remark>Generated from endpoint: <see cref="
                 """).w(p.Endpoint).w(
                 """
-                "/></summary>
+                "/></remark>
                     public const string
                 """).w(" ").w(p.Name).w(" = \"").w(p.Code).w(
                 """
                 ";
-
                 """);
         }
         b.w(
             """
+
             #endregion
 
             """);
         RenderGroups(b, groups);
+        RenderDescriptions(b, perms);
         b.w(
             """
 
@@ -116,6 +123,38 @@ public class AccessControlGenerator : IIncrementalGenerator
             """);
 
         return b.ToString();
+
+        static void RenderDescriptions(StringBuilder sb, IEnumerable<Permission> perms)
+        {
+            sb.w(
+                """
+
+                #region DESCRIPTIONS
+                    public static Dictionary<string, string> Descriptions = new()
+                    {
+                """);
+
+            foreach (var p in perms)
+            {
+                if (p.Description is not null)
+                {
+                    sb.w(
+                        $$"""
+                          
+                                  //{{p.Name}}
+                                  { "{{p.Code}}", "{{p.Description}}" },
+                          """);
+                }
+            }
+
+            sb.w(
+                """
+                
+                    };
+
+                #endregion
+                """);
+        }
 
         static void RenderGroups(StringBuilder sb, Dictionary<string, IEnumerable<string>> groups)
         {
@@ -158,7 +197,11 @@ public class AccessControlGenerator : IIncrementalGenerator
 
                         """);
                 }
-                sb.w("#endregion");
+                sb.w(
+                    """
+                    #endregion
+
+                    """);
             }
         }
     }
@@ -185,12 +228,18 @@ public class AccessControlGenerator : IIncrementalGenerator
                          _permCodes[val] = f.Name;
                      }
                      Groups();
+                     Describe();
                  }
              
                  /// <summary>
                  /// implement this method to add custom permissions to the generated categories
                  /// </summary>
                  static partial void Groups();
+                 
+                 /// <summary>
+                 /// implement this method to add descriptions to your custom permissions
+                 /// </summary>
+                 static partial void Describe();
              
                  /// <summary>
                  /// gets a list of permission names for the given list of permission codes
@@ -279,15 +328,17 @@ public class AccessControlGenerator : IIncrementalGenerator
     sealed class Permission : IEquatable<Permission>
     {
         public string Name { get; }
+        public string? Description { get; }
         public string Code { get; }
         public string Endpoint { get; }
         public IEnumerable<string> Categories { get; }
 
         readonly int _hash; //used as Roslyn cache key
 
-        internal Permission(string endpoint, string name, IEnumerable<string> categories)
+        internal Permission(string endpoint, string name, string description, IEnumerable<string> categories)
         {
             Name = name.Length == 0 ? "Unspecified" : name;
+            Description = description.Length == 0 ? null : description.Substring(2).Trim();
             Code = GetAclHash(name);
             Endpoint = endpoint;
             Categories = categories;

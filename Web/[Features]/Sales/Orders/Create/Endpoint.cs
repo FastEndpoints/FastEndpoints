@@ -14,7 +14,9 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
     public override void Configure()
     {
         Post("/sales/orders/create/{guidTest}", "/sales/orders/create");
-        AccessControl("Sales_Order_Create", Apply.ToThisEndpoint);
+        AccessControl( //Allows creation of orders by anybody who has this permission code.
+            "Sales_Order_Create",
+            Apply.ToThisEndpoint);
         PreProcessors(new MyRequestLogger<Request>());
         PostProcessors(new MyResponseLogger<Request, Response>());
         Tags("Orders");

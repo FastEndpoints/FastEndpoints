@@ -18,6 +18,13 @@ ref: https://discord.com/channels/933662816458645504/1114736030109683782/1182711
 
 </details>
 
+<details><summary>Ability to specify/obtain descriptions with ACL generation</summary>
+
+todo: update docs and link here.
+ref: https://github.com/FastEndpoints/FastEndpoints/issues/562
+
+</details>
+
 <details><summary>[HideFromDocs] attribute for removing properties from Swagger schema</summary>
 
 ```csharp

@@ -10,4 +10,11 @@ public static partial class Allow
         AddToAdmin(Additional_Permission);
         AddToManager(Another_Permission);
     }
+
+    static partial void Describe()
+    {
+        Descriptions[Additional_Permission] = "Description for first custom permission";
+        Descriptions[Another_Permission] = "Another custom permission";
+        Descriptions[Inventory_Create_Item] = "Descriptions for generated permission";
+    }
 }

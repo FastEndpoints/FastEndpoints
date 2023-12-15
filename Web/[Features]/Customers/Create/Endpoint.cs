@@ -37,7 +37,11 @@ public class Endpoint : Endpoint<Request>
             "/customer/{cID}/new/{SourceID}",
             "/customer/save");
         Permissions(Allow.Customers_Create);
-        AccessControl("Customers+Create", Apply.ToThisEndpoint, "Admin", "Manager");
+        AccessControl( // Permission for creating a new customer in the system.
+            "Customers+Create",
+            Apply.ToThisEndpoint,
+            "Admin",
+            "Manager");
         DontAutoTag();
         Description(x => x.WithTags("Customer Save"));
     }

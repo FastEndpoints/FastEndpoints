@@ -76,37 +76,25 @@ public class AccessControlGenerator : IIncrementalGenerator
     static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
     {
         b.Clear().w(
-            """
-            #nullable enable
+            $$"""
+              #nullable enable
 
-            namespace
-            """).w(" ").w(_assemblyName).w(
-            """
-            .Auth;
+              namespace {{_assemblyName}}.Auth;
 
-            public static partial class Allow
-            {
+              public static partial class Allow
+              {
 
-            #region ACL_ITEMS
-            """);
+              #region ACL_ITEMS
+              """);
 
         foreach (var p in perms)
         {
             b.w(
-                """
-                
-                    /// <summary>
-                """).w(p.Description).w(
-                """
-                </summary><remark>Generated from endpoint: <see cref="
-                """).w(p.Endpoint).w(
-                """
-                "/></remark>
-                    public const string
-                """).w(" ").w(p.Name).w(" = \"").w(p.Code).w(
-                """
-                ";
-                """);
+                $"""
+                 
+                     /// <summary>{p.Description}</summary><remark>Generated from endpoint: <see cref="{p.Endpoint}"/></remark>
+                     public const string {p.Name} = "{p.Code}";
+                 """);
         }
         b.w(
             """
@@ -114,7 +102,9 @@ public class AccessControlGenerator : IIncrementalGenerator
             #endregion
 
             """);
+
         RenderGroups(b, groups);
+
         RenderDescriptions(b, perms);
         b.w(
             """
@@ -123,6 +113,52 @@ public class AccessControlGenerator : IIncrementalGenerator
             """);
 
         return b.ToString();
+
+        static void RenderGroups(StringBuilder sb, Dictionary<string, IEnumerable<string>> groups)
+        {
+            if (groups.Count == 0)
+                return;
+
+            sb.w(
+                """
+
+                #region GROUPS
+                """);
+
+            foreach (var g in groups)
+            {
+                var key = $"_{g.Key.ToLower()}";
+                sb.w(
+                    $$"""
+                      
+                          public static IEnumerable<string> {{g.Key}} => {{key}};
+                          private static void AddTo{{g.Key}}(string permissionCode) => {{key}}.Add(permissionCode);
+                          private static readonly List<string>{{key}} = new()
+                          {
+
+                      """);
+
+                foreach (var name in g.Value)
+                {
+                    sb.w(
+                        $"""
+                                 {name},
+
+                         """);
+                }
+                sb.Remove(sb.Length - 2, 2).w(
+                    """
+                    
+                        };
+                    """);
+            }
+            sb.w(
+                """
+
+                #endregion
+
+                """);
+        }
 
         static void RenderDescriptions(StringBuilder sb, IEnumerable<Permission> perms)
         {
@@ -154,55 +190,6 @@ public class AccessControlGenerator : IIncrementalGenerator
 
                 #endregion
                 """);
-        }
-
-        static void RenderGroups(StringBuilder sb, Dictionary<string, IEnumerable<string>> groups)
-        {
-            if (groups.Count > 0)
-            {
-                sb.w(
-                    """
-
-                    #region GROUPS
-                    """);
-
-                foreach (var g in groups)
-                {
-                    var key = $"_{g.Key.ToLower()}";
-
-                    sb.w(
-                        """
-                        
-                            public static IEnumerable<string>
-                        """).w(" ").w(g.Key).w(" => ").w(key).w(
-                        """
-                        ;
-                            private static void AddTo
-                        """).w(g.Key).w("(string permissionCode) => ").w(key).w(
-                        """
-                        .Add(permissionCode);
-                            private static readonly List<string>
-                        """).w(key).w(
-                        """
-                         = new()
-                            {
-
-                        """);
-                    foreach (var name in g.Value)
-                        sb.w("        ").w(name).AppendLine(",");
-                    sb.Remove(sb.Length - 2, 2).w(
-                        """
-                        
-                            };
-
-                        """);
-                }
-                sb.w(
-                    """
-                    #endregion
-
-                    """);
-            }
         }
     }
 

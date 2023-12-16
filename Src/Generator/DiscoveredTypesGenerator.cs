@@ -9,8 +9,9 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
-    static string? _assemblyName;
+    // ReSharper disable once InconsistentNaming
     static readonly StringBuilder b = new();
+    static string? _assemblyName;
     const string DontRegisterAttribute = "DontRegisterAttribute";
 
     static readonly string[] _whiteList =
@@ -32,7 +33,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         ctx.RegisterSourceOutput(syntaxProvider, Generate!);
 
         static bool Match(SyntaxNode node, CancellationToken _)
-            => node is ClassDeclarationSyntax cds && cds.TypeParameterList is null;
+            => node is ClassDeclarationSyntax { TypeParameterList: null };
 
         static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
@@ -60,26 +61,32 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
     static string RenderClass(IEnumerable<string> discoveredTypes)
     {
-        b.Clear().w("namespace ").w(_assemblyName).w(
-            @";
+        b.Clear().w(
+            $$"""
+              namespace {{_assemblyName}};
 
-using System;
+              using System;
 
-public static class DiscoveredTypes
-{
-    public static readonly Type[] All = new Type[]
-    {");
+              public static class DiscoveredTypes
+              {
+                  public static readonly Type[] All = new Type[]
+                  {
+              """);
 
         foreach (var t in discoveredTypes)
         {
             b.w(
-                @"
-        typeof(").w(t).w("),");
+                $"""
+                
+                        typeof({t}),
+                """);
         }
         b.w(
-            @"
-    };
-}");
+            """
+            
+                };
+            }
+            """);
 
         return b.ToString();
     }

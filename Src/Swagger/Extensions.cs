@@ -213,8 +213,7 @@ public static class Extensions
     internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllProperties(this KeyValuePair<string, OpenApiMediaType> mediaType)
     {
         return mediaType
-               .Value.Schema.ActualSchema.ActualProperties
-               .Union(
+               .Value.Schema.ActualSchema.ActualProperties.Union(
                    mediaType
                        .Value.Schema.ActualSchema.AllInheritedSchemas
                        .Select(s => s.ActualProperties)
@@ -224,8 +223,7 @@ public static class Extensions
     internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllProperties(this KeyValuePair<string, OpenApiResponse> response)
     {
         return response
-               .Value.Schema.ActualSchema.ActualProperties
-               .Union(
+               .Value.Schema.ActualSchema.ActualProperties.Union(
                    response.Value.Schema.ActualSchema.AllInheritedSchemas
                            .Select(s => s.ActualProperties)
                            .SelectMany(s => s.Select(s => s)));
@@ -258,7 +256,7 @@ public static class Extensions
     }
 
     internal static string ApplyPropNamingPolicy(this string paramName, DocumentOptions documentOptions)
-        => documentOptions.UsePropertyNamingPolicyForParams && SelectedJsonNamingPolicy is not null
+        => documentOptions.UsePropertyNamingPolicy && SelectedJsonNamingPolicy is not null
                ? SelectedJsonNamingPolicy.ConvertName(paramName)
                : paramName;
 

@@ -73,6 +73,12 @@ changed to use the overload with the lambda.
 
 </details>
 
-[//]: # (## Fixes 🪲)
+## Fixes 🪲
+
+<details><summary>'JsonNamingPolicy.SnakeCaseLower' was causing incorrect Swagger Schema properties</summary>
+
+Snake case policy did not exist before .NET 8, so it's usage was not accounted for in the Swagger operation processor, which has now been corrected.
+
+</details>
 
 [//]: # (## Breaking Changes ⚠️)

@@ -269,7 +269,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                                   p.GetSetMethod()?.IsPublic is not true)
                                          .ToArray()) //prop has no public setter or has ignore/hide attribute
             {
-                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
+                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
                 reqDtoProps.Remove(p);
             }
         }
@@ -288,7 +288,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                         if (!string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                                             return false;
 
-                                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
+                                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
 
                                         return true;
                                     });
@@ -308,15 +308,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         if (reqDtoType is not null)
         {
             var qParams = reqDtoProps?
-                          .Where(
-                              p => ShouldAddQueryParam(
-                                  p,
-                                  reqParams,
-                                  isGetRequest && !docOpts.EnableGetRequestsWithBody)) //user wants body in GET requests
+                          .Where(p => ShouldAddQueryParam(p, reqParams, isGetRequest && !docOpts.EnableGetRequestsWithBody)) //user wants body in GET requests
                           .Select(
                               p =>
                               {
-                                  RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
+                                  RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
 
                                   return CreateParam(
                                       ctx: ctx,
@@ -356,16 +352,16 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
                         //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
-                            RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
+                            RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
                     }
 
                     //can only be bound from claim since it's required. so remove prop from body.
                     if (attribute is FromClaimAttribute cAttrib && (cAttrib.IsRequired || cAttrib.RemoveFromSchema))
-                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
+                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
 
                     //can only be bound from permission since it's required. so remove prop from body.
                     if (attribute is HasPermissionAttribute pAttrib && (pAttrib.IsRequired || pAttrib.RemoveFromSchema))
-                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
+                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
                 }
             }
         }
@@ -377,7 +373,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             {
                 if (p.PropertyType == Types.IFormFile)
                 {
-                    RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample);
+                    RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
                     reqDtoProps.Remove(p);
                     reqParams.Add(
                         CreateParam(
@@ -504,17 +500,19 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
         foreach (var attribute in prop.GetCustomAttributes())
         {
-            if (attribute is BindFromAttribute bAtt)
-                paramName = bAtt.Name;
+            switch (attribute)
+            {
+                case BindFromAttribute bAtt:
+                    paramName = bAtt.Name;
 
-            if (attribute is FromHeaderAttribute)
-                return false; // because header request params are being added
-
-            if (attribute is FromClaimAttribute cAttrib)
-                return !cAttrib.IsRequired; // add param if it's not required. if required only can bind from actual claim.
-
-            if (attribute is HasPermissionAttribute pAttrib)
-                return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
+                    break;
+                case FromHeaderAttribute:
+                    return false; // because header request params are being added
+                case FromClaimAttribute cAttrib:
+                    return !cAttrib.IsRequired; // add param if it's not required. if required only can bind from actual claim.
+                case HasPermissionAttribute pAttrib:
+                    return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
+            }
         }
 
         return
@@ -526,10 +524,15 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             prop.IsDefined(Types.QueryParamAttribute);
     }
 
-    static void RemovePropFromRequestBodyContent(string propName, IDictionary<string, OpenApiMediaType>? content, List<string> propsToRemoveFromExample)
+    static void RemovePropFromRequestBodyContent(string propName,
+                                                 IDictionary<string, OpenApiMediaType>? content,
+                                                 List<string> propsToRemoveFromExample,
+                                                 DocumentOptions docOpts)
     {
         if (content is null)
             return;
+
+        propName = propName.ApplyPropNamingPolicy(docOpts);
 
         propsToRemoveFromExample.Add(propName);
 

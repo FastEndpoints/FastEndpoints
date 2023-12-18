@@ -15,7 +15,7 @@ public class ValidationContext
     public static ValidationContext Instance => new();
 
     public List<ValidationFailure> ValidationFailures { get; } =
-        (List<ValidationFailure>?)Conf.ServiceResolver?.TryResolve<IHttpContextAccessor>()?.HttpContext?.Items[CtxKey.ValidationFailures] ?? new();
+        (List<ValidationFailure>?)Cfg.ServiceResolver?.TryResolve<IHttpContextAccessor>()?.HttpContext?.Items[CtxKey.ValidationFailures] ?? new();
 
     public bool ValidationFailed => ValidationFailures.ValidationFailed();
 

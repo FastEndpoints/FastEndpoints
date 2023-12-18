@@ -23,25 +23,25 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IEventBu
     /// <inheritdoc />
     public Task PublishAsync<TEventModel>(TEventModel eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
         where TEventModel : notnull
-        => Conf.ServiceResolver.Resolve<EventBus<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
+        => Cfg.ServiceResolver.Resolve<EventBus<TEventModel>>().PublishAsync(eventModel, waitMode, cancellation);
 
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
-        => Conf.ServiceResolver.TryResolve<TService>();
+        => Cfg.ServiceResolver.TryResolve<TService>();
 
     /// <inheritdoc />
     public object? TryResolve(Type typeOfService)
-        => Conf.ServiceResolver.TryResolve(typeOfService);
+        => Cfg.ServiceResolver.TryResolve(typeOfService);
 
     /// <inheritdoc />
     public TService Resolve<TService>() where TService : class
-        => Conf.ServiceResolver.Resolve<TService>();
+        => Cfg.ServiceResolver.Resolve<TService>();
 
     /// <inheritdoc />
     public object Resolve(Type typeOfService)
-        => Conf.ServiceResolver.Resolve(typeOfService);
+        => Cfg.ServiceResolver.Resolve(typeOfService);
 
     /// <inheritdoc />
     public IServiceScope CreateScope()
-        => Conf.ServiceResolver.CreateScope();
+        => Cfg.ServiceResolver.CreateScope();
 }

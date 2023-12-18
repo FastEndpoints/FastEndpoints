@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "Generator": {
+    "GeneratorWeb": {
       "commandName": "DebugRoslynComponent",
       "targetProject": "..\\..\\Web\\Web.csproj"
+    },
+    "GeneratorPlayground": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\..\\..\\Playground\\Source\\Playground.Api.csproj"
     }
   }
 }

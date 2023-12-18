@@ -20,37 +20,37 @@ public abstract class Group : IServiceResolverBase
 
     static Action<EndpointDefinition> RouteModifier(string routePrefix)
         => e =>
-        {
-            if (!(e.Routes?.Length > 0))
-                return;
+           {
+               if (!(e.Routes?.Length > 0))
+                   return;
 
-            for (var i = 0; i < e.Routes.Length; i++)
-            {
-                var route = e.Routes[i];
-                var slash = !routePrefix.EndsWith('/') && !route.StartsWith('/') ? "/" : "";
-                e.Routes[i] = routePrefix + slash + route;
-            }
-        };
+               for (var i = 0; i < e.Routes.Length; i++)
+               {
+                   var route = e.Routes[i];
+                   var slash = !routePrefix.EndsWith('/') && !route.StartsWith('/') ? "/" : "";
+                   e.Routes[i] = routePrefix + slash + route;
+               }
+           };
 
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
-        => Conf.ServiceResolver.TryResolve<TService>();
+        => Cfg.ServiceResolver.TryResolve<TService>();
 
     /// <inheritdoc />
     public object? TryResolve(Type typeOfService)
-        => Conf.ServiceResolver.TryResolve(typeOfService);
+        => Cfg.ServiceResolver.TryResolve(typeOfService);
 
     /// <inheritdoc />
     public TService Resolve<TService>() where TService : class
-        => Conf.ServiceResolver.Resolve<TService>();
+        => Cfg.ServiceResolver.Resolve<TService>();
 
     /// <inheritdoc />
     public object Resolve(Type typeOfService)
-        => Conf.ServiceResolver.Resolve(typeOfService);
+        => Cfg.ServiceResolver.Resolve(typeOfService);
 
     /// <inheritdoc />
     public IServiceScope CreateScope()
-        => Conf.ServiceResolver.CreateScope();
+        => Cfg.ServiceResolver.CreateScope();
 }
 
 /// <summary>

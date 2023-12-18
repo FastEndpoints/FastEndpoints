@@ -19,14 +19,14 @@ public static class CommandExtensions
     public static Task ExecuteAsync<TCommand>(this TCommand command, CancellationToken ct = default) where TCommand : ICommand
     {
         var tCommand = command.GetType();
-        var registry = Conf.ServiceResolver.Resolve<CommandHandlerRegistry>();
+        var registry = Cfg.ServiceResolver.Resolve<CommandHandlerRegistry>();
 
         if (registry.TryGetValue(tCommand, out var def))
         {
             def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
 
             if (TestHandlersPresent)
-                def.HandlerType = Conf.ServiceResolver.TryResolve<ICommandHandler<TCommand>>()?.GetType() ?? def.HandlerType;
+                def.HandlerType = Cfg.ServiceResolver.TryResolve<ICommandHandler<TCommand>>()?.GetType() ?? def.HandlerType;
 
             return ((CommandHandlerExecutorBase)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
         }
@@ -34,7 +34,7 @@ public static class CommandExtensions
         throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
         static CommandHandlerExecutorBase CreateHandlerExecutor(Type tCommand)
-            => (CommandHandlerExecutorBase)Conf.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
+            => (CommandHandlerExecutorBase)Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public static class CommandExtensions
     public static Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default)
     {
         var tCommand = command.GetType();
-        var registry = Conf.ServiceResolver.Resolve<CommandHandlerRegistry>();
+        var registry = Cfg.ServiceResolver.Resolve<CommandHandlerRegistry>();
 
         if (registry.TryGetValue(tCommand, out var def))
         {
@@ -56,7 +56,7 @@ public static class CommandExtensions
             if (TestHandlersPresent)
             {
                 var tHandlerInterface = Types.ICommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
-                def.HandlerType = Conf.ServiceResolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
+                def.HandlerType = Cfg.ServiceResolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
             }
 
             return ((CommandHandlerExecutorBase<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
@@ -66,7 +66,7 @@ public static class CommandExtensions
 
         static CommandHandlerExecutorBase<TResult> CreateHandlerExecutor(Type tCommand)
             => (CommandHandlerExecutorBase<TResult>)
-                Conf.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
+                Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public static class CommandExtensions
     public static void RegisterForTesting<TCommand>(this ICommandHandler<TCommand> handler) where TCommand : ICommand
     {
         var tCommand = typeof(TCommand);
-        var registry = Conf.ServiceResolver.Resolve<CommandHandlerRegistry>();
+        var registry = Cfg.ServiceResolver.Resolve<CommandHandlerRegistry>();
 
         registry[tCommand] = new(handler.GetType())
         {
@@ -94,7 +94,7 @@ public static class CommandExtensions
     public static void RegisterForTesting<TCommand, TResult>(this ICommandHandler<TCommand, TResult> handler) where TCommand : ICommand<TResult>
     {
         var tCommand = typeof(TCommand);
-        var registry = Conf.ServiceResolver.Resolve<CommandHandlerRegistry>();
+        var registry = Cfg.ServiceResolver.Resolve<CommandHandlerRegistry>();
 
         registry[tCommand] = new(handler.GetType())
         {

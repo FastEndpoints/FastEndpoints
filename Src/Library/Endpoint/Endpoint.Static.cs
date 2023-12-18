@@ -13,7 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                                                       CancellationToken ct)
     {
         var binder = (IRequestBinder<TRequest>)
-            (def.RequestBinder ??= Conf.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
+            (def.RequestBinder ??= Cfg.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
 
         var binderCtx = new BinderContext(ctx, failures, def.SerializerContext, def.DontBindFormData);
 
@@ -21,7 +21,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                       binderCtx,
                       ct);
 
-        Conf.BndOpts.Modifier?.Invoke(req, _tRequest, binderCtx, ct);
+        Cfg.BndOpts.Modifier?.Invoke(req, _tRequest, binderCtx, ct);
 
         return req;
     }

@@ -80,7 +80,7 @@ public sealed class EndpointDefinition
     internal object? GetMapper()
     {
         if (_mapper is null && MapperType is not null)
-            _mapper = Conf.ServiceResolver.CreateSingleton(MapperType);
+            _mapper = Cfg.ServiceResolver.CreateSingleton(MapperType);
 
         return _mapper;
     }
@@ -90,7 +90,7 @@ public sealed class EndpointDefinition
     internal object? GetValidator()
     {
         if (_validator is null && ValidatorType is not null)
-            _validator = Conf.ServiceResolver.CreateSingleton(ValidatorType);
+            _validator = Cfg.ServiceResolver.CreateSingleton(ValidatorType);
 
         return _validator;
     }
@@ -116,7 +116,10 @@ public sealed class EndpointDefinition
     /// <summary>
     /// allow unauthenticated requests to this endpoint for a specified set of http verbs.
     /// </summary>
-    public void AllowAnonymous(string[] verbs) { AnonymousVerbs = verbs; }
+    public void AllowAnonymous(string[] verbs)
+    {
+        AnonymousVerbs = verbs;
+    }
 
     /// <summary>
     /// enable file uploads with multipart/form-data content type
@@ -212,7 +215,10 @@ public sealed class EndpointDefinition
     /// <summary>
     /// enable antiforgery token verification for an endpoint
     /// </summary>
-    public void EnableAntiforgery() { AntiforgeryEnabled = true; }
+    public void EnableAntiforgery()
+    {
+        AntiforgeryEnabled = true;
+    }
 
     /// <summary>
     /// specify the version of the endpoint if versioning is enabled
@@ -430,7 +436,10 @@ public sealed class EndpointDefinition
     /// validator that should be used for this endpoint
     /// </summary>
     /// <typeparam name="TValidator">the type of the validator</typeparam>
-    public void Validator<TValidator>() where TValidator : IValidator { ValidatorType = typeof(TValidator); }
+    public void Validator<TValidator>() where TValidator : IValidator
+    {
+        ValidatorType = typeof(TValidator);
+    }
 
     ServiceBoundEpProp[] GetServiceBoundEpProps()
     {
@@ -448,21 +457,22 @@ public sealed class EndpointDefinition
                .ToArray();
     }
 
-    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata = b =>
-    {
-        b.Add(
-            epBuilder =>
-            {
-                foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
-                    epBuilder.Metadata.Remove(m);
-            });
-    };
+    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata
+        = b =>
+          {
+              b.Add(
+                  epBuilder =>
+                  {
+                      foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
+                          epBuilder.Metadata.Remove(m);
+                  });
+          };
 
     internal static void AddProcessor<TProcessor>(Order order, IList<object> list, ref int pos)
     {
         try
         {
-            var processor = Conf.ServiceResolver.CreateSingleton(typeof(TProcessor));
+            var processor = Cfg.ServiceResolver.CreateSingleton(typeof(TProcessor));
             AddProcessor(order, processor, list, ref pos);
         }
         catch (Exception ex)

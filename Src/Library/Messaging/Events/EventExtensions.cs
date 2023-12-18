@@ -20,14 +20,14 @@ public static class EventExtensions
     /// </returns>
     public static Task PublishAsync<TEvent>(this TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
         where TEvent : IEvent
-        => Conf.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
+        => Cfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     //key: tEvent
     //val: the PublishAsync compiled expression - Event<TEvent>.PublishAsync(...)
     static readonly ConcurrentDictionary<Type, Func<IEvent, Mode, CancellationToken, Task>> _publishFuncCache = new();
 
     static EventBus<T> CreateEventInstance<T>() where T : IEvent
-        => Conf.ServiceResolver.Resolve<EventBus<T>>();
+        => Cfg.ServiceResolver.Resolve<EventBus<T>>();
 
     /// <summary>
     /// publish the event to all subscribers registered to handle this type of event.

@@ -36,6 +36,7 @@ public static class MainExtensions
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
         services.AddSingleton(typeof(EventBus<>));
+        services.AddSingleton<Cfg>();
 
         return services;
     }
@@ -49,7 +50,7 @@ public static class MainExtensions
     /// </summary>
     /// <param name="configAction">an optional action to configure FastEndpoints</param>
     /// <exception cref="InvalidCastException">thrown when the <c>app</c> cannot be cast to <see cref="IEndpointRouteBuilder" /></exception>
-    public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, Action<Config>? configAction = null)
+    public static IApplicationBuilder UseFastEndpoints(this IApplicationBuilder app, Action<Cfg>? configAction = null)
     {
         if (app is not IEndpointRouteBuilder routeBuilder)
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
@@ -59,14 +60,14 @@ public static class MainExtensions
         return app;
     }
 
-    public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Config>? configAction = null)
+    public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Cfg>? configAction = null)
     {
-        Conf.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
+        Cfg.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
         var jsonOpts = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
-        Conf.SerOpts.Options = jsonOpts is not null
-                                   ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
-                                   : Conf.SerOpts.Options;
-        configAction?.Invoke(new());
+        Cfg.SerOpts.Options = jsonOpts is not null
+                                  ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
+                                  : Cfg.SerOpts.Options;
+        configAction?.Invoke(app.ServiceProvider.GetRequiredService<Cfg>());
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
         var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
@@ -82,7 +83,7 @@ public static class MainExtensions
             var ep = epFactory.Create(def, httpCtx);
             def.Initialize(ep, httpCtx);
 
-            if (Conf.EpOpts.Filter is not null && !Conf.EpOpts.Filter(def))
+            if (Cfg.EpOpts.Filter is not null && !Cfg.EpOpts.Filter(def))
                 continue;
 
             if (def.Verbs?.Any() is not true)
@@ -90,7 +91,7 @@ public static class MainExtensions
             if (def.Routes?.Any() is not true)
                 throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
-            Conf.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
+            Cfg.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition
 
             if (def.AntiforgeryEnabled && (app.ServiceProvider.GetService<IAntiforgery>() is null || AntiforgeryMiddleware.IsRegistered is false))
                 throw new InvalidOperationException("AntiForgery middleware setup is incorrect!");
@@ -157,7 +158,7 @@ public static class MainExtensions
 
         endpoints.Stopwatch.Stop();
 
-        if (!Conf.VerOpts.IsUsingAspVersioning)
+        if (!Cfg.VerOpts.IsUsingAspVersioning)
         {
             var duplicatesDetected = false;
             var logger = app.ServiceProvider.GetRequiredService<ILogger<DuplicateHandlerRegistration>>();
@@ -188,14 +189,14 @@ public static class MainExtensions
         // {rPrfix}/{route}/{p}{ver}
         // mobile/customer/retrieve/v1
 
-        if (Conf.EpOpts.RoutePrefix is not null && prefixOverride != string.Empty)
+        if (Cfg.EpOpts.RoutePrefix is not null && prefixOverride != string.Empty)
         {
             builder.Append('/')
-                   .Append(prefixOverride ?? Conf.EpOpts.RoutePrefix)
+                   .Append(prefixOverride ?? Cfg.EpOpts.RoutePrefix)
                    .Append('/');
         }
 
-        if (Conf.VerOpts.PrependToRoute is true)
+        if (Cfg.VerOpts.PrependToRoute is true)
             AppendVersion(builder, epVersion, trailingSlash: true);
 
         if (builder.Length > 0 && route.StartsWith('/'))
@@ -203,7 +204,7 @@ public static class MainExtensions
 
         builder.Append(route);
 
-        if (Conf.VerOpts.PrependToRoute is not true)
+        if (Cfg.VerOpts.PrependToRoute is not true)
             AppendVersion(builder, epVersion, trailingSlash: false);
 
         var final = builder.ToString();
@@ -213,7 +214,7 @@ public static class MainExtensions
 
         static void AppendVersion(StringBuilder builder, int epVersion, bool trailingSlash)
         {
-            var prefix = Conf.VerOpts.Prefix ?? "v";
+            var prefix = Cfg.VerOpts.Prefix ?? "v";
 
             if (epVersion > 0)
             {
@@ -226,13 +227,13 @@ public static class MainExtensions
                 if (trailingSlash)
                     builder.Append('/');
             }
-            else if (Conf.VerOpts.DefaultVersion != 0)
+            else if (Cfg.VerOpts.DefaultVersion != 0)
             {
                 if (builder.Length > 0 && builder[^1] != '/')
                     builder.Append('/');
 
                 builder.Append(prefix)
-                       .Append(Conf.VerOpts.DefaultVersion);
+                       .Append(Cfg.VerOpts.DefaultVersion);
 
                 if (trailingSlash)
                     builder.Append('/');
@@ -282,7 +283,7 @@ public static class MainExtensions
                     {
                         b.RequireAssertion(
                             x => x.User.Claims.Any(
-                                c => string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                c => string.Equals(c.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                      ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
                     }
                     else
@@ -290,7 +291,7 @@ public static class MainExtensions
                         b.RequireAssertion(
                             x => ep.AllowedPermissions.All(
                                 p => x.User.Claims.Any(
-                                    c => string.Equals(c.Type, Conf.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                    c => string.Equals(c.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
                                          string.Equals(c.Value, p, StringComparison.Ordinal))));
                     }
                 }

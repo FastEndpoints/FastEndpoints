@@ -49,7 +49,7 @@ public sealed class ErrorResponse : IResult
     {
         StatusCode = statusCode;
         Errors = failures.GroupToDictionary(
-            f => Conf.SerOpts.Options.PropertyNamingPolicy?.ConvertName(f.PropertyName) ?? f.PropertyName,
+            f => Cfg.SerOpts.Options.PropertyNamingPolicy?.ConvertName(f.PropertyName) ?? f.PropertyName,
             v => v.ErrorMessage);
     }
 
@@ -68,7 +68,7 @@ public sealed class ErrorResponse : IResult
             new ProducesResponseTypeMetadata
             {
                 ContentTypes = _item,
-                StatusCode = Config.ErrOpts.StatusCode,
+                StatusCode = Cfg.ErrOpts.StatusCode,
                 Type = typeof(ProblemDetails)
             });
     }

@@ -95,12 +95,12 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             OnAfterHandle(req, _response);
             await OnAfterHandleAsync(req, _response, ct);
         }
-        catch (JsonException x) when (Conf.BndOpts.JsonExceptionTransformer is not null)
+        catch (JsonException x) when (Cfg.BndOpts.JsonExceptionTransformer is not null)
         {
             if (ResponseStarted) //STJ already started response. it should be a showstopper at this point.
                 throw;
 
-            ValidationFailures.Add(Conf.BndOpts.JsonExceptionTransformer(x));
+            ValidationFailures.Add(Cfg.BndOpts.JsonExceptionTransformer(x));
             await ValidationFailed(x);
         }
         catch (ValidationFailureException x)
@@ -133,7 +133,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 throw x;
 
             if (!ResponseStarted) //pre-processors may have already sent a response
-                await SendErrorsAsync(statusCode ?? Conf.ErrOpts.StatusCode, ct);
+                await SendErrorsAsync(statusCode ?? Cfg.ErrOpts.StatusCode, ct);
         }
     }
 
@@ -157,23 +157,23 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
-        => Conf.ServiceResolver.TryResolve<TService>();
+        => Cfg.ServiceResolver.TryResolve<TService>();
 
     /// <inheritdoc />
     public object? TryResolve(Type typeOfService)
-        => Conf.ServiceResolver.TryResolve(typeOfService);
+        => Cfg.ServiceResolver.TryResolve(typeOfService);
 
     /// <inheritdoc />
     public TService Resolve<TService>() where TService : class
-        => Conf.ServiceResolver.Resolve<TService>();
+        => Cfg.ServiceResolver.Resolve<TService>();
 
     /// <inheritdoc />
     public object Resolve(Type typeOfService)
-        => Conf.ServiceResolver.Resolve(typeOfService);
+        => Cfg.ServiceResolver.Resolve(typeOfService);
 
     /// <inheritdoc />
     public IServiceScope CreateScope()
-        => Conf.ServiceResolver.CreateScope();
+        => Cfg.ServiceResolver.CreateScope();
 
     /// <summary>
     /// get the value of a given route parameter by specifying the resulting type and param name.
@@ -250,7 +250,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <inheritdoc />
     public Task PublishAsync<TEvent>(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
         where TEvent : notnull
-        => Conf.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
+        => Cfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     /// <summary>
     /// create the access/refresh token pair response with a given refresh-token service.
@@ -261,7 +261,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     protected Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges)
         where TService : IRefreshTokenService<TResponse>
         => ((IRefreshTokenService<TResponse>)
-               Conf.ServiceResolver.CreateInstance(typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges, null);
+               Cfg.ServiceResolver.CreateInstance(typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges, null);
 
     /// <summary>
     /// retrieve the common processor state for this endpoint.

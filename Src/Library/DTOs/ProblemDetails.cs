@@ -27,8 +27,9 @@ public sealed class ProblemDetails : IResult
     /// <summary>
     /// the built-in function for transforming validation errors to a RFC7807 compatible problem details error response dto.
     /// </summary>
-    public static Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { get; } = (failures, ctx, statusCode)
-        => new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
+    public static Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { get; }
+        = (failures, ctx, statusCode)
+              => new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
 
     /// <summary>
     /// controls whether duplicate errors with the same name should be allowed.
@@ -68,7 +69,7 @@ public sealed class ProblemDetails : IResult
 
     public ProblemDetails(IReadOnlyList<ValidationFailure> failures, int? statusCode = null)
     {
-        Initialize(failures, null!, null!, statusCode ?? Config.ErrOpts.StatusCode);
+        Initialize(failures, null!, null!, statusCode ?? Cfg.ErrOpts.StatusCode);
     }
 
     public ProblemDetails(IReadOnlyList<ValidationFailure> failures, string instance, string traceId, int statusCode)
@@ -114,7 +115,7 @@ public sealed class ProblemDetails : IResult
             new ProducesResponseTypeMetadata
             {
                 ContentTypes = new[] { "application/problem+json" },
-                StatusCode = Config.ErrOpts.StatusCode,
+                StatusCode = Cfg.ErrOpts.StatusCode,
                 Type = typeof(ProblemDetails)
             });
     }
@@ -160,7 +161,7 @@ public sealed class ProblemDetails : IResult
 
         public Error(ValidationFailure failure)
         {
-            Name = Conf.SerOpts.Options.PropertyNamingPolicy?.ConvertName(failure.PropertyName) ?? failure.PropertyName;
+            Name = Cfg.SerOpts.Options.PropertyNamingPolicy?.ConvertName(failure.PropertyName) ?? failure.PropertyName;
             Reason = failure.ErrorMessage;
             Code = failure.ErrorCode;
             Severity = IndicateSeverity ? failure.Severity.ToString() : null;

@@ -1,4 +1,4 @@
-﻿global using Conf = FastEndpoints.Config;
+﻿global using Cfg = FastEndpoints.Config;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 #pragma warning disable RCS1102,CA1822

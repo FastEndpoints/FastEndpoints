@@ -482,7 +482,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
     protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
-        => Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), new JsonSerializerOptions(Conf.SerOpts.Options));
+        => Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), new JsonSerializerOptions(Cfg.SerOpts.Options));
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
@@ -596,11 +596,11 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                                                   if (Definition.RequiresAuthorization())
                                                       b.Produces(403);
 
-                                                  if (Conf.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+                                                  if (Cfg.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
                                                   {
                                                       b.Produces(
-                                                          Conf.ErrOpts.StatusCode,
-                                                          Conf.ErrOpts.ProducesMetadataType,
+                                                          Cfg.ErrOpts.StatusCode,
+                                                          Cfg.ErrOpts.ProducesMetadataType,
                                                           "application/problem+json");
                                                   }
                                               }

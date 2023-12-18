@@ -57,7 +57,7 @@ sealed class AntiforgeryMiddleware
                         new()
                         {
                             new(
-                                propertyName: Conf.ErrOpts.GeneralErrorsField,
+                                propertyName: Cfg.ErrOpts.GeneralErrorsField,
                                 errorMessage: "Anti-forgery token is invalid!")
                         });
 

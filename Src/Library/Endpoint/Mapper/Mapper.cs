@@ -51,23 +51,23 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IMapper, IServiceRe
 
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
-        => Conf.ServiceResolver.TryResolve<TService>();
+        => Cfg.ServiceResolver.TryResolve<TService>();
 
     /// <inheritdoc />
     public object? TryResolve(Type typeOfService)
-        => Conf.ServiceResolver.TryResolve(typeOfService);
+        => Cfg.ServiceResolver.TryResolve(typeOfService);
 
     /// <inheritdoc />
     public TService Resolve<TService>() where TService : class
-        => Conf.ServiceResolver.Resolve<TService>();
+        => Cfg.ServiceResolver.Resolve<TService>();
 
     /// <inheritdoc />
     public object Resolve(Type typeOfService)
-        => Conf.ServiceResolver.Resolve(typeOfService);
+        => Cfg.ServiceResolver.Resolve(typeOfService);
 
     /// <inheritdoc />
     public IServiceScope CreateScope()
-        => Conf.ServiceResolver.CreateScope();
+        => Cfg.ServiceResolver.CreateScope();
 }
 
 /// <summary>
@@ -95,23 +95,23 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServic
 
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
-        => Conf.ServiceResolver.TryResolve<TService>();
+        => Cfg.ServiceResolver.TryResolve<TService>();
 
     /// <inheritdoc />
     public object? TryResolve(Type typeOfService)
-        => Conf.ServiceResolver.TryResolve(typeOfService);
+        => Cfg.ServiceResolver.TryResolve(typeOfService);
 
     /// <inheritdoc />
     public TService Resolve<TService>() where TService : class
-        => Conf.ServiceResolver.Resolve<TService>();
+        => Cfg.ServiceResolver.Resolve<TService>();
 
     /// <inheritdoc />
     public object Resolve(Type typeOfService)
-        => Conf.ServiceResolver.Resolve(typeOfService);
+        => Cfg.ServiceResolver.Resolve(typeOfService);
 
     /// <inheritdoc />
     public IServiceScope CreateScope()
-        => Conf.ServiceResolver.CreateScope();
+        => Cfg.ServiceResolver.CreateScope();
 }
 
 /// <summary>
@@ -139,21 +139,21 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper, ISer
 
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
-        => Conf.ServiceResolver.TryResolve<TService>();
+        => Cfg.ServiceResolver.TryResolve<TService>();
 
     /// <inheritdoc />
     public object? TryResolve(Type typeOfService)
-        => Conf.ServiceResolver.TryResolve(typeOfService);
+        => Cfg.ServiceResolver.TryResolve(typeOfService);
 
     /// <inheritdoc />
     public TService Resolve<TService>() where TService : class
-        => Conf.ServiceResolver.Resolve<TService>();
+        => Cfg.ServiceResolver.Resolve<TService>();
 
     /// <inheritdoc />
     public object Resolve(Type typeOfService)
-        => Conf.ServiceResolver.Resolve(typeOfService);
+        => Cfg.ServiceResolver.Resolve(typeOfService);
 
     /// <inheritdoc />
     public IServiceScope CreateScope()
-        => Conf.ServiceResolver.CreateScope();
+        => Cfg.ServiceResolver.CreateScope();
 }

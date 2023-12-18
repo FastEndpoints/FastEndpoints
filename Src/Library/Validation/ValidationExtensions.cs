@@ -28,7 +28,7 @@ static class ValidationExtensions
                                   Severity severity = Severity.Error)
     {
         failures.AddError(
-            new(Conf.ErrOpts.GeneralErrorsField, message)
+            new(Cfg.ErrOpts.GeneralErrorsField, message)
             {
                 ErrorCode = errorCode,
                 Severity = severity

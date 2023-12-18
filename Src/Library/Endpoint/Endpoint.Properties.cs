@@ -39,19 +39,19 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     [DontInject]
     public IConfiguration Config
     {
-        get => _config ??= Conf.ServiceResolver.Resolve<IConfiguration>();
+        get => _config ??= Cfg.ServiceResolver.Resolve<IConfiguration>();
         internal set => _config = value;
     }
 
     /// <summary>
     /// gives access to the hosting environment
     /// </summary>
-    public IWebHostEnvironment Env => _env ??= Conf.ServiceResolver.Resolve<IWebHostEnvironment>();
+    public IWebHostEnvironment Env => _env ??= Cfg.ServiceResolver.Resolve<IWebHostEnvironment>();
 
     /// <summary>
     /// the logger for the current endpoint type
     /// </summary>
-    public ILogger Logger => _logger ??= Conf.ServiceResolver.Resolve<ILoggerFactory>().CreateLogger(Definition.EndpointType);
+    public ILogger Logger => _logger ??= Cfg.ServiceResolver.Resolve<ILoggerFactory>().CreateLogger(Definition.EndpointType);
 
     /// <summary>
     /// the base url of the current request
@@ -93,7 +93,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
         _response = JsonSerializer.Deserialize<TResponse>(
             _isCollectionResponse ? _emptyArray : _emptyObject,
-            Conf.SerOpts.Options)!;
+            Cfg.SerOpts.Options)!;
 
         return _response is null
                    ? throw new NotSupportedException(

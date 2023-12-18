@@ -68,10 +68,10 @@ public static class Factory
     /// </summary>
     public static IServiceCollection AddServicesForUnitTesting(this IServiceCollection services)
         => services
-          .AddSingleton<ILoggerFactory, LoggerFactory>()
-          .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
-          .AddSingleton<CommandHandlerRegistry>()
-          .AddSingleton(typeof(EventBus<>));
+           .AddSingleton<ILoggerFactory, LoggerFactory>()
+           .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
+           .AddSingleton<CommandHandlerRegistry>()
+           .AddSingleton(typeof(EventBus<>));
 
     /// <summary>
     /// register fake/mock/test services for the http context. typically only used with unit tests with the <c>Factory.Create()</c>" method/>
@@ -83,10 +83,10 @@ public static class Factory
         if (ctx.RequestServices is not null)
             throw new InvalidOperationException("You cannot add services to this http context because it's not empty!");
 
-        if (Conf.ResolverIsNotSet)
+        if (Cfg.ResolverIsNotSet)
         {
             var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
-            Conf.ServiceResolver = new ServiceResolver(
+            Cfg.ServiceResolver = new ServiceResolver(
                 provider: testingProvider,
                 ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
                 isUnitTestMode: true);
@@ -96,7 +96,7 @@ public static class Factory
         collection.AddServicesForUnitTesting();
         s(collection);
         ctx.RequestServices = collection.BuildServiceProvider();
-        Conf.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
+        Cfg.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
     }
 
     /// <summary>
@@ -117,7 +117,7 @@ public static class Factory
     {
         new DefaultHttpContext().AddTestServices(s);
 
-        return (TValidator)Conf.ServiceResolver.CreateInstance(typeof(TValidator));
+        return (TValidator)Cfg.ServiceResolver.CreateInstance(typeof(TValidator));
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ public static class Factory
     {
         new DefaultHttpContext().AddTestServices(s);
 
-        return (TMapper)Conf.ServiceResolver.CreateInstance(typeof(TMapper));
+        return (TMapper)Cfg.ServiceResolver.CreateInstance(typeof(TMapper));
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public static class Factory
     {
         new DefaultHttpContext().AddTestServices(Action + s);
 
-        return (TEvent)Conf.ServiceResolver.CreateInstance(typeof(TEvent));
+        return (TEvent)Cfg.ServiceResolver.CreateInstance(typeof(TEvent));
 
         void Action(IServiceCollection sc)
             => sc.AddSingleton(handlers);

@@ -9,14 +9,14 @@ public static class HttpContextExtensions
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     public static TService? TryResolve<TService>(this HttpContext _) where TService : class
-        => Conf.ServiceResolver.TryResolve<TService>();
+        => Cfg.ServiceResolver.TryResolve<TService>();
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
     public static object? TryResolve(this HttpContext _, Type typeOfService)
-        => Conf.ServiceResolver.TryResolve(typeOfService);
+        => Cfg.ServiceResolver.TryResolve(typeOfService);
 
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
@@ -24,7 +24,7 @@ public static class HttpContextExtensions
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public static TService Resolve<TService>(this HttpContext _) where TService : class
-        => Conf.ServiceResolver.Resolve<TService>();
+        => Cfg.ServiceResolver.Resolve<TService>();
 
     /// <summary>
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
@@ -32,7 +32,7 @@ public static class HttpContextExtensions
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public static object Resolve(this HttpContext _, Type typeOfService)
-        => Conf.ServiceResolver.Resolve(typeOfService);
+        => Cfg.ServiceResolver.Resolve(typeOfService);
 
     /// <summary>
     /// marks the current response as started so that <see cref="ResponseStarted(HttpContext)" /> can return the correct result.

@@ -29,45 +29,48 @@ bld.Services
    .SwaggerDocument(
        o =>
        {
-           o.DocumentSettings = s =>
-           {
-               s.DocumentName = "Initial Release";
-               s.Title = "Web API";
-               s.Version = "v0.0";
-               s.SchemaSettings.SchemaType = SchemaType.OpenApi3;
-           };
+           o.DocumentSettings =
+               s =>
+               {
+                   s.DocumentName = "Initial Release";
+                   s.Title = "Web API";
+                   s.Version = "v0.0";
+                   s.SchemaSettings.SchemaType = SchemaType.OpenApi3;
+               };
            o.TagCase = TagCase.TitleCase;
            o.RemoveEmptyRequestSchema = false;
        })
    .SwaggerDocument(
        o =>
        {
-           o.DocumentSettings = s =>
-           {
-               s.DocumentName = "Release 1.0";
-               s.Title = "Web API";
-               s.Version = "v1.0";
-               s.AddAuth(
-                   "ApiKey",
-                   new()
-                   {
-                       Name = "api_key",
-                       In = OpenApiSecurityApiKeyLocation.Header,
-                       Type = OpenApiSecuritySchemeType.ApiKey
-                   });
-           };
+           o.DocumentSettings =
+               s =>
+               {
+                   s.DocumentName = "Release 1.0";
+                   s.Title = "Web API";
+                   s.Version = "v1.0";
+                   s.AddAuth(
+                       "ApiKey",
+                       new()
+                       {
+                           Name = "api_key",
+                           In = OpenApiSecurityApiKeyLocation.Header,
+                           Type = OpenApiSecuritySchemeType.ApiKey
+                       });
+               };
            o.MaxEndpointVersion = 1;
            o.RemoveEmptyRequestSchema = false;
        })
    .SwaggerDocument(
        o =>
        {
-           o.DocumentSettings = s =>
-           {
-               s.DocumentName = "Release 2.0";
-               s.Title = "FastEndpoints Sandbox";
-               s.Version = "v2.0";
-           };
+           o.DocumentSettings =
+               s =>
+               {
+                   s.DocumentName = "Release 2.0";
+                   s.Title = "FastEndpoints Sandbox";
+                   s.Version = "v2.0";
+               };
            o.MaxEndpointVersion = 2;
            o.ShowDeprecatedOps = true;
            o.RemoveEmptyRequestSchema = false;
@@ -75,12 +78,13 @@ bld.Services
    .SwaggerDocument(
        o => //only ver3 & only FastEndpoints
        {
-           o.DocumentSettings = s =>
-           {
-               s.DocumentName = "Release 3.0";
-               s.Title = "FastEndpoints Sandbox ver3 only";
-               s.Version = "v3.0";
-           };
+           o.DocumentSettings =
+               s =>
+               {
+                   s.DocumentName = "Release 3.0";
+                   s.Title = "FastEndpoints Sandbox ver3 only";
+                   s.Version = "v3.0";
+               };
            o.MinEndpointVersion = 3;
            o.MaxEndpointVersion = 3;
            o.ExcludeNonFastEndpoints = true;
@@ -115,13 +119,14 @@ app.UseRequestLocalization(
            c.Endpoints.ShortNames = false;
            c.Endpoints.PrefixNameWithFirstTag = true;
            c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
-           c.Endpoints.Configurator = ep =>
-           {
-               ep.PreProcessor<GlobalStatePreProcessor>(Order.Before);
-               ep.PreProcessors(Order.Before, new AdminHeaderChecker());
-               if (ep.EndpointTags?.Contains("Orders") is true)
-                   ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
-           };
+           c.Endpoints.Configurator =
+               ep =>
+               {
+                   ep.PreProcessor<GlobalStatePreProcessor>(Order.Before);
+                   ep.PreProcessors(Order.Before, new AdminHeaderChecker());
+                   if (ep.EndpointTags?.Contains("Orders") is true)
+                       ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
+               };
 
            c.Versioning.Prefix = "ver";
 

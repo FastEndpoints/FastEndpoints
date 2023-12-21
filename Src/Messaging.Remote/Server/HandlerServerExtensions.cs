@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace FastEndpoints;
 
 /// <summary>
-/// handler server extensions
+/// gRPC handler server extensions
 /// </summary>
 public static class HandlerServerExtensions
 {

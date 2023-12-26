@@ -12,9 +12,8 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>Api Client generation using Kiota</summary>
 
-Todo: update doc page and link here.
-
-ref: https://discord.com/channels/933662816458645504/1114736030109683782/1182711087901184021
+Kiota is now the recommended way to generate API Clients. Please see the [documentation](https://fast-endpoints.com/docs/swagger-support#api-client-generation) on how 
+to use it. The previous methods for client generation using NSwag are still valid but may be deprecated at a future point in time.
 
 </details>
 
@@ -43,8 +42,7 @@ sealed class MyRequest
 
 <details><summary>Treat validation rules with conditions attached as optional properties in Swagger spec.</summary>
 
-If a validation rule is conditional, like in the example below, that particular DTO property will be considered optional and will not be marked as required in the
-Swagger Schema.
+If a validation rule is conditional, like in the example below, that particular DTO property will be considered optional and will not be marked as required in the Swagger Schema.
 
 ```csharp
 RuleFor(x => x.Id) //this property will be a required property in the swagger spec

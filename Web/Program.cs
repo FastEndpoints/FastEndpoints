@@ -13,7 +13,6 @@ using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 
-//
 var bld = WebApplication.CreateBuilder(args);
 bld.AddHandlerServer();
 bld.Services

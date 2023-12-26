@@ -137,6 +137,7 @@ resharper_space_within_slice_pattern = false
 resharper_use_continuous_indent_inside_initializer_braces = false
 resharper_use_indent_from_vs = false
 resharper_wrap_after_invocation_lpar = false
+resharper_wrap_after_primary_constructor_declaration_lpar = false
 resharper_wrap_array_initializer_style = chop_if_long
 resharper_wrap_before_arrow_with_expressions = true
 resharper_wrap_before_binary_pattern_op = false

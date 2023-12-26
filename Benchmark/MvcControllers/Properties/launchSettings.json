@@ -1,12 +1,4 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:57098/",
-      "sslPort": 44363
-    }
-  },
   "profiles": {
     "MvcControllers": {
       "commandName": "Project",
@@ -15,12 +7,6 @@
       },
       "applicationUrl": "http://localhost:5000",
       "dotnetRunMessages": true
-    },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
     }
   }
 }

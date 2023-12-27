@@ -26,18 +26,18 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var syntaxProvider = ctx.SyntaxProvider
-                                .CreateSyntaxProvider(Match, Transform)
+                                .CreateSyntaxProvider(Qualify, Transform)
                                 .Where(static t => t is not null)
                                 .Collect();
 
         ctx.RegisterSourceOutput(syntaxProvider, Generate!);
 
-        static bool Match(SyntaxNode node, CancellationToken _)
+        static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is ClassDeclarationSyntax { TypeParameterList: null };
 
         static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
+            _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
 
             return
                 ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
@@ -52,14 +52,14 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
     static void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
     {
-        if (!typeNames.Any())
+        if (typeNames.Length == 0)
             return;
 
-        var fileContent = RenderClass(typeNames.OrderBy(t => t));
+        var fileContent = RenderClass(typeNames);
         spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    static string RenderClass(IEnumerable<string> discoveredTypes)
+    static string RenderClass(ImmutableArray<string> discoveredTypes)
     {
         b.Clear().w(
             $$"""
@@ -73,13 +73,13 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
                   {
               """);
 
-        foreach (var t in discoveredTypes)
+        foreach (var t in discoveredTypes.OrderBy(t => t))
         {
             b.w(
                 $"""
-                
-                        typeof({t}),
-                """);
+                 
+                         typeof({t}),
+                 """);
         }
         b.w(
             """

@@ -12,7 +12,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>Api Client generation using Kiota</summary>
 
-Kiota is now the recommended way to generate API Clients. Please see the [documentation](https://fast-endpoints.com/docs/swagger-support#api-client-generation) on how 
+Kiota is now the recommended way to generate API Clients. Please see the [documentation](https://fast-endpoints.com/docs/swagger-support#api-client-generation) on how
 to use it. The previous methods for client generation using NSwag are still valid but may be deprecated at a future point in time.
 
 </details>
@@ -61,6 +61,13 @@ For this to work, the rules have to be written separately as above. I.e. the `.W
 
 Only the `HeaderApiVersionReader` was previously supported. Support for doing versioning based on URL segments using the `Asp.Versioning.Http` package is now working
 correctly.
+
+</details>
+
+<details><summary>Optimize source generators</summary>
+
+All source generators were refactored to reduce GC pressure by reducing allocations. Allocations are now mostly done when there's actually a need to regenerate the
+source code.
 
 </details>
 

@@ -29,9 +29,11 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         ctx.RegisterSourceOutput(matches, Generate);
 
+        //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is InvocationExpressionSyntax { ArgumentList.Arguments.Count: not 0, Expression: IdentifierNameSyntax { Identifier.ValueText: "AccessControl" } };
 
+        //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
@@ -40,6 +42,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         }
     }
 
+    //only executed if the equality comparer says the data is not what has been cached by roslyn
     static void Generate(SourceProductionContext spc, ImmutableArray<Match> matches)
     {
         if (matches.Length == 0)

@@ -18,58 +18,31 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var provider = ctx.SyntaxProvider
-                          .CreateSyntaxProvider(Match, Transform)
-                          .Where(static r => r is not null)
+                          .CreateSyntaxProvider(Qualify, Transform)
+                          .Where(static m => m.IsInvalid is false)
+                          .WithComparer(new Comparer())
                           .Collect();
 
-        ctx.RegisterSourceOutput(provider, Generate!);
+        ctx.RegisterSourceOutput(provider, Generate);
 
-        static bool Match(SyntaxNode node, CancellationToken _)
+        static bool Qualify(SyntaxNode node, CancellationToken _)
+            => node is ClassDeclarationSyntax { TypeParameterList: null } cds &&
+               cds.AttributeLists.Any(al => al.Attributes.Any(a => a.Name is GenericNameSyntax { Identifier.ValueText: AttribShortName }));
+
+        static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            return
-                node is ClassDeclarationSyntax cds &&
-                cds.TypeParameterList is null &&
-                cds.AttributeLists.Any(al => al.Attributes.Any(a => a.Name is GenericNameSyntax { Identifier.ValueText: AttribShortName }));
-        }
+            _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
 
-        static Registration? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
-        {
-            var service = ctx.SemanticModel.GetDeclaredSymbol(ctx.Node);
-
-            if (service?.IsAbstract is null or true)
-                return null;
-
-            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
-
-            var svcType = service
-                          .GetAttributes()
-                          .Single(a => a.AttributeClass!.MetadataName == AttribMetadataName)
-                          .AttributeClass!
-                          .TypeArguments[0]
-                          .ToDisplayString();
-
-            var implType = service.ToDisplayString();
-
-            var attrib = (ctx.Node as ClassDeclarationSyntax)!
-                         .AttributeLists
-                         .SelectMany(al => al.Attributes)
-                         .First(a => ((GenericNameSyntax)a.Name).Identifier.ValueText == AttribShortName);
-            var arg = (MemberAccessExpressionSyntax)
-                attrib
-                    .ArgumentList!
-                    .Arguments
-                    .Single()
-                    .Expression;
-            var lifetime = ((IdentifierNameSyntax)arg.Name).Identifier.ValueText;
-
-            return new(svcType, implType, lifetime);
+            return new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node), (ClassDeclarationSyntax)ctx.Node);
         }
     }
 
-    static void Generate(SourceProductionContext ctx, ImmutableArray<Registration> regs)
+    static void Generate(SourceProductionContext ctx, ImmutableArray<Match> matches)
     {
-        if (!regs.Any())
+        if (matches.Length == 0)
             return;
+
+        var regs = matches.Select(static m => new Registration(m));
 
         b.Clear().w(
             $$"""
@@ -99,33 +72,56 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
                 }
             }
             """);
+
         ctx.AddSource("ServiceRegistrations.g.cs", SourceText.From(b.ToString(), Encoding.UTF8));
     }
 
-    sealed class Registration : IEquatable<Registration>
+    readonly struct Match(ISymbol? symbol, ClassDeclarationSyntax classDec)
+    {
+        public ISymbol? Symbol { get; } = symbol;
+        public ClassDeclarationSyntax ClassDec { get; } = classDec;
+        public bool IsInvalid => Symbol?.IsAbstract is null or true;
+    }
+
+    class Comparer : IEqualityComparer<Match>
+    {
+        public bool Equals(Match x, Match y)
+            => x.Symbol!.ToDisplayString().Equals(y.Symbol!.ToDisplayString()) &&
+               x.ClassDec.AttributeLists.ToString().Equals(y.ClassDec.AttributeLists.ToString());
+
+        public int GetHashCode(Match obj)
+            => obj.Symbol!.ToDisplayString().GetHashCode();
+    }
+
+    readonly struct Registration
     {
         public string ServiceType { get; }
         public string ImplType { get; }
         public string LifeTime { get; }
 
-        readonly int _hash;
-
-        public Registration(string svcType, string implType, string life)
+        public Registration(Match m)
         {
-            ServiceType = svcType;
-            ImplType = implType;
-            LifeTime = life;
+            ServiceType = m.Symbol!
+                           .GetAttributes()
+                           .Single(a => a.AttributeClass!.MetadataName == AttribMetadataName)
+                           .AttributeClass!
+                           .TypeArguments[0]
+                           .ToDisplayString();
 
-            unchecked
-            {
-                _hash = 17;
-                _hash = _hash * 23 + svcType.GetHashCode();
-                _hash = _hash * 23 + implType.GetHashCode();
-                _hash = _hash * 23 + life.GetHashCode();
-            }
+            ImplType = m.Symbol.ToDisplayString();
+
+            var attrib = m.ClassDec
+                          .AttributeLists
+                          .SelectMany(al => al.Attributes)
+                          .First(a => ((GenericNameSyntax)a.Name).Identifier.ValueText == AttribShortName);
+
+            var arg = (MemberAccessExpressionSyntax)
+                attrib.ArgumentList!
+                      .Arguments
+                      .Single()
+                      .Expression;
+
+            LifeTime = ((IdentifierNameSyntax)arg.Name).Identifier.ValueText;
         }
-
-        public bool Equals(Registration other)
-            => other._hash.Equals(_hash);
     }
 }

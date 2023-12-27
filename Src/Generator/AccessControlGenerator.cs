@@ -19,61 +19,41 @@ public class AccessControlGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var assemblyName = ctx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
+        ctx.RegisterSourceOutput(assemblyName, static (spc, assembly) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assembly), Encoding.UTF8)));
 
-        ctx.RegisterSourceOutput(
-            assemblyName,
-            static (spc, assembly) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assembly), Encoding.UTF8)));
+        var matches = ctx.SyntaxProvider
+                         .CreateSyntaxProvider(Qualify, Transform)
+                         .Where(static m => m.Endpoint is not null)
+                         .WithComparer(new Comparer())
+                         .Collect();
 
-        var permissions = ctx.SyntaxProvider
-                             .CreateSyntaxProvider(Match, Transform)
-                             .Where(static p => p is not null)
-                             .Collect();
+        ctx.RegisterSourceOutput(matches, Generate);
 
-        ctx.RegisterSourceOutput(permissions, Generate!);
-
-        static bool Match(SyntaxNode node, CancellationToken _)
+        static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is InvocationExpressionSyntax { ArgumentList.Arguments.Count: not 0, Expression: IdentifierNameSyntax { Identifier.ValueText: "AccessControl" } };
 
-        static Permission? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
+            _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
 
-            var endpoint = ctx.SemanticModel
-                              .GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!)?
-                              .ToDisplayString();
-
-            if (endpoint is null)
-                return null;
-
-            var inv = (InvocationExpressionSyntax)ctx.Node;
-
-            var args = inv.ArgumentList.Arguments
-                          .Select(a => a.Expression)
-                          .OfType<LiteralExpressionSyntax>()
-                          .Select(l => l.Token.ValueText.Sanitize());
-
-            var desc = inv.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia)).ToString();
-
-            return new(endpoint, args.First(), desc, args.Skip(1));
+            return new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!), (InvocationExpressionSyntax)ctx.Node);
         }
     }
 
-    static void Generate(SourceProductionContext spc, ImmutableArray<Permission> perms)
+    static void Generate(SourceProductionContext spc, ImmutableArray<Match> matches)
     {
-        if (!perms.Any())
+        if (matches.Length == 0)
             return;
 
-        var groups = perms
-                     .SelectMany(perm => perm.Categories.Select(category => (category, name: perm.Name)))
-                     .OrderBy(x => x.name).ThenBy(x => x.category)
-                     .GroupBy(x => x.category, x => x.name)
-                     .ToDictionary(g => g.Key, g => g.Select(name => name));
+        var perms = matches.Select(static m => new Permission(m))
+                           .OrderBy(p => p.Name)
+                           .ToArray();
 
-        var fileContent = RenderClass(perms.OrderBy(p => p.Name), groups);
+        var fileContent = RenderClass(perms);
         spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    static string RenderClass(IEnumerable<Permission> perms, Dictionary<string, IEnumerable<string>> groups)
+    static string RenderClass(Permission[] perms)
     {
         b.Clear().w(
             $$"""
@@ -103,9 +83,10 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             """);
 
-        RenderGroups(b, groups);
+        RenderGroups(b, perms);
 
         RenderDescriptions(b, perms);
+
         b.w(
             """
 
@@ -114,8 +95,13 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         return b.ToString();
 
-        static void RenderGroups(StringBuilder sb, Dictionary<string, IEnumerable<string>> groups)
+        static void RenderGroups(StringBuilder sb, IEnumerable<Permission> perms)
         {
+            var groups = perms.SelectMany(p => p.Categories.Select(c => (category: c, name: p.Name)))
+                              .OrderBy(x => x.name).ThenBy(x => x.category)
+                              .GroupBy(x => x.category, x => x.name)
+                              .ToDictionary(g => g.Key, g => g.Select(n => n).ToArray());
+
             if (groups.Count == 0)
                 return;
 
@@ -150,11 +136,11 @@ public class AccessControlGenerator : IIncrementalGenerator
                     """
                     
                         };
+
                     """);
             }
             sb.w(
                 """
-
                 #endregion
 
                 """);
@@ -187,8 +173,8 @@ public class AccessControlGenerator : IIncrementalGenerator
                 """
                 
                     };
-
                 #endregion
+
                 """);
         }
     }
@@ -312,7 +298,7 @@ public class AccessControlGenerator : IIncrementalGenerator
              }
              """;
 
-    sealed class Permission : IEquatable<Permission>
+    readonly struct Permission
     {
         public string Name { get; }
         public string? Description { get; }
@@ -320,25 +306,22 @@ public class AccessControlGenerator : IIncrementalGenerator
         public string Endpoint { get; }
         public IEnumerable<string> Categories { get; }
 
-        readonly int _hash; //used as Roslyn cache key
-
-        internal Permission(string endpoint, string name, string description, IEnumerable<string> categories)
+        internal Permission(Match m)
         {
-            Name = name.Length == 0 ? "Unspecified" : name;
-            Description = description.Length == 0 ? null : description.Substring(2).Trim();
-            Code = GetAclHash(name);
-            Endpoint = endpoint;
-            Categories = categories;
+            var args = m.Invocation
+                        .ArgumentList
+                        .Arguments
+                        .Select(a => a.Expression)
+                        .OfType<LiteralExpressionSyntax>()
+                        .Select(l => l.Token.ValueText.Sanitize());
 
-            unchecked
-            {
-                _hash = 17;
-                _hash = _hash * 31 + Name.GetHashCode();
-                _hash = _hash * 31 + Endpoint.GetHashCode();
+            var desc = m.Invocation.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia)).ToString();
 
-                foreach (var category in Categories)
-                    _hash = _hash * 31 + category.GetHashCode();
-            }
+            Name = args.First();
+            Code = GetAclHash(Name);
+            Endpoint = m.Endpoint!.ToDisplayString();
+            Description = desc.Length == 0 ? null : desc.Substring(2).Trim();
+            Categories = args.Skip(1);
         }
 
         static readonly SHA256 _sha256 = SHA256.Create();
@@ -350,8 +333,21 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
         }
+    }
 
-        public bool Equals(Permission other)
-            => other._hash.Equals(_hash);
+    readonly struct Match(ISymbol? endpoint, InvocationExpressionSyntax invocation)
+    {
+        public ISymbol? Endpoint { get; } = endpoint;
+        public InvocationExpressionSyntax Invocation { get; } = invocation;
+    }
+
+    class Comparer : IEqualityComparer<Match>
+    {
+        public bool Equals(Match x, Match y)
+            => x.Endpoint!.ToDisplayString().Equals(y.Endpoint!.ToDisplayString()) &&
+               x.Invocation.IsEquivalentTo(y.Invocation);
+
+        public int GetHashCode(Match obj)
+            => obj.Endpoint!.ToDisplayString().GetHashCode();
     }
 }

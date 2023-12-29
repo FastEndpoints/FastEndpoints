@@ -12,20 +12,13 @@ namespace FastEndpoints;
 /// <summary>
 /// represents the configuration settings of an endpoint
 /// </summary>
-public sealed class EndpointDefinition
+public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, Type responseDtoType)
 {
-    public EndpointDefinition(Type endpointType, Type requestDtoType, Type responseDtoType)
-    {
-        EndpointType = endpointType;
-        ReqDtoType = requestDtoType;
-        ResDtoType = responseDtoType;
-    }
-
     //these can only be set from internal code but accessible for user
-    public Type EndpointType { get; init; }
+    public Type EndpointType { get; init; } = endpointType;
     public Type? MapperType { get; internal set; }
-    public Type ReqDtoType { get; init; }
-    public Type ResDtoType { get; init; }
+    public Type ReqDtoType { get; init; } = requestDtoType;
+    public Type ResDtoType { get; init; } = responseDtoType;
     public string[]? Routes { get; internal set; }
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public Type? ValidatorType { get; internal set; }
@@ -64,10 +57,9 @@ public sealed class EndpointDefinition
     internal Action<RouteHandlerBuilder> InternalConfigAction = null!;
     internal bool ImplementsConfigure;
     internal object? RequestBinder;
-    internal readonly List<object> PreProcessorList = new();
+    internal readonly List<object> PreProcessorList = [];
     internal int PreProcessorPosition;
-    internal readonly List<object> PostProcessorList = new();
-    internal int PostProcessorPosition;
+    internal readonly List<object> PostProcessorList = [];
     ServiceBoundEpProp[]? _serviceBoundEpProps;
     internal ServiceBoundEpProp[] ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;
@@ -282,6 +274,8 @@ public sealed class EndpointDefinition
         PreBuiltUserPolicies ??= new(policyNames);
     }
 
+    int _postProcessorPosition;
+
     /// <summary>
     /// adds global post-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
@@ -291,7 +285,7 @@ public sealed class EndpointDefinition
     /// </param>
     /// <param name="postProcessors">the post-processors to add</param>
     public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors)
-        => AddProcessors(order, postProcessors, PostProcessorList, ref PostProcessorPosition);
+        => AddProcessors(order, postProcessors, PostProcessorList, ref _postProcessorPosition);
 
     /// <summary>
     /// adds global post-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -302,7 +296,7 @@ public sealed class EndpointDefinition
     /// </param>
     /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
     public void PostProcessor<TPostProcessor>(Order order) where TPostProcessor : class, IGlobalPostProcessor
-        => AddProcessor<TPostProcessor>(order, PostProcessorList, ref PostProcessorPosition);
+        => AddProcessor<TPostProcessor>(order, PostProcessorList, ref _postProcessorPosition);
 
     /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.

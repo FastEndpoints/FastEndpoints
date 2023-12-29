@@ -597,12 +597,20 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             (prop?.PropertyType ?? Types.String).ToContextualType());
 
         prm.Kind = kind;
-        prm.IsRequired = isRequired ?? !(prop?.IsNullable() ?? true);
+
+        var defaultValFromCtorArg = prop?.GetParentCtorDefaultValue();
+        bool? hasDefaultValFromCtorArg = null;
+        if (defaultValFromCtorArg is not null)
+            hasDefaultValFromCtorArg = true;
+
+        prm.IsRequired = isRequired ??
+                         !hasDefaultValFromCtorArg ??
+                         !(prop?.IsNullable() ?? true);
 
         if (ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2)
-            prm.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+            prm.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
         else
-            prm.Schema.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value;
+            prm.Schema.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
 
         if (ctx.Settings.SchemaSettings.GenerateExamples)
         {

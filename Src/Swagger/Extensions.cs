@@ -231,6 +231,21 @@ public static class Extensions
 
     static readonly NullabilityInfoContext _nullCtx = new();
 
+    internal static object? GetParentCtorDefaultValue(this PropertyInfo p)
+    {
+        var tParent = p.DeclaringType;
+
+        if (tParent?.IsClass is not true)
+            return null;
+
+        return tParent.GetConstructors()
+                      .Select(c => c.GetParameters())
+                      .MaxBy(pi => pi.Length)?
+                      .SingleOrDefault(
+                          pi => pi.HasDefaultValue &&
+                                pi.Name?.Equals(p.Name) is true)?.DefaultValue;
+    }
+
     internal static bool IsNullable(this PropertyInfo p)
         => _nullCtx.Create(p).WriteState == NullabilityState.Nullable;
 

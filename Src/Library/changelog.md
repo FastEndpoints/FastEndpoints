@@ -17,6 +17,25 @@ to use it. The previous methods for client generation using NSwag are still vali
 
 </details>
 
+<details><summary>Attribute based Pre/Post Processor configuration</summary>
+
+When doing simple attribute based endpoint configuration instead of using the `Configure()` method, you can now add pre/post processors to the endpoint like so:
+
+```csharp
+[HttpPost("/test"),
+ PreProcessor<PreProc>,
+ PostProcessor<PostProc>]
+sealed class Endpoint : Endpoint<Request, Response>
+{
+    public override Task HandleAsync(Request r, CancellationToken c)
+    {
+        ...
+    }
+}
+```
+
+</details>
+
 <details><summary>Ability to specify/obtain descriptions with ACL generation</summary>
 
 todo: update docs and link here.

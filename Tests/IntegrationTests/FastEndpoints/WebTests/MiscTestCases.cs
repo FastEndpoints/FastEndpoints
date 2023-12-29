@@ -851,6 +851,23 @@ public class MiscTestCases : TestClass<Fixture>
     }
 
     [Fact]
+    public async Task ProcessorAttributes()
+    {
+        var (rsp, res) =
+            await Fixture.GuestClient.POSTAsync<
+                TestCases.ProcessorAttributesTest.Endpoint,
+                TestCases.ProcessorAttributesTest.Request,
+                List<string>>(
+                new()
+                {
+                    Values = ["zero"]
+                });
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.Count.Should().Be(5);
+        res.Should().Equal(["zero", "one", "two", "three", "four"]);
+    }
+
+    [Fact]
     public async Task PreProcessorShortCircuitMissingHeader()
     {
         var (rsp, res) = await Fixture.GuestClient.GETAsync<

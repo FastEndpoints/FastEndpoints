@@ -2835,6 +2835,42 @@
         ]
       }
     },
+    "/api/test-cases/processor-attributes-test": {
+      "post": {
+        "tags": [
+          "Test-Cases"
+        ],
+        "operationId": "TestCasesProcessorAttributesTestEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesProcessorAttributesTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/processor-state-sharing": {
       "get": {
         "tags": [
@@ -4858,6 +4894,18 @@
           "FailureCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "TestCasesProcessorAttributesTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

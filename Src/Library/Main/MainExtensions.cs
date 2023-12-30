@@ -124,7 +124,7 @@ public static class MainExtensions
                     hb.WithMetadata(def);
 
                     if (def.AttribsToForward is not null)
-                        hb.WithMetadata(def.AttribsToForward);
+                        hb.WithMetadata(def.AttribsToForward.ToArray());
 
                     def.InternalConfigAction(hb); //always do this first here
 
@@ -152,6 +152,7 @@ public static class MainExtensions
                     routeToHandlerCounts.AddOrUpdate(key, 1, (_, c) => c + 1);
                     totalEndpointCount++;
                 }
+                def.AttribsToForward = null;
             }
         }
 

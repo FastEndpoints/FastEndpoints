@@ -36,10 +36,9 @@ sealed class Endpoint : Endpoint<Request, Response>
 
 </details>
 
-<details><summary>Ability to specify/obtain descriptions with ACL generation</summary>
+<details><summary>Ability to specify descriptions with ACL generation</summary>
 
-todo: update docs and link here.
-ref: https://github.com/FastEndpoints/FastEndpoints/issues/562
+You can now specify a description/xml doc summary for individual permission items when [source generating](https://fast-endpoints.com/docs/security#source-generated-access-control-lists) them. See [the documentation](https://fast-endpoints.com/docs/security#xml-doc-summaries-for-permissions) on how to use it.
 
 </details>
 
@@ -86,7 +85,7 @@ correctly.
 <details><summary>Automatically forward endpoint attribute annotations</summary>
 
 When using attribute annotations to configure endpoints, any custom attributes were not automatically added to endpoint metadata previously. You would've had to do
-the following and use the `Configure()` method for configuration:
+the following and use the `Configure()` method for configuration instead if you had some custom attributes you needed to use:
 
 ```csharp
 Description(b => b.WithMetadata(new CustomAttribute()));
@@ -104,7 +103,7 @@ public class Endpoint : Endpoint<Request, Response>
 
 <details><summary>Optimize source generators</summary>
 
-All source generators were refactored to reduce GC pressure by reducing allocations. Allocations are now mostly done when there's actually a need to regenerate the
+All source generators were refactored to reduce GC pressure by reducing heap allocations. Allocations are now mostly done when there's actually a need to regenerate the
 source code.
 
 </details>

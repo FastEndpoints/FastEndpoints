@@ -63,9 +63,9 @@ sealed class EndpointData
                 assemblies = assemblies.Where(options.AssemblyFilter);
 
             discoveredTypes = assemblies
-                             .Where(a => !a.IsDynamic && (options.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
-                             .SelectMany(a => a.GetTypes())
-                             .Where(
+                              .Where(a => !a.IsDynamic && (options.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
+                              .SelectMany(a => a.GetTypes())
+                              .Where(
                                   t =>
                                       !t.IsDefined(Types.DontRegisterAttribute) &&
                                       t is { IsAbstract: false, IsInterface: false, IsGenericType: false } &&
@@ -202,28 +202,22 @@ sealed class EndpointData
                 def.EndpointAttributes = x.tEndpoint.GetCustomAttributes(true);
                 var hasHttpAttrib = def.EndpointAttributes.Any(a => a is HttpAttribute);
 
-                if (implementsConfigure && hasHttpAttrib)
+                switch (implementsConfigure)
                 {
-                    throw new InvalidOperationException(
-                        $"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
+                    case true when hasHttpAttrib:
+                        throw new InvalidOperationException(
+                            $"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
+                    case false when !hasHttpAttrib:
+                        throw new InvalidOperationException(
+                            $"The endpoint [{x.tEndpoint.FullName}] should either override the Configure() method or decorate the class with a [Http*(...)] attribute!");
                 }
 
-                if (!implementsConfigure && !hasHttpAttrib)
+                switch (implementsHandleAsync)
                 {
-                    throw new InvalidOperationException(
-                        $"The endpoint [{x.tEndpoint.FullName}] should either override the Configure() method or decorate the class with a [Http*(...)] attribute!");
-                }
-
-                if (!implementsHandleAsync && !implementsExecuteAsync)
-                {
-                    throw new InvalidOperationException(
-                        $"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
-                }
-
-                if (implementsHandleAsync && implementsExecuteAsync)
-                {
-                    throw new InvalidOperationException(
-                        $"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
+                    case false when !implementsExecuteAsync:
+                        throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
+                    case true when implementsExecuteAsync:
+                        throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
                 }
 
                 if (valDict.TryGetValue(def.ReqDtoType, out var val))

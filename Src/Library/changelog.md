@@ -83,6 +83,25 @@ correctly.
 
 </details>
 
+<details><summary>Automatically forward endpoint attribute annotations</summary>
+
+When using attribute annotations to configure endpoints, any custom attributes were not automatically added to endpoint metadata previously. You would've had to do
+the following and use the `Configure()` method for configuration:
+
+```csharp
+Description(b => b.WithMetadata(new CustomAttribute()));
+```
+
+Now, all custom attributes are automatically added/forwarded to endpoint metadata when you configure endpoints using attribute annotations.
+
+```csharp
+[HttpGet("/"), CustomAttribute]
+public class Endpoint : Endpoint<Request, Response>
+```
+
+**Note:** you still have to choose one of the strategies for endpoint configuration (attributes or configure method). Mixing both is not allowed.
+</details>
+
 <details><summary>Optimize source generators</summary>
 
 All source generators were refactored to reduce GC pressure by reducing allocations. Allocations are now mostly done when there's actually a need to regenerate the

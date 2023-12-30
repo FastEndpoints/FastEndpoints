@@ -123,6 +123,9 @@ public static class MainExtensions
 
                     hb.WithMetadata(def);
 
+                    if (def.AttribsToForward is not null)
+                        hb.WithMetadata(def.AttribsToForward);
+
                     def.InternalConfigAction(hb); //always do this first here
 
                     if (def.AnonymousVerbs?.Contains(verb) is true)

@@ -78,6 +78,12 @@ static class EndpointExtensions
                         procAttr.AddToEndpointDefinition(def);
 
                         break;
+
+                    default:
+                        def.AttribsToForward ??= [];
+                        def.AttribsToForward.Add(att);
+
+                        break;
                 }
             }
         }

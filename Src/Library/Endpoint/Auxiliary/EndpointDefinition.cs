@@ -49,6 +49,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     //only accessible to internal code
     internal bool AcceptsAnyContentType;
     internal bool? AcceptsMetaDataPresent;
+    internal List<object>? AttribsToForward;
     internal bool ExecuteAsyncImplemented;
     bool? _execReturnsIResults;
     internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);

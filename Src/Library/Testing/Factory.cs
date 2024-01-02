@@ -35,6 +35,10 @@ public static class Factory
         else
             ep = _epFactory.Create(epDef, httpContext); //ctor & property injection
 
+        //https://github.com/FastEndpoints/FastEndpoints/issues/569
+        epDef.EndpointAttributes = epDef.EndpointType.GetCustomAttributes(true);
+        epDef.ImplementsConfigure = epDef.EndpointType.GetMethod(nameof(BaseEndpoint.Configure))?.IsDefined(Types.NotImplementedAttribute, false) is false;
+
         epDef.Initialize(ep, httpContext);
 
         return (ep as TEndpoint)!;

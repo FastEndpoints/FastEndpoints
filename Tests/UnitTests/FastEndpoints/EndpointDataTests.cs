@@ -9,6 +9,13 @@ namespace EPData;
 public class EndpointDataTests
 {
     [Fact]
+    public void ConfigureIsExecuted()
+    {
+        var ep = Factory.Create<ConfigureEndpoint>();
+        ep.Definition.Routes.Should().ContainSingle("configure/test");
+    }
+
+    [Fact]
     public void ItCanFilterTypes()
     {
         const string typename = "foo";
@@ -196,4 +203,15 @@ public class PostProcRequest : IPostProcessor<EmptyRequest, object?>
 {
     public Task PostProcessAsync(IPostProcessorContext<EmptyRequest, object?> context, CancellationToken ct)
         => throw new NotImplementedException();
+}
+
+public class ConfigureEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("configure/test");
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => SendOkAsync(ct);
 }

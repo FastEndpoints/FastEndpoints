@@ -18,7 +18,7 @@
         <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
         <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
 
-        <PackageReference Include="FluentValidation" Version="11.8.1"/>
+        <PackageReference Include="FluentValidation" Version="11.9.0"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     </ItemGroup>
 

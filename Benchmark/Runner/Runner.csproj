@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.13.10"/>
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.11" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0"/>
     </ItemGroup>
 

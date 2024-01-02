@@ -37,7 +37,8 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
         static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
+            //should be re-assigned on every call. do not cache!
+            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
 
             return
                 ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||

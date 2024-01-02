@@ -8,12 +8,13 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 [//]: # (<details><summary>title text</summary></details>)
 
-## New 🎉
+[//]: # (## New 🎉)
 
-## Improvements 🚀
+[//]: # (## Improvements 🚀)
 
 ## Fixes 🪲
 
-- unit test not calling `Configure()` method #569
+- Unit test not calling `Configure()` method #569
+- Source generators causing namespace conflict in multi-project generation
 
 [//]: # (## Breaking Changes ⚠️)

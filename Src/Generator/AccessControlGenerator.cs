@@ -36,7 +36,8 @@ public class AccessControlGenerator : IIncrementalGenerator
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            _assemblyName ??= ctx.SemanticModel.Compilation.AssemblyName;
+            //should be re-assigned on every call. do not cache!
+            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
 
             return new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!), (InvocationExpressionSyntax)ctx.Node);
         }

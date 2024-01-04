@@ -189,10 +189,13 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// send a 302/301 redirect response
     /// </summary>
     /// <param name="location">the location to redirect to</param>
-    /// <param name="isPermanant">set to true for a 301 redirect. 302 is the default.</param>
-    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendRedirectAsync(string location, bool isPermanant = false, CancellationToken cancellation = default)
-        => HttpContext.Response.SendRedirectAsync(location, isPermanant, cancellation);
+    /// <param name="isPermanent">set to true for a 301 redirect. 302 is the default.</param>
+    /// <param name="allowRemoteRedirects">set to true if it's ok to redirect to remote addresses, which is prone to open redirect attacks.</param>
+    /// <exception cref="InvalidOperationException">thrown if <paramref name="allowRemoteRedirects" /> is not set to true and the supplied url is not local</exception>
+    protected Task SendRedirectAsync(string location, bool isPermanent = false, bool allowRemoteRedirects = false)
+        => allowRemoteRedirects
+               ? Results.Redirect(location, isPermanent).ExecuteAsync(HttpContext)
+               : Results.LocalRedirect(location, isPermanent).ExecuteAsync(HttpContext);
 
     /// <summary>
     /// send headers in response to a HEAD request

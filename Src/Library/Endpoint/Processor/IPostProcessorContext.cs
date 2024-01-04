@@ -47,6 +47,13 @@ public interface IPostProcessorContext
     /// determines if any validation failures have occurred during processing.
     /// </summary>
     sealed bool HasValidationFailures => ValidationFailures.Count > 0;
+
+    /// <summary>
+    /// call this method if you're handling the captured exception (via <see cref="ExceptionDispatchInfo" />) in a post-processor and the exception should not be thrown.
+    /// not calling this method will result in the captured exception being thrown after all the post-processors have run.
+    /// </summary>
+    public void MarkExceptionAsHandled()
+        => HttpContext.Items[CtxKey.EdiIsHandled] = null;
 }
 
 /// <summary>

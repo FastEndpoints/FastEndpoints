@@ -115,9 +115,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         {
             await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, edi, ValidationFailures, ct);
 
-            //if a post-proc hasn't handled the captured exception and already written to the response, throw the captured exception.
+            //throw here if an exception has been captured and a post-processor hasn't handled it.
             //without this UseDefaultExceptionHandler() or user's custom exception handling middleware becomes useless as the exception is silently swallowed.
-            if (edi is not null && !ResponseStarted)
+            if (edi is not null && !HttpContext.Items.ContainsKey(CtxKey.EdiIsHandled))
                 edi.Throw();
         }
 

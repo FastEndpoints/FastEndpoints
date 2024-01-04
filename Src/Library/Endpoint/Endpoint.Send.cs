@@ -193,9 +193,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="allowRemoteRedirects">set to true if it's ok to redirect to remote addresses, which is prone to open redirect attacks.</param>
     /// <exception cref="InvalidOperationException">thrown if <paramref name="allowRemoteRedirects" /> is not set to true and the supplied url is not local</exception>
     protected Task SendRedirectAsync(string location, bool isPermanent = false, bool allowRemoteRedirects = false)
-        => allowRemoteRedirects
-               ? Results.Redirect(location, isPermanent).ExecuteAsync(HttpContext)
-               : Results.LocalRedirect(location, isPermanent).ExecuteAsync(HttpContext);
+        => HttpContext.Response.SendRedirectAsync(location, isPermanent, allowRemoteRedirects);
 
     /// <summary>
     /// send headers in response to a HEAD request

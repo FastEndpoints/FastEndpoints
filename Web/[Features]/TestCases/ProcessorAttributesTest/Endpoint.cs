@@ -26,6 +26,8 @@ sealed class PostProc1 : IPostProcessor<Request, List<string>>
 {
     public Task PostProcessAsync(IPostProcessorContext<Request, List<string>> ctx, CancellationToken c)
     {
+        ctx.MarkExceptionAsHandled();
+
         ctx.Request.Values.Add("three");
 
         return Task.CompletedTask;
@@ -36,6 +38,8 @@ sealed class PostProc2 : IPostProcessor<Request, List<string>>
 {
     public async Task PostProcessAsync(IPostProcessorContext<Request, List<string>> ctx, CancellationToken c)
     {
+        ctx.MarkExceptionAsHandled();
+
         ctx.Request.Values.Add("four");
 
         await ctx.HttpContext.Response.SendAsync(ctx.Request.Values);

@@ -17,6 +17,7 @@ public class Processor : IPostProcessor<Request, ExceptionDetailsResponse>
         if (!context.HasExceptionOccurred)
             return;
 
+        context.MarkExceptionAsHandled();
         var error = context.ExceptionDispatchInfo.SourceException;
         await context.HttpContext.Response.SendAsync(
             new ExceptionDetailsResponse

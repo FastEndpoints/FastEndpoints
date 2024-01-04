@@ -245,15 +245,11 @@ public static class HttpResponseExtensions
     /// send a 302/301 redirect response
     /// </summary>
     /// <param name="location">the location to redirect to</param>
-    /// <param name="isPermanant">set to true for a 301 redirect. 302 is the default.</param>
-    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendRedirectAsync(this HttpResponse rsp, string location, bool isPermanant, CancellationToken cancellation = default)
-    {
-        rsp.HttpContext.MarkResponseStart();
-        rsp.Redirect(location, isPermanant);
-
-        return rsp.StartAsync(cancellation.IfDefault(rsp));
-    }
+    /// <param name="isPermanent">set to true for a 301 redirect. 302 is the default.</param>
+    /// <param name="allowRemoteRedirects">set to true if it's ok to redirect to remote addresses, which is prone to open redirect attacks.</param>
+    /// <exception cref="InvalidOperationException">thrown if <paramref name="allowRemoteRedirects" /> is not set to true and the supplied url is not local</exception>
+    public static Task SendRedirectAsync(this HttpResponse rsp, string location, bool isPermanent, bool allowRemoteRedirects = false)
+        => SendResultAsync(rsp, allowRemoteRedirects ? Results.Redirect(location, isPermanent) : Results.LocalRedirect(location, isPermanent));
 
     /// <summary>
     /// send headers in response to a HEAD request

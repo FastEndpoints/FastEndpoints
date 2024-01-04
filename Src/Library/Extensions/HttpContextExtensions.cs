@@ -80,4 +80,5 @@ static class CtxKey
     internal const string ResponseStarted = "0";
     internal const string ValidationFailures = "1";
     internal const string ProcessorState = "2";
+    internal const string EdiIsHandled = "3";
 }

@@ -33,3 +33,23 @@ This would be a breaking only if you were doing any of the following:
   cancellation.
 
 </details>
+
+<details><summary>Minor behavior change for exception handling with 'Post Processors'</summary>
+
+Previously when an exception is [handled by a post-processor](https://fast-endpoints.com/docs/pre-post-processors#handling-unhandled-exceptions-with-post-processors)
+the captured exception would only be thrown out to the middleware pipeline in case the post-processor hasn't already written to the response stream. Detecting this
+reliably has proven to be difficult and now your post-processor must explicitly call the following method if it's handling the exception itself and don't need the
+exception to be thrown out to the pipeline.
+
+```csharp
+public class ExceptionProcessor : IPostProcessor<Request, Response>
+{
+    public async Task PostProcessAsync(IPostProcessorContext<Request, Response> ctx, ...)
+    {
+        ctx.MarkExceptionAsHandled();
+        //do your exception handling after this call
+    }
+}
+```
+
+</details>

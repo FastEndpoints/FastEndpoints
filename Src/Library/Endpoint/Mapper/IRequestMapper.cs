@@ -3,4 +3,4 @@
 /// <summary>
 /// marker interface for request only mappers
 /// </summary>
-public interface IRequestMapper : IMapper { }
+public interface IRequestMapper : IMapper;

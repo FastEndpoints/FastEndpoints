@@ -4,7 +4,7 @@
 /// the base class from which all <see cref="CommandHandler{TCommand}" /> classes inherit from
 /// </summary>
 /// <typeparam name="TCommand">the type of the command</typeparam>
-public abstract class CommandHandlerBase<TCommand> : ValidationContext<TCommand> { }
+public abstract class CommandHandlerBase<TCommand> : ValidationContext<TCommand>;
 
 /// <summary>
 /// inherit this base class if you'd like to manipulate validation state of the calling endpoint from within the command handler.

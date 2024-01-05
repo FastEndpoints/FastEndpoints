@@ -316,6 +316,6 @@ public static class MainExtensions
     }
 }
 
-sealed class StartupTimer { }
+sealed class StartupTimer;
 
-sealed class DuplicateHandlerRegistration { }
+sealed class DuplicateHandlerRegistration;

@@ -1,4 +1,4 @@
 ﻿namespace FastEndpoints;
 
 [HideFromDocs]
-public interface ISummary { }
+public interface ISummary;

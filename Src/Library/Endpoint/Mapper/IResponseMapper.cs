@@ -3,4 +3,4 @@
 /// <summary>
 /// marker interface for response only mappers
 /// </summary>
-public interface IResponseMapper : IMapper { }
+public interface IResponseMapper : IMapper;

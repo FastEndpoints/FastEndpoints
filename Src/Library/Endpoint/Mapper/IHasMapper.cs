@@ -3,7 +3,7 @@
 /// <summary>
 /// marker interface for endpoints that has a mapper
 /// </summary>
-public interface IHasMapper { }
+public interface IHasMapper;
 
 /// <summary>
 /// marker/constraint for endpoints that have a mapper generic argument

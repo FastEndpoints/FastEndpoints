@@ -6,7 +6,7 @@ using System.Net;
 
 namespace FastEndpoints;
 
-class ExceptionHandler { }
+class ExceptionHandler;
 
 /// <summary>
 /// extensions for global exception handling

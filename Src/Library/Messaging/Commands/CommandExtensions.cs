@@ -4,7 +4,7 @@ namespace FastEndpoints;
 
 //key: tCommand
 //val: command handler definition
-class CommandHandlerRegistry : ConcurrentDictionary<Type, CommandHandlerDefinition> { }
+class CommandHandlerRegistry : ConcurrentDictionary<Type, CommandHandlerDefinition>;
 
 public static class CommandExtensions
 {

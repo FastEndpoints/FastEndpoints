@@ -15,7 +15,7 @@ namespace FastEndpoints;
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
-public abstract class Endpoint<TRequest> : Endpoint<TRequest, object?> where TRequest : notnull { }
+public abstract class Endpoint<TRequest> : Endpoint<TRequest, object?> where TRequest : notnull;
 
 /// <summary>
 /// use this base class for defining endpoints that only use a request dto and don't use a response dto but uses a request mapper.

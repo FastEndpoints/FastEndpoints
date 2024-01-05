@@ -1,3 +1,3 @@
 ﻿namespace FastEndpoints;
 
-interface IEndpointValidator { }
+interface IEndpointValidator;

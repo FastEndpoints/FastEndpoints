@@ -46,4 +46,4 @@ public static class TestingExtensions
     }
 }
 
-sealed class TestCommandHandlerMarker { }
+sealed class TestCommandHandlerMarker;

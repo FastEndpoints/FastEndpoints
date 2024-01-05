@@ -1,5 +1,4 @@
 ﻿using Grpc.Core;
-using Grpc.Net.Client;
 
 namespace FastEndpoints;
 
@@ -8,14 +7,11 @@ interface IVoidCommandExecutor : ICommandExecutor
     Task ExecuteVoid(ICommand command, CallOptions opts);
 }
 
-sealed class VoidCommandExecutor<TCommand> : BaseCommandExecutor<TCommand, EmptyObject>, IVoidCommandExecutor
+sealed class VoidCommandExecutor<TCommand>(ChannelBase channel)
+    : BaseCommandExecutor<TCommand, EmptyObject>(channel: channel, methodType: MethodType.Unary),
+      IVoidCommandExecutor
     where TCommand : class, ICommand
 {
-    public VoidCommandExecutor(GrpcChannel channel)
-        : base(
-            channel: channel,
-            methodType: MethodType.Unary) { }
-
     public Task ExecuteVoid(ICommand cmd, CallOptions opts)
         => Invoker.AsyncUnaryCall(Method, null, opts, (TCommand)cmd).ResponseAsync;
 }

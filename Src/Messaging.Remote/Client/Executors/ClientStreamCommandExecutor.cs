@@ -1,5 +1,4 @@
 ﻿using Grpc.Core;
-using Grpc.Net.Client;
 
 namespace FastEndpoints;
 
@@ -8,15 +7,12 @@ interface IClientStreamCommandExecutor<TCommand, TResult> : ICommandExecutor whe
     Task<TResult> ExecuteClientStream(IAsyncEnumerable<TCommand> commands, CallOptions opts);
 }
 
-sealed class ClientStreamCommandExecutor<TCommand, TResult> : BaseCommandExecutor<TCommand, TResult>, IClientStreamCommandExecutor<TCommand, TResult>
+sealed class ClientStreamCommandExecutor<TCommand, TResult>(ChannelBase channel)
+    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.ClientStreaming),
+      IClientStreamCommandExecutor<TCommand, TResult>
     where TCommand : class
     where TResult : class
 {
-    public ClientStreamCommandExecutor(GrpcChannel channel)
-        : base(
-            channel: channel,
-            methodType: MethodType.ClientStreaming) { }
-
     public async Task<TResult> ExecuteClientStream(IAsyncEnumerable<TCommand> commands, CallOptions opts)
     {
         var call = Invoker.AsyncClientStreamingCall(Method, null, opts);

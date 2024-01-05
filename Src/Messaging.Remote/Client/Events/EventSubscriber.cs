@@ -1,6 +1,5 @@
 using FastEndpoints.Messaging.Remote;
 using Grpc.Core;
-using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -28,7 +27,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
     readonly ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>? _logger;
     readonly string _subscriberID;
 
-    public EventSubscriber(GrpcChannel channel, IServiceProvider serviceProvider)
+    public EventSubscriber(ChannelBase channel, IServiceProvider serviceProvider)
         : base(
             channel: channel,
             methodType: MethodType.ServerStreaming,

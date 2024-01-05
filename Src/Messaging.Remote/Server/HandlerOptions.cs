@@ -38,7 +38,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
             var tService = typeof(VoidHandlerExecutor<,>).MakeGenericType(typeof(TCommand), tHandler);
             var mapMethod = _mapGrpcMethodInfo.MakeGenericMethod(tService);
 
-            return (GrpcServiceEndpointConventionBuilder)mapMethod.Invoke(null, new[] { _routeBuilder })!;
+            return (GrpcServiceEndpointConventionBuilder)mapMethod.Invoke(null, [_routeBuilder])!;
         }
 
         return _routeBuilder.MapGrpcService<VoidHandlerExecutor<TCommand, THandler>>();

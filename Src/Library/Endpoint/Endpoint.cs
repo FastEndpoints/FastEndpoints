@@ -90,10 +90,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 await HandleAsync(req, ct);
 
             if (!ResponseStarted)
-                await AutoSendResponse(HttpContext, _response, Definition.SerializerContext, ct);
+                await AutoSendResponse(HttpContext, _response!, Definition.SerializerContext, ct);
 
-            OnAfterHandle(req, _response);
-            await OnAfterHandleAsync(req, _response, ct);
+            OnAfterHandle(req, _response!);
+            await OnAfterHandleAsync(req, _response!, ct);
         }
         catch (JsonException x) when (Cfg.BndOpts.JsonExceptionTransformer is not null)
         {
@@ -113,7 +113,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         }
         finally
         {
-            await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, edi, ValidationFailures, ct);
+            await RunPostProcessors(Definition.PostProcessorList, req, _response!, HttpContext, edi, ValidationFailures, ct);
 
             //throw here if an exception has been captured and a post-processor hasn't handled it.
             //without this UseDefaultExceptionHandler() or user's custom exception handling middleware becomes useless as the exception is silently swallowed.

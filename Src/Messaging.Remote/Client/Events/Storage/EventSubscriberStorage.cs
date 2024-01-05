@@ -23,13 +23,17 @@ static class EventSubscriberStorage<TStorageRecord, TStorageProvider>
 
             try
             {
-                await Provider.PurgeStaleRecordsAsync(new()
-                {
-                    CancellationToken = CancellationToken.None,
-                    Match = r => r.IsComplete || DateTime.UtcNow >= r.ExpireOn
-                });
+                await Provider.PurgeStaleRecordsAsync(
+                    new()
+                    {
+                        CancellationToken = CancellationToken.None,
+                        Match = r => r.IsComplete || DateTime.UtcNow >= r.ExpireOn
+                    });
             }
-            catch { }
+            catch
+            {
+                //do nothing }
+            }
         }
     }
 }

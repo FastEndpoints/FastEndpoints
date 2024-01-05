@@ -25,11 +25,14 @@ sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<In
     {
         var q = _subscribers.GetOrAdd(p.SubscriberID, QueueInitializer());
         q.TryDequeue(out var e);
+
         if (e is not null)
         {
-            var res = new InMemoryEventStorageRecord[1] { e };
+            var res = new[] { e };
+
             return ValueTask.FromResult(res.AsEnumerable());
         }
+
         return ValueTask.FromResult(Array.Empty<InMemoryEventStorageRecord>().AsEnumerable());
     }
 

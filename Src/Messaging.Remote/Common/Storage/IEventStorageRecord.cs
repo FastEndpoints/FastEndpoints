@@ -1,7 +1,7 @@
 ﻿namespace FastEndpoints;
 
 /// <summary>
-/// interface for implementing an event storage record that encapsulates/embeds an event (<see cref="IEvent"/>)
+/// interface for implementing an event storage record that encapsulates/embeds an event (<see cref="IEvent" />)
 /// </summary>
 public interface IEventStorageRecord
 {
@@ -17,8 +17,8 @@ public interface IEventStorageRecord
     /// if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
     /// <code>
     /// 1. add a [NotMapped] attribute to this property.
-    /// 2. add a new property, either a <see langword="string"/> or <see cref="byte"/> array
-    /// 3. implement both <see cref="GetEvent"/> and <see cref="SetEvent"/> to serialize/deserialize the event object back and forth and store it in the newly added property.
+    /// 2. add a new property, either a <see langword="string" /> or <see cref="byte" /> array
+    /// 3. implement both <see cref="GetEvent{TEvent}" /> and <see cref="SetEvent{TEvent}" /> to serialize/deserialize the event object back and forth and store it in the newly added property.
     /// </code>
     /// you may use any serializer you please. recommendation is to use MessagePack.
     /// </summary>
@@ -43,10 +43,12 @@ public interface IEventStorageRecord
     /// <summary>
     /// implement this function to customize event deserialization.
     /// </summary>
-    TEvent GetEvent<TEvent>() where TEvent : IEvent => (TEvent)Event;
+    TEvent GetEvent<TEvent>() where TEvent : IEvent
+        => (TEvent)Event;
 
     /// <summary>
     /// implement this method to customize event serialization.
     /// </summary>
-    void SetEvent<TEvent>(TEvent @event) where TEvent : IEvent => Event = @event;
+    void SetEvent<TEvent>(TEvent @event) where TEvent : IEvent
+        => Event = @event;
 }

@@ -33,9 +33,11 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 
         if (e is not null)
         {
-            var res = new InMemoryEventStorageRecord[1] { e };
+            var res = new[] { e };
+
             return ValueTask.FromResult(res.AsEnumerable());
         }
+
         return ValueTask.FromResult(Array.Empty<InMemoryEventStorageRecord>().AsEnumerable());
     }
 
@@ -52,6 +54,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
                 eq?.Records.Clear();
             }
         }
+
         return ValueTask.CompletedTask;
     }
 }

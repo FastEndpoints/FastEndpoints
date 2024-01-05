@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints.Security;
+﻿// ReSharper disable MemberCanBeProtected.Global
+
+namespace FastEndpoints.Security;
 
 /// <summary>
 /// implement this class to define your own refresh token endpoints.

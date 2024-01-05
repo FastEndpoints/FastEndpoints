@@ -2,7 +2,7 @@
 
 namespace FastEndpoints;
 
-interface IClientStreamCommandExecutor<TCommand, TResult> : ICommandExecutor where TCommand : class where TResult : class
+interface IClientStreamCommandExecutor<in TCommand, TResult> : ICommandExecutor where TCommand : class where TResult : class
 {
     Task<TResult> ExecuteClientStream(IAsyncEnumerable<TCommand> commands, CallOptions opts);
 }

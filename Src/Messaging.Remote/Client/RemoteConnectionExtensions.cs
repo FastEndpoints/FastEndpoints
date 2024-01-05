@@ -28,8 +28,9 @@ public static class RemoteConnectionExtensions
     /// <summary>
     /// creates a grpc channel/connection to a remote server that hosts a known collection of command handlers and event hubs.
     /// <para>
-    /// IMPORTANT: call the <see cref="RemoteConnection.Register{TCommand, TResult}"/> method (using action <paramref name="r"/>) to specify which commands are handled by this remote server.
-    /// event subscriptions can be specified using <see cref="RemoteConnection.Subscribe{TEvent, TEventHandler}(CallOptions)"/> method.
+    /// IMPORTANT: call the <see cref="RemoteConnection.Register{TCommand, TResult}" /> method (using action <paramref name="r" />) to specify which commands are handled by this
+    /// remote server.
+    /// event subscriptions can be specified using <see cref="RemoteConnection.Subscribe{TEvent, TEventHandler}(CallOptions)" /> method.
     /// </para>
     /// </summary>
     /// <param name="host"></param>
@@ -37,14 +38,15 @@ public static class RemoteConnectionExtensions
     /// <param name="r">a configuration action for the connection</param>
     public static IHost MapRemote(this IHost host, string remoteAddress, Action<RemoteConnection> r)
     {
-        r(new RemoteConnection(remoteAddress, host.Services));
+        r(new(remoteAddress, host.Services));
         var logger = host.Services.GetRequiredService<ILogger<RemoteConnection>>();
         logger.RemoteConfigured(remoteAddress, RemoteConnection.RemoteMap.Count);
+
         return host;
     }
 
     /// <summary>
-    /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker"/>
+    /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" />
     /// </summary>
     /// <param name="event"></param>
     /// <param name="options">call options</param>
@@ -55,8 +57,8 @@ public static class RemoteConnectionExtensions
 
         return
             RemoteConnection.RemoteMap.TryGetValue(tEvent, out var remote)
-            ? remote.PublishEvent(@event, tEvent, options)
-            : throw new InvalidOperationException($"No remote broker has been mapped for the event: [{tEvent.FullName}]");
+                ? remote.PublishEvent(@event, tEvent, options)
+                : throw new InvalidOperationException($"No remote broker has been mapped for the event: [{tEvent.FullName}]");
     }
 
     /// <summary>
@@ -71,8 +73,8 @@ public static class RemoteConnectionExtensions
 
         return
             RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
-            ? remote.ExecuteVoid(command, tCommand, options)
-            : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+                ? remote.ExecuteVoid(command, tCommand, options)
+                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
 
     /// <summary>
@@ -88,12 +90,12 @@ public static class RemoteConnectionExtensions
 
         return
             RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
-            ? remote.ExecuteUnary(command, tCommand, options)
-            : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+                ? remote.ExecuteUnary(command, tCommand, options)
+                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
 
     /// <summary>
-    /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult"/>
+    /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult" />
     /// </summary>
     /// <typeparam name="TResult">the type of the result stream</typeparam>
     /// <param name="command"></param>
@@ -105,12 +107,12 @@ public static class RemoteConnectionExtensions
 
         return
             RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
-            ? remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken)
-            : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+                ? remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken)
+                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
 
     /// <summary>
-    /// send the stream of <typeparamref name="T"/> to the relevant remote server and get back a result of <typeparamref name="TResult"/>
+    /// send the stream of <typeparamref name="T" /> to the relevant remote server and get back a result of <typeparamref name="TResult" />
     /// </summary>
     /// <typeparam name="T">the type of item in the stream</typeparam>
     /// <typeparam name="TResult">the type of the result that will be returned when the stream ends</typeparam>
@@ -125,7 +127,7 @@ public static class RemoteConnectionExtensions
 
         return
             RemoteConnection.RemoteMap.TryGetValue(tCommand, out var remote)
-            ? remote.ExecuteClientStream<T, TResult>(commands, tCommand, options)
-            : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+                ? remote.ExecuteClientStream<T, TResult>(commands, tCommand, options)
+                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿// ReSharper disable UnusedParameter.Global
+
+namespace FastEndpoints;
 
 /// <summary>
 /// inherit this class and override it's methods in order to receive event subscriber exceptions.
@@ -14,9 +16,10 @@ public abstract class SubscriberExceptionReceiver
     /// <param name="exception">the actual exception that was thrown by the operation</param>
     /// <param name="ct">cancellation token</param>
     public virtual Task OnStoreEventRecordError<TEvent>(IEventStorageRecord record,
-                                                int attemptCount,
-                                                Exception exception,
-                                                CancellationToken ct) where TEvent : class, IEvent => Task.CompletedTask;
+                                                        int attemptCount,
+                                                        Exception exception,
+                                                        CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
 
     /// <summary>
     /// this method is triggered when there's an error reading the next event message from the underlying gRPC stream.
@@ -31,7 +34,8 @@ public abstract class SubscriberExceptionReceiver
     public virtual Task OnEventReceiveError<TEvent>(string subscriberID,
                                                     int attemptCount,
                                                     Exception exception,
-                                                    CancellationToken ct) where TEvent : class, IEvent => Task.CompletedTask;
+                                                    CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
 
     /// <summary>
     /// this method is triggered when the storage provider has trouble retrieving the next event record.
@@ -44,13 +48,15 @@ public abstract class SubscriberExceptionReceiver
     public virtual Task OnGetNextEventRecordError<TEvent>(string subscriberID,
                                                           int attemptCount,
                                                           Exception exception,
-                                                          CancellationToken ct) where TEvent : class, IEvent => Task.CompletedTask;
+                                                          CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
 
     /// <summary>
-    /// this method is triggered when the event handler has trouble executing the <see cref="IEventHandler{TEvent}.HandleAsync(TEvent, CancellationToken)"/> method.
+    /// this method is triggered when the event handler has trouble executing the <see cref="IEventHandler{TEvent}.HandleAsync(TEvent, CancellationToken)" /> method.
     /// </summary>
     /// <typeparam name="TEvent">the type of the event</typeparam>
-    /// /// <typeparam name="THandler">the type of the event handler that failed to execute</typeparam>
+    /// ///
+    /// <typeparam name="THandler">the type of the event handler that failed to execute</typeparam>
     /// <param name="record">the event storage record that was supposed to be executed</param>
     /// <param name="attemptCount">the number of times the record was attempted to be executed</param>
     /// <param name="exception">the actual exception that was thrown by the operation</param>
@@ -60,7 +66,8 @@ public abstract class SubscriberExceptionReceiver
                                                                   Exception exception,
                                                                   CancellationToken ct)
         where TEvent : class, IEvent
-        where THandler : IEventHandler<TEvent> => Task.CompletedTask;
+        where THandler : IEventHandler<TEvent>
+        => Task.CompletedTask;
 
     /// <summary>
     /// this method is triggered when the storage provider has trouble marking an event record as complete.
@@ -73,5 +80,6 @@ public abstract class SubscriberExceptionReceiver
     public virtual Task OnMarkEventAsCompleteError<TEvent>(IEventStorageRecord record,
                                                            int attemptCount,
                                                            Exception exception,
-                                                           CancellationToken ct) where TEvent : class, IEvent => Task.CompletedTask;
+                                                           CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
 }

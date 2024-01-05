@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿// ReSharper disable UnusedParameter.Global
+
+namespace FastEndpoints;
 
 /// <summary>
 /// inherit this class and override it's methods in order to receive event hub exceptions.
@@ -16,7 +18,8 @@ public abstract class EventHubExceptionReceiver
     public virtual Task OnGetNextEventRecordError<TEvent>(string subscriberID,
                                                           int attemptCount,
                                                           Exception exception,
-                                                          CancellationToken ct) where TEvent : class, IEvent => Task.CompletedTask;
+                                                          CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
 
     /// <summary>
     /// this method is triggered when the storage provider has trouble marking an event record as complete.
@@ -29,7 +32,8 @@ public abstract class EventHubExceptionReceiver
     public virtual Task OnMarkEventAsCompleteError<TEvent>(IEventStorageRecord record,
                                                            int attemptCount,
                                                            Exception exception,
-                                                           CancellationToken ct) where TEvent : class, IEvent => Task.CompletedTask;
+                                                           CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
 
     /// <summary>
     /// this method is triggered when the storage provider has trouble persisting an event record.
@@ -42,7 +46,8 @@ public abstract class EventHubExceptionReceiver
     public virtual Task OnStoreEventRecordError<TEvent>(IEventStorageRecord record,
                                                         int attemptCount,
                                                         Exception exception,
-                                                        CancellationToken ct) where TEvent : class, IEvent => Task.CompletedTask;
+                                                        CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
 
     /// <summary>
     /// this method is triggered when the default in-memory storage provider's internal queue for the given event type has been stagnant and in an overflow state.
@@ -51,5 +56,6 @@ public abstract class EventHubExceptionReceiver
     /// <param name="record">the event storage record that was supposed to be added to the queue</param>
     /// <param name="ct">cancellation token</param>
     public virtual Task OnInMemoryQueueOverflow<TEvent>(IEventStorageRecord record,
-                                                        CancellationToken ct) where TEvent : class, IEvent => Task.CompletedTask;
+                                                        CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
 }

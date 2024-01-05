@@ -2,5 +2,5 @@
 
 public sealed class EmptyObject
 {
-    internal static EmptyObject Instance { get; } = new EmptyObject();
+    internal static EmptyObject Instance { get; } = new();
 }

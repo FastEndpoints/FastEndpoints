@@ -3,6 +3,8 @@ using Grpc.Core;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
+// ReSharper disable UnusedMemberInSuper.Global
+
 namespace FastEndpoints;
 
 abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethodBinder<TSelf>

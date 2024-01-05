@@ -111,5 +111,10 @@ sealed class HitCounter
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        ~Counter()
+        {
+            Dispose(false);
+        }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 class PropCache
 {

@@ -32,5 +32,7 @@ static class JobStorage<TStorageRecord, TStorageProvider>
                 // ignored
             }
         }
+
+        // ReSharper disable once FunctionNeverReturns
     }
 }

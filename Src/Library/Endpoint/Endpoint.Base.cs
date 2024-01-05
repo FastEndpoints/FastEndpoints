@@ -11,20 +11,20 @@ namespace FastEndpoints;
 /// </summary>
 public abstract class BaseEndpoint : IEndpoint
 {
-    List<ValidationFailure> _failures;
+    List<ValidationFailure>? _failures;
 
     internal abstract Task ExecAsync(CancellationToken ct);
 
     /// <inheritdoc />
     [DontInject]
-    public EndpointDefinition Definition { get; internal set; }
+    public EndpointDefinition Definition { get; internal set; } = default!;
 
     /// <inheritdoc />
     [DontInject]
-    public HttpContext HttpContext { get; internal set; }
+    public HttpContext HttpContext { get; internal set; } = default!;
 
     /// <inheritdoc />
-    public List<ValidationFailure> ValidationFailures => _failures ??= new();
+    public List<ValidationFailure> ValidationFailures => _failures ??= [];
 
     /// <summary>
     /// use this method to configure how the endpoint should be listening to incoming requests.

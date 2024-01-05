@@ -80,6 +80,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     public bool ResponseStarted
     {
         get => HttpContext.ResponseStarted();
+
+        // ReSharper disable once ValueParameterNotUsed
         set => HttpContext.MarkResponseStart();
     }
 

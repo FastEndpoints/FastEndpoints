@@ -12,15 +12,17 @@ public class EndpointSummary
     internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
     internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; } = new(); //key: status-code //val: [propname]=description
 
-    internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata = b => b.Add(
-        epBuilder =>
-        {
-            foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata).ToArray())
-            {
-                if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
-                    epBuilder.Metadata.Remove(m);
-            }
-        });
+    internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata
+        = b => b.Add(
+              epBuilder =>
+              {
+                  foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata)
+                                             .ToArray())
+                  {
+                      if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
+                          epBuilder.Metadata.Remove(m);
+                  }
+              });
 
     /// <summary>
     /// indexer for the response descriptions

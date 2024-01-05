@@ -11,10 +11,10 @@ namespace FastEndpoints;
 public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
 {
     Http? _httpMethod;
-    string _baseUrl;
-    ILogger _logger;
-    IWebHostEnvironment _env;
-    TResponse _response;
+    string? _baseUrl;
+    ILogger? _logger;
+    IWebHostEnvironment? _env;
+    TResponse? _response;
     IConfiguration? _config;
 
     /// <summary>

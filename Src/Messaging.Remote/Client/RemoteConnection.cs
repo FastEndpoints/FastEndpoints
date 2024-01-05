@@ -37,18 +37,21 @@ public sealed class RemoteConnection
         },
         ServiceConfig = new()
         {
-            MethodConfigs = { new()
+            MethodConfigs =
             {
-                Names = { MethodName.Default },
-                RetryPolicy = new()
+                new()
                 {
-                    MaxAttempts = 5, // must be <= MaxRetryAttempts
-                    InitialBackoff = TimeSpan.FromSeconds(1),
-                    MaxBackoff = TimeSpan.FromSeconds(5),
-                    BackoffMultiplier = 1.5,
-                    RetryableStatusCodes = { StatusCode.Unavailable }
+                    Names = { MethodName.Default },
+                    RetryPolicy = new()
+                    {
+                        MaxAttempts = 5, // must be <= MaxRetryAttempts
+                        InitialBackoff = TimeSpan.FromSeconds(1),
+                        MaxBackoff = TimeSpan.FromSeconds(5),
+                        BackoffMultiplier = 1.5,
+                        RetryableStatusCodes = { StatusCode.Unavailable }
+                    }
                 }
-            }}
+            }
         },
         MaxRetryAttempts = 5
     };
@@ -68,8 +71,8 @@ public sealed class RemoteConnection
     }
 
     /// <summary>
-    /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent"/>) on the remote host.
-    /// the received events will be handled by the specified handler (<typeparamref name="TEventHandler"/>) on this machine.
+    /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent" />) on the remote host.
+    /// the received events will be handled by the specified handler (<typeparamref name="TEventHandler" />) on this machine.
     /// </summary>
     /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
     /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
@@ -94,7 +97,7 @@ public sealed class RemoteConnection
     }
 
     /// <summary>
-    /// register an "event" that the remote server will be accepting (in <see cref="HubMode.EventBroker"/>) for distribution to subscribers.
+    /// register an "event" that the remote server will be accepting (in <see cref="HubMode.EventBroker" />) for distribution to subscribers.
     /// </summary>
     /// <typeparam name="TEvent">the type of the event</typeparam>
     public void RegisterEvent<TEvent>() where TEvent : class, IEvent
@@ -106,14 +109,12 @@ public sealed class RemoteConnection
     }
 
     internal Task PublishEvent(IEvent evnt, Type tEvent, CallOptions opts)
-    {
-        return !_executorMap.TryGetValue(tEvent, out var publisher)
-            ? throw new InvalidOperationException($"No remote handler has been mapped for the event: [{tEvent.FullName}]")
-            : ((IEventPublisher)publisher).PublishEvent(evnt, opts);
-    }
+        => !_executorMap.TryGetValue(tEvent, out var publisher)
+               ? throw new InvalidOperationException($"No remote handler has been mapped for the event: [{tEvent.FullName}]")
+               : ((IEventPublisher)publisher).PublishEvent(evnt, opts);
 
     /// <summary>
-    /// register a "void" command (<see cref="ICommand"/>) for this remote connection where the handler for it is hosted/located.
+    /// register a "void" command (<see cref="ICommand" />) for this remote connection where the handler for it is hosted/located.
     /// </summary>
     /// <typeparam name="TCommand">the type of the command</typeparam>
     public void Register<TCommand>() where TCommand : class, ICommand
@@ -125,14 +126,12 @@ public sealed class RemoteConnection
     }
 
     internal Task ExecuteVoid(ICommand cmd, Type tCommand, CallOptions opts)
-    {
-        return !_executorMap.TryGetValue(tCommand, out var executor)
-            ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
-            : ((IVoidCommandExecutor)executor).ExecuteVoid(cmd, opts);
-    }
+        => !_executorMap.TryGetValue(tCommand, out var executor)
+               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+               : ((IVoidCommandExecutor)executor).ExecuteVoid(cmd, opts);
 
     /// <summary>
-    /// register a "unary" command (<see cref="ICommand{TResult}"/>) for this remote connection where the handler for it is hosted/located.
+    /// register a "unary" command (<see cref="ICommand{TResult}" />) for this remote connection where the handler for it is hosted/located.
     /// </summary>
     /// <typeparam name="TCommand">the type of the command</typeparam>
     /// <typeparam name="TResult">the type of the result</typeparam>
@@ -145,14 +144,12 @@ public sealed class RemoteConnection
     }
 
     internal Task<TResult> ExecuteUnary<TResult>(ICommand<TResult> cmd, Type tCommand, CallOptions opts) where TResult : class
-    {
-        return !_executorMap.TryGetValue(tCommand, out var executor)
-            ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
-            : ((IUnaryCommandExecutor<TResult>)executor).ExecuteUnary(cmd, opts);
-    }
+        => !_executorMap.TryGetValue(tCommand, out var executor)
+               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+               : ((IUnaryCommandExecutor<TResult>)executor).ExecuteUnary(cmd, opts);
 
     /// <summary>
-    /// register a "server stream" command (<see cref="IServerStreamCommand{TResult}"/>) for this remote connection where the handler for it is hosted/located.
+    /// register a "server stream" command (<see cref="IServerStreamCommand{TResult}" />) for this remote connection where the handler for it is hosted/located.
     /// </summary>
     /// <typeparam name="TCommand">the type of the command</typeparam>
     /// <typeparam name="TResult">the type of the result stream</typeparam>
@@ -165,14 +162,12 @@ public sealed class RemoteConnection
     }
 
     internal IAsyncStreamReader<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts) where TResult : class
-    {
-        return !_executorMap.TryGetValue(tCommand, out var executor)
-            ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
-            : ((IServerStreamCommandExecutor<TResult>)executor).ExecuteServerStream(cmd, opts);
-    }
+        => !_executorMap.TryGetValue(tCommand, out var executor)
+               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+               : ((IServerStreamCommandExecutor<TResult>)executor).ExecuteServerStream(cmd, opts);
 
     /// <summary>
-    /// register a remote handler for a "client stream" (<see cref="IAsyncEnumerable{T}"/>) for this remote connection.
+    /// register a remote handler for a "client stream" (<see cref="IAsyncEnumerable{T}" />) for this remote connection.
     /// </summary>
     /// <typeparam name="T">the type of the items in the stream</typeparam>
     /// <typeparam name="TResult">the type of the result that will be received when the stream ends</typeparam>
@@ -185,9 +180,7 @@ public sealed class RemoteConnection
     }
 
     internal Task<TResult> ExecuteClientStream<T, TResult>(IAsyncEnumerable<T> cmd, Type tCommand, CallOptions opts) where T : class where TResult : class
-    {
-        return !_executorMap.TryGetValue(tCommand, out var executor)
-            ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
-            : ((IClientStreamCommandExecutor<T, TResult>)executor).ExecuteClientStream(cmd, opts);
-    }
+        => !_executorMap.TryGetValue(tCommand, out var executor)
+               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
+               : ((IClientStreamCommandExecutor<T, TResult>)executor).ExecuteClientStream(cmd, opts);
 }

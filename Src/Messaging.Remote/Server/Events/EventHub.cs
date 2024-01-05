@@ -74,13 +74,15 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             _subscribers[subID] = new();
     }
 
+    static readonly string[] _httPost = { "POST" };
+
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent, TStorageRecord, TStorageProvider>> ctx)
     {
         var metadata = new List<object>();
         var eventAttributes = _tEvent.GetCustomAttributes(false);
         if (eventAttributes.Length > 0)
             metadata.AddRange(eventAttributes);
-        metadata.Add(new HttpMethodMetadata(new[] { "POST" }, acceptCorsPreflight: true));
+        metadata.Add(new HttpMethodMetadata(_httPost, acceptCorsPreflight: true));
 
         var sub = new Method<string, TEvent>(
             type: MethodType.ServerStreaming,

@@ -34,6 +34,8 @@ public static class AuthExtensions
             o =>
             {
                 tokenValidation?.Invoke(o.TokenValidationParameters);
+
+                // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
                 bearerEvents?.Invoke(o.Events ??= new());
             });
     }
@@ -147,7 +149,10 @@ public static class AuthExtensions
     /// adds multiple <see cref="Claim" />s to the list.
     /// </summary>
     /// <param name="claims">the <see cref="Claim" />s to append to the list.</param>
-    public static void Add(this List<Claim> list, params Claim[] claims) { list.AddRange(claims); }
+    public static void Add(this List<Claim> list, params Claim[] claims)
+    {
+        list.AddRange(claims);
+    }
 
     /// <summary>
     /// adds multiple <see cref="Claim" />s to the list.
@@ -160,5 +165,8 @@ public static class AuthExtensions
     /// adds multiple strings to a list.
     /// </summary>
     /// <param name="values">the strings to append to the list.</param>
-    public static void Add(this List<string> list, params string[] values) { list.AddRange(values); }
+    public static void Add(this List<string> list, params string[] values)
+    {
+        list.AddRange(values);
+    }
 }

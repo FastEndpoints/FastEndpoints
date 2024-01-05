@@ -6,8 +6,8 @@
 /// <typeparam name="TRequest">the type of the request dto that will be accepted by the refresh endpoint</typeparam>
 /// <typeparam name="TResponse">the type of the response dto that will be sent by the refresh endpoint</typeparam>
 public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TRequest, TResponse>, IRefreshTokenService<TResponse>
-    where TRequest : notnull, TokenRequest, new()
-    where TResponse : notnull, TokenResponse, new()
+    where TRequest : TokenRequest, new()
+    where TResponse : TokenResponse, new()
 {
     RefreshServiceOptions? _opts;
 
@@ -94,8 +94,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
 
         var privs = new UserPrivileges();
 
-        if (privileges is not null) //only true on initial token creation
-            privileges(privs);
+        privileges?.Invoke(privs);
 
         if (request is not null) //only true on renewal
             await SetRenewalPrivilegesAsync((TRequest)request, privs);

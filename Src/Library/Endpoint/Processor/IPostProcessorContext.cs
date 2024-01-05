@@ -53,7 +53,7 @@ public interface IPostProcessorContext
     /// not calling this method will result in the captured exception being thrown after all the post-processors have run.
     /// </summary>
     public void MarkExceptionAsHandled()
-        => HttpContext.Items[CtxKey.EdiIsHandled] = null;
+        => HttpContext.MarkEdiHandled();
 }
 
 /// <summary>

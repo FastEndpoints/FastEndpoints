@@ -72,6 +72,12 @@ public static class HttpContextExtensions
 
         return st;
     }
+
+    internal static void MarkEdiHandled(this HttpContext ctx)
+        => ctx.Items[CtxKey.EdiIsHandled] = null;
+
+    internal static bool EdiIsHandled(this HttpContext ctx)
+        => ctx.Items.ContainsKey(CtxKey.EdiIsHandled);
 }
 
 static class CtxKey

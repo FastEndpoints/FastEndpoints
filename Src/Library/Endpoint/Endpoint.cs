@@ -117,7 +117,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
             //throw here if an exception has been captured and a post-processor hasn't handled it.
             //without this UseDefaultExceptionHandler() or user's custom exception handling middleware becomes useless as the exception is silently swallowed.
-            if (edi is not null && !HttpContext.Items.ContainsKey(CtxKey.EdiIsHandled))
+            if (edi is not null && !HttpContext.EdiIsHandled())
                 edi.Throw();
         }
 

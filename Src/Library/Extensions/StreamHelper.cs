@@ -221,7 +221,7 @@ static class StreamHelper
             return (true, range);
         }
 
-        internal static RangeItemHeaderValue? Normalize(RangeItemHeaderValue range, long length)
+        static RangeItemHeaderValue? Normalize(RangeItemHeaderValue range, long length)
         {
             var start = range.From;
             var end = range.To;

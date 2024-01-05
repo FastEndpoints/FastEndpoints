@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
+// ReSharper disable UnusedParameter.Global
+
 namespace FastEndpoints;
 
 /// <summary>

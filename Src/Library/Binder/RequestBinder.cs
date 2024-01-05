@@ -271,7 +271,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         foreach (var kvp in routeValues)
         {
             var val = kvp.Value?.ToString();
-            if (val?.StartsWith("{") is false)
+            if (val?.StartsWith('{') is false)
                 Bind(req, new(kvp.Key, val), failures);
         }
     }

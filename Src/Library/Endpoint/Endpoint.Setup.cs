@@ -21,6 +21,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     static readonly bool _isStringResponse = _tResponse.IsAssignableFrom(Types.String);
     static readonly bool _isCollectionResponse = _tResponse.IsAssignableTo(Types.IEnumerable);
 
+    // ReSharper disable once UnusedParameter.Global
     /// <summary>
     /// if the 'FastEndpoints.Generator' package is used, calling this method will generate a static class called '{assembly-name}.Auth.Allow'
     /// with a const field with this <paramref name="keyName" /> that has a 3 digit auto generated value (permission code). doesn't do anything without the

@@ -1,4 +1,8 @@
-﻿namespace FastEndpoints;
+﻿// ReSharper disable VirtualMemberNeverOverridden.Global
+// ReSharper disable MemberCanBeProtected.Global
+// ReSharper disable UnusedParameter.Global
+
+namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
 {

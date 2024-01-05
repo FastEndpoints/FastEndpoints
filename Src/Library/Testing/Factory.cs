@@ -10,7 +10,7 @@ namespace FastEndpoints;
 /// </summary>
 public static class Factory
 {
-    static readonly IEndpointFactory _epFactory = new EndpointFactory();
+    static readonly EndpointFactory _epFactory = new();
 
     /// <summary>
     /// get an instance of an endpoint suitable for unit testing

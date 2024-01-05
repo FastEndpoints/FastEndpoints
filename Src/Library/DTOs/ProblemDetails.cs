@@ -106,6 +106,9 @@ public sealed class ProblemDetails : IResult
     }
 
 #if NET7_0_OR_GREATER
+
+    static readonly string[] _contentTypes = { "application/problem+json" };
+
     /// <inheritdoc />
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
     {
@@ -114,7 +117,7 @@ public sealed class ProblemDetails : IResult
         builder.Metadata.Add(
             new ProducesResponseTypeMetadata
             {
-                ContentTypes = new[] { "application/problem+json" },
+                ContentTypes = _contentTypes,
                 StatusCode = Cfg.ErrOpts.StatusCode,
                 Type = typeof(ProblemDetails)
             });

@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using System.Collections.Concurrent;
 
+// ReSharper disable UnusedMemberInSuper.Global
+
 namespace FastEndpoints;
 
 /// <summary>

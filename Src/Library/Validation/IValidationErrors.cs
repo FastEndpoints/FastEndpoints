@@ -40,6 +40,7 @@ interface IValidationErrors<T>
     /// <param name="severity">the severity of the error</param>
     void AddError(Expression<Func<T, object?>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error);
 
+    // ReSharper disable once UnusedMemberInSuper.Global
     /// <summary>
     /// interrupt the flow of handler execution and send a 400 bad request with error details if there are any validation failures in the current request. if
     /// there are no validation failures, execution will continue past this call.

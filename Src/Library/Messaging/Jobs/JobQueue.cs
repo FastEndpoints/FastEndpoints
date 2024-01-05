@@ -107,6 +107,8 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
             catch (Exception x)
             {
                 _log.StorageRetrieveError(QueueID, _tCommandName, x.Message);
+
+                // ReSharper disable once MethodSupportsCancellation
                 await Task.Delay(5000);
 
                 continue;
@@ -122,6 +124,8 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 // which could lead to the rescheduled job being already expired by the time it's executed.
                 await (
                           _isInUse
+
+                              // ReSharper disable once MethodSupportsCancellation
                               ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(60000))
                               : Task.WhenAny(_sem.WaitAsync(_appCancellation)));
             }
@@ -153,6 +157,8 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                         _log.StorageOnExecutionFailureError(QueueID, _tCommandName, xx.Message);
 
                     #pragma warning disable CA2016
+
+                        //ReSharper disable once MethodSupportsCancellation
                         await Task.Delay(5000);
                     #pragma warning restore CA2016
                     }
@@ -175,6 +181,8 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                     _log.StorageMarkAsCompleteError(QueueID, _tCommandName, x.Message);
 
                 #pragma warning disable CA2016
+
+                    // ReSharper disable once MethodSupportsCancellation
                     await Task.Delay(5000);
                 #pragma warning restore CA2016
                 }

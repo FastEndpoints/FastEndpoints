@@ -133,5 +133,5 @@ public sealed class BindingOptions
     public void ValueParserWhen(Func<PropertyInfo, bool> propertyMatcher, Func<object?, Type, ParseResult> parser)
         => PropertyMatchers.Add(new(propertyMatcher, parser));
 
-    internal static List<(Func<PropertyInfo, bool> matcher, Func<object?, Type, ParseResult> parser)> PropertyMatchers = new();
+    internal static readonly List<(Func<PropertyInfo, bool> matcher, Func<object?, Type, ParseResult> parser)> PropertyMatchers = [];
 }

@@ -393,7 +393,7 @@ public static class HttpResponseExtensions
         var ct = cancellation.IfDefault(rsp);
         long id = 0;
 
-        await foreach (var item in eventStream)
+        await foreach (var item in eventStream.WithCancellation(ct))
         {
             id++;
             await rsp.WriteAsync(

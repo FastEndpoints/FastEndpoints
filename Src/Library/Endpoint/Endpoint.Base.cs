@@ -43,7 +43,7 @@ public abstract class BaseEndpoint : IEndpoint
 
     static readonly Regex _regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
 
-    protected internal static string GetAclHash(string input)
+    protected static string GetAclHash(string input)
     {
         //NOTE: if modifying this algo, update FastEndpoints.Generator.AccessControlGenerator.Permission.GetAclHash() method also!
         var base64Hash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(Sanitize(input).ToUpperInvariant())));

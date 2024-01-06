@@ -28,7 +28,7 @@ public abstract class Endpoint<TRequest> : Endpoint<TRequest, object?> where TRe
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest, object?>, IHasMapper<TMapper>
     where TRequest : notnull
-    where TMapper : IRequestMapper
+    where TMapper : class, IRequestMapper
 {
     TMapper? _mapper;
 
@@ -39,7 +39,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
     [DontInject]
     public TMapper Map //access is public to support testing
     {
-        get => _mapper ??= (TMapper)Definition.GetMapper()!;
+        get => _mapper ??= Definition.GetMapper() as TMapper ?? throw new InvalidOperationException("Endpoint mapper is not set!");
         set => _mapper = value; //allow unit tests to set mapper from outside
     }
 }
@@ -291,7 +291,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest, TResponse>, IHasMapper<TMapper>
     where TRequest : notnull
     where TResponse : notnull
-    where TMapper : IMapper
+    where TMapper : class, IMapper
 {
     TMapper? _mapper;
 
@@ -300,11 +300,9 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
     /// <para>HINT: entity mappers are singletons for performance reasons. do not maintain state in the mappers.</para>
     /// </summary>
     [DontInject]
-
-    //access is public to support testing
-    public TMapper Map
+    public TMapper Map //access is public to support testing
     {
-        get => _mapper ??= (TMapper)Definition.GetMapper()!;
+        get => _mapper ??= Definition.GetMapper() as TMapper ?? throw new InvalidOperationException("Endpoint mapper is not set!");
         set => _mapper = value; //allow unit tests to set mapper from outside
     }
 
@@ -419,7 +417,7 @@ public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest,
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWithoutRequest<TResponse>, IHasMapper<TMapper>
     where TResponse : notnull
-    where TMapper : IResponseMapper
+    where TMapper : class, IResponseMapper
 {
     TMapper? _mapper;
 
@@ -430,7 +428,7 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
     [DontInject]
     public TMapper Map //access is public to support testing
     {
-        get => _mapper ??= (TMapper)Definition.GetMapper()!;
+        get => _mapper ??= Definition.GetMapper() as TMapper ?? throw new InvalidOperationException("Endpoint mapper is not set!");
         set => _mapper = value; //allow unit tests to set mapper from outside
     }
 

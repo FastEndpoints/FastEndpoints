@@ -10,7 +10,14 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 [//]: # (## New 🎉)
 
-[//]: # (## Improvements 🚀)
+## Improvements 🚀
+
+<details><summary>Auto resolving of Mappers in unit tests</summary>
+
+Previously it was necessary for the user to instantiate and set the mapper on endpoints when unit testing endpoints classes. It is no longer necessary to do so
+unless you want to. Existing code doesn't need to change as the `Mapper` property is still publicly settable.
+
+</details>
 
 [//]: # (## Fixes 🪲)
 

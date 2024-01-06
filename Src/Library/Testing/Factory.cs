@@ -20,15 +20,21 @@ public static class Factory
     /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected dependencies</param>
     public static TEndpoint Create<TEndpoint>(DefaultHttpContext httpContext, params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (httpContext.RequestServices is null)
             httpContext.AddTestServices(_ => { });
 
         BaseEndpoint ep;
         var tEndpoint = typeof(TEndpoint);
+
+        //because this is typically done by type discovery and it doesn't run in unit tests.
         var epDef = new EndpointDefinition(
             tEndpoint,
             tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest,
-            tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[1] ?? Types.EmptyRequest);
+            tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[1] ?? Types.EmptyRequest)
+        {
+            MapperType = tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf3)?[2]
+        };
 
         if (ctorDependencies.Length > 0)
             ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, ctorDependencies)!; //ctor injection only

@@ -16,7 +16,7 @@ namespace Web;
 public class WebTests
 {
     [Fact]
-    public async Task endpoint_with_mapper_returns_correct_response()
+    public async Task mapper_endpoint_setting_mapper_manually()
     {
         //arrange
         var logger = A.Fake<ILogger<TestCases.MapperTest.Endpoint>>();
@@ -36,6 +36,49 @@ public class WebTests
         ep.Response.Should().NotBeNull();
         ep.Response.Name.Should().Be("john doe");
         ep.Response.Age.Should().Be(22);
+    }
+
+    [Fact]
+    public async Task mapper_endpoint_resolves_mapper_automatically()
+    {
+        //arrange
+        var logger = A.Fake<ILogger<TestCases.MapperTest.Endpoint>>();
+        var ep = Factory.Create<TestCases.MapperTest.Endpoint>(logger);
+        var req = new TestCases.MapperTest.Request
+        {
+            FirstName = "john",
+            LastName = "doe",
+            Age = 22
+        };
+
+        //act
+        await ep.HandleAsync(req, default);
+
+        //assert
+        ep.Response.Should().NotBeNull();
+        ep.Response.Name.Should().Be("john doe");
+        ep.Response.Age.Should().Be(22);
+    }
+
+    [Fact]
+    public async Task endpoint_with_mapper_throws_mapper_not_set()
+    {
+        var logger = A.Fake<ILogger<TestCases.MapperTest.Endpoint>>();
+        var ep = Factory.Create<TestCases.MapperTest.Endpoint>(logger);
+
+        ep.Map = null!;
+        ep.Definition.MapperType = null;
+
+        var req = new TestCases.MapperTest.Request
+        {
+            FirstName = "john",
+            LastName = "doe",
+            Age = 22
+        };
+        await ep.Invoking(e => e.HandleAsync(req, default))
+                .Should()
+                .ThrowAsync<InvalidOperationException>()
+                .WithMessage("Endpoint mapper is not set!");
     }
 
     [Fact]

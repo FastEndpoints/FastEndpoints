@@ -1,9 +1,9 @@
-﻿using FluentValidation;
+﻿using System.Reflection;
+using System.Text.Json.Serialization;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
-using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 using static FastEndpoints.Constants;
 
@@ -57,41 +57,18 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction = null!;
     internal bool ImplementsConfigure;
-    internal object? RequestBinder;
     internal readonly List<object> PreProcessorList = [];
     internal int PreProcessorPosition;
     internal readonly List<object> PostProcessorList = [];
+    internal object? RequestBinder;
+    string? _reqDtoFromBodyPropName;
+    internal string ReqDtoFromBodyPropName => _reqDtoFromBodyPropName ??= GetFromBodyPropName();
     ServiceBoundEpProp[]? _serviceBoundEpProps;
     internal ServiceBoundEpProp[] ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
-
-    object? _mapper;
-
-    internal object? GetMapper()
-    {
-        if (_mapper is null && MapperType is not null)
-            _mapper = Cfg.ServiceResolver.CreateSingleton(MapperType);
-
-        return _mapper;
-    }
-
-    object? _validator;
-
-    internal object? GetValidator()
-    {
-        if (_validator is null && ValidatorType is not null)
-            _validator = Cfg.ServiceResolver.CreateSingleton(ValidatorType);
-
-        return _validator;
-    }
-
-    string? _reqDtoFromBodyPropName;
-
-    internal string ReqDtoFromBodyPropName
-        => _reqDtoFromBodyPropName ??= $"{ReqDtoType.BindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
 
     /// <summary>
     /// allow unauthenticated requests to this endpoint. optionally specify a set of verbs to allow unauthenticated access with.
@@ -168,6 +145,17 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         AllowedClaimTypes?.AddRange(claimTypes);
         AllowedClaimTypes ??= new(claimTypes);
     }
+
+    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata
+        = b =>
+          {
+              b.Add(
+                  epBuilder =>
+                  {
+                      foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
+                          epBuilder.Metadata.Remove(m);
+                  });
+          };
 
     /// <summary>
     /// describe openapi metadata for this endpoint. optionally specify whether or not you want to clear the default Accepts/Produces metadata.
@@ -436,32 +424,25 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         ValidatorType = typeof(TValidator);
     }
 
-    ServiceBoundEpProp[] GetServiceBoundEpProps()
+    object? _mapper;
+
+    internal object? GetMapper()
     {
-        return EndpointType
-               .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-               .Where(
-                   p => p is { CanRead: true, CanWrite: true } &&
-                        !p.IsDefined(Types.DontInjectAttribute))
-               .Select(
-                   p => new ServiceBoundEpProp
-                   {
-                       PropName = p.Name,
-                       PropType = p.PropertyType
-                   })
-               .ToArray();
+        if (_mapper is null && MapperType is not null)
+            _mapper = Cfg.ServiceResolver.CreateSingleton(MapperType);
+
+        return _mapper;
     }
 
-    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata
-        = b =>
-          {
-              b.Add(
-                  epBuilder =>
-                  {
-                      foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
-                          epBuilder.Metadata.Remove(m);
-                  });
-          };
+    object? _validator;
+
+    internal object? GetValidator()
+    {
+        if (_validator is null && ValidatorType is not null)
+            _validator = Cfg.ServiceResolver.CreateSingleton(ValidatorType);
+
+        return _validator;
+    }
 
     internal static void AddProcessor<TProcessor>(Order order, IList<object> list, ref int pos)
     {
@@ -492,6 +473,22 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         else
             list.Add(processor);
     }
+
+    string GetFromBodyPropName()
+        => $"{ReqDtoType.BindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
+
+    ServiceBoundEpProp[] GetServiceBoundEpProps()
+        => EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                       .Where(
+                           p => p is { CanRead: true, CanWrite: true } &&
+                                !p.IsDefined(Types.DontInjectAttribute))
+                       .Select(
+                           p => new ServiceBoundEpProp
+                           {
+                               PropName = p.Name,
+                               PropType = p.PropertyType
+                           })
+                       .ToArray();
 }
 
 /// <summary>

@@ -31,13 +31,13 @@ public static class HttpResponseExtensions
     }
 
     /// <summary>
-    /// execute and send any <see cref="IResult" /> produced by the <see cref="Results" /> class in minimal apis.
+    /// execute and send any <see cref="IResult" /> produced by the <see cref="Results" /> or <see cref="TypedResults"/> classes in minimal apis.
     /// </summary>
     /// <param name="result">
-    /// the <see cref="IResult" /> instance to execute such as:
+    /// the <see cref="IResult" /> instance to execute such as from:
     /// <code>
-    /// Results.Forbid();
-    /// Results.Ok(...);
+    ///   - Results.Ok();
+    ///   - TypedResults.NotFound();
     /// </code>
     /// </param>
     public static Task SendResultAsync(this HttpResponse rsp, IResult result)

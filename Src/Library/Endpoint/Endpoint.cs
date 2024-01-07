@@ -104,11 +104,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 throw;
 
             ValidationFailures.Add(Cfg.BndOpts.JsonExceptionTransformer(x));
-            await ValidationFailed(x);
+            await ValidationFailed(x, Cfg.BndOpts.JsonExceptionStatusCode);
         }
         catch (ValidationFailureException x)
         {
-            await ValidationFailed(x, x.StatusCode);
+            await ValidationFailed(x, x.StatusCode ?? Cfg.ErrOpts.StatusCode);
         }
         catch (Exception x)
         {
@@ -124,7 +124,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 edi.Throw();
         }
 
-        async Task ValidationFailed(Exception x, int? statusCode = null)
+        async Task ValidationFailed(Exception x, int statusCode)
         {
             if (!ranPreProcessors) //avoid running pre-procs twice
                 await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
@@ -136,7 +136,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 throw x;
 
             if (!ResponseStarted) //pre-processors may have already sent a response
-                await SendErrorsAsync(statusCode ?? Cfg.ErrOpts.StatusCode, ct);
+                await SendErrorsAsync(statusCode, ct);
         }
     }
 

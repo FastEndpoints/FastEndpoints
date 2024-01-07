@@ -16,7 +16,7 @@ public sealed class ValidationFailureException : Exception
     /// <summary>
     /// the status code to be used when building the error response.
     /// </summary>
-    public int? StatusCode { get; internal set; }
+    public int? StatusCode { get; internal init; }
 
     public ValidationFailureException() { }
 

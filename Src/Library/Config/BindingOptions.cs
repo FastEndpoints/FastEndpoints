@@ -13,7 +13,7 @@ namespace FastEndpoints;
 public sealed class BindingOptions
 {
     /// <summary>
-    /// a function used to construct the failure message when a supplied value cannot be succesfully bound to a dto property during model binding.
+    /// a function used to construct the failure message when a supplied value cannot be successfully bound to a dto property during model binding.
     /// <para>
     /// NOTE: this only applies to non-STJ operations. for customizing error messages of STJ binding failures, specify a
     /// <see cref="JsonExceptionTransformer" /> func.
@@ -45,6 +45,12 @@ public sealed class BindingOptions
                                     : exception.Path[2..],
                   errorMessage: exception.InnerException?.Message ??
                                 exception.Message);
+
+    /// <summary>
+    /// this http status code will be used for all automatically sent <see cref="JsonException" /> responses  which are built using the <see cref="JsonExceptionTransformer" />
+    /// func. defaults to 400.
+    /// </summary>
+    public int JsonExceptionStatusCode { internal get; set; } = 400;
 
     /// <summary>
     /// an optional action to be run after the endpoint level request binding has occured.

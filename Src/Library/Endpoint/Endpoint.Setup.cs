@@ -557,55 +557,56 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         Definition.Verbs = methods;
 
         //set default openapi descriptions
-        Definition.InternalConfigAction = b =>
-                                          {
-                                              var tRequest = typeof(TRequest);
-                                              var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
+        Definition.InternalConfigAction =
+            b =>
+            {
+                var tRequest = typeof(TRequest);
+                var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
 
-                                              if (isPlainTextRequest)
-                                              {
-                                                  b.Accepts<TRequest>("text/plain", "application/json");
-                                                  b.Produces<TResponse>(200, "text/plain", "application/json");
+                if (isPlainTextRequest)
+                {
+                    b.Accepts<TRequest>("text/plain", "application/json");
+                    b.Produces<TResponse>(200, "text/plain", "application/json");
 
-                                                  return;
-                                              }
+                    return;
+                }
 
-                                              if (tRequest != Types.EmptyRequest)
-                                              {
-                                                  if (methods.Any(m => m is "GET" or "HEAD" or "DELETE"))
-                                                      b.Accepts<TRequest>("*/*", "application/json");
-                                                  else
-                                                      b.Accepts<TRequest>("application/json");
-                                              }
+                if (tRequest != Types.EmptyRequest)
+                {
+                    if (methods.Any(m => m is "GET" or "HEAD" or "DELETE"))
+                        b.Accepts<TRequest>("*/*", "application/json");
+                    else
+                        b.Accepts<TRequest>("application/json");
+                }
 
-                                              if (Definition.ExecuteAsyncReturnsIResult)
-                                              {
-                                              #if NET7_0_OR_GREATER
-                                                  b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
-                                              #endif
-                                              }
-                                              else
-                                              {
-                                                  if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)
-                                                      b.Produces<TResponse>(200, "text/plain", "application/json");
-                                                  else
-                                                      b.Produces<TResponse>(200, "application/json");
+                if (Definition.ExecuteAsyncReturnsIResult)
+                {
+                #if NET7_0_OR_GREATER
+                    b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
+                #endif
+                }
+                else
+                {
+                    if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)
+                        b.Produces<TResponse>(200, "text/plain", "application/json");
+                    else
+                        b.Produces<TResponse>(200, "application/json");
 
-                                                  if (Definition.AnonymousVerbs?.Any() is not true)
-                                                      b.Produces(401);
+                    if (Definition.AnonymousVerbs?.Any() is not true)
+                        b.Produces(401);
 
-                                                  if (Definition.RequiresAuthorization())
-                                                      b.Produces(403);
+                    if (Definition.RequiresAuthorization())
+                        b.Produces(403);
 
-                                                  if (Cfg.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
-                                                  {
-                                                      b.Produces(
-                                                          Cfg.ErrOpts.StatusCode,
-                                                          Cfg.ErrOpts.ProducesMetadataType,
-                                                          "application/problem+json");
-                                                  }
-                                              }
-                                          };
+                    if (Cfg.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+                    {
+                        b.Produces(
+                            Cfg.ErrOpts.StatusCode,
+                            Cfg.ErrOpts.ProducesMetadataType,
+                            "application/problem+json");
+                    }
+                }
+            };
     }
 
     /// <summary>

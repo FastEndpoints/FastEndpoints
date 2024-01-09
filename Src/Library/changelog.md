@@ -19,6 +19,18 @@ unless you want to. Existing code doesn't need to change as the `Mapper` propert
 
 </details>
 
+<details><summary>Respect default values of constructor arguments when model binding</summary>
+
+The default request binder will now use the default values from the constructor arguments of the DTO when instantiating the DTO before model binding starts. For
+example, the `SomeOtherParam` property will have a value of `10` if no other binding sources provides a value for it.
+
+```csharp
+record MyRequest(string SomeParam,
+                 int SomeOtherParam = 10);
+```
+
+</details>
+
 [//]: # (## Fixes 🪲)
 
 ## Breaking Changes ⚠️

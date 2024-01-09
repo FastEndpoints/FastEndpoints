@@ -511,7 +511,12 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         var argExpressions = new List<Expression>(args.Length);
 
         for (var i = 0; i < args.Length; i++)
-            argExpressions.Add(Expression.Default(args[i].ParameterType));
+        {
+            argExpressions.Add(
+                args[i].HasDefaultValue
+                    ? Expression.Constant(args[i].DefaultValue, args[i].ParameterType)
+                    : Expression.Default(args[i].ParameterType));
+        }
 
         var ctorExpression = Expression.New(ctor, argExpressions);
 

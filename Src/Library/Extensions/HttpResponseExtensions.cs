@@ -30,8 +30,9 @@ public static class HttpResponseExtensions
         return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
+#pragma warning disable CS1574, CS1584, CS1581, CS1580
     /// <summary>
-    /// execute and send any <see cref="IResult" /> produced by the <see cref="Results" /> or <see cref="TypedResults"/> classes in minimal apis.
+    /// execute and send any <see cref="IResult" /> produced by the <see cref="Results" /> or <see cref="TypedResults" /> classes in minimal apis.
     /// </summary>
     /// <param name="result">
     /// the <see cref="IResult" /> instance to execute such as from:
@@ -40,6 +41,7 @@ public static class HttpResponseExtensions
     ///   - TypedResults.NotFound();
     /// </code>
     /// </param>
+#pragma warning restore CS1574, CS1584, CS1581, CS1580
     public static Task SendResultAsync(this HttpResponse rsp, IResult result)
     {
         rsp.HttpContext.MarkResponseStart();

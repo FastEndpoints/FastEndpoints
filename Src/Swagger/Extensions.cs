@@ -243,7 +243,7 @@ public static class Extensions
                       .MaxBy(pi => pi.Length)?
                       .SingleOrDefault(
                           pi => pi.HasDefaultValue &&
-                                pi.Name?.Equals(p.Name) is true)?.DefaultValue;
+                                pi.Name?.Equals(p.Name, StringComparison.OrdinalIgnoreCase) is true)?.DefaultValue;
     }
 
     internal static bool IsNullable(this PropertyInfo p)

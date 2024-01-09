@@ -31,6 +31,18 @@ record MyRequest(string SomeParam,
 
 </details>
 
+<details><summary>Warn user about illegal request DTO types</summary>
+
+FastEndpoints only supports model binding with DTOs that have publicly accessible properties. The following is not supported:
+
+```csharp
+sealed class MyEndpoint : Endpoint<Guid>
+```
+
+A more detailed `NotSupportedException` is now being thrown to make it easy track down the offending endpoint.
+
+</details>
+
 [//]: # (## Fixes 🪲)
 
 ## Breaking Changes ⚠️

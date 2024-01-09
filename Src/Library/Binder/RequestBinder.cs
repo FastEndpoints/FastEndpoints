@@ -43,7 +43,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (_tRequest.GetInterfaces().Contains(Types.IEnumerable))
             return;
 
-        foreach (var propInfo in _tRequest.BindableProps())
+        var dtoProps = _tRequest.BindableProps();
+
+        if (!dtoProps.Any())
+        {
+            throw new NotSupportedException(
+                $"Only request DTOs with publicly accessible properties are supported for request binding. " +
+                $"Offending type: [{_tRequest.FullName}]");
+        }
+
+        foreach (var propInfo in dtoProps)
         {
             if (_isPlainTextRequest && propInfo.Name == nameof(IPlainTextRequest.Content))
                 continue; //allow other properties other than `Content` property if this is a plaintext request

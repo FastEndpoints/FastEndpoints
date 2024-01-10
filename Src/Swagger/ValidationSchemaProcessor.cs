@@ -188,6 +188,15 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             // i.e. for RuleFor().SetValidator() or RuleForEach().SetValidator()
             if (propertyValidator.Name == "ChildValidatorAdaptor")
             {
+                if (propertyValidator.GetType().Name.StartsWith("PolymorphicValidator"))
+                {
+                    //todo: figure out how to obtain the concrete instances of child validators from PolymorphicValidator<>
+
+                    _logger?.LogWarning("Swagger+Fluentvalidation integration for polymorphic validators is not supported.");
+
+                    continue;
+                }
+
                 // Get underlying validator using reflection
                 var validatorTypeObj = propertyValidator.GetType()
                                                         .GetProperty("ValidatorType")

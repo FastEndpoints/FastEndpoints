@@ -74,7 +74,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
                   {
               """);
 
-        foreach (var t in discoveredTypes.OrderBy(t => t))
+        foreach (var t in discoveredTypes.Distinct().OrderBy(t => t))
         {
             b.w(
                 $"""

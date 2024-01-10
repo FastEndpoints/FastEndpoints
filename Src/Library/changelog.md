@@ -43,7 +43,13 @@ A more detailed `NotSupportedException` is now being thrown to make it easy trac
 
 </details>
 
-[//]: # (## Fixes 🪲)
+## Fixes 🪲
+
+<details><summary>Type discovery source generator creating duplicates for partial classes</summary>
+
+The type discovery source generator will now correctly detect partial classes of targets and only create a single entry. #574
+
+</details>
 
 ## Breaking Changes ⚠️
 

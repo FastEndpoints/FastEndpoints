@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
@@ -21,17 +22,19 @@ public static class CommandExtensions
         var tCommand = command.GetType();
         var registry = Cfg.ServiceResolver.Resolve<CommandHandlerRegistry>();
 
-        if (registry.TryGetValue(tCommand, out var def))
-        {
-            def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
+        registry.TryGetValue(tCommand, out var def);
 
-            if (TestHandlersPresent)
-                def.HandlerType = Cfg.ServiceResolver.TryResolve<ICommandHandler<TCommand>>()?.GetType() ?? def.HandlerType;
+        InitGenericHandler<Null>(ref def, tCommand, registry);
 
-            return ((CommandHandlerExecutorBase)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
-        }
+        if (def is null)
+            throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
-        throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+        def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
+
+        if (TestHandlersPresent)
+            def.HandlerType = Cfg.ServiceResolver.TryResolve<ICommandHandler<TCommand>>()?.GetType() ?? def.HandlerType;
+
+        return ((CommandHandlerExecutorBase)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
 
         static CommandHandlerExecutorBase CreateHandlerExecutor(Type tCommand)
             => (CommandHandlerExecutorBase)Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
@@ -49,24 +52,48 @@ public static class CommandExtensions
         var tCommand = command.GetType();
         var registry = Cfg.ServiceResolver.Resolve<CommandHandlerRegistry>();
 
-        if (registry.TryGetValue(tCommand, out var def))
+        registry.TryGetValue(tCommand, out var def);
+
+        InitGenericHandler<TResult>(ref def, tCommand, registry);
+
+        if (def is null)
+            throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+
+        def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
+
+        // ReSharper disable once InvertIf
+        if (TestHandlersPresent)
         {
-            def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
-
-            if (TestHandlersPresent)
-            {
-                var tHandlerInterface = Types.ICommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
-                def.HandlerType = Cfg.ServiceResolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
-            }
-
-            return ((CommandHandlerExecutorBase<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
+            var tHandlerInterface = Types.ICommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
+            def.HandlerType = Cfg.ServiceResolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
         }
 
-        throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+        return ((CommandHandlerExecutorBase<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
 
         static CommandHandlerExecutorBase<TResult> CreateHandlerExecutor(Type tCommand)
             => (CommandHandlerExecutorBase<TResult>)
                 Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
+    }
+
+    static void InitGenericHandler<TResult>(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry)
+    {
+        if (def is not null || !tCommand.IsGenericType)
+            return;
+
+        var tGenCmd = tCommand.GetGenericTypeDefinition();
+
+        if (!registry.TryGetValue(tGenCmd, out var genDef))
+            throw new InvalidOperationException($"No generic handler registered for generic command type: [{tGenCmd.FullName}]");
+
+        var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments()[0]);
+        var tTargetIfc = typeof(TResult) == Types.Null
+                             ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
+                             : Types.ICommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
+
+        if (!tHnd.IsAssignableTo(tTargetIfc))
+            throw new InvalidOperationException($"The registered generic handler for the generic command [{tGenCmd.FullName}] is not the correct type!");
+
+        def = registry[tCommand] = new(tHnd);
     }
 
     /// <summary>
@@ -100,5 +127,22 @@ public static class CommandExtensions
         {
             HandlerExecutor = new FakeCommandHandlerExecutor<TCommand, TResult>(handler)
         };
+    }
+
+    /// <summary>
+    /// register a generic command handler for a generic command
+    /// </summary>
+    /// <param name="genericCommandType">
+    /// the open generic type of the command. ex: <c> typeof(MyCommand&lt;&gt;) </c>
+    /// </param>
+    /// <param name="genericHandlerType">the open generic type of the command handler. ex: <c> typeof(MyCommandHandler&lt;,&gt;) </c></param>
+    /// <returns></returns>
+    public static IServiceProvider RegisterGenericCommand(this IServiceProvider sp, Type genericCommandType, Type genericHandlerType)
+    {
+        var registry = sp.GetRequiredService<CommandHandlerRegistry>();
+
+        registry[genericCommandType] = new(genericHandlerType);
+
+        return sp;
     }
 }

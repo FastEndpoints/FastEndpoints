@@ -26,3 +26,23 @@ public class MakeFullName : CommandHandler<GetFullName, string>
         return Task.FromResult(cmd.FirstName + " " + cmd.LastName);
     }
 }
+
+public class ConcreteCmdEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Get("/tests/command-handler");
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(CancellationToken c)
+    {
+        AddError("this error was added by the endpoint!");
+
+        Response = await new GetFullName
+        {
+            FirstName = "yoda",
+            LastName = "minch"
+        }.ExecuteAsync();
+    }
+}

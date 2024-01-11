@@ -2,14 +2,29 @@
 
 namespace CommandBus;
 
-public class CommandBusTests : TestClass<Fixture>
+public class CommandBusTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {
-    public CommandBusTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
+    [Fact]
+    public async Task Generic_Command_With_Result()
+    {
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<TestCases.CommandHandlerTest.GenericCmdEndpoint, IEnumerable<Guid>>();
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.Count().Should().Be(3);
+        res.First().Should().Be(Guid.Empty);
+    }
+
+    [Fact]
+    public async Task Generic_Command_Without_Result()
+    {
+        var (rsp, res) = await Fixture.GuestClient.GETAsync<TestCases.CommandHandlerTest.GenericCmdWithoutResultEndpoint, Guid>();
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.Should().Be(Guid.Empty);
+    }
 
     [Fact]
     public async Task Command_Handler_Sends_Error_Response()
     {
-        var res = await Fixture.Client.GETAsync<TestCases.CommandHandlerTest.Endpoint, ErrorResponse>();
+        var res = await Fixture.Client.GETAsync<TestCases.CommandHandlerTest.ConcreteCmdEndpoint, ErrorResponse>();
         res.Response.IsSuccessStatusCode.Should().BeFalse();
         res.Result.StatusCode.Should().Be(400);
         res.Result.Errors.Count.Should().Be(2);
@@ -57,6 +72,7 @@ public class TestVoidCommandHandler : ICommandHandler<VoidCommand>
     public Task ExecuteAsync(VoidCommand command, CancellationToken ct)
     {
         FullName = command.FirstName + " " + command.LastName + " z";
+
         return Task.CompletedTask;
     }
 }
@@ -69,6 +85,7 @@ public class TestCommandHandler : ICommandHandler<SomeCommand, string>
     public Task<string> ExecuteAsync(SomeCommand command, CancellationToken c)
     {
         FullName = command.FirstName + " " + command.LastName + " zseeeee!";
+
         return Task.FromResult(FullName);
     }
 }

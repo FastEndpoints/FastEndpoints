@@ -1653,7 +1653,7 @@
         "tags": [
           "Tests"
         ],
-        "operationId": "TestCasesCommandHandlerTestEndpoint",
+        "operationId": "TestCasesCommandHandlerTestConcreteCmdEndpoint",
         "responses": {
           "200": {
             "description": "Success",
@@ -1661,6 +1661,51 @@
               "application/json": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/generic-command-handler": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesCommandHandlerTestGenericCmdEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "guid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/generic-command-handler-without-result": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesCommandHandlerTestGenericCmdWithoutResultEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "guid"
                 }
               }
             }

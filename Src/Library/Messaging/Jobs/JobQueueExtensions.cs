@@ -8,8 +8,8 @@ namespace FastEndpoints;
 /// </summary>
 public static class JobQueueExtensions
 {
-    static Type _tStorageRecord;
-    static Type _tStorageProvider;
+    static Type _tStorageRecord = null!;
+    static Type _tStorageProvider = null!;
 
     /// <summary>
     /// add job queue functionality
@@ -45,6 +45,9 @@ public static class JobQueueExtensions
 
         foreach (var tCommand in registry.Keys.Where(t => t.IsAssignableTo(Types.ICommand)))
         {
+            if (tCommand.IsGenericType)
+                continue; //todo: no generic command support for jobs yet. figure out how to add it.
+
             var tHandler = app.ApplicationServices.GetService(Types.ICommandHandlerOf1.MakeGenericType(tCommand))?.GetType();
             if (tHandler is not null)
                 registry[tCommand].HandlerType = tHandler;

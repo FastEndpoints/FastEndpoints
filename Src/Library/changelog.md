@@ -12,6 +12,12 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## Improvements 🚀
 
+<details><summary>Support for generic commands and command handlers</summary>
+
+ref: https://discord.com/channels/933662816458645504/1194642680559444029
+
+</details>
+
 <details><summary>Auto resolving of Mappers in unit tests</summary>
 
 Previously it was necessary for the user to instantiate and set the mapper on endpoints when unit testing endpoints classes. It is no longer necessary to do so

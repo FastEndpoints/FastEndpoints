@@ -57,6 +57,66 @@ The type discovery source generator will now correctly detect partial classes of
 
 </details>
 
+<details><summary>Correct handling of Swagger request param examples</summary>
+
+Examples for request parameters were previously rendered as strings instead of the respective primitives or json objects.
+
+Given the DTO model (with examples as xml tags):
+
+```csharp
+sealed class MyRequest
+{
+    /// <example>
+    /// 10
+    /// </example>
+    public int SomeNumber { get; set; }
+
+    /// <example>
+    /// ["blah1","blah2"]
+    /// </example>
+    public string[] SomeList { get; set; }
+
+    /// <example>
+    /// { id : 1000, name : "john" }
+    /// </example>
+    public Nested SomeClass { get; set; }
+
+    public sealed class Nested
+    {
+        public int Id { get; set; }
+        public Guid GuidId { get; set; }
+        public string Name { get; set; }
+    }
+}
+```
+
+Will now be correctly rendered as follows:
+
+```json
+"parameters": [
+    {
+        "name": "someNumber",
+        "example": 10
+    },
+    {
+        "name": "someList",        
+        "example": [
+            "blah1",
+            "blah2"
+        ]
+    },
+    {
+        "name": "someClass",        
+        "example": {
+            "id": 1000,
+            "name": "john"
+        }
+    }
+]
+```
+
+</details>
+
 ## Breaking Changes ⚠️
 
 <details><summary>'SendRedirectAsync()' method signature change</summary>

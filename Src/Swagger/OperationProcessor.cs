@@ -59,7 +59,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;
         var reqContent = op.RequestBody?.Content;
-        var serializer = JsonSerializer.Create(((NewtonsoftJsonSchemaGeneratorSettings)ctx.SchemaGenerator.Settings).SerializerSettings);
+        var serializerSettings = ((NewtonsoftJsonSchemaGeneratorSettings)ctx.SchemaGenerator.Settings).SerializerSettings;
+        var serializer = JsonSerializer.Create(serializerSettings);
 
         //set operation id if user has specified
         if (nameMetaData is not null)
@@ -308,7 +309,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                     isRequired: true,
                                     kind: OpenApiParameterKind.Path,
                                     descriptions: reqParamDescriptions,
-                                    docOpts: docOpts);
+                                    docOpts: docOpts,
+                                    serializer: serializer);
                             })
                         .ToList();
 
@@ -329,7 +331,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                       isRequired: null,
                                       kind: OpenApiParameterKind.Query,
                                       descriptions: reqParamDescriptions,
-                                      docOpts: docOpts);
+                                      docOpts: docOpts,
+                                      serializer: serializer);
                               })
                           .ToList();
 
@@ -356,7 +359,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                 isRequired: hAttrib.IsRequired,
                                 kind: OpenApiParameterKind.Header,
                                 descriptions: reqParamDescriptions,
-                                docOpts: docOpts));
+                                docOpts: docOpts,
+                                serializer: serializer));
 
                         //remove corresponding json body field if it's required. allow binding only from header.
                         if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
@@ -391,7 +395,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                             isRequired: null,
                             kind: OpenApiParameterKind.FormData,
                             descriptions: reqParamDescriptions,
-                            docOpts: docOpts));
+                            docOpts: docOpts,
+                            serializer: serializer));
                 }
             }
         }
@@ -449,7 +454,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                         isRequired: true,
                         kind: OpenApiParameterKind.Body,
                         descriptions: reqParamDescriptions,
-                        docOpts: docOpts));
+                        docOpts: docOpts,
+                        serializer: serializer));
             }
         }
 
@@ -593,7 +599,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                         bool? isRequired,
                                         OpenApiParameterKind kind,
                                         Dictionary<string, string>? descriptions,
-                                        DocumentOptions docOpts)
+                                        DocumentOptions docOpts,
+                                        JsonSerializer serializer)
     {
         paramName = paramName?.ApplyPropNamingPolicy(docOpts) ??
                     prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
@@ -622,7 +629,19 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
         if (ctx.Settings.SchemaSettings.GenerateExamples)
         {
-            prm.Example = prop?.GetXmlExample();
+            var exampleStr = prop?.GetXmlExample();
+
+            if (exampleStr is not null)
+            {
+                try
+                {
+                    prm.Example = JToken.FromObject(JsonConvert.DeserializeObject(exampleStr)!, serializer);
+                }
+                catch
+                {
+                    //do nothing
+                }
+            }
 
             if (prm.Example is null && prm.Default is null && prm.Schema?.Default is null && prm.IsRequired)
             {

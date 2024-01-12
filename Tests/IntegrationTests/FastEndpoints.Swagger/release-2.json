@@ -2155,7 +2155,9 @@
                 "format": "date-time"
               }
             },
-            "example": "[\"2020-10-10\"]"
+            "example": [
+              "2020-10-10"
+            ]
           },
           {
             "name": "Persons",
@@ -2522,7 +2524,9 @@
                 "format": "date-time"
               }
             },
-            "example": "[\"2020-10-10\"]"
+            "example": [
+              "2020-10-10"
+            ]
           },
           {
             "name": "Steven",

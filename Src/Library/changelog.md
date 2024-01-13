@@ -8,15 +8,21 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 [//]: # (<details><summary>title text</summary></details>)
 
-[//]: # (## New 🎉)
+## New 🎉
 
-## Improvements 🚀
+<details><summary>Ability automatically add headers to the response based on DTO property annotation</summary>
+
+ref: https://github.com/FastEndpoints/FastEndpoints/issues/564
+
+</details>
 
 <details><summary>Support for generic commands and command handlers</summary>
 
 ref: https://discord.com/channels/933662816458645504/1194642680559444029
 
 </details>
+
+## Improvements 🚀
 
 <details><summary>Auto resolving of Mappers in unit tests</summary>
 

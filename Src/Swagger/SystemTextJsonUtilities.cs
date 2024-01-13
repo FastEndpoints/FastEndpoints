@@ -64,15 +64,8 @@ public static class SystemTextJsonUtilities
         }
     }
 
-    sealed class SystemTextJsonContractResolver : DefaultContractResolver
+    sealed class SystemTextJsonContractResolver(dynamic serializerOptions) : DefaultContractResolver
     {
-        readonly dynamic _serializerOptions;
-
-        public SystemTextJsonContractResolver(dynamic serializerOptions)
-        {
-            _serializerOptions = serializerOptions;
-        }
-
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var attributes = member.GetCustomAttributes(true);
@@ -89,10 +82,13 @@ public static class SystemTextJsonUtilities
                     propertyIgnored = true;
             }
 
-            property.Ignored = propertyIgnored || attributes.FirstAssignableToTypeNameOrDefault("System.Text.Json.Serialization.JsonExtensionDataAttribute") != null;
+            var hasToHeaderAttribute = attributes.FirstAssignableToTypeNameOrDefault("FastEndpoints.ToHeaderAttribute") is not null;
+            var hasJsonExtensionDataAttribute = attributes.FirstAssignableToTypeNameOrDefault("System.Text.Json.Serialization.JsonExtensionDataAttribute") is not null;
 
-            if (_serializerOptions.PropertyNamingPolicy != null)
-                property.PropertyName = _serializerOptions.PropertyNamingPolicy.ConvertName(member.Name);
+            property.Ignored = propertyIgnored || hasJsonExtensionDataAttribute || hasToHeaderAttribute;
+
+            if (serializerOptions.PropertyNamingPolicy != null)
+                property.PropertyName = serializerOptions.PropertyNamingPolicy.ConvertName(member.Name);
 
             dynamic? jsonPropertyNameAttribute = attributes.FirstAssignableToTypeNameOrDefault("System.Text.Json.Serialization.JsonPropertyNameAttribute");
 

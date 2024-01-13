@@ -57,6 +57,7 @@ static class Types
     internal static readonly Type String = typeof(string);
     internal static readonly Type SummaryOf1 = typeof(Summary<>);
     internal static readonly Type SummaryOf2 = typeof(Summary<,>);
+    internal static readonly Type ToHeaderAttribute = typeof(ToHeaderAttribute);
     internal static readonly Type Uri = typeof(Uri);
     internal static readonly Type ValidatorOf1 = typeof(AbstractValidator<>);
 }

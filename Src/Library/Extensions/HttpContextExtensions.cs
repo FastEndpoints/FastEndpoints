@@ -78,6 +78,19 @@ public static class HttpContextExtensions
 
     internal static bool EdiIsHandled(this HttpContext ctx)
         => ctx.Items.ContainsKey(CtxKey.EdiIsHandled);
+
+    internal static void PopulateResponseHeadersFrom(this HttpContext ctx, object? response)
+    {
+    #if NET8_0_OR_GREATER
+        var toHeaderProps = ctx.Items[CtxKey.ToHeaderProps] as ToHeaderProp[] ?? Array.Empty<ToHeaderProp>();
+
+        for (var i = 0; i < toHeaderProps.Length; i++)
+        {
+            var p = toHeaderProps[i];
+            ctx.Response.Headers[p.HeaderName] = p.PropGetter?.Invoke(response!)?.ToString();
+        }
+    #endif
+    }
 }
 
 static class CtxKey
@@ -87,4 +100,5 @@ static class CtxKey
     internal const string ValidationFailures = "1";
     internal const string ProcessorState = "2";
     internal const string EdiIsHandled = "3";
+    internal const string ToHeaderProps = "4";
 }

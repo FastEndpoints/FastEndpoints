@@ -52,7 +52,9 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
                 AnotherMsg = Map.ToEntity(r),
                 OrderID = 54321,
                 GuidTest = r.GuidTest,
-                Event = (SomeEvent)evnt
+                Event = (SomeEvent)evnt,
+                Header1 = 12345,
+                Header2 = new(2020, 11, 12)
             });
     }
 }

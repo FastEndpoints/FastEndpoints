@@ -50,6 +50,7 @@ static class RequestHandler
         epInstance.Definition = epDef;
         epInstance.HttpContext = ctx;
         ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures;
+        ctx.Items[CtxKey.ToHeaderProps] = epDef.ToHeaderProps;
 
         ResponseCacheExecutor.Execute(ctx, epDef.ResponseCacheSettings);
 

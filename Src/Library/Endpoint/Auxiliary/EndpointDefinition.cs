@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 using static FastEndpoints.Constants;
 
+#if NET8_0_OR_GREATER
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+#endif
+
 namespace FastEndpoints;
 
 /// <summary>
@@ -57,6 +62,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction = null!;
     internal bool ImplementsConfigure;
+    ToHeaderProp[]? _toHeaderProps;
+    internal ToHeaderProp[] ToHeaderProps => _toHeaderProps ??= GetToHeaderProps();
     internal readonly List<object> PreProcessorList = [];
     internal int PreProcessorPosition;
     internal readonly List<object> PostProcessorList = [];
@@ -489,6 +496,33 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                                PropType = p.PropertyType
                            })
                        .ToArray();
+
+    ToHeaderProp[] GetToHeaderProps()
+    {
+    #if NET8_0_OR_GREATER
+        return GetProps(
+            SerializerContext ?? SerOpts.Options.TypeInfoResolver,
+            ResDtoType,
+            SerOpts.Options);
+
+        static ToHeaderProp[] GetProps(IJsonTypeInfoResolver? resolver, Type tResDto, JsonSerializerOptions opts)
+        {
+            return resolver?
+                   .GetTypeInfo(tResDto, opts)?
+                   .Properties.Where(p => p.AttributeProvider?.IsDefined(Types.ToHeaderAttribute, true) is true)
+                   .Select(CreateProps)
+                   .ToArray() ??
+                   Array.Empty<ToHeaderProp>();
+
+            ToHeaderProp CreateProps(JsonPropertyInfo p)
+                => new(
+                    headerName: p.AttributeProvider?.GetCustomAttributes(Types.ToHeaderAttribute, true).Cast<ToHeaderAttribute>().FirstOrDefault()?.HeaderName ?? p.Name,
+                    getter: p.Get);
+        }
+    #else
+        return Array.Empty<ToHeaderProp>();
+    #endif
+    }
 }
 
 /// <summary>
@@ -513,7 +547,13 @@ sealed class ServiceBoundEpProp
     public Action<object, object>? PropSetter { get; set; }
 }
 
-class TypeEqualityComparer : IEqualityComparer<object>
+sealed class ToHeaderProp(string headerName, Func<object, object?>? getter)
+{
+    public string HeaderName { get; init; } = headerName;
+    public Func<object, object?>? PropGetter { get; init; } = getter;
+}
+
+sealed class TypeEqualityComparer : IEqualityComparer<object>
 {
     internal static readonly TypeEqualityComparer Instance = new();
 

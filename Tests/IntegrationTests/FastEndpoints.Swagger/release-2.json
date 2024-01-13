@@ -4555,6 +4555,14 @@
           },
           "Event": {
             "$ref": "#/components/schemas/TestCasesEventHandlingTestSomeEvent"
+          },
+          "Header1": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Header2": {
+            "type": "string",
+            "format": "date"
           }
         }
       },

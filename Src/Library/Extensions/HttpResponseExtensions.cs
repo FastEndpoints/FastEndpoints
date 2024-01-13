@@ -24,6 +24,7 @@ public static class HttpResponseExtensions
                                             JsonSerializerContext? jsonSerializerContext = null,
                                             CancellationToken cancellation = default)
     {
+        rsp.HttpContext.PopulateResponseHeadersFrom(response);
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
 
@@ -111,6 +112,7 @@ public static class HttpResponseExtensions
                       //                                                                do not change to Resolve<T>() here
                       throw new InvalidOperationException("LinkGenerator is not registered! Have you done the unit test setup correctly?");
 
+        rsp.HttpContext.PopulateResponseHeadersFrom(responseBody);
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 201;
         rsp.Headers.Location = generateAbsoluteUrl
@@ -165,6 +167,7 @@ public static class HttpResponseExtensions
                                               JsonSerializerContext? jsonSerializerContext = null,
                                               CancellationToken cancellation = default)
     {
+        rsp.HttpContext.PopulateResponseHeadersFrom(response);
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
 

@@ -67,6 +67,7 @@ public static class MainExtensions
         Cfg.SerOpts.Options = jsonOpts is not null
                                   ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
                                   : Cfg.SerOpts.Options;
+        Cfg.SerOpts.Options.IgnoreToHeaderAttributes();
         configAction?.Invoke(app.ServiceProvider.GetRequiredService<Cfg>());
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();

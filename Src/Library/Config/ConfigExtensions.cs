@@ -19,7 +19,7 @@ static class ConfigExtensions
                 for (var i = 0; i < ti.Properties.Count; i++)
                 {
                     var pi = ti.Properties[i];
-                    if (pi.AttributeProvider?.GetCustomAttributes(Types.ToHeaderAttribute, false).Length != 0)
+                    if (pi.AttributeProvider?.GetCustomAttributes(Types.ToHeaderAttribute, true).Length != 0)
                         pi.ShouldSerialize = (_, _) => false;
                 }
             });

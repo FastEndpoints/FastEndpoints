@@ -55,6 +55,38 @@ A more detailed `NotSupportedException` is now being thrown to make it easy trac
 
 </details>
 
+<details><summary>Property naming policy was not applied to route parameters when generating Swagger spec</summary>
+
+If you had a request DTO like this:
+
+```csharp
+sealed class MyRequest
+{
+    public long SomeId { get; set; }
+}
+```
+
+And a route like this:
+
+```csharp
+public override void Configure()
+{
+    Get("/something/{someID}");
+}
+```
+
+Where the case of the parameter is different, and also had a property naming policy applied like this:
+
+```csharp
+app.UseFastEndpoints(c => c.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.KebabCaseLower)
+```
+
+Previously the Swagger spec generated would have a mismatched operation path parameter `{someID}` and a Swagger request parameter `some-id`.
+
+Now the Swagger path parameter is correctly rendered to match with the exact value/case as the request parameter.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Type discovery source generator creating duplicates for partial classes</summary>

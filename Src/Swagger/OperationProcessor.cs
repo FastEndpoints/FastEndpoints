@@ -297,6 +297,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                         if (!string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                                             return false;
 
+                                        ctx.OperationDescription.Path = ctx.OperationDescription.Path.Replace(m.Value, m.Value.ApplyPropNamingPolicy(docOpts));
+
                                         RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
 
                                         return true;
@@ -318,7 +320,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         if (reqDtoType is not null)
         {
             var qParams = reqDtoProps?
-                          .Where(p => ShouldAddQueryParam(p, reqParams, isGetRequest && !docOpts.EnableGetRequestsWithBody)) //user wants body in GET requests
+                          .Where(p => ShouldAddQueryParam(p, reqParams, isGetRequest && !docOpts.EnableGetRequestsWithBody, docOpts)) //user wants body in GET requests
                           .Select(
                               p =>
                               {
@@ -508,9 +510,9 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         return true;
     }
 
-    static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGetRequest)
+    static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGetRequest, DocumentOptions doctops)
     {
-        var paramName = prop.Name;
+        var paramName = prop.Name.ApplyPropNamingPolicy(doctops);
 
         foreach (var attribute in prop.GetCustomAttributes())
         {

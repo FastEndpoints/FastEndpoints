@@ -13,7 +13,9 @@ using NSwag.Generation.Processors.Security;
 using System.Reflection;
 using System.Text.Json;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NJsonSchema.NewtonsoftJson.Generation;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace FastEndpoints.Swagger;
 
@@ -254,6 +256,23 @@ public static class Extensions
         var example = p.GetXmlDocsTag("example");
 
         return string.IsNullOrEmpty(example) ? null : example;
+    }
+
+    internal static JToken? GetExampleJToken(this PropertyInfo? p, JsonSerializer serializer)
+    {
+        var exampleStr = p?.GetXmlExample();
+
+        if (exampleStr is null)
+            return null;
+
+        try
+        {
+            return JToken.FromObject(JsonConvert.DeserializeObject(exampleStr)!, serializer);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     internal static string? GetSummary(this Type p)

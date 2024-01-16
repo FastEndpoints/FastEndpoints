@@ -1365,6 +1365,26 @@
         "responses": {
           "200": {
             "description": "Success",
+            "headers": {
+              "x-header-one": {
+                "description": "",
+                "schema": {
+                  "title": "SystemInt32",
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 0
+              },
+              "Header2": {
+                "description": "",
+                "schema": {
+                  "title": "SystemDateOnly",
+                  "type": "string",
+                  "format": "date"
+                },
+                "example": "2024-01-16"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1419,6 +1439,26 @@
         "responses": {
           "200": {
             "description": "Success",
+            "headers": {
+              "x-header-one": {
+                "description": "",
+                "schema": {
+                  "title": "SystemInt32",
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "example": 0
+              },
+              "Header2": {
+                "description": "",
+                "schema": {
+                  "title": "SystemDateOnly",
+                  "type": "string",
+                  "format": "date"
+                },
+                "example": "2024-01-16"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {

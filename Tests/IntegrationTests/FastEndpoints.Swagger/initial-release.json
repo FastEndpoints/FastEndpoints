@@ -1382,7 +1382,7 @@
                   "type": "string",
                   "format": "date"
                 },
-                "example": "2024-01-16"
+                "example": "2020-10-10"
               }
             },
             "content": {
@@ -1456,7 +1456,7 @@
                   "type": "string",
                   "format": "date"
                 },
-                "example": "2024-01-16"
+                "example": "2020-10-10"
               }
             },
             "content": {

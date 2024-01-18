@@ -3,7 +3,7 @@
 /// <summary>
 /// base http attribute class
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class)]
 public abstract class HttpAttribute : Attribute
 {
     internal Http Verb { get; set; }
@@ -17,7 +17,7 @@ public abstract class HttpAttribute : Attribute
     protected HttpAttribute(Http verb, string route)
     {
         Verb = verb;
-        Routes = new[] { route };
+        Routes = [route];
     }
 
     /// <summary>

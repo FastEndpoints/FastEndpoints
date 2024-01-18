@@ -4,7 +4,7 @@
 /// properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal.
 /// this is a shorter alias for the [FromClaim] attribute.
 /// </summary>
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Property)]
 public sealed class FromAttribute : FromClaimAttribute
 {
     /// <summary>

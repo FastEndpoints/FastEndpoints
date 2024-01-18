@@ -3,7 +3,7 @@
 /// <summary>
 /// use this attribute to specify a PUT route for an endpoint
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class HttpPutAttribute : HttpAttribute
 {
     /// <summary>

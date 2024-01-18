@@ -22,6 +22,7 @@ SOFTWARE. */
 
 #nullable disable
 
+using System.Runtime.CompilerServices;
 using System.Diagnostics;
 
 // ReSharper disable UnusedType.Global
@@ -34,6 +35,8 @@ using System.Diagnostics;
 // ReSharper disable IntroduceOptionalParameters.Global
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable InconsistentNaming
+
+[assembly: InternalsVisibleTo("FastEndpoints")]
 
 namespace JetBrains.Annotations;
 

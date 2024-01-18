@@ -3,7 +3,7 @@
 /// <summary>
 /// rate limit requests to this endpoint based on a request http header sent by the client.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class ThrottleAttribute : Attribute
 {
     /// <summary>

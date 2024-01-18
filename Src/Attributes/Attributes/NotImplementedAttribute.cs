@@ -1,8 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿namespace FastEndpoints;
 
-[assembly: InternalsVisibleTo("FastEndpoints")]
-
-namespace FastEndpoints;
-
-[AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
-sealed class NotImplementedAttribute : Attribute { }
+/// <summary>
+/// indicates a base/abstract method that's not implemented.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method, Inherited = false)]
+public sealed class NotImplementedAttribute : Attribute;

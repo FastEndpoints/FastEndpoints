@@ -107,7 +107,7 @@ app.UseRequestLocalization(
    .UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
    .UseAuthentication()
    .UseAuthorization()
-   .UseAntiForgery()
+   .UseAntiforgeryFE()
    .UseFastEndpoints(
        c =>
        {

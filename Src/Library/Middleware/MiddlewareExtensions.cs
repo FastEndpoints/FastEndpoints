@@ -8,7 +8,7 @@ public static class MiddlewareExtensions
     /// enable anti-forgery token verification middleware.
     /// make sure to also add the anti-forgery services with <c>builder.Services.AddAntiForgery()</c>
     /// </summary>
-    public static IApplicationBuilder UseAntiForgery(this IApplicationBuilder app)
+    public static IApplicationBuilder UseAntiforgeryFE(this IApplicationBuilder app)
     {
         app.UseMiddleware<AntiforgeryMiddleware>();
         AntiforgeryMiddleware.IsRegistered = true;

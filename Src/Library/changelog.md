@@ -194,3 +194,9 @@ public class ExceptionProcessor : IPostProcessor<Request, Response>
 ```
 
 </details>
+
+<details><summary>Rename 'UseAntiforgery()' method</summary>
+
+The `builder.Services.UseAntiForgery()` extension method has been renamed to `.UseAntiforgeryFE()` in order to avoid confusion.
+
+</details>

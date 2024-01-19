@@ -75,27 +75,6 @@ public static class CommandExtensions
                 Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
     }
 
-    static void InitGenericHandler<TResult>(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry)
-    {
-        if (def is not null || !tCommand.IsGenericType)
-            return;
-
-        var tGenCmd = tCommand.GetGenericTypeDefinition();
-
-        if (!registry.TryGetValue(tGenCmd, out var genDef))
-            throw new InvalidOperationException($"No generic handler registered for generic command type: [{tGenCmd.FullName}]");
-
-        var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments()[0]);
-        var tTargetIfc = typeof(TResult) == Types.Null
-                             ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
-                             : Types.ICommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
-
-        if (!tHnd.IsAssignableTo(tTargetIfc))
-            throw new InvalidOperationException($"The registered generic handler for the generic command [{tGenCmd.FullName}] is not the correct type!");
-
-        def = registry[tCommand] = new(tHnd);
-    }
-
     /// <summary>
     /// registers a fake command handler for unit testing purposes
     /// </summary>
@@ -144,5 +123,27 @@ public static class CommandExtensions
         registry[genericCommandType] = new(genericHandlerType);
 
         return sp;
+    }
+
+    static void InitGenericHandler<TResult>(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry)
+    {
+        if (def is not null || !tCommand.IsGenericType)
+            return;
+
+        var tGenCmd = tCommand.GetGenericTypeDefinition();
+
+        if (!registry.TryGetValue(tGenCmd, out var genDef))
+            throw new InvalidOperationException($"No generic handler registered for generic command type: [{tGenCmd.FullName}]");
+
+        var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments()[0]);
+        var tRes = typeof(TResult);
+        var tTargetIfc = tRes == Types.Null
+                             ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
+                             : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tRes);
+
+        if (!tHnd.IsAssignableTo(tTargetIfc))
+            throw new InvalidOperationException($"The registered generic handler for the generic command [{tGenCmd.FullName}] is not the correct type!");
+
+        def = registry[tCommand] = new(tHnd);
     }
 }

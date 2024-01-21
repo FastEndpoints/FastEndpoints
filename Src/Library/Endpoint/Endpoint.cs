@@ -60,16 +60,20 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
         try
         {
-            req = await BindRequestAsync(Definition, HttpContext, ValidationFailures, ct);
+            req = await BindRequestAsync(
+                      Definition,
+                      HttpContext,
+                      ValidationFailures,
+                      ct); //execution stops here if JsonException is thrown and continues at try/catch below
 
-            //execution stops here if JsonException is thrown and continues at try/catch below
-
+            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
             OnBeforeValidate(req);
             await OnBeforeValidateAsync(req, ct);
 
             //execution stops here if ValidationFailureException is thrown and continues at try/catch below
             await ValidateRequest(req, Definition, ValidationFailures, ct);
 
+            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
             OnAfterValidate(req);
             await OnAfterValidateAsync(req, ct);
 
@@ -79,6 +83,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             if (ResponseStarted) //HttpContext.Response.HasStarted doesn't work in AWS lambda!!!
                 return;          //response already sent to client (most likely from a preprocessor)
 
+            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
             OnBeforeHandle(req);
             await OnBeforeHandleAsync(req, ct);
 
@@ -95,6 +100,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             if (!ResponseStarted)
                 await AutoSendResponse(HttpContext, _response!, Definition.SerializerContext, ct);
 
+            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
             OnAfterHandle(req, _response!);
             await OnAfterHandleAsync(req, _response!, ct);
         }
@@ -129,6 +135,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             if (!ranPreProcessors) //avoid running pre-procs twice
                 await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
 
+            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
             OnValidationFailed();
             await OnValidationFailedAsync(ct);
 

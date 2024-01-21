@@ -39,6 +39,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public string[]? AnonymousVerbs { get; private set; }
     public bool AntiforgeryEnabled { get; private set; }
     public List<string>? AuthSchemeNames { get; private set; }
+    public bool DontAutoSend { get; private set; }
     public bool DontAutoTagEndpoints { get; private set; }
     public bool DontBindFormData { get; private set; }
     public bool DoNotCatchExceptions { get; private set; }
@@ -178,6 +179,13 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                                ? _clearDefaultAcceptsProducesMetadata + builder + UserConfigAction
                                : builder + UserConfigAction;
     }
+
+    /// <summary>
+    /// disables auto sending of responses when the endpoint handler doesn't explicitly send a response. most useful for allowing a post-processor to
+    /// handle sending of the response.
+    /// </summary>
+    public void DontAutoSendResponse()
+        => DontAutoSend = true;
 
     /// <summary>
     /// if swagger auto tagging based on path segment is enabled, calling this method will prevent a tag from being added to this endpoint.

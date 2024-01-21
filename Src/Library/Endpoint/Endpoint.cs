@@ -97,7 +97,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             else
                 await HandleAsync(req, ct);
 
-            if (!ResponseStarted)
+            if (!Definition.DontAutoSend && !ResponseStarted)
                 await AutoSendResponse(HttpContext, _response!, Definition.SerializerContext, ct);
 
             // ReSharper disable once MethodHasAsyncOverloadWithCancellation

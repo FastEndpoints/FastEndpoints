@@ -160,6 +160,13 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.Description(builder, clearDefaults);
 
     /// <summary>
+    /// disables auto sending of responses when the endpoint handler doesn't explicitly send a response. most useful for allowing a post-processor to
+    /// handle sending of the response.
+    /// </summary>
+    protected void DontAutoSendResponse()
+        => Definition.DontAutoSendResponse();
+
+    /// <summary>
     /// if swagger auto tagging based on path segment is enabled, calling this method will prevent a tag from being added to this endpoint.
     /// </summary>
     protected void DontAutoTag()

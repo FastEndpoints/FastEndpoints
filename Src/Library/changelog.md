@@ -18,7 +18,7 @@ ref: https://github.com/FastEndpoints/FastEndpoints/issues/564
 
 <details><summary>Support for generic commands and command handlers</summary>
 
-Please see the [doc page](https://fast-endpoints.com//docs/command-bus#generic-commands-handlers) for more information.
+Please see the [documentation](https://fast-endpoints.com/docs/command-bus#generic-commands-handlers) for more information.
 
 </details>
 

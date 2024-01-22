@@ -22,6 +22,13 @@ Please see the [doc page](https://fast-endpoints.com//docs/command-bus#generic-c
 
 </details>
 
+<details><summary>Allow a Post-Processor to act as the sole mechanism for sending responses</summary>
+
+As shown in [this example](https://gist.github.com/dj-nitehawk/6e23842dcb7640b165fd80ba57967540), a post-processor can now be made the sole controller/decider of how 
+to send the appropriate response such as in the case with the "Results Pattern".
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Auto resolving of Mappers in unit tests</summary>

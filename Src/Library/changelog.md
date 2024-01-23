@@ -10,9 +10,9 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
-<details><summary>Automatically add headers to the response based on DTO property annotation</summary>
+<details><summary>Attribute driven response headers</summary>
 
-ref: https://github.com/FastEndpoints/FastEndpoints/issues/564
+Please see the [documentation](https://fast-endpoints.com/docs/misc-conveniences#attribute-driven-response-headers) for more information.
 
 </details>
 
@@ -24,8 +24,8 @@ Please see the [documentation](https://fast-endpoints.com/docs/command-bus#gener
 
 <details><summary>Allow a Post-Processor to act as the sole mechanism for sending responses</summary>
 
-As shown in [this example](https://gist.github.com/dj-nitehawk/6e23842dcb7640b165fd80ba57967540), a post-processor can now be made the sole controller/decider of how 
-to send the appropriate response such as in the case with the "Results Pattern".
+As shown in [this example](https://gist.github.com/dj-nitehawk/6e23842dcb7640b165fd80ba57967540), a post-processor can now be made the sole orchestrator of sending the 
+appropriate response such as in the case with the "Results Pattern".
 
 </details>
 
@@ -172,7 +172,7 @@ The method signature has been updated to the following:
 SendRedirectAsync(string location, bool isPermanent = false, bool allowRemoteRedirects = false)
 ```
 
-This would be a breaking only if you were doing any of the following:
+This would be a breaking change only if you were doing any of the following:
 
 - Redirecting to a remote url instead of a local url. In which case simply set `allowRemoteRedirects` to `true`. otherwise the new behavior will throw an exception.
   this change was done to prevent [open redirect attacks](https://learn.microsoft.com/en-us/aspnet/mvc/overview/security/preventing-open-redirection-attacks) by default.

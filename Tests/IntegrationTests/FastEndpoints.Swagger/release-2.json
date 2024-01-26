@@ -4357,14 +4357,14 @@
             "description": "overriden username text",
             "default": "admin",
             "maxLength": 50,
-            "minLength": 1,
+            "minLength": 3,
             "nullable": false,
             "example": "example username"
           },
           "Password": {
             "type": "string",
             "description": "the admin password",
-            "minLength": 1,
+            "minLength": 3,
             "nullable": false,
             "example": "example password"
           }
@@ -5193,7 +5193,7 @@
         "properties": {
           "FirstName": {
             "type": "string",
-            "minLength": 1,
+            "minLength": 5,
             "nullable": false
           },
           "FailureCount": {

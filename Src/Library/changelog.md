@@ -16,16 +16,16 @@ Please see the [documentation](https://fast-endpoints.com/docs/misc-conveniences
 
 </details>
 
-<details><summary>Support for generic commands and command handlers</summary>
+<details><summary>Allow a Post-Processor to act as the sole mechanism for sending responses</summary>
 
-Please see the [documentation](https://fast-endpoints.com/docs/command-bus#generic-commands-handlers) for more information.
+As shown in [this example](https://gist.github.com/dj-nitehawk/6e23842dcb7640b165fd80ba57967540), a post-processor can now be made the sole orchestrator of sending the
+appropriate response such as in the case with the "Results Pattern".
 
 </details>
 
-<details><summary>Allow a Post-Processor to act as the sole mechanism for sending responses</summary>
+<details><summary>Support for generic commands and command handlers</summary>
 
-As shown in [this example](https://gist.github.com/dj-nitehawk/6e23842dcb7640b165fd80ba57967540), a post-processor can now be made the sole orchestrator of sending the 
-appropriate response such as in the case with the "Results Pattern".
+Please see the [documentation](https://fast-endpoints.com/docs/command-bus#generic-commands-handlers) for more information.
 
 </details>
 
@@ -158,6 +158,16 @@ Will now be correctly rendered as follows:
         }
     }
 ]
+```
+
+</details>
+
+<details><summary>MinLength validator rule was not detected after a NotEmpty rule in Swagger generation</summary>
+
+```csharp
+RuleFor(r => r.Name)
+    .NotEmpty()
+    .MinimumLength(10); // this was not being picked up before
 ```
 
 </details>

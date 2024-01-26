@@ -314,7 +314,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                                 properties[context.PropertyKey].MaxLength = lengthValidator.Max;
                             if (lengthValidator.GetType() == typeof(MinimumLengthValidator<>) ||
                                 lengthValidator.GetType() == typeof(ExactLengthValidator<>) ||
-                                properties[context.PropertyKey].MinLength == null)
+                                properties[context.PropertyKey].MinLength is null or 1)
                                 properties[context.PropertyKey].MinLength = lengthValidator.Min;
                         }
             },

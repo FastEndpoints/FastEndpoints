@@ -223,6 +223,9 @@ public class WebTests
                 GenerateFullUrl = false
             },
             default);
+
+        ep.HttpContext.Response.Headers.ContainsKey("Location");
+        ep.HttpContext.Response.StatusCode.Should().Be(201);
     }
 
     [Fact]

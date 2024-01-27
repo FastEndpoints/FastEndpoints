@@ -94,6 +94,12 @@ Now the Swagger path parameter is correctly rendered to match with the exact val
 
 </details>
 
+<details><summary>Change default output location for Kiota Api Client generation</summary>
+
+When using `.MapApiClientEndpoint()`, previously the default value was a sub folder called `ClientGen` under the current folder. The default has been changed to a sub folder called `KiotaClientGen` in the current user's `TEMP` folder away from any project/source files, which is a much safer default location.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Type discovery source generator creating duplicates for partial classes</summary>

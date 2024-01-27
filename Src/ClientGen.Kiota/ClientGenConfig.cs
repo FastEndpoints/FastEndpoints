@@ -11,7 +11,11 @@ public sealed class ClientGenConfig : GenerationConfiguration
     public string SwaggerDocumentName { get; set; } = null!;
 
     /// <summary>
-    /// specify whether to zip up the generated client files
+    /// specify whether to zip up the generated client files.
+    /// <para>
+    /// NOTE: this property has no effect when client generation endpoints are mapped as the creation of a zip archive is mandatory
+    /// in order to provide a downloadable byte stream.
+    /// </para>
     /// </summary>
     public bool CreateZipArchive { get; set; }
 

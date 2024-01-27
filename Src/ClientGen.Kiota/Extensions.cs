@@ -29,13 +29,11 @@ public static class Extensions
             route,
             async (IHost app, HttpContext httpCtx, CancellationToken ct) =>
             {
-                var c = new ClientGenConfig { OutputPath = "ClientGen" };
+                var c = new ClientGenConfig { OutputPath = Path.Combine(Path.GetTempPath(), "KiotaClientGen") };
                 config(c);
                 c.CreateZipArchive = true;
 
                 await GenerateClient(app, c, ct);
-
-                Directory.Delete(c.OutputPath, true);
 
                 var zipFile = Path.GetFullPath(c.ZipOutputFile!);
                 await Results.File(

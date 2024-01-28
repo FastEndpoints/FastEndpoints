@@ -158,8 +158,9 @@ public static class MainExtensions
         }
 
         app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
-            $"Registered {totalEndpointCount} endpoints in " +
-            $"{endpoints.Stopwatch.ElapsedMilliseconds:0} milliseconds.");
+            "Registered {@total} endpoints in {@time} milliseconds.",
+            totalEndpointCount,
+            endpoints.Stopwatch.ElapsedMilliseconds.ToString("N0"));
 
         endpoints.Stopwatch.Stop();
 
@@ -250,12 +251,13 @@ public static class MainExtensions
     {
         var policiesToAdd = new List<string>();
 
-        if (ep.PreBuiltUserPolicies?.Any() is true)
+        if (ep.PreBuiltUserPolicies?.Count > 0)
             policiesToAdd.AddRange(ep.PreBuiltUserPolicies);
 
         if (ep.RequiresAuthorization())
             policiesToAdd.Add(ep.SecurityPolicyName);
 
+        // ReSharper disable once CoVariantArrayConversion
         return policiesToAdd.Select(
             p =>
             {

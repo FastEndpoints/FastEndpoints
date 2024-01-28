@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
+//this class is instantiated by either the IOC container in normal mode
+//or by Factory.AddTestServices() method in unit testing mode
 sealed class ServiceResolver(IServiceProvider provider,
                              IHttpContextAccessor ctxAccessor,
                              bool isUnitTestMode = false) : IServiceResolver
@@ -11,17 +13,14 @@ sealed class ServiceResolver(IServiceProvider provider,
     readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();
     readonly ConcurrentDictionary<Type, object> _singletonCache = new();
 
-    //this class is instantiated by either the IOC container in normal mode
-    //or by Factory.AddTestServices() method in unit testing mode
-
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
-        //WARNING: DO NOT DO THIS!!! it results in a perf degradation. no idea why.
-        //  factory = _factoryCache.GetOrAdd(type, ActivatorUtilities.CreateFactory(type, Type.EmptyTypes));
-
         var factory = _factoryCache.GetOrAdd(type, FactoryInitializer);
 
-        return factory(serviceProvider ?? ctxAccessor?.HttpContext?.RequestServices ?? provider, null);
+        //WARNING: DO NOT DO THIS!!! it results in a perf degradation. no idea why.
+        // var factory = _factoryCache.GetOrAdd(type, ActivatorUtilities.CreateFactory(type, Type.EmptyTypes));
+
+        return factory(serviceProvider ?? ctxAccessor.HttpContext?.RequestServices ?? provider, null);
 
         static ObjectFactory FactoryInitializer(Type t)
             => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes);

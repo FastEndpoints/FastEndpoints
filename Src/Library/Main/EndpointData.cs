@@ -150,7 +150,7 @@ sealed class EndpointData
                     if (EventBase.HandlerDict.TryGetValue(tEvent, out var handlers))
                         handlers.Add(t);
                     else
-                        EventBase.HandlerDict[tEvent] = new() { t };
+                        EventBase.HandlerDict[tEvent] = [t];
 
                     continue;
                 }

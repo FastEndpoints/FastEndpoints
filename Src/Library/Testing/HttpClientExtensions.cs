@@ -303,25 +303,26 @@ public static class HttpClientExtensions
         if (typeof(TResponse) == Types.EmptyResponse)
             return new(rsp, res);
 
-        try
+        if (rsp.IsSuccessStatusCode)
         {
-            if (rsp.IsSuccessStatusCode)
+            //this disposes the content stream. test code doesn't need to read it again.
+            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
+        }
+        else
+        {
+            //make a copy of the content stream to allow test code to read content stream.
+            using var copy = new MemoryStream();
+            await rsp.Content.CopyToAsync(copy); //this doesn't dispose the original stream.
+            copy.Position = 0;
+
+            try
             {
-                //this disposes the content stream. test code doesn't need to read it again.
-                res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
-            }
-            else
-            {
-                //make a copy of the content stream to allow test code to read content stream.
-                using var copy = new MemoryStream();
-                await rsp.Content.CopyToAsync(copy); //this doesn't dispose the original stream.
-                copy.Position = 0;
                 res = await JsonSerializer.DeserializeAsync<TResponse>(copy, SerOpts.Options);
             }
-        }
-        catch
-        {
-            // ignored
+            catch
+            {
+                //do nothing
+            }
         }
 
         return new(rsp, res!);

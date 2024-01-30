@@ -180,6 +180,14 @@ RuleFor(r => r.Name)
 
 ## Breaking Changes ⚠️
 
+<details><summary>Minor behavior change of 'HttpClient' extensions when integration testing</summary>
+
+Previous behavior of the HttpClient extension methods such as `GETAsync()`,`PUTAsync()` was to swallow any deserialization exceptions and return a default value for the `TestResult.Result` property. While this works fine for 99% of scenarios, it's not apparent for the developer why exactly it's null such as in the case of #588
+
+From now on, if an exception occurs with deserialization on successful requests, it will not be swallowed. The test will fail with an exception.
+
+</details>
+
 <details><summary>'SendRedirectAsync()' method signature change</summary>
 
 The method signature has been updated to the following:

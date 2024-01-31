@@ -63,6 +63,12 @@ public sealed class ProblemDetails : IResult
     [DefaultValue("0HMPNHL0JHL76:00000001")]
     public string TraceId { get; set; } = null!;
 
+    /// <summary>
+    /// the details of the error
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Detail { get; set; }
+
     public IEnumerable<Error> Errors { get; set; } = null!;
 
     public ProblemDetails() { }
@@ -106,7 +112,6 @@ public sealed class ProblemDetails : IResult
     }
 
 #if NET7_0_OR_GREATER
-
     static readonly string[] _contentTypes = { "application/problem+json" };
 
     /// <inheritdoc />

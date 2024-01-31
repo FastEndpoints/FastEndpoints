@@ -5522,6 +5522,11 @@
             "type": "string",
             "default": "0HMPNHL0JHL76:00000001"
           },
+          "Detail": {
+            "type": "string",
+            "description": "the details of the error",
+            "nullable": true
+          },
           "Errors": {
             "type": "array",
             "items": {

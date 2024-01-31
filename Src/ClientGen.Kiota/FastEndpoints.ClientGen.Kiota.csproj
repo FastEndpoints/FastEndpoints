@@ -11,8 +11,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="NSwag.Generation.AspNetCore" Version="14.0.0-preview012"/>
-        <PackageReference Include="Microsoft.OpenApi.Kiota.Builder" Version="1.9.1" />
+        <PackageReference Include="NSwag.Generation.AspNetCore" Version="14.0.2"/>
+        <PackageReference Include="Microsoft.OpenApi.Kiota.Builder" Version="1.10.1"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     </ItemGroup>
 

@@ -394,6 +394,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                         {
                             var schema = context.Schema;
                             var properties = schema.ActualProperties;
+                            properties[context.PropertyKey].Format = "email";
                             properties[context.PropertyKey].Pattern = "^[^@]+@[^@]+$"; // [^@] All chars except @
                         }
             }

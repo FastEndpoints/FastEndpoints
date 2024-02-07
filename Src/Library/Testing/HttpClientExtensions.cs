@@ -1,5 +1,6 @@
 ﻿// ReSharper disable InconsistentNaming
 
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Json;
 using System.Reflection;
@@ -340,7 +341,9 @@ public static class HttpClientExtensions
             if (p.PropertyType == Types.IFormFile)
             {
                 var file = (IFormFile)p.GetValue(req)!;
-                form.Add(new StreamContent(file.OpenReadStream()), p.Name, file.FileName);
+                var content = new StreamContent(file.OpenReadStream());
+                content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                form.Add(content, p.Name, file.FileName);
             }
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {
@@ -350,7 +353,11 @@ public static class HttpClientExtensions
                     continue;
 
                 foreach (var file in files)
-                    form.Add(new StreamContent(file.OpenReadStream()), p.Name, file.FileName);
+                {
+                    var content = new StreamContent(file.OpenReadStream());
+                    content.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                    form.Add(content, p.Name, file.FileName);
+                }
             }
             else
                 form.Add(new StringContent(p.GetValue(req)?.ToString() ?? ""), p.Name);

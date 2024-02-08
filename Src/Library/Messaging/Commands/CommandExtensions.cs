@@ -34,10 +34,10 @@ public static class CommandExtensions
         if (TestHandlersPresent)
             def.HandlerType = Cfg.ServiceResolver.TryResolve<ICommandHandler<TCommand>>()?.GetType() ?? def.HandlerType;
 
-        return ((CommandHandlerExecutorBase)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
+        return ((ICommandHandlerExecutor)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
 
-        static CommandHandlerExecutorBase CreateHandlerExecutor(Type tCommand)
-            => (CommandHandlerExecutorBase)Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
+        static ICommandHandlerExecutor CreateHandlerExecutor(Type tCommand)
+            => (ICommandHandlerExecutor)Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
     }
 
     /// <summary>
@@ -68,10 +68,10 @@ public static class CommandExtensions
             def.HandlerType = Cfg.ServiceResolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
         }
 
-        return ((CommandHandlerExecutorBase<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
+        return ((ICommandHandlerExecutor<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
 
-        static CommandHandlerExecutorBase<TResult> CreateHandlerExecutor(Type tCommand)
-            => (CommandHandlerExecutorBase<TResult>)
+        static ICommandHandlerExecutor<TResult> CreateHandlerExecutor(Type tCommand)
+            => (ICommandHandlerExecutor<TResult>)
                 Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
     }
 

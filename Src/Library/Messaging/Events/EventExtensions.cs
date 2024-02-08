@@ -18,8 +18,7 @@ public static class EventExtensions
     /// <see cref="Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
     /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all of the subscribers complete their work.
     /// </returns>
-    public static Task PublishAsync<TEvent>(this TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
-        where TEvent : IEvent
+    public static Task PublishAsync<TEvent>(this TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : IEvent
         => Cfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     //key: tEvent
@@ -58,7 +57,7 @@ public static class EventExtensions
             var eventModelCast = Expression.Convert(eventParam, tEventModel);
             var instanceInit = Expression.Assign(
                 instanceParam,
-                Expression.Call(typeof(EventExtensions), nameof(CreateEventInstance), new[] { tEventModel }));
+                Expression.Call(typeof(EventExtensions), nameof(CreateEventInstance), [tEventModel]));
             var publishCall = Expression.Call(instanceParam, publishMethod, eventModelCast, waitModeParam, cancellationParam);
             var lambda = Expression.Lambda<Func<IEvent, Mode, CancellationToken, Task>>(
                 Expression.Block(new[] { instanceParam }, instanceInit, publishCall),

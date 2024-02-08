@@ -237,7 +237,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                               ? null
                               : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).ToList();
 
-        if (reqDtoProps?.Any() is false) //see: RequestBinder.cs > static ctor
+        if (reqDtoType != Types.EmptyRequest && reqDtoProps?.Any() is false) //see: RequestBinder.cs > static ctor
         {
             throw new NotSupportedException(
                 "Request DTOs without any publicly accessible properties are not supported. " +

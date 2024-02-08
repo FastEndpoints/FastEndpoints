@@ -20,4 +20,21 @@ When a FluentValidator rule is attached to a property that's an email address, S
 
 </details>
 
+<details><summary>Swagger generation issue with form content and empty request DTO</summary>
+
+Endpoints configured like below, where the request dto type is `EmptyRequest` and the endpoint allows form content; was causing the swagger processor to throw an error, which has been rectified.
+
+```csharp
+sealed class MyEndpoint : EndpointWithoutRequest<MyResponse>
+{
+    public override void Configure()
+    {
+        ...
+        AllowFileUploads(); 
+    }
+}
+```
+
+</details>
+
 ## Breaking Changes ⚠️

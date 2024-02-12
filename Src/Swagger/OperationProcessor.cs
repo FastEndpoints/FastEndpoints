@@ -632,9 +632,13 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         if (defaultValFromCtorArg is not null)
             hasDefaultValFromCtorArg = true;
 
+        var isNullable = prop?.IsNullable();
+
         prm.IsRequired = isRequired ??
                          !hasDefaultValFromCtorArg ??
-                         !(prop?.IsNullable() ?? true);
+                         !(isNullable ?? true);
+
+        prm.Schema.IsNullableRaw = prm.IsRequired ? null : isNullable;
 
         if (ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2)
             prm.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
@@ -651,6 +655,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                 prm.Example = jToken.HasValues ? jToken : null;
             }
         }
+
         prm.IsNullableRaw = null; //if this is not null, nswag generates an incorrect swagger spec for some unknown reason.
 
         return prm;

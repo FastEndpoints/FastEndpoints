@@ -146,8 +146,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -205,8 +204,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -214,8 +212,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -235,7 +232,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string"
               }
@@ -283,8 +279,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -292,8 +287,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -333,8 +327,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -342,8 +335,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -362,7 +354,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string"
               }
@@ -440,8 +431,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -460,7 +450,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string"
               }
@@ -507,8 +496,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "default": "test default val",
-              "nullable": true
+              "default": "test default val"
             }
           },
           {
@@ -517,8 +505,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "default": "query test default val",
-              "nullable": true
+              "default": "query test default val"
             }
           }
         ],
@@ -573,8 +560,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -632,8 +618,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -641,8 +626,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -662,7 +646,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string"
               }
@@ -710,8 +693,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -719,8 +701,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -760,8 +741,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -769,8 +749,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -789,7 +768,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string"
               }
@@ -867,8 +845,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -887,7 +864,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string"
               }
@@ -991,8 +967,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "default": "test default val",
-              "nullable": true
+              "default": "test default val"
             }
           },
           {
@@ -1001,8 +976,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "default": "query test default val",
-              "nullable": true
+              "default": "query test default val"
             }
           }
         ],
@@ -1066,8 +1040,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -1122,8 +1095,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -1156,8 +1128,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -1253,8 +1224,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "default": "test default val",
-              "nullable": true
+              "default": "test default val"
             }
           }
         ],
@@ -1503,8 +1473,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -1513,7 +1482,7 @@
             "description": "this is the tenant id",
             "schema": {
               "type": "string",
-              "nullable": true
+              "nullable": false
             }
           }
         ],
@@ -1630,8 +1599,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "byte",
-              "nullable": true
+              "format": "byte"
             }
           },
           {
@@ -1639,7 +1607,6 @@
             "in": "query",
             "required": true,
             "schema": {
-              "nullable": true,
               "oneOf": [
                 {
                   "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays"
@@ -1885,7 +1852,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string"
               }
@@ -1902,7 +1868,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string"
               }
@@ -1919,7 +1884,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "number",
                 "format": "double"
@@ -1937,7 +1901,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "integer",
                 "format": "int32"
@@ -1955,7 +1918,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string",
                 "format": "guid"
@@ -1973,7 +1935,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string",
                 "format": "date-time"
@@ -1991,7 +1952,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "$ref": "#/components/schemas/TestCasesDupeParamBindingForIEnumerablePropsRequest_Person"
               }
@@ -2149,7 +2109,6 @@
           "content": {
             "application/json": {
               "schema": {
-                "nullable": true,
                 "oneOf": [
                   {
                     "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
@@ -2288,7 +2247,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "number",
                 "format": "double"
@@ -2306,7 +2264,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "integer",
                 "format": "int32"
@@ -2324,7 +2281,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string",
                 "format": "guid"
@@ -2342,7 +2298,6 @@
             "required": true,
             "schema": {
               "type": "array",
-              "nullable": true,
               "items": {
                 "type": "string",
                 "format": "date-time"
@@ -2357,7 +2312,6 @@
             "in": "query",
             "required": true,
             "schema": {
-              "nullable": true,
               "oneOf": [
                 {
                   "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person"
@@ -2375,7 +2329,6 @@
             "required": true,
             "schema": {
               "type": "object",
-              "nullable": true,
               "additionalProperties": {
                 "type": "string"
               }
@@ -2644,8 +2597,7 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -3006,8 +2958,7 @@
             "required": true,
             "description": "this is a string prop xml comment",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3058,7 +3009,6 @@
             "in": "query",
             "required": true,
             "schema": {
-              "nullable": true,
               "oneOf": [
                 {
                   "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
@@ -3118,7 +3068,6 @@
             "in": "query",
             "required": true,
             "schema": {
-              "nullable": true,
               "oneOf": [
                 {
                   "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
@@ -3313,8 +3262,7 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3323,8 +3271,7 @@
             "required": true,
             "description": "the description for other id",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           }
         ],
@@ -3357,8 +3304,7 @@
             "required": true,
             "description": "this is a string prop xml comment",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "type": "string"
             }
           },
           {
@@ -3375,8 +3321,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "nullable": true
+              "format": "int32"
             }
           },
           {
@@ -3411,7 +3356,6 @@
             "in": "query",
             "required": true,
             "schema": {
-              "nullable": true,
               "oneOf": [
                 {
                   "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"

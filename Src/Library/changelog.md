@@ -37,4 +37,44 @@ sealed class MyEndpoint : EndpointWithoutRequest<MyResponse>
 
 </details>
 
+<details><summary>Swagger issue with reference type DTO props being marked as nullable</summary>
+
+Given a DTO such as this:
+
+```csharp
+sealed class MyRequest
+{
+    public string PropOne { get; set; }
+    public string? PropTwo { get; set; }
+}
+```
+
+The following swagger spec was generated before:
+
+```json
+"parameters": [
+    {
+        "name": "propOne",
+        "in": "query",
+        "required": true,
+        "schema": {
+            "type": "string",
+            "nullable": true //this is wrong as property is not marked nullable
+        }
+    },
+    {
+        "name": "propTwo",
+        "in": "query",
+        "schema": {
+            "type": "string",
+            "nullable": true
+        }
+    }
+]
+```
+
+Non-nullable reference types are not correctly generated as non-nullable.
+
+</details>
+
 ## Breaking Changes ⚠️

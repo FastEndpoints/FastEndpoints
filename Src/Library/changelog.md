@@ -12,6 +12,12 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## Improvements 🚀
 
+<details><summary>Relax DTO type constraint on 'Validator&lt;TRequest&gt;' class</summary>
+
+The type constraint on the `Validator<TRequest>` class has been relaxed to `notnull` so that struct type DTOs can be validated.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Swagger UI displaying random text for email fields</summary>

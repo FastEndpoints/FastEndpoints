@@ -18,6 +18,12 @@ The type constraint on the `Validator<TRequest>` class has been relaxed to `notn
 
 </details>
 
+<details><summary>Allow TestFixture's TearDownAsync method to make Http calls</summary>
+
+Previously the `TestFixture<TProgram>` class would dispose the default http client before executing the teardown method. This prevents cleanup code to be able to make http calls. Now the http client is only disposed after `TearDownAsync` has completed.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Swagger UI displaying random text for email fields</summary>

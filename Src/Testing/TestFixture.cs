@@ -152,10 +152,9 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     public Task InitializeAsync()
         => SetupAsync();
 
-    public virtual Task DisposeAsync()
+    public virtual async Task DisposeAsync()
     {
+        await TearDownAsync();
         Client.Dispose();
-
-        return TearDownAsync();
     }
 }

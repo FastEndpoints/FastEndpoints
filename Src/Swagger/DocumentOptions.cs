@@ -89,6 +89,11 @@ public class DocumentOptions
     public TagCase TagCase { get; set; } = TagCase.TitleCase;
 
     /// <summary>
+    /// specify whether to strip non alpha-numeric characters from tags.
+    /// </summary>
+    public bool TagStripSymbols { get; set; } = false;
+
+    /// <summary>
     /// specify swagger tag descriptions for the document.
     /// the key of the dictionary is the name of the tag to add a description for.
     /// </summary>

@@ -24,6 +24,34 @@ Previously the `TestFixture<TProgram>` class would dispose the default http clie
 
 </details>
 
+<details><summary>Ability to strip symbols from Swagger group/tag names</summary>
+
+Given a route like:
+
+```
+/api/admin-dashboard/ticket/{id}
+```
+
+And swagger config like this:
+
+```csharp
+bld.Services.SwaggerDocument(
+    o =>
+    {
+        o.AutoTagPathSegmentIndex = 2;
+        o.TagCase = TagCase.TitleCase;
+        o.TagStripSymbols = true; //this option is new
+    });
+```
+
+The resulting group/tag name will be:
+
+```
+AdminDashboard
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Swagger UI displaying random text for email fields</summary>

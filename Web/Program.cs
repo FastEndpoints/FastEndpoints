@@ -39,6 +39,7 @@ bld.Services
                    s.SchemaSettings.SchemaType = SchemaType.OpenApi3;
                };
            o.TagCase = TagCase.TitleCase;
+           o.TagStripSymbols = true;
            o.RemoveEmptyRequestSchema = false;
        })
    .SwaggerDocument(
@@ -61,6 +62,7 @@ bld.Services
                };
            o.MaxEndpointVersion = 1;
            o.RemoveEmptyRequestSchema = false;
+           o.TagStripSymbols = true;
        })
    .SwaggerDocument(
        o =>
@@ -75,6 +77,7 @@ bld.Services
            o.MaxEndpointVersion = 2;
            o.ShowDeprecatedOps = true;
            o.RemoveEmptyRequestSchema = false;
+           o.TagStripSymbols = true;
        })
    .SwaggerDocument(
        o => //only ver3 & only FastEndpoints

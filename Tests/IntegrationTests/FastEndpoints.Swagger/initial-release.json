@@ -1513,7 +1513,7 @@
     "/api/test-cases/antiforgery/token": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "antiforgery_TestCasesAntiforgeryTestGetAfTokenEndpoint",
         "responses": {
@@ -1533,7 +1533,7 @@
     "/api/test-cases/antiforgery/render-form": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "antiforgery_TestCasesAntiforgeryTestRenderFormHtml",
         "responses": {
@@ -1554,7 +1554,7 @@
     "/api/test-cases/antiforgery/validate": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "antiforgery_TestCasesAntiforgeryTestVerifyAfToken",
         "requestBody": {
@@ -1587,7 +1587,7 @@
     "/api/test-cases/byte-array-query-param-binding-test": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "summary": "summary",
         "description": "descr",
@@ -1723,7 +1723,7 @@
     "/api/test-cases/custom-request-binder": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesCustomRequestBinderEndpoint",
         "requestBody": {
@@ -1764,7 +1764,7 @@
     "/api/test-cases/data-annotation": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesDataAnnotationCompliantEndpoint",
         "requestBody": {
@@ -1808,7 +1808,7 @@
     "/api/test-cases/{number}": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesDontCatchExceptionsEndpoint",
         "parameters": [
@@ -1840,7 +1840,7 @@
     "/api/test-cases/dupe-param-binding-for-ienumerable-props": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesDupeParamBindingForIEnumerablePropsEndpoint",
         "parameters": [
@@ -1981,7 +1981,7 @@
     "/api/test-cases/empty-request-test": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesEmptyRequestTestEmptyRequestEndpoint",
         "responses": {
@@ -2019,7 +2019,7 @@
     "/api/test-cases/event-bus-test": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesEventBusTestEndpoint",
         "responses": {
@@ -2040,7 +2040,7 @@
     "/api/test-cases/form-file-collection-binding": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesFormFileBindingTestEndpoint",
         "requestBody": {
@@ -2081,7 +2081,7 @@
     "/api/test-cases/from-body-binding/{id}": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesFromBodyJsonBindingEndpoint",
         "parameters": [
@@ -2235,7 +2235,7 @@
     "/api/test-cases/json-array-binding-for-ienumerable-props": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesJsonArrayBindingForIEnumerablePropsEndpoint",
         "parameters": [
@@ -2352,7 +2352,7 @@
     "/api/test-cases/json-array-binding-to-ienumerable-dto": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesJsonArrayBindingToIEnumerableDtoEndpoint",
         "requestBody": {
@@ -2388,7 +2388,7 @@
     "/api/test-cases/json-array-binding-to-list-of-models": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesJsonArrayBindingToListOfModelsEndpoint",
         "requestBody": {
@@ -2427,7 +2427,7 @@
     "/api/test-cases/mapper-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesMapperTestEndpoint",
         "requestBody": {
@@ -2468,7 +2468,7 @@
     "/api/test-cases/missing-claim-test/dont-throw": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesMissingClaimTestDontThrowIfMissingEndpoint",
         "parameters": [
@@ -2507,7 +2507,7 @@
     "/api/test-cases/missing-claim-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesMissingClaimTestThrowIfMissingEndpoint",
         "responses": {
@@ -2536,7 +2536,7 @@
     "/api/test-cases/missing-header-test/dont-throw": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesMissingHeaderTestDontThrowIfMissingEndpoint",
         "parameters": [
@@ -2588,7 +2588,7 @@
     "/api/test-cases/missing-header-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesMissingHeaderTestThrowIfMissingEndpoint",
         "parameters": [
@@ -2627,7 +2627,7 @@
     "/api/test-cases/on-before-on-after-validate": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesOnBeforeAfterValidationTestEndpoint",
         "requestBody": {
@@ -2678,7 +2678,7 @@
     "/test-cases/plaintext/{Id}": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "summary": "plain request endpoint summary",
         "operationId": "TestCasesPlainTextRequestTestEndpoint",
@@ -2828,7 +2828,7 @@
     "/api/test-cases/pre-processor-is-run-on-validation-failure": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesPreProcessorIsRunOnValidationFailureEndpoint",
         "requestBody": {
@@ -2879,7 +2879,7 @@
     "/api/test-cases/processor-attributes-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesProcessorAttributesTestEndpoint",
         "requestBody": {
@@ -2915,7 +2915,7 @@
     "/api/test-cases/processor-state-sharing": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesProcessorStateTestEndpoint",
         "parameters": [
@@ -2946,7 +2946,7 @@
     "/api/test-cases/query-object-binding-test": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "summary": "summary",
         "description": "descr",
@@ -3057,7 +3057,7 @@
     "/api/test-cases/query-arrays-of-objects-binding-test": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "summary": "summary",
         "description": "descr",
@@ -3129,7 +3129,7 @@
     "/api/test-cases/ep-witout-req-query-param-binding-test": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesQueryParamBindingInEpWithoutReqEpWithoutReqQueryParamBindingTest",
         "responses": {
@@ -3149,7 +3149,7 @@
     "/api/test-cases/range": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesRangeHandlingTestEndpoint",
         "responses": {
@@ -3180,7 +3180,7 @@
     "/api/test-cases/global-throttle-error-response": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesRateLimitTestsGlobalErrorResponseTest",
         "responses": {
@@ -3253,7 +3253,7 @@
     "/api/test-cases/ep-witout-req-route-binding-test/{CustomerID}/{OtherID}": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesRouteBindingInEpWithoutReqEpWithoutReqRouteBindingTest",
         "parameters": [
@@ -3292,7 +3292,7 @@
     "/api/test-cases/route-binding-test/{string}/{bool}/{int}/{long}/{double}/{decimal}": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "summary": "summary",
         "description": "descr",
@@ -3430,7 +3430,7 @@
     "/api/test-cases/service-reg-gen-test": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesServiceRegistrationGeneratorTestEndpoint",
         "responses": {
@@ -3473,7 +3473,7 @@
     "/api/multi-test": {
       "post": {
         "tags": [
-          "Multi-Test"
+          "MultiTest"
         ],
         "operationId": "TestCasesTypedResultTestMultiResultEndpoint",
         "requestBody": {
@@ -3519,7 +3519,7 @@
     "/api/test-cases/unit-test-concurrency": {
       "get": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesUnitTestConcurrencyTestEndpoint",
         "parameters": [
@@ -3551,7 +3551,7 @@
     "/api/test-cases/array-validation-error-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesValidationErrorTestArrayValidationErrorTestEndpoint",
         "requestBody": {
@@ -3593,7 +3593,7 @@
     "/api/test-cases/dictionary-validation-error-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesValidationErrorTestDictionaryValidationErrorTestEndpoint",
         "requestBody": {
@@ -3635,7 +3635,7 @@
     "/api/test-cases/list-in-list-validation-error-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesValidationErrorTestListInListValidationErrorTestEndpoint",
         "requestBody": {
@@ -3677,7 +3677,7 @@
     "/api/test-cases/list-validation-error-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesValidationErrorTestListValidationErrorTestEndpoint",
         "requestBody": {
@@ -3719,7 +3719,7 @@
     "/api/test-cases/object-array-validation-error-test": {
       "post": {
         "tags": [
-          "Test-Cases"
+          "TestCases"
         ],
         "operationId": "TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint",
         "requestBody": {

@@ -71,7 +71,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         {
             var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
             if (segments.Length >= docOpts.AutoTagPathSegmentIndex)
-                op.Tags.Add(TagName(segments[docOpts.AutoTagPathSegmentIndex - 1], docOpts.TagCase));
+                op.Tags.Add(TagName(segments[docOpts.AutoTagPathSegmentIndex - 1], docOpts.TagCase, docOpts.TagStripSymbols));
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
@@ -596,15 +596,19 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         return string.Join("/", parts);
     }
 
-    static string TagName(string input, TagCase tagCase)
+    static string TagName(string input, TagCase tagCase, bool stripSymbols)
     {
-        return tagCase switch
-        {
-            TagCase.None => input,
-            TagCase.TitleCase => _textInfo.ToTitleCase(input),
-            TagCase.LowerCase => _textInfo.ToLower(input),
-            _ => input
-        };
+        return StripSymbols(
+            tagCase switch
+            {
+                TagCase.None => input,
+                TagCase.TitleCase => _textInfo.ToTitleCase(input),
+                TagCase.LowerCase => _textInfo.ToLower(input),
+                _ => input
+            });
+
+        string StripSymbols(string val)
+            => stripSymbols ? Regex.Replace(val, "[^a-zA-Z0-9]", "") : val;
     }
 
     static OpenApiParameter CreateParam(OperationProcessorContext ctx,

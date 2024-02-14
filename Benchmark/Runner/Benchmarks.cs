@@ -1,4 +1,4 @@
-﻿#pragma warning disable CA1822
+﻿using System.Diagnostics.CodeAnalysis;
 using BenchmarkDotNet.Attributes;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Runner;
 
-[MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, iterationCount: 10, invocationCount: 10000)]
+[MemoryDiagnoser, SimpleJob(launchCount: 1, warmupCount: 1, iterationCount: 10, invocationCount: 10000), SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class Benchmarks
 {
     const string QueryObjectParams = "?id=101&FirstName=Name&LastName=LastName&Age=23&phoneNumbers[0]=223422&phonenumbers[1]=11144" +
@@ -54,6 +54,19 @@ public class Benchmarks
     }
 
     [Benchmark]
+    public Task FastEndpointsStructDto()
+    {
+        var msg = new HttpRequestMessage
+        {
+            Method = HttpMethod.Post,
+            RequestUri = new($"{FastEndpointClient.BaseAddress}benchmark/struct/123"),
+            Content = _payload
+        };
+
+        return FastEndpointClient.SendAsync(msg);
+    }
+
+    [Benchmark]
     public Task MinimalApi()
     {
         var msg = new HttpRequestMessage
@@ -66,7 +79,7 @@ public class Benchmarks
         return MinimalClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task FastEndpointsCodeGen()
     {
         var msg = new HttpRequestMessage
@@ -79,7 +92,7 @@ public class Benchmarks
         return FeCodeGenClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task FastEndpointsScopedValidator()
     {
         var msg = new HttpRequestMessage
@@ -92,7 +105,7 @@ public class Benchmarks
         return FeScopedValidatorClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task AspNetCoreMvc()
     {
         var msg = new HttpRequestMessage
@@ -105,7 +118,7 @@ public class Benchmarks
         return MvcClient.SendAsync(msg);
     }
 
-    [Benchmark]
+    //[Benchmark]
     public Task FastEndpointsThrottling()
     {
         var msg = new HttpRequestMessage

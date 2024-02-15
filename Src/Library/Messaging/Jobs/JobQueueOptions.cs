@@ -16,11 +16,11 @@ public class JobQueueOptions
     public int MaxConcurrency { get; set; } = Environment.ProcessorCount;
 
     /// <summary>
-    /// Specifies the interval for periodic re-checks of the storage to detect any scheduled jobs.
-    /// These checks ensure that scheduled jobs are promptly executed, preventing potential expiration issues.
-    /// The default interval is set to 60 seconds.
+    /// specifies the interval for periodic re-checks of the storage to detect any scheduled jobs. these checks ensure that re-scheduled jobs are promptly executed.
+    /// the default interval is set to 60 seconds. a shorter delay will make re-scheduled jobs run faster but will increase the overall load on the storage system,
+    /// due to too frequent queries being issued. only reduce this delay if you need re-scheduled jobs re-execute faster.
     /// </summary>
-    public TimeSpan DelayDuration { get; set; } = TimeSpan.FromSeconds(60);
+    public TimeSpan StorageProbeDelay { get; set; } = TimeSpan.FromSeconds(60);
 
     /// <summary>
     /// the per job type max execution time limit for handler executions unless otherwise overridden using <see cref="LimitsFor{TCommand}(int, TimeSpan)" />
@@ -43,15 +43,12 @@ public class JobQueueOptions
     {
         _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
     }
-    internal void SetDelayDuration(JobQueueBase jobQueue)
-    {
-        jobQueue.SetDelayDuration(DelayDuration);
-    }
-    internal void SetExecutionLimits(Type tCommand, JobQueueBase jobQueue)
+
+    internal void SetLimits(Type tCommand, JobQueueBase jobQueue)
     {
         if (_limitOverrides.TryGetValue(tCommand, out var limits))
-            jobQueue.SetExecutionLimits(limits.concurrency, limits.timeLimit);
+            jobQueue.SetLimits(limits.concurrency, limits.timeLimit, StorageProbeDelay);
         else
-            jobQueue.SetExecutionLimits(MaxConcurrency, ExecutionTimeLimit);
+            jobQueue.SetLimits(MaxConcurrency, ExecutionTimeLimit, StorageProbeDelay);
     }
 }

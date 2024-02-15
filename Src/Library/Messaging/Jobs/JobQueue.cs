@@ -2,6 +2,9 @@ using FastEndpoints.Messaging.Jobs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
+
+// ReSharper disable MethodSupportsCancellation
 
 namespace FastEndpoints;
 
@@ -15,8 +18,7 @@ abstract class JobQueueBase
 
     protected abstract Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
 
-    internal abstract void SetDelayDuration(TimeSpan delayDuration);
-    internal abstract void SetExecutionLimits(int concurrencyLimit, TimeSpan executionTimeLimit);
+    internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit);
 
     internal static Task AddToQueueAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
@@ -47,7 +49,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
     TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
-    TimeSpan _delayDuration = TimeSpan.FromSeconds(60);
+    TimeSpan _semWaitLimit = TimeSpan.FromSeconds(60);
     bool _isInUse;
 
     public JobQueue(TStorageProvider storageProvider,
@@ -63,16 +65,14 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         JobStorage<TStorageRecord, TStorageProvider>.AppCancellation = _appCancellation;
     }
 
-    internal override void SetExecutionLimits(int concurrencyLimit, TimeSpan executionTimeLimit)
+    internal override void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit)
     {
         _parallelOptions.MaxDegreeOfParallelism = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
+        _semWaitLimit = semWaitLimit;
         _ = CommandExecutorTask();
     }
-    internal override void SetDelayDuration(TimeSpan delayDuration)
-    {
-        _delayDuration = delayDuration;
-    }
+
     protected override async Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         _isInUse = true;
@@ -87,6 +87,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         _sem.Release();
     }
 
+    [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
     async Task CommandExecutorTask()
     {
         var batchSize = _parallelOptions.MaxDegreeOfParallelism * 2;
@@ -112,8 +113,6 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
             catch (Exception x)
             {
                 _log.StorageRetrieveError(QueueID, _tCommandName, x.Message);
-
-                // ReSharper disable once MethodSupportsCancellation
                 await Task.Delay(5000);
 
                 continue;
@@ -123,17 +122,13 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
             {
                 // If _isInUse is false, it signifies that no job has been queued yet.
                 // Therefore, there is no necessity for further iterations within the loop until the semaphore is released upon queuing the first job.
-
+                //
                 // If _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute), whichever comes first.
                 // We must periodically reevaluate the storage status every minute to ascertain if the user has rescheduled any previous jobs while no new jobs are being queued.
                 // Failure to conduct this periodic check could result in rescheduled jobs only executing upon the arrival of new jobs, potentially leading to expired job executions.
-
-                await (
-                          _isInUse
-
-                              // ReSharper disable once MethodSupportsCancellation
-                              ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_delayDuration))
-                              : Task.WhenAny(_sem.WaitAsync(_appCancellation)));
+                await (_isInUse
+                           ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
+                           : Task.WhenAny(_sem.WaitAsync(_appCancellation)));
             }
             else
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
@@ -161,12 +156,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                     catch (Exception xx)
                     {
                         _log.StorageOnExecutionFailureError(QueueID, _tCommandName, xx.Message);
-
-#pragma warning disable CA2016
-
-                        //ReSharper disable once MethodSupportsCancellation
                         await Task.Delay(5000);
-#pragma warning restore CA2016
                     }
                 }
 
@@ -185,12 +175,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 catch (Exception x)
                 {
                     _log.StorageMarkAsCompleteError(QueueID, _tCommandName, x.Message);
-
-#pragma warning disable CA2016
-
-                    // ReSharper disable once MethodSupportsCancellation
                     await Task.Delay(5000);
-#pragma warning restore CA2016
                 }
             }
         }

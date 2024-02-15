@@ -1,4 +1,4 @@
-﻿namespace FastEndpoints;
+namespace FastEndpoints;
 
 /// <summary>
 /// options for job queues
@@ -14,6 +14,13 @@ public class JobQueueOptions
     /// you can specify per queue type overrides using <see cref="LimitsFor{TCommand}(int, TimeSpan)" />
     /// </summary>
     public int MaxConcurrency { get; set; } = Environment.ProcessorCount;
+
+    /// <summary>
+    /// Specifies the interval for periodic re-checks of the storage to detect any scheduled jobs.
+    /// These checks ensure that scheduled jobs are promptly executed, preventing potential expiration issues.
+    /// The default interval is set to 60 seconds.
+    /// </summary>
+    public TimeSpan DelayDuration { get; set; } = TimeSpan.FromSeconds(60);
 
     /// <summary>
     /// the per job type max execution time limit for handler executions unless otherwise overridden using <see cref="LimitsFor{TCommand}(int, TimeSpan)" />
@@ -36,7 +43,10 @@ public class JobQueueOptions
     {
         _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
     }
-
+    internal void SetDelayDuration(JobQueueBase jobQueue)
+    {
+        jobQueue.SetDelayDuration(DelayDuration);
+    }
     internal void SetExecutionLimits(Type tCommand, JobQueueBase jobQueue)
     {
         if (_limitOverrides.TryGetValue(tCommand, out var limits))

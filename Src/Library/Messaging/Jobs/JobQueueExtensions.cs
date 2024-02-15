@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -54,6 +54,7 @@ public static class JobQueueExtensions
 
             var tJobQ = Types.JobQueueOf3.MakeGenericType(tCommand, _tStorageRecord, _tStorageProvider);
             var jobQ = app.ApplicationServices.GetRequiredService(tJobQ);
+            opts.SetDelayDuration((JobQueueBase)jobQ);
             opts.SetExecutionLimits(tCommand, (JobQueueBase)jobQ);
         }
 

@@ -1,4 +1,4 @@
-﻿using FastEndpoints.Messaging.Jobs;
+using FastEndpoints.Messaging.Jobs;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -15,6 +15,7 @@ abstract class JobQueueBase
 
     protected abstract Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
 
+    internal abstract void SetDelayDuration(TimeSpan delayDuration);
     internal abstract void SetExecutionLimits(int concurrencyLimit, TimeSpan executionTimeLimit);
 
     internal static Task AddToQueueAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
@@ -46,6 +47,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
     TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
+    TimeSpan _delayDuration = TimeSpan.FromSeconds(60);
     bool _isInUse;
 
     public JobQueue(TStorageProvider storageProvider,
@@ -67,7 +69,10 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         _executionTimeLimit = executionTimeLimit;
         _ = CommandExecutorTask();
     }
-
+    internal override void SetDelayDuration(TimeSpan delayDuration)
+    {
+        _delayDuration = delayDuration;
+    }
     protected override async Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         _isInUse = true;
@@ -116,17 +121,18 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
 
             if (!records.Any())
             {
-                // if _isInUse is false, a job has never been queued and there's no need for another iteration of the while loop -
-                // until the semaphore is released when the first job is queued.
-                // if _isInUse if true, we need to block until the next job is queued or until 1 min has elapsed.
-                // we need to re-check the storage every minute to see if the user has re-scheduled old jobs while there's no new jobs being queued.
-                // without the 1 minute check, rescheduled jobs will only execute when there's a new job being queued.
-                // which could lead to the rescheduled job being already expired by the time it's executed.
+                // If _isInUse is false, it signifies that no job has been queued yet.
+                // Therefore, there is no necessity for further iterations within the loop until the semaphore is released upon queuing the first job.
+
+                // If _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute), whichever comes first.
+                // We must periodically reevaluate the storage status every minute to ascertain if the user has rescheduled any previous jobs while no new jobs are being queued.
+                // Failure to conduct this periodic check could result in rescheduled jobs only executing upon the arrival of new jobs, potentially leading to expired job executions.
+
                 await (
                           _isInUse
 
                               // ReSharper disable once MethodSupportsCancellation
-                              ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(60000))
+                              ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_delayDuration))
                               : Task.WhenAny(_sem.WaitAsync(_appCancellation)));
             }
             else
@@ -156,11 +162,11 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                     {
                         _log.StorageOnExecutionFailureError(QueueID, _tCommandName, xx.Message);
 
-                    #pragma warning disable CA2016
+#pragma warning disable CA2016
 
                         //ReSharper disable once MethodSupportsCancellation
                         await Task.Delay(5000);
-                    #pragma warning restore CA2016
+#pragma warning restore CA2016
                     }
                 }
 
@@ -180,11 +186,11 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 {
                     _log.StorageMarkAsCompleteError(QueueID, _tCommandName, x.Message);
 
-                #pragma warning disable CA2016
+#pragma warning disable CA2016
 
                     // ReSharper disable once MethodSupportsCancellation
                     await Task.Delay(5000);
-                #pragma warning restore CA2016
+#pragma warning restore CA2016
                 }
             }
         }

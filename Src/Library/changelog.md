@@ -52,6 +52,20 @@ AdminDashboard
 
 </details>
 
+<details><summary>Ability to customize job queue storage provider re-check frequency</summary>
+
+You can now customize the job queue storage provider re-check time delay in case you need re-scheduled jobs to execute quicker.
+
+```csharp
+app.UseJobQueues( 
+    o => 
+    { 
+        o.StorageProbeDelay = TimeSpan.FromSeconds(5); 
+    });
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Swagger UI displaying random text for email fields</summary>

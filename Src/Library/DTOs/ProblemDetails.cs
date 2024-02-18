@@ -137,6 +137,11 @@ public sealed class ProblemDetails : IResult
         internal static readonly Comparer EqComparer = new();
 
         /// <summary>
+        /// if set to true, the <see cref="ValidationFailure.ErrorCode" /> value of the failure will be serialized to the response.
+        /// </summary>
+        public static bool IndicateErrorCode { get; set; } = false;
+
+        /// <summary>
         /// if set to true, the <see cref="FluentValidation.Severity" /> value of the failure will be serialized to the response.
         /// </summary>
         public static bool IndicateSeverity { get; set; } = false;
@@ -171,7 +176,7 @@ public sealed class ProblemDetails : IResult
         {
             Name = Cfg.SerOpts.Options.PropertyNamingPolicy?.ConvertName(failure.PropertyName) ?? failure.PropertyName;
             Reason = failure.ErrorMessage;
-            Code = failure.ErrorCode;
+            Code = IndicateErrorCode ? failure.ErrorCode : null;
             Severity = IndicateSeverity ? failure.Severity.ToString() : null;
         }
 

@@ -2,10 +2,8 @@
 
 namespace RemoteProcedureCalls;
 
-public class EventQueue : RPCTestBase
+public class EventQueue(Fixture f, ITestOutputHelper o) : RpcTestBase(f, o)
 {
-    public EventQueue(Fixture f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task Event_Queue()
     {
@@ -17,9 +15,7 @@ public class EventQueue : RPCTestBase
         }
 
         while (TestEventQueueHandler.Received.Count < 1)
-        {
             await Task.Delay(500);
-        }
 
         TestEventQueueHandler.Received.Count.Should().Be(100);
         TestEventQueueHandler.Received.Select(r => r.Id).Except(Enumerable.Range(0, 100)).Any().Should().BeFalse();

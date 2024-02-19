@@ -2,10 +2,8 @@
 
 namespace RemoteProcedureCalls;
 
-public class UnaryCommand : RPCTestBase
+public class UnaryCommand(Fixture f, ITestOutputHelper o) : RpcTestBase(f, o)
 {
-    public UnaryCommand(Fixture f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task Unary()
     {
@@ -15,7 +13,7 @@ public class UnaryCommand : RPCTestBase
             LastName = "lawrence"
         };
 
-        var res = await remote.ExecuteUnary(command, command.GetType(), default);
+        var res = await Remote.ExecuteUnary(command, command.GetType(), default);
 
         res.Should().Be("johnny lawrence");
     }
@@ -29,7 +27,7 @@ public class UnaryCommand : RPCTestBase
             LastName = "lawrence"
         };
 
-        var res = await remote.ExecuteUnary(command, command.GetType(), default);
+        var res = await Remote.ExecuteUnary(command, command.GetType(), default);
 
         res.Should().BeEquivalentTo(command);
     }

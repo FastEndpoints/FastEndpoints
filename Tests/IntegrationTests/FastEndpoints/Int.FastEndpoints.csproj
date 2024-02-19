@@ -24,13 +24,4 @@
         <Content Include="test.png" CopyToOutputDirectory="Always"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="BindingTests\"/>
-        <Folder Include="DependencyInjectionTests\"/>
-        <Folder Include="EndpointTests\"/>
-        <Folder Include="MiscTests\"/>
-        <Folder Include="ProcessorTests\"/>
-        <Folder Include="ValidationTests\"/>
-    </ItemGroup>
-
 </Project>

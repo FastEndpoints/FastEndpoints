@@ -1,9 +1,7 @@
 ﻿namespace RemoteProcedureCalls;
 
-public class VoidCommand : RPCTestBase
+public class VoidCommand(Fixture f, ITestOutputHelper o) : RpcTestBase(f, o)
 {
-    public VoidCommand(Fixture f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task Void()
     {
@@ -12,6 +10,6 @@ public class VoidCommand : RPCTestBase
             FirstName = "johnny",
             LastName = "lawrence"
         };
-        await remote.ExecuteVoid(command, command.GetType(), default);
+        await Remote.ExecuteVoid(command, command.GetType(), default);
     }
 }

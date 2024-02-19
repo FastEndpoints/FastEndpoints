@@ -13,33 +13,31 @@ public class Fixture(IMessageSink s) : TestFixture<Web.Program>(s)
     public HttpClient CustomerClient { get; private set; } = default!;
     public HttpClient RangeClient { get; private set; } = default!;
 
-    protected override Task SetupAsync()
+    protected override async Task SetupAsync()
     {
         GuestClient = CreateClient();
 
         AdminClient = CreateClient();
-        var (_, result) = AdminClient.POSTAsync<
-            Admin.Login.Endpoint,
-            Admin.Login.Request,
-            Admin.Login.Response>(
-            new()
-            {
-                UserName = "admin",
-                Password = "pass"
-            }).GetAwaiter().GetResult();
+        var (_, result) = await AdminClient.POSTAsync<
+                              Admin.Login.Endpoint,
+                              Admin.Login.Request,
+                              Admin.Login.Response>(
+                              new()
+                              {
+                                  UserName = "admin",
+                                  Password = "pass"
+                              });
         AdminClient.DefaultRequestHeaders.Authorization = new("Bearer", result?.JWTToken);
         AdminClient.DefaultRequestHeaders.Add("tenant-id", "admin");
 
         CustomerClient = CreateClient();
-        var (_, customerToken) = CustomerClient.GETAsync<Customers.Login.Endpoint, string>().GetAwaiter().GetResult();
+        var (_, customerToken) = await CustomerClient.GETAsync<Customers.Login.Endpoint, string>();
         CustomerClient.DefaultRequestHeaders.Authorization = new("Bearer", customerToken);
         CustomerClient.DefaultRequestHeaders.Add("tenant-id", "qwerty");
         CustomerClient.DefaultRequestHeaders.Add("CustomerID", "123");
 
         RangeClient = CreateClient();
         RangeClient.DefaultRequestHeaders.Range = new(5, 9);
-
-        return Task.CompletedTask;
     }
 
     protected override void ConfigureServices(IServiceCollection s)

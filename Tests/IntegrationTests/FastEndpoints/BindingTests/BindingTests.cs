@@ -1,14 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
-using TestCases.EmptyRequestTest;
-using TestCases.EventHandlingTest;
+using Microsoft.AspNetCore.Http;
 using TestCases.FromBodyJsonBinding;
-using TestCases.MissingClaimTest;
 using TestCases.QueryObjectWithObjectsArrayBindingTest;
 using ByteEnum = TestCases.QueryObjectBindingTest.ByteEnum;
 using Endpoint = TestCases.JsonArrayBindingToListOfModels.Endpoint;
@@ -16,116 +12,14 @@ using Person = TestCases.RouteBindingTest.Person;
 using Request = TestCases.RouteBindingTest.Request;
 using Response = TestCases.RouteBindingInEpWithoutReq.Response;
 
-namespace Web;
+namespace Binding;
 
-public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
+public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {
-    [Fact]
-    public async Task MultiVerbEndpointAnonymousUserPutFail()
-    {
-        using var imageContent = new ByteArrayContent(Array.Empty<byte>());
-        imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
-
-        using var form = new MultipartFormDataContent { { imageContent, "File", "test.png" } };
-
-        var res = await Fixture.GuestClient.PutAsync("/api/uploads/image/save", form);
-
-        res.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task ClaimMissing()
-    {
-        var (_, result) = await Fixture.AdminClient.POSTAsync<
-                              ThrowIfMissingEndpoint,
-                              ThrowIfMissingRequest,
-                              ErrorResponse>(
-                              new()
-                              {
-                                  TestProp = "xyz"
-                              });
-
-        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        result.Errors.Should().NotBeNull();
-        result.Errors.Count.Should().Be(1);
-        result.Errors.Should().ContainKey("null-claim");
-    }
-
-    [Fact]
-    public async Task ClaimMissingButDontThrow()
-    {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<
-                                DontThrowIfMissingEndpoint,
-                                DontThrowIfMissingRequest,
-                                string>(
-                                new()
-                                {
-                                    TestProp = "xyz"
-                                });
-
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        result.Should().Be("you sent xyz");
-    }
-
-    [Fact]
-    public async Task EmptyRequest()
-    {
-        var endpointUrl = IEndpoint.TestURLFor<EmptyRequestEndpoint>();
-
-        var requestUri = new Uri(
-            Fixture.AdminClient.BaseAddress!.ToString().TrimEnd('/') +
-            (endpointUrl.StartsWith('/') ? endpointUrl : "/" + endpointUrl));
-
-        var message = new HttpRequestMessage
-        {
-            Content = new StringContent(string.Empty, Encoding.UTF8, "application/json"),
-            Method = HttpMethod.Get,
-            RequestUri = requestUri
-        };
-
-        var response = await Fixture.AdminClient.SendAsync(message);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    [Fact]
-    public async Task HeaderMissing()
-    {
-        var (_, result) = await Fixture.AdminClient.POSTAsync<
-                              TestCases.MissingHeaderTest.ThrowIfMissingEndpoint,
-                              TestCases.MissingHeaderTest.ThrowIfMissingRequest,
-                              ErrorResponse>(
-                              new()
-                              {
-                                  TenantID = "abc"
-                              });
-
-        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        result.Errors.Should().NotBeNull();
-        result.Errors.Count.Should().Be(1);
-        result.Errors.Should().ContainKey("TenantID");
-    }
-
-    [Fact]
-    public async Task HeaderMissingButDontThrow()
-    {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<
-                                TestCases.MissingHeaderTest.DontThrowIfMissingEndpoint,
-                                TestCases.MissingHeaderTest.DontThrowIfMissingRequest,
-                                string>(
-                                new()
-                                {
-                                    TenantID = "abc"
-                                });
-
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        result.Should().Be("you sent abc");
-    }
-
     [Fact]
     public async Task RouteValueReadingInEndpointWithoutRequest()
     {
-        var (rsp, res) = await Fixture.GuestClient.GETAsync<
+        var (rsp, res) = await Fixture.Client.GETAsync<
                              EmptyRequest,
                              Response>("/api/test-cases/ep-witout-req-route-binding-test/09809/12", new());
 
@@ -137,7 +31,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task RouteValueReadingIsRequired()
     {
-        var (rsp, res) = await Fixture.GuestClient.GETAsync<
+        var (rsp, res) = await Fixture.Client.GETAsync<
                              EmptyRequest,
                              ErrorResponse>("/api/test-cases/ep-witout-req-route-binding-test/09809/lkjhlkjh", new());
 
@@ -149,7 +43,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task RouteValueBinding()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
                                           "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12&CustomList=1;2",
                                           new()
@@ -181,7 +75,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task RouteValueBindingFromQueryParams()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
                                           "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                                           "?Bool=false&String=everything",
@@ -210,7 +104,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task JsonArrayBindingToIEnumerableProps()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .GETAsync<TestCases.JsonArrayBindingForIEnumerableProps.Request,
                                           TestCases.JsonArrayBindingForIEnumerableProps.Response>(
                                           "/api/test-cases/json-array-binding-for-ienumerable-props?" +
@@ -245,7 +139,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task JsonArrayBindingToListOfModels()
     {
-        var (rsp, res) = await Fixture.GuestClient.POSTAsync<
+        var (rsp, res) = await Fixture.Client.POSTAsync<
                              Endpoint,
                              List<TestCases.JsonArrayBindingToListOfModels.Request>,
                              List<TestCases.JsonArrayBindingToListOfModels.Response>>(
@@ -269,7 +163,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
             new() { Id = 2, Name = "two" }
         };
 
-        var (rsp, res) = await Fixture.GuestClient.POSTAsync<
+        var (rsp, res) = await Fixture.Client.POSTAsync<
                              TestCases.JsonArrayBindingToIEnumerableDto.Endpoint,
                              TestCases.JsonArrayBindingToIEnumerableDto.Request,
                              List<TestCases.JsonArrayBindingToIEnumerableDto.Response>>(req);
@@ -282,7 +176,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task DupeParamBindingToIEnumerableProps()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .GETAsync<TestCases.DupeParamBindingForIEnumerableProps.Request,
                                           TestCases.DupeParamBindingForIEnumerableProps.Response>(
                                           "/api/test-cases/dupe-param-binding-for-ienumerable-props?" +
@@ -326,7 +220,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task BindingFromAttributeUse()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
                                           "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                                           "?Bool=false&String=everything&XBlank=256" +
@@ -385,7 +279,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task BindingObjectFromQueryUse()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
                                           "api/test-cases/query-object-binding-test" +
                                           "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
@@ -436,7 +330,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task ByteArrayQueryParamBindingTestUse()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .GETAsync<TestCases.ByteArrayQueryParamBindingTest.Request, TestCases.ByteArrayQueryParamBindingTest.Response>(
                                           "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D&timestamps=AAAAAAAAw1U%3D",
                                           new());
@@ -458,7 +352,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .GETAsync<TestCases.QueryObjectWithObjectsArrayBindingTest.Request,
                                           TestCases.QueryObjectWithObjectsArrayBindingTest.Response>(
                                           "api/test-cases/query-arrays-of-objects-binding-test" +
@@ -556,7 +450,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task BindingFromAttributeUseSwaggerUiStyle()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
                                           "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
                                           "?Bool=false&String=everything&XBlank=256" +
@@ -615,7 +509,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task BindingObjectFromQueryUseSwaggerUiStyle()
     {
-        var (rsp, res) = await Fixture.GuestClient
+        var (rsp, res) = await Fixture.Client
                                       .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
                                           "api/test-cases/query-object-binding-test" +
                                           "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
@@ -661,27 +555,6 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
                     Numbers = new() { 0, 1, -222, 1000, 22 }
                 }
             });
-    }
-
-    [Fact]
-    public async Task EventHandling()
-    {
-        var event1 = new NewItemAddedToStock { ID = 1, Name = "one", Quantity = 10 };
-        var event2 = new NewItemAddedToStock { ID = 2, Name = "two", Quantity = 20 };
-        var event3 = new NewItemAddedToStock { ID = 3, Name = "three", Quantity = 30 };
-
-        await new EventBus<NewItemAddedToStock>().PublishAsync(event1, Mode.WaitForNone);
-        await new EventBus<NewItemAddedToStock>().PublishAsync(event2, Mode.WaitForAny);
-        await new EventBus<NewItemAddedToStock>().PublishAsync(event3);
-
-        event3.ID.Should().Be(0);
-        event3.Name.Should().Be("pass");
-
-        event2.ID.Should().Be(0);
-        event2.Name.Should().Be("pass");
-
-        event1.ID.Should().Be(0);
-        event1.Name.Should().Be("pass");
     }
 
     [Fact]
@@ -797,149 +670,6 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     }
 
     [Fact]
-    public async Task PreProcessorShortCircuitingWhileValidatorFails()
-    {
-        var x = await Fixture.GuestClient.GETAsync<
-                    TestCases.PrecessorShortWhileValidatorFails.Endpoint,
-                    TestCases.PrecessorShortWhileValidatorFails.Request,
-                    object>(
-                    new()
-                    {
-                        Id = 0
-                    });
-
-        x.Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        x.Result.ToString().Should().Be("hello from pre-processor!");
-    }
-
-    [Fact]
-    public async Task PreProcessorsAreRunIfValidationFailuresOccur()
-    {
-        var (rsp, res) = await Fixture.AdminClient.POSTAsync<
-                             TestCases.PreProcessorIsRunOnValidationFailure.Endpoint,
-                             TestCases.PreProcessorIsRunOnValidationFailure.Request,
-                             ErrorResponse>(
-                             new()
-                             {
-                                 FailureCount = 0,
-                                 FirstName = ""
-                             });
-
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().NotBeNull();
-        res.Errors.Count.Should().Be(2);
-        res.Errors["x"].First().Should().Be("blah");
-    }
-
-    [Fact]
-    public async Task OnBeforeOnAfterValidation()
-    {
-        var (rsp, res) = await Fixture.AdminClient.POSTAsync<
-                             TestCases.OnBeforeAfterValidationTest.Endpoint,
-                             TestCases.OnBeforeAfterValidationTest.Request,
-                             TestCases.OnBeforeAfterValidationTest.Response>(
-                             new()
-                             {
-                                 Host = "blah",
-                                 Verb = Http.DELETE
-                             });
-
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Host.Should().Be("localhost");
-    }
-
-    [Fact]
-    public async Task ProcessorAttributes()
-    {
-        var (rsp, res) =
-            await Fixture.GuestClient.POSTAsync<
-                TestCases.ProcessorAttributesTest.Endpoint,
-                TestCases.ProcessorAttributesTest.Request,
-                List<string>>(
-                new()
-                {
-                    Values = ["zero"]
-                });
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Count.Should().Be(5);
-        res.Should().Equal(["zero", "one", "two", "three", "four"]);
-    }
-
-    [Fact]
-    public async Task PreProcessorShortCircuitMissingHeader()
-    {
-        var (rsp, res) = await Fixture.GuestClient.GETAsync<
-                             Sales.Orders.Retrieve.Endpoint,
-                             Sales.Orders.Retrieve.Request,
-                             ErrorResponse>(new() { OrderID = "order1" });
-
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().NotBeNull();
-        res.Errors.Count.Should().Be(1);
-        res.Errors.Should().ContainKey("MissingHeaders");
-    }
-
-    [Fact]
-    public async Task PreProcessorShortCircuitWrongHeaderValue()
-    {
-        var (rsp, _) = await Fixture.AdminClient.POSTAsync<
-                           Sales.Orders.Retrieve.Endpoint,
-                           Sales.Orders.Retrieve.Request,
-                           object>(
-                           new()
-                           {
-                               OrderID = "order1"
-                           });
-
-        rsp.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
-    }
-
-    [Fact]
-    public async Task PreProcessorShortCircuitHandlerExecuted()
-    {
-        var (rsp, res) = await Fixture.CustomerClient.GETAsync<
-                             Sales.Orders.Retrieve.Endpoint,
-                             Sales.Orders.Retrieve.Request,
-                             ErrorResponse>(new() { OrderID = "order1" });
-
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Message.Should().Be("ok!");
-    }
-
-    [Fact]
-    public async Task ProcessorStateWorks()
-    {
-        var x = await Fixture.GuestClient.GETAsync<
-                    TestCases.ProcessorStateTest.Endpoint,
-                    TestCases.ProcessorStateTest.Request,
-                    string>(new() { Id = 10101 });
-
-        x.Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        x.Result.Should().Be("10101 jane doe True");
-    }
-
-    [Fact]
-    public async Task PostProcessorCanHandleExceptions()
-    {
-        var x = await Fixture.GuestClient.GETAsync<
-                    TestCases.PostProcessorTest.Endpoint,
-                    TestCases.PostProcessorTest.Request,
-                    TestCases.PostProcessorTest.ExceptionDetailsResponse>(new() { Id = 10101 });
-
-        x.Response.StatusCode.Should().Be(HttpStatusCode.PreconditionFailed);
-        x.Result.Type.Should().Be(nameof(NotImplementedException));
-    }
-
-    [Fact]
-    public async Task ExceptionIsThrownWhenAPostProcDoesntHandleExceptions()
-    {
-        var (rsp, res) = await Fixture.GuestClient.GETAsync<TestCases.PostProcessorTest.EpNoPostProcessor, InternalErrorResponse>();
-        rsp.IsSuccessStatusCode.Should().BeFalse();
-        res.Code.Should().Be(500);
-        res.Reason.Should().Be("The method or operation is not implemented.");
-    }
-
-    [Fact]
     public async Task PlainTextBodyModelBinding()
     {
         using var stringContent = new StringContent("this is the body content");
@@ -954,21 +684,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     }
 
     [Fact]
-    public async Task GlobalRoutePrefixOverride()
-    {
-        using var stringContent = new StringContent("this is the body content");
-        stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
-
-        var rsp = await Fixture.AdminClient.PostAsync("/mobile/api/test-cases/global-prefix-override/12345", stringContent);
-
-        var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
-
-        res!.BodyContent.Should().Be("this is the body content");
-        res.Id.Should().Be(12345);
-    }
-
-    [Fact]
-    public async Task GETRequestWithRouteParameterAndReqDto()
+    public async Task GetRequestWithRouteParameterAndReqDto()
     {
         var (rsp, res) = await Fixture.CustomerClient.GETAsync<EmptyRequest, ErrorResponse>(
                              "/api/sales/orders/retrieve/54321",
@@ -1014,52 +730,6 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res.Errors.Should().ContainKey("OtherID");
-    }
-
-    [Fact]
-    public async Task ThrottledGlobalResponse()
-    {
-        HttpResponseMessage? response = null;
-
-        for (var i = 0; i < 5; i++)
-        {
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get
-            };
-            request.Headers.Add("X-Custom-Throttle-Header", "test");
-            request.RequestUri =
-                new(
-                    "api/test-cases/global-throttle-error-response?customerId=09809&otherId=12",
-                    UriKind.Relative);
-            response = await Fixture.GuestClient.SendAsync(request);
-        }
-
-        var responseContent = await response!.Content.ReadAsStringAsync();
-        responseContent.Should().Be("Custom Error Response");
-        response.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
-    }
-
-    [Fact]
-    public async Task NotThrottledGlobalResponse()
-    {
-        HttpResponseMessage response = default!;
-
-        for (var i = 0; i < 3; i++)
-        {
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Get
-            };
-            request.Headers.Add("X-Custom-Throttle-Header", "test-2");
-            request.RequestUri =
-                new(
-                    "api/test-cases/global-throttle-error-response?customerId=09809&otherId=12",
-                    UriKind.Relative);
-            response = await Fixture.GuestClient.SendAsync(request);
-        }
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -1123,55 +793,5 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
         res.Product.Id.Should().Be(202);
         res.CustomerID.Should().Be("123");
         res.Id.Should().Be(null);
-    }
-
-    [Fact]
-    public async Task DontCatchExceptions()
-    {
-        try
-        {
-            await Fixture.GuestClient.GetStringAsync("/api/test-cases/one");
-        }
-        catch { }
-
-        var res = await Fixture.GuestClient.GetStringAsync("/api/test-cases/1");
-
-        res.Should().Be("1");
-    }
-
-    [Fact]
-    public async Task IAuthorization_Injection_Pass()
-    {
-        var (rsp, res) = await Fx.AdminClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
-
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task IAuthorization_Injection_Fail()
-    {
-        var (rsp, res) = await Fx.CustomerClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
-
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task Service_Registration_Generator()
-    {
-        var (rsp, res) = await Fx.GuestClient.GETAsync<TestCases.ServiceRegistrationGeneratorTest.Endpoint, string[]>();
-
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-
-        res.Should().Equal("Scoped", "Transient", "Singleton");
-    }
-
-    [Fact]
-    public async Task STJ_Infinite_Recursion()
-    {
-        var (rsp, _) = await Fx.GuestClient.GETAsync<TestCases.STJInfiniteRecursionTest.Endpoint, TestCases.STJInfiniteRecursionTest.Response>();
-        rsp.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-        (await rsp.Content.ReadAsStringAsync()).Should().Contain("A possible object cycle was detected.");
     }
 }

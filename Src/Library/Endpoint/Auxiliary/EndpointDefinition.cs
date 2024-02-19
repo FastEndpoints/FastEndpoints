@@ -501,7 +501,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                            p => new ServiceBoundEpProp
                            {
                                PropName = p.Name,
-                               PropType = p.PropertyType
+                               PropType = p.PropertyType,
+                               ServiceKey = p.GetCustomAttribute<KeyedServiceAttribute>()?.Key
                            })
                        .ToArray();
 
@@ -551,8 +552,9 @@ public sealed class EpVersion
 sealed class ServiceBoundEpProp
 {
     public string PropName { get; init; } = null!;
-    public Type PropType { get; init; } = null!;
+    public string? ServiceKey { get; init; }
     public Action<object, object>? PropSetter { get; set; }
+    public Type PropType { get; init; } = null!;
 }
 
 sealed class ToHeaderProp(string headerName, Func<object, object?>? getter)

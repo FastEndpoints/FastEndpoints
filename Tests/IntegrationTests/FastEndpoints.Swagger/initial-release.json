@@ -2424,6 +2424,26 @@
         }
       }
     },
+    "/api/test-cases/keyed-services-test": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesKeyedServicesTestsEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/mapper-test": {
       "post": {
         "tags": [

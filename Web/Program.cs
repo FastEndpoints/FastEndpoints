@@ -7,6 +7,7 @@ using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
 using TestCases.EventQueueTest;
 using TestCases.JobQueueTest;
+using TestCases.KeyedServicesTests;
 using TestCases.ProcessorStateTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
@@ -22,6 +23,8 @@ bld.Services
    .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes.AddRange(DiscoveredTypes.All))
    .AddJWTBearerAuth(bld.Configuration["TokenKey"]!)
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))
+   .AddKeyedTransient<IKeyedService>("AAA", (_, _) => new MyKeyedService("AAA"))
+   .AddKeyedTransient<IKeyedService>("BBB", (_, _) => new MyKeyedService("BBB"))
    .AddScoped<IEmailService, EmailService>()
    .AddSingleton(new SingltonSVC(0))
    .AddJobQueues<Job, JobStorage>()

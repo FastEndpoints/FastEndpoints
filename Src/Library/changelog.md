@@ -10,17 +10,9 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
-## Improvements 🚀
+<details><summary>Keyed service injection for endpoint properties</summary>
 
-<details><summary>Relax DTO type constraint on 'Validator&lt;TRequest&gt;' class</summary>
-
-The type constraint on the `Validator<TRequest>` class has been relaxed to `notnull` so that struct type DTOs can be validated.
-
-</details>
-
-<details><summary>Allow TestFixture's TearDownAsync method to make Http calls</summary>
-
-Previously the `TestFixture<TProgram>` class would dispose the default http client before executing the teardown method. This prevents cleanup code to be able to make http calls. Now the http client is only disposed after `TearDownAsync` has completed.
+//todo: update docs + write description here
 
 </details>
 
@@ -49,6 +41,20 @@ The resulting group/tag name will be:
 ```
 AdminDashboard
 ```
+
+</details>
+
+## Improvements 🚀
+
+<details><summary>Relax DTO type constraint on 'Validator&lt;TRequest&gt;' class</summary>
+
+The type constraint on the `Validator<TRequest>` class has been relaxed to `notnull` so that struct type DTOs can be validated.
+
+</details>
+
+<details><summary>Allow TestFixture's TearDownAsync method to make Http calls</summary>
+
+Previously the `TestFixture<TProgram>` class would dispose the default http client before executing the teardown method. This prevents cleanup code to be able to make http calls. Now the http client is only disposed after `TearDownAsync` has completed.
 
 </details>
 
@@ -131,4 +137,4 @@ Non-nullable reference types are not correctly generated as non-nullable.
 
 </details>
 
-## Breaking Changes ⚠️
+[//]: # (## Breaking Changes ⚠️)

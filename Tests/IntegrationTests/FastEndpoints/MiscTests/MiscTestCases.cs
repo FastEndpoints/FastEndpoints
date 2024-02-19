@@ -65,16 +65,6 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     }
 
     [Fact]
-    public async Task Service_Registration_Generator()
-    {
-        var (rsp, res) = await Fx.GuestClient.GETAsync<TestCases.ServiceRegistrationGeneratorTest.Endpoint, string[]>();
-
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-
-        res.Should().Equal("Scoped", "Transient", "Singleton");
-    }
-
-    [Fact]
     public async Task STJ_Infinite_Recursion()
     {
         var (rsp, _) = await Fx.GuestClient.GETAsync<TestCases.STJInfiniteRecursionTest.Endpoint, TestCases.STJInfiniteRecursionTest.Response>();

@@ -20,20 +20,32 @@ public sealed class EndpointFactory : IEndpointFactory
 
         var epInstance = (BaseEndpoint)Cfg.ServiceResolver.CreateInstance(definition.EndpointType, ctx.RequestServices);
 
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        var isAppStartup = ctx.Connection.Id == null;
-
         for (var i = 0; i < definition.ServiceBoundEpProps.Length; i++)
         {
             var prop = definition.ServiceBoundEpProps[i];
             prop.PropSetter ??= definition.EndpointType.SetterForProp(prop.PropName);
-            prop.PropSetter(
-                epInstance,
-                isAppStartup
-                    ? ctx.RequestServices.GetRequiredService(prop.PropType)
-                    : ctx.Resolve(prop.PropType));
+            prop.PropSetter(epInstance, ResolveService(ctx, prop));
         }
 
         return epInstance;
     }
+
+    static object ResolveService(HttpContext ctx, ServiceBoundEpProp prop)
+        => prop.ServiceKey switch
+        {
+        #if NET8_0_OR_GREATER
+            not null => ctx.RequestServices.GetRequiredKeyedService(prop.PropType, prop.ServiceKey),
+        #endif
+            _ => ctx.RequestServices.GetRequiredService(prop.PropType)
+        };
+
+    // static object ResolveService(HttpContext ctx, ServiceBoundEpProp prop)
+    // {
+    //     // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+    //     var isAppStartup = ctx.Connection.Id == null;
+    //
+    //     return isAppStartup
+    //                ? ctx.RequestServices.GetRequiredService(prop.PropType)
+    //                : ctx.Resolve(prop.PropType);
+    // }
 }

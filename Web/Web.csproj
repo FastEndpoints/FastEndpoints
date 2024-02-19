@@ -24,4 +24,14 @@
         <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <!--<Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs"/>-->
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="[Features]\TestCases\Binding\" />
+      <Folder Include="[Features]\TestCases\Endpoints\" />
+      <Folder Include="[Features]\TestCases\Misc\" />
+      <Folder Include="[Features]\TestCases\Processors\" />
+      <Folder Include="[Features]\TestCases\Messaging\" />
+      <Folder Include="[Features]\TestCases\Security\" />
+      <Folder Include="[Features]\TestCases\Validation\" />
+    </ItemGroup>
 </Project>

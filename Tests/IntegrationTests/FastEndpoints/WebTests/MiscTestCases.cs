@@ -18,10 +18,8 @@ using Response = TestCases.RouteBindingInEpWithoutReq.Response;
 
 namespace Web;
 
-public class MiscTestCases : TestClass<Fixture>
+public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {
-    public MiscTestCases(Fixture f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task MultiVerbEndpointAnonymousUserPutFail()
     {

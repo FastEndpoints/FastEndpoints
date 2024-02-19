@@ -4,18 +4,17 @@ using Login = Admin.Login;
 
 namespace Web;
 
-public class AdminTests : TestClass<Fixture>
+public class AdminTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {
-    public AdminTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task AdminLoginWithBadInput()
     {
-        var (resp, result) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, ErrorResponse>(new()
-        {
-            UserName = "x",
-            Password = "y"
-        });
+        var (resp, result) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, ErrorResponse>(
+                                 new()
+                                 {
+                                     UserName = "x",
+                                     Password = "y"
+                                 });
 
         resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result.Errors.Count.Should().Be(2);
@@ -24,11 +23,12 @@ public class AdminTests : TestClass<Fixture>
     [Fact]
     public async Task AdminLoginSuccess()
     {
-        var (resp, result) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, Login.Response>(new()
-        {
-            UserName = "admin",
-            Password = "pass"
-        });
+        var (resp, result) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, Login.Response>(
+                                 new()
+                                 {
+                                     UserName = "admin",
+                                     Password = "pass"
+                                 });
 
         resp.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Permissions.Count().Should().Be(8);
@@ -38,11 +38,12 @@ public class AdminTests : TestClass<Fixture>
     [Fact]
     public async Task AdminLoginInvalidCreds()
     {
-        var (rsp, _) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, Login.Response>(new()
-        {
-            UserName = "admin",
-            Password = "xxxxx"
-        });
+        var (rsp, _) = await Fixture.GuestClient.POSTAsync<Login.Endpoint, Login.Request, Login.Response>(
+                           new()
+                           {
+                               UserName = "admin",
+                               Password = "xxxxx"
+                           });
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         rsp.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
 
@@ -62,11 +63,12 @@ public class AdminTests : TestClass<Fixture>
 
         for (var i = 1; i <= 6; i++)
         {
-            var (rsp, res) = await client.POSTAsync<Login.Endpoint_V1, Login.Request, Login.Response>(new()
-            {
-                UserName = "admin",
-                Password = "pass"
-            });
+            var (rsp, res) = await client.POSTAsync<Login.Endpoint_V1, Login.Request, Login.Response>(
+                                 new()
+                                 {
+                                     UserName = "admin",
+                                     Password = "pass"
+                                 });
 
             if (i <= 5)
             {

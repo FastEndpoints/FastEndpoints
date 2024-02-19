@@ -6,17 +6,16 @@ using Update = Inventory.Manage.Update;
 
 namespace Web;
 
-public class InventoryTests : TestClass<Fixture>
+public class InventoryTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {
-    public InventoryTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task CreateProductFailValidation()
     {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
-        {
-            Price = 1100
-        });
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(
+                                new()
+                                {
+                                    Price = 1100
+                                });
 
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result.Errors.Count.Should().Be(2);
@@ -27,12 +26,13 @@ public class InventoryTests : TestClass<Fixture>
     [Fact]
     public async Task CreateProductFailBusinessLogic()
     {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
-        {
-            Name = "test item",
-            ModifiedBy = "me",
-            Price = 1100
-        });
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(
+                                new()
+                                {
+                                    Name = "test item",
+                                    ModifiedBy = "me",
+                                    Price = 1100
+                                });
 
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result.Errors.Should().NotBeNull();
@@ -44,13 +44,14 @@ public class InventoryTests : TestClass<Fixture>
     [Fact]
     public async Task CreateProductFailDuplicateItem()
     {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(new()
-        {
-            Name = "Apple Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100
-        });
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, ErrorResponse>(
+                                new()
+                                {
+                                    Name = "Apple Juice",
+                                    Description = "description",
+                                    ModifiedBy = "me",
+                                    Price = 100
+                                });
 
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result.Errors.Should().NotBeNull();
@@ -61,13 +62,14 @@ public class InventoryTests : TestClass<Fixture>
     [Fact]
     public async Task CreateProductFailNoPermission()
     {
-        var (rsp, _) = await Fixture.CustomerClient.PUTAsync<Update.Endpoint, Update.Request, Update.Response>(new()
-        {
-            Name = "Grape Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100
-        });
+        var (rsp, _) = await Fixture.CustomerClient.PUTAsync<Update.Endpoint, Update.Request, Update.Response>(
+                           new()
+                           {
+                               Name = "Grape Juice",
+                               Description = "description",
+                               ModifiedBy = "me",
+                               Price = 100
+                           });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -75,13 +77,14 @@ public class InventoryTests : TestClass<Fixture>
     [Fact]
     public async Task CreateProductSuccess()
     {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
-        {
-            Name = "Grape Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100
-        });
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(
+                                new()
+                                {
+                                    Name = "Grape Juice",
+                                    Description = "description",
+                                    ModifiedBy = "me",
+                                    Price = 100
+                                });
 
         res.StatusCode.Should().Be(HttpStatusCode.Created);
         result.ProductId.Should().BeGreaterThan(1);
@@ -91,14 +94,15 @@ public class InventoryTests : TestClass<Fixture>
     [Fact]
     public async Task CreatedAtSuccess()
     {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
-        {
-            Name = "Grape Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100,
-            GenerateFullUrl = false
-        });
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(
+                                new()
+                                {
+                                    Name = "Grape Juice",
+                                    Description = "description",
+                                    ModifiedBy = "me",
+                                    Price = 100,
+                                    GenerateFullUrl = false
+                                });
 
         var createdAtLocation = res.Headers.Location?.ToString();
 
@@ -111,14 +115,15 @@ public class InventoryTests : TestClass<Fixture>
     [Fact]
     public async Task CreatedAtSuccessFullUrl()
     {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(new()
-        {
-            Name = "Grape Juice",
-            Description = "description",
-            ModifiedBy = "me",
-            Price = 100,
-            GenerateFullUrl = true
-        });
+        var (res, result) = await Fixture.AdminClient.POSTAsync<Create.Endpoint, Create.Request, Create.Response>(
+                                new()
+                                {
+                                    Name = "Grape Juice",
+                                    Description = "description",
+                                    ModifiedBy = "me",
+                                    Price = 100,
+                                    GenerateFullUrl = true
+                                });
 
         var createdAtLocation = res.Headers.Location?.ToString();
 
@@ -146,10 +151,11 @@ public class InventoryTests : TestClass<Fixture>
     [Fact]
     public async Task DeleteProductSuccess()
     {
-        var res = await Fixture.AdminClient.DELETEAsync<Delete.Endpoint, Delete.Request>(new()
-        {
-            ItemID = Guid.NewGuid().ToString()
-        });
+        var res = await Fixture.AdminClient.DELETEAsync<Delete.Endpoint, Delete.Request>(
+                      new()
+                      {
+                          ItemID = Guid.NewGuid().ToString()
+                      });
 
         res.StatusCode.Should().Be(HttpStatusCode.OK);
     }

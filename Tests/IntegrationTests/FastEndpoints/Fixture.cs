@@ -1,5 +1,4 @@
-﻿using CommandBus;
-using EventBus;
+﻿using Messaging;
 using TestCases.CommandBusTest;
 using TestCases.EventBusTest;
 using Web;
@@ -7,10 +6,8 @@ using Web.Services;
 
 namespace Int.FastEndpoints;
 
-public class Fixture : TestFixture<Web.Program>
+public class Fixture(IMessageSink s) : TestFixture<Web.Program>(s)
 {
-    public Fixture(IMessageSink s) : base(s) { }
-
     public HttpClient GuestClient { get; private set; } = default!;
     public HttpClient AdminClient { get; private set; } = default!;
     public HttpClient CustomerClient { get; private set; } = default!;
@@ -24,7 +21,8 @@ public class Fixture : TestFixture<Web.Program>
         var (_, result) = AdminClient.POSTAsync<
             Admin.Login.Endpoint,
             Admin.Login.Request,
-            Admin.Login.Response>(new()
+            Admin.Login.Response>(
+            new()
             {
                 UserName = "admin",
                 Password = "pass"
@@ -59,6 +57,7 @@ public class Fixture : TestFixture<Web.Program>
         AdminClient.Dispose();
         CustomerClient.Dispose();
         RangeClient.Dispose();
+
         return Task.CompletedTask;
     }
 }

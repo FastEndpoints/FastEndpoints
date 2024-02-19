@@ -1,6 +1,6 @@
 ﻿using TestCases.EventBusTest;
 
-namespace EventBus;
+namespace Messaging;
 
 public class EventBusTests : TestClass<Fixture>
 {
@@ -25,6 +25,7 @@ sealed class FakeEventHandler : IEventHandler<TestEventBus>
     public Task HandleAsync(TestEventBus eventModel, CancellationToken ct)
     {
         Result = eventModel.Id + 1;
+
         return Task.CompletedTask;
     }
 }
@@ -37,6 +38,7 @@ sealed class AnotherFakeEventHandler : IEventHandler<TestEventBus>
     public Task HandleAsync(TestEventBus eventModel, CancellationToken ct)
     {
         Result = eventModel.Id + 2;
+
         return Task.CompletedTask;
     }
 }

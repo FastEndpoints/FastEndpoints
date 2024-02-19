@@ -1,6 +1,6 @@
 ﻿using FakeItEasy;
 
-namespace TestFixture;
+namespace FixtureTests;
 
 public record FixtureId(string Id);
 

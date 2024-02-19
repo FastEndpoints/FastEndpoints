@@ -3,12 +3,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using RefreshTest = TestCases.RefreshTokensTest;
 
-namespace Web;
+namespace Security;
 
-public class RefreshTokenTests : TestClass<Fixture>
+public class RefreshTokenTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {
-    public RefreshTokenTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task LoginEndpointGeneratesCorrectToken()
     {

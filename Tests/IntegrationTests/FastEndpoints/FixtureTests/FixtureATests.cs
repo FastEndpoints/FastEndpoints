@@ -1,6 +1,6 @@
 ﻿using Web.Services;
 
-namespace TestFixture;
+namespace FixtureTests;
 
 public class FixtureATests : TestClass<FixtureA>
 {

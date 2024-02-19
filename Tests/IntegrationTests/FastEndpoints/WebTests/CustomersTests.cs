@@ -7,10 +7,8 @@ using UpdateWithHdr = Customers.UpdateWithHeader;
 
 namespace Web;
 
-public class CustomersTests : TestClass<Fixture>
+public class CustomersTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {
-    public CustomersTests(Fixture f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task ListRecentCustomers()
     {

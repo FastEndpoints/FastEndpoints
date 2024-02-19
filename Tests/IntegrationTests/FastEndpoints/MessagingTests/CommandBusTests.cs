@@ -1,6 +1,6 @@
 ﻿using TestCases.CommandBusTest;
 
-namespace CommandBus;
+namespace Messaging;
 
 public class CommandBusTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
 {

@@ -1,6 +1,6 @@
 ﻿using TestCases.JobQueueTest;
 
-namespace JobQueues;
+namespace Messaging;
 
 public class JobQueueTests : TestClass<Fixture>
 {
@@ -16,14 +16,11 @@ public class JobQueueTests : TestClass<Fixture>
                 Id = i,
                 ShouldThrow = i == 0
             };
-            await cmd.QueueJobAsync(
-                executeAfter: i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow);
+            await cmd.QueueJobAsync(executeAfter: i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow);
         }
 
         while (JobTestCommand.CompletedIDs.Count < 9)
-        {
             await Task.Delay(10);
-        }
 
         JobTestCommand.CompletedIDs.Count.Should().Be(9);
         var expected = new[] { 0, 2, 3, 4, 5, 6, 7, 8, 9 };

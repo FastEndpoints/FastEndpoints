@@ -1,9 +1,9 @@
-﻿using CommandBus;
+﻿using Messaging;
 using TestCases.CommandBusTest;
 using Web;
 using Web.Services;
 
-namespace TestFixture;
+namespace FixtureTests;
 
 public class FixtureA : TestFixture<Web.Program>
 {

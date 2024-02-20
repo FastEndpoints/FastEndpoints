@@ -7,7 +7,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     [Fact]
     public async Task PreProcessorShortCircuitingWhileValidatorFails()
     {
-        var x = await Fixture.Client.GETAsync<
+        var x = await App.Client.GETAsync<
                     TestCases.PrecessorShortWhileValidatorFails.Endpoint,
                     TestCases.PrecessorShortWhileValidatorFails.Request,
                     object>(
@@ -23,7 +23,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     [Fact]
     public async Task PreProcessorsAreRunIfValidationFailuresOccur()
     {
-        var (rsp, res) = await Fixture.AdminClient.POSTAsync<
+        var (rsp, res) = await App.AdminClient.POSTAsync<
                              TestCases.PreProcessorIsRunOnValidationFailure.Endpoint,
                              TestCases.PreProcessorIsRunOnValidationFailure.Request,
                              ErrorResponse>(
@@ -43,7 +43,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     public async Task ProcessorAttributes()
     {
         var (rsp, res) =
-            await Fixture.Client.POSTAsync<
+            await App.Client.POSTAsync<
                 TestCases.ProcessorAttributesTest.Endpoint,
                 TestCases.ProcessorAttributesTest.Request,
                 List<string>>(
@@ -59,7 +59,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     [Fact]
     public async Task PreProcessorShortCircuitMissingHeader()
     {
-        var (rsp, res) = await Fixture.Client.GETAsync<
+        var (rsp, res) = await App.Client.GETAsync<
                              Sales.Orders.Retrieve.Endpoint,
                              Sales.Orders.Retrieve.Request,
                              ErrorResponse>(new() { OrderID = "order1" });
@@ -73,7 +73,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     [Fact]
     public async Task PreProcessorShortCircuitWrongHeaderValue()
     {
-        var (rsp, _) = await Fixture.AdminClient.POSTAsync<
+        var (rsp, _) = await App.AdminClient.POSTAsync<
                            Sales.Orders.Retrieve.Endpoint,
                            Sales.Orders.Retrieve.Request,
                            object>(
@@ -88,7 +88,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     [Fact]
     public async Task PreProcessorShortCircuitHandlerExecuted()
     {
-        var (rsp, res) = await Fixture.CustomerClient.GETAsync<
+        var (rsp, res) = await App.CustomerClient.GETAsync<
                              Sales.Orders.Retrieve.Endpoint,
                              Sales.Orders.Retrieve.Request,
                              ErrorResponse>(new() { OrderID = "order1" });
@@ -100,7 +100,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     [Fact]
     public async Task ProcessorStateWorks()
     {
-        var x = await Fixture.Client.GETAsync<
+        var x = await App.Client.GETAsync<
                     TestCases.ProcessorStateTest.Endpoint,
                     TestCases.ProcessorStateTest.Request,
                     string>(new() { Id = 10101 });
@@ -112,7 +112,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     [Fact]
     public async Task PostProcessorCanHandleExceptions()
     {
-        var x = await Fixture.Client.GETAsync<
+        var x = await App.Client.GETAsync<
                     TestCases.PostProcessorTest.Endpoint,
                     TestCases.PostProcessorTest.Request,
                     TestCases.PostProcessorTest.ExceptionDetailsResponse>(new() { Id = 10101 });
@@ -124,7 +124,7 @@ public class ProcessorTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>
     [Fact]
     public async Task ExceptionIsThrownWhenAPostProcDoesntHandleExceptions()
     {
-        var (rsp, res) = await Fixture.Client.GETAsync<TestCases.PostProcessorTest.EpNoPostProcessor, InternalErrorResponse>();
+        var (rsp, res) = await App.Client.GETAsync<TestCases.PostProcessorTest.EpNoPostProcessor, InternalErrorResponse>();
         rsp.IsSuccessStatusCode.Should().BeFalse();
         res.Code.Should().Be(500);
         res.Reason.Should().Be("The method or operation is not implemented.");

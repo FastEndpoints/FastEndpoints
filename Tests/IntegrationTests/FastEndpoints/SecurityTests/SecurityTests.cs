@@ -19,7 +19,7 @@ public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
         using var form = new MultipartFormDataContent();
         form.Add(imageContent, "File", "test.png");
 
-        var res = await Fixture.GuestClient.PutAsync("/api/uploads/image/save", form);
+        var res = await App.GuestClient.PutAsync("/api/uploads/image/save", form);
 
         res.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -27,7 +27,7 @@ public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task ClaimMissing()
     {
-        var (_, result) = await Fixture.AdminClient.POSTAsync<
+        var (_, result) = await App.AdminClient.POSTAsync<
                               ThrowIfMissingEndpoint,
                               ThrowIfMissingRequest,
                               ErrorResponse>(
@@ -45,7 +45,7 @@ public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task ClaimMissingButDontThrow()
     {
-        var (res, result) = await Fixture.AdminClient.POSTAsync<
+        var (res, result) = await App.AdminClient.POSTAsync<
                                 DontThrowIfMissingEndpoint,
                                 DontThrowIfMissingRequest,
                                 string>(
@@ -62,7 +62,7 @@ public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task LoginEndpointGeneratesCorrectToken()
     {
-        var (rsp, res) = await Fx.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
+        var (rsp, res) = await App.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.UserId.Should().Be("usr001");
 
@@ -75,7 +75,7 @@ public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task RefreshEndpointValidationWorks()
     {
-        var (rsp, res) = await Fx.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, ErrorResponse>(
+        var (rsp, res) = await App.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, ErrorResponse>(
                              new()
                              {
                                  UserId = "bad-id",
@@ -90,7 +90,7 @@ public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task RefreshEndpointReturnsCorrectTokenResponse()
     {
-        var (rsp, res) = await Fx.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, TokenResponse>(
+        var (rsp, res) = await App.GuestClient.POSTAsync<RefreshTest.TokenService, TokenRequest, TokenResponse>(
                              new()
                              {
                                  UserId = "usr001",
@@ -109,7 +109,7 @@ public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task IAuthorization_Injection_Pass()
     {
-        var (rsp, res) = await Fx.AdminClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
+        var (rsp, res) = await App.AdminClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
 
         rsp.IsSuccessStatusCode.Should().BeTrue();
         res.Should().BeTrue();
@@ -118,7 +118,7 @@ public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task IAuthorization_Injection_Fail()
     {
-        var (rsp, res) = await Fx.CustomerClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
+        var (rsp, res) = await App.CustomerClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
 
         rsp.IsSuccessStatusCode.Should().BeTrue();
         res.Should().BeFalse();

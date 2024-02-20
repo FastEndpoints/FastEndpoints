@@ -14,7 +14,7 @@ public class EndpointTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
         var endpointUrl = IEndpoint.TestURLFor<EmptyRequestEndpoint>();
 
         var requestUri = new Uri(
-            Fixture.AdminClient.BaseAddress!.ToString().TrimEnd('/') +
+            App.AdminClient.BaseAddress!.ToString().TrimEnd('/') +
             (endpointUrl.StartsWith('/') ? endpointUrl : "/" + endpointUrl));
 
         var message = new HttpRequestMessage
@@ -24,7 +24,7 @@ public class EndpointTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
             RequestUri = requestUri
         };
 
-        var response = await Fixture.AdminClient.SendAsync(message);
+        var response = await App.AdminClient.SendAsync(message);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -32,7 +32,7 @@ public class EndpointTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task OnBeforeOnAfterValidation()
     {
-        var (rsp, res) = await Fixture.AdminClient.POSTAsync<
+        var (rsp, res) = await App.AdminClient.POSTAsync<
                              TestCases.OnBeforeAfterValidationTest.Endpoint,
                              TestCases.OnBeforeAfterValidationTest.Request,
                              TestCases.OnBeforeAfterValidationTest.Response>(
@@ -52,7 +52,7 @@ public class EndpointTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
         using var stringContent = new StringContent("this is the body content");
         stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
 
-        var rsp = await Fixture.AdminClient.PostAsync("/mobile/api/test-cases/global-prefix-override/12345", stringContent);
+        var rsp = await App.AdminClient.PostAsync("/mobile/api/test-cases/global-prefix-override/12345", stringContent);
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 

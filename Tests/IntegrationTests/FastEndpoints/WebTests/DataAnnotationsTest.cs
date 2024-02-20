@@ -5,7 +5,7 @@ using TestCases.DataAnnotationCompliant;
 
 namespace Int.FastEndpoints.WebTests;
 
-public class DaFixture(IMessageSink s) : TestFixture<Web.Program>(s);
+public class DaFixture(IMessageSink s) : AppFixture<Web.Program>(s);
 
 public class DataAnnotationsTest(DaFixture f, ITestOutputHelper o) : TestClass<DaFixture>(f, o)
 {
@@ -13,7 +13,7 @@ public class DataAnnotationsTest(DaFixture f, ITestOutputHelper o) : TestClass<D
     public async Task WithBadInput()
     {
         var (rsp, res) =
-            await Fixture.Client.POSTAsync<Endpoint, Request, ErrorResponse>(
+            await App.Client.POSTAsync<Endpoint, Request, ErrorResponse>(
                 new()
                 {
                     Id = 199,
@@ -29,7 +29,7 @@ public class DataAnnotationsTest(DaFixture f, ITestOutputHelper o) : TestClass<D
     public async Task WithOkInput()
     {
         var (resp, _) =
-            await Fixture.Client.POSTAsync<Endpoint, Request, ErrorResponse>(
+            await App.Client.POSTAsync<Endpoint, Request, ErrorResponse>(
                 new()
                 {
                     Id = 10,

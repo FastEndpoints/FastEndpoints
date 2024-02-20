@@ -8,7 +8,7 @@ public class EventBusTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task Fake_Handler_Execution()
     {
-        var (rsp, _) = await Fixture.Client.GETAsync<Endpoint, int>();
+        var (rsp, _) = await App.Client.GETAsync<Endpoint, int>();
 
         rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         FakeEventHandler.Result.Should().Be(101);

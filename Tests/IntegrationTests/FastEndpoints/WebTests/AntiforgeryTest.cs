@@ -9,7 +9,7 @@ public class AntiforgeryTest(Fixture f, ITestOutputHelper o) : TestClass<Fixture
     [Fact]
     public async Task Html_Form_Renders_With_Af_Token()
     {
-        var content = await Fx.GuestClient.GetStringAsync($"{Fx.GuestClient.BaseAddress}api/{TestClass.Routes.GetFormHtml}");
+        var content = await App.GuestClient.GetStringAsync($"{App.GuestClient.BaseAddress}api/{TestClass.Routes.GetFormHtml}");
         content.Should().Contain("__RequestVerificationToken");
     }
 
@@ -21,11 +21,11 @@ public class AntiforgeryTest(Fixture f, ITestOutputHelper o) : TestClass<Fixture
             { new StringContent("qweryuiopasdfghjklzxcvbnm"), "__RequestVerificationToken" }
         };
 
-        var rsp = await Fx.GuestClient.SendAsync(
+        var rsp = await App.GuestClient.SendAsync(
                       new()
                       {
                           Content = form,
-                          RequestUri = new($"{Fixture.GuestClient.BaseAddress}api/{TestClass.Routes.Validate}"),
+                          RequestUri = new($"{App.GuestClient.BaseAddress}api/{TestClass.Routes.Validate}"),
                           Method = HttpMethod.Post
                       });
 
@@ -38,18 +38,18 @@ public class AntiforgeryTest(Fixture f, ITestOutputHelper o) : TestClass<Fixture
     [Fact]
     public async Task Af_Token_Verification_Succeeds()
     {
-        var (_, tokenRsp) = await Fx.GuestClient.GETAsync<TestClass.GetAfTokenEndpoint, TestClass.TokenResponse>();
+        var (_, tokenRsp) = await App.GuestClient.GETAsync<TestClass.GetAfTokenEndpoint, TestClass.TokenResponse>();
 
         var form = new MultipartFormDataContent
         {
             { new StringContent(tokenRsp.Value!), "__RequestVerificationToken" }
         };
 
-        var rsp = await Fx.GuestClient.SendAsync(
+        var rsp = await App.GuestClient.SendAsync(
                       new()
                       {
                           Content = form,
-                          RequestUri = new($"{Fx.GuestClient.BaseAddress}api/{TestClass.Routes.Validate}"),
+                          RequestUri = new($"{App.GuestClient.BaseAddress}api/{TestClass.Routes.Validate}"),
                           Method = HttpMethod.Post
                       });
 

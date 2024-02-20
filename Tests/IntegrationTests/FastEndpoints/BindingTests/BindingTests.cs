@@ -19,7 +19,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task RouteValueReadingInEndpointWithoutRequest()
     {
-        var (rsp, res) = await Fixture.Client.GETAsync<
+        var (rsp, res) = await App.Client.GETAsync<
                              EmptyRequest,
                              Response>("/api/test-cases/ep-witout-req-route-binding-test/09809/12", new());
 
@@ -31,7 +31,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task RouteValueReadingIsRequired()
     {
-        var (rsp, res) = await Fixture.Client.GETAsync<
+        var (rsp, res) = await App.Client.GETAsync<
                              EmptyRequest,
                              ErrorResponse>("/api/test-cases/ep-witout-req-route-binding-test/09809/lkjhlkjh", new());
 
@@ -43,21 +43,21 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task RouteValueBinding()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
-                                          "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12&CustomList=1;2",
-                                          new()
-                                          {
-                                              Bool = false,
-                                              DecimalNumber = 1,
-                                              Double = 1,
-                                              FromBody = "from body value",
-                                              Int = 1,
-                                              Long = 1,
-                                              String = "nothing",
-                                              Custom = new() { Value = 11111 },
-                                              CustomList = new() { 0 }
-                                          });
+        var (rsp, res) = await App.Client
+                                  .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
+                                      "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45?Url=https://test.com&Custom=12&CustomList=1;2",
+                                      new()
+                                      {
+                                          Bool = false,
+                                          DecimalNumber = 1,
+                                          Double = 1,
+                                          FromBody = "from body value",
+                                          Int = 1,
+                                          Long = 1,
+                                          String = "nothing",
+                                          Custom = new() { Value = 11111 },
+                                          CustomList = new() { 0 }
+                                      });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.String.Should().Be("something");
@@ -75,20 +75,20 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task RouteValueBindingFromQueryParams()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
-                                          "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
-                                          "?Bool=false&String=everything",
-                                          new()
-                                          {
-                                              Bool = false,
-                                              DecimalNumber = 1,
-                                              Double = 1,
-                                              FromBody = "from body value",
-                                              Int = 1,
-                                              Long = 1,
-                                              String = "nothing"
-                                          });
+        var (rsp, res) = await App.Client
+                                  .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
+                                      "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
+                                      "?Bool=false&String=everything",
+                                      new()
+                                      {
+                                          Bool = false,
+                                          DecimalNumber = 1,
+                                          Double = 1,
+                                          FromBody = "from body value",
+                                          Int = 1,
+                                          Long = 1,
+                                          String = "nothing"
+                                      });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.String.Should().Be("everything");
@@ -104,17 +104,17 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task JsonArrayBindingToIEnumerableProps()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .GETAsync<TestCases.JsonArrayBindingForIEnumerableProps.Request,
-                                          TestCases.JsonArrayBindingForIEnumerableProps.Response>(
-                                          "/api/test-cases/json-array-binding-for-ienumerable-props?" +
-                                          "doubles=[123.45,543.21]&" +
-                                          "dates=[\"2022-01-01\",\"2022-02-02\"]&" +
-                                          "guids=[\"b01ec302-0adc-4a2b-973d-bbfe639ed9a5\",\"e08664a4-efd8-4062-a1e1-6169c6eac2ab\"]&" +
-                                          "ints=[1,2,3]&" +
-                                          "steven={\"age\":12,\"name\":\"steven\"}&" +
-                                          "dict={\"key1\":\"val1\",\"key2\":\"val2\"}",
-                                          new());
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.JsonArrayBindingForIEnumerableProps.Request,
+                                      TestCases.JsonArrayBindingForIEnumerableProps.Response>(
+                                      "/api/test-cases/json-array-binding-for-ienumerable-props?" +
+                                      "doubles=[123.45,543.21]&" +
+                                      "dates=[\"2022-01-01\",\"2022-02-02\"]&" +
+                                      "guids=[\"b01ec302-0adc-4a2b-973d-bbfe639ed9a5\",\"e08664a4-efd8-4062-a1e1-6169c6eac2ab\"]&" +
+                                      "ints=[1,2,3]&" +
+                                      "steven={\"age\":12,\"name\":\"steven\"}&" +
+                                      "dict={\"key1\":\"val1\",\"key2\":\"val2\"}",
+                                      new());
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Doubles.Length.Should().Be(2);
@@ -139,7 +139,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task JsonArrayBindingToListOfModels()
     {
-        var (rsp, res) = await Fixture.Client.POSTAsync<
+        var (rsp, res) = await App.Client.POSTAsync<
                              Endpoint,
                              List<TestCases.JsonArrayBindingToListOfModels.Request>,
                              List<TestCases.JsonArrayBindingToListOfModels.Response>>(
@@ -163,7 +163,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
             new() { Id = 2, Name = "two" }
         };
 
-        var (rsp, res) = await Fixture.Client.POSTAsync<
+        var (rsp, res) = await App.Client.POSTAsync<
                              TestCases.JsonArrayBindingToIEnumerableDto.Endpoint,
                              TestCases.JsonArrayBindingToIEnumerableDto.Request,
                              List<TestCases.JsonArrayBindingToIEnumerableDto.Response>>(req);
@@ -176,26 +176,26 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task DupeParamBindingToIEnumerableProps()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .GETAsync<TestCases.DupeParamBindingForIEnumerableProps.Request,
-                                          TestCases.DupeParamBindingForIEnumerableProps.Response>(
-                                          "/api/test-cases/dupe-param-binding-for-ienumerable-props?" +
-                                          "doubles=123.45&" +
-                                          "doubles=543.21&" +
-                                          "dates=2022-01-01&" +
-                                          "dates=2022-02-02&" +
-                                          "guids=b01ec302-0adc-4a2b-973d-bbfe639ed9a5&" +
-                                          "guids=e08664a4-efd8-4062-a1e1-6169c6eac2ab&" +
-                                          "ints=1&" +
-                                          "ints=2&" +
-                                          "ints=3&" +
-                                          "strings=[1,2]&" +
-                                          "strings=three&" +
-                                          "morestrings=[\"one\",\"two\"]&" +
-                                          "morestrings=three&" +
-                                          "persons={\"name\":\"john\",\"age\":45}&" +
-                                          "persons={\"name\":\"doe\",\"age\":55}",
-                                          new());
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.DupeParamBindingForIEnumerableProps.Request,
+                                      TestCases.DupeParamBindingForIEnumerableProps.Response>(
+                                      "/api/test-cases/dupe-param-binding-for-ienumerable-props?" +
+                                      "doubles=123.45&" +
+                                      "doubles=543.21&" +
+                                      "dates=2022-01-01&" +
+                                      "dates=2022-02-02&" +
+                                      "guids=b01ec302-0adc-4a2b-973d-bbfe639ed9a5&" +
+                                      "guids=e08664a4-efd8-4062-a1e1-6169c6eac2ab&" +
+                                      "ints=1&" +
+                                      "ints=2&" +
+                                      "ints=3&" +
+                                      "strings=[1,2]&" +
+                                      "strings=three&" +
+                                      "morestrings=[\"one\",\"two\"]&" +
+                                      "morestrings=three&" +
+                                      "persons={\"name\":\"john\",\"age\":45}&" +
+                                      "persons={\"name\":\"doe\",\"age\":55}",
+                                      new());
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Doubles.Length.Should().Be(2);
@@ -220,31 +220,31 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task BindingFromAttributeUse()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
-                                          "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
-                                          "?Bool=false&String=everything&XBlank=256" +
-                                          "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
-                                          "&numbers[0]=0&numbers[1]=1&numbers[2]=-222&numbers[3]=1000&numbers[4]=22" +
-                                          "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
-                                          "&child.name=child name&child.age=-22" +
-                                          "&child.strings[0]=string1&child.strings[1]=string2&child.strings[2]=&child.strings[3]=strangeString",
-                                          new()
+        var (rsp, res) = await App.Client
+                                  .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
+                                      "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
+                                      "?Bool=false&String=everything&XBlank=256" +
+                                      "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                                      "&numbers[0]=0&numbers[1]=1&numbers[2]=-222&numbers[3]=1000&numbers[4]=22" +
+                                      "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                                      "&child.name=child name&child.age=-22" +
+                                      "&child.strings[0]=string1&child.strings[1]=string2&child.strings[2]=&child.strings[3]=strangeString",
+                                      new()
+                                      {
+                                          Bool = false,
+                                          DecimalNumber = 1,
+                                          Double = 1,
+                                          FromBody = "from body value",
+                                          Int = 1,
+                                          Long = 1,
+                                          String = "nothing",
+                                          Blank = 1,
+                                          Person = new()
                                           {
-                                              Bool = false,
-                                              DecimalNumber = 1,
-                                              Double = 1,
-                                              FromBody = "from body value",
-                                              Int = 1,
-                                              Long = 1,
-                                              String = "nothing",
-                                              Blank = 1,
-                                              Person = new()
-                                              {
-                                                  Age = 50,
-                                                  Name = "wrong"
-                                              }
-                                          });
+                                              Age = 50,
+                                              Name = "wrong"
+                                          }
+                                      });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.String.Should().Be("everything");
@@ -279,18 +279,18 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task BindingObjectFromQueryUse()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
-                                          "api/test-cases/query-object-binding-test" +
-                                          "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
-                                          "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
-                                          "&numbers[0]=0&numbers[1]=1&numbers[2]=-222&numbers[3]=1000&numbers[4]=22" +
-                                          "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
-                                          "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
-                                          "&child.name=child name&child.age=-22" +
-                                          "&CHILD.FavoriteDays[0]=1&ChiLD.FavoriteDays[1]=Saturday&CHILD.ISHiddeN=TruE" +
-                                          "&child.strings[0]=string1&child.strings[1]=string2&child.strings[2]=&child.strings[3]=strangeString",
-                                          new());
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
+                                      "api/test-cases/query-object-binding-test" +
+                                      "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
+                                      "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                                      "&numbers[0]=0&numbers[1]=1&numbers[2]=-222&numbers[3]=1000&numbers[4]=22" +
+                                      "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
+                                      "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                                      "&child.name=child name&child.age=-22" +
+                                      "&CHILD.FavoriteDays[0]=1&ChiLD.FavoriteDays[1]=Saturday&CHILD.ISHiddeN=TruE" +
+                                      "&child.strings[0]=string1&child.strings[1]=string2&child.strings[2]=&child.strings[3]=strangeString",
+                                      new());
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Should().BeEquivalentTo(
@@ -330,10 +330,10 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task ByteArrayQueryParamBindingTestUse()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .GETAsync<TestCases.ByteArrayQueryParamBindingTest.Request, TestCases.ByteArrayQueryParamBindingTest.Response>(
-                                          "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D&timestamps=AAAAAAAAw1U%3D",
-                                          new());
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.ByteArrayQueryParamBindingTest.Request, TestCases.ByteArrayQueryParamBindingTest.Response>(
+                                      "api/test-cases/byte-array-query-param-binding-test?timestamp=AAAAAAAAw1U%3D&timestamps=AAAAAAAAw1U%3D",
+                                      new());
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         JsonSerializer.Serialize(res.Timestamp)
@@ -352,21 +352,21 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .GETAsync<TestCases.QueryObjectWithObjectsArrayBindingTest.Request,
-                                          TestCases.QueryObjectWithObjectsArrayBindingTest.Response>(
-                                          "api/test-cases/query-arrays-of-objects-binding-test" +
-                                          "?ArraysOfObjects[0][0].String=test&ArraysOfObjects[0][0].Bool=true&ArraysOfObjects[0][0].Double=22.22&ArraysOfObjects[0][0].Enum=4" +
-                                          "&ArraysOfObjects[0][0].Int=31&ArraysOfObjects[0][0].Long=22" +
-                                          "&ArraysOfObjects[0][1].String=test2&ArraysOfObjects[0][1].Enum=Wednesday" +
-                                          "&ArraysOfObjects[1][0].String=test2&ArraysOfObjects[1][0].Enum=3" +
-                                          "&Child.Objects[0].String=test&Child.Objects[0].Bool=true&Child.Objects[0].Double=22.22&Child.Objects[0].Enum=4" +
-                                          "&Child.Objects[0].Int=31&Child.Objects[0].Long=22" +
-                                          "&Child.Objects[1].String=test2&Child.Objects[1].Enum=Wednesday" +
-                                          "&Objects[0].String=test&Objects[0].Bool=true&Objects[0].Double=22.22&Objects[0].Enum=4" +
-                                          "&Objects[0].Int=31&Objects[0].Long=22" +
-                                          "&Objects[1].String=test2&Objects[1].Enum=Wednesday",
-                                          new());
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.QueryObjectWithObjectsArrayBindingTest.Request,
+                                      TestCases.QueryObjectWithObjectsArrayBindingTest.Response>(
+                                      "api/test-cases/query-arrays-of-objects-binding-test" +
+                                      "?ArraysOfObjects[0][0].String=test&ArraysOfObjects[0][0].Bool=true&ArraysOfObjects[0][0].Double=22.22&ArraysOfObjects[0][0].Enum=4" +
+                                      "&ArraysOfObjects[0][0].Int=31&ArraysOfObjects[0][0].Long=22" +
+                                      "&ArraysOfObjects[0][1].String=test2&ArraysOfObjects[0][1].Enum=Wednesday" +
+                                      "&ArraysOfObjects[1][0].String=test2&ArraysOfObjects[1][0].Enum=3" +
+                                      "&Child.Objects[0].String=test&Child.Objects[0].Bool=true&Child.Objects[0].Double=22.22&Child.Objects[0].Enum=4" +
+                                      "&Child.Objects[0].Int=31&Child.Objects[0].Long=22" +
+                                      "&Child.Objects[1].String=test2&Child.Objects[1].Enum=Wednesday" +
+                                      "&Objects[0].String=test&Objects[0].Bool=true&Objects[0].Double=22.22&Objects[0].Enum=4" +
+                                      "&Objects[0].Int=31&Objects[0].Long=22" +
+                                      "&Objects[1].String=test2&Objects[1].Enum=Wednesday",
+                                      new());
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Should().BeEquivalentTo(
@@ -450,31 +450,31 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task BindingFromAttributeUseSwaggerUiStyle()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
-                                          "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
-                                          "?Bool=false&String=everything&XBlank=256" +
-                                          "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
-                                          "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
-                                          "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
-                                          "&child[name]=child name&child[age]=-22" +
-                                          "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
-                                          new()
+        var (rsp, res) = await App.Client
+                                  .POSTAsync<Request, TestCases.RouteBindingTest.Response>(
+                                      "api/test-cases/route-binding-test/something/true/99/483752874564876/2232.12/123.45/" +
+                                      "?Bool=false&String=everything&XBlank=256" +
+                                      "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                                      "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                                      "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                                      "&child[name]=child name&child[age]=-22" +
+                                      "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
+                                      new()
+                                      {
+                                          Bool = false,
+                                          DecimalNumber = 1,
+                                          Double = 1,
+                                          FromBody = "from body value",
+                                          Int = 1,
+                                          Long = 1,
+                                          String = "nothing",
+                                          Blank = 1,
+                                          Person = new()
                                           {
-                                              Bool = false,
-                                              DecimalNumber = 1,
-                                              Double = 1,
-                                              FromBody = "from body value",
-                                              Int = 1,
-                                              Long = 1,
-                                              String = "nothing",
-                                              Blank = 1,
-                                              Person = new()
-                                              {
-                                                  Age = 50,
-                                                  Name = "wrong"
-                                              }
-                                          });
+                                              Age = 50,
+                                              Name = "wrong"
+                                          }
+                                      });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.String.Should().Be("everything");
@@ -509,18 +509,18 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task BindingObjectFromQueryUseSwaggerUiStyle()
     {
-        var (rsp, res) = await Fixture.Client
-                                      .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
-                                          "api/test-cases/query-object-binding-test" +
-                                          "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
-                                          "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
-                                          "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
-                                          "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
-                                          "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
-                                          "&child[name]=child name&child[age]=-22" +
-                                          "&CHILD[FavoriteDays]=1&ChiLD[FavoriteDays]=Saturday&CHILD[ISHiddeN]=TruE" +
-                                          "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
-                                          new());
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
+                                      "api/test-cases/query-object-binding-test" +
+                                      "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
+                                      "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                                      "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                                      "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
+                                      "&child[id]=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                                      "&child[name]=child name&child[age]=-22" +
+                                      "&CHILD[FavoriteDays]=1&ChiLD[FavoriteDays]=Saturday&CHILD[ISHiddeN]=TruE" +
+                                      "&child[strings]=string1&child[strings]=string2&child[strings]=&child[strings]=strangeString",
+                                      new());
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Should().BeEquivalentTo(
@@ -560,7 +560,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task RangeHandling()
     {
-        var res = await Fixture.RangeClient.GetStringAsync("api/test-cases/range");
+        var res = await App.RangeClient.GetStringAsync("api/test-cases/range");
         res.Should().Be("fghij");
     }
 
@@ -579,7 +579,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
             { new StringContent("500"), "Height" }
         };
 
-        var res = await Fixture.AdminClient.PostAsync("api/uploads/image/save", form);
+        var res = await App.AdminClient.PostAsync("api/uploads/image/save", form);
 
         using var md5Instance = MD5.Create();
         using var stream = await res.Content.ReadAsStreamAsync();
@@ -608,7 +608,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
                 Height = 500
             };
 
-            var res = await Fixture.AdminClient.POSTAsync<
+            var res = await App.AdminClient.POSTAsync<
                           Uploads.Image.SaveTyped.Endpoint,
                           Uploads.Image.SaveTyped.Request>(req, sendAsFormData: true);
 
@@ -655,7 +655,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
             Height = 500
         };
 
-        var (rsp, res) = await Fixture
+        var (rsp, res) = await App
                                .AdminClient
                                .POSTAsync<
                                    TestCases.FormFileBindingTest.Endpoint,
@@ -675,7 +675,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
         using var stringContent = new StringContent("this is the body content");
         stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
 
-        var rsp = await Fixture.AdminClient.PostAsync("test-cases/plaintext/12345", stringContent);
+        var rsp = await App.AdminClient.PostAsync("test-cases/plaintext/12345", stringContent);
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
 
@@ -686,7 +686,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task GetRequestWithRouteParameterAndReqDto()
     {
-        var (rsp, res) = await Fixture.CustomerClient.GETAsync<EmptyRequest, ErrorResponse>(
+        var (rsp, res) = await App.CustomerClient.GETAsync<EmptyRequest, ErrorResponse>(
                              "/api/sales/orders/retrieve/54321",
                              new());
 
@@ -697,7 +697,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task QueryParamReadingInEndpointWithoutRequest()
     {
-        var (rsp, res) = await Fixture.GuestClient.GETAsync<
+        var (rsp, res) = await App.GuestClient.GETAsync<
                              EmptyRequest,
                              TestCases.QueryParamBindingInEpWithoutReq.Response>(
                              "/api/test-cases/ep-witout-req-query-param-binding-test" +
@@ -724,7 +724,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task QueryParamReadingIsRequired()
     {
-        var (rsp, res) = await Fixture.GuestClient.GETAsync<
+        var (rsp, res) = await App.GuestClient.GETAsync<
                              EmptyRequest,
                              ErrorResponse>("/api/test-cases/ep-witout-req-query-param-binding-test?customerId=09809&otherId=lkjhlkjh", new());
 
@@ -735,7 +735,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task FromBodyJsonBinding()
     {
-        var (rsp, res) = await Fixture.CustomerClient.POSTAsync<
+        var (rsp, res) = await App.CustomerClient.POSTAsync<
                              TestCases.FromBodyJsonBinding.Endpoint,
                              Product,
                              TestCases.FromBodyJsonBinding.Response>(
@@ -757,7 +757,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task FromBodyJsonBindingValidationError()
     {
-        var (rsp, res) = await Fixture.CustomerClient.POSTAsync<
+        var (rsp, res) = await App.CustomerClient.POSTAsync<
                              TestCases.FromBodyJsonBinding.Endpoint,
                              Product,
                              ErrorResponse>(
@@ -776,7 +776,7 @@ public class BindingTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f
     [Fact]
     public async Task CustomRequestBinder()
     {
-        var (rsp, res) = await Fixture.CustomerClient.POSTAsync<
+        var (rsp, res) = await App.CustomerClient.POSTAsync<
                              TestCases.CustomRequestBinder.Endpoint,
                              TestCases.CustomRequestBinder.Product,
                              TestCases.CustomRequestBinder.Response>(

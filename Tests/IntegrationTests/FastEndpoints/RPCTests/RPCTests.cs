@@ -17,7 +17,7 @@ public class RpcTestBase : TestClass<Fixture>
         svcCollection.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         var svcProvider = svcCollection.BuildServiceProvider();
         Remote = new("http://testhost", svcProvider); //the actual hostname doesn't matter as we're replacing the httphandler below
-        Remote.ChannelOptions.HttpHandler = Fixture.CreateHandler();
+        Remote.ChannelOptions.HttpHandler = App.CreateHandler();
         Remote.Register<TestCases.CommandBusTest.VoidCommand>();
         Remote.Register<SomeCommand, string>();
         Remote.Register<EchoCommand, EchoCommand>();

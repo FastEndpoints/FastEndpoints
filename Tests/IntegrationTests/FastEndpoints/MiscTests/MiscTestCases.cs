@@ -20,7 +20,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
                 new(
                     "api/test-cases/global-throttle-error-response?customerId=09809&otherId=12",
                     UriKind.Relative);
-            response = await Fixture.GuestClient.SendAsync(request);
+            response = await App.GuestClient.SendAsync(request);
         }
 
         var responseContent = await response!.Content.ReadAsStringAsync();
@@ -44,7 +44,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
                 new(
                     "api/test-cases/global-throttle-error-response?customerId=09809&otherId=12",
                     UriKind.Relative);
-            response = await Fixture.GuestClient.SendAsync(request);
+            response = await App.GuestClient.SendAsync(request);
         }
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -55,11 +55,11 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     {
         try
         {
-            await Fixture.GuestClient.GetStringAsync("/api/test-cases/one");
+            await App.GuestClient.GetStringAsync("/api/test-cases/one");
         }
         catch { }
 
-        var res = await Fixture.GuestClient.GetStringAsync("/api/test-cases/1");
+        var res = await App.GuestClient.GetStringAsync("/api/test-cases/1");
 
         res.Should().Be("1");
     }
@@ -67,7 +67,7 @@ public class MiscTestCases(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(
     [Fact]
     public async Task STJ_Infinite_Recursion()
     {
-        var (rsp, _) = await Fx.GuestClient.GETAsync<TestCases.STJInfiniteRecursionTest.Endpoint, TestCases.STJInfiniteRecursionTest.Response>();
+        var (rsp, _) = await App.GuestClient.GETAsync<TestCases.STJInfiniteRecursionTest.Endpoint, TestCases.STJInfiniteRecursionTest.Response>();
         rsp.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         (await rsp.Content.ReadAsStringAsync()).Should().Contain("A possible object cycle was detected.");
     }

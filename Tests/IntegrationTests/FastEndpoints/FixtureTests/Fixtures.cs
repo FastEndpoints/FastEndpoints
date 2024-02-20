@@ -5,10 +5,8 @@ using Web.Services;
 
 namespace FixtureTests;
 
-public class FixtureA : TestFixture<Web.Program>
+public class FixtureA(IMessageSink s) : AppFixture<Web.Program>(s)
 {
-    public FixtureA(IMessageSink s) : base(s) { }
-
     static readonly string _id = Guid.NewGuid().ToString("N");
 
     protected override void ConfigureServices(IServiceCollection s)
@@ -19,10 +17,8 @@ public class FixtureA : TestFixture<Web.Program>
     }
 }
 
-public class FixtureB : TestFixture<Web.Program>
+public class FixtureB(IMessageSink s) : AppFixture<Web.Program>(s)
 {
-    public FixtureB(IMessageSink s) : base(s) { }
-
     static readonly string _id = Guid.NewGuid().ToString("N");
 
     protected override void ConfigureServices(IServiceCollection s)

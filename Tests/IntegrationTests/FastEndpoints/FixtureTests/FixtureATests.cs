@@ -2,10 +2,8 @@
 
 namespace FixtureTests;
 
-public class FixtureATests : TestClass<FixtureA>
+public class FixtureATests(FixtureA f, ITestOutputHelper o) : TestClass<FixtureA>(f, o)
 {
-    public FixtureATests(FixtureA f, ITestOutputHelper o) : base(f, o) { }
-
     [Fact]
     public async Task Mock_Email_Service_Is_Resolved()
     {

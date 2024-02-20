@@ -5,7 +5,7 @@ public class DiTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
     [Fact]
     public async Task Service_Registration_Generator()
     {
-        var (rsp, res) = await Fx.GuestClient.GETAsync<TestCases.ServiceRegistrationGeneratorTest.Endpoint, string[]>();
+        var (rsp, res) = await App.GuestClient.GETAsync<TestCases.ServiceRegistrationGeneratorTest.Endpoint, string[]>();
 
         rsp.IsSuccessStatusCode.Should().BeTrue();
 
@@ -15,7 +15,7 @@ public class DiTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
     [Fact]
     public async Task Keyed_Service_Property_Injection()
     {
-        var (rsp, res) = await Fx.GuestClient.GETAsync<TestCases.KeyedServicesTests.Endpoint, string>();
+        var (rsp, res) = await App.GuestClient.GETAsync<TestCases.KeyedServicesTests.Endpoint, string>();
 
         rsp.IsSuccessStatusCode.Should().BeTrue();
 

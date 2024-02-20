@@ -13,6 +13,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints.Testing;
 
+/// <summary>
+/// base class for <see cref="AppFixture{TProgram}" />.
+/// </summary>
 public abstract class BaseFixture
 {
     protected static readonly Faker Faker = new();
@@ -23,7 +26,7 @@ public abstract class BaseFixture
 /// inherit this class to create a class fixture for an implementation of <see cref="TestClass{TFixture}" />.
 /// </summary>
 /// <typeparam name="TProgram">the type of the web application to bootstrap via <see cref="WebApplicationFactory{TEntryPoint}" /></typeparam>
-public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixture where TProgram : class
+public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixture where TProgram : class
 {
     /// <inheritdoc />
     public Faker Fake => Faker;
@@ -46,22 +49,22 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     WebApplicationFactory<TProgram> _app = null!;
 
     //reason for ctor overloads: https://github.com/FastEndpoints/FastEndpoints/pull/548
-    protected TestFixture(IMessageSink s)
+    protected AppFixture(IMessageSink s)
     {
         Initialize(s);
     }
 
-    protected TestFixture(ITestOutputHelper h)
+    protected AppFixture(ITestOutputHelper h)
     {
         Initialize(null, h);
     }
 
-    protected TestFixture(IMessageSink s, ITestOutputHelper h)
+    protected AppFixture(IMessageSink s, ITestOutputHelper h)
     {
         Initialize(s, h);
     }
 
-    protected TestFixture()
+    protected AppFixture()
     {
         Initialize();
     }
@@ -94,14 +97,14 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
     }
 
     /// <summary>
-    /// override this method if you'd like to do some one-time setup for the test-class.
+    /// override this method if you'd like to do some one-time setup for the fixture.
     /// it is run before any of the test-methods of the class is executed.
     /// </summary>
     protected virtual Task SetupAsync()
         => Task.CompletedTask;
 
     /// <summary>
-    /// override this method if you'd like to do some one-time teardown for the test-class.
+    /// override this method if you'd like to do some one-time teardown for the fixture.
     /// it is run after all test-methods have executed.
     /// </summary>
     protected virtual Task TearDownAsync()
@@ -157,4 +160,17 @@ public abstract class TestFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixt
         await TearDownAsync();
         Client.Dispose();
     }
+}
+
+//TODO: remove this class at v6.0
+[Obsolete("Use 'AppFixture<TProgram>' abstract class instead of this class going forward.", false)]
+public abstract class TestFixture<TProgram> : AppFixture<TProgram> where TProgram : class
+{
+    protected TestFixture(IMessageSink s) : base(s) { }
+
+    protected TestFixture(ITestOutputHelper h) : base(h) { }
+
+    protected TestFixture(IMessageSink s, ITestOutputHelper h) : base(s, h) { }
+
+    protected TestFixture() { }
 }

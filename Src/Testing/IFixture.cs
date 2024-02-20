@@ -3,7 +3,7 @@
 namespace FastEndpoints.Testing;
 
 /// <summary>
-/// marker interface for <see cref="TestFixture{TProgram}"/> implementations
+/// marker interface for <see cref="AppFixture{TProgram}" /> implementations
 /// </summary>
 public interface IFixture
 {

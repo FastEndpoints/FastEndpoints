@@ -2,7 +2,7 @@
 
 namespace Swagger;
 
-public class Fixture : TestFixture<Web.Program>
+public class Fixture : AppFixture<Web.Program>
 {
     public Fixture(IMessageSink s) : base(s) { }
 
@@ -11,6 +11,7 @@ public class Fixture : TestFixture<Web.Program>
     protected override Task SetupAsync()
     {
         DocGenerator = Services.GetRequiredService<IOpenApiDocumentGenerator>();
+
         return Task.CompletedTask;
     }
 }

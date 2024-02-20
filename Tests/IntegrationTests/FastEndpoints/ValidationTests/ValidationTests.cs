@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Validation;
 
-public class ValidationTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
+public class ValidationTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixture>(f, o)
 {
     [Fact]
     public async Task HeaderMissing()

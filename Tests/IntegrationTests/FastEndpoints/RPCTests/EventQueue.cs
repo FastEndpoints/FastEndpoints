@@ -2,7 +2,7 @@
 
 namespace RemoteProcedureCalls;
 
-public class EventQueue(Fixture f, ITestOutputHelper o) : RpcTestBase(f, o)
+public class EventQueue(AppFixture f, ITestOutputHelper o) : RpcTestBase(f, o)
 {
     [Fact]
     public async Task Event_Queue()

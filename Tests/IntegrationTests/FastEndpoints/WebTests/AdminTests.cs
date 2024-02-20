@@ -4,7 +4,7 @@ using Login = Admin.Login;
 
 namespace Web;
 
-public class AdminTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
+public class AdminTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixture>(f, o)
 {
     [Fact]
     public async Task AdminLoginWithBadInput()

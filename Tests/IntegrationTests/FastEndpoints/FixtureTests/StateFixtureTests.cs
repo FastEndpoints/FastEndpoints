@@ -19,7 +19,7 @@ public sealed class MyStateFixture : StateFixture
     }
 }
 
-public class StateFixtureTests(Fixture f, MyStateFixture s, ITestOutputHelper o) : TestClass<Fixture, MyStateFixture>(f, s, o)
+public class StateFixtureTests(AppFixture f, MyStateFixture s, ITestOutputHelper o) : TestClass<AppFixture, MyStateFixture>(f, s, o)
 {
     [Fact, Priority(1)]
     public async Task State_Is_Injected_By_Xunit()

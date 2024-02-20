@@ -8,7 +8,7 @@ using TestCases.MissingClaimTest;
 
 namespace Security;
 
-public class SecurityTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
+public class SecurityTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixture>(f, o)
 {
     [Fact]
     public async Task MultiVerbEndpointAnonymousUserPutFail()

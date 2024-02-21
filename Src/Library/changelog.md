@@ -10,7 +10,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
-<details><summary>Keyed service injection for endpoint properties</summary>
+<details><summary>Keyed service injection support</summary>
 
 //todo: update docs + write description here
 
@@ -50,7 +50,7 @@ AdminDashboard
 
 Previously, the recommendation was to create as many derived `TestFixture<TProgram>` classes as needed and use them as the means to share data/state among multiple test-methods of the same test-class.
 
-A new `StateFixture` abstract class has been introduced. So that your test suit can have just a couple of "App Fixtures"(AppFixture<TProgram>) - each representing a uniquely configured SUT(live app/WAF instance), while each test-class can have their own lightweight "StateFixture" for the sole purpose of sharing state/data amongst multiple test-methods of that test-class.
+A new `StateFixture` abstract class has been introduced. So that your test suit can have just a couple of "App Fixtures"(`AppFixture<TProgram>`) - each representing a uniquely configured SUT(live app/WAF instance), while each test-class can have their own lightweight "StateFixture" for the sole purpose of sharing state/data amongst multiple test-methods of that test-class.
 
 This leads to better test run performance as each unique SUT is only created once no matter how many test classes use the same derived `AppFixture<TProgram>` class. Please re-read the [integration testing doc page](https://fast-endpoints.com/docs/integration-unit-testing#fastendpoints-testing-package) for further clarification.
 

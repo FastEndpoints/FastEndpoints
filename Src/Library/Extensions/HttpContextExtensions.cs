@@ -4,6 +4,42 @@ namespace FastEndpoints;
 
 public static class HttpContextExtensions
 {
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+    /// </summary>
+    /// <typeparam name="TService">the type of the service to resolve</typeparam>
+    /// <param name="keyName">the key name to resolve a keyed service</param>
+    public static TService? TryResolve<TService>(this HttpContext _, string keyName) where TService : class
+        => Cfg.ServiceResolver.TryResolve<TService>(keyName);
+
+    /// <summary>
+    /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+    /// </summary>
+    /// <param name="typeOfService">the type of the service to resolve</param>
+    /// <param name="keyName">the key name to resolve a keyed service</param>
+    public static object? TryResolve(this HttpContext _, Type typeOfService, string keyName)
+        => Cfg.ServiceResolver.TryResolve(typeOfService, keyName);
+
+    /// <summary>
+    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+    /// </summary>
+    /// <typeparam name="TService">the type of the service to resolve</typeparam>
+    /// <param name="keyName">the key name to resolve a keyed service</param>
+    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+    public static TService Resolve<TService>(this HttpContext _, string keyName) where TService : class
+        => Cfg.ServiceResolver.Resolve<TService>(keyName);
+
+    /// <summary>
+    /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+    /// </summary>
+    /// <param name="typeOfService">the type of the service to resolve</param>
+    /// <param name="keyName">the key name to resolve a keyed service</param>
+    /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+    public static object Resolve(this HttpContext _, Type typeOfService, string keyName)
+        => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
+#endif
+
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>

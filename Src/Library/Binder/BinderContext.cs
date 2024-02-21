@@ -76,4 +76,22 @@
         /// <inheritdoc />
         public IServiceScope CreateScope()
             => Cfg.ServiceResolver.CreateScope();
+
+    #if NET8_0_OR_GREATER
+        /// <inheritdoc />
+        public TService? TryResolve<TService>(string keyName) where TService : class
+            => Cfg.ServiceResolver.TryResolve<TService>(keyName);
+
+        /// <inheritdoc />
+        public object? TryResolve(Type typeOfService, string keyName)
+            => Cfg.ServiceResolver.TryResolve(typeOfService, keyName);
+
+        /// <inheritdoc />
+        public TService Resolve<TService>(string keyName) where TService : class
+            => Cfg.ServiceResolver.Resolve<TService>(keyName);
+
+        /// <inheritdoc />
+        public object Resolve(Type typeOfService, string keyName)
+            => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
+    #endif
     }

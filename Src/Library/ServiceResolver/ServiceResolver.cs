@@ -50,4 +50,26 @@ sealed class ServiceResolver(IServiceProvider provider,
     public object? TryResolve(Type typeOfService)
         => ctxAccessor.HttpContext?.RequestServices.GetService(typeOfService) ??
            provider.GetService(typeOfService);
+
+#if NET8_0_OR_GREATER
+    public TService? TryResolve<TService>(string keyName) where TService : class
+        => ctxAccessor.HttpContext?.RequestServices.GetKeyedService<TService>(keyName) ??
+           provider.GetKeyedService<TService>(keyName);
+
+    public object? TryResolve(Type typeOfService, string keyName)
+    {
+        if ((ctxAccessor.HttpContext?.RequestServices ?? provider) is IKeyedServiceProvider p)
+            return p.GetKeyedService(typeOfService, keyName);
+
+        throw new InvalidOperationException("Keyed services not supported!");
+    }
+
+    public TService Resolve<TService>(string keyName) where TService : class
+        => ctxAccessor.HttpContext?.RequestServices.GetRequiredKeyedService<TService>(keyName) ??
+           provider.GetRequiredService<TService>();
+
+    public object Resolve(Type typeOfService, string keyName)
+        => ctxAccessor.HttpContext?.RequestServices.GetRequiredKeyedService(typeOfService, keyName) ??
+           provider.GetRequiredKeyedService(typeOfService, keyName);
+#endif
 }

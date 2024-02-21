@@ -147,4 +147,10 @@ Non-nullable reference types are not correctly generated as non-nullable.
 
 </details>
 
+<details><summary>Swagger security processor was unable to handle Minimal Api Endpoints with Auth requirements</summary>
+
+A NRE was being thrown when the swagger security operation processor was encountering minimal api endpoints with auth requirements.
+
+</details>
+
 [//]: # (## Breaking Changes ⚠️)

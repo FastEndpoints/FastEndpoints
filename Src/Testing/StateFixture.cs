@@ -5,7 +5,7 @@ using Xunit;
 
 namespace FastEndpoints.Testing;
 
-public abstract class StateFixture : IAsyncLifetime, IFixture
+public abstract class StateFixture : IAsyncLifetime, IFaker
 {
     static readonly Faker _faker = new();
 
@@ -26,9 +26,9 @@ public abstract class StateFixture : IAsyncLifetime, IFixture
     protected virtual Task TearDownAsync()
         => Task.CompletedTask;
 
-    public Task InitializeAsync()
+    Task IAsyncLifetime.InitializeAsync()
         => SetupAsync();
 
-    public Task DisposeAsync()
+    Task IAsyncLifetime.DisposeAsync()
         => TearDownAsync();
 }

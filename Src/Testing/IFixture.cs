@@ -3,9 +3,9 @@
 namespace FastEndpoints.Testing;
 
 /// <summary>
-/// marker interface for <see cref="AppFixture{TProgram}" /> implementations
+/// provides a bogus fake data generator
 /// </summary>
-public interface IFixture
+public interface IFaker
 {
     /// <summary>
     /// bogus data generator

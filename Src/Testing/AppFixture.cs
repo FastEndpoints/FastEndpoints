@@ -16,9 +16,13 @@ namespace FastEndpoints.Testing;
 /// <summary>
 /// base class for <see cref="AppFixture{TProgram}" />.
 /// </summary>
-public abstract class BaseFixture
+public abstract class BaseFixture : IFaker
 {
-    protected static readonly Faker Faker = new();
+    static readonly Faker _faker = new();
+
+    /// <inheritdoc />
+    public Faker Fake => _faker;
+
     protected static readonly ConcurrentDictionary<Type, object> WafCache = new();
 }
 
@@ -26,11 +30,8 @@ public abstract class BaseFixture
 /// inherit this class to create a class fixture for an implementation of <see cref="TestClass{TFixture}" />.
 /// </summary>
 /// <typeparam name="TProgram">the type of the web application to bootstrap via <see cref="WebApplicationFactory{TEntryPoint}" /></typeparam>
-public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixture where TProgram : class
+public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where TProgram : class
 {
-    /// <inheritdoc />
-    public Faker Fake => Faker;
-
     /// <summary>
     /// the service provider of the bootstrapped web application
     /// </summary>
@@ -152,10 +153,10 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime, IFixtu
         => _app.Server.CreateHandler();
 #endif
 
-    public Task InitializeAsync()
+    Task IAsyncLifetime.InitializeAsync()
         => SetupAsync();
 
-    public virtual async Task DisposeAsync()
+    async Task IAsyncLifetime.DisposeAsync()
     {
         await TearDownAsync();
         Client.Dispose();

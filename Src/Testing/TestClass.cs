@@ -23,7 +23,7 @@ namespace FastEndpoints.Testing;
 ///     </para>
 /// </typeparam>
 [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
-public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o) : IClassFixture<TAppFixture> where TAppFixture : class, IFixture
+public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o) : IAsyncLifetime, IClassFixture<TAppFixture> where TAppFixture : BaseFixture
 {
     /// <summary>
     /// app fixture that is shared among all tests of this class
@@ -59,6 +59,26 @@ public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o)
     protected Faker Fake => App.Fake;
 
     //TODO: remove Fixture and Fx properties at v6.0
+
+    /// <summary>
+    /// override this method if you'd like to do some one-time setup for the test-class.
+    /// it is run before any of the test-methods of the class is executed.
+    /// </summary>
+    protected virtual Task SetupAsync()
+        => Task.CompletedTask;
+
+    /// <summary>
+    /// override this method if you'd like to do some one-time teardown for the test-class.
+    /// it is run after all test-methods have executed.
+    /// </summary>
+    protected virtual Task TearDownAsync()
+        => Task.CompletedTask;
+
+    Task IAsyncLifetime.InitializeAsync()
+        => SetupAsync();
+
+    Task IAsyncLifetime.DisposeAsync()
+        => TearDownAsync();
 }
 
 /// <summary>
@@ -74,7 +94,7 @@ public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o)
 /// </typeparam>
 /// <typeparam name="TState">the type of the shared state fixture. implement a "state fixture" by inheriting <see cref="StateFixture" /> abstract class.</typeparam>
 public abstract class TestClass<TAppFixture, TState>(TAppFixture a, TState s, ITestOutputHelper o) : TestClass<TAppFixture>(a, o), IClassFixture<TState>
-    where TAppFixture : class, IFixture where TState : StateFixture
+    where TAppFixture : BaseFixture where TState : StateFixture
 {
     /// <summary>
     /// the shared state fixture for the purpose of sharing some data across all test-methods of this test-class.

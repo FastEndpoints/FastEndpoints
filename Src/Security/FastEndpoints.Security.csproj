@@ -12,9 +12,9 @@
     <ItemGroup>
         <ProjectReference Include="..\Library\FastEndpoints.csproj"/>
 
-        <PackageReference Condition="'$(TargetFramework)' == 'net6.0'" Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.26"/>
-        <PackageReference Condition="'$(TargetFramework)' == 'net7.0'" Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.15"/>
-        <PackageReference Condition="'$(TargetFramework)' == 'net8.0'" Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1"/>
+        <PackageReference Condition="'$(TargetFramework)' == 'net6.0'" Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.27"/>
+        <PackageReference Condition="'$(TargetFramework)' == 'net7.0'" Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.16"/>
+        <PackageReference Condition="'$(TargetFramework)' == 'net8.0'" Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.2"/>
 
         <PackageReference Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Include="Microsoft.Bcl.TimeProvider" Version="8.0.1"/>
 

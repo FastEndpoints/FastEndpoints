@@ -26,7 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="[Features]\TestCases\Binding\"/>
         <Folder Include="[Features]\TestCases\Endpoints\"/>
         <Folder Include="[Features]\TestCases\Misc\"/>
         <Folder Include="[Features]\TestCases\Processors\"/>

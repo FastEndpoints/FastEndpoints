@@ -1,10 +1,18 @@
-﻿using NSwag.Generation.Processors;
+﻿using System.Net.Http.Headers;
+using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
 
 sealed class DocumentProcessor : IDocumentProcessor
 {
+    internal static readonly string[] TypedHeaderNames = typeof(ContentDispositionHeaderValue)
+                                                         .Assembly
+                                                         .GetTypes()
+                                                         .Where(t => t.Namespace == "System.Net.Http.Headers" && t.Name.Contains("Header"))
+                                                         .Select(t => t.FullName!)
+                                                         .ToArray();
+
     readonly int _maxEpVer;
     readonly int _minEpVer;
     readonly bool _showDeprecated;
@@ -69,6 +77,12 @@ sealed class DocumentProcessor : IDocumentProcessor
                 }
                 op.Tags.Remove(op.Tags.SingleOrDefault(t => t.StartsWith("|")));
             }
+        }
+
+        foreach (var schema in ctx.Document.Components.Schemas)
+        {
+            if (TypedHeaderNames.Select(n => n.Replace(".", "")).Contains(schema.Key))
+                ctx.Document.Components.Schemas.Remove(schema.Key);
         }
     }
 }

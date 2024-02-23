@@ -3490,6 +3490,59 @@
         }
       }
     },
+    "/api/test-cases/typed-header-binding-test": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesTypedHeaderBindingTestMyEndpoint",
+        "parameters": [
+          {
+            "name": "Content-Disposition",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "MyRequest",
+          "description": "",
+          "content": {
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesTypedHeaderBindingTestMyRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesTypedHeaderBindingTestMyRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/multi-test": {
       "post": {
         "tags": [
@@ -5449,6 +5502,17 @@
             ]
           }
         }
+      },
+      "TestCasesTypedHeaderBindingTestMyRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FastEndpointsPlainTextRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
       },
       "TestCasesTypedResultTestResponse": {
         "type": "object",

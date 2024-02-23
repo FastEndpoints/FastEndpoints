@@ -794,4 +794,17 @@ public class BindingTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixt
         res.CustomerID.Should().Be("123");
         res.Id.Should().Be(null);
     }
+
+    [Fact]
+    public async Task TypedHeaderPropertyBinding()
+    {
+        using var stringContent = new StringContent("this is the body content");
+        stringContent.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse("attachment; filename=\"_filename_.jpg\"");
+
+        var rsp = await App.GuestClient.PostAsync("api/test-cases/typed-header-binding-test", stringContent);
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+
+        var res = await rsp.Content.ReadFromJsonAsync<string>();
+        res.Should().Be("\"_filename_.jpg\"");
+    }
 }

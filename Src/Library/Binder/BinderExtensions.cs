@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -23,9 +23,9 @@ static class BinderExtensions
     {
         return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                 .Where(
-                     p => p.GetSetMethod()?.IsPublic is true &&
-                          p.GetGetMethod()?.IsPublic is true &&
-                          !p.IsDefined(Types.JsonIgnoreAttribute));
+                    p => p.GetSetMethod()?.IsPublic is true &&
+                         p.GetGetMethod()?.IsPublic is true &&
+                         !p.IsDefined(Types.JsonIgnoreAttribute));
     }
 
     internal static Func<object, object> GetterForProp(this Type source, string propertyName)
@@ -53,7 +53,7 @@ static class BinderExtensions
 
     internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = new();
     static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
-    static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor(new[] { Types.Bool, Types.Object })!;
+    static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
     internal static Func<object?, ParseResult> ValueParser(this Type type)
     {
@@ -80,15 +80,11 @@ static class BinderExtensions
                 return input => new(Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res);
 
             var isIParseable = false;
-            var tryParseMethod =
-                tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, new[] { Types.String, tProp.MakeByRefType() });
+            var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.String, tProp.MakeByRefType()]);
 
             if (tryParseMethod is null)
             {
-                tryParseMethod = tProp.GetMethod(
-                    "TryParse",
-                    BindingFlags.Public | BindingFlags.Static,
-                    new[] { Types.String, typeof(IFormatProvider), tProp.MakeByRefType() });
+                tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.String, typeof(IFormatProvider), tProp.MakeByRefType()]);
                 isIParseable = tryParseMethod is not null;
             }
 
@@ -124,13 +120,10 @@ static class BinderExtensions
             //  - new ParseResult(isSuccess, (object)res)
             // A sequence of statements is done using a block, and the result of the final
             // statement is the result of the block
-            var tryParseCall = isIParseable
-                                   ? Expression.Call(
-                                       tryParseMethod,
-                                       toStringConversion,
-                                       Expression.Constant(null, CultureInfo.InvariantCulture.GetType()),
-                                       resultVar)
-                                   : Expression.Call(tryParseMethod, toStringConversion, resultVar);
+            var tryParseCall =
+                isIParseable
+                    ? Expression.Call(tryParseMethod, toStringConversion, Expression.Constant(null, CultureInfo.InvariantCulture.GetType()), resultVar)
+                    : Expression.Call(tryParseMethod, toStringConversion, resultVar);
 
             var block = Expression.Block(
                 new[] { resultVar, isSuccessVar },
@@ -138,8 +131,8 @@ static class BinderExtensions
                 Expression.New(_parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 
             return Expression
-                  .Lambda<Func<object?, ParseResult>>(block, inputParameter)
-                  .Compile();
+                   .Lambda<Func<object?, ParseResult>>(block, inputParameter)
+                   .Compile();
 
             static object? DeserializeJsonObjectString(object? input, Type tProp)
                 => input is not StringValues { Count: 1 } vals
@@ -193,9 +186,9 @@ static class BinderExtensions
                     {
                         sb.Append('"')
                           .Append(
-                               vals[i]!.Contains('"') //json strings with quotations must be escaped
-                                   ? vals[i]!.Replace("\"", "\\\"")
-                                   : vals[i])
+                              vals[i]!.Contains('"') //json strings with quotations must be escaped
+                                  ? vals[i]!.Replace("\"", "\\\"")
+                                  : vals[i])
                           .Append('"');
                     }
 

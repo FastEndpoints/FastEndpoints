@@ -16,6 +16,22 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 </details>
 
+<details><summary>Model binding support for Typed Http Headers</summary>
+
+Typed Http Headers from the `System.Net.Http.Headers` namespace can be bound by simply annotating with a `[FromHeader(...)]` attribute like so:
+
+```csharp
+sealed class MyRequest : PlainTextRequest
+{
+    [FromHeader("Content-Disposition")]
+    public ContentDispositionHeaderValue Disposition { get; set; }
+}
+```
+
+**NOTE:** Header types from `Microsoft.Net.Http.Headers` should not be used.
+
+</details>
+
 <details><summary>Ability to strip symbols from Swagger group/tag names</summary>
 
 Given a route like:

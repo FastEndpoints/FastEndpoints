@@ -624,10 +624,21 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                     prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
                     prop?.Name.ApplyPropNamingPolicy(docOpts) ?? throw new InvalidOperationException("param name is required!");
 
+        Type propType;
+
+        if (prop?.PropertyType is not null)
+        {
+            propType = prop.PropertyType;
+            if (DocumentProcessor.TypedHeaderNames.Contains(propType.FullName))
+                propType = Types.String;
+        }
+        else
+            propType = Types.String;
+
         var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(
             paramName,
             descriptions?.GetValueOrDefault(prop?.Name ?? paramName),
-            (prop?.PropertyType ?? Types.String).ToContextualType());
+            propType.ToContextualType());
 
         prm.Kind = kind;
 

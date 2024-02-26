@@ -50,6 +50,21 @@ public abstract class TestBase<TAppFixture> : IAsyncLifetime, IFaker, IClassFixt
         => TearDownAsync();
 }
 
+/// <summary>
+/// abstract class for implementing a test-class, which is a collection of integration tests that may be related to each other.
+/// test methods can be run in a given order by decorating the methods with <see cref="PriorityAttribute" />
+/// </summary>
+/// <typeparam name="TAppFixture">
+/// the type of the app fixture. an app fixture is an implementation of <see cref="AppFixture{TProgram}" /> abstract class which is a uniquely configured running
+/// instance of your application being tested (sut). the app fixture instance is created only once before any of the test methods are executed and torn down after all
+/// test methods of the class have run. all test methods of the test-class will be accessing that same fixture instance per test run. the underlying WAF instance
+/// however is cached and reused per each derived app fixture type in order to speed up test execution. i.e. it's recommended to use the same derived app fixture type
+/// with multiple test-classes.
+/// </typeparam>
+/// <typeparam name="TState">the type of the shared state fixture. implement a "state fixture" by inheriting <see cref="StateFixture" /> abstract class.</typeparam>
+public abstract class TestBase<TAppFixture, TState> : TestBase<TAppFixture>, IClassFixture<TState>
+    where TAppFixture : BaseFixture where TState : StateFixture;
+
 [Obsolete("Use the TestBase<TAppFixture> class going forward. This class will be removed at the next major version jump.")]
 public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o) : TestBase<TAppFixture> where TAppFixture : BaseFixture
 {
@@ -81,18 +96,3 @@ public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o)
 
     //TODO: remove this class at v6.0. only here for backwards compatibility.
 }
-
-/// <summary>
-/// abstract class for implementing a test-class, which is a collection of integration tests that may be related to each other.
-/// test methods can be run in a given order by decorating the methods with <see cref="PriorityAttribute" />
-/// </summary>
-/// <typeparam name="TAppFixture">
-/// the type of the app fixture. an app fixture is an implementation of <see cref="AppFixture{TProgram}" /> abstract class which is a uniquely configured running
-/// instance of your application being tested (sut). the app fixture instance is created only once before any of the test methods are executed and torn down after all
-/// test methods of the class have run. all test methods of the test-class will be accessing that same fixture instance per test run. the underlying WAF instance
-/// however is cached and reused per each derived app fixture type in order to speed up test execution. i.e. it's recommended to use the same derived app fixture type
-/// with multiple test-classes.
-/// </typeparam>
-/// <typeparam name="TState">the type of the shared state fixture. implement a "state fixture" by inheriting <see cref="StateFixture" /> abstract class.</typeparam>
-public abstract class TestBase<TAppFixture, TState> : TestBase<TAppFixture>, IClassFixture<TState>
-    where TAppFixture : BaseFixture where TState : StateFixture;

@@ -61,6 +61,8 @@ static class ValidationExtensions
     [DoesNotReturn]
     internal static void ThrowError(this List<ValidationFailure> failures, ValidationFailure failure, int? statusCode, string? reqDtoFromBodyPropName = null)
     {
+        failure.PropertyName ??= Cfg.ErrOpts.GeneralErrorsField;
+
         failures.AddError(failure, reqDtoFromBodyPropName);
 
         throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called!") { StatusCode = statusCode };

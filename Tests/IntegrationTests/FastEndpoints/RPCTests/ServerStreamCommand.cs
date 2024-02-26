@@ -3,7 +3,7 @@ using TestCases.ServerStreamingTest;
 
 namespace RemoteProcedureCalls;
 
-public class ServerStreamCommand(AppFixture f, ITestOutputHelper o) : RpcTestBase(f, o)
+public class ServerStreamCommand(AppFixture f) : RpcTestBase(f)
 {
     [Fact]
     public async Task Server_Stream()

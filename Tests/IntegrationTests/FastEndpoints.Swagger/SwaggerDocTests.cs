@@ -2,7 +2,7 @@ using FluentAssertions.Json; //this is highly important. the BeEquivalentTo() ex
 
 namespace Swagger;
 
-public class SwaggerDocTests(Fixture f, ITestOutputHelper o) : TestClass<Fixture>(f, o)
+public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 {
     //NOTE: the Verify snapshot testing doesn't seem to work in gh workflow for some reason
     //      so we're doing manual json file comparison.

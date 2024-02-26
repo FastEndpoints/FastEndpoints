@@ -2,7 +2,7 @@
 
 namespace Messaging;
 
-public class JobQueueTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixture>(f, o)
+public class JobQueueTests : TestBase<AppFixture>
 {
     [Fact]
     public async Task JobsExecuteSuccessfully()

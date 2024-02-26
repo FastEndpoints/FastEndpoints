@@ -18,47 +18,16 @@ namespace FastEndpoints.Testing;
 ///     with multiple test-classes.
 ///     </para>
 ///     <para>
-///     to share common state between multiple test-methods of the same test-class, you can inherit the <see cref="TestClass{TAppFixture,TState}" /> abstract class and
+///     to share common state between multiple test-methods of the same test-class, you can inherit the <see cref="TestBase{TAppFixture,TState}" /> abstract class and
 ///     provide an additional "state fixture" for the test-class.
 ///     </para>
 /// </typeparam>
 [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
-public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o) : IAsyncLifetime, IClassFixture<TAppFixture> where TAppFixture : BaseFixture
+public abstract class TestBase<TAppFixture> : IAsyncLifetime, IFaker, IClassFixture<TAppFixture> where TAppFixture : BaseFixture
 {
-    /// <summary>
-    /// app fixture that is shared among all tests of this class
-    /// </summary>
-    protected TAppFixture App { get; } = a;
+    static readonly Faker _faker = new();
 
-    /// <summary>
-    /// app fixture that is shared among all tests of this class
-    /// </summary>
-    /// <remarks>
-    /// NOTE: this property will be deprecated in the future. use the <see cref="App" /> property instead.
-    /// </remarks>
-    [Obsolete("Use the 'App' property going forward.", false)]
-    protected TAppFixture Fixture => App;
-
-    /// <summary>
-    /// app fixture that is shared among all tests of this class
-    /// </summary>
-    /// <remarks>
-    /// NOTE: this property will be deprecated in the future. use the <see cref="App" /> property instead.
-    /// </remarks>
-    [Obsolete("Use the 'App' property going forward.", false)]
-    protected TAppFixture Fx => App;
-
-    /// <summary>
-    /// xUnit test output helper
-    /// </summary>
-    protected ITestOutputHelper Output { get; } = o;
-
-    /// <summary>
-    /// bogus data generator
-    /// </summary>
-    protected Faker Fake => App.Fake;
-
-    //TODO: remove Fixture and Fx properties at v6.0
+    public Faker Fake => _faker;
 
     /// <summary>
     /// override this method if you'd like to do some one-time setup for the test-class.
@@ -81,6 +50,38 @@ public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o)
         => TearDownAsync();
 }
 
+[Obsolete("Use the TestBase<TAppFixture> class going forward. This class will be removed at the next major version jump.")]
+public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o) : TestBase<TAppFixture> where TAppFixture : BaseFixture
+{
+    /// <summary>
+    /// app fixture that is shared among all tests of this class
+    /// </summary>
+    protected TAppFixture App { get; } = a;
+
+    /// <summary>
+    /// app fixture that is shared among all tests of this class
+    /// </summary>
+    /// <remarks>
+    /// NOTE: this property will be deprecated in the future. use the <see cref="App" /> property instead.
+    /// </remarks>
+    protected TAppFixture Fixture => App;
+
+    /// <summary>
+    /// app fixture that is shared among all tests of this class
+    /// </summary>
+    /// <remarks>
+    /// NOTE: this property will be deprecated in the future. use the <see cref="App" /> property instead.
+    /// </remarks>
+    protected TAppFixture Fx => App;
+
+    /// <summary>
+    /// xUnit test output helper
+    /// </summary>
+    protected ITestOutputHelper Output { get; } = o;
+
+    //TODO: remove this class at v6.0. only here for backwards compatibility.
+}
+
 /// <summary>
 /// abstract class for implementing a test-class, which is a collection of integration tests that may be related to each other.
 /// test methods can be run in a given order by decorating the methods with <see cref="PriorityAttribute" />
@@ -93,11 +94,5 @@ public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o)
 /// with multiple test-classes.
 /// </typeparam>
 /// <typeparam name="TState">the type of the shared state fixture. implement a "state fixture" by inheriting <see cref="StateFixture" /> abstract class.</typeparam>
-public abstract class TestClass<TAppFixture, TState>(TAppFixture a, TState s, ITestOutputHelper o) : TestClass<TAppFixture>(a, o), IClassFixture<TState>
-    where TAppFixture : BaseFixture where TState : StateFixture
-{
-    /// <summary>
-    /// the shared state fixture for the purpose of sharing some data across all test-methods of this test-class.
-    /// </summary>
-    protected TState State { get; } = s;
-}
+public abstract class TestBase<TAppFixture, TState> : TestBase<TAppFixture>, IClassFixture<TState>
+    where TAppFixture : BaseFixture where TState : StateFixture;

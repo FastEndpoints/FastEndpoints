@@ -6,11 +6,11 @@ using TestCases.ServerStreamingTest;
 
 namespace RemoteProcedureCalls;
 
-public class RpcTestBase : TestClass<AppFixture>
+public class RpcTestBase : TestBase<AppFixture>
 {
     protected readonly RemoteConnection Remote;
 
-    public RpcTestBase(AppFixture f, ITestOutputHelper o) : base(f, o)
+    protected RpcTestBase(AppFixture App)
     {
         var svcCollection = new ServiceCollection();
         svcCollection.AddSingleton<ILoggerFactory, LoggerFactory>();

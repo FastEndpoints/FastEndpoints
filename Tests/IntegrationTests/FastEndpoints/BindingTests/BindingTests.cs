@@ -14,7 +14,7 @@ using Response = TestCases.RouteBindingInEpWithoutReq.Response;
 
 namespace Binding;
 
-public class BindingTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixture>(f, o)
+public class BindingTests(AppFixture App) : TestBase<AppFixture>
 {
     [Fact]
     public async Task RouteValueReadingInEndpointWithoutRequest()

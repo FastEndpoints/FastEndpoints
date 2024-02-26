@@ -2,7 +2,7 @@
 
 namespace Processors;
 
-public class ProcessorTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixture>(f, o)
+public class ProcessorTests(AppFixture App) : TestBase<AppFixture>
 {
     [Fact]
     public async Task PreProcessorShortCircuitingWhileValidatorFails()

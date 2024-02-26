@@ -3,7 +3,7 @@ using TestCases.EventHandlingTest;
 
 namespace Messaging;
 
-public class EventBusTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixture>(f, o)
+public class EventBusTests(AppFixture App) : TestBase<AppFixture>
 {
     [Fact]
     public async Task Fake_Handler_Execution()

@@ -1,8 +1,6 @@
 ﻿using Bogus;
 using Xunit;
 
-// ReSharper disable VirtualMemberNeverOverridden.Global
-
 namespace FastEndpoints.Testing;
 
 public abstract class StateFixture : IAsyncLifetime, IFaker

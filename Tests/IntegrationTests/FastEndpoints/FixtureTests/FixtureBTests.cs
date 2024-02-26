@@ -2,10 +2,8 @@
 
 namespace FixtureTests;
 
-public class FixtureBTests : TestClass<FixtureB>
+public class FixtureBTests : TestBase<AppFixture>
 {
-    public FixtureBTests(FixtureB f, ITestOutputHelper o) : base(f, o) { }
-
     //[Fact]
     public async Task Actual_Email_Service_Is_Resolved()
     {

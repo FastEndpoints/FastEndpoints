@@ -27,7 +27,7 @@ public abstract class BaseFixture : IFaker
 }
 
 /// <summary>
-/// inherit this class to create a class fixture for an implementation of <see cref="TestClass{TFixture}" />.
+/// inherit this class to create a class fixture for an implementation of <see cref="TestBase{TFixture}" />.
 /// </summary>
 /// <typeparam name="TProgram">the type of the web application to bootstrap via <see cref="WebApplicationFactory{TEntryPoint}" /></typeparam>
 public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where TProgram : class

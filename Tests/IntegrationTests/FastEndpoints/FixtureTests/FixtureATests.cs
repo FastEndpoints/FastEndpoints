@@ -2,7 +2,7 @@
 
 namespace FixtureTests;
 
-public class FixtureATests(FixtureA f, ITestOutputHelper o) : TestClass<FixtureA>(f, o)
+public class FixtureATests : TestBase<AppFixture>
 {
     [Fact]
     public async Task Mock_Email_Service_Is_Resolved()

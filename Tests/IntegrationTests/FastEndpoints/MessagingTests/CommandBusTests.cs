@@ -2,7 +2,7 @@
 
 namespace Messaging;
 
-public class CommandBusTests(AppFixture f, ITestOutputHelper o) : TestClass<AppFixture>(f, o)
+public class CommandBusTests(AppFixture App) : TestBase<AppFixture>
 {
     [Fact]
     public async Task Generic_Command_With_Result()

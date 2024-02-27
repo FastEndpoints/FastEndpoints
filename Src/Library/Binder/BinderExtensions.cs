@@ -4,8 +4,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -51,10 +53,10 @@ static class BinderExtensions
         return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();
     }
 
+    //static readonly ConstructorInfo _stringSegmentCtor = Types.StringSegment.GetConstructor([Types.String])!;
     internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = new();
     static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
-    static readonly ConstructorInfo _stringSegmentCtor = Types.StringSegment.GetConstructor([Types.String])!;
 
     internal static Func<object?, ParseResult> ValueParser(this Type type)
     {
@@ -90,13 +92,13 @@ static class BinderExtensions
                 isIParseable = tryParseMethod is not null;
             }
 
-            var isTypedHeader = false;
-
-            if (tryParseMethod is null && tProp.Name.EndsWith("HeaderValue")) //only applies to types from Microsoft.Net.Http.Headers due to tryparse having stringsegment
-            {
-                tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.StringSegment, tProp.MakeByRefType()]);
-                isTypedHeader = tryParseMethod is not null;
-            }
+            // var isTypedHeader = false;
+            //
+            // if (tryParseMethod is null && tProp.Name.EndsWith("HeaderValue")) //only applies to types from Microsoft.Net.Http.Headers due to tryparse having stringsegment
+            // {
+            //     tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.StringSegment, tProp.MakeByRefType()]);
+            //     isTypedHeader = tryParseMethod is not null;
+            // }
 
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {
@@ -119,13 +121,13 @@ static class BinderExtensions
                 Expression.Constant(null, Types.String),
                 Expression.Call(inputParameter, _toStringMethod));
 
-            Expression? stringSegmentCreation = null;
-
-            if (isTypedHeader)
-            {
-                // 'new StringSegment(input == null ? (string)null : input.ToString())'
-                stringSegmentCreation = Expression.New(_stringSegmentCtor, toStringConversion);
-            }
+            // Expression? stringSegmentCreation = null;
+            //
+            // if (isTypedHeader)
+            // {
+            //     // 'new StringSegment(input == null ? (string)null : input.ToString())'
+            //     stringSegmentCreation = Expression.New(_stringSegmentCtor, toStringConversion);
+            // }
 
             // 'res' variable used as the out parameter to the TryParse call
             var resultVar = Expression.Variable(tProp, "res");
@@ -141,7 +143,7 @@ static class BinderExtensions
             var tryParseCall =
                 isIParseable
                     ? Expression.Call(tryParseMethod, toStringConversion, Expression.Constant(null, CultureInfo.InvariantCulture.GetType()), resultVar)
-                    : Expression.Call(tryParseMethod, stringSegmentCreation ?? toStringConversion, resultVar);
+                    : Expression.Call(tryParseMethod, toStringConversion, resultVar);
 
             var block = Expression.Block(
                 new[] { resultVar, isSuccessVar },
@@ -219,4 +221,39 @@ static class BinderExtensions
             }
         }
     }
+
+#if NET8_0_OR_GREATER
+    internal static void AddTypedHeaderValueParsers(this BindingOptions o, JsonSerializerOptions jso)
+    {
+        //header parsers
+        o.ValueParserFor<CacheControlHeaderValue>(input => new(CacheControlHeaderValue.TryParse(new((StringValues)input!), out var res), res));
+        o.ValueParserFor<ContentDispositionHeaderValue>(input => new(ContentDispositionHeaderValue.TryParse(new((StringValues)input!), out var res), res));
+        o.ValueParserFor<ContentRangeHeaderValue>(input => new(ContentRangeHeaderValue.TryParse(new((StringValues)input!), out var res), res));
+        o.ValueParserFor<MediaTypeHeaderValue>(input => new(MediaTypeHeaderValue.TryParse(new((StringValues)input!), out var res), res));
+        o.ValueParserFor<RangeConditionHeaderValue>(input => new(RangeConditionHeaderValue.TryParse(new((StringValues)input!), out var res), res));
+        o.ValueParserFor<RangeHeaderValue>(input => new(RangeHeaderValue.TryParse(new((StringValues)input!), out var res), res));
+        o.ValueParserFor<EntityTagHeaderValue>(input => new(EntityTagHeaderValue.TryParse(new((StringValues)input!), out var res), res));
+
+        //list header parsers
+        o.ValueParserFor<IList<MediaTypeHeaderValue>>(input => new(MediaTypeHeaderValue.TryParseList((StringValues)input!, out var res), res));
+        o.ValueParserFor<IList<EntityTagHeaderValue>>(input => new(EntityTagHeaderValue.TryParseList((StringValues)input!, out var res), res));
+        o.ValueParserFor<IList<SetCookieHeaderValue>>(input => new(SetCookieHeaderValue.TryParseList((StringValues)input!, out var res), res));
+
+        //need to prevent STJ from trying to deserialize these types
+        jso.TypeInfoResolver = jso.TypeInfoResolver?.WithAddedModifier(
+            ti =>
+            {
+                if (ti.Kind != JsonTypeInfoKind.Object)
+                    return;
+
+                for (var i = 0; i < ti.Properties.Count; i++)
+                {
+                    var pi = ti.Properties[i];
+
+                    if (pi.AttributeProvider?.GetCustomAttributes(Types.FromHeaderAttribute, true).Length != 0 && pi.PropertyType.Name.EndsWith("HeaderValue"))
+                        ti.Properties.Remove(pi);
+                }
+            });
+    }
+#endif
 }

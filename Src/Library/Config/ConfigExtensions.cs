@@ -7,9 +7,9 @@ namespace FastEndpoints;
 
 static class ConfigExtensions
 {
+#if NET8_0_OR_GREATER
     internal static void IgnoreToHeaderAttributes(this JsonSerializerOptions opts)
     {
-    #if NET8_0_OR_GREATER
         opts.TypeInfoResolver = opts.TypeInfoResolver?.WithAddedModifier(
             ti =>
             {
@@ -23,6 +23,6 @@ static class ConfigExtensions
                         pi.ShouldSerialize = (_, _) => false;
                 }
             });
-    #endif
     }
+#endif
 }

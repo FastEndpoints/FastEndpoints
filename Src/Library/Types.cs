@@ -27,6 +27,7 @@ static class Types
     internal static readonly Type EndpointWithMapperOf2 = typeof(EndpointWithMapper<,>);
     internal static readonly Type EndpointWithOutRequestOf2 = typeof(EndpointWithoutRequest<,>);
     internal static readonly Type FromBodyAttribute = typeof(FromBodyAttribute);
+    internal static readonly Type FromHeaderAttribute = typeof(FromHeaderAttribute);
     internal static readonly Type HideFromDocsAttribute = typeof(HideFromDocsAttribute);
     internal static readonly Type Http = typeof(Http);
     internal static readonly Type ICommand = typeof(ICommand);

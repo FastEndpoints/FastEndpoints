@@ -28,6 +28,8 @@ sealed class MyRequest : PlainTextRequest
 }
 ```
 
+NOTE: Only supports .Net 8 and typed header classes from `Microsoft.Net.Http.Headers` namespace.
+
 </details>
 
 <details><summary>Ability to strip symbols from Swagger group/tag names</summary>

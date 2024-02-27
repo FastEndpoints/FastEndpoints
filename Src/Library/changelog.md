@@ -18,7 +18,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>Model binding support for Typed Http Headers</summary>
 
-Typed Http Headers from the `System.Net.Http.Headers` namespace can be bound by simply annotating with a `[FromHeader(...)]` attribute like so:
+Typed Http Headers can be bound by simply annotating with a `[FromHeader(...)]` attribute like so:
 
 ```csharp
 sealed class MyRequest : PlainTextRequest
@@ -27,8 +27,6 @@ sealed class MyRequest : PlainTextRequest
     public ContentDispositionHeaderValue Disposition { get; set; }
 }
 ```
-
-**NOTE:** Header types from `Microsoft.Net.Http.Headers` should not be used.
 
 </details>
 

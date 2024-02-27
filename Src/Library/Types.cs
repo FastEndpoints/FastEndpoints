@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Primitives;
 
 namespace FastEndpoints;
 
@@ -55,6 +56,7 @@ static class Types
     internal static readonly Type ParseResult = typeof(ParseResult);
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);
     internal static readonly Type String = typeof(string);
+    internal static readonly Type StringSegment = typeof(StringSegment);
     internal static readonly Type SummaryOf1 = typeof(Summary<>);
     internal static readonly Type SummaryOf2 = typeof(Summary<,>);
     internal static readonly Type ToHeaderAttribute = typeof(ToHeaderAttribute);

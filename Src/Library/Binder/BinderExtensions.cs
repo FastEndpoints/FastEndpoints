@@ -54,6 +54,7 @@ static class BinderExtensions
     internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = new();
     static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
+    static readonly ConstructorInfo _stringSegmentCtor = Types.StringSegment.GetConstructor([Types.String])!;
 
     internal static Func<object?, ParseResult> ValueParser(this Type type)
     {
@@ -79,13 +80,22 @@ static class BinderExtensions
             if (tProp == Types.Uri)
                 return input => new(Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res);
 
-            var isIParseable = false;
             var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.String, tProp.MakeByRefType()]);
+
+            var isIParseable = false;
 
             if (tryParseMethod is null)
             {
                 tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.String, typeof(IFormatProvider), tProp.MakeByRefType()]);
                 isIParseable = tryParseMethod is not null;
+            }
+
+            var isTypedHeader = false;
+
+            if (tryParseMethod is null && tProp.Name.EndsWith("HeaderValue")) //only applies to types from Microsoft.Net.Http.Headers due to tryparse having stringsegment
+            {
+                tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.StringSegment, tProp.MakeByRefType()]);
+                isTypedHeader = tryParseMethod is not null;
             }
 
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
@@ -109,6 +119,14 @@ static class BinderExtensions
                 Expression.Constant(null, Types.String),
                 Expression.Call(inputParameter, _toStringMethod));
 
+            Expression? stringSegmentCreation = null;
+
+            if (isTypedHeader)
+            {
+                // 'new StringSegment(input == null ? (string)null : input.ToString())'
+                stringSegmentCreation = Expression.New(_stringSegmentCtor, toStringConversion);
+            }
+
             // 'res' variable used as the out parameter to the TryParse call
             var resultVar = Expression.Variable(tProp, "res");
 
@@ -123,7 +141,7 @@ static class BinderExtensions
             var tryParseCall =
                 isIParseable
                     ? Expression.Call(tryParseMethod, toStringConversion, Expression.Constant(null, CultureInfo.InvariantCulture.GetType()), resultVar)
-                    : Expression.Call(tryParseMethod, toStringConversion, resultVar);
+                    : Expression.Call(tryParseMethod, stringSegmentCreation ?? toStringConversion, resultVar);
 
             var block = Expression.Block(
                 new[] { resultVar, isSuccessVar },

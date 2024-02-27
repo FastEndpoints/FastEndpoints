@@ -629,7 +629,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         if (prop?.PropertyType is not null)
         {
             propType = prop.PropertyType;
-            if (DocumentProcessor.TypedHeaderNames.Contains(propType.FullName))
+            if (propType.Name.EndsWith("HeaderValue"))
                 propType = Types.String;
         }
         else

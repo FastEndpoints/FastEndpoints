@@ -805,6 +805,6 @@ public class BindingTests(AppFixture App) : TestBase<AppFixture>
         rsp.IsSuccessStatusCode.Should().BeTrue();
 
         var res = await rsp.Content.ReadFromJsonAsync<string>();
-        res.Should().Be("\"_filename_.jpg\"");
+        res.Should().Be("_filename_.jpg");
     }
 }

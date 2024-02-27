@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.Net.Http.Headers;
 
 namespace TestCases.TypedHeaderBindingTest;
 
@@ -18,6 +18,6 @@ sealed class MyEndpoint : Endpoint<MyRequest, string>
 
     public override async Task HandleAsync(MyRequest r, CancellationToken c)
     {
-        await SendAsync(r.Disposition.FileName!);
+        await SendAsync(r.Disposition.FileName.Value!);
     }
 }

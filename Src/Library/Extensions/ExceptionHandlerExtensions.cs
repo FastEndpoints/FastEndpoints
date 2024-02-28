@@ -49,13 +49,13 @@ public static class ExceptionHandlerExtensions
                             else
                             {
                                 logger.LogError(
+                                    exHandlerFeature.Error,
                                     $"""
                                      =================================
                                      {route}
                                      TYPE: {exceptionType}
                                      REASON: {reason}
                                      ---------------------------------
-                                     {exHandlerFeature.Error.StackTrace}
                                      """);
                             }
 

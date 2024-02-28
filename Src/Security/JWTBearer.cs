@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 #if NET8_0_OR_GREATER
 using Microsoft.IdentityModel.JsonWebTokens;
-
 #else
 using System.IdentityModel.Tokens.Jwt;
 #endif
@@ -86,14 +85,6 @@ public static class JwtBearer
 /// </summary>
 public static class JWTBearer
 {
-    /// <summary>
-    /// generate a jwt token with the supplied parameters
-    /// </summary>
-    /// <param name="signingKey">the secret key to use for signing the tokens</param>
-    /// <param name="expireAt">the expiry date</param>
-    /// <param name="permissions">one or more permissions to assign to the user principal</param>
-    /// <param name="roles">one or more roles to assign the user principal</param>
-    /// <param name="claims">one or more claims to assign to the user principal</param>
     [Obsolete("Use JwtBearer.CreateToken() method.")]
     public static string CreateToken(string signingKey,
                                      DateTime? expireAt = null,
@@ -102,16 +93,6 @@ public static class JWTBearer
                                      params (string claimType, string claimValue)[] claims)
         => CreateToken(signingKey, expireAt, permissions, roles, claims.Select(c => new Claim(c.claimType, c.claimValue)));
 
-    /// <summary>
-    /// generate a jwt token with the supplied parameters
-    /// </summary>
-    /// <param name="signingKey">the secret key to use for signing the tokens</param>
-    /// <param name="issuer">the issue</param>
-    /// <param name="audience">the audience</param>
-    /// <param name="expireAt">the expiry date</param>
-    /// <param name="permissions">one or more permissions to assign to the user principal</param>
-    /// <param name="roles">one or more roles to assign the user principal</param>
-    /// <param name="claims">one or more claims to assign to the user principal</param>
     [Obsolete("Use JwtBearer.CreateToken() method.")]
     public static string CreateToken(string signingKey,
                                      string? issuer,
@@ -122,17 +103,6 @@ public static class JWTBearer
                                      params (string claimType, string claimValue)[] claims)
         => CreateToken(signingKey, expireAt, permissions, roles, claims.Select(c => new Claim(c.claimType, c.claimValue)), issuer, audience);
 
-    /// <summary>
-    /// generate a jwt token with the supplied parameters and token signing style
-    /// </summary>
-    /// <param name="signingKey">the secret key to use for signing the tokens</param>
-    /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
-    /// <param name="issuer">the issue</param>
-    /// <param name="audience">the audience</param>
-    /// <param name="expireAt">the expiry date</param>
-    /// <param name="permissions">one or more permissions to assign to the user principal</param>
-    /// <param name="roles">one or more roles to assign the user principal</param>
-    /// <param name="claims">one or more claims to assign to the user principal</param>
     [Obsolete("Use JwtBearer.CreateToken() method.")]
     public static string CreateToken(string signingKey,
                                      TokenSigningStyle signingStyle,
@@ -144,15 +114,6 @@ public static class JWTBearer
                                      params (string claimType, string claimValue)[] claims)
         => CreateToken(signingKey, expireAt, permissions, roles, claims.Select(c => new Claim(c.claimType, c.claimValue)), issuer, audience, signingStyle);
 
-    /// <summary>
-    /// generate a jwt token with the supplied parameters
-    /// </summary>
-    /// <param name="signingKey">the secret key to use for signing the tokens</param>
-    /// <param name="privileges">an action to specify the privileges of the user</param>
-    /// <param name="issuer">the issuer</param>
-    /// <param name="audience">the audience</param>
-    /// <param name="expireAt">the expiry date</param>
-    /// <param name="signingStyle">the signing style to use (Symmertic or Asymmetric)</param>
     [Obsolete("Use JwtBearer.CreateToken() method.")]
     public static string CreateToken(string signingKey,
                                      Action<UserPrivileges> privileges,
@@ -167,17 +128,6 @@ public static class JWTBearer
         return CreateToken(signingKey, expireAt, privs.Permissions, privs.Roles, privs.Claims, issuer, audience, signingStyle);
     }
 
-    /// <summary>
-    /// generate a jwt token with the supplied parameters
-    /// </summary>
-    /// <param name="signingKey">the secret key to use for signing the tokens</param>
-    /// <param name="expireAt">the expiry date</param>
-    /// <param name="permissions">one or more permissions to assign to the user principal</param>
-    /// <param name="roles">one or more roles to assign the user principal</param>
-    /// <param name="claims">one or more claims to assign to the user principal</param>
-    /// <param name="issuer">the issuer</param>
-    /// <param name="audience">the audience</param>
-    /// <param name="signingStyle">the signing style to use (Symmetric or Asymmetric)</param>
     [Obsolete("Use JwtBearer.CreateToken() method.")]
     public static string CreateToken(string signingKey,
                                      DateTime? expireAt = null,

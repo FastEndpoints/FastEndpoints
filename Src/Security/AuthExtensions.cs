@@ -84,13 +84,6 @@ public static class AuthExtensions
         return services;
     }
 
-    /// <summary>
-    /// configure and enable jwt bearer authentication
-    /// </summary>
-    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
-    /// <param name="tokenSigningStyle">specify the token signing style</param>
-    /// <param name="tokenValidation">configuration action to specify additional token validation parameters</param>
-    /// <param name="bearerEvents">configuration action to specify custom jwt bearer events</param>
     [Obsolete("Use AddAuthenticationJwtBearer() method.")]
     public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
                                                       string tokenSigningKey,
@@ -110,21 +103,10 @@ public static class AuthExtensions
             });
     }
 
-    /// <summary>
-    /// configure and enable jwt bearer authentication
-    /// </summary>
-    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
-    /// <param name="jwtOptions">configuration action to specify options for the authentication scheme</param>
     [Obsolete("Use AddAuthenticationJwtBearer() method.")]
     public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services, string tokenSigningKey, Action<JwtBearerOptions> jwtOptions)
         => AddJWTBearerAuth(services, tokenSigningKey, TokenSigningStyle.Asymmetric, jwtOptions);
 
-    /// <summary>
-    /// configure and enable jwt bearer authentication
-    /// </summary>
-    /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
-    /// <param name="tokenSigningStyle">specify the token signing style</param>
-    /// <param name="jwtOptions">configuration action to specify options for the authentication scheme</param>
     [Obsolete("Use AddAuthenticationJwtBearer() method.")]
     public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
                                                       string tokenSigningKey,
@@ -146,7 +128,7 @@ public static class AuthExtensions
     /// </summary>
     /// <param name="validFor">specify how long the created cookie is valid for with a <see cref="TimeSpan" /></param>
     /// <param name="options">optional action for configuring cookie authentication options</param>
-    public static IServiceCollection AddCookieAuth(this IServiceCollection services, TimeSpan validFor, Action<CookieAuthenticationOptions>? options = null)
+    public static IServiceCollection AddAuthenticationCookie(this IServiceCollection services, TimeSpan validFor, Action<CookieAuthenticationOptions>? options = null)
     {
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(
@@ -161,6 +143,10 @@ public static class AuthExtensions
 
         return services;
     }
+
+    [Obsolete("Use AddAuthenticationCookie() method.")]
+    public static IServiceCollection AddCookieAuth(this IServiceCollection services, TimeSpan validFor, Action<CookieAuthenticationOptions>? options = null)
+        => AddAuthenticationCookie(services, validFor, options);
 
     /// <summary>
     /// returns true of the current user principal has a given permission code.

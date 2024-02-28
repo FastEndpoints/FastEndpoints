@@ -1,4 +1,5 @@
 ﻿using Web.Services;
+using _Claim = System.Security.Claims.Claim;
 
 namespace Admin.Login;
 
@@ -55,12 +56,12 @@ public class Endpoint : Endpoint<Request, Response>
 
             var userPermissions = Allow.Admin;
 
-            var userClaims = new[]
+            var userClaims = new _Claim[]
             {
-                (Claim.UserName, r.UserName),
-                (Claim.UserType, Role.Admin),
-                (Claim.AdminID, "USR0001"),
-                ("test-claim", "test claim val")
+                new(Claim.UserName, r.UserName),
+                new(Claim.UserType, Role.Admin),
+                new(Claim.AdminID, "USR0001"),
+                new("test-claim", "test claim val")
             };
 
             var userRoles = new[]
@@ -69,12 +70,15 @@ public class Endpoint : Endpoint<Request, Response>
                 Role.Staff
             };
 
-            var token = JWTBearer.CreateToken(
-                _config["TokenKey"]!,
-                expiryDate,
-                userPermissions,
-                userRoles,
-                userClaims);
+            var token = JwtBearer.CreateToken(
+                o =>
+                {
+                    o.SigningKey = _config["TokenKey"]!;
+                    o.ExpireAt = expiryDate;
+                    o.User.Permissions.AddRange(userPermissions);
+                    o.User.Roles.AddRange(userRoles);
+                    o.User.Claims.AddRange(userClaims);
+                });
 
             return SendAsync(
                 new()

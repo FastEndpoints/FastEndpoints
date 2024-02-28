@@ -107,15 +107,18 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         var token = new TResponse
         {
             UserId = userId,
-            AccessToken = JWTBearer.CreateToken(
-                _opts.TokenSigningKey,
-                accessExpiry,
-                privs.Permissions,
-                privs.Roles,
-                privs.Claims,
-                _opts.Issuer,
-                _opts.Audience,
-                _opts.TokenSigningStyle),
+            AccessToken = JwtBearer.CreateToken(
+                o =>
+                {
+                    o.SigningKey = _opts.TokenSigningKey;
+                    o.SigningStyle = _opts.TokenSigningStyle;
+                    o.ExpireAt = accessExpiry;
+                    o.User.Permissions.AddRange(privs.Permissions);
+                    o.User.Roles.AddRange(privs.Roles);
+                    o.User.Claims.AddRange(privs.Claims);
+                    o.Issuer = _opts.Issuer;
+                    o.Audience = _opts.Audience;
+                }),
             AccessExpiry = accessExpiry,
             RefreshToken = Guid.NewGuid().ToString("N"),
             RefreshExpiry = refreshExpiry

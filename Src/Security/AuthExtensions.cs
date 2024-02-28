@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using static FastEndpoints.Security.JWTBearer;
 
 namespace FastEndpoints.Security;
 
@@ -18,10 +17,81 @@ public static class AuthExtensions
     /// <summary>
     /// configure and enable jwt bearer authentication
     /// </summary>
+    /// <param name="signingOptions">an action to configure <see cref="JwtSigningOptions" /></param>
+    /// <param name="bearerOptions">an action to configure <see cref="JwtBearerOptions" /></param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public static IServiceCollection AddAuthenticationJwtBearer(this IServiceCollection services,
+                                                                Action<JwtSigningOptions> signingOptions,
+                                                                Action<JwtBearerOptions>? bearerOptions = null)
+    {
+        //TODO: remove all other overloads in favor of this method at v6.0
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(
+                    o =>
+                    {
+                        var sOpts = new JwtSigningOptions();
+                        signingOptions(sOpts);
+
+                        SecurityKey? key = null;
+
+                        if (sOpts.SigningKey is not null)
+                        {
+                            switch (sOpts.SigningStyle)
+                            {
+                                case TokenSigningStyle.Symmetric:
+                                    key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(sOpts.SigningKey));
+
+                                    break;
+                                case TokenSigningStyle.Asymmetric:
+                                {
+                                    var rsa = RSA.Create(); //do not dispose
+                                    if (sOpts.KeyIsPemEncoded)
+                                        rsa.ImportFromPem(sOpts.SigningKey);
+                                    else
+                                        rsa.ImportRSAPublicKey(Convert.FromBase64String(sOpts.SigningKey), out _);
+                                    key = new RsaSecurityKey(rsa);
+
+                                    break;
+                                }
+                                default:
+                                    throw new InvalidOperationException("Jwt signing style not specified!");
+                            }
+                        }
+
+                        //set defaults
+                        o.TokenValidationParameters.IssuerSigningKey = key;
+                        o.TokenValidationParameters.ValidateIssuerSigningKey = key is not null;
+                        o.TokenValidationParameters.ValidateLifetime = true;
+                        o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
+                        o.TokenValidationParameters.ValidAudience = null;
+                        o.TokenValidationParameters.ValidateAudience = false;
+                        o.TokenValidationParameters.ValidIssuer = null;
+                        o.TokenValidationParameters.ValidateIssuer = false;
+
+                        //set sensible defaults (based on configuration) for the claim mapping so tokens created with JWTBearer.CreateToken() will not be modified
+                        o.TokenValidationParameters.NameClaimType = Conf.SecOpts.NameClaimType;
+                        o.TokenValidationParameters.RoleClaimType = Conf.SecOpts.RoleClaimType;
+                        o.MapInboundClaims = false;
+
+                        bearerOptions?.Invoke(o);
+
+                        //correct any user mistake
+                        o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
+                        o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
+                    });
+
+        return services;
+    }
+
+    /// <summary>
+    /// configure and enable jwt bearer authentication
+    /// </summary>
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
     /// <param name="tokenSigningStyle">specify the token signing style</param>
     /// <param name="tokenValidation">configuration action to specify additional token validation parameters</param>
     /// <param name="bearerEvents">configuration action to specify custom jwt bearer events</param>
+    [Obsolete("Use AddAuthenticationJwtBearer() method.")]
     public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
                                                       string tokenSigningKey,
                                                       TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric,
@@ -45,9 +115,8 @@ public static class AuthExtensions
     /// </summary>
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
     /// <param name="jwtOptions">configuration action to specify options for the authentication scheme</param>
-    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
-                                                      string tokenSigningKey,
-                                                      Action<JwtBearerOptions> jwtOptions)
+    [Obsolete("Use AddAuthenticationJwtBearer() method.")]
+    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services, string tokenSigningKey, Action<JwtBearerOptions> jwtOptions)
         => AddJWTBearerAuth(services, tokenSigningKey, TokenSigningStyle.Asymmetric, jwtOptions);
 
     /// <summary>
@@ -56,49 +125,20 @@ public static class AuthExtensions
     /// <param name="tokenSigningKey">the secret key to use for verifying the jwt tokens</param>
     /// <param name="tokenSigningStyle">specify the token signing style</param>
     /// <param name="jwtOptions">configuration action to specify options for the authentication scheme</param>
+    [Obsolete("Use AddAuthenticationJwtBearer() method.")]
     public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
                                                       string tokenSigningKey,
                                                       TokenSigningStyle tokenSigningStyle,
                                                       Action<JwtBearerOptions>? jwtOptions = null)
     {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(
-                    o =>
-                    {
-                        SecurityKey key;
-
-                        if (tokenSigningStyle == TokenSigningStyle.Symmetric)
-                            key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSigningKey));
-                        else
-                        {
-                            var rsa = RSA.Create();
-                            rsa.ImportRSAPublicKey(Convert.FromBase64String(tokenSigningKey), out _);
-                            key = new RsaSecurityKey(rsa);
-                        }
-
-                        //set defaults
-                        o.TokenValidationParameters.IssuerSigningKey = key;
-                        o.TokenValidationParameters.ValidateIssuerSigningKey = true;
-                        o.TokenValidationParameters.ValidateLifetime = true;
-                        o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
-                        o.TokenValidationParameters.ValidAudience = null;
-                        o.TokenValidationParameters.ValidateAudience = false;
-                        o.TokenValidationParameters.ValidIssuer = null;
-                        o.TokenValidationParameters.ValidateIssuer = false;
-
-                        //set sensible defaults (based on configuration) for the claim mapping so tokens created with JWTBearer.CreateToken() will not be modified
-                        o.TokenValidationParameters.NameClaimType = Conf.SecOpts.NameClaimType;
-                        o.TokenValidationParameters.RoleClaimType = Conf.SecOpts.RoleClaimType;
-                        o.MapInboundClaims = false;
-
-                        jwtOptions?.Invoke(o);
-
-                        //correct any user mistake
-                        o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
-                        o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
-                    });
-
-        return services;
+        return AddAuthenticationJwtBearer(
+            services,
+            s =>
+            {
+                s.SigningKey = tokenSigningKey;
+                s.SigningStyle = tokenSigningStyle;
+            },
+            jwtOptions);
     }
 
     /// <summary>
@@ -106,9 +146,7 @@ public static class AuthExtensions
     /// </summary>
     /// <param name="validFor">specify how long the created cookie is valid for with a <see cref="TimeSpan" /></param>
     /// <param name="options">optional action for configuring cookie authentication options</param>
-    public static IServiceCollection AddCookieAuth(this IServiceCollection services,
-                                                   TimeSpan validFor,
-                                                   Action<CookieAuthenticationOptions>? options = null)
+    public static IServiceCollection AddCookieAuth(this IServiceCollection services, TimeSpan validFor, Action<CookieAuthenticationOptions>? options = null)
     {
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(
@@ -150,9 +188,7 @@ public static class AuthExtensions
     /// </summary>
     /// <param name="claims">the <see cref="Claim" />s to append to the list.</param>
     public static void Add(this List<Claim> list, params Claim[] claims)
-    {
-        list.AddRange(claims);
-    }
+        => list.AddRange(claims);
 
     /// <summary>
     /// adds multiple <see cref="Claim" />s to the list.
@@ -166,7 +202,5 @@ public static class AuthExtensions
     /// </summary>
     /// <param name="values">the strings to append to the list.</param>
     public static void Add(this List<string> list, params string[] values)
-    {
-        list.AddRange(values);
-    }
+        => list.AddRange(values);
 }

@@ -12,7 +12,7 @@ public class RefreshServiceOptions
     /// specifies the signing style of the jwt. default is symmetric.
     /// </summary>
     [DontInject]
-    public JWTBearer.TokenSigningStyle TokenSigningStyle { internal get; set; } = JWTBearer.TokenSigningStyle.Symmetric;
+    public TokenSigningStyle TokenSigningStyle { internal get; set; } = TokenSigningStyle.Symmetric;
 
     /// <summary>
     /// specifies how long the access token should be valid for. default is 5 minutes.

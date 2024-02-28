@@ -21,7 +21,7 @@ bld.Services
    .AddCors()
    .AddResponseCaching()
    .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes.AddRange(DiscoveredTypes.All))
-   .AddJWTBearerAuth(bld.Configuration["TokenKey"]!)
+   .AddAuthenticationJwtBearer(s => s.SigningKey = bld.Configuration["TokenKey"]!)
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))
    .AddKeyedTransient<IKeyedService>("AAA", (_, _) => new MyKeyedService("AAA"))
    .AddKeyedTransient<IKeyedService>("BBB", (_, _) => new MyKeyedService("BBB"))

@@ -12,7 +12,21 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>Keyed service injection support</summary>
 
-//todo: update docs + write description here
+[Keyed services](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-8.0#keyed-services) introduced in .NET 8 can be injected like so:
+```csharp
+//property injection
+[KeyedService("KeyName")]
+public IHelloWorldService HelloService { get; set; }
+
+//constructor injection
+public MyEndpoint([FromKeyedServices("KeyName")]IHelloWorldService helloScv)
+{
+    ...
+}
+
+//manual resolving
+Resolve<IHelloWorldService>("KeyName");
+```
 
 </details>
 
@@ -28,7 +42,7 @@ sealed class MyRequest : PlainTextRequest
 }
 ```
 
-NOTE: Only supports .Net 8 and typed header classes from `Microsoft.Net.Http.Headers` namespace.
+NOTE: Only supported on .Net 8+ and typed header classes from `Microsoft.Net.Http.Headers` namespace.
 
 </details>
 
@@ -159,7 +173,7 @@ The following swagger spec was generated before:
 ]
 ```
 
-Non-nullable reference types are not correctly generated as non-nullable.
+Non-nullable reference types are now correctly generated as non-nullable.
 
 </details>
 

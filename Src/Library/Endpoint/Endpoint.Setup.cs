@@ -610,7 +610,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                         b.Produces(
                             Cfg.ErrOpts.StatusCode,
                             Cfg.ErrOpts.ProducesMetadataType,
-                            "application/problem+json");
+                            Cfg.ErrOpts.ContentType);
                     }
                 }
             };

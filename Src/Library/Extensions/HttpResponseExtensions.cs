@@ -193,7 +193,7 @@ public static class HttpResponseExtensions
         return SerOpts.ResponseSerializer(
             rsp,
             ErrOpts.ResponseBuilder(failures, rsp.HttpContext, statusCode),
-            "application/problem+json",
+            ErrOpts.ContentType,
             jsonSerializerContext,
             cancellation.IfDefault(rsp));
     }

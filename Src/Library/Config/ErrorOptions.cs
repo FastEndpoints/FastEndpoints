@@ -15,6 +15,11 @@ public sealed class ErrorOptions
     public int StatusCode { internal get; set; } = 400;
 
     /// <summary>
+    /// the content-type header value for 400 error responses
+    /// </summary>
+    public string ContentType { internal get; set; } = "application/problem+json";
+
+    /// <summary>
     /// if this property is not null, a <see cref="IProducesResponseTypeMetadata" /> will automatically be added to endpoints that has a
     /// <see cref="Validator{TRequest}" /> associated with it.
     /// if you're specifying your own <see cref="ResponseBuilder" />, don't forget to set this property to the correct type of the error response dto that

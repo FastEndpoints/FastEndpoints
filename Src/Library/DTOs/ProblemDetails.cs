@@ -112,7 +112,7 @@ public sealed class ProblemDetails : IResult
     }
 
 #if NET7_0_OR_GREATER
-    static readonly string[] _contentTypes = { "application/problem+json" };
+    static readonly string[] _contentTypes = [Cfg.ErrOpts.ContentType];
 
     /// <inheritdoc />
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)

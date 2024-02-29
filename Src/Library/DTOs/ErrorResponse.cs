@@ -57,7 +57,7 @@ public sealed class ErrorResponse : IResult
         => httpContext.Response.SendAsync(this, StatusCode);
 
 #if NET7_0_OR_GREATER
-    static readonly string[] _item = { "application/problem+json" };
+    static readonly string[] _contentTypes = [Cfg.ErrOpts.ContentType];
 
     /// <inheritdoc />
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
@@ -67,7 +67,7 @@ public sealed class ErrorResponse : IResult
         builder.Metadata.Add(
             new ProducesResponseTypeMetadata
             {
-                ContentTypes = _item,
+                ContentTypes = _contentTypes,
                 StatusCode = Cfg.ErrOpts.StatusCode,
                 Type = typeof(ProblemDetails)
             });

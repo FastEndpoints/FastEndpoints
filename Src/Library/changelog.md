@@ -11,6 +11,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 ## New 🎉
 
 - customize error response content-type globally (https://github.com/FastEndpoints/FastEndpoints/issues/627)
+- `DontAutoSend()` support for `Results<T1,T2,...>` returning handlers
 
 ## Improvements 🚀
 

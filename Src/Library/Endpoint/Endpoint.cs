@@ -91,7 +91,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             {
                 _response = await ExecuteAsync(req, ct);
 
-                if (Definition.ExecuteAsyncReturnsIResult)
+                if (Definition is { DontAutoSend: false, ExecuteAsyncReturnsIResult: true })
                     await SendResultAsync((IResult)_response!);
             }
             else

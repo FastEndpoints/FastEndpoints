@@ -181,7 +181,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         var req = !_isPlainTextRequest && _bindJsonBody && ctx.HttpContext.Request.HasJsonContentType()
                       ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
                       : _isPlainTextRequest
-                          ? await BindPlainTextBody(ctx.HttpContext.Request.Body)
+                          ? await BindPlainTextBody(ctx.HttpContext.Request)
                           : InitDto();
 
         if (_bindFormFields)
@@ -216,11 +216,14 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return req;
     }
 
-    static async ValueTask<TRequest> BindPlainTextBody(Stream body)
+    static async ValueTask<TRequest> BindPlainTextBody(HttpRequest request)
     {
         var req = (IPlainTextRequest)InitDto();
-        using var streamReader = new StreamReader(body);
-        req.Content = await streamReader.ReadToEndAsync();
+        var reader = new StreamReader(request.Body);
+        req.Content = await reader.ReadToEndAsync();
+        request.HttpContext.Response.RegisterForDispose(reader); //disposing the reader immediately causes the request body to also get disposed.
+        if (request.Body.CanSeek)                                //EnableBuffering() is used, so rewind. form binding fails if not rewound.
+            request.Body.Seek(0, SeekOrigin.Begin);
 
         return (TRequest)req;
     }

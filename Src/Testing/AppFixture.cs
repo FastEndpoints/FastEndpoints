@@ -48,58 +48,38 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
     public HttpClient Client { get; set; } = null!;
 
     WebApplicationFactory<TProgram> _app = null!;
+    readonly IMessageSink? _messageSink;
+    readonly ITestOutputHelper? _outputHelper;
 
     //reason for ctor overloads: https://github.com/FastEndpoints/FastEndpoints/pull/548
     protected AppFixture(IMessageSink s)
     {
-        Initialize(s);
+        _messageSink = s;
     }
 
     protected AppFixture(ITestOutputHelper h)
     {
-        Initialize(null, h);
+        _outputHelper = h;
     }
 
     protected AppFixture(IMessageSink s, ITestOutputHelper h)
     {
-        Initialize(s, h);
+        _messageSink = s;
+        _outputHelper = h;
     }
 
-    protected AppFixture()
-    {
-        Initialize();
-    }
+    protected AppFixture() { }
 
-    void Initialize(IMessageSink? s = null, ITestOutputHelper? h = null)
-    {
-        _app = (WebApplicationFactory<TProgram>)
-            WafCache.GetOrAdd(
-                GetType(), //each derived fixture type  gets it's own waf/app instance. it is cached and reused.
-                WafInitializer);
-        Client = _app.CreateClient();
-
-        object WafInitializer(Type _)
-            => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
-                b =>
-                {
-                    b.UseEnvironment("Testing");
-                    b.ConfigureLogging(
-                        l =>
-                        {
-                            l.ClearProviders();
-                            if (s is not null)
-                                l.AddXUnit(s);
-                            if (h is not null)
-                                l.AddXUnit(h);
-                        });
-                    b.ConfigureTestServices(ConfigureServices);
-                    ConfigureApp(b);
-                });
-    }
+    /// <summary>
+    /// this will be called before the WAF is initialized. override this method if you'd like to do something before the WAF is initialized that is going to contribute to
+    /// the creation of the WAF, such as initialization of a 'TestContainer'.
+    /// </summary>
+    protected virtual Task PreSetupAsync()
+        => Task.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do some one-time setup for the fixture.
-    /// it is run before any of the test-methods of the class is executed.
+    /// it is run before any of the test-methods of the class is executed, but after the WAF is initialized.
     /// </summary>
     protected virtual Task SetupAsync()
         => Task.CompletedTask;
@@ -153,8 +133,36 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
         => _app.Server.CreateHandler();
 #endif
 
-    Task IAsyncLifetime.InitializeAsync()
-        => SetupAsync();
+    async Task IAsyncLifetime.InitializeAsync()
+    {
+        await PreSetupAsync();
+
+        _app = (WebApplicationFactory<TProgram>)
+            WafCache.GetOrAdd(
+                GetType(), //each derived fixture type  gets it's own waf/app instance. it is cached and reused.
+                WafInitializer);
+        Client = _app.CreateClient();
+
+        await SetupAsync();
+
+        object WafInitializer(Type _)
+            => new WebApplicationFactory<TProgram>().WithWebHostBuilder(
+                b =>
+                {
+                    b.UseEnvironment("Testing");
+                    b.ConfigureLogging(
+                        l =>
+                        {
+                            l.ClearProviders();
+                            if (_messageSink is not null)
+                                l.AddXUnit(_messageSink);
+                            if (_outputHelper is not null)
+                                l.AddXUnit(_outputHelper);
+                        });
+                    b.ConfigureTestServices(ConfigureServices);
+                    ConfigureApp(b);
+                });
+    }
 
     async Task IAsyncLifetime.DisposeAsync()
     {

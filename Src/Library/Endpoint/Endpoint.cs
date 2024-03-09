@@ -60,11 +60,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
         try
         {
-            req = await BindRequestAsync(
-                      Definition,
-                      HttpContext,
-                      ValidationFailures,
-                      ct); //execution stops here if JsonException is thrown and continues at try/catch below
+            //execution stops here if a JsonException is thrown and continues at try/catch below
+            req = await BindRequestAsync(Definition, HttpContext, ValidationFailures, ct);
 
             // ReSharper disable once MethodHasAsyncOverloadWithCancellation
             OnBeforeValidate(req);

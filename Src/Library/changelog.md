@@ -17,6 +17,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 - `PreSetupAsync()` for `AppFixture` to allow async work that contributes to WAF creation. (https://discord.com/channels/933662816458645504/1214837140983123979/1215538377521365053)
 - automatically rewind request body with `IPlainTextRequest` if `EnableBuffering()` is used. (https://github.com/FastEndpoints/FastEndpoints/issues/631)
+- upgrade dependencies to latest
 
 ## Fixes 🪲
 

@@ -236,15 +236,9 @@ sealed class EndpointData
             }).ToArray();
     }
 
-    class ValDicItem
+    class ValDicItem(Type validatorType, bool dupesFound)
     {
-        public readonly Type ValidatorType;
-        public bool HasDuplicates;
-
-        public ValDicItem(Type validatorType, bool dupesFound)
-        {
-            ValidatorType = validatorType;
-            HasDuplicates = dupesFound;
-        }
+        public readonly Type ValidatorType = validatorType;
+        public bool HasDuplicates = dupesFound;
     }
 }

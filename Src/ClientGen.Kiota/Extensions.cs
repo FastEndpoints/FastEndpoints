@@ -137,7 +137,7 @@ public static class Extensions
         {
             logger.LogInformation("Zipping up the generated client files...");
 
-            c.ZipOutputFile ??= Path.Combine(c.OutputPath, "..\\", $"{c.ClientClassName}.zip");
+            c.ZipOutputFile ??= Path.Combine(c.OutputPath, $"..{Path.DirectorySeparatorChar}", $"{c.ClientClassName}.zip");
 
             if (File.Exists(c.ZipOutputFile))
                 File.Delete(c.ZipOutputFile);

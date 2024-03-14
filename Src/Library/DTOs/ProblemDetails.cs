@@ -46,12 +46,17 @@ public sealed class ProblemDetails : IResult
     /// </summary>
     public static string TitleValue { private get; set; } = "One or more validation errors occurred.";
 
+    /// <summary>
+    /// sets a function that will be called per instance/response that allows customization of the <see cref="Title" /> value.
+    /// </summary>
+    public static Func<ProblemDetails, string> TitleTransformer { private get; set; } = _ => TitleValue;
+
 #pragma warning disable CA1822
     [DefaultValue("https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1")]
     public string Type => TypeValue;
 
     [DefaultValue("One or more validation errors occurred.")]
-    public string Title => TitleValue;
+    public string Title => TitleTransformer(this);
 #pragma warning restore CA1822
 
     [DefaultValue(400)]

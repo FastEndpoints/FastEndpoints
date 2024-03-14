@@ -9,6 +9,9 @@ public class Request
     public string TenantID { get; set; }
 
     public string OrderID { get; set; }
+
+    [FromHeader("Content-Type")]
+    public string ContentType { get; set; }
 }
 
 public class Response

@@ -25,6 +25,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
     static readonly Regex _routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);
     static readonly Regex _routeConstraintsRegex = new("(?<={)([^?:}]+)[^}]*(?=})", RegexOptions.Compiled);
+    static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
 
     static readonly Dictionary<string, string> _defaultDescriptions = new()
     {
@@ -361,33 +362,45 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             {
                 foreach (var attribute in p.GetCustomAttributes())
                 {
-                    //add header params if there are any props marked with [FromHeader] attribute
-                    if (attribute is FromHeaderAttribute hAttrib)
+                    switch (attribute)
                     {
-                        var pName = hAttrib.HeaderName ?? p.Name;
-                        reqParams.Add(
-                            CreateParam(
-                                ctx: ctx,
-                                prop: p,
-                                paramName: pName,
-                                isRequired: hAttrib.IsRequired,
-                                kind: OpenApiParameterKind.Header,
-                                descriptions: reqParamDescriptions,
-                                docOpts: docOpts,
-                                serializer: serializer));
+                        case FromHeaderAttribute hAttrib: //add header params if there are any props marked with [FromHeader] attribute
+                        {
+                            var pName = hAttrib.HeaderName ?? p.Name;
 
-                        //remove corresponding json body field if it's required. allow binding only from header.
-                        if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
+                            if (_illegalHeaderNames.Any(n => n.Equals(pName, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
+
+                                continue;
+                            }
+
+                            reqParams.Add(
+                                CreateParam(
+                                    ctx: ctx,
+                                    prop: p,
+                                    paramName: pName,
+                                    isRequired: hAttrib.IsRequired,
+                                    kind: OpenApiParameterKind.Header,
+                                    descriptions: reqParamDescriptions,
+                                    docOpts: docOpts,
+                                    serializer: serializer));
+
+                            //remove corresponding json body field if it's required. allow binding only from header.
+                            if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
+                                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
+
+                            break;
+                        }
+
+                        //can only be bound from claim since it's required. so remove prop from body.
+                        //can only be bound from permission since it's required. so remove prop from body.
+                        case FromClaimAttribute cAttrib when cAttrib.IsRequired || cAttrib.RemoveFromSchema:
+                        case HasPermissionAttribute pAttrib when pAttrib.IsRequired || pAttrib.RemoveFromSchema:
                             RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
+
+                            break;
                     }
-
-                    //can only be bound from claim since it's required. so remove prop from body.
-                    if (attribute is FromClaimAttribute cAttrib && (cAttrib.IsRequired || cAttrib.RemoveFromSchema))
-                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-
-                    //can only be bound from permission since it's required. so remove prop from body.
-                    if (attribute is HasPermissionAttribute pAttrib && (pAttrib.IsRequired || pAttrib.RemoveFromSchema))
-                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
                 }
             }
         }
@@ -397,21 +410,21 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         {
             foreach (var p in reqDtoProps.ToArray())
             {
-                if (p.PropertyType == Types.IFormFile)
-                {
-                    RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-                    reqDtoProps.Remove(p);
-                    reqParams.Add(
-                        CreateParam(
-                            ctx: ctx,
-                            prop: p,
-                            paramName: null,
-                            isRequired: null,
-                            kind: OpenApiParameterKind.FormData,
-                            descriptions: reqParamDescriptions,
-                            docOpts: docOpts,
-                            serializer: serializer));
-                }
+                if (p.PropertyType != Types.IFormFile)
+                    continue;
+
+                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
+                reqDtoProps.Remove(p);
+                reqParams.Add(
+                    CreateParam(
+                        ctx: ctx,
+                        prop: p,
+                        paramName: null,
+                        isRequired: null,
+                        kind: OpenApiParameterKind.FormData,
+                        descriptions: reqParamDescriptions,
+                        docOpts: docOpts,
+                        serializer: serializer));
             }
         }
 

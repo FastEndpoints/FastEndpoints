@@ -45,7 +45,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         var dtoProps = _tRequest.BindableProps();
 
-        if (!dtoProps.Any())
+        if (!dtoProps.Any() && !EpOpts.AllowEmptyRequestDtos)
         {
             throw new NotSupportedException(
                 $"Only request DTOs with publicly accessible properties are supported for request binding. " +

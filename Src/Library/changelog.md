@@ -13,6 +13,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 - customize error response content-type globally (https://github.com/FastEndpoints/FastEndpoints/issues/627)
 - `DontAutoSend()` support for `Results<T1,T2,...>` returning handlers ()
 - `ProblemDetails` title transformer (https://github.com/FastEndpoints/FastEndpoints/issues/637)
+- allow usage of empty request dtos (https://github.com/FastEndpoints/FastEndpoints/issues/641)
 
 ## Improvements 🚀
 

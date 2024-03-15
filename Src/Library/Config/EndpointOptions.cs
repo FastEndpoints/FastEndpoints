@@ -48,4 +48,9 @@ public sealed class EndpointOptions
     /// </code>
     /// </summary>
     public Action<EndpointDefinition>? Configurator { internal get; set; }
+
+    /// <summary>
+    /// allows the use of empty request dtos
+    /// </summary>
+    public bool AllowEmptyRequestDtos { internal get; set; }
 }

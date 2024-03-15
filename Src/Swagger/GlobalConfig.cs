@@ -21,4 +21,9 @@ public static class GlobalConfig
     /// Asp.Versioning.Http library is being used for versioning
     /// </summary>
     public static bool IsUsingAspVersioning => Conf.VerOpts.IsUsingAspVersioning;
+
+    /// <summary>
+    /// allows the use of empty request dtos
+    /// </summary>
+    public static bool AllowEmptyRequestDtos => Conf.EpOpts.AllowEmptyRequestDtos;
 }

@@ -1,13 +1,13 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Primitives;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Primitives;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -204,7 +204,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
     {
-        if (_fromBodyProp is null)
+        if (_fromBodyProp is null || httpRequest.Headers.ContainsKey(Constants.RoutelessTest))
             return (TRequest)(await SerOpts.RequestDeserializer(httpRequest, _tRequest, serializerCtx, cancellation) ?? InitDto());
 
         var req = InitDto();

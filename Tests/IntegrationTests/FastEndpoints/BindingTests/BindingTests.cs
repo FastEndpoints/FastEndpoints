@@ -737,13 +737,16 @@ public class BindingTests(AppFixture App) : TestBase<AppFixture>
     {
         var (rsp, res) = await App.CustomerClient.POSTAsync<
                              TestCases.FromBodyJsonBinding.Endpoint,
-                             Product,
+                             TestCases.FromBodyJsonBinding.Request,
                              TestCases.FromBodyJsonBinding.Response>(
                              new()
                              {
-                                 Id = 202,
-                                 Name = "test product",
-                                 Price = 200.10m
+                                 Product = new()
+                                 {
+                                     Id = 202,
+                                     Name = "test product",
+                                     Price = 200.10m
+                                 }
                              });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -759,13 +762,16 @@ public class BindingTests(AppFixture App) : TestBase<AppFixture>
     {
         var (rsp, res) = await App.CustomerClient.POSTAsync<
                              TestCases.FromBodyJsonBinding.Endpoint,
-                             Product,
+                             TestCases.FromBodyJsonBinding.Request,
                              ErrorResponse>(
                              new()
                              {
-                                 Id = 202,
-                                 Name = "test product",
-                                 Price = 10.10m
+                                 Product = new()
+                                 {
+                                     Id = 202,
+                                     Name = "test product",
+                                     Price = 10.10m
+                                 }
                              });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);

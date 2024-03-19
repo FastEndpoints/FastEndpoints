@@ -9,4 +9,6 @@ static class Constants
     internal const string AcceptsMetaData = "AcceptsMetadata";
 
     internal const string QueryJsonNodeName = "QueryNode";
+
+    internal const string RoutelessTest = "_RoutelessTest_";
 }

@@ -292,6 +292,7 @@ public static class HttpClientExtensions
         var rsp = await client.SendAsync(
                       new()
                       {
+                          Headers = { { Constants.RoutelessTest, "true" } },
                           Method = method,
                           RequestUri = new($"{client.BaseAddress}{requestUri.TrimStart('/')}"),
                           Content = sendAsFormData is true

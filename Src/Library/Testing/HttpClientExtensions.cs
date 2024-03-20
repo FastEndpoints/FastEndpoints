@@ -1,4 +1,4 @@
-﻿// ReSharper disable InconsistentNaming
+// ReSharper disable InconsistentNaming
 
 using System.Net.Http.Json;
 using System.Reflection;
@@ -200,7 +200,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
                                                                                        TRequest request) where TEndpoint : IEndpoint
-        => GETAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
+        => GETAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request);
 
     /// <summary>
     /// make a GET request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -330,6 +330,74 @@ public static class HttpClientExtensions
         return new(rsp, res!);
     }
 
+    static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req)
+    {
+        var route = IEndpoint.TestURLFor<TEndpoint>();
+        var filled = FillArgumentsInRouteUrl<TRequest>(route, req);
+        return filled;
+    }
+
+    static string FillArgumentsInRouteUrl<TRequest>(string routeUrl, TRequest req)
+    {
+        var props = GetRequestPropertiesAsStrings(req);
+
+        StringBuilder filledRouteUrlSb = new();
+        var routeSections = routeUrl.Split('/');
+
+        foreach (var section in routeSections)
+        {
+            if (!section.StartsWith('{') || !section.EndsWith('}'))
+            {
+                filledRouteUrlSb.Append(section);
+                filledRouteUrlSb.Append('/');
+                continue;
+            }
+
+            // {id}
+            // {id:int}
+            // {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
+            var splitSection = section.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            string propName;
+            if (splitSection.Length == 1)
+                propName = splitSection[0][1..^1];
+            else
+                propName = splitSection[0][1..];
+            propName = propName.ToUpperInvariant();
+
+            if (!props.TryGetValue(propName, out var propValue) || propValue is null)
+            {
+                filledRouteUrlSb.Append(section);
+                filledRouteUrlSb.Append('/');
+                continue;
+            }
+
+            filledRouteUrlSb.Append(propValue);
+            filledRouteUrlSb.Append('/');
+        }
+
+        var filledRouteUrl = filledRouteUrlSb.ToString()[..^1]; // trim ending '/'
+        return filledRouteUrl;
+    }
+
+    static IDictionary<string, string?> GetRequestPropertiesAsStrings<TRequest>(TRequest req)
+    {
+        var props = req!.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+        Dictionary<string, string?> propValues = [];
+
+        foreach (var prop in props)
+        {
+            string propName;
+            if (prop.GetCustomAttribute<BindFromAttribute>() is { } bindFromAttr)
+                propName = bindFromAttr.Name.ToUpperInvariant();
+            else
+                propName = prop.Name.ToUpperInvariant();
+
+            propValues.Add(propName, prop.GetValue(req)?.ToString());
+        }
+
+        return propValues;
+    }
+
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
         var form = new MultipartFormDataContent();
@@ -340,7 +408,7 @@ public static class HttpClientExtensions
                 continue;
 
             if (p.PropertyType == Types.IFormFile)
-                AddFileToForm((IFormFile)p.GetValue(req)!, p);
+                AddFileToForm((IFormFile) p.GetValue(req)!, p);
 
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {

@@ -300,9 +300,10 @@ public static class HttpClientExtensions
                                         : new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
                       });
 
+        var hasNoJsonContent = rsp.Content.Headers.ContentType?.MediaType?.Contains("json") is null or false;
         TResponse? res = default!;
 
-        if (typeof(TResponse) == Types.EmptyResponse)
+        if (typeof(TResponse) == Types.EmptyResponse || hasNoJsonContent)
             return new(rsp, res);
 
         if (rsp.IsSuccessStatusCode)

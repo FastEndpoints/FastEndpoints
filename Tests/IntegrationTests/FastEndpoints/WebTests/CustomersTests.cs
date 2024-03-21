@@ -93,7 +93,7 @@ public class CustomersTests(AppFixture App) : TestBase<AppFixture>
         res.Header1.Should().Be(0);
         res.Header2.Should().Be(default);
         rsp.Headers.GetValues("x-header-one").Single().Should().Be("12345");
-        rsp.Headers.GetValues("Header2").Single().Should().Be(new DateOnly(2020, 11, 12).ToString(CultureInfo.InvariantCulture));
+        DateOnly.Parse(rsp.Headers.GetValues("Header2").Single()).Should().Be(new(2020, 11, 12));
     }
 
     [Fact]

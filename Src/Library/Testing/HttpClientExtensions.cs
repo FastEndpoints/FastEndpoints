@@ -321,6 +321,11 @@ public static class HttpClientExtensions
 
     static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req)
     {
+        // request with multiple repeating dtos, most likely not populated from route values.
+        // we don't know which one to populate from anyways.
+        if (req is System.Collections.IEnumerable)
+            return IEndpoint.TestURLFor<TEndpoint>();
+
         //get property values as strings and stick em in a dictionary for easy lookup
         var reqProps = req!.GetType()
             .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)

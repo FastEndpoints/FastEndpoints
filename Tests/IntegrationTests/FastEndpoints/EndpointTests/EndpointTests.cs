@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -58,5 +58,40 @@ public class EndpointTests(AppFixture App) : TestBase<AppFixture>
 
         res!.BodyContent.Should().Be("this is the body content");
         res.Id.Should().Be(12345);
+    }
+
+    [Fact]
+    public async Task HydratedTestUrlGeneratorWorksForSupportedVerbs()
+    {
+        // Arrange
+        TestCases.HydratedTestUrlGeneratorTest.Request req = new()
+        {
+            Id = 123,
+            Guid = Guid.Empty,
+            String = "string",
+            NullableString = null,
+            FromClaim = "fromClaim",
+            FromHeader = "fromHeader",
+            HasPermission = true
+        };
+
+        // Act
+        var getResp = await App.AdminClient.GETAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+
+        var postResp = await App.AdminClient.POSTAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+
+        var putResp = await App.AdminClient.PUTAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+
+        var patchResp = await App.AdminClient.PATCHAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+
+        var deleteResp = await App.AdminClient.DELETEAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+
+        // Assert
+        var expectedPath = "/api/test/hydrated-test-url-generator-test/123/00000000-0000-0000-0000-000000000000/string/{nullableString}/{fromClaim}/{fromHeader}/{hasPermission}";
+        getResp.Result.Should().BeEquivalentTo(expectedPath);
+        postResp.Result.Should().BeEquivalentTo(expectedPath);
+        putResp.Result.Should().BeEquivalentTo(expectedPath);
+        patchResp.Result.Should().BeEquivalentTo(expectedPath);
+        deleteResp.Result.Should().BeEquivalentTo(expectedPath);
     }
 }

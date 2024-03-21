@@ -322,7 +322,11 @@ public static class HttpClientExtensions
     static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req)
     {
         //get property values as strings and stick em in a dictionary for easy lookup
-        var reqProps = req!.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+        var reqProps = req!.GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
+            .Where(p => p.GetCustomAttribute<FromClaimAttribute>() == null
+                && p.GetCustomAttribute<FromHeaderAttribute>() == null
+                && p.GetCustomAttribute<HasPermissionAttribute>() == null);
         var propValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var prop in reqProps)

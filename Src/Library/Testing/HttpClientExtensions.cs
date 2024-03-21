@@ -38,7 +38,7 @@ public static class HttpClientExtensions
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
     public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
         where TEndpoint : IEndpoint
-        => POSTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
+        => POSTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
     /// <summary>
     /// make a POST request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -51,7 +51,7 @@ public static class HttpClientExtensions
                                                                                  TRequest request,
                                                                                  bool? sendAsFormData = null) where TEndpoint : IEndpoint
     {
-        var (rsp, _) = await POSTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
+        var (rsp, _) = await POSTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData);
 
         return rsp;
     }
@@ -63,7 +63,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => POSTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new());
+        => POSTAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
 
     /// <summary>
     /// make a PATCH request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
@@ -92,7 +92,7 @@ public static class HttpClientExtensions
     public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
                                                                                          TRequest request,
                                                                                          bool? sendAsFormData = null) where TEndpoint : IEndpoint
-        => PATCHAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
+        => PATCHAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
     /// <summary>
     /// make a PATCH request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -105,7 +105,7 @@ public static class HttpClientExtensions
                                                                                   TRequest request,
                                                                                   bool? sendAsFormData = null) where TEndpoint : IEndpoint
     {
-        var (rsp, _) = await PATCHAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
+        var (rsp, _) = await PATCHAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData);
 
         return rsp;
     }
@@ -117,7 +117,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => PATCHAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new());
+        => PATCHAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
 
     /// <summary>
     /// make a PUT request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
@@ -146,7 +146,7 @@ public static class HttpClientExtensions
     public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
                                                                                        TRequest request,
                                                                                        bool? sendAsFormData = null) where TEndpoint : IEndpoint
-        => PUTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
+        => PUTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
     /// <summary>
     /// make a PUT request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -159,7 +159,7 @@ public static class HttpClientExtensions
                                                                                 TRequest request,
                                                                                 bool? sendAsFormData = null) where TEndpoint : IEndpoint
     {
-        var (rsp, _) = await PUTAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
+        var (rsp, _) = await PUTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData);
 
         return rsp;
     }
@@ -171,7 +171,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => PUTAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new());
+        => PUTAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
 
     /// <summary>
     /// make a GET request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
@@ -203,7 +203,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static async Task<HttpResponseMessage> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
-        var (rsp, _) = await GETAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
+        var (rsp, _) = await GETAsync<TEndpoint, TRequest, EmptyResponse>(client, request);
 
         return rsp;
     }
@@ -215,7 +215,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => GETAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new());
+        => GETAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
 
     /// <summary>
     /// make a DELETE request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
@@ -237,7 +237,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
-        => DELETEAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
+        => DELETEAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request);
 
     /// <summary>
     /// make a DELETE request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -247,7 +247,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     public static async Task<HttpResponseMessage> DELETEAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
-        var (rsp, _) = await DELETEAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
+        var (rsp, _) = await DELETEAsync<TEndpoint, TRequest, EmptyResponse>(client, request);
 
         return rsp;
     }
@@ -259,7 +259,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => DELETEAsync<EmptyRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), new());
+        => DELETEAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
 
     /// <summary>
     /// send a request DTO to a given endpoint URL and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
@@ -381,7 +381,7 @@ public static class HttpClientExtensions
                 continue;
 
             if (p.PropertyType == Types.IFormFile)
-                AddFileToForm((IFormFile)p.GetValue(req)!, p);
+                AddFileToForm((IFormFile) p.GetValue(req)!, p);
 
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {

@@ -24,10 +24,7 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> POSTAsync<TRequest, TResponse>(this HttpClient client,
-                                                                             string requestUri,
-                                                                             TRequest request,
-                                                                             bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request, bool? sendAsFormData = null)
         => client.SENDAsync<TRequest, TResponse>(HttpMethod.Post, requestUri, request, sendAsFormData);
 
     /// <summary>
@@ -39,9 +36,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                        TRequest request,
-                                                                                        bool? sendAsFormData = null) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+        where TEndpoint : IEndpoint
         => POSTAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request, sendAsFormData);
 
     /// <summary>
@@ -185,9 +181,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">type of the response dto</typeparam>
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
-    public static Task<TestResult<TResponse>> GETAsync<TRequest, TResponse>(this HttpClient client,
-                                                                            string requestUri,
-                                                                            TRequest request)
+    public static Task<TestResult<TResponse>> GETAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
         => client.SENDAsync<TRequest, TResponse>(HttpMethod.Get, requestUri, request);
 
     /// <summary>
@@ -198,8 +192,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                       TRequest request) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => GETAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request);
 
     /// <summary>
@@ -208,8 +201,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage> GETAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                TRequest request) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
         var (rsp, _) = await GETAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
@@ -233,9 +225,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">type of the response dto</typeparam>
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
-    public static Task<TestResult<TResponse>> DELETEAsync<TRequest, TResponse>(this HttpClient client,
-                                                                               string requestUri,
-                                                                               TRequest request)
+    public static Task<TestResult<TResponse>> DELETEAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request)
         => client.SENDAsync<TRequest, TResponse>(HttpMethod.Delete, requestUri, request);
 
     /// <summary>
@@ -246,8 +236,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                          TRequest request) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
         => DELETEAsync<TRequest, TResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
     /// <summary>
@@ -256,8 +245,7 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage> DELETEAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                   TRequest request) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> DELETEAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
     {
         var (rsp, _) = await DELETEAsync<TRequest, EmptyResponse>(client, IEndpoint.TestURLFor<TEndpoint>(), request);
 
@@ -332,70 +320,50 @@ public static class HttpClientExtensions
 
     static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req)
     {
-        var route = IEndpoint.TestURLFor<TEndpoint>();
-        var filled = FillArgumentsInRouteUrl<TRequest>(route, req);
-        return filled;
-    }
+        //get property values as strings and stick em in a dictionary for easy lookup
+        var reqProps = req!.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+        var propValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
-    static string FillArgumentsInRouteUrl<TRequest>(string routeUrl, TRequest req)
-    {
-        var props = GetRequestPropertiesAsStrings(req);
-
-        StringBuilder filledRouteUrlSb = new();
-        var routeSections = routeUrl.Split('/');
-
-        foreach (var section in routeSections)
+        foreach (var prop in reqProps)
         {
-            if (!section.StartsWith('{') || !section.EndsWith('}'))
+            propValues.Add(
+                prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name,
+                prop.GetValue(req)?.ToString());
+        }
+
+        //split url into route segments, iterate and replace param names with values from matching dto props
+        //while rebuilding the url back up again into a string builder
+        StringBuilder sb = new();
+        var routeSegment = IEndpoint.TestURLFor<TEndpoint>().Split('/');
+
+        foreach (var segment in routeSegment)
+        {
+            if (!segment.StartsWith('{') && !segment.EndsWith('}'))
             {
-                filledRouteUrlSb.Append(section);
-                filledRouteUrlSb.Append('/');
+                sb.Append(segment).Append('/');
+
                 continue;
             }
 
-            // {id}
-            // {id:int}
-            // {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
-            var splitSection = section.Split(':', StringSplitOptions.RemoveEmptyEntries);
-            string propName;
-            if (splitSection.Length == 1)
-                propName = splitSection[0][1..^1];
-            else
-                propName = splitSection[0][1..];
-            propName = propName.ToUpperInvariant();
+            //examples: {id}, {id:int}, {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
 
-            if (!props.TryGetValue(propName, out var propValue) || propValue is null)
+            var segmentParts = segment.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            var propName = segmentParts.Length == 1
+                               ? segmentParts[0][1..^1]
+                               : segmentParts[0][1..];
+
+            if (!propValues.TryGetValue(propName, out var propValue) || propValue is null)
             {
-                filledRouteUrlSb.Append(section);
-                filledRouteUrlSb.Append('/');
+                sb.Append(segment).Append('/');
+
                 continue;
             }
 
-            filledRouteUrlSb.Append(propValue);
-            filledRouteUrlSb.Append('/');
+            sb.Append(propValue);
+            sb.Append('/');
         }
 
-        var filledRouteUrl = filledRouteUrlSb.ToString()[..^1]; // trim ending '/'
-        return filledRouteUrl;
-    }
-
-    static IDictionary<string, string?> GetRequestPropertiesAsStrings<TRequest>(TRequest req)
-    {
-        var props = req!.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-        Dictionary<string, string?> propValues = [];
-
-        foreach (var prop in props)
-        {
-            string propName;
-            if (prop.GetCustomAttribute<BindFromAttribute>() is { } bindFromAttr)
-                propName = bindFromAttr.Name.ToUpperInvariant();
-            else
-                propName = prop.Name.ToUpperInvariant();
-
-            propValues.Add(propName, prop.GetValue(req)?.ToString());
-        }
-
-        return propValues;
+        return sb.ToString()[..^1]; //trim ending forward slash
     }
 
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
@@ -408,7 +376,7 @@ public static class HttpClientExtensions
                 continue;
 
             if (p.PropertyType == Types.IFormFile)
-                AddFileToForm((IFormFile) p.GetValue(req)!, p);
+                AddFileToForm((IFormFile)p.GetValue(req)!, p);
 
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {

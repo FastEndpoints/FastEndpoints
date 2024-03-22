@@ -87,7 +87,7 @@ public class EndpointTests(AppFixture App) : TestBase<AppFixture>
         var deleteResp = await App.AdminClient.DELETEAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
         // Assert
-        var expectedPath = "/api/test/hydrated-test-url-generator-test/123/00000000-0000-0000-0000-000000000000/string/{nullableString}/{fromClaim}/{fromHeader}/{hasPermission}";
+        var expectedPath = "/api/test/hydrated-test-url-generator-test/123/00000000-0000-0000-0000-000000000000/string/{nullableString}/{fromClaim}/{fromHeader}/True";
         getResp.Result.Should().BeEquivalentTo(expectedPath);
         postResp.Result.Should().BeEquivalentTo(expectedPath);
         putResp.Result.Should().BeEquivalentTo(expectedPath);

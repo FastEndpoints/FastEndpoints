@@ -2270,6 +2270,14 @@
             }
           },
           {
+            "name": "HasPermission",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          {
             "name": "tenant-id",
             "in": "header",
             "required": true,
@@ -2353,6 +2361,14 @@
             "required": true,
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "HasPermission",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
             }
           },
           {
@@ -2442,6 +2458,14 @@
             }
           },
           {
+            "name": "HasPermission",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          {
             "name": "tenant-id",
             "in": "header",
             "required": true,
@@ -2528,6 +2552,14 @@
             }
           },
           {
+            "name": "HasPermission",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          },
+          {
             "name": "tenant-id",
             "in": "header",
             "required": true,
@@ -2611,6 +2643,14 @@
             "required": true,
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "HasPermission",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
             }
           },
           {

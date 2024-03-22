@@ -1,5 +1,6 @@
 // ReSharper disable InconsistentNaming
 
+using System.Collections;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
@@ -37,7 +38,7 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
     public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
-        where TEndpoint : IEndpoint
+        where TEndpoint : IEndpoint where TRequest : notnull
         => POSTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
     /// <summary>
@@ -47,9 +48,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static async Task<HttpResponseMessage> POSTAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                 TRequest request,
-                                                                                 bool? sendAsFormData = null) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> POSTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+        where TEndpoint : IEndpoint where TRequest : notnull
     {
         var (rsp, _) = await POSTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData);
 
@@ -74,10 +74,7 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to PATCH to</param>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> PATCHAsync<TRequest, TResponse>(this HttpClient client,
-                                                                              string requestUri,
-                                                                              TRequest request,
-                                                                              bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> PATCHAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request, bool? sendAsFormData = null)
         => client.SENDAsync<TRequest, TResponse>(HttpMethod.Patch, requestUri, request, sendAsFormData);
 
     /// <summary>
@@ -89,9 +86,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                         TRequest request,
-                                                                                         bool? sendAsFormData = null) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+        where TEndpoint : IEndpoint where TRequest : notnull
         => PATCHAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
     /// <summary>
@@ -101,9 +97,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static async Task<HttpResponseMessage> PATCHAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                  TRequest request,
-                                                                                  bool? sendAsFormData = null) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> PATCHAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+        where TEndpoint : IEndpoint where TRequest : notnull
     {
         var (rsp, _) = await PATCHAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData);
 
@@ -128,10 +123,7 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(this HttpClient client,
-                                                                            string requestUri,
-                                                                            TRequest request,
-                                                                            bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request, bool? sendAsFormData = null)
         => client.SENDAsync<TRequest, TResponse>(HttpMethod.Put, requestUri, request, sendAsFormData);
 
     /// <summary>
@@ -143,9 +135,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                       TRequest request,
-                                                                                       bool? sendAsFormData = null) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+        where TEndpoint : IEndpoint where TRequest : notnull
         => PUTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
     /// <summary>
@@ -155,9 +146,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static async Task<HttpResponseMessage> PUTAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                TRequest request,
-                                                                                bool? sendAsFormData = null) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> PUTAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+        where TEndpoint : IEndpoint where TRequest : notnull
     {
         var (rsp, _) = await PUTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData);
 
@@ -192,7 +182,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request)
+        where TEndpoint : IEndpoint where TRequest : notnull
         => GETAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request);
 
     /// <summary>
@@ -201,7 +192,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> GETAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request)
+        where TEndpoint : IEndpoint where TRequest : notnull
     {
         var (rsp, _) = await GETAsync<TEndpoint, TRequest, EmptyResponse>(client, request);
 
@@ -236,7 +228,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request)
+        where TEndpoint : IEndpoint where TRequest : notnull
         => DELETEAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request);
 
     /// <summary>
@@ -245,7 +238,8 @@ public static class HttpClientExtensions
     /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
     /// <typeparam name="TRequest">the type of the request dto</typeparam>
     /// <param name="request">the request dto</param>
-    public static async Task<HttpResponseMessage> DELETEAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request) where TEndpoint : IEndpoint
+    public static async Task<HttpResponseMessage> DELETEAsync<TEndpoint, TRequest>(this HttpClient client, TRequest request)
+        where TEndpoint : IEndpoint where TRequest : notnull
     {
         var (rsp, _) = await DELETEAsync<TEndpoint, TRequest, EmptyResponse>(client, request);
 
@@ -319,19 +313,23 @@ public static class HttpClientExtensions
         return new(rsp, res!);
     }
 
-    static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req)
+    static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req) where TRequest : notnull
     {
         // request with multiple repeating dtos, most likely not populated from route values.
         // we don't know which one to populate from anyways.
-        if (req is System.Collections.IEnumerable)
+        if (req is IEnumerable)
             return IEndpoint.TestURLFor<TEndpoint>();
 
         //get property values as strings and stick em in a dictionary for easy lookup
-        var reqProps = req!.GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
-            .Where(p => p.GetCustomAttribute<FromClaimAttribute>() == null
-                && p.GetCustomAttribute<FromHeaderAttribute>() == null
-                && p.GetCustomAttribute<HasPermissionAttribute>() == null);
+        //ignore props annotated with security related attributes that has IsRequired set to true.
+        var reqProps = req.GetType()
+                          .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
+                          .Where(
+                              p => p is { CanWrite: true, CanRead: true } &&
+                                   p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is not true &&
+                                   p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is not true &&
+                                   p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true);
+
         var propValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var prop in reqProps)
@@ -373,7 +371,7 @@ public static class HttpClientExtensions
             sb.Append('/');
         }
 
-        return sb.ToString()[..^1]; //trim ending forward slash
+        return sb.ToString()[..^1]; //trim trailing forward slash
     }
 
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
@@ -386,7 +384,7 @@ public static class HttpClientExtensions
                 continue;
 
             if (p.PropertyType == Types.IFormFile)
-                AddFileToForm((IFormFile) p.GetValue(req)!, p);
+                AddFileToForm((IFormFile)p.GetValue(req)!, p);
 
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {
@@ -409,8 +407,11 @@ public static class HttpClientExtensions
         void AddFileToForm(IFormFile file, MemberInfo prop)
         {
             var content = new StreamContent(file.OpenReadStream());
+
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
             if (file.Headers?.ContainsKey(HeaderNames.ContentType) is true)
                 content.Headers.ContentType = new(file.ContentType);
+
             form.Add(content, prop.Name, file.FileName);
         }
     }

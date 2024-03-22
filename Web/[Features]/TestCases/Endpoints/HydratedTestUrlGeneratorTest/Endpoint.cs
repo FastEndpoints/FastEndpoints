@@ -1,5 +1,3 @@
-
-
 namespace TestCases.HydratedTestUrlGeneratorTest;
 
 public class Endpoint : Endpoint<Request, string>
@@ -11,8 +9,8 @@ public class Endpoint : Endpoint<Request, string>
         AllowAnonymous();
     }
 
-    public override async Task<string> ExecuteAsync(Request req, CancellationToken ct) =>
-        HttpContext.Request.Path.Value!;
+    public override Task<string> ExecuteAsync(Request req, CancellationToken ct)
+        => Task.FromResult(HttpContext.Request.Path.Value!);
 }
 
 public class Request
@@ -31,6 +29,6 @@ public class Request
     [FromHeader("tenant-id")]
     public string FromHeader { get; set; }
 
-    [HasPermission(Allow.Customers_Create)]
+    [HasPermission(Allow.Customers_Create, IsRequired = false)]
     public bool? HasPermission { get; set; }
 }

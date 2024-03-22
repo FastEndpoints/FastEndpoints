@@ -21,8 +21,9 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 - automatically rewind request body with `IPlainTextRequest` if `EnableBuffering()` is used. (https://github.com/FastEndpoints/FastEndpoints/issues/631)
 - filter out illegal header names from being created as request parameters in swagger. (https://github.com/FastEndpoints/FastEndpoints/issues/615)
 - implement `[FromBody]` attribute support for routeless integration testing. (https://github.com/FastEndpoints/FastEndpoints/issues/645)
+- hydrate integration testing route url with values from request dto. (https://github.com/FastEndpoints/FastEndpoints/pull/648)
 - upgrade dependencies to latest
 
-## Fixes 🪲
+[//]: # (## Fixes 🪲)
 
-## Breaking Changes ⚠️
+[//]: # (## Breaking Changes ⚠️)

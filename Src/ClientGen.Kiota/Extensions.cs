@@ -91,26 +91,31 @@ public static class Extensions
     /// </summary>
     /// <param name="documentName">the name of the swagger document to generate the clients for</param>
     /// <param name="destinationPath">the folder path (without file name) where the client files will be saved to</param>
-    /// <returns>the full path of the exported swagger json file</returns>
-    public static async Task ExportSwaggerJsonAndExitAsync(this WebApplication app, string documentName, string destinationPath, CancellationToken ct = default)
+    /// <param name="destinationFileName">optional output file name with extension. defaults to <c>{documentName}.json</c></param>
+    public static async Task ExportSwaggerJsonAndExitAsync(this WebApplication app,
+                                                           string documentName,
+                                                           string destinationPath,
+                                                           string? destinationFileName = null,
+                                                           CancellationToken ct = default)
     {
         if (app.Configuration["exportswaggerjson"] == "true")
         {
             await app.StartAsync(ct);
-            await ExportSwaggerJson(app, documentName, destinationPath, ct);
+            await ExportSwaggerJson(app, documentName, destinationPath, destinationFileName, ct);
             await app.StopAsync(ct);
             Environment.Exit(0);
         }
     }
 
-    static async Task<string> ExportSwaggerJson(IHost app, string documentName, string destinationPath, CancellationToken ct)
+    static async Task<string> ExportSwaggerJson(IHost app, string documentName, string destinationPath, string? destinationFileName, CancellationToken ct)
     {
         var logger = app.Services.GetRequiredService<ILogger<ClientGenerator>>();
         logger.LogInformation("Exporting Swagger Spec for doc: [{doc}]", documentName);
 
         var generator = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
         var doc = await generator.GenerateAsync(documentName);
-        var output = Path.Combine(destinationPath, documentName.ToLowerInvariant().Replace(" ", "-") + ".json");
+        var file = (destinationFileName ?? documentName + ".json").ToLowerInvariant().Replace(" ", "-");
+        var output = Path.Combine(destinationPath, file);
         Directory.CreateDirectory(destinationPath);
         await File.WriteAllTextAsync(output, doc.ToJson(), ct);
 
@@ -127,7 +132,7 @@ public static class Extensions
         var logger = app.Services.GetRequiredService<ILogger<ClientGenerator>>();
         logger.LogInformation("Starting [{lang}] Api Client generation for [{doc}]", c.Language.ToString(), c.SwaggerDocumentName);
 
-        c.OpenAPIFilePath = await ExportSwaggerJson(app, c.SwaggerDocumentName, c.OutputPath, ct);
+        c.OpenAPIFilePath = await ExportSwaggerJson(app, c.SwaggerDocumentName, c.OutputPath, null, ct);
         var log = LoggerFactory.Create(_ => { }).CreateLogger<KiotaBuilder>();
         await new KiotaBuilder(log, c, new()).GenerateClientAsync(ct);
 

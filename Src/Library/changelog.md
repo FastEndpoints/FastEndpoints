@@ -14,6 +14,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 - `DontAutoSend()` support for `Results<T1,T2,...>` returning handlers ()
 - `ProblemDetails` title transformer (https://github.com/FastEndpoints/FastEndpoints/issues/637)
 - allow usage of empty request dtos (https://github.com/FastEndpoints/FastEndpoints/issues/641)
+- ability to specify output file name for `ExportSwaggerJsonAndExitAsync()`
 
 ## Improvements 🚀
 

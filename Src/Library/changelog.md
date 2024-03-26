@@ -25,6 +25,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 - hydrate integration testing route url with values from request dto. (https://github.com/FastEndpoints/FastEndpoints/pull/648)
 - upgrade dependencies to latest
 
-[//]: # (## Fixes 🪲)
+## Fixes 🪲
+- duplicate swagger tag descriptions issue ()
 
 [//]: # (## Breaking Changes ⚠️)

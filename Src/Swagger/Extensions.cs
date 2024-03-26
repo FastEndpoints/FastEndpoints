@@ -63,21 +63,19 @@ public static class Extensions
                 {
                     var dict = new Dictionary<string, string>();
                     doc.TagDescriptions(dict);
-                    genSettings.AddOperationFilter(
-                        ctx =>
+                    genSettings.PostProcess +=
+                        d =>
                         {
                             foreach (var kvp in dict)
                             {
-                                ctx.Document.Tags.Add(
+                                d.Tags.Add(
                                     new()
                                     {
                                         Name = kvp.Key,
                                         Description = kvp.Value
                                     });
                             }
-
-                            return true;
-                        });
+                        };
                 }
                 if (doc.EnableJWTBearerAuth)
                     genSettings.EnableJWTBearerAuth();

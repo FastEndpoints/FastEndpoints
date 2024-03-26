@@ -26,6 +26,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 - upgrade dependencies to latest
 
 ## Fixes 🪲
-- duplicate swagger tag descriptions issue ()
+
+- duplicate swagger tag descriptions issue (https://github.com/FastEndpoints/FastEndpoints/issues/654)
 
 [//]: # (## Breaking Changes ⚠️)

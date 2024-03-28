@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace FastEndpoints;
 
@@ -107,6 +109,8 @@ public static class Factory
         s(collection);
         ctx.RequestServices = collection.BuildServiceProvider();
         Cfg.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
+        if (ctx.RequestServices.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions is { } serializerOpts)
+            Cfg.SerOpts.Options = serializerOpts;
     }
 
     /// <summary>

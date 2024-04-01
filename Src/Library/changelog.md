@@ -11,7 +11,7 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 ## New 🎉
 
 <details><summary>Customize error response Content-Type globally</summary>
-The default `content-type` header value for all error responses is `application/problem+json`. The default can be customized as follows:
+The default `content-type` header value for all error responses is `application/problem+json`. The default can now be customized as follows:
 
 ```cs
 app.UseFastEndpoints(c => c.Errors.ContentType = "application/json")
@@ -22,7 +22,7 @@ app.UseFastEndpoints(c => c.Errors.ContentType = "application/json")
 <details><summary>'DontAutoSend()' support for 'Results&lt;T1,T2,...&gt;' returning endpoint handler methods</summary>
 
 When putting a [post-processor in charge](https://fast-endpoints.com/docs/pre-post-processors#abstracting-response-sending-logic-into-a-post-processor) of sending the 
-response, it was not previously not supported when the handler method returns a `Results<T1,T2,...>`. You can now use the `DontAutoSend()` config option with such 
+response, it was not previously supported when the handler method returns a `Results<T1,T2,...>`. You can now use the `DontAutoSend()` config option with such endpoint 
 handlers.
 
 </details>
@@ -128,14 +128,43 @@ public class Sut : AppFixture<Program>
 
 </details>
 
-- automatically rewind request body with `IPlainTextRequest` if `EnableBuffering()` is used. (https://github.com/FastEndpoints/FastEndpoints/issues/631)
-- filter out illegal header names from being created as request parameters in swagger. (https://github.com/FastEndpoints/FastEndpoints/issues/615)
-- implement `[FromBody]` attribute support for routeless integration testing. (https://github.com/FastEndpoints/FastEndpoints/issues/645)
-- hydrate integration testing route url with values from request dto. (https://github.com/FastEndpoints/FastEndpoints/pull/648)
-- upgrade dependencies to latest
+<details><summary>Automatically rewind request stream with 'IPlainTextRequest' when 'EnableBuffering()' is used.</summary>
+
+It was not possible to manually re-read the request body stream due to `IPlainTextRequest` automatically consuming the stream even with the use of `EnableBuffering()`.
+The stream will now be automatically re-wound if `EnableBuffering()` is detected in order to allow re-reading the stream by the user.
+
+</details>
+
+<details><summary>Filter out illegal header names from being created as request parameters in Swagger docs</summary>
+
+According to the OpenApi Spec, there are certain header names that are not allowed as part of the regular parameter specification in the Swagger Spec. These 
+Headers (`Accept`, `Content-Type` and `Authorization`) are described using other OpenApi fields. The FE Swagger generation did not previously respect/filter them out 
+when processing properties marked with `[FromHeader]`.
+
+</details>
+
+<details><summary>'[FromBody]'attribute support for strongly-typed integration testing</summary>
+
+There was no support for correctly integration testing an endpoint where its request DTO had a property decorated with `[FromBody]` attribute. This scenario is now 
+correctly implemented and handled by the strongly-typed extension methods for the `HttpClient`.
+
+</details>
+
+<details><summary>Hydrate typed integration testing route url with values from request DTO</summary>
+
+Until now, when a strongly-typed integration test calls the endpoint, it was using a faux url with the correct number of route segments so that the correct endpoint 
+gets called. Now, if there's a request DTO instance present, the actual values from the request DTO properties would be substituted resulting an actual url being 
+called with actual values you supply during the test.
+
+</details>
 
 ## Fixes 🪲
 
-- duplicate swagger tag descriptions issue (https://github.com/FastEndpoints/FastEndpoints/issues/654)
+<details><summary>Prevent duplicate Swagger tag descriptions</summary>
+
+An issue was reported with the swagger tag descriptions being repeated one for each endpoint in the generated swagger document. It has been fixed to prevent that from 
+happening under any circumstances.
+
+</details>
 
 [//]: # (## Breaking Changes ⚠️)

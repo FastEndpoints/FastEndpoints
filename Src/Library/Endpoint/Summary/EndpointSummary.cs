@@ -48,7 +48,7 @@ public class EndpointSummary
     /// <summary>
     /// specify multiple request examples by adding to this collection.
     /// </summary>
-    public ICollection<object> RequestExamples { get; } = new List<object>();
+    public ICollection<RequestExample> RequestExamples { get; } = new List<RequestExample>();
 
     /// <summary>
     /// an example request object to be used in swagger/ openapi.
@@ -56,8 +56,8 @@ public class EndpointSummary
     /// </summary>
     public object? ExampleRequest
     {
-        get => RequestExamples.FirstOrDefault();
-        set => RequestExamples.Add(value ?? throw new ArgumentNullException(nameof(ExampleRequest)));
+        get => RequestExamples.FirstOrDefault()?.Value;
+        set => RequestExamples.Add(new(value ?? throw new ArgumentNullException(nameof(ExampleRequest))));
     }
 
     /// <summary>

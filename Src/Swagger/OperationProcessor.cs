@@ -494,32 +494,47 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                 var exCount = epDef.EndpointSummary!.RequestExamples.Count;
 
                 if (exCount == 1)
-                    requestBody.ActualSchema.Example = GetExampleFrom(epDef.EndpointSummary?.RequestExamples.First());
+                    requestBody.ActualSchema.Example = GetExampleObjectFrom(epDef.EndpointSummary?.RequestExamples.First());
                 else
                 {
-                    var i = 1;
+                    //add an index to any duplicate labels
+                    foreach (var group in epDef.EndpointSummary.RequestExamples.GroupBy(e => e.Label).Where(g => g.Count() > 1))
+                    {
+                        var i = 1;
+
+                        foreach (var ex in group)
+                        {
+                            ex.Label += $" {i}";
+                            i++;
+                        }
+                    }
 
                     foreach (var example in epDef.EndpointSummary.RequestExamples)
                     {
                         reqContent?.First().Value.Examples.Add(
-                            key: $"Example {i++}",
-                            value: new() { Value = GetExampleFrom(example) });
+                            key: example.Label,
+                            value: new()
+                            {
+                                Summary = example.Summary,
+                                Description = example.Description,
+                                Value = GetExampleObjectFrom(example)
+                            });
                     }
                 }
             }
 
-            object? GetExampleFrom(object? requestExample)
+            object? GetExampleObjectFrom(RequestExample? requestExample)
             {
                 if (requestExample is null)
                     return null;
 
                 object example;
 
-                if (requestExample.GetType().IsAssignableTo(typeof(IEnumerable)))
-                    example = JToken.FromObject(requestExample, serializer);
+                if (requestExample.Value.GetType().IsAssignableTo(typeof(IEnumerable)))
+                    example = JToken.FromObject(requestExample.Value, serializer);
                 else
                 {
-                    example = JObject.FromObject(requestExample, serializer);
+                    example = JObject.FromObject(requestExample.Value, serializer);
 
                     foreach (var p in ((JObject)example).Properties().ToArray())
                     {

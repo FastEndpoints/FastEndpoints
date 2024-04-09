@@ -34,3 +34,22 @@ Summary(
 ## Fixes 🪲
 
 ## Breaking Changes ⚠️
+
+<details><summary>The way multiple Swagger request examples are set has been changed</summary>
+
+Previous way:
+
+```csharp
+Summary(s =>
+{
+    s.RequestExamples.Add(new MyRequest {...});
+});
+```
+
+New way:
+
+```csharp
+s.RequestExamples.Add(new(new MyRequest { ... })); // wrapped in a RequestExample class
+```
+
+</details>

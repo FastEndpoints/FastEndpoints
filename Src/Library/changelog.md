@@ -65,7 +65,13 @@ FastEndpoints.Swagger.GlobalConfig.RouteConstraintMap["date"] = typeof(DateTime)
 
 [//]: # (## Improvements 🚀)
 
-[//]: # (## Fixes 🪲)
+## Fixes 🪲
+
+<details><summary>Contention issue resulting in random 415 responses</summary>
+
+There was a possible contention issue that could arise in and extremely niche edge case where the WAFs could be instantiated in quick succession which results in tests failing due to 415 responses being returned randomly. This has been fixed by moving the necessary work to be performed at app startup instead of at the first request for a particular endpoint. More info: #661
+
+</details>
 
 ## Breaking Changes ⚠️
 

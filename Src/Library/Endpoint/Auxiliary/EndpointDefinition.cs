@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 using static FastEndpoints.Constants;
@@ -54,7 +55,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
     //only accessible to internal code
     internal bool AcceptsAnyContentType;
-    internal bool? AcceptsMetaDataPresent;
+    internal bool AcceptsMetaDataPresent;
     internal List<object>? AttribsToForward;
     internal bool ExecuteAsyncImplemented;
     bool? _execReturnsIResults;
@@ -437,6 +438,24 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void Validator<TValidator>() where TValidator : IValidator
     {
         ValidatorType = typeof(TValidator);
+    }
+
+    internal void InitAcceptsMetaData(RouteHandlerBuilder hb)
+    {
+        //this work is added as a convention due to: https://github.com/FastEndpoints/FastEndpoints/issues/661
+        //downside of doing this here is it's executed at startup (instead of at first request), adding a minor perf hit.
+        hb.Add(
+            b =>
+            {
+                for (var i = 0; i < b.Metadata.Count; i++)
+                {
+                    if (b.Metadata[i] is not IAcceptsMetadata meta)
+                        continue;
+
+                    AcceptsMetaDataPresent = true;
+                    AcceptsAnyContentType = meta.ContentTypes.Contains("*/*");
+                }
+            });
     }
 
     object? _mapper;

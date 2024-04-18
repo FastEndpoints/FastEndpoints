@@ -58,20 +58,6 @@ static class RequestHandler
     }
 
     static bool PrepAndCheckAcceptsMetaData(HttpContext ctx, EndpointDefinition def, EndpointMetadataCollection epMeta)
-    {
-        if (def.AcceptsMetaDataPresent is null) //only ever iterating the meta collection once on first request
-        {
-            def.AcceptsMetaDataPresent = false;
-
-            for (var i = 0; i < epMeta.Count; i++)
-            {
-                if (epMeta[i] is IAcceptsMetadata meta)
-                {
-                    def.AcceptsMetaDataPresent = true;
-                    def.AcceptsAnyContentType = meta.ContentTypes.Contains("*/*");
-                }
-            }
-        }
 
         // if following conditions are met:
         //   1.) request doesn't contain any content-type headers
@@ -80,8 +66,6 @@ static class RequestHandler
         // then return true so that a 415 response can be sent to the client.
         // we don't need to check for mismatched content-types (between request and endpoint)
         // because routing middleware already takes care of that.
-        return
-            !ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
-            def is { AcceptsMetaDataPresent: true, AcceptsAnyContentType: false };
-    }
+        => !ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
+           def is { AcceptsMetaDataPresent: true, AcceptsAnyContentType: false };
 }

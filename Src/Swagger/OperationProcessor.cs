@@ -296,6 +296,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             }
         }
 
+        var paramCtx = new ParamCreationContext(ctx, docOpts, serializer, reqParamDescriptions, apiDescription.RelativePath!);
+
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
         var reqParams = _routeParamsRegex
                         .Matches(opPath)
@@ -317,15 +319,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                         return true;
                                     });
 
-                                return CreateParam(
-                                    ctx: ctx,
-                                    prop: pInfo,
-                                    paramName: m.Value,
-                                    isRequired: true,
-                                    kind: OpenApiParameterKind.Path,
-                                    descriptions: reqParamDescriptions,
-                                    docOpts: docOpts,
-                                    serializer: serializer);
+                                return CreateParam(paramCtx, OpenApiParameterKind.Path, pInfo, m.Value, true);
                             })
                         .ToList();
 
@@ -339,15 +333,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                               {
                                   RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
 
-                                  return CreateParam(
-                                      ctx: ctx,
-                                      prop: p,
-                                      paramName: null,
-                                      isRequired: null,
-                                      kind: OpenApiParameterKind.Query,
-                                      descriptions: reqParamDescriptions,
-                                      docOpts: docOpts,
-                                      serializer: serializer);
+                                  return CreateParam(paramCtx, OpenApiParameterKind.Query, p);
                               })
                           .ToList();
 
@@ -375,16 +361,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                 continue;
                             }
 
-                            reqParams.Add(
-                                CreateParam(
-                                    ctx: ctx,
-                                    prop: p,
-                                    paramName: pName,
-                                    isRequired: hAttrib.IsRequired,
-                                    kind: OpenApiParameterKind.Header,
-                                    descriptions: reqParamDescriptions,
-                                    docOpts: docOpts,
-                                    serializer: serializer));
+                            reqParams.Add(CreateParam(paramCtx, OpenApiParameterKind.Header, p, pName, hAttrib.IsRequired));
 
                             //remove corresponding json body field if it's required. allow binding only from header.
                             if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
@@ -415,16 +392,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
                 RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
                 reqDtoProps.Remove(p);
-                reqParams.Add(
-                    CreateParam(
-                        ctx: ctx,
-                        prop: p,
-                        paramName: null,
-                        isRequired: null,
-                        kind: OpenApiParameterKind.FormData,
-                        descriptions: reqParamDescriptions,
-                        docOpts: docOpts,
-                        serializer: serializer));
+                reqParams.Add(CreateParam(paramCtx, OpenApiParameterKind.FormData, p));
             }
         }
 
@@ -473,16 +441,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
             {
                 op.Parameters.Remove(body);
-                op.Parameters.Add(
-                    CreateParam(
-                        ctx: ctx,
-                        prop: fromBodyProp,
-                        paramName: fromBodyProp.Name,
-                        isRequired: true,
-                        kind: OpenApiParameterKind.Body,
-                        descriptions: reqParamDescriptions,
-                        docOpts: docOpts,
-                        serializer: serializer));
+                op.Parameters.Add(CreateParam(paramCtx, OpenApiParameterKind.Body, fromBodyProp, fromBodyProp.Name, true));
             }
         }
 
@@ -639,58 +598,51 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             => stripSymbols ? Regex.Replace(val, "[^a-zA-Z0-9]", "") : val;
     }
 
-    static OpenApiParameter CreateParam(OperationProcessorContext ctx,
-                                        PropertyInfo? prop,
-                                        string? paramName,
-                                        bool? isRequired,
-                                        OpenApiParameterKind kind,
-                                        Dictionary<string, string>? descriptions,
-                                        DocumentOptions docOpts,
-                                        JsonSerializer serializer)
+    static OpenApiParameter CreateParam(ParamCreationContext ctx, OpenApiParameterKind Kind, PropertyInfo? Prop = null, string? ParamName = null, bool? IsRequired = null)
     {
-        paramName = paramName?.ApplyPropNamingPolicy(docOpts) ??
-                    prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
-                    prop?.Name.ApplyPropNamingPolicy(docOpts) ?? throw new InvalidOperationException("param name is required!");
+        ParamName = ParamName?.ApplyPropNamingPolicy(ctx.DocOpts) ??
+                    Prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
+                    Prop?.Name.ApplyPropNamingPolicy(ctx.DocOpts) ?? throw new InvalidOperationException("param name is required!");
 
         Type propType;
 
-        if (prop?.PropertyType is not null)
+        if (Prop?.PropertyType is not null) //dto has matching property
         {
-            propType = prop.PropertyType;
+            propType = Prop.PropertyType;
             if (propType.Name.EndsWith("HeaderValue"))
                 propType = Types.String;
         }
-        else
-            propType = Types.String;
+        else //dto doesn't have matching prop, get it from route constraint map
+            propType = ctx.TypeForRouteParam(ParamName);
 
-        var prm = ctx.DocumentGenerator.CreatePrimitiveParameter(
-            paramName,
-            descriptions?.GetValueOrDefault(prop?.Name ?? paramName),
+        var prm = ctx.OpCtx.DocumentGenerator.CreatePrimitiveParameter(
+            ParamName,
+            ctx.Descriptions?.GetValueOrDefault(Prop?.Name ?? ParamName),
             propType.ToContextualType());
 
-        prm.Kind = kind;
+        prm.Kind = Kind;
 
-        var defaultValFromCtorArg = prop?.GetParentCtorDefaultValue();
+        var defaultValFromCtorArg = Prop?.GetParentCtorDefaultValue();
         bool? hasDefaultValFromCtorArg = null;
         if (defaultValFromCtorArg is not null)
             hasDefaultValFromCtorArg = true;
 
-        var isNullable = prop?.IsNullable();
+        var isNullable = Prop?.IsNullable();
 
-        prm.IsRequired = isRequired ??
+        prm.IsRequired = IsRequired ??
                          !hasDefaultValFromCtorArg ??
                          !(isNullable ?? true);
 
         prm.Schema.IsNullableRaw = prm.IsRequired ? null : isNullable;
 
-        if (ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2)
-            prm.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
+        if (ctx.OpCtx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2)
+            prm.Default = Prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
         else
-            prm.Schema.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
+            prm.Schema.Default = Prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
 
-        if (ctx.Settings.SchemaSettings.GenerateExamples)
+        if (ctx.OpCtx.Settings.SchemaSettings.GenerateExamples)
         {
-            prm.Example = prop?.GetExampleJToken(serializer);
+            prm.Example = Prop?.GetExampleJToken(ctx.Serializer);
 
             if (prm.Example is null && prm.Default is null && prm.Schema?.Default is null && prm.IsRequired)
             {
@@ -702,5 +654,49 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         prm.IsNullableRaw = null; //if this is not null, nswag generates an incorrect swagger spec for some unknown reason.
 
         return prm;
+    }
+
+    readonly struct ParamCreationContext
+    {
+        public OperationProcessorContext OpCtx { get; }
+        public DocumentOptions DocOpts { get; }
+        public JsonSerializer Serializer { get; }
+        public Dictionary<string, string>? Descriptions { get; }
+
+        readonly Dictionary<string, Type> _paramMap;
+
+        public ParamCreationContext(OperationProcessorContext opCtx,
+                                    DocumentOptions docOpts,
+                                    JsonSerializer serializer,
+                                    Dictionary<string, string>? descriptions,
+                                    string operationPath)
+        {
+            OpCtx = opCtx;
+            DocOpts = docOpts;
+            Serializer = serializer;
+            Descriptions = descriptions;
+            _paramMap = new(
+                operationPath.Split('/')
+                             .Where(s => s.Contains('{') && s.Contains(':') && s.Contains('}'))
+                             .Select(
+                                 s =>
+                                 {
+                                     var parts = s.Split(':');
+                                     var left = parts[0];
+                                     var right = parts[1];
+
+                                     left = left[(left.IndexOf('{') + 1)..].Trim();
+                                     right = right[..right.IndexOfAny(['(', '}'])].Trim();
+
+                                     GlobalConfig.RouteConstraintMap.TryGetValue(right, out var tParam);
+
+                                     return new KeyValuePair<string, Type>(left, tParam ?? Types.String);
+                                 }));
+        }
+
+        public Type TypeForRouteParam(string paramName)
+            => _paramMap.TryGetValue(paramName, out var tParam)
+                   ? tParam
+                   : Types.String;
     }
 }

@@ -26,4 +26,23 @@ public static class GlobalConfig
     /// allows the use of empty request dtos
     /// </summary>
     public static bool AllowEmptyRequestDtos => Conf.EpOpts.AllowEmptyRequestDtos;
+
+    /// <summary>
+    /// this route constraint type map will be used to determine the type for a route parameter if there's no matching property on the request dto.
+    /// the dictionary key is the name of the constraint and the value is the  corresponding <see cref="System.Type" />
+    /// </summary>
+    public static Dictionary<string, Type> RouteConstraintMap { get; } = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "int", typeof(int) },
+        { "bool", typeof(bool) },
+        { "datetime", typeof(DateTime) },
+        { "decimal", typeof(decimal) },
+        { "double", typeof(double) },
+        { "float", typeof(float) },
+        { "guid", typeof(Guid) },
+        { "long", typeof(long) },
+        { "min", typeof(long) },
+        { "max", typeof(long) },
+        { "range", typeof(long) }
+    };
 }

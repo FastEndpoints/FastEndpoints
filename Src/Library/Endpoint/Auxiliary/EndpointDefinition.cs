@@ -64,8 +64,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction = null!;
     internal bool ImplementsConfigure;
-    ToHeaderProp[]? _toHeaderProps;
-    internal ToHeaderProp[] ToHeaderProps => _toHeaderProps ??= GetToHeaderProps();
     internal readonly List<object> PreProcessorList = [];
     internal int PreProcessorPosition;
     internal readonly List<object> PostProcessorList = [];
@@ -77,6 +75,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
     internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
+    ToHeaderProp[]? _toHeaderProps;
+    internal ToHeaderProp[] ToHeaderProps => _toHeaderProps ??= GetToHeaderProps();
     internal Action<RouteHandlerBuilder>? UserConfigAction { get; private set; }
 
     /// <summary>
@@ -128,7 +128,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void AuthSchemes(params string[] authSchemeNames)
     {
         AuthSchemeNames?.AddRange(authSchemeNames);
-        AuthSchemeNames ??= new(authSchemeNames);
+        AuthSchemeNames ??= [..authSchemeNames];
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         AllowAnyClaim = true;
         AllowedClaimTypes?.AddRange(claimTypes);
-        AllowedClaimTypes ??= new(claimTypes);
+        AllowedClaimTypes ??= [..claimTypes];
     }
 
     /// <summary>
@@ -152,7 +152,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         AllowAnyClaim = false;
         AllowedClaimTypes?.AddRange(claimTypes);
-        AllowedClaimTypes ??= new(claimTypes);
+        AllowedClaimTypes ??= [..claimTypes];
     }
 
     static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata
@@ -213,9 +213,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// enable antiforgery token verification for an endpoint
     /// </summary>
     public void EnableAntiforgery()
-    {
-        AntiforgeryEnabled = true;
-    }
+        => AntiforgeryEnabled = true;
 
     /// <summary>
     /// specify the version of the endpoint if versioning is enabled
@@ -436,9 +434,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <typeparam name="TValidator">the type of the validator</typeparam>
     public void Validator<TValidator>() where TValidator : IValidator
-    {
-        ValidatorType = typeof(TValidator);
-    }
+        => ValidatorType = typeof(TValidator);
 
     internal void InitAcceptsMetaData(RouteHandlerBuilder hb)
     {

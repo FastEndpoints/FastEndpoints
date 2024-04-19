@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
 
@@ -10,10 +9,7 @@ static class RequestHandler
 {
     internal static Task Invoke(HttpContext ctx, IEndpointFactory epFactory)
     {
-        var epMeta = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!).Endpoint!.Metadata;
-        var epDef = epMeta.GetMetadata<EndpointDefinition>()!;
-
-        //note: epMeta and epDef will never be null since this method is only invoked for fastendpoints
+        var epDef = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!).Endpoint!.Metadata.GetMetadata<EndpointDefinition>()!;
 
         if (epDef.HitCounter is not null)
         {
@@ -39,8 +35,16 @@ static class RequestHandler
             }
         }
 
-        if (PrepAndCheckAcceptsMetaData(ctx, epDef, epMeta))
+        if (!ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) && epDef is { AcceptsMetaDataPresent: true, AcceptsAnyContentType: false })
         {
+            // if all 3 conditions are true:
+            //   1.) request doesn't contain any content-type headers
+            //   2.) endpoint declares accepts metadata
+            //   3.) endpoint doesn't declare wildcard accepts metadata
+            // then a 415 response needs to be sent to the client.
+            // we don't need to check for mismatched content-types (between request and endpoint)
+            // because routing middleware already takes care of that.
+
             ctx.Response.StatusCode = 415;
 
             return ctx.Response.StartAsync(ctx.RequestAborted);
@@ -56,16 +60,4 @@ static class RequestHandler
 
         return epInstance.ExecAsync(ctx.RequestAborted);
     }
-
-    static bool PrepAndCheckAcceptsMetaData(HttpContext ctx, EndpointDefinition def, EndpointMetadataCollection epMeta)
-
-        // if following conditions are met:
-        //   1.) request doesn't contain any content-type headers
-        //   2.) endpoint declares accepts metadata
-        //   3.) endpoint doesn't declare any wildcard accepts metadata
-        // then return true so that a 415 response can be sent to the client.
-        // we don't need to check for mismatched content-types (between request and endpoint)
-        // because routing middleware already takes care of that.
-        => !ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) &&
-           def is { AcceptsMetaDataPresent: true, AcceptsAnyContentType: false };
 }

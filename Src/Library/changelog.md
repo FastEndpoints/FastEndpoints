@@ -10,6 +10,37 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>New generic attribute [Group&lt;T&gt;] for attribute based endpoint group configuration</summary>
+
+When using attribute based endpoint configuration, you can now use the generic 'Group<TEndpointGroup>' attribute to specify the group which the endpoint belongs to like so:
+
+```csharp
+//group definition class
+sealed class Administration : Group
+{
+    public Administration()
+    {
+        Configure(
+            "admin",
+            ep =>
+            {
+                ep.Description(
+                    x => x.Produces(401)
+                          .WithTags("administration"));
+            });
+    }
+}
+
+//using generic attribute to associate the endpoint with the above group
+[HttpPost("login"), Group<Administration>]
+sealed class MyEndpoint : EndpointWithoutRequest
+{
+    public override async Task HandleAsync(CancellationToken c) { }
+}
+```
+
+</details>
+
 <details><summary>Specify a label, summary & description for Swagger request examples</summary>
 
 When specifying multiple swagger request examples, you can now specify the additional info like this:

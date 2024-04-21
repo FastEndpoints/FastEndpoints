@@ -79,6 +79,11 @@ static class EndpointExtensions
 
                         break;
 
+                    case IGroupAttribute grpAttr:
+                        grpAttr.InitGroup(def);
+
+                        break;
+
                     default:
                         def.AttribsToForward ??= [];
                         def.AttribsToForward.Add(att);

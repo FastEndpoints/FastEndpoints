@@ -35,7 +35,7 @@ sealed class Administration : Group
 [HttpPost("login"), Group<Administration>]
 sealed class MyEndpoint : EndpointWithoutRequest
 {
-    public override async Task HandleAsync(CancellationToken c) { }
+    ...
 }
 ```
 

@@ -118,6 +118,10 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
                     o.User.Claims.AddRange(privs.Claims);
                     o.Issuer = _opts.Issuer;
                     o.Audience = _opts.Audience;
+                    if (_opts.SymmetricKeyAlgorithm != null)
+                        o.SymmetricKeyAlgorithm = _opts.SymmetricKeyAlgorithm;
+                    if (_opts.AsymmetricKeyAlgorithm != null)
+                        o.AsymmetricKeyAlgorithm = _opts.AsymmetricKeyAlgorithm;
                 }),
             AccessExpiry = accessExpiry,
             RefreshToken = Guid.NewGuid().ToString("N"),

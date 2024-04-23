@@ -37,6 +37,16 @@ public class RefreshServiceOptions
     /// </summary>
     [DontInject]
     public string? Audience { internal get; set; }
+    /// <summary>
+    /// specifies the symmetric key algorithm to be used if signing style is symmetric
+    /// </summary>
+    [DontInject]
+    public string? SymmetricKeyAlgorithm { internal get; set; }
+    /// <summary>
+    /// specifies the symmetric key algorithm to be used if signing style is asymmetric
+    /// </summary>
+    [DontInject]
+    public string? AsymmetricKeyAlgorithm { internal get; set; }
 
     internal string RefreshRoute = "/api/refresh-token";
     internal Action<EndpointDefinition>? EpSettings;

@@ -139,7 +139,7 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
 
         _app = (WebApplicationFactory<TProgram>)
             WafCache.GetOrAdd(
-                GetType(), //each derived fixture type  gets it's own waf/app instance. it is cached and reused.
+                GetType(), //each derived fixture type  gets its own waf/app instance. it is cached and reused.
                 WafInitializer);
         Client = _app.CreateClient();
 

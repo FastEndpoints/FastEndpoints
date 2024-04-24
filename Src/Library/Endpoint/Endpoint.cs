@@ -121,6 +121,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         {
             await RunPostProcessors(Definition.PostProcessorList, req, _response!, HttpContext, edi, ValidationFailures, ct);
 
+            HttpContext.Items["FastEndpointsResponse"] = _response; //for use by idempotency libraries
+
             //throw here if an exception has been captured and a post-processor hasn't handled it.
             //without this UseDefaultExceptionHandler() or user's custom exception handling middleware becomes useless as the exception is silently swallowed.
             if (edi is not null && !HttpContext.EdiIsHandled())

@@ -104,6 +104,12 @@ There was a possible contention issue that could arise in and extremely niche ed
 
 </details>
 
+<details><summary>Eliminate potential contention issues with 'AppFixture'</summary>
+
+`AppFixture` abstract class has been improved to use an Async friendly Lazy initialization technique to prevent any chances of more than a single WAF being created per each derived `AppFixture` type in high concurrent situations. Previously we were relying solely on `ConcurrentDictionary`'s thread safety features which did not always give the desired effect. Coupling that with Lazy initialization seems to solve any and all possible contention issues.
+
+</details>
+
 ## Breaking Changes ⚠️
 
 <details><summary>The way multiple Swagger request examples are set has been changed</summary>
@@ -122,5 +128,11 @@ New way:
 ```csharp
 s.RequestExamples.Add(new(new MyRequest { ... })); // wrapped in a RequestExample class
 ```
+
+</details>
+
+<details><summary>'PreSetupAsync()' trigger behavior change in `AppFixture` class</summary>
+
+Previously the `PreSetupAsync()` virtual method was run per each test-class instantiation. That behavior does not make much sense as the WAF instance is created and cached just once per test run. The new behavior is more in line with other virtual methods such as `ConfigureApp()` & `ConfigureServices()` that they are only ever run once for the sake of creation of the WAF. This change will only affect you if you've been creating some state such as a `TestContainer` instance in `PreSetupAsync` and later on disposing that container in `TearDownAsync()`. From now on you should not be disposing the container yourself if your derived `AppFixture` class is being used by more than one test-class. See [this gist](https://gist.github.com/dj-nitehawk/04a78cea10f2239eb81c958c52ec84e0) to get a better understanding.
 
 </details>

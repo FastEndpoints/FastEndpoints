@@ -227,6 +227,22 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     }
 
     /// <summary>
+    /// if this endpoint is part of an endpoint group, specify the type of the <see cref="FastEndpoints.Group" /> concrete class where the common
+    /// configuration for the group is specified.
+    /// </summary>
+    /// <typeparam name="TEndpointGroup">the type of your <see cref="FastEndpoints.Group" /> concrete class</typeparam>
+    /// <exception cref="InvalidOperationException">thrown if endpoint route hasn't yet been specified</exception>
+    public void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
+    {
+        if (Routes is null)
+        {
+            throw new InvalidOperationException(
+                $"Endpoint group can only be specified after the route has been configured in the [{EndpointType.FullName}] endpoint class!");
+        }
+        new TEndpointGroup().Action(this);
+    }
+
+    /// <summary>
     /// set endpoint configurations options using an endpoint builder action ///
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
@@ -242,7 +258,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         AllowAnyPermission = true;
         AllowedPermissions?.AddRange(permissions);
-        AllowedPermissions ??= new(permissions);
+        AllowedPermissions ??= [..permissions];
     }
 
     /// <summary>
@@ -254,7 +270,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         AllowAnyPermission = false;
         AllowedPermissions?.AddRange(permissions);
-        AllowedPermissions ??= new(permissions);
+        AllowedPermissions ??= [..permissions];
     }
 
     /// <summary>
@@ -274,7 +290,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void Policies(params string[] policyNames)
     {
         PreBuiltUserPolicies?.AddRange(policyNames);
-        PreBuiltUserPolicies ??= new(policyNames);
+        PreBuiltUserPolicies ??= [..policyNames];
     }
 
     int _postProcessorPosition;
@@ -363,7 +379,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void Roles(params string[] rolesNames)
     {
         AllowedRoles?.AddRange(rolesNames);
-        AllowedRoles ??= new(rolesNames);
+        AllowedRoles ??= [..rolesNames];
     }
 
     /// <summary>
@@ -413,7 +429,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void Tags(params string[] endpointTags)
     {
         EndpointTags?.AddRange(endpointTags);
-        EndpointTags ??= new(endpointTags);
+        EndpointTags ??= [..endpointTags];
     }
 
     /// <summary>

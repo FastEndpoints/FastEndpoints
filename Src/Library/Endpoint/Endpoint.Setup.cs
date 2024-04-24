@@ -231,15 +231,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <typeparam name="TEndpointGroup">the type of your <see cref="FastEndpoints.Group" /> concrete class</typeparam>
     /// <exception cref="InvalidOperationException">thrown if endpoint route hasn't yet been specified</exception>
     protected sealed override void Group<TEndpointGroup>()
-    {
-        if (Definition.Routes is null)
-        {
-            throw new InvalidOperationException(
-                $"Endpoint group can only be specified after the route has been configured in the [{Definition.EndpointType.FullName}] endpoint class!");
-        }
-
-        new TEndpointGroup().Action(Definition);
-    }
+        => Definition.Group<TEndpointGroup>();
 
     /// <summary>
     /// specify to listen for HEAD requests on one or more routes.

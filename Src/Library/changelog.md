@@ -136,3 +136,32 @@ s.RequestExamples.Add(new(new MyRequest { ... })); // wrapped in a RequestExampl
 Previously the `PreSetupAsync()` virtual method was run per each test-class instantiation. That behavior does not make much sense as the WAF instance is created and cached just once per test run. The new behavior is more in line with other virtual methods such as `ConfigureApp()` & `ConfigureServices()` that they are only ever run once for the sake of creation of the WAF. This change will only affect you if you've been creating some state such as a `TestContainer` instance in `PreSetupAsync` and later on disposing that container in `TearDownAsync()`. From now on you should not be disposing the container yourself if your derived `AppFixture` class is being used by more than one test-class. See [this gist](https://gist.github.com/dj-nitehawk/04a78cea10f2239eb81c958c52ec84e0) to get a better understanding.
 
 </details>
+
+<details><summary>Consolidate Jwt key signing algorithm properties into one</summary>
+
+`JwtCreationOptions` class had two different properties to specify `SymmetricKeyAlgorithm` as well as `AsymmetricKeyAlgorithm`, which has now been consolidated into a single property called `SigningAlgorithm`.
+
+Before:
+
+```csharp
+var token = JwtBearer.CreateToken(
+    o =>
+    {
+        o.SymmetricKeyAlgorithm = SecurityAlgorithms.HmacSha256Signature;
+        //or
+        o.AsymmetricKeyAlgorithm = SecurityAlgorithms.RsaSha256;
+    });
+```
+
+After:
+
+```csharp
+var token = JwtBearer.CreateToken(
+    o =>
+    {
+        o.SigningStyle = TokenSigningStyle.Symmetric;
+        o.SigningAlgorithm = SecurityAlgorithms.HmacSha256Signature;
+    });
+```
+
+</details>

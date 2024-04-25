@@ -1,9 +1,10 @@
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
 #if NET8_0_OR_GREATER
 using Microsoft.IdentityModel.JsonWebTokens;
+
 #else
 using System.IdentityModel.Tokens.Jwt;
 #endif
@@ -72,10 +73,10 @@ public static class JwtBearer
                 else
                     rsa.ImportRSAPrivateKey(Convert.FromBase64String(opts.SigningKey), out _);
 
-                return new(new RsaSecurityKey(rsa), opts.AsymmetricKeyAlgorithm);
+                return new(new RsaSecurityKey(rsa), opts.SigningAlgorithm);
             }
 
-            return new(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.SigningKey)), opts.SymmetricKeyAlgorithm);
+            return new(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.SigningKey)), opts.SigningAlgorithm);
         }
     }
 }

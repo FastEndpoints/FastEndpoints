@@ -71,7 +71,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// this only applies to renewal/refresh requests received to the refresh endpoint and not the initial jwt creation.
     /// </summary>
     /// <param name="request">the request dto received from the client</param>
-    /// <param name="privileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
+    /// <param name="privileges">the user privileges to be embedded in the jwt such as roles/claims/permissions</param>
     public abstract Task SetRenewalPrivilegesAsync(TRequest request, UserPrivileges privileges);
 
     /// <summary>
@@ -112,12 +112,15 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
                 {
                     o.SigningKey = _opts.TokenSigningKey;
                     o.SigningStyle = _opts.TokenSigningStyle;
+                    o.SigningAlgorithm = _opts.TokenSigningAlgorithm;
+                    o.KeyIsPemEncoded = _opts.SigningKeyIsPemEncoded;
                     o.ExpireAt = accessExpiry;
                     o.User.Permissions.AddRange(privs.Permissions);
                     o.User.Roles.AddRange(privs.Roles);
                     o.User.Claims.AddRange(privs.Claims);
                     o.Issuer = _opts.Issuer;
                     o.Audience = _opts.Audience;
+                    o.CompressionAlgorithm = _opts.TokenCompressionAlgorithm;
                 }),
             AccessExpiry = accessExpiry,
             RefreshToken = Guid.NewGuid().ToString("N"),

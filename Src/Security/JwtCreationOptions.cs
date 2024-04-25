@@ -19,26 +19,24 @@ public sealed class JwtCreationOptions
     public TokenSigningStyle SigningStyle { get; set; } = TokenSigningStyle.Symmetric;
 
     /// <summary>
+    /// security algo used to sign keys.
+    /// defaults to HmacSha256 for symmetric keys and RsaSha256 for asymmetric keys.
+    /// </summary>
+    public string SigningAlgorithm { get; set; }
+
+    /// <summary>
     /// specifies whether the key is pem encoded.
     /// </summary>
     public bool KeyIsPemEncoded { get; set; }
-
-    /// <summary>
-    /// security algo used to sign symmetric keys
-    /// </summary>
-    public string SymmetricKeyAlgorithm { get; set; } = SecurityAlgorithms.HmacSha256Signature;
-
-    /// <summary>
-    /// security algo used to sign asymmetric keys
-    /// </summary>
-    public string AsymmetricKeyAlgorithm { get; set; } = SecurityAlgorithms.RsaSha256;
 
     /// <summary>
     /// specify the privileges of the user
     /// </summary>
     public UserPrivileges User { get; } = new();
 
-    /// <summary>the value for the 'audience' claim.</summary>
+    /// <summary>
+    /// the value for the 'audience' claim.
+    /// </summary>
     public string? Audience { get; set; }
 
     /// <summary>
@@ -55,4 +53,11 @@ public sealed class JwtCreationOptions
     /// the compression algorithm  compressing the token payload.
     /// </summary>
     public string? CompressionAlgorithm { get; set; }
+
+    public JwtCreationOptions()
+    {
+        SigningAlgorithm = SigningStyle == TokenSigningStyle.Symmetric
+                               ? SecurityAlgorithms.HmacSha256Signature
+                               : SecurityAlgorithms.RsaSha256;
+    }
 }

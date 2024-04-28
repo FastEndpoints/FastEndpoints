@@ -110,6 +110,21 @@ There was a possible contention issue that could arise in and extremely niche ed
 
 </details>
 
+<details><summary>Correct exception not thrown when trying to instantiate response DTOs with required properties</summary>
+
+When the response DTO contains required properties like this:
+
+```csharp
+public class MyResponse
+{
+    public required string FullName { get; set; }
+}
+```
+
+If an attempt was made to utilize the auto response sending feature by setting properties of the `Response` object, a 400 validation error was being thrown instead of a 500 internal server error. It is now correctly throwing the `NotSupportedException` as it should, because FE cannot automatically instantiate objects that have required properties and the correct usage is for you to instantiate the object yourself and set it to the `Response` property, which is what the exception will now be instructing you to do.
+
+</details>
+
 ## Breaking Changes ⚠️
 
 <details><summary>The way multiple Swagger request examples are set has been changed</summary>

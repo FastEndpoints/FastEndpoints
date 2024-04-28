@@ -86,16 +86,23 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     static readonly JsonObject _emptyObject = new();
-    static readonly JsonArray _emptyArray = new();
+    static readonly JsonArray _emptyArray = [];
 
     TResponse InitResponseDto()
     {
         if (_isStringResponse) //otherwise strings are detected as IEnumerable of chars
             return default!;
 
-        _response = JsonSerializer.Deserialize<TResponse>(
-            _isCollectionResponse ? _emptyArray : _emptyObject,
-            Cfg.SerOpts.Options)!;
+        try
+        {
+            _response = JsonSerializer.Deserialize<TResponse>(
+                _isCollectionResponse ? _emptyArray : _emptyObject,
+                Cfg.SerOpts.Options)!;
+        }
+        catch
+        {
+            //do nothing
+        }
 
         return _response is null
                    ? throw new NotSupportedException(

@@ -105,7 +105,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <param name="dontAutoBindFormData">
     /// set 'true' to disable auto binding of form data which enables uploading and reading of large files without buffering to memory/disk.
-    /// you can access the multipart sections for reading via the FormFileSectionsAsync() method.
+    /// you can access the multipart sections for reading via the <see cref="Endpoint{TRequest,TResponse}.FormFileSectionsAsync" /> method.
     /// </param>
     public void AllowFileUploads(bool dontAutoBindFormData = false)
     {

@@ -53,6 +53,14 @@ public sealed class BindingOptions
     public int JsonExceptionStatusCode { internal get; set; } = 400;
 
     /// <summary>
+    /// if this function is specified, any internal exceptions that are thrown by asp.net when accessing multipart form data will be caught and transformed to validation
+    /// failures using this function. by default those exceptions are not caught and thrown out to the middleware pipeline. setting this func might come in handy if
+    /// you need 413 responses (that arise from incoming request body size exceeding kestrel's <c>MaxRequestBodySize</c>) automatically transformed to 400 problem details
+    /// responses.
+    /// </summary>
+    public Func<Exception, ValidationFailure>? FormExceptionTransformer { internal get; set; }
+
+    /// <summary>
     /// an optional action to be run after the endpoint level request binding has occured.
     /// it is intended as a way to perform common model binding logic that applies to all endpoints/requests.
     /// the action is passed in the following arguments:

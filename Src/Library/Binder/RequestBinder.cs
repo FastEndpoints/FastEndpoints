@@ -233,8 +233,24 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (!httpRequest.HasFormContentType || dontAutoBindForm)
             return;
 
-        foreach (var kvp in httpRequest.Form)
-            Bind(req, kvp, failures);
+        if (BndOpts.FormExceptionTransformer is null)
+            BindFormFields();
+        else
+        {
+            try
+            {
+                BindFormFields();
+            }
+            catch (Exception e)
+            {
+                failures.Add(BndOpts.FormExceptionTransformer(e));
+
+                if (e is BadHttpRequestException { StatusCode: 413 }) //only short-circuit if it's a 413 payload size exceeded
+                    throw new ValidationFailureException(failures, "Form binding failed!");
+
+                return;
+            }
+        }
 
         Dictionary<string, FormFileCollection>? formFileCollections =
             _formFileCollectionProps.Count > 0
@@ -256,13 +272,13 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 continue;
             }
 
-            if (_primaryProps.TryGetValue(formFile.Name, out var prop))
-            {
-                if (prop.PropType == Types.IFormFile)
-                    prop.PropSetter(req, formFile);
-                else
-                    failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
-            }
+            if (!_primaryProps.TryGetValue(formFile.Name, out var prop))
+                continue;
+
+            if (prop.PropType == Types.IFormFile)
+                prop.PropSetter(req, formFile);
+            else
+                failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
         }
 
         if (formFileCollections is not null)
@@ -272,6 +288,12 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 if (_formFileCollectionProps.TryGetValue(key, out var prop))
                     prop.PropSetter(req, value);
             }
+        }
+
+        void BindFormFields()
+        {
+            foreach (var kvp in httpRequest.Form)
+                Bind(req, kvp, failures);
         }
     }
 

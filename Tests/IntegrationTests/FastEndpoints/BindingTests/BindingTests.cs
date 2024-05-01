@@ -4,7 +4,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using TestCases.FromBodyJsonBinding;
+using TestCases.CustomRequestBinder;
 using TestCases.QueryObjectWithObjectsArrayBindingTest;
 using ByteEnum = TestCases.QueryObjectBindingTest.ByteEnum;
 using Endpoint = TestCases.JsonArrayBindingToListOfModels.Endpoint;
@@ -784,7 +784,7 @@ public class BindingTests(AppFixture App) : TestBase<AppFixture>
     {
         var (rsp, res) = await App.CustomerClient.POSTAsync<
                              TestCases.CustomRequestBinder.Endpoint,
-                             TestCases.CustomRequestBinder.Product,
+                             Product,
                              TestCases.CustomRequestBinder.Response>(
                              new()
                              {

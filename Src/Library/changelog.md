@@ -94,6 +94,50 @@ FastEndpoints.Swagger.GlobalConfig.RouteConstraintMap["date"] = typeof(DateTime)
 
 </details>
 
+<details><summary>Form related exception transformer function setting</summary>
+
+When accessing Form data there are various cases where an exception would be thrown internally by ASP.NET such as in the case of the incoming request body size exceeding the default limit or whatever you specify like so:
+
+```csharp
+bld.WebHost.ConfigureKestrel(
+    o =>
+    {
+        o.Limits.MaxRequestBodySize = 30000000;
+    });
+```
+
+If the incoming request body size is more than `MaxRequestBodySize`, Kestrel would automatically short-circuit the response with a `413 - Content Too Long` response, which may not be what you want. You can instead specify a `FormExceptionTrasnformer` func to transform the exception in to a regular 400 error/problem details JSON response like so:
+
+```csharp
+app.UseFastEndpoints(
+       c =>
+       {
+           c.Errors.UseProblemDetails(); //this is optional
+           c.Binding.FormExceptionTransformer =
+               ex => new ValidationFailure("GeneralErrors", ex.Message);
+       })
+```
+
+Which would result in a JSON response like so:
+
+```json
+{
+    "type": "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1",
+    "title": "One or more validation errors occurred.",
+    "status": 400,
+    "instance": "/upload-file",
+    "traceId": "0HN39MGSS8QDA:00000001",
+    "errors": [
+        {
+            "name": "generalErrors",
+            "reason": "Request body too large. The max request body size is 30000000 bytes."
+        }
+    ]
+}
+```
+
+</details>
+
 [//]: # (## Improvements 🚀)
 
 ## Fixes 🪲

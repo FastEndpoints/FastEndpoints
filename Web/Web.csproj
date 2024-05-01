@@ -33,4 +33,8 @@
         <Folder Include="[Features]\TestCases\Security\"/>
         <Folder Include="[Features]\TestCases\Validation\"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Web.csproj.DotSettings"/>
+    </ItemGroup>
 </Project>

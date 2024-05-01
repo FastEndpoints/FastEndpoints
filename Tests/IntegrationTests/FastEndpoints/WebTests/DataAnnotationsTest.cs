@@ -5,6 +5,7 @@ using TestCases.DataAnnotationCompliant;
 
 namespace Int.FastEndpoints.WebTests;
 
+[DisableWafCache]
 public class DaFixture(IMessageSink s) : AppFixture<Web.Program>(s);
 
 public class DataAnnotationsTest(DaFixture f, ITestOutputHelper o) : TestClass<DaFixture>(f, o)

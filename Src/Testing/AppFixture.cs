@@ -144,10 +144,12 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
 
     async Task IAsyncLifetime.InitializeAsync()
     {
-        _app = (WebApplicationFactory<TProgram>)
-            await WafCache.GetOrAdd(
-                key: GetType(),
-                valueFactory: _ => new(WafInitializer));
+        var tDerivedFixture = GetType();
+
+        if (tDerivedFixture.IsDefined(typeof(DisableWafCacheAttribute), true))
+            _app = (WebApplicationFactory<TProgram>)await WafInitializer();
+        else
+            _app = (WebApplicationFactory<TProgram>)await WafCache.GetOrAdd(tDerivedFixture, _ => new(WafInitializer));
 
         Client = _app.CreateClient();
 

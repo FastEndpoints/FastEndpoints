@@ -36,5 +36,5 @@ steps:
     inputs:
       command: "test"
       projects: "Tests/**/*.csproj"
-      arguments: "--configuration $(BuildConfiguration)"
+      arguments: "--configuration $(BuildConfiguration) --filter ExcludeInCiCd!=Yes"
       workingDirectory: "Tests"

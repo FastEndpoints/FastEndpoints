@@ -106,7 +106,7 @@ bld.WebHost.ConfigureKestrel(
     });
 ```
 
-If the incoming request body size is more than `MaxRequestBodySize`, Kestrel would automatically short-circuit the response with a `413 - Content Too Long` response, which may not be what you want. You can instead specify a `FormExceptionTrasnformer` func to transform the exception in to a regular 400 error/problem details JSON response like so:
+If the incoming request body size is more than `MaxRequestBodySize`, Kestrel would automatically short-circuit the request with a `413 - Content Too Long` response, which may not be what you want. You can instead specify a `FormExceptionTrasnformer` func to transform the exception in to a regular 400 error/problem details JSON response like so:
 
 ```csharp
 app.UseFastEndpoints(
@@ -157,7 +157,7 @@ public class MyAppFixture : AppFixture<Program> { ... }
 
 <details><summary>Contention issue resulting in random 415 responses</summary>
 
-There was a possible contention issue that could arise in and extremely niche edge case where the WAFs could be instantiated in quick succession which results in tests failing due to 415 responses being returned randomly. This has been fixed by moving the necessary work to be performed at app startup instead of at the first request for a particular endpoint. More info: #661
+There was a possible contention issue that could arise in an extremely niche edge case where the WAFs could be instantiated in quick succession which results in tests failing due to 415 responses being returned randomly. This has been fixed by moving the necessary work to be performed at app startup instead of at the first request for a particular endpoint. More info: #661
 
 </details>
 

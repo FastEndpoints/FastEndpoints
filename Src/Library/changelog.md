@@ -138,6 +138,19 @@ Which would result in a JSON response like so:
 
 </details>
 
+<details><summary>Ability to disable WAF/SUT caching in AppFixtures</summary>
+
+`AppFixture`'s default behavior of internally caching the SUT/WAF instance per derived `AppFixture` type can now be disabled simply by decorating the derived fixture class with an attribute like so:
+
+```csharp
+
+[DisableWafCache]
+public class MyAppFixture : AppFixture<Program> { ... }
+
+```
+
+</details>
+
 [//]: # (## Improvements 🚀)
 
 ## Fixes 🪲

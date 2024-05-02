@@ -6,7 +6,7 @@ using Update = Inventory.Manage.Update;
 
 namespace Web;
 
-public class InventoryTests(AppFixture App) : TestBase<AppFixture>
+public class InventoryTests(Sut App) : TestBase<Sut>
 {
     [Fact]
     public async Task CreateProductFailValidation()

@@ -4,7 +4,7 @@ using TestClass = TestCases.AntiforgeryTest;
 
 namespace Int.FastEndpoints.WebTests;
 
-public class AntiforgeryTest(AppFixture App) : TestBase<AppFixture>
+public class AntiforgeryTest(Sut App) : TestBase<Sut>
 {
     [Fact]
     public async Task Html_Form_Renders_With_Af_Token()

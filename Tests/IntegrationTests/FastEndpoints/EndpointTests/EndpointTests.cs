@@ -6,7 +6,7 @@ using TestCases.EmptyRequestTest;
 
 namespace EndpointTests;
 
-public class EndpointTests(AppFixture App) : TestBase<AppFixture>
+public class EndpointTests(Sut App) : TestBase<Sut>
 {
     [Fact]
     public async Task EmptyRequest()

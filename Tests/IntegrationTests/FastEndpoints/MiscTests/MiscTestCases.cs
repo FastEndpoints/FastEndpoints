@@ -2,7 +2,7 @@
 
 namespace Misc;
 
-public class MiscTestCases(AppFixture App) : TestBase<AppFixture>
+public class MiscTestCases(Sut App) : TestBase<Sut>
 {
     [Fact]
     public async Task ThrottledGlobalResponse()

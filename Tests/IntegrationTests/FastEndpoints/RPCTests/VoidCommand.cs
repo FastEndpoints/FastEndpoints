@@ -1,6 +1,6 @@
 ﻿namespace RemoteProcedureCalls;
 
-public class VoidCommand(AppFixture f) : RpcTestBase(f)
+public class VoidCommand(Sut f) : RpcTestBase(f)
 {
     [Fact]
     public async Task Void()

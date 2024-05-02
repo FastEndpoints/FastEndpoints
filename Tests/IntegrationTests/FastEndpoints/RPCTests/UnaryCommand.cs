@@ -2,7 +2,7 @@
 
 namespace RemoteProcedureCalls;
 
-public class UnaryCommand(AppFixture f) : RpcTestBase(f)
+public class UnaryCommand(Sut f) : RpcTestBase(f)
 {
     [Fact]
     public async Task Unary()

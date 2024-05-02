@@ -2,7 +2,7 @@
 
 namespace RemoteProcedureCalls;
 
-public class ClientStreamCommand(AppFixture f) : RpcTestBase(f)
+public class ClientStreamCommand(Sut f) : RpcTestBase(f)
 {
     [Fact]
     public async Task Client_Stream()

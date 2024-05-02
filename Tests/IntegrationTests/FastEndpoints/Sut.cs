@@ -6,7 +6,7 @@ using Web.Services;
 
 namespace Int.FastEndpoints;
 
-public class AppFixture(IMessageSink s) : AppFixture<Web.Program>(s)
+public class Sut(IMessageSink s) : AppFixture<Web.Program>(s)
 {
     public HttpClient GuestClient { get; private set; } = default!;
     public HttpClient AdminClient { get; private set; } = default!;

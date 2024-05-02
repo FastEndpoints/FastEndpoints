@@ -1,6 +1,6 @@
 ﻿namespace DependencyInjection;
 
-public class DiTests(AppFixture App) : TestBase<AppFixture>
+public class DiTests(Sut App) : TestBase<Sut>
 {
     [Fact]
     public async Task Service_Registration_Generator()

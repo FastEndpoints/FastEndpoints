@@ -23,7 +23,6 @@ public class FixtureB(IMessageSink s) : AppFixture<Web.Program>(s)
 
     protected override void ConfigureServices(IServiceCollection s)
     {
-        s.AddScoped<IEmailService, MockEmailService>();
         s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
         s.AddSingleton(new FixtureId(_id));
     }

@@ -27,8 +27,7 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
     public Task InitializeAsync()
         => _app.StartAsync();
 
-    //todo: figure out how to make this test run in github workflows
-    //[Fact]
+    [Fact, Trait("ExcludeInCiCd", "Yes")]
     public async Task Error_Response_When_Max_Req_Size_Exceeded()
     {
         var baseUrl = _app.Urls.First();

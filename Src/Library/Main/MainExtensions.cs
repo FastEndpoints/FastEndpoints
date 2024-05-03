@@ -90,9 +90,9 @@ public static class MainExtensions
             if (Cfg.EpOpts.Filter is not null && !Cfg.EpOpts.Filter(def))
                 continue;
 
-            if (def.Verbs?.Any() is not true)
+            if (def.Verbs.Length == 0)
                 throw new ArgumentException($"No HTTP Verbs declared on: [{def.EndpointType.FullName}]");
-            if (def.Routes?.Any() is not true)
+            if (def.Routes.Length == 0)
                 throw new ArgumentException($"No Routes declared on: [{def.EndpointType.FullName}]");
 
             Cfg.EpOpts.Configurator?.Invoke(def); //apply global ep settings to the definition

@@ -21,7 +21,7 @@ public abstract class Group : IServiceResolverBase
     static Action<EndpointDefinition> RouteModifier(string routePrefix)
         => e =>
            {
-               if (!(e.Routes?.Length > 0))
+               if (!(e.Routes.Length > 0))
                    return;
 
                for (var i = 0; i < e.Routes.Length; i++)

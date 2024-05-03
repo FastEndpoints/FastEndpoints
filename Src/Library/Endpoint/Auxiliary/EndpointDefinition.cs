@@ -25,10 +25,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public Type? MapperType { get; internal set; }
     public Type ReqDtoType { get; init; } = requestDtoType;
     public Type ResDtoType { get; init; } = responseDtoType;
-    public string[]? Routes { get; internal set; }
+    public string[] Routes { get; internal set; } = [];
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public Type? ValidatorType { get; internal set; }
-    public string[]? Verbs { get; internal set; }
+    public string[] Verbs { get; internal set; } = [];
     public EpVersion Version { get; } = new();
 
     //these props can be changed in global config using methods below
@@ -130,6 +130,18 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         AuthSchemeNames?.AddRange(authSchemeNames);
         AuthSchemeNames ??= [..authSchemeNames];
     }
+
+    /// <summary>
+    /// specify extra http verbs in addition to the endpoint level verbs.
+    /// </summary>
+    public void AdditionalVerbs(params Http[] verbs)
+        => Verbs = [..Verbs, ..verbs.Select(m => m.ToString())];
+
+    /// <summary>
+    /// specify extra http verbs in addition to the endpoint level verbs.
+    /// </summary>
+    public void AdditionalVerbs(params string[] verbs)
+        => Verbs = [..Verbs, ..verbs];
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given claim types
@@ -234,7 +246,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <exception cref="InvalidOperationException">thrown if endpoint route hasn't yet been specified</exception>
     public void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
     {
-        if (Routes is null)
+        if (Routes.Length == 0)
         {
             throw new InvalidOperationException(
                 $"Endpoint group can only be specified after the route has been configured in the [{EndpointType.FullName}] endpoint class!");

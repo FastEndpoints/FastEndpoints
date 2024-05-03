@@ -541,16 +541,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
     protected void Verbs(params Http[] methods)
-    {
-        Verbs(methods.Select(m => m.ToString()).ToArray());
-    }
+        => Verbs(methods.Select(m => m.ToString()).ToArray());
 
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
     public sealed override void Verbs(params string[] methods)
     {
-        //note: this method is sealed to not allow user to override it because we neeed to perform
+        //note: this method is sealed to not allow user to override it because we need to perform
         //      the following setup activities, which require access to TRequest/TResponse
 
         Definition.Verbs = methods;

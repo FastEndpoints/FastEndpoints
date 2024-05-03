@@ -33,5 +33,10 @@ public enum Http
     /// <summary>
     /// retrieve only headers
     /// </summary>
-    HEAD = 6
+    HEAD = 6,
+
+    /// <summary>
+    /// retrieve communication options
+    /// </summary>
+    OPTIONS = 7
 }

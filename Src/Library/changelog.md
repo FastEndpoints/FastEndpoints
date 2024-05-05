@@ -40,6 +40,15 @@ sealed class SomeGroup : Group
 
 </details>
 
+<details><summary>Assembly level AppFixture support</summary>
+
+todo:
+
+- write tests
+- write docs
+
+</details>
+
 [//]: # (## Improvements 🚀)
 
 [//]: # (## Fixes 🪲)

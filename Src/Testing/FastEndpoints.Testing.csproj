@@ -17,6 +17,7 @@
         <PackageReference Condition="'$(TargetFramework)' == 'net8.0'" Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.3"/>
 
         <PackageReference Include="Bogus" Version="35.5.0"/>
+        <PackageReference Include="Xunit.Extensions.AssemblyFixture" Version="2.4.1"/>
         <PackageReference Include="Xunit.Priority" Version="1.1.6"/>
         <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.3.0"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>

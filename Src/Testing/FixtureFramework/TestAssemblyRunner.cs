@@ -16,25 +16,26 @@ class TestAssemblyRunner(ITestAssembly testAssembly,
     protected override async Task AfterTestAssemblyStartingAsync()
     {
         // Let everything initialize
-        await base.AfterTestAssemblyStartingAsync().ConfigureAwait(false);
+        await base.AfterTestAssemblyStartingAsync();
 
         // Go find all the AssemblyFixtureAttributes adorned on the test assembly
         await Aggregator.RunAsync(
             async () =>
             {
-                ISet<Type> assemblyFixtures = new HashSet<Type>(
-                    ((IReflectionAssemblyInfo)TestAssembly.Assembly).Assembly
-                                                                    .GetTypes()
-                                                                    .Select(type => type.GetInterfaces())
-                                                                    .SelectMany(x => x)
-                                                                    .Where(@interface => @interface.IsAssignableToGenericType(typeof(IAssemblyFixture<>)))
-                                                                    .ToArray());
+                var assemblyFixtures = new HashSet<Type>(
+                    ((IReflectionAssemblyInfo)TestAssembly.Assembly)
+                    .Assembly
+                    .GetTypes()
+                    .Select(type => type.GetInterfaces())
+                    .SelectMany(x => x)
+                    .Where(@interface => @interface.IsAssignableToGenericType(typeof(IAssemblyFixture<>)))
+                    .ToArray());
 
                 // Instantiate all the fixtures
                 foreach (var fixtureAttribute in assemblyFixtures)
                 {
                     var fixtureType = fixtureAttribute.GetGenericArguments()[0];
-                    var hasConstructorWithMessageSink = fixtureType.GetConstructor(new[] { typeof(IMessageSink) }) != null;
+                    var hasConstructorWithMessageSink = fixtureType.GetConstructor([typeof(IMessageSink)]) != null;
                     _assemblyFixtureMappings[fixtureType] = hasConstructorWithMessageSink
                                                                 ? Activator.CreateInstance(fixtureType, ExecutionMessageSink)!
                                                                 : Activator.CreateInstance(fixtureType)!;
@@ -42,7 +43,7 @@ class TestAssemblyRunner(ITestAssembly testAssembly,
 
                 // Initialize IAsyncLifetime fixtures
                 foreach (var asyncLifetime in _assemblyFixtureMappings.Values.OfType<IAsyncLifetime>())
-                    await Aggregator.RunAsync(async () => await asyncLifetime.InitializeAsync().ConfigureAwait(false)).ConfigureAwait(false);
+                    await Aggregator.RunAsync(async () => await asyncLifetime.InitializeAsync());
             });
     }
 
@@ -61,7 +62,7 @@ class TestAssemblyRunner(ITestAssembly testAssembly,
             _assemblyFixtureMappings.Values.OfType<IAsyncLifetime>(),
             async (disposable, _) => await Aggregator.RunAsync(async () => await disposable.DisposeAsync()));
 
-        await base.BeforeTestAssemblyFinishedAsync().ConfigureAwait(false);
+        await base.BeforeTestAssemblyFinishedAsync();
     }
 
     protected override async Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus,

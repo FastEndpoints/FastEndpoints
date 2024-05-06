@@ -49,6 +49,15 @@ todo:
 
 </details>
 
+<details><summary>Test collection fixture support</summary>
+
+todo:
+
+- write tests
+- write docs
+
+</details>
+
 [//]: # (## Improvements 🚀)
 
 [//]: # (## Fixes 🪲)

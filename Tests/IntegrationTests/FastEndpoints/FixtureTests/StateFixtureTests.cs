@@ -19,7 +19,7 @@ public sealed class MyStateFixture : StateFixture
     }
 }
 
-public class StateFixtureTests(MyStateFixture State) : TestBase<Sut, MyStateFixture>
+public class StateFixtureTests(Sut _, MyStateFixture State) : TestBase<Sut, MyStateFixture>
 {
     [Fact, Priority(1)]
     public async Task State_Is_Injected_By_Xunit()

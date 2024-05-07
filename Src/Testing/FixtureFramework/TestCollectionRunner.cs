@@ -23,8 +23,6 @@ class TestCollectionRunner(Dictionary<Type, object> assemblyFixtureMappings,
                                           .Select(i => i.GetTypeInfo().GenericTypeArguments.Single())
                                           .Where(i => !assemblyFixtureMappings.ContainsKey(i)))
         {
-            // ConcurrentDictionary's GetOrAdd does not lock around the value factory call, so we need
-            // to do it ourselves.
             lock (assemblyFixtureMappings)
             {
                 if (!assemblyFixtureMappings.ContainsKey(fixtureType))
@@ -32,13 +30,10 @@ class TestCollectionRunner(Dictionary<Type, object> assemblyFixtureMappings,
             }
         }
 
-        // Don't want to use .Concat + .ToDictionary because of the possibility of overriding types,
-        // so instead we'll just let collection fixtures override assembly fixtures.
         var combinedFixtures = new Dictionary<Type, object>(assemblyFixtureMappings);
         foreach (var kvp in CollectionFixtureMappings)
             combinedFixtures[kvp.Key] = kvp.Value;
 
-        // We've done everything we need, so let the built-in types do the rest of the heavy lifting
         return new XunitTestClassRunner(
             testClass,
             @class,

@@ -5,3 +5,5 @@ global using Int.FastEndpoints;
 global using Microsoft.Extensions.DependencyInjection;
 global using Xunit;
 global using Xunit.Abstractions;
+
+[assembly: EnableAssemblyFixtures]

@@ -79,6 +79,8 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
 
     protected AppFixture() { }
 
+    // ReSharper disable VirtualMemberNeverOverridden.Global
+
     /// <summary>
     /// this will be called before the WAF is initialized. override this method if you'd like to do something before the WAF is initialized that is going to contribute to
     /// the creation of the WAF, such as initialization of a 'TestContainer'.

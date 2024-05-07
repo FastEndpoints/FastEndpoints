@@ -44,7 +44,6 @@ sealed class SomeGroup : Group
 
 todo:
 
-- write tests
 - write docs
 
 </details>
@@ -53,7 +52,6 @@ todo:
 
 todo:
 
-- write tests
 - write docs
 
 </details>

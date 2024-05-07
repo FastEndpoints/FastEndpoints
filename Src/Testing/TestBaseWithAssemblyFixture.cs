@@ -17,6 +17,8 @@ public abstract class TestBaseWithAssemblyFixture<TAppFixture> : IAsyncLifetime,
 
     public Faker Fake => _faker;
 
+    // ReSharper disable VirtualMemberNeverOverridden.Global
+
     /// <summary>
     /// override this method if you'd like to do some one-time setup for the test-class.
     /// it is run before any of the test-methods of the class is executed.
@@ -42,8 +44,8 @@ public abstract class TestBaseWithAssemblyFixture<TAppFixture> : IAsyncLifetime,
 /// abstract class for implementing a test-class with an assembly level app fixture.
 /// </summary>
 /// <typeparam name="TAppFixture">
-/// the type of the assembly level app fixture.
+/// the type of the assembly level/ global app fixture.
 /// </typeparam>
-/// <typeparam name="TState">the type of the shared state fixture.</typeparam>
+/// <typeparam name="TState">the type of the shared state fixture that will only last during the execution of this test-class</typeparam>
 public abstract class TestBaseWithAssemblyFixture<TAppFixture, TState> : TestBaseWithAssemblyFixture<TAppFixture>, IClassFixture<TState>
     where TAppFixture : BaseFixture where TState : StateFixture;

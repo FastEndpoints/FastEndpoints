@@ -16,7 +16,7 @@ public abstract class TestBase : IAsyncLifetime, IFaker
 
     public Faker Fake => _faker;
 
-    // ReSharper disable  VirtualMemberNeverOverridden.Global
+    // ReSharper disable VirtualMemberNeverOverridden.Global
 
     /// <summary>
     /// override this method if you'd like to do some one-time setup for the test-class.

@@ -40,19 +40,9 @@ sealed class SomeGroup : Group
 
 </details>
 
-<details><summary>Assembly level AppFixture support</summary>
+<details><summary>Collection-Fixture support for Testing</summary>
 
-todo:
-
-- write docs
-
-</details>
-
-<details><summary>Test collection fixture support</summary>
-
-todo:
-
-- write docs
+Please the [documentation](https://fast-endpoints.com//docs/integration-unit-testing#test-collections-collection-fixtures) for details.
 
 </details>
 

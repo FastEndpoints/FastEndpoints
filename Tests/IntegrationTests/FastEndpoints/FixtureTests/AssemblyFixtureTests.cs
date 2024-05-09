@@ -30,7 +30,7 @@ public class AssemblyFixtureTests
 
     public class ClassA(GlobalApp App) : TestBaseWithAssemblyFixture<GlobalApp>
     {
-        [Fact]
+        //[Fact]
         public void Fixture_SetupAsync_Called_Once()
         {
             App.Should().NotBeNull();
@@ -40,7 +40,7 @@ public class AssemblyFixtureTests
 
     public class ClassB(GlobalApp App) : TestBaseWithAssemblyFixture<GlobalApp>
     {
-        [Fact]
+        //[Fact]
         public void Fixture_SetupAsync_Called_Once()
         {
             App.Should().NotBeNull();

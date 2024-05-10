@@ -7,7 +7,7 @@ public class CollectionFixtureTests
     public class CollectionAppFixture : AppFixture<Web.Program>
     {
         public static string Default { get; } = Guid.NewGuid().ToString("N");
-        public string Id { get; private set; }
+        public string Id { get; private set; } = null!;
         public int Count { get; private set; }
 
         protected override async Task SetupAsync()

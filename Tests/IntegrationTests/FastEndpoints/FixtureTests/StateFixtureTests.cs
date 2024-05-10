@@ -19,8 +19,12 @@ public sealed class MyStateFixture : StateFixture
     }
 }
 
-public class StateFixtureTests(Sut _, MyStateFixture State) : TestBase<Sut, MyStateFixture>
+public class StateFixtureTests(Sut App, MyStateFixture State) : TestBase<Sut, MyStateFixture>
 {
+    [Fact]
+    public async Task Fixture_Is_Not_Null()
+        => App.Should().NotBeNull();
+
     [Fact, Priority(1)]
     public async Task State_Is_Injected_By_Xunit()
         => State.Id.Should().Be(123);

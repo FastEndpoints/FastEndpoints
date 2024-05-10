@@ -183,6 +183,8 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
     async Task IAsyncLifetime.DisposeAsync()
     {
         await TearDownAsync();
+
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         Client?.Dispose();
     }
 }

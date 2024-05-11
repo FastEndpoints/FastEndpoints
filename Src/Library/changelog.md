@@ -50,4 +50,29 @@ Please the [documentation](https://fast-endpoints.com//docs/integration-unit-tes
 
 [//]: # (## Fixes 🪲)
 
-[//]: # (## Breaking Changes ⚠️)
+## Minor Breaking Changes ⚠️
+
+<details><summary>Move static properties of 'ProblemDetails' class to global config</summary>
+
+Static configuration properties that used to be on the `ProblemDetails` class will have to be set from the global configuration going forward like so:
+
+```csharp
+app.UseFastEndpoints(
+   c => c.Errors.UseProblemDetails(
+       x =>
+       {
+           x.AllowDuplicateErrors = true;  //allows duplicate errors for the same error name
+           x.IndicateErrorCode = true;     //serializes the fluentvalidation error code
+           x.IndicateErrorSeverity = true; //serializes the fluentvalidation error severity
+           x.TypeValue = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
+           x.TitleValue = "One or more validation errors occurred.";
+           x.TitleTransformer = pd => pd.Status switch
+           {
+               400 => "Validation Error",
+               404 => "Not Found",
+               _ => "One or more errors occurred!"
+           };
+       }));
+```
+
+</details>

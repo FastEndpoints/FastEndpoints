@@ -52,9 +52,56 @@ public sealed class ErrorOptions
     /// <summary>
     /// change the default error response builder to <see cref="ProblemDetails" /> instead of <see cref="ErrorResponse" />
     /// </summary>
-    public void UseProblemDetails()
+    /// <param name="config">an action for configuring global settings for <see cref="ProblemDetails" /></param>
+    public void UseProblemDetails(Action<ProblemDetailsConfig>? config = null)
     {
         ProducesMetadataType = typeof(ProblemDetails);
-        ResponseBuilder = ProblemDetails.ResponseBuilder;
+        ResponseBuilder = ProblemDetailsConf.ResponseBuilder;
+        config?.Invoke(ProblemDetailsConf);
+    }
+
+    internal ProblemDetailsConfig ProblemDetailsConf { get; } = new();
+
+    /// <summary>
+    /// global settings for <see cref="ProblemDetails" /> error responses.
+    /// </summary>
+    public sealed class ProblemDetailsConfig
+    {
+        /// <summary>
+        /// the built-in function for transforming validation errors to a RFC7807 compatible problem details error response dto.
+        /// </summary>
+        public Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { internal get; set; }
+            = (failures, ctx, statusCode)
+                  => new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
+
+        /// <summary>
+        /// globally sets the value of <see cref="ProblemDetails.Type" />.
+        /// </summary>
+        public string TypeValue { internal get; set; } = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
+
+        /// <summary>
+        /// globally sets the value of <see cref="ProblemDetails.Title" />.
+        /// </summary>
+        public string TitleValue { internal get; set; } = "One or more validation errors occurred.";
+
+        /// <summary>
+        /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Title" /> value.
+        /// </summary>
+        public Func<ProblemDetails, string> TitleTransformer { internal get; set; } = _ => Cfg.ErrOpts.ProblemDetailsConf.TitleValue;
+
+        /// <summary>
+        /// controls whether duplicate errors with the same name should be allowed for <see cref="ProblemDetails.Errors" />.
+        /// </summary>
+        public bool AllowDuplicateErrors { internal get; set; }
+
+        /// <summary>
+        /// if set to true, the <see cref="ValidationFailure.ErrorCode" /> value of the failure will be serialized to the response.
+        /// </summary>
+        public bool IndicateErrorCode { get; set; } = false;
+
+        /// <summary>
+        /// if set to true, the <see cref="FluentValidation.Severity" /> value of the failure will be serialized to the response.
+        /// </summary>
+        public bool IndicateErrorSeverity { get; set; } = false;
     }
 }

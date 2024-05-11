@@ -24,39 +24,12 @@ public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
 public sealed class ProblemDetails : IResult
 #endif
 {
-    /// <summary>
-    /// the built-in function for transforming validation errors to a RFC7807 compatible problem details error response dto.
-    /// </summary>
-    public static Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { get; }
-        = (failures, ctx, statusCode)
-              => new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
-
-    /// <summary>
-    /// controls whether duplicate errors with the same name should be allowed.
-    /// </summary>
-    public static bool AllowDuplicates { private get; set; }
-
-    /// <summary>
-    /// globally sets the 'Type' value of the problem details dto.
-    /// </summary>
-    public static string TypeValue { private get; set; } = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
-
-    /// <summary>
-    /// globally sets the 'Title' value of the problem details dto.
-    /// </summary>
-    public static string TitleValue { private get; set; } = "One or more validation errors occurred.";
-
-    /// <summary>
-    /// sets a function that will be called per instance/response that allows customization of the <see cref="Title" /> value.
-    /// </summary>
-    public static Func<ProblemDetails, string> TitleTransformer { private get; set; } = _ => TitleValue;
-
 #pragma warning disable CA1822
     [DefaultValue("https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1")]
-    public string Type => TypeValue;
+    public string Type => Cfg.ErrOpts.ProblemDetailsConf.TypeValue;
 
     [DefaultValue("One or more validation errors occurred.")]
-    public string Title => TitleTransformer(this);
+    public string Title => Cfg.ErrOpts.ProblemDetailsConf.TitleTransformer(this);
 #pragma warning restore CA1822
 
     [DefaultValue(400)]
@@ -94,7 +67,7 @@ public sealed class ProblemDetails : IResult
         Instance = instance;
         TraceId = traceId;
 
-        if (AllowDuplicates)
+        if (Cfg.ErrOpts.ProblemDetailsConf.AllowDuplicateErrors)
             Errors = failures.Select(f => new Error(f));
         else
         {
@@ -142,16 +115,6 @@ public sealed class ProblemDetails : IResult
         internal static readonly Comparer EqComparer = new();
 
         /// <summary>
-        /// if set to true, the <see cref="ValidationFailure.ErrorCode" /> value of the failure will be serialized to the response.
-        /// </summary>
-        public static bool IndicateErrorCode { get; set; } = false;
-
-        /// <summary>
-        /// if set to true, the <see cref="FluentValidation.Severity" /> value of the failure will be serialized to the response.
-        /// </summary>
-        public static bool IndicateSeverity { get; set; } = false;
-
-        /// <summary>
         /// the name of the error or property of the dto that caused the error
         /// </summary>
         [DefaultValue("Error or field name")]
@@ -181,8 +144,8 @@ public sealed class ProblemDetails : IResult
         {
             Name = Cfg.SerOpts.Options.PropertyNamingPolicy?.ConvertName(failure.PropertyName) ?? failure.PropertyName;
             Reason = failure.ErrorMessage;
-            Code = IndicateErrorCode ? failure.ErrorCode : null;
-            Severity = IndicateSeverity ? failure.Severity.ToString() : null;
+            Code = Cfg.ErrOpts.ProblemDetailsConf.IndicateErrorCode ? failure.ErrorCode : null;
+            Severity = Cfg.ErrOpts.ProblemDetailsConf.IndicateErrorSeverity ? failure.Severity.ToString() : null;
         }
 
         internal sealed class Comparer : IEqualityComparer<Error>

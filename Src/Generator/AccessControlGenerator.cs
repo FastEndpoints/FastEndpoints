@@ -199,7 +199,7 @@ public class AccessControlGenerator : IIncrementalGenerator
              
                  static Allow()
                  {
-                     foreach (var f in typeof(Allow).GetFields(BindingFlags.Public | BindingFlags.Static).Where(t => !Attribute.IsDefined(t, typeof(HideFromDocsAttribute))))
+                     foreach (var f in typeof(Allow).GetFields(BindingFlags.Public | BindingFlags.Static).Where(t => !t.IsDefined(typeof(HideFromDocsAttribute))))
                      {
                          var val = f.GetValue(null)?.ToString() ?? string.Empty;
                          _permNames[f.Name] = val;

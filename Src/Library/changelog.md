@@ -54,7 +54,13 @@ When creating Asymmetric JWTs, if the user forgets to change the default `Signin
 
 </details>
 
-[//]: # (## Fixes 🪲)
+## Fixes 🪲
+
+<details><summary>ACL source generator wasn't filtering out internal public static fields</summary>
+
+Generated ACL incorrectly contained the `Descriptions` property in the permission dictionary items due to not being filtered out correctly, which has now been fixed.
+
+</details>
 
 ## Minor Breaking Changes ⚠️
 

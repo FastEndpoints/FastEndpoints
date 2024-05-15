@@ -20,10 +20,10 @@ public class RefreshServiceOptions
 
     /// <summary>
     /// security algo used to sign tokens.
-    /// defaults to HmacSha256 for symmetric keys and RsaSha256 for asymmetric keys.
+    /// defaults to HmacSha256 for symmetric keys.
     /// </summary>
     [DontInject]
-    public string TokenSigningAlgorithm { internal get; set; }
+    public string TokenSigningAlgorithm { internal get; set; } = SecurityAlgorithms.HmacSha256Signature;
 
     /// <summary>
     /// specifies whether the key is pem encoded.
@@ -63,13 +63,6 @@ public class RefreshServiceOptions
 
     internal string RefreshRoute = "/api/refresh-token";
     internal Action<EndpointDefinition>? EpSettings;
-
-    public RefreshServiceOptions()
-    {
-        TokenSigningAlgorithm = TokenSigningStyle == TokenSigningStyle.Symmetric
-                                    ? SecurityAlgorithms.HmacSha256Signature
-                                    : SecurityAlgorithms.RsaSha256;
-    }
 
     /// <summary>
     /// endpoint configuration action

@@ -8,7 +8,7 @@ namespace FastEndpoints.Security;
 public sealed class JwtCreationOptions
 {
     /// <summary>
-    /// the key used to sign jwts symmetrically or the private-key when jwts are signed asymmetrically.
+    /// the key used to sign jwts symmetrically or the base64 encoded private-key when jwts are signed asymmetrically.
     /// </summary>
     /// <remarks>the key can be in PEM format. make sure to set <see cref="KeyIsPemEncoded" /> to <c>true</c> if the key is PEM encoded.</remarks>
     public string SigningKey { get; set; } = default!;
@@ -16,12 +16,16 @@ public sealed class JwtCreationOptions
     /// <summary>
     /// specifies how tokens are to be signed. symmetrically or asymmetrically.
     /// </summary>
+    /// <remarks>don't forget to set an appropriate <see cref="SigningAlgorithm" /> if changing to <see cref="TokenSigningStyle.Symmetric" /></remarks>
     public TokenSigningStyle SigningStyle { get; set; } = TokenSigningStyle.Symmetric;
 
     /// <summary>
-    /// security algo used to sign keys.
-    /// defaults to HmacSha256 for symmetric keys and RsaSha256 for asymmetric keys.
+    /// security algorithm used to sign keys.
     /// </summary>
+    /// <remarks>
+    /// defaults to HmacSha256 for symmetric keys. don't forget to set an appropriate algorithm when changing <see cref="SigningStyle" /> to
+    /// <see cref="TokenSigningStyle.Asymmetric" />
+    /// </remarks>
     public string SigningAlgorithm { get; set; } = SecurityAlgorithms.HmacSha256Signature;
 
     /// <summary>

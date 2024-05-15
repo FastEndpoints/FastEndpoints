@@ -6,7 +6,7 @@
 public sealed class JwtSigningOptions
 {
     /// <summary>
-    /// the key used to sign jwts symmetrically or the public-key when jwts are signed symmetrically.
+    /// the key used to sign jwts symmetrically or the base64 encoded public-key when jwts are signed asymmetrically.
     /// the key can be optional when used to verify tokens issued by an idp where public key retrieval happens dynamically.
     /// </summary>
     /// <remarks>the key can be in PEM format. make sure to set <see cref="KeyIsPemEncoded" /> to <c>true</c> if the key is PEM encoded.</remarks>

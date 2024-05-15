@@ -156,6 +156,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 """
 
                 #region DESCRIPTIONS
+                    [HideFromDocs]
                     public static Dictionary<string, string> Descriptions = new()
                     {
                 """);
@@ -198,7 +199,7 @@ public class AccessControlGenerator : IIncrementalGenerator
              
                  static Allow()
                  {
-                     foreach (var f in typeof(Allow).GetFields(BindingFlags.Public | BindingFlags.Static))
+                     foreach (var f in typeof(Allow).GetFields(BindingFlags.Public | BindingFlags.Static).Where(t => !Attribute.IsDefined(t, typeof(HideFromDocsAttribute))))
                      {
                          var val = f.GetValue(null)?.ToString() ?? string.Empty;
                          _permNames[f.Name] = val;

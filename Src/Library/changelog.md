@@ -46,7 +46,13 @@ Please the [documentation](https://fast-endpoints.com//docs/integration-unit-tes
 
 </details>
 
-[//]: # (## Improvements 🚀)
+## Improvements 🚀
+
+<details><summary>Throw meaningful exception when incorrect JWT singing algo used</summary>
+
+When creating Asymmetric JWTs, if the user forgets to change the default `SigningAlgorithm` from `HmacSha256` to something suitable for `Asymmetric` signing, a helpful exception message will be thrown instructing the user to correct the mistake. More info: #685
+
+</details>
 
 [//]: # (## Fixes 🪲)
 

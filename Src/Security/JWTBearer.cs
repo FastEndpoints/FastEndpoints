@@ -29,7 +29,10 @@ public static class JwtBearer
         options(opts);
 
         if (string.IsNullOrEmpty(opts.SigningKey))
-            throw new InvalidOperationException($"{nameof(JwtCreationOptions.SigningKey)} is required!");
+            throw new InvalidOperationException($"'{nameof(JwtCreationOptions.SigningKey)}' is required!");
+
+        if (opts.SigningStyle is TokenSigningStyle.Asymmetric && opts.SigningAlgorithm is SecurityAlgorithms.HmacSha256Signature)
+            throw new InvalidOperationException($"Please set an appropriate '{nameof(JwtCreationOptions.SigningAlgorithm)}' when creating Asymmetric JWTs!");
 
         var claimList = new List<Claim>();
 

@@ -200,9 +200,12 @@ public class AccessControlGenerator : IIncrementalGenerator
                  {
                      foreach (var f in typeof(Allow).GetFields(BindingFlags.Public | BindingFlags.Static))
                      {
-                         var val = f.GetValue(null)?.ToString() ?? string.Empty;
-                         _permNames[f.Name] = val;
-                         _permCodes[val] = f.Name;
+                         var val = f.GetValue(null) as string;
+                         if (val != null)
+                         {
+                             _permNames[f.Name] = val;
+                             _permCodes[val] = f.Name;
+                         }
                      }
                      Groups();
                      Describe();

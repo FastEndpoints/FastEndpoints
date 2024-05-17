@@ -62,6 +62,16 @@ Generated ACL incorrectly contained the `Descriptions` property in the permissio
 
 </details>
 
+<details><summary>Swagger generation failure due to multiple route constraints</summary>
+
+Swagger generation was throwing an exception if an endpoint with multiple route constraints on a single parameter such as the following was encountered:
+
+```csharp
+/{member:int:min(1):max(5)}/
+```
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>Move static properties of 'ProblemDetails' class to global config</summary>

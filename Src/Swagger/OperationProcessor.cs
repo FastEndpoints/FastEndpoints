@@ -681,16 +681,14 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                              .Select(
                                  s =>
                                  {
-                                     var parts = s.Split(':');
-                                     var left = parts[0];
-                                     var right = parts[1];
+                                     var withoutBraces = s[(s.IndexOf('{') + 1)..s.IndexOfAny(['(', '}'])];
+                                     var parts = withoutBraces.Split(':');
+                                     var name = parts[0].Trim();
+                                     var type = parts[1].Trim();
 
-                                     left = left[(left.IndexOf('{') + 1)..].Trim();
-                                     right = right[..right.IndexOfAny(['(', '}'])].Trim();
+                                     GlobalConfig.RouteConstraintMap.TryGetValue(type, out var tParam);
 
-                                     GlobalConfig.RouteConstraintMap.TryGetValue(right, out var tParam);
-
-                                     return new KeyValuePair<string, Type>(left, tParam ?? Types.String);
+                                     return new KeyValuePair<string, Type>(name, tParam ?? Types.String);
                                  }));
         }
 

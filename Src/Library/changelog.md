@@ -46,6 +46,12 @@ Please the [documentation](https://fast-endpoints.com//docs/integration-unit-tes
 
 </details>
 
+<details><summary>Export multiple swagger json files in one go</summary>
+
+- todo: write description
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Throw meaningful exception when incorrect JWT singing algo used</summary>

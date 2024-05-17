@@ -86,7 +86,8 @@ public static class Extensions
     }
 
     /// <summary>
-    /// exports swagger.json files to disk if the application is run with the commandline argument '<c>--exportswaggerjson true</c>' and exits the program with a zero exit code.
+    /// exports a swagger.json file to disk for a given swagger document if the application is run with the commandline argument '<c>--exportswaggerjson true</c>' and exits the
+    /// program with a zero exit code.
     /// <para>HINT: make sure to place the call straight after '<c>app.UseFastEndpoints()</c>'</para>
     /// </summary>
     /// <param name="documentName">the name of the swagger document to generate the clients for</param>
@@ -102,6 +103,32 @@ public static class Extensions
         {
             await app.StartAsync(ct);
             await ExportSwaggerJson(app, documentName, destinationPath, destinationFileName, ct);
+            await app.StopAsync(ct);
+            Environment.Exit(0);
+        }
+    }
+
+    /// <summary>
+    /// exports multiple swagger.json files to disk if the application is run with the commandline argument '<c>--exportswaggerjson true</c>' and exits the program with a zero
+    /// exit code.
+    /// <para>HINT: make sure to place the call straight after '<c>app.UseFastEndpoints()</c>'</para>
+    /// </summary>
+    /// <param name="ct">cancellation token</param>
+    /// <param name="configs">swagger doc export configurations</param>
+    public static async Task ExportSwaggerJsonAndExitAsync(this WebApplication app, CancellationToken ct, params Action<SwaggerJsonExportConfig>[] configs)
+    {
+        if (app.Configuration["exportswaggerjson"] == "true")
+        {
+            await app.StartAsync(ct);
+
+            foreach (var c in configs)
+            {
+                var cfg = new SwaggerJsonExportConfig();
+                c(cfg);
+                ArgumentException.ThrowIfNullOrEmpty(cfg.DocumentName);
+                ArgumentException.ThrowIfNullOrEmpty(cfg.DestinationPath);
+                await ExportSwaggerJson(app, cfg.DocumentName, cfg.DestinationPath, cfg.DestinationFileName, ct);
+            }
             await app.StopAsync(ct);
             Environment.Exit(0);
         }

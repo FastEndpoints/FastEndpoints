@@ -10,6 +10,16 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Idempotency support based on 'OutputCaching'</summary>
+
+todo:
+
+- write tests
+- write docs
+- write description here
+
+</details>
+
 <details><summary>Specify additional Http Verbs/Methods for endpoints globally</summary>
 
 In addition to the Verbs you specify at the endpoint level, you can now specify Verbs to be added to endpoint with the global configurator as well as endpoint groups like so:

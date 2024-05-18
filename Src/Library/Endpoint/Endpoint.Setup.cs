@@ -261,6 +261,15 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         Routes(members.BuildRoute(routePattern));
     }
 
+#if NET7_0_OR_GREATER
+    /// <summary>
+    /// specify idempotency requirements for this endpoint
+    /// </summary>
+    /// <param name="options">the idempotency options</param>
+    protected void Idempotency(Action<IdempotencyOptions>? options = null)
+        => Definition.Idempotency(options);
+#endif
+
     /// <summary>
     /// set endpoint configurations options using an endpoint builder action ///
     /// </summary>

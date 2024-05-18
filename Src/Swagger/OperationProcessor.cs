@@ -396,6 +396,21 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             }
         }
 
+    #if NET7_0_OR_GREATER
+
+        //add idempotency header param if applicable
+        if (epDef.IdempotencyOptions is not null)
+        {
+            var prm = CreateParam(paramCtx, OpenApiParameterKind.Header, null, epDef.IdempotencyOptions.HeaderName, true);
+            prm.Example = epDef.IdempotencyOptions.SwaggerExampleGenerator?.Invoke();
+            prm.Description = epDef.IdempotencyOptions.SwaggerHeaderDescription;
+            if (epDef.IdempotencyOptions.SwaggerHeaderType is not null)
+                prm.Schema = JsonSchema.FromType(epDef.IdempotencyOptions.SwaggerHeaderType);
+            reqParams.Add(prm);
+        }
+
+    #endif
+
         foreach (var p in reqParams)
         {
             if (GlobalConfig.IsUsingAspVersioning)

@@ -1,4 +1,5 @@
 ﻿#if NET7_0_OR_GREATER
+    using System.Security.Cryptography;
     using System.Text;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.OutputCaching;
@@ -47,9 +48,6 @@
             ctx.AllowCacheStorage = true;
             ctx.AllowLocking = true;
             ctx.ResponseExpirationTimeSpan = opts.CacheDuration;
-            ctx.CacheVaryByRules.HeaderNames = new([opts.HeaderName, .. opts.AdditionalHeaders]);
-            ctx.CacheVaryByRules.QueryKeys = "*";
-            ctx.CacheVaryByRules.RouteValueNames = "*";
 
             if (opts.AddHeaderToResponse)
                 ctx.HttpContext.Response.Headers.TryAdd(opts.HeaderName, idmpKey);
@@ -57,26 +55,35 @@
             if (!opts.IgnoreRequestBody)
             {
                 var req = ctx.HttpContext.Request;
-                var sb = new StringBuilder();
 
-                if (req.HasFormContentType)
+                if (req.HasFormContentType) //because multipart boundary info can be different in each request
                 {
-                    foreach (var f in req.Form)
+                    var sb = new StringBuilder();
+                    var form = await req.ReadFormAsync(ct);
+
+                    foreach (var f in form)
                         sb.Append(f.Key).Append(f.Value);
 
-                    foreach (var file in req.Form.Files)
-                        sb.Append(file.Name).Append(file.FileName).Append(file.Length);
+                    foreach (var file in form.Files)
+                        sb.Append(file.Name).Append(file.FileName).Append(file.Length); //ignoring actual file content bytes
+
+                    ctx.CacheVaryByRules.VaryByValues.Add("form", sb.ToString());
+
+                    //remove 'Content-Type' header from cache-key participation due to boundary info being different for each request
+                    opts.IsMultipartFormRequest ??= req.ContentType?.Contains("multipart/form-data") is true;
                 }
                 else
                 {
                     req.EnableBuffering();
-                    using var reader = new StreamReader(req.Body, leaveOpen: true);
-                    sb.Append(await reader.ReadToEndAsync(ct));
+                    var hash = BitConverter.ToString(await SHA256.HashDataAsync(req.Body, ct));
+                    ctx.CacheVaryByRules.VaryByValues.Add("body", hash);
                     req.Body.Position = 0;
                 }
-
-                ctx.CacheVaryByRules.VaryByValues.Add("body", sb.ToString());
             }
+
+            ctx.CacheVaryByRules.HeaderNames = new([opts.HeaderName, .. opts.AdditionalHeaders]);
+            ctx.CacheVaryByRules.RouteValueNames = "*";
+            ctx.CacheVaryByRules.QueryKeys = "*";
         }
 
         public ValueTask ServeFromCacheAsync(OutputCacheContext ctx, CancellationToken ct)

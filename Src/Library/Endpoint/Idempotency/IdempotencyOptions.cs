@@ -53,5 +53,25 @@ public sealed class IdempotencyOptions
     public string? SwaggerHeaderDescription { get; set; }
     public Func<object>? SwaggerExampleGenerator { get; set; }
     public Type? SwaggerHeaderType { get; set; }
+
+    readonly object _lock = new();
+    bool? _isMultipartFormRequest;
+
+    internal bool? IsMultipartFormRequest
+    {
+        get => _isMultipartFormRequest;
+        set
+        {
+            lock (_lock) //in case multiple requests come in at the same time for this endpoint
+            {
+                _isMultipartFormRequest = value;
+
+                if (value is false)
+                    return;
+
+                AdditionalHeaders.Remove(HeaderNames.ContentType); //because boundary values are different in each request
+            }
+        }
+    }
 }
 #endif

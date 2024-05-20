@@ -70,7 +70,7 @@
                     ctx.CacheVaryByRules.VaryByValues.Add("form", sb.ToString());
 
                     //remove 'Content-Type' header from cache-key participation due to boundary info being different for each request
-                    opts.IsMultipartFormRequest ??= req.ContentType?.Contains("multipart/form-data") is true;
+                    opts.IsMultipartFormRequest ??= req.ContentType?.Contains("multipart/form-data", StringComparison.OrdinalIgnoreCase) is true;
                 }
                 else
                 {

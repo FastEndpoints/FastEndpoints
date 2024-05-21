@@ -33,11 +33,16 @@ public sealed class IdempotencyOptions
     ];
 
     /// <summary>
-    /// by default, the contents of the request body (form data/json) does not participate in the cache-key generation in order to provide the best possible performance.
-    /// by setting this to <c>false</c>, you can make the request body content a contributor to the cache-key generation.
-    /// i.e. multiple responses will be cached for the same <c>idempotency key</c> if the contents of the request body is different.
+    /// by default, the contents of the request body (form data/json) is taken into consideration when determining the uniqueness of incoming requests even if the
+    /// idempotency-key is the same among them. i.e. if two different requests come in with the same idempotency-key but with different request body content, they will be
+    /// considered to be unique requiests and the endpoint will be executed for each request.
     /// </summary>
-    public bool IgnoreRequestBody { get; set; } = true;
+    /// <remarks>
+    /// this involves buffering the request body content per each request in order to generate a sha512 hash of the incoming body content. if the clients making
+    /// requests are under strict quality control and are guaranteed to not reuse idempotency keys, you can set this to <c>true</c> to prevent the hashing of request body
+    /// content.
+    /// </remarks>
+    public bool IgnoreRequestBody { get; set; }
 
     /// <summary>
     /// determines how long the cached responses will remain in the cache store before being evicted.
@@ -46,12 +51,23 @@ public sealed class IdempotencyOptions
     public TimeSpan CacheDuration { get; set; } = TimeSpan.FromMinutes(10);
 
     /// <summary>
-    /// by default, the idempotency header will be automatically added to the response headers collection. set <c>false</c> to prevent that from happenning.
+    /// by default, the idempotency header will be automatically added to the response headers collection. set <c>false</c> to prevent that from happening.
     /// </summary>
     public bool AddHeaderToResponse { get; set; } = true;
 
+    /// <summary>
+    /// the description text for the swagger request header parameter
+    /// </summary>
     public string? SwaggerHeaderDescription { get; set; }
+
+    /// <summary>
+    /// a function to generate an example value for the swagger request param header
+    /// </summary>
     public Func<object>? SwaggerExampleGenerator { get; set; }
+
+    /// <summary>
+    /// the type/format of the swagger example value
+    /// </summary>
     public Type? SwaggerHeaderType { get; set; }
 
     readonly object _lock = new();

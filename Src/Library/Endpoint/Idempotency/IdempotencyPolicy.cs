@@ -76,7 +76,7 @@
                         hasher.TransformBlock(val, 0, val.Length, null, 0);
                     }
 
-                    //this removes 'Content-Type' header from cache-key participation.(because to boundary info is different for each request)
+                    //this removes 'Content-Type' header from cache-key participation.(because the boundary info is different for each request)
                     opts.IsMultipartFormRequest ??= req.ContentType?.Contains("multipart/form-data", StringComparison.OrdinalIgnoreCase) is true;
                 }
                 else

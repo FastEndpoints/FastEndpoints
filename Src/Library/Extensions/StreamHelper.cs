@@ -68,7 +68,7 @@ static class StreamHelper
                                               long rangeLength,
                                               CancellationToken cancellation)
     {
-        using (stream)
+        await using (stream)
         {
             try
             {

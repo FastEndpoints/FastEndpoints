@@ -351,7 +351,7 @@ public static class HttpResponseExtensions
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
 
-        using (stream)
+        await using (stream)
         {
             var fileLength = fileLengthBytes;
 
@@ -397,6 +397,8 @@ public static class HttpResponseExtensions
         rsp.Headers.Connection = "keep-alive";
         var ct = cancellation.IfDefault(rsp);
         long id = 0;
+
+        await rsp.StartAsync(ct);
 
         await foreach (var item in eventStream.WithCancellation(ct))
         {

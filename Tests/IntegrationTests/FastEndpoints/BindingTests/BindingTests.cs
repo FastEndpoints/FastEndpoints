@@ -582,7 +582,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
         var res = await App.AdminClient.PostAsync("api/uploads/image/save", form);
 
         using var md5Instance = MD5.Create();
-        using var stream = await res.Content.ReadAsStreamAsync();
+        await using var stream = await res.Content.ReadAsStreamAsync();
         var resMD5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
 
         resMD5.Should().Be("8A1F6A8E27D2E440280050DA549CBE3E");
@@ -593,8 +593,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
     {
         for (var i = 0; i < 3; i++) //repeat upload multiple times
         {
-            using var stream1 = File.OpenRead("test.png");
-            using var stream2 = File.OpenRead("test.png");
+            await using var stream1 = File.OpenRead("test.png");
+            await using var stream2 = File.OpenRead("test.png");
 
             var req = new Uploads.Image.SaveTyped.Request
             {
@@ -613,7 +613,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
                           Uploads.Image.SaveTyped.Request>(req, sendAsFormData: true);
 
             using var md5Instance = MD5.Create();
-            using var stream = await res.Content.ReadAsStreamAsync();
+            await using var stream = await res.Content.ReadAsStreamAsync();
             var resMd5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
 
             resMd5.Should().Be("8A1F6A8E27D2E440280050DA549CBE3E");
@@ -623,12 +623,12 @@ public class BindingTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task FormFileCollectionBinding()
     {
-        using var stream1 = File.OpenRead("test.png");
-        using var stream2 = File.OpenRead("test.png");
-        using var stream3 = File.OpenRead("test.png");
-        using var stream4 = File.OpenRead("test.png");
-        using var stream5 = File.OpenRead("test.png");
-        using var stream6 = File.OpenRead("test.png");
+        await using var stream1 = File.OpenRead("test.png");
+        await using var stream2 = File.OpenRead("test.png");
+        await using var stream3 = File.OpenRead("test.png");
+        await using var stream4 = File.OpenRead("test.png");
+        await using var stream5 = File.OpenRead("test.png");
+        await using var stream6 = File.OpenRead("test.png");
 
         var req = new TestCases.FormFileBindingTest.Request
         {

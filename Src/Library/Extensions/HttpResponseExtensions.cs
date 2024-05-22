@@ -390,15 +390,16 @@ public static class HttpResponseExtensions
                                                      IAsyncEnumerable<T> eventStream,
                                                      CancellationToken cancellation = default)
     {
+        long id = 0;
+        var ct = cancellation.IfDefault(rsp);
+
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
         rsp.ContentType = "text/event-stream";
         rsp.Headers.CacheControl = "no-cache";
         rsp.Headers.Connection = "keep-alive";
-        var ct = cancellation.IfDefault(rsp);
-        long id = 0;
 
-        await rsp.StartAsync(ct);
+        await rsp.Body.FlushAsync(ct);
 
         await foreach (var item in eventStream.WithCancellation(ct))
         {

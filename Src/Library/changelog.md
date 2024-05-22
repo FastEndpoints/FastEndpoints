@@ -70,6 +70,12 @@ When creating Asymmetric JWTs, if the user forgets to change the default `Signin
 
 </details>
 
+<details><summary>Establish SSE connection before any data is available</summary>
+
+The SSE request would previously stay in a pending state if there was no initial data available to be sent to the client. Now the client would receive the response headers and await future data in a "connection established" state, even if no data has been received from the server.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>ACL source generator wasn't filtering out internal public static fields</summary>

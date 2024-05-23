@@ -15,30 +15,28 @@
             var opts = ctx.HttpContext.GetEndpoint()?.Metadata.OfType<EndpointDefinition>().SingleOrDefault()?.IdempotencyOptions;
 
             if (opts is null)
+                return;
+
+            ctx.EnableOutputCaching = false;
+            ctx.AllowCacheLookup = false;
+            ctx.AllowCacheStorage = false;
+            ctx.AllowLocking = false;
+
+            ctx.HttpContext.Request.Headers.TryGetValue(opts.HeaderName, out var idmpKey);
+
+            if (StringValues.IsNullOrEmpty(idmpKey))
             {
-                ctx.EnableOutputCaching = false;
-                ctx.AllowCacheLookup = false;
-                ctx.AllowCacheStorage = false;
-                ctx.AllowLocking = false;
+                await ctx.HttpContext.Response.SendErrorsAsync(
+                    [new(Cfg.ErrOpts.GeneralErrorsField, $"Idempotency header [{opts.HeaderName}] is required!")],
+                    cancellation: ct);
 
                 return;
             }
 
-            if (!ctx.HttpContext.Request.Headers.TryGetValue(opts.HeaderName, out var idmpKey) || StringValues.IsNullOrEmpty(idmpKey))
+            if (idmpKey.Count > 1)
             {
-                ctx.EnableOutputCaching = false;
-
-                if (idmpKey.Count > 1)
-                {
-                    await ctx.HttpContext.Response.SendErrorsAsync(
-                        [new(Cfg.ErrOpts.GeneralErrorsField, "Multiple idempotency headers not allowed!")],
-                        cancellation: ct);
-
-                    return;
-                }
-
                 await ctx.HttpContext.Response.SendErrorsAsync(
-                    [new(Cfg.ErrOpts.GeneralErrorsField, $"Idempotency header [{opts.HeaderName}] is required!")],
+                    [new(Cfg.ErrOpts.GeneralErrorsField, "Multiple idempotency headers not allowed!")],
                     cancellation: ct);
 
                 return;

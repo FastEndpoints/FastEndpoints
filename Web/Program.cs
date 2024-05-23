@@ -19,6 +19,7 @@ var bld = WebApplication.CreateBuilder(args);
 bld.AddHandlerServer();
 bld.Services
    .AddCors()
+   .AddIdempotency()
    .AddResponseCaching()
    .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes.AddRange(DiscoveredTypes.All))
    .AddAuthenticationJwtBearer(s => s.SigningKey = bld.Configuration["TokenKey"]!)
@@ -114,6 +115,7 @@ app.UseRequestLocalization(
    .UseAuthentication()
    .UseAuthorization()
    .UseAntiforgeryFE()
+   .UseOutputCache()
    .UseFastEndpoints(
        c =>
        {

@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using NSwag.Generation.Processors;
+﻿using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;

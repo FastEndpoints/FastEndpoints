@@ -1,8 +1,10 @@
+// ReSharper disable ArrangeAttributes
+
 using FastEndpoints.Swagger;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace SchemaNameGen;
+namespace ParamCreationContext;
 
 public class ParamCreationContextTests
 {
@@ -23,13 +25,8 @@ public class ParamCreationContextTests
     [InlineData("range", typeof(long))]
     public void ShouldBuildParamMapCorrectly_WhenKnownTypeIsSpecified(string paramType, Type expectedType)
     {
-        string operationPath = $"/route/{{{ParamName}:{paramType}}}/";
-        OperationProcessor.ParamCreationContext sut = new OperationProcessor.ParamCreationContext(
-            null,
-            null,
-            JsonSerializer.CreateDefault(),
-            null,
-            operationPath);
+        var operationPath = $"/route/{{{ParamName}:{paramType}}}/";
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(expectedType);
     }
@@ -37,13 +34,8 @@ public class ParamCreationContextTests
     [Fact]
     public void ShouldBuildParamMapCorrectly_WhenNoTypeSpecified()
     {
-        string operationPath = $"/route/{{{ParamName}}}/";
-        OperationProcessor.ParamCreationContext sut = new OperationProcessor.ParamCreationContext(
-            null,
-            null,
-            JsonSerializer.CreateDefault(),
-            null,
-            operationPath);
+        var operationPath = $"/route/{{{ParamName}}}/";
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
     }
@@ -51,13 +43,8 @@ public class ParamCreationContextTests
     [Fact]
     public void ShouldBuildParamMapCorrectly_WhenUnknownTypeIsSpecified()
     {
-        string operationPath = $"/route/{{{ParamName}:unknownType}}/";
-        OperationProcessor.ParamCreationContext sut = new OperationProcessor.ParamCreationContext(
-            null,
-            null,
-            JsonSerializer.CreateDefault(),
-            null,
-            operationPath);
+        var operationPath = $"/route/{{{ParamName}:unknownType}}/";
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
     }
@@ -76,14 +63,8 @@ public class ParamCreationContextTests
     [InlineData("range", typeof(long))]
     public void ShouldBuildParamMapCorrectly_WhenMixedParamTypesSpecified(string paramType, Type expectedType)
     {
-        string operationPath = $"/route/{{{ParamName}:{paramType}}}/{{{OtherParam}:unknownType}}/";
-
-        OperationProcessor.ParamCreationContext sut = new OperationProcessor.ParamCreationContext(
-            null,
-            null,
-            JsonSerializer.CreateDefault(),
-            null,
-            operationPath);
+        var operationPath = $"/route/{{{ParamName}:{paramType}}}/{{{OtherParam}:unknownType}}/";
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(expectedType);
         sut.TypeForRouteParam(OtherParam).Should().Be(typeof(string));
@@ -104,14 +85,8 @@ public class ParamCreationContextTests
     [InlineData("unknownType", typeof(string))]
     public void ShouldBuildParamMapCorrectly_WhenTypeIsSpecified_AndGoogleRestApiGuidelineRouteStyle(string paramType, Type expectedType)
     {
-        string operationPath = $"/route/{{{ParamName}:{paramType}}}:deactivate";
-
-        OperationProcessor.ParamCreationContext sut = new OperationProcessor.ParamCreationContext(
-            null,
-            null,
-            JsonSerializer.CreateDefault(),
-            null,
-            operationPath);
+        var operationPath = $"/route/{{{ParamName}:{paramType}:min(10)}}:deactivate";
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(expectedType);
     }
@@ -119,15 +94,18 @@ public class ParamCreationContextTests
     [Fact]
     public void ShouldBuildParamMapCorrectly_WhenTypeNotSpecified_AndGoogleRestApiGuidelineRouteStyle()
     {
-        string operationPath = $"/route/{{{ParamName}}}:deactivate";
-
-        OperationProcessor.ParamCreationContext sut = new OperationProcessor.ParamCreationContext(
-            null,
-            null,
-            JsonSerializer.CreateDefault(),
-            null,
-            operationPath);
+        var operationPath = $"/route/{{{ParamName}}}:deactivate";
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
+    }
+
+    [Fact]
+    public void ShouldBuildParamMapCorrectly_WhenTypeSpecified_AndHasMultipleConstraints_AndGoogleRestApiGuidelineRouteStyle()
+    {
+        var operationPath = $"/route/{{{ParamName}:min(5):max(10)}}:deactivate";
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+
+        sut.TypeForRouteParam(ParamName).Should().Be(typeof(long));
     }
 }

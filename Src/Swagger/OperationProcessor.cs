@@ -397,7 +397,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
-
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {
@@ -673,8 +672,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
     internal readonly struct ParamCreationContext
     {
-        static readonly Regex _regex = new("\\{[a-zA-Z0-9]+:[a-zA-Z0-9]+\\}", RegexOptions.Compiled);
-
         public OperationProcessorContext OpCtx { get; }
         public DocumentOptions DocOpts { get; }
         public JsonSerializer Serializer { get; }
@@ -694,11 +691,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             Descriptions = descriptions;
             _paramMap = new(
                 operationPath.Split('/')
-                             .Where(s => _regex.IsMatch(s))
+                             .Where(s => s.Contains('{') && s.Contains(':') && s.Contains('}')) //include: api/{id:int:min(5)}:deactivate
+                             .Where(s => s.IndexOf(':') < s.IndexOf('}'))                       //exclude: api/{id}:deactivate
                              .Select(
                                  s =>
                                  {
-                                     Console.WriteLine(s);
                                      var withoutBraces = s[(s.IndexOf('{') + 1)..s.IndexOfAny(['(', '}'])];
                                      var parts = withoutBraces.Split(':');
                                      var name = parts[0].Trim();

@@ -1,6 +1,11 @@
 ﻿namespace TestCases.Idempotency;
 
-sealed class Endpoint : EndpointWithoutRequest<Response>
+sealed class Request
+{
+    public string Content { get; set; }
+}
+
+sealed class Endpoint : Endpoint<Request, Response>
 {
     public static string BaseRoute { get; } = "api/test-cases/idempotency";
 
@@ -16,7 +21,7 @@ sealed class Endpoint : EndpointWithoutRequest<Response>
             });
     }
 
-    public override async Task HandleAsync(CancellationToken c)
+    public override async Task HandleAsync(Request r, CancellationToken c)
     {
         var id = Route<string>("id");
         await SendAsync(

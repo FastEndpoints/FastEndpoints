@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -397,7 +397,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
-
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {
@@ -671,7 +670,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         return prm;
     }
 
-    readonly struct ParamCreationContext
+    internal readonly struct ParamCreationContext
     {
         public OperationProcessorContext OpCtx { get; }
         public DocumentOptions DocOpts { get; }
@@ -692,7 +691,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             Descriptions = descriptions;
             _paramMap = new(
                 operationPath.Split('/')
-                             .Where(s => s.Contains('{') && s.Contains(':') && s.Contains('}'))
+                             .Where(s => s.Contains('{') && s.Contains(':') && s.Contains('}')) //include: api/{id:int:min(5)}:deactivate
+                             .Where(s => s.IndexOf(':') < s.IndexOf('}'))                       //exclude: api/{id}:deactivate
                              .Select(
                                  s =>
                                  {

@@ -2920,6 +2920,44 @@
         ]
       }
     },
+    "/api/test-cases/idempotency/{id}": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesIdempotencyEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesIdempotencyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/json-array-binding-for-ienumerable-props": {
       "get": {
         "tags": [
@@ -5449,6 +5487,19 @@
       "TestCasesHydratedTestUrlGeneratorTestRequest": {
         "type": "object",
         "additionalProperties": false
+      },
+      "TestCasesIdempotencyResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Ticks": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
       },
       "TestCasesJsonArrayBindingForIEnumerablePropsResponse": {
         "allOf": [

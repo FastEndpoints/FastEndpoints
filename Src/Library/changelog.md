@@ -14,7 +14,6 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 todo:
 
-- write tests
 - write docs
 - write description here
 

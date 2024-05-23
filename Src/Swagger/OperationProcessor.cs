@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -671,8 +671,10 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         return prm;
     }
 
-    readonly struct ParamCreationContext
+    internal readonly struct ParamCreationContext
     {
+        static readonly Regex _regex = new("\\{[a-zA-Z0-9]+:[a-zA-Z0-9]+\\}", RegexOptions.Compiled);
+
         public OperationProcessorContext OpCtx { get; }
         public DocumentOptions DocOpts { get; }
         public JsonSerializer Serializer { get; }
@@ -692,10 +694,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             Descriptions = descriptions;
             _paramMap = new(
                 operationPath.Split('/')
-                             .Where(s => s.Contains('{') && s.Contains(':') && s.Contains('}'))
+                             .Where(s => _regex.IsMatch(s))
                              .Select(
                                  s =>
                                  {
+                                     Console.WriteLine(s);
                                      var withoutBraces = s[(s.IndexOf('{') + 1)..s.IndexOfAny(['(', '}'])];
                                      var parts = withoutBraces.Split(':');
                                      var name = parts[0].Trim();

@@ -2936,6 +2936,14 @@
             }
           },
           {
+            "name": "Content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "Idempotency-Key",
             "in": "header",
             "required": true,
@@ -5500,6 +5508,10 @@
             "format": "int64"
           }
         }
+      },
+      "TestCasesIdempotencyRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesJsonArrayBindingForIEnumerablePropsResponse": {
         "allOf": [

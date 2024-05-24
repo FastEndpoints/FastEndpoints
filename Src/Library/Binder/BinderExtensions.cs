@@ -192,15 +192,22 @@ static class BinderExtensions
                 // - ["one","two"], three, four (as StringValues)
                 // - {"name":"x"}, {"name":"y"} (as StringValues) - from swagger ui
 
-                var isEnumArray = false;
-                if (tProp.IsArray)
-                    isEnumArray = tProp.GetElementType()!.IsEnum;
+                var isEnumCollection = false;
+
+                if (Types.IEnumerable.IsAssignableFrom(tProp) &&
+                    int.TryParse(vals[0], out _)) //skip if these are not digits due to JsonStringEnumConverter
+                {
+                    if (tProp.IsArray)
+                        isEnumCollection = tProp.GetElementType()!.IsEnum;
+                    else if (tProp.IsGenericType)
+                        isEnumCollection = tProp.GetGenericArguments()[0].IsEnum;
+                }
 
                 var sb = new StringBuilder("[");
 
                 for (var i = 0; i < vals.Count; i++)
                 {
-                    if (isEnumArray || (vals[i]!.StartsWith('{') && vals[i]!.EndsWith('}')))
+                    if (isEnumCollection || (vals[i]!.StartsWith('{') && vals[i]!.EndsWith('}')))
                         sb.Append(vals[i]);
                     else
                     {

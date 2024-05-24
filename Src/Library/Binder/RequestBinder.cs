@@ -25,9 +25,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static PropCache? _fromQueryParamsProp;
     static readonly Dictionary<string, PrimaryPropCacheEntry> _primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     static readonly Dictionary<string, PropCache> _formFileCollectionProps = new(StringComparer.OrdinalIgnoreCase);
-    static readonly List<SecondaryPropCacheEntry> _fromClaimProps = new();
-    static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = new();
-    static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = new();
+    static readonly List<SecondaryPropCacheEntry> _fromClaimProps = [];
+    static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = [];
+    static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = [];
 
     static Func<TRequest>? _dtoInitializer;
     static Func<TRequest> InitDto => _dtoInitializer ??= CompileDtoInitializer();
@@ -267,7 +267,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 if (formFileCollections.TryGetValue(fieldName, out var fileCollection))
                     fileCollection.Add(formFile);
                 else
-                    formFileCollections[fieldName] = new() { formFile };
+                    formFileCollections[fieldName] = [formFile];
 
                 continue;
             }

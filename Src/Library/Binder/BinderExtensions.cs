@@ -53,7 +53,6 @@ static class BinderExtensions
         return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();
     }
 
-    //static readonly ConstructorInfo _stringSegmentCtor = Types.StringSegment.GetConstructor([Types.String])!;
     internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = new();
     static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
@@ -92,14 +91,6 @@ static class BinderExtensions
                 isIParseable = tryParseMethod is not null;
             }
 
-            // var isTypedHeader = false;
-            //
-            // if (tryParseMethod is null && tProp.Name.EndsWith("HeaderValue")) //only applies to types from Microsoft.Net.Http.Headers due to tryparse having stringsegment
-            // {
-            //     tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.StringSegment, tProp.MakeByRefType()]);
-            //     isTypedHeader = tryParseMethod is not null;
-            // }
-
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {
                 var interfaces = tProp.GetInterfaces();
@@ -120,14 +111,6 @@ static class BinderExtensions
                 Expression.ReferenceEqual(inputParameter, Expression.Constant(null, Types.Object)),
                 Expression.Constant(null, Types.String),
                 Expression.Call(inputParameter, _toStringMethod));
-
-            // Expression? stringSegmentCreation = null;
-            //
-            // if (isTypedHeader)
-            // {
-            //     // 'new StringSegment(input == null ? (string)null : input.ToString())'
-            //     stringSegmentCreation = Expression.New(_stringSegmentCtor, toStringConversion);
-            // }
 
             // 'res' variable used as the out parameter to the TryParse call
             var resultVar = Expression.Variable(tProp, "res");

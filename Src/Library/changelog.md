@@ -10,12 +10,9 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
-<details><summary>Idempotency support based on 'OutputCaching'</summary>
+<details><summary>Idempotency support based on 'OutputCaching' middleware</summary>
 
-todo:
-
-- write docs
-- write description here
+FastEndpoints now ships with built-in endpoint [idempotency support](https://fast-endpoints.com/docs/idempotency) built around the OutputCaching middleware.
 
 </details>
 
@@ -51,19 +48,36 @@ sealed class SomeGroup : Group
 
 <details><summary>Collection-Fixture support for Testing</summary>
 
-Please the [documentation](https://fast-endpoints.com//docs/integration-unit-testing#test-collections-collection-fixtures) for details.
+This release brings easy access to xUnit collection-fixtures for integration testing. Please the [documentation](https://fast-endpoints.com/docs/integration-unit-testing#test-collections-collection-fixtures) for details.
 
 </details>
 
 <details><summary>Export multiple swagger json files in one go</summary>
 
-- todo: write description
+A new overload has been added to the `ExportSwaggerJsonAndExitAsync()` method for exporting multiple Swagger Json files using the `FastEndpoints.ClientGen.Kiota` library.
+
+```csharp
+await app.ExportSwaggerJsonAndExitAsync(
+    ct: default,
+    c =>
+    {
+        c.DocumentName = "v1";
+        c.DestinationPath = "/export/path";
+        c.DestinationFileName = "v1.json";
+    },
+    c =>
+    {
+        c.DocumentName = "v2";
+        c.DestinationPath = "/export/path";
+        c.DestinationFileName = "v2.json";
+    });
+```
 
 </details>
 
 ## Improvements 🚀
 
-<details><summary>Throw meaningful exception when incorrect JWT singing algo used</summary>
+<details><summary>Throw meaningful exception when incorrect JWT singing algorithm is used</summary>
 
 When creating Asymmetric JWTs, if the user forgets to change the default `SigningAlgorithm` from `HmacSha256` to something suitable for `Asymmetric` signing, a helpful exception message will be thrown instructing the user to correct the mistake. More info: #685
 

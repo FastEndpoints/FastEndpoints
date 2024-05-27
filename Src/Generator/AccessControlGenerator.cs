@@ -62,6 +62,8 @@ public class AccessControlGenerator : IIncrementalGenerator
         b.Clear().w(
             $$"""
               #nullable enable
+              
+              using FastEndpoints;
 
               namespace {{_assemblyName}}.Auth;
 

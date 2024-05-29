@@ -647,6 +647,14 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                          !hasDefaultValFromCtorArg ??
                          !(isNullable ?? true);
 
+        //fix https://github.com/FastEndpoints/FastEndpoints/issues/699
+        if (isNullable is true && Nullable.GetUnderlyingType(propType)?.IsEnum is true && prm.Schema.OneOf.Count == 1)
+        {
+            var s = prm.Schema.OneOf.Single();
+            prm.Schema.OneOf.Clear();
+            prm.Schema = s;
+        }
+
         prm.Schema.IsNullableRaw = prm.IsRequired ? null : isNullable;
 
         if (ctx.OpCtx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2)

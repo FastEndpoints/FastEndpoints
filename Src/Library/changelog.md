@@ -89,6 +89,12 @@ The SSE request would previously stay in a pending state if there was no initial
 
 </details>
 
+<details><summary>Workaround for NSwag bug with nullable enum parameters</summary>
+
+Swagger UI fails to correctly render a dropdown for nullable Enum DTO properties due to a bug in NSwag where the schema is always referenced via a `OneOf`, instead of directly referencing it with a `$ref`. A workaround has been implemented to mitigate the issue. #699
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>ACL source generator wasn't filtering out internal public static fields</summary>

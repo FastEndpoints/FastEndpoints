@@ -18,16 +18,16 @@ FastEndpoints now ships with built-in endpoint [idempotency support](https://fas
 
 <details><summary>Specify additional Http Verbs/Methods for endpoints globally</summary>
 
-In addition to the Verbs you specify at the endpoint level, you can now specify Verbs to be added to endpoint with the global configurator as well as endpoint groups like so:
+In addition to the Verbs you specify at the endpoint level, you can now specify Verbs to be added to endpoints with the global configurator as well as endpoint groups like so:
 
 ```csharp
 //global configurator
 app.UseFastEndpoints(
-       c => c.Endpoints.Configurator =
-                ep =>
-                {
-                    ep.AdditionalVerbs(Http.OPTIONS, Http.HEAD);
-                })
+   c => c.Endpoints.Configurator =
+            ep =>
+            {
+                ep.AdditionalVerbs(Http.OPTIONS, Http.HEAD);
+            })
     
 //endpoint group
 sealed class SomeGroup : Group

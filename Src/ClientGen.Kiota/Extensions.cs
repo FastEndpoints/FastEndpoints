@@ -69,7 +69,7 @@ public static class Extensions
     /// <param name="configs">client generation configurations</param>
     public static async Task GenerateApiClientsAndExitAsync(this WebApplication app, CancellationToken ct, params Action<ClientGenConfig>[] configs)
     {
-        if (app.Configuration["generateclients"] == "true")
+        if (app.IsApiClientGenerationMode())
         {
             await app.StartAsync(ct);
 
@@ -99,7 +99,7 @@ public static class Extensions
                                                            string? destinationFileName = null,
                                                            CancellationToken ct = default)
     {
-        if (app.Configuration["exportswaggerjson"] == "true")
+        if (app.IsSwaggerJsonExportMode())
         {
             await app.StartAsync(ct);
             await ExportSwaggerJson(app, documentName, destinationPath, destinationFileName, ct);
@@ -117,7 +117,7 @@ public static class Extensions
     /// <param name="configs">swagger doc export configurations</param>
     public static async Task ExportSwaggerJsonAndExitAsync(this WebApplication app, CancellationToken ct, params Action<SwaggerJsonExportConfig>[] configs)
     {
-        if (app.Configuration["exportswaggerjson"] == "true")
+        if (app.IsSwaggerJsonExportMode())
         {
             await app.StartAsync(ct);
 
@@ -133,6 +133,18 @@ public static class Extensions
             Environment.Exit(0);
         }
     }
+
+    /// <summary>
+    /// returns true if the app is being launched just to export swagger json files.
+    /// </summary>
+    public static bool IsSwaggerJsonExportMode(this WebApplication app)
+        => app.Configuration["exportswaggerjson"] == "true";
+
+    /// <summary>
+    /// returns true if the app is being launched just to generate api clients.
+    /// </summary>
+    public static bool IsApiClientGenerationMode(this WebApplication app)
+        => app.Configuration["generateclients"] == "true";
 
     static async Task<string> ExportSwaggerJson(IHost app, string documentName, string destinationPath, string? destinationFileName, CancellationToken ct)
     {

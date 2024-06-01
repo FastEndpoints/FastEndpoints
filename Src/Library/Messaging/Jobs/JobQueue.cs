@@ -128,7 +128,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 // Failure to conduct this periodic check could result in rescheduled jobs only executing upon the arrival of new jobs, potentially leading to expired job executions.
                 await (_isInUse
                            ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
-                           : Task.WhenAny(_sem.WaitAsync(_appCancellation)));
+                           : _sem.WaitAsync(_appCancellation));
             }
             else
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);

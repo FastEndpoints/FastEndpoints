@@ -36,13 +36,13 @@ public static class JwtBearer
 
         var claimList = new List<Claim>();
 
-        if (opts.User.Claims.Any())
+        if (opts.User.Claims.Count > 0)
             claimList.AddRange(opts.User.Claims);
 
-        if (opts.User.Permissions.Any())
+        if (opts.User.Permissions.Count > 0)
             claimList.AddRange(opts.User.Permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
 
-        if (opts.User.Roles.Any())
+        if (opts.User.Roles.Count > 0)
             claimList.AddRange(opts.User.Roles.Select(r => new Claim(Conf.SecOpts.RoleClaimType, r)));
 
         var descriptor = new SecurityTokenDescriptor

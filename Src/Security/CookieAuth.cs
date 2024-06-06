@@ -35,7 +35,7 @@ public static class CookieAuth
             claimList.AddRange(privs.Permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
 
         if (privs.Roles.Count > 0)
-            claimList.AddRange(privs.Roles.Select(r => new Claim(ClaimTypes.Role, r)));
+            claimList.AddRange(privs.Roles.Select(r => new Claim(Conf.SecOpts.RoleClaimType, r)));
 
         var props = new AuthenticationProperties
         {

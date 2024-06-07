@@ -138,6 +138,25 @@ public static class AuthExtensions
                         o.Cookie.MaxAge = validFor;
                         o.Cookie.HttpOnly = true;
                         o.Cookie.SameSite = SameSiteMode.Lax;
+                        o.Events = new()
+                        {
+                            OnRedirectToLogin =
+                                ctx =>
+                                {
+                                    ctx.Response.Headers.Location = ctx.RedirectUri;
+                                    ctx.Response.StatusCode = 401;
+
+                                    return Task.CompletedTask;
+                                },
+                            OnRedirectToAccessDenied =
+                                ctx =>
+                                {
+                                    ctx.Response.Headers.Location = ctx.RedirectUri;
+                                    ctx.Response.StatusCode = 403;
+
+                                    return Task.CompletedTask;
+                                }
+                        };
                         options?.Invoke(o);
                     });
 

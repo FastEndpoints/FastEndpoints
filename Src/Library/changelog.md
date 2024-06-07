@@ -12,6 +12,12 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## Improvements 🚀
 
+<details><summary>Change default redirection behavior of cookie authentication middleware</summary>
+
+The default behavior of the ASP.NET cookie auth middleware is to automatically return a redirect response when current user is either not authenticated or unauthorized. This default behavior is not appropriate for REST APIs because there's typically no login UI page as part of the backend server to redirect to, which results in a `404 - Not Found` error which confuses people that's not familiar with the cookie auth middleware. The default behavior has now been overridden to correctly return a `401 - Unauthorized` & `403 - Forbidden` as necessary without any effort from the developer.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>[HideFromDocs] attribute missing issue with the source generator</summary>

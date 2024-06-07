@@ -35,7 +35,13 @@ public static class CookieAuth
             claimList.AddRange(privs.Permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
 
         if (privs.Roles.Count > 0)
-            claimList.AddRange(privs.Roles.Select(r => new Claim(Conf.SecOpts.RoleClaimType, r)));
+        {
+            claimList.AddRange(
+                privs.Roles.Select(
+                    r => new Claim(
+                        ClaimTypes.Role, //don't change the claim type - https://github.com/FastEndpoints/FastEndpoints/issues/704#issuecomment-2155035213
+                        r)));
+        }
 
         var props = new AuthenticationProperties
         {

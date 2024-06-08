@@ -18,6 +18,16 @@ The default behavior of the ASP.NET cookie auth middleware is to automatically r
 
 </details>
 
+<details><summary>Change 'RoleClaimType' of cookie auth to non-soap value</summary>
+
+Until now, the `CookieAuth.SignInAsync()` method was using the long soap version of 'Role Claim Type' value `http://schemas.microsoft.com/ws/2008/06/identity/claims/role` which is not in line with what FE uses for JWT tokens. Now both JWT & Cookie auth uses the same value from the global config which is set like below or it's default value `role`:
+
+```csharp
+app.UseFastEndpoints(c=>c.Security.RoleClaimType = "role");
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>[HideFromDocs] attribute missing issue with the source generator</summary>

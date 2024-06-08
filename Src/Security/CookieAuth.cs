@@ -35,13 +35,7 @@ public static class CookieAuth
             claimList.AddRange(privs.Permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
 
         if (privs.Roles.Count > 0)
-        {
-            claimList.AddRange(
-                privs.Roles.Select(
-                    r => new Claim(
-                        ClaimTypes.Role, //don't change the claim type - https://github.com/FastEndpoints/FastEndpoints/issues/704#issuecomment-2155035213
-                        r)));
-        }
+            claimList.AddRange(privs.Roles.Select(r => new Claim(Conf.SecOpts.RoleClaimType, r)));
 
         var props = new AuthenticationProperties
         {
@@ -54,7 +48,7 @@ public static class CookieAuth
         return svc.SignInAsync(
             context: ctx,
             scheme: CookieAuthenticationDefaults.AuthenticationScheme,
-            principal: new(new ClaimsIdentity(claimList, CookieAuthenticationDefaults.AuthenticationScheme)),
+            principal: new(new ClaimsIdentity(claimList, CookieAuthenticationDefaults.AuthenticationScheme, null, Conf.SecOpts.RoleClaimType)),
             properties: props);
     }
 
@@ -62,7 +56,7 @@ public static class CookieAuth
     /// signs the user out from the cookie authentication scheme
     /// </summary>
     /// <param name="properties">an optional action to configure authentication properties</param>
-    /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configure or method is used outside the scope of an http request</exception>
+    /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configured or method is used outside the scope of a http request</exception>
     public static Task SignOutAsync(Action<AuthenticationProperties>? properties = null)
     {
         var svc = Conf.ServiceResolver.TryResolve<IAuthenticationService>() ?? throw new InvalidOperationException("Authentication middleware has not been configured!");

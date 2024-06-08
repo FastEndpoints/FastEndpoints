@@ -114,7 +114,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             var attrib = m.ClassDec
                           .AttributeLists
                           .SelectMany(al => al.Attributes)
-                          .First(a => ((GenericNameSyntax)a.Name).Identifier.ValueText == AttribShortName);
+                          .First(a => (a.Name as GenericNameSyntax)?.Identifier.ValueText == AttribShortName);
 
             var arg = (MemberAccessExpressionSyntax)
                 attrib.ArgumentList!

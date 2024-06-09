@@ -10,6 +10,28 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Check if app is being run in Swagger Json export mode and/or Api Client Generation mode</summary>
+
+You can now use the following new extension methods for conditionally configuring your middleware pipeline depending on the mode the app is running in:
+
+#### WebApplicationBuilder Extensions
+
+```csharp
+bld.IsNotGenerationMode(); //returns true if running normally
+bld.IsApiClientGenerationMode(); //returns true if running in client gen mode
+bld.IsSwaggerJsonExportMode(); //returns true if running in swagger export mode
+```
+
+#### WebApplication Extensions
+
+```csharp
+app.IsNotGenerationMode(); //returns true if running normally
+app.IsApiClientGenerationMode(); //returns true if running in client gen mode
+app.IsSwaggerJsonExportMode(); //returns true if running in swagger export mode
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Change default redirection behavior of cookie authentication middleware</summary>

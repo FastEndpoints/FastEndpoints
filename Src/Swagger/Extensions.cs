@@ -292,6 +292,9 @@ public static class Extensions
                ? SelectedJsonNamingPolicy.ConvertName(paramName)
                : paramName;
 
+    internal static bool IsSwagger2(this OperationProcessorContext ctx)
+        => ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2;
+
     static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
     {
         settings.Title = AppDomain.CurrentDomain.FriendlyName;

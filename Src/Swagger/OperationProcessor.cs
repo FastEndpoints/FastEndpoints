@@ -106,7 +106,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                 example = meta.GetExampleFromMetaData() ?? example;
                                 example = example is not null ? JToken.FromObject(example, serializer) : null;
 
-                                if (ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2 && example is JToken { Type: JTokenType.Array } token)
+                                if (ctx.IsSwagger2() && example is JToken { Type: JTokenType.Array } token)
                                     example = token.ToString();
 
                                 return new
@@ -383,7 +383,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
         //fix IFormFile props in OAS2 - remove from request body and add as a request param
-        if (ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2 && reqDtoProps is not null)
+        if (ctx.IsSwagger2() && reqDtoProps is not null)
         {
             foreach (var p in reqDtoProps.ToArray())
             {
@@ -657,7 +657,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
         prm.Schema.IsNullableRaw = prm.IsRequired ? null : isNullable;
 
-        if (ctx.OpCtx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2)
+        if (ctx.OpCtx.IsSwagger2())
             prm.Default = Prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
         else
             prm.Schema.Default = Prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;

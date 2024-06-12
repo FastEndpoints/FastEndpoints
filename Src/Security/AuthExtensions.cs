@@ -134,8 +134,11 @@ public static class AuthExtensions
                 .AddCookie(
                     o =>
                     {
+                        //don't set Cookie.Expiration and Cookie.MaxAge here.
+                        //allow CookieAuthenticationHandler to take care of setting it depending on IsPersistent.
+                        //if we set it here, 'IsPersistent = false' won't have any effect.
+                        o.Cookie.Expiration = o.Cookie.MaxAge = null;
                         o.ExpireTimeSpan = validFor;
-                        o.Cookie.MaxAge = validFor;
                         o.Cookie.HttpOnly = true;
                         o.Cookie.SameSite = SameSiteMode.Lax;
                         o.Events = new()
@@ -153,6 +156,14 @@ public static class AuthExtensions
                                 {
                                     ctx.Response.Headers.Location = ctx.RedirectUri;
                                     ctx.Response.StatusCode = 403;
+
+                                    return Task.CompletedTask;
+                                },
+                            OnSigningIn =
+                                ctx =>
+                                {
+                                    if (ctx.Properties.IsPersistent)
+                                        ctx.CookieOptions.MaxAge = ctx.Options.ExpireTimeSpan; //max-age is less error-prone
 
                                     return Task.CompletedTask;
                                 }

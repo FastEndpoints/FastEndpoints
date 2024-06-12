@@ -50,6 +50,12 @@ app.UseFastEndpoints(c=>c.Security.RoleClaimType = "role");
 
 </details>
 
+<details><summary>Workaround for CookieAuth middleware 'IsPersistent' misbehavior</summary>
+
+By default, in ASP.NET Cookie middleware, if you specify an `Expiry` or `Max-Age` at the global/middleware level, setting `IsPersitent = false` will have no effect when signing in the user, as the middleware sets `Expiry/Max-Age` on the generated cookie anyway, making it a persistent cookie. A workaround has been implemented to fix this behavior.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>[HideFromDocs] attribute missing issue with the source generator</summary>

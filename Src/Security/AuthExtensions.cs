@@ -163,7 +163,7 @@ public static class AuthExtensions
                                 ctx =>
                                 {
                                     if (ctx.Properties.IsPersistent)
-                                        ctx.CookieOptions.MaxAge = ctx.Options.ExpireTimeSpan; //max-age is less error-prone
+                                        ctx.CookieOptions.MaxAge = ctx.Properties.ExpiresUtc?.UtcDateTime - DateTime.UtcNow ?? ctx.Options.ExpireTimeSpan;
 
                                     return Task.CompletedTask;
                                 }

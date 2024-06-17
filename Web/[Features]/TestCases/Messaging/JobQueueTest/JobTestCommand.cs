@@ -17,6 +17,7 @@ public class JobTestCommandHandler : ICommandHandler<JobTestCommand>
         if (cmd is { ShouldThrow: true, ThrowCount: 0 })
         {
             cmd.ThrowCount++;
+
             throw new InvalidOperationException();
         }
 

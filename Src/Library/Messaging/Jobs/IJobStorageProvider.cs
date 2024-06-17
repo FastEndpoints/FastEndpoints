@@ -28,6 +28,14 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     Task MarkJobAsCompleteAsync(TStorageRecord r, CancellationToken ct);
 
     /// <summary>
+    /// either delete the job storage record from the db using the supplied tracking id or update the <see cref="IJobStorageRecord.IsComplete" /> field to true
+    /// with a partial update operation.
+    /// </summary>
+    /// <param name="trackingId">the <see cref="IJobStorageRecord.TrackingID" /> of the job to be cancelled</param>
+    /// <param name="ct">cancellation token</param>
+    Task CancelJobAsync(Guid trackingId, CancellationToken ct);
+
+    /// <summary>
     /// this will only be triggered when a command handler (<see cref="ICommandHandler{TCommand}" />) associated with a command
     /// throws an exception. If you've set an execution time limit for the command, the thrown exception would be of type
     /// <see cref="OperationCanceledException" />.

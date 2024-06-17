@@ -1,11 +1,12 @@
 ﻿using TestCases.JobQueueTest;
+using Xunit.Priority;
 
 namespace Messaging;
 
 public class JobQueueTests : TestBase<Sut>
 {
-    [Fact]
-    public async Task JobsExecuteSuccessfully()
+    [Fact, Priority(1)]
+    public async Task Jobs_Execution()
     {
         for (var i = 0; i < 10; i++)
         {
@@ -23,5 +24,18 @@ public class JobQueueTests : TestBase<Sut>
         JobTestCommand.CompletedIDs.Count.Should().Be(9);
         var expected = new[] { 0, 2, 3, 4, 5, 6, 7, 8, 9 };
         JobTestCommand.CompletedIDs.Except(expected).Any().Should().BeFalse();
+    }
+
+    [Fact, Priority(2)]
+    public async Task Job_Cancellation()
+    {
+        await Parallel.ForAsync(
+            1,
+            100,
+            async (_, ct) =>
+            {
+                var job = new JobCancelTestCommand();
+                var cancelId = await job.QueueJobAsync(ct: ct);
+            });
     }
 }

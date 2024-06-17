@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints;
 
-static class JobStorage<TStorageRecord, TStorageProvider>
+class JobStorage<TStorageRecord, TStorageProvider>
     where TStorageRecord : IJobStorageRecord, new()
     where TStorageProvider : IJobStorageProvider<TStorageRecord>
 {

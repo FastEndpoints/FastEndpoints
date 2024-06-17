@@ -41,6 +41,14 @@ public class JobStorage : IJobStorageProvider<Job>
         return Task.CompletedTask;
     }
 
+    public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+    {
+        var j = jobs.Single(j => j.TrackingID == trackingId);
+        j.IsComplete = true;
+
+        return Task.CompletedTask;
+    }
+
     public Task OnHandlerExecutionFailureAsync(Job r, Exception exception, CancellationToken ct)
         => Task.CompletedTask;
 

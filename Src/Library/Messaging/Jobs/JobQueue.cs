@@ -20,7 +20,11 @@ abstract class JobQueueBase
     //val: CTS of the job
     protected static readonly ConcurrentDictionary<Guid, CancellationTokenSource> Cancellations = new();
 
+    //TODO: IMPLEMENT PER JOBQ CANCELLATIONS INSTEAD OD ABOVE DICT.
+
     protected abstract Task<Guid> StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
+
+    protected abstract Task CancelJobAsync(Guid trackingId, CancellationToken ct);
 
     internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit);
 
@@ -32,6 +36,16 @@ abstract class JobQueueBase
             !JobQueues.TryGetValue(tCommand, out var queue)
                 ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
                 : queue.StoreJobAsync(command, executeAfter, expireOn, ct);
+    }
+
+    internal static Task CancelJobAsync<TCommand>(Guid trackingId, CancellationToken ct) where TCommand : ICommand
+    {
+        var tCommand = typeof(TCommand);
+
+        return
+            !JobQueues.TryGetValue(tCommand, out var queue)
+                ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
+                : queue.CancelJobAsync(trackingId, ct);
     }
 }
 
@@ -92,6 +106,30 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         _sem.Release();
 
         return job.TrackingID;
+    }
+
+    protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+    {
+        try
+        {
+            await _storage.CancelJobAsync(trackingId, ct);
+            RequestCancellation();
+        }
+        catch
+        {
+            RequestCancellation();
+
+            throw;
+        }
+
+        void RequestCancellation()
+        {
+            if (Cancellations.TryGetValue(trackingId, out var cts))
+                cts.Cancel(false);
+
+            //no need to remove the cts from cancellations since we have a delegate registered
+            //at the time of creation for self removal from the dictionary.
+        }
     }
 
     [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]

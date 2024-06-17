@@ -14,7 +14,7 @@ public class JobTestCommandHandler : ICommandHandler<JobTestCommand>
 {
     public Task ExecuteAsync(JobTestCommand cmd, CancellationToken ct)
     {
-        if (cmd.ShouldThrow && cmd.ThrowCount == 0)
+        if (cmd is { ShouldThrow: true, ThrowCount: 0 })
         {
             cmd.ThrowCount++;
             throw new InvalidOperationException();

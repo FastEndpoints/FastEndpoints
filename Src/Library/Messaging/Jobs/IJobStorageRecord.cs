@@ -8,6 +8,11 @@ public interface IJobStorageRecord
     string QueueID { get; set; }
 
     /// <summary>
+    /// a unique id used to track a particular job for the purpose of progress monitoring and/or termination.
+    /// </summary>
+    Guid TrackingID { get; set; }
+
+    /// <summary>
     /// the actual command object that will be embedded in the storage record.
     /// if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
     /// <code>

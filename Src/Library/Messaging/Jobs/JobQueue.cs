@@ -14,18 +14,22 @@ abstract class JobQueueBase
     //val: job queue for the command type
     //values get created when the DI container resolves each job queue type and the ctor is run.
     //see ctor in JobQueue<TCommand, TStorageRecord, TStorageProvider>
-    protected static readonly ConcurrentDictionary<Type, JobQueueBase> AllQueues = new();
+    protected static readonly ConcurrentDictionary<Type, JobQueueBase> JobQueues = new();
 
-    protected abstract Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
+    //key: TrackingID of job
+    //val: CTS of the job
+    protected static readonly ConcurrentDictionary<Guid, CancellationTokenSource> Cancellations = new();
+
+    protected abstract Task<Guid> StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
 
     internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit);
 
-    internal static Task AddToQueueAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
+    internal static Task<Guid> AddToQueueAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         var tCommand = command.GetType();
 
         return
-            !AllQueues.TryGetValue(tCommand, out var queue)
+            !JobQueues.TryGetValue(tCommand, out var queue)
                 ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
                 : queue.StoreJobAsync(command, executeAfter, expireOn, ct);
     }
@@ -56,7 +60,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                     IHostApplicationLifetime appLife,
                     ILogger<JobQueue<TCommand, TStorageRecord, TStorageProvider>> logger)
     {
-        AllQueues[_tCommand] = this;
+        JobQueues[_tCommand] = this;
         _storage = storageProvider;
         _appCancellation = appLife.ApplicationStopping;
         _parallelOptions.CancellationToken = _appCancellation;
@@ -73,11 +77,12 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         _ = CommandExecutorTask();
     }
 
-    protected override async Task StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
+    protected override async Task<Guid> StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         _isInUse = true;
         var job = new TStorageRecord
         {
+            TrackingID = Guid.NewGuid(),
             QueueID = QueueID,
             ExecuteAfter = executeAfter ?? DateTime.UtcNow,
             ExpireOn = expireOn ?? DateTime.UtcNow.AddHours(4)
@@ -85,6 +90,8 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         job.SetCommand((TCommand)command);
         await _storage.StoreJobAsync(job, ct);
         _sem.Release();
+
+        return job.TrackingID;
     }
 
     [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
@@ -138,11 +145,16 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
         {
             try
             {
+                using var cts = new CancellationTokenSource(_executionTimeLimit);
+                cts.Token.Register(() => Cancellations.TryRemove(record.TrackingID, out var _)); //remove when cancelled
+                Cancellations.TryAdd(record.TrackingID, cts);
                 await record.GetCommand<TCommand>()
-                            .ExecuteAsync(new CancellationTokenSource(_executionTimeLimit).Token);
+                            .ExecuteAsync(cts.Token);
+                Cancellations.TryRemove(record.TrackingID, out var _); //remove on handler completion (even if not cancelled)
             }
             catch (Exception x)
             {
+                Cancellations.TryRemove(record.TrackingID, out var _); //remove on error
                 _log.CommandExecutionCritical(_tCommandName, x.Message);
 
                 while (!_appCancellation.IsCancellationRequested)

@@ -1,8 +1,9 @@
-using FastEndpoints.Messaging.Jobs;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using FastEndpoints.Messaging.Jobs;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable MethodSupportsCancellation
 
@@ -15,12 +16,6 @@ abstract class JobQueueBase
     //values get created when the DI container resolves each job queue type and the ctor is run.
     //see ctor in JobQueue<TCommand, TStorageRecord, TStorageProvider>
     protected static readonly ConcurrentDictionary<Type, JobQueueBase> JobQueues = new();
-
-    //key: TrackingID of job
-    //val: CTS of the job
-    protected static readonly ConcurrentDictionary<Guid, CancellationTokenSource> Cancellations = new();
-
-    //TODO: IMPLEMENT PER JOBQ CANCELLATIONS INSTEAD OD ABOVE DICT.
 
     protected abstract Task<Guid> StoreJobAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
 
@@ -61,6 +56,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
     public static readonly string QueueID = _tCommandName.ToHash();
 
+    readonly MemoryCache _cancellations = new(new MemoryCacheOptions());
     readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
     readonly CancellationToken _appCancellation;
     readonly TStorageProvider _storage;
@@ -110,33 +106,24 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
 
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
-        try
-        {
-            await _storage.CancelJobAsync(trackingId, ct);
-            RequestCancellation();
-        }
-        catch
-        {
-            RequestCancellation();
+        var cts = _cancellations.GetOrCreate<CancellationTokenSource?>(
+            trackingId,
+            e =>
+            {
+                e.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4);
 
-            throw;
-        }
+                return null;
+            });
 
-        void RequestCancellation()
-        {
-            if (Cancellations.TryGetValue(trackingId, out var cts))
-                cts.Cancel(false);
+        if (cts is { IsCancellationRequested: false })
+            cts.Cancel(false);
 
-            //no need to remove the cts from cancellations since we have a delegate registered
-            //at the time of creation for self removal from the dictionary.
-        }
+        await _storage.CancelJobAsync(trackingId, ct);
     }
 
     [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
     async Task CommandExecutorTask()
     {
-        var batchSize = _parallelOptions.MaxDegreeOfParallelism * 2;
-
         while (!_appCancellation.IsCancellationRequested)
         {
             IEnumerable<TStorageRecord> records;
@@ -146,7 +133,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 records = await _storage.GetNextBatchAsync(
                               new()
                               {
-                                  Limit = batchSize,
+                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
                                   QueueID = QueueID,
                                   CancellationToken = _appCancellation,
                                   Match = r => r.QueueID == QueueID &&
@@ -181,18 +168,30 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
         {
+            var cts = _cancellations.GetOrCreate<CancellationTokenSource?>(
+                record.TrackingID,
+                e =>
+                {
+                    e.RegisterPostEvictionCallback((_, cts, _, _) => (cts as CancellationTokenSource)?.Dispose());
+                    e.AbsoluteExpirationRelativeToNow = _executionTimeLimit.Add(TimeSpan.FromHours(1));
+                    var s = new CancellationTokenSource(_executionTimeLimit);
+
+                    return s;
+                });
+
+            if (cts is null) //don't execute this job because cancellation has been requested already
+                return;      //the cts will be null if the cache entry was created by a call to CancelJobAsync() before the job was picked up for execution
+
+            //if cts is not null, we can proceed to executing the job as cancellation was not requested.
+
             try
             {
-                using var cts = new CancellationTokenSource(_executionTimeLimit);
-                cts.Token.Register(() => Cancellations.TryRemove(record.TrackingID, out var _)); //remove when cancelled
-                Cancellations.TryAdd(record.TrackingID, cts);
-                await record.GetCommand<TCommand>()
-                            .ExecuteAsync(cts.Token);
-                Cancellations.TryRemove(record.TrackingID, out var _); //remove on handler completion (even if not cancelled)
+                await record.GetCommand<TCommand>().ExecuteAsync(cts.Token);
+                _cancellations.Remove(record.TrackingID); //remove on completion
             }
             catch (Exception x)
             {
-                Cancellations.TryRemove(record.TrackingID, out var _); //remove on error
+                _cancellations.Remove(record.TrackingID); //remove on error
                 _log.CommandExecutionCritical(_tCommandName, x.Message);
 
                 while (!_appCancellation.IsCancellationRequested)

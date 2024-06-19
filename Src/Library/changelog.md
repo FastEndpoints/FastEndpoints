@@ -74,7 +74,7 @@ The service registration source generator was encountering a compatibility issue
 
 If a route contains multiple path parameters where one is a substring of another, the generated swagger spec would cause Swagger UI to not match the path param correctly. An example of this would be a route such as the following:
 
-```json
+```
 /api/parents/{ParentId}/children/{Id}
 ```
 

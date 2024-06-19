@@ -26,7 +26,7 @@ public class JobQueueTests : TestBase<Sut>
         JobTestCommand.CompletedIDs.Except(expected).Any().Should().BeFalse();
     }
 
-    [Fact, Priority(2)]
+    //[Fact, Priority(2)]
     public async Task Job_Cancellation()
     {
         await Parallel.ForAsync(

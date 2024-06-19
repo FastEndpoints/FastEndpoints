@@ -5,8 +5,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-// ReSharper disable MethodSupportsCancellation
-
 namespace FastEndpoints;
 
 abstract class JobQueueBase
@@ -43,6 +41,8 @@ abstract class JobQueueBase
                 : queue.CancelJobAsync(trackingId, ct);
     }
 }
+
+[SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods"), SuppressMessage("ReSharper", "MethodSupportsCancellation")]
 
 // created by DI as singleton
 sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
@@ -106,22 +106,36 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
 
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
-        var cts = _cancellations.GetOrCreate<CancellationTokenSource?>(
-            trackingId,
-            e =>
-            {
-                e.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(4);
-
-                return null;
-            });
-
-        if (cts is { IsCancellationRequested: false })
-            cts.Cancel(false);
-
+        _ = AttemptCancellationTask(trackingId, _cancellations);
         await _storage.CancelJobAsync(trackingId, ct);
+
+        static async Task AttemptCancellationTask(Guid trackingId, MemoryCache cancellations)
+        {
+            var cts = cancellations.GetOrCreate<CancellationTokenSource?>(
+                trackingId,
+                e =>
+                {
+                    e.SlidingExpiration = TimeSpan.FromHours(1);
+
+                    return null;
+                });
+
+            var startTime = DateTime.Now;
+
+            while (DateTime.Now.Subtract(startTime).TotalMilliseconds <= 10000)
+            {
+                if (cts is not null) //job execution has started and cts is available
+                {
+                    if (!cts.IsCancellationRequested)
+                        cts.Cancel(false);
+
+                    return; //we're done!
+                }
+                await Task.Delay(1000);
+            }
+        }
     }
 
-    [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
     async Task CommandExecutorTask()
     {
         while (!_appCancellation.IsCancellationRequested)
@@ -173,25 +187,25 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 e =>
                 {
                     e.RegisterPostEvictionCallback((_, cts, _, _) => (cts as CancellationTokenSource)?.Dispose());
-                    e.AbsoluteExpirationRelativeToNow = _executionTimeLimit.Add(TimeSpan.FromHours(1));
+                    e.AbsoluteExpirationRelativeToNow = _executionTimeLimit + TimeSpan.FromHours(1);
                     var s = new CancellationTokenSource(_executionTimeLimit);
 
                     return s;
                 });
 
             if (cts is null) //don't execute this job because cancellation has been requested already
-                return;      //the cts will be null if the cache entry was created by a call to CancelJobAsync() before the job was picked up for execution
+                return;      //the cts will be null if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
 
-            //if cts is not null, we can proceed to executing the job as cancellation was not requested.
+            //if cts is not null, proceed with job execution as cancellation has not been requested yet.
 
             try
             {
                 await record.GetCommand<TCommand>().ExecuteAsync(cts.Token);
-                _cancellations.Remove(record.TrackingID); //remove on completion
+                _cancellations.Remove(record.TrackingID); //remove entry on completion
             }
             catch (Exception x)
             {
-                _cancellations.Remove(record.TrackingID); //remove on error
+                _cancellations.Remove(record.TrackingID); //remove entry on execution error
                 _log.CommandExecutionCritical(_tCommandName, x.Message);
 
                 while (!_appCancellation.IsCancellationRequested)

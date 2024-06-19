@@ -312,7 +312,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                         if (!string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                                             return false;
 
-                                        ctx.OperationDescription.Path = ctx.OperationDescription.Path.Replace(m.Value, m.Value.ApplyPropNamingPolicy(docOpts));
+                                        //need to match complete segments including parenthesis: https://github.com/FastEndpoints/FastEndpoints/issues/709
+                                        ctx.OperationDescription.Path = opPath = opPath.Replace($"{{{m.Value}}}", $"{{{m.Value.ApplyPropNamingPolicy(docOpts)}}}");
 
                                         RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
 

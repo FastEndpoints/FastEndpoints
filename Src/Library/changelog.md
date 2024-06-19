@@ -70,4 +70,16 @@ The service registration source generator was encountering a compatibility issue
 
 </details>
 
+<details><summary>Swagger UI issue with path param names that are substrings</summary>
+
+If a route contains multiple path parameters where one is a substring of another, the generated swagger spec would cause Swagger UI to not match the path param correctly. An example of this would be a route such as the following:
+
+```json
+/api/parents/{ParentId}/children/{Id}
+```
+
+Path segment matching has been changed to include the parenthesis as well in order to prevent substring matching.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

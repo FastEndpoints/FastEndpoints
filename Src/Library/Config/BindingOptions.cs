@@ -38,13 +38,16 @@ public sealed class BindingOptions
     /// </para>
     /// </summary>
     public Func<JsonException, ValidationFailure>? JsonExceptionTransformer { internal get; set; }
-        = exception
-              => new(
-                  propertyName: exception.Path is null or "$" || exception.Path.StartsWith("$[")
-                                    ? Cfg.SerOpts.SerializerErrorsField
-                                    : exception.Path[2..],
-                  errorMessage: exception.InnerException?.Message ??
-                                exception.Message);
+        = ex =>
+          {
+              var bindEx = ex as JsonBindException;
+
+              return new(
+                  propertyName: ex.Path is null or "$" || ex.Path.StartsWith("$[")
+                                    ? bindEx?.FieldName ?? Cfg.SerOpts.SerializerErrorsField
+                                    : ex.Path[2..],
+                  errorMessage: bindEx?.FailureMessage ?? ex.InnerException?.Message ?? ex.Message);
+          };
 
     /// <summary>
     /// this http status code will be used for all automatically sent <see cref="JsonException" /> responses  which are built using the <see cref="JsonExceptionTransformer" />
@@ -89,7 +92,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor&lt;Guid&gt;(MyParsers.GuidParser);
     /// });
-    /// 
+    ///
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)
@@ -121,7 +124,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor(typeof(Guid), MyParsers.GuidParser);
     /// });
-    /// 
+    ///
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)

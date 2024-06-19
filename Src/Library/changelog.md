@@ -82,4 +82,36 @@ Path segment matching has been changed to include the parenthesis as well in ord
 
 </details>
 
+<details><summary>Incorrect property name detection for STJ deserialization exceptions</summary>
+
+When deserializing Enum arrays from query parameters, if one of the values is invalid, the following error response was generated with an incorrect property name:
+
+```json
+{
+  "statusCode": 400,
+  "message": "One or more errors occurred!",
+  "errors": {
+    "0]": [
+      "The JSON value could not be converted to MyEnum. Path: $[0] | LineNumber: 0 | BytePositionInLine: 9."
+    ]
+  }
+}
+```
+
+Which has been now corrected to provide a better error message and the correct property name as follows:
+
+```json
+{
+    "statusCode": 400,
+    "message": "One or more errors occurred!",
+    "errors": {
+        "myEnumValues": [
+            "Value [Xyz] is not valid for a [MyEnum[]] property!"
+        ]
+    }
+}
+```
+
+</details>
+
 ## Minor Breaking Changes ⚠️

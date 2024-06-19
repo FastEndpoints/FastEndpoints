@@ -428,7 +428,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     {
         if (_primaryProps.TryGetValue(kvp.Key, out var prop))
         {
-            var res = prop.ValueParser(kvp.Value);
+            ParseResult res;
+
+            try
+            {
+                res = prop.ValueParser(kvp.Value);
+            }
+            catch (JsonException ex)
+            {
+                throw new JsonBindException(kvp.Key, BndOpts.FailureMessage(prop.PropType, kvp.Key, kvp.Value), ex);
+            }
 
             if (res.IsSuccess || IsNullablePropAndInputIsEmptyString(kvp, prop))
                 prop.PropSetter(req, res.Value);

@@ -40,7 +40,7 @@ public sealed class BindingOptions
     public Func<JsonException, ValidationFailure>? JsonExceptionTransformer { internal get; set; }
         = exception
               => new(
-                  propertyName: exception.Path is null or "$"
+                  propertyName: exception.Path is null or "$" || exception.Path.StartsWith("$[")
                                     ? Cfg.SerOpts.SerializerErrorsField
                                     : exception.Path[2..],
                   errorMessage: exception.InnerException?.Message ??

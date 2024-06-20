@@ -171,7 +171,8 @@ app.UseJobQueues(
     {
         o.MaxConcurrency = 4;
         o.LimitsFor<JobTestCommand>(1, TimeSpan.FromSeconds(1));
-        o.StorageProbeDelay = TimeSpan.FromSeconds(5);
+        o.LimitsFor<JobCancelTestCommand>(100, TimeSpan.FromSeconds(60));
+        o.StorageProbeDelay = TimeSpan.FromMilliseconds(100);
     });
 
 var isTestHost = app.Services.CreateScope().ServiceProvider.GetService<IEmailService>() is not EmailService;

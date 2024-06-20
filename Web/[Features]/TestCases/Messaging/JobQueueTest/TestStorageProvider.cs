@@ -13,11 +13,14 @@ public class Job : IJobStorageRecord
 
 public class JobStorage : IJobStorageProvider<Job>
 {
-    readonly List<Job> jobs = new();
+    public static readonly List<Job> Jobs = [];
+
+    static readonly object _lock = new();
 
     public Task StoreJobAsync(Job r, CancellationToken ct)
     {
-        jobs.Add(r);
+        lock (_lock)
+            Jobs.Add(r);
 
         return Task.CompletedTask;
     }
@@ -27,7 +30,7 @@ public class JobStorage : IJobStorageProvider<Job>
         var match = p.Match.Compile();
 
         return Task.FromResult(
-            jobs
+            Jobs
                 .Where(match)
                 .OrderBy(r => r.ID)
                 .Take(p.Limit));
@@ -35,7 +38,7 @@ public class JobStorage : IJobStorageProvider<Job>
 
     public Task MarkJobAsCompleteAsync(Job r, CancellationToken ct)
     {
-        var j = jobs.Single(j => j.ID == r.ID);
+        var j = Jobs.Single(j => j.ID == r.ID);
         j.IsComplete = true;
 
         return Task.CompletedTask;
@@ -43,7 +46,7 @@ public class JobStorage : IJobStorageProvider<Job>
 
     public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
-        var j = jobs.Single(j => j.TrackingID == trackingId);
+        var j = Jobs.Single(j => j.TrackingID == trackingId);
         j.IsComplete = true;
 
         return Task.CompletedTask;

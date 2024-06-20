@@ -62,8 +62,9 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     readonly TStorageProvider _storage;
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
-    TimeSpan _executionTimeLimit = Timeout.InfiniteTimeSpan;
-    TimeSpan _semWaitLimit = TimeSpan.FromSeconds(60);
+    TimeSpan _executionTimeLimit;
+    TimeSpan _cancellationExpiry;
+    TimeSpan _semWaitLimit;
     bool _isInUse;
 
     public JobQueue(TStorageProvider storageProvider,
@@ -83,6 +84,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
     {
         _parallelOptions.MaxDegreeOfParallelism = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
+        _cancellationExpiry = executionTimeLimit + TimeSpan.FromHours(1);
         _semWaitLimit = semWaitLimit;
         _ = CommandExecutorTask();
     }
@@ -106,22 +108,24 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
 
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
-        _ = AttemptCancellationTask(trackingId, _cancellations);
+        _ = AttemptCancellationTask(trackingId, _cancellations, _cancellationExpiry);
         await _storage.CancelJobAsync(trackingId, ct);
 
-        static async Task AttemptCancellationTask(Guid trackingId, MemoryCache cancellations)
+        static async Task AttemptCancellationTask(Guid trackingId, MemoryCache cancellations, TimeSpan cancelExpiry)
         {
             var cts = cancellations.GetOrCreate<CancellationTokenSource?>(
                 trackingId,
                 e =>
                 {
-                    e.SlidingExpiration = TimeSpan.FromHours(1);
+                    e.SlidingExpiration = cancelExpiry;
 
                     return null;
                 });
 
             var startTime = DateTime.Now;
 
+            //this is probably unnecessary. but could come in handy in case there's some delays (or race condition) in
+            //marking the job as complete via the storage provider and the job gets picked up for execution in the meantime.
             while (DateTime.Now.Subtract(startTime).TotalMilliseconds <= 10000)
             {
                 if (cts is not null) //job execution has started and cts is available
@@ -182,12 +186,11 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
         {
-            var cts = _cancellations.GetOrCreate<CancellationTokenSource?>(
+            using var cts = _cancellations.GetOrCreate<CancellationTokenSource?>(
                 record.TrackingID,
                 e =>
                 {
-                    e.RegisterPostEvictionCallback((_, cts, _, _) => (cts as CancellationTokenSource)?.Dispose());
-                    e.AbsoluteExpirationRelativeToNow = _executionTimeLimit + TimeSpan.FromHours(1);
+                    e.AbsoluteExpirationRelativeToNow = _cancellationExpiry;
                     var s = new CancellationTokenSource(_executionTimeLimit);
 
                     return s;

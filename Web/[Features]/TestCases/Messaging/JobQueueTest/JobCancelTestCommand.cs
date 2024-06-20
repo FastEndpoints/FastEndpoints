@@ -2,8 +2,9 @@
 
 public class JobCancelTestCommand : ICommand
 {
+    public Guid TrackingId { get; set; }
     public int Counter { get; set; }
-    public bool IsExecutionComplete { get; set; }
+    public bool IsCancelled { get; set; }
 }
 
 public class JobCancelTestCommandHandler : ICommandHandler<JobCancelTestCommand>
@@ -15,6 +16,6 @@ public class JobCancelTestCommandHandler : ICommandHandler<JobCancelTestCommand>
             cmd.Counter++;
             await Task.Delay(100);
         }
-        cmd.IsExecutionComplete = true;
+        cmd.IsCancelled = true;
     }
 }

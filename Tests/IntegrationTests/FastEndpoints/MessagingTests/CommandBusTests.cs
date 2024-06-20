@@ -49,7 +49,6 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
     public async Task Command_That_Returns_A_Result_With_TestHandler()
     {
         var (rsp, _) = await App.Client.GETAsync<Endpoint, string>();
-
         rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         TestCommandHandler.FullName.Should().Be("x y zseeeee!");
     }

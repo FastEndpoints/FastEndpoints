@@ -597,20 +597,20 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                         b.Produces<TResponse>(200, "text/plain", "application/json");
                     else
                         b.Produces<TResponse>(200, "application/json");
+                }
 
-                    if (Definition.AnonymousVerbs?.Any() is not true)
-                        b.Produces(401);
+                if (Definition.AnonymousVerbs?.Length is null or 0)
+                    b.Produces(401);
 
-                    if (Definition.RequiresAuthorization())
-                        b.Produces(403);
+                if (Definition.RequiresAuthorization())
+                    b.Produces(403);
 
-                    if (Cfg.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
-                    {
-                        b.Produces(
-                            Cfg.ErrOpts.StatusCode,
-                            Cfg.ErrOpts.ProducesMetadataType,
-                            Cfg.ErrOpts.ContentType);
-                    }
+                if (Cfg.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
+                {
+                    b.Produces(
+                        Cfg.ErrOpts.StatusCode,
+                        Cfg.ErrOpts.ProducesMetadataType,
+                        Cfg.ErrOpts.ContentType);
                 }
             };
     }

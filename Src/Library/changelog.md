@@ -128,4 +128,10 @@ Which has been now corrected to provide a better error message and the correct p
 
 </details>
 
+<details><summary>Default response/produces metadata was ignored for 'IResult' response types</summary>
+
+There was an oversight in adding default response metadata to endpoints that were returning 'IResult' types, which has now been rectified.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

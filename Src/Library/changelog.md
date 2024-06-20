@@ -32,6 +32,20 @@ app.IsSwaggerJsonExportMode(); //returns true if running in swagger export mode
 
 </details>
 
+<details><summary>[AllowFileUploads] attribute for endpoint class decoration</summary>
+
+When using attribute based configuration of endpoints you can now enable file upload support for endpoints like so:
+
+```csharp
+[HttpPost("form"), AllowFileUploads]
+sealed class MyEndpoint : Endpoint<MyRequest>
+{
+    
+}
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Change default redirection behavior of cookie authentication middleware</summary>

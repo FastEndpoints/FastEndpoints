@@ -57,6 +57,11 @@ static class EndpointExtensions
 
                         break;
 
+                    case AllowFileUploadsAttribute fileAttr:
+                        def.AllowFileUploads(fileAttr.DontAutoBindFormData);
+
+                        break;
+
                     case AuthorizeAttribute authAttr:
                         if (authAttr.Roles is not null)
                             def.Roles(authAttr.Roles.Split(','));

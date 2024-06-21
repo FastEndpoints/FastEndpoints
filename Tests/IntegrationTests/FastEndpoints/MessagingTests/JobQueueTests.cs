@@ -3,7 +3,7 @@ using Xunit.Priority;
 
 namespace Messaging;
 
-public class JobQueueTests : TestBase<Sut>
+public class JobQueueTests(Sut App) : TestBase<Sut>
 {
     [Fact, Priority(1)]
     public async Task Job_Cancellation()
@@ -14,6 +14,7 @@ public class JobQueueTests : TestBase<Sut>
         await Parallel.ForAsync(
             0,
             99,
+            cts.Token,
             async (_, ct) =>
             {
                 var job = new JobCancelTestCommand();
@@ -24,8 +25,10 @@ public class JobQueueTests : TestBase<Sut>
         while (!cts.IsCancellationRequested && !jobs.TrueForAll(j => j.Counter > 0))
             await Task.Delay(100, cts.Token);
 
+        var jt = App.Services.GetRequiredService<IJobTracker<JobCancelTestCommand>>();
+
         foreach (var j in jobs)
-            _ = JobTracker<JobCancelTestCommand>.CancelJobAsync(j.TrackingId, cts.Token);
+            _ = jt.CancelJobAsync(j.TrackingId, cts.Token);
 
         while (!cts.IsCancellationRequested && !jobs.TrueForAll(j => j.IsCancelled))
             await Task.Delay(100, cts.Token);

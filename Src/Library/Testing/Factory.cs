@@ -29,7 +29,7 @@ public static class Factory
         BaseEndpoint ep;
         var tEndpoint = typeof(TEndpoint);
 
-        //because this is typically done by type discovery and it doesn't run in unit tests.
+        //because this is typically done by type discovery, and it doesn't run in unit tests.
         var epDef = new EndpointDefinition(
             tEndpoint,
             tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest,

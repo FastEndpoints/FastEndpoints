@@ -23,6 +23,7 @@ public static class JobQueueExtensions
         _tStorageProvider = typeof(TStorageProvider);
         _tStorageRecord = typeof(TStorageRecord);
         svc.AddSingleton<TStorageProvider>();
+        svc.AddSingleton(typeof(IJobTracker<>), typeof(JobTracker<>));
         svc.AddSingleton(typeof(JobQueue<,,>));
 
         return svc;

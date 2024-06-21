@@ -207,12 +207,14 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
 
             try
             {
-                await record.GetCommand<TCommand>().ExecuteAsync(cts.Token);
-                _cancellations.Remove(record.TrackingID); //remove entry on completion
+                var cmd = record.GetCommand<TCommand>();
+                record.Command = cmd; //needed in case user does whole record (non-partial) updates via storage provider.
+                await cmd.ExecuteAsync(cts.Token);
+                _cancellations.Remove(record.TrackingID); //remove entry on completion. cancellations are not possible/valid after this point.
             }
             catch (Exception x)
             {
-                _cancellations.Remove(record.TrackingID); //remove entry on execution error
+                _cancellations.Remove(record.TrackingID); //remove entry on execution error to allow obtaining a new cts on retry/reentry
                 _log.CommandExecutionCritical(_tCommandName, x.Message);
 
                 while (!_appCancellation.IsCancellationRequested)

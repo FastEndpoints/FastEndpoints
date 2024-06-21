@@ -68,6 +68,7 @@ public static class JobQueueExtensions
     /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
     /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
     /// <param name="ct">cancellation token</param>
+    /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
     public static Task<Guid> QueueJobAsync(this ICommand cmd, DateTime? executeAfter = null, DateTime? expireOn = null, CancellationToken ct = default)
         => JobQueueBase.AddToQueueAsync(cmd, executeAfter, expireOn, ct);
 }

@@ -1,5 +1,8 @@
 ﻿namespace FastEndpoints;
 
+/// <summary>
+/// the contract for a job storage record entity
+/// </summary>
 public interface IJobStorageRecord
 {
     /// <summary>
@@ -25,13 +28,13 @@ public interface IJobStorageRecord
     object Command { get; set; }
 
     /// <summary>
-    /// the job will not be executed before this date/time. by default it will automatically be set to the time of creation allowing jobs to be
-    /// executed as soon as they're created.
+    /// the job will not be executed before this date/time. by default, it will automatically be set to the time of creation allowing jobs to be executed as soon as they're
+    /// created.
     /// </summary>
     DateTime ExecuteAfter { get; set; }
 
     /// <summary>
-    /// the expiration date/time of job. if the job remains in an incomplete state past this time, the record is considered stale.
+    /// the expiration date/time of job. if the job remains in an incomplete state past this time, the record is considered stale, and will be marked for removal from storage.
     /// </summary>
     DateTime ExpireOn { get; set; }
 

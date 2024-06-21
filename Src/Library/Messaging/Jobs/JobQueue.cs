@@ -23,6 +23,10 @@ abstract class JobQueueBase
 
     internal static Task<Guid> AddToQueueAsync(ICommand command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
+        if (executeAfter?.Kind is not null and not DateTimeKind.Utc ||
+            expireOn?.Kind is not null and not DateTimeKind.Utc)
+            throw new ArgumentException($"Only UTC dates are accepted for '{nameof(executeAfter)}' & '{nameof(expireOn)}' parameters!");
+
         var tCommand = command.GetType();
 
         return
@@ -155,7 +159,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                                   QueueID = QueueID,
                                   CancellationToken = _appCancellation,
                                   Match = r => r.QueueID == QueueID &&
-                                               !r.IsComplete &&
+                                               r.IsComplete == false &&
                                                DateTime.UtcNow >= r.ExecuteAfter &&
                                                DateTime.UtcNow <= r.ExpireOn
                               });

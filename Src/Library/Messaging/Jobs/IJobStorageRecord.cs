@@ -20,7 +20,7 @@ public interface IJobStorageRecord
     /// if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
     /// <code>
     /// 1. add a [NotMapped] attribute to this property.
-    /// 2. add a new property, either a <see langword="string" /> or <see cref="byte" /> array
+    /// 2. add a new property, either a <c>string</c> or <c>byte[]</c>
     /// 3. implement both GetCommand() and SetCommand() methods to serialize/deserialize the command object back and forth and store it in the newly added property.
     /// </code>
     /// you may use any serializer you please. recommendation is to use MessagePack.

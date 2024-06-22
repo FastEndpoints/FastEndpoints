@@ -178,7 +178,7 @@ sealed class JobQueue<TCommand, TStorageRecord, TStorageProvider> : JobQueueBase
                 // Therefore, there is no necessity for further iterations within the loop until the semaphore is released upon queuing the first job.
                 //
                 // If _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute), whichever comes first.
-                // We must periodically reevaluate the storage status every minute to ascertain if the user has rescheduled any previous jobs while no new jobs are being queued.
+                // We must periodically reevaluate the storage status to ascertain if the user has rescheduled any previous jobs while no new jobs are being queued.
                 // Failure to conduct this periodic check could result in rescheduled jobs only executing upon the arrival of new jobs, potentially leading to expired job executions.
                 await (_isInUse
                            ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))

@@ -3,7 +3,7 @@
     <PropertyGroup>
         <NoWarn>CS1591</NoWarn>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Description>GRPC based Remote-Procedure-Calls for FastEndpoints.</Description>
+        <Description>Blazor GRPC based Remote-Procedure-Calls for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>

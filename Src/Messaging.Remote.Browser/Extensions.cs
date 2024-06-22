@@ -1,12 +1,9 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
 [assembly: InternalsVisibleTo("FastEndpoints")]
 [assembly: InternalsVisibleTo("FastEndpoints.Messaging.Remote")]
-[assembly: InternalsVisibleTo("FastEndpoints.Messaging.Remote.Browser")]
-[assembly: InternalsVisibleTo("FastEndpoints.Messaging.Remote.Client")]
-[assembly: InternalsVisibleTo("FastEndpoints.Messaging.Remote.Server")]
 
 namespace FastEndpoints;
 

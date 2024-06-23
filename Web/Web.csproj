@@ -10,8 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
-        <ProjectReference Include="..\Src\Messaging.Remote.Client\Fastendpoints.Messaging.Remote.Client.csproj"/>
-        <ProjectReference Include="..\Src\Messaging.Remote.Server\Fastendpoints.Messaging.Remote.Server.csproj"/>
+        <ProjectReference Include="..\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>
         <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
     </ItemGroup>

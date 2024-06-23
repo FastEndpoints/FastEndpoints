@@ -8,15 +8,12 @@ interface IServerStreamCommandExecutor<TResult> : ICommandExecutor where TResult
     IAsyncStreamReader<TResult> ExecuteServerStream(IServerStreamCommand<TResult> command, CallOptions opts);
 }
 
-sealed class ServerStreamCommandExecutor<TCommand, TResult> : BaseCommandExecutor<TCommand, TResult>, IServerStreamCommandExecutor<TResult>
+sealed class ServerStreamCommandExecutor<TCommand, TResult>(GrpcChannel channel)
+    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.ServerStreaming),
+      IServerStreamCommandExecutor<TResult>
     where TCommand : class, IServerStreamCommand<TResult>
     where TResult : class
 {
-    public ServerStreamCommandExecutor(GrpcChannel channel)
-        : base(
-            channel: channel,
-            methodType: MethodType.ServerStreaming) { }
-
     public IAsyncStreamReader<TResult> ExecuteServerStream(IServerStreamCommand<TResult> cmd, CallOptions opts)
         => Invoker.AsyncServerStreamingCall(Method, null, opts, (TCommand)cmd).ResponseStream;
 }

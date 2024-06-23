@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31710.8
@@ -51,15 +51,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Generator", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.AspVersioning", "Src\AspVersioning\FastEndpoints.AspVersioning.csproj", "{071A478E-1718-450D-9BB7-162ECFB10F14}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Core", "Src\Messaging.Core\FastEndpoints.Messaging.Core.csproj", "{5637596F-0F24-40D8-A288-E64DB0C2B1DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Core", "Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj", "{5637596F-0F24-40D8-A288-E64DB0C2B1DE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Remote", "Src\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj", "{FBEF232B-B9EF-46BF-AE37-D430870B9B62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Remote", "Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj", "{FBEF232B-B9EF-46BF-AE37-D430870B9B62}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Remote.Testing", "Src\Messaging.Remote.Testing\FastEndpoints.Messaging.Remote.Testing.csproj", "{F6BC3605-53EE-4D23-ADA8-B5B685C82047}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Remote.Testing", "Src\Messaging\Messaging.Remote.Testing\FastEndpoints.Messaging.Remote.Testing.csproj", "{F6BC3605-53EE-4D23-ADA8-B5B685C82047}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Testing", "Src\Testing\FastEndpoints.Testing.csproj", "{EE160081-CEC5-4DEB-A376-67D321F1B006}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.ClientGen.Kiota", "Src\ClientGen.Kiota\FastEndpoints.ClientGen.Kiota.csproj", "{3A973DDC-4156-457F-901B-3E47A92DED59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.ClientGen.Kiota", "Src\ClientGen.Kiota\FastEndpoints.ClientGen.Kiota.csproj", "{3A973DDC-4156-457F-901B-3E47A92DED59}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.Messaging.Remote.Core", "Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj", "{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -237,6 +239,14 @@ Global
 		{3A973DDC-4156-457F-901B-3E47A92DED59}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3A973DDC-4156-457F-901B-3E47A92DED59}.Release|x86.ActiveCfg = Release|Any CPU
 		{3A973DDC-4156-457F-901B-3E47A92DED59}.Release|x86.Build.0 = Release|Any CPU
+		{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}.Debug|x86.Build.0 = Debug|Any CPU
+		{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}.Release|x86.ActiveCfg = Release|Any CPU
+		{B36EAB86-FD88-4F4A-869E-4AEDF32F23CD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

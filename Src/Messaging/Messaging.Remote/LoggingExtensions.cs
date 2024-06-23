@@ -13,9 +13,6 @@ static partial class LoggingExtensions
     [LoggerMessage(3, LogLevel.Warning, "No event subscribers to connect for: [{tEvent}]")]
     public static partial void NoSubscribersWarning(this ILogger l, string tEvent);
 
-    [LoggerMessage(4, LogLevel.Information, " Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}")]
-    public static partial void RemoteConfigured(this ILogger l, string address, int count);
-
     [LoggerMessage(5, LogLevel.Trace, "Event 'stream-receive' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StreamReceiveTrace(this ILogger l, string subscriberId, string tEvent, string msg);
 

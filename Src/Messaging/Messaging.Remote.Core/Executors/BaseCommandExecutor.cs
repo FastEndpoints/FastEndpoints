@@ -2,11 +2,12 @@
 
 namespace FastEndpoints;
 
-interface ICommandExecutor;
+/// <summary>
+/// marker interface for a command executor
+/// </summary>
+public interface ICommandExecutor;
 
-class BaseCommandExecutor<TCommand, TResult>(ChannelBase channel,
-                                             MethodType methodType,
-                                             string? endpointName = null)
+class BaseCommandExecutor<TCommand, TResult>(ChannelBase channel, MethodType methodType, string? endpointName = null)
     where TCommand : class
     where TResult : class
 {

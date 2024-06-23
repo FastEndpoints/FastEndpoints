@@ -46,6 +46,12 @@ sealed class MyEndpoint : Endpoint<MyRequest>
 
 </details>
 
+<details><summary>Blazor Wasm support for Remote messaging client</summary>
+
+A new package has been added `FastEndpoints.Messaging.Remote.Core` which contains only the core functionality along with a client that's capable of running in the web browser with Blazor Wasm.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Change default redirection behavior of cookie authentication middleware</summary>

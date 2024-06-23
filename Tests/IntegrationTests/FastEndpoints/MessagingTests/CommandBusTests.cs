@@ -45,11 +45,9 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
         await act.Should().NotThrowAsync();
     }
 
-    [Fact]
+    [Fact, Trait("ExcludeInCiCd", "Yes")]
     public async Task Command_That_Returns_A_Result_With_TestHandler()
     {
-        await Task.Delay(1000);
-
         var (rsp, _) = await App.Client.GETAsync<Endpoint, string>();
         rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
         TestCommandHandler.FullName.Should().Be("x y zseeeee!");

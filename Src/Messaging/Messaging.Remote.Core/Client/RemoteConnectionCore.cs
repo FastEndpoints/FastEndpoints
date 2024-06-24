@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using Grpc.Core;
 using Grpc.Net.Client;
-using Grpc.Net.Client.Web;
 using Grpc.Net.Client.Configuration;
+using Grpc.Net.Client.Web;
 
 namespace FastEndpoints;
 
@@ -15,12 +15,13 @@ public class RemoteConnectionCore
     //val: remote server that hosts command handlers/event buses
     internal static ConcurrentDictionary<Type, RemoteConnectionCore> RemoteMap { get; } = new(); //concurrent is needed due to parallel integration tests
 
-    /// <summary/>
+    /// <summary />
+
     //key: tCommand
     //val: command executor
     protected readonly Dictionary<Type, ICommandExecutor> ExecutorMap = new();
 
-    /// <summary/>
+    /// <summary />
     protected GrpcChannel? Channel;
 
     /// <summary>
@@ -61,7 +62,7 @@ public class RemoteConnectionCore
     /// </summary>
     protected string RemoteAddress { get; }
 
-    /// <summary/>
+    /// <summary />
     protected readonly IServiceProvider ServiceProvider;
 
     internal RemoteConnectionCore(string address, IServiceProvider serviceProvider)
@@ -70,7 +71,7 @@ public class RemoteConnectionCore
         ServiceProvider = serviceProvider;
 
         var httpMsgHnd = (HttpMessageHandler)serviceProvider.GetService(typeof(HttpMessageHandler));
-        ChannelOptions.HttpHandler = httpMsgHnd ?? new GrpcWebHandler(new HttpClientHandler()){ GrpcWebMode = GrpcWebMode.GrpcWeb};
+        ChannelOptions.HttpHandler = httpMsgHnd ?? new GrpcWebHandler(new HttpClientHandler()) { GrpcWebMode = GrpcWebMode.GrpcWeb };
     }
 
     /// <summary>

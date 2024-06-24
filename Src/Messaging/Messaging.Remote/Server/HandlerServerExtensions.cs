@@ -53,8 +53,7 @@ public static class HandlerServerExtensions
     /// </summary>
     /// <param name="b"></param>
     /// <param name="h">handler options</param>
-    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b,
-                                                    Action<HandlerOptions<InMemoryEventStorageRecord, InMemoryEventHubStorage>> h)
+    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerOptions<InMemoryEventStorageRecord, InMemoryEventHubStorage>> h)
     {
         h(new(b));
 

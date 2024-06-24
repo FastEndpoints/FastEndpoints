@@ -15,27 +15,20 @@ public class RemoteConnectionCore
     //val: remote server that hosts command handlers/event buses
     internal static ConcurrentDictionary<Type, RemoteConnectionCore> RemoteMap { get; } = new(); //concurrent is needed due to parallel integration tests
 
-    /// <summary />
-
     //key: tCommand
     //val: command executor
+    /// <summary />
     protected readonly Dictionary<Type, ICommandExecutor> ExecutorMap = new();
 
     /// <summary />
     protected GrpcChannel? Channel;
 
+    // ReSharper disable once MemberCanBeProtected.Global
     /// <summary>
     /// grpc channel settings
     /// </summary>
     public GrpcChannelOptions ChannelOptions { get; set; } = new()
     {
-        // HttpHandler = new SocketsHttpHandler
-        // {
-        //     PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
-        //     KeepAlivePingDelay = TimeSpan.FromSeconds(60),
-        //     KeepAlivePingTimeout = TimeSpan.FromSeconds(5),
-        //     EnableMultipleHttp2Connections = true
-        // },
         ServiceConfig = new()
         {
             MethodConfigs =
@@ -57,10 +50,11 @@ public class RemoteConnectionCore
         MaxRetryAttempts = 5
     };
 
+    // ReSharper disable once MemberCanBeProtected.Global
     /// <summary>
     /// the address of the remote server
     /// </summary>
-    protected string RemoteAddress { get; }
+    public string RemoteAddress { get; }
 
     /// <summary />
     protected readonly IServiceProvider ServiceProvider;
@@ -71,7 +65,7 @@ public class RemoteConnectionCore
         ServiceProvider = serviceProvider;
 
         var httpMsgHnd = (HttpMessageHandler)serviceProvider.GetService(typeof(HttpMessageHandler));
-        ChannelOptions.HttpHandler = httpMsgHnd ?? new GrpcWebHandler(new HttpClientHandler()) { GrpcWebMode = GrpcWebMode.GrpcWeb };
+        ChannelOptions.HttpHandler = httpMsgHnd ?? new GrpcWebHandler(new HttpClientHandler()) { GrpcWebMode = GrpcWebMode.GrpcWebText };
     }
 
     /// <summary>

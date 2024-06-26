@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using TestCases.RateLimitTests;
 
 namespace Misc;
 
@@ -48,6 +49,22 @@ public class MiscTestCases(Sut App) : TestBase<Sut>
         }
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task BypassThrottlingLimit()
+    {
+        var client = App.CreateClient(
+            new()
+            {
+                ThrottleBypassHeaderName = "X-Custom-Throttle-Header"
+            });
+
+        for (var i = 0; i < 5; i++)
+        {
+            var (rsp, _) = await client.GETAsync<GlobalErrorResponseTest, Response>();
+            rsp.IsSuccessStatusCode.Should().BeTrue();
+        }
     }
 
     [Fact]

@@ -52,6 +52,31 @@ A new package has been added `FastEndpoints.Messaging.Remote.Core` which contain
 
 </details>
 
+<details><summary>Bypass endpoint throttle limits with integration tests</summary>
+
+Integration tests can now bypass the throttle limits enforced by endpoints if they need to like so:
+
+```csharp
+[Fact]
+public async Task Throttle_Limit_Bypassing_Works()
+{
+    var client = App.CreateClient(new()
+    {
+        ThrottleBypassHeaderName = "X-Forwarded-For" //must match with what the endpoint is looking for
+    });
+
+    for (var i = 0; i < 100; i++)
+    {
+        var (rsp, _) = await client.GETAsync<ThrottledEndpoint, Response>();
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+    }
+}
+```
+
+Each request made through that client would then automatically contain a `X-Forwarded-For` header with a unique value per request allowing the test code to bypass the throttle limits set by the endpoint.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Change default redirection behavior of cookie authentication middleware</summary>

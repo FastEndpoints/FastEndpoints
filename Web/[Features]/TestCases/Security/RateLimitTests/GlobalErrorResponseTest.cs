@@ -6,17 +6,16 @@ public class GlobalErrorResponseTest : EndpointWithoutRequest<Response>
     {
         Get("test-cases/global-throttle-error-response");
         AllowAnonymous();
-        Summary(s =>
-            s.Params["OtherID"] = "the description for other id");
+        Summary(s => s.Params["OtherID"] = "the description for other id");
         Throttle(3, 120);
     }
 
     public override Task HandleAsync(CancellationToken ct)
-    {
-        return SendAsync(new()
-        {
-            CustomerID = Query<int>("CustomerID"),
-            OtherID = Query<int>("OtherID")
-        });
-    }
+        => SendAsync(
+            new()
+            {
+                CustomerID = Query<int>("CustomerID", isRequired: false),
+                OtherID = Query<int>("OtherID", isRequired: false)
+            },
+            cancellation: ct);
 }

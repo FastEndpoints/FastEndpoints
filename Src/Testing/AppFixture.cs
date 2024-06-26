@@ -117,7 +117,7 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
     /// create a client for the underlying web application
     /// </summary>
     /// <param name="o">optional client options for the WAF</param>
-    public HttpClient CreateClient(WebApplicationFactoryClientOptions? o = null)
+    public HttpClient CreateClient(ClientOptions? o = null)
         => CreateClient(_ => { }, o);
 
     /// <summary>
@@ -125,9 +125,10 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
     /// </summary>
     /// <param name="c">configuration action for the client</param>
     /// <param name="o">optional client options for the WAF</param>
-    public HttpClient CreateClient(Action<HttpClient> c, WebApplicationFactoryClientOptions? o = null)
+    public HttpClient CreateClient(Action<HttpClient> c, ClientOptions? o = null)
     {
-        var client = o is null ? _app.CreateClient() : _app.CreateClient(o);
+        o ??= new();
+        var client = _app.CreateDefaultClient(o.BaseAddress, o.CreateHandlers());
         c(client);
 
         return client;

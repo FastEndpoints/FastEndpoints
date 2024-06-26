@@ -16,7 +16,7 @@ static class EndpointExtensions
     /// <summary>
     /// determines if a given endpoint requires authorization.
     /// </summary>
-    internal static bool RequiresAuthorization(this EndpointDefinition ep)
+    public static bool RequiresAuthorization(this EndpointDefinition ep)
         => ep.AllowedPermissions?.Count > 0 ||
            ep.AllowedClaimTypes?.Count > 0 ||
            ep.AllowedRoles?.Count > 0 ||

@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -13,9 +13,9 @@ static partial class EndpointExtensions
 static class EndpointExtensions
 #endif
 {
-    internal static string ActualTypeName(this Type type)
-        => (Nullable.GetUnderlyingType(type) ?? type).Name;
-
+    /// <summary>
+    /// determines if a given endpoint requires authorization.
+    /// </summary>
     internal static bool RequiresAuthorization(this EndpointDefinition ep)
         => ep.AllowedPermissions?.Count > 0 ||
            ep.AllowedClaimTypes?.Count > 0 ||
@@ -23,6 +23,9 @@ static class EndpointExtensions
            ep.AuthSchemeNames?.Count > 0 ||
            ep.PolicyBuilder is not null ||
            ep.PreBuiltUserPolicies is not null;
+
+    internal static string ActualTypeName(this Type type)
+        => (Nullable.GetUnderlyingType(type) ?? type).Name;
 
     internal static void Initialize(this EndpointDefinition def, BaseEndpoint instance, HttpContext? ctx)
     {

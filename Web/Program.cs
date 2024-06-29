@@ -1,7 +1,7 @@
+using System.Globalization;
 using FastEndpoints.Swagger;
 using NJsonSchema;
 using NSwag;
-using System.Globalization;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;

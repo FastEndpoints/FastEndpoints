@@ -2018,7 +2018,8 @@
               }
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/api/test-cases/{number}": {

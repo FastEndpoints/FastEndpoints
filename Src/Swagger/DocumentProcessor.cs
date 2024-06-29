@@ -5,6 +5,7 @@ namespace FastEndpoints.Swagger;
 
 sealed class DocumentProcessor : IDocumentProcessor
 {
+    const string StringSegmentKey = "MicrosoftExtensionsPrimitivesStringSegment";
     readonly int _maxEpVer;
     readonly int _minEpVer;
     readonly bool _showDeprecated;
@@ -59,20 +60,23 @@ sealed class DocumentProcessor : IDocumentProcessor
             if (!pathItems.Contains(p.Value))
                 ctx.Document.Paths.Remove(p.Key);
 
-            foreach (var op in p.Value.Values)
+            foreach (var op in p.Value)
             {
-                if (_showDeprecated)
-                {
-                    var tagSegments = op.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
-                    var depVer = Convert.ToInt32(tagSegments?[3]);
-                    op.IsDeprecated = _maxEpVer >= depVer && depVer != 0;
-                }
-                op.Tags.Remove(op.Tags.SingleOrDefault(t => t.StartsWith("|")));
+                var tagSegments = op.Value.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
+                var depVer = Convert.ToInt32(tagSegments?[3]);
+                var isDeprecated = _maxEpVer >= depVer && depVer != 0;
+
+                if (isDeprecated && _showDeprecated)
+                    op.Value.IsDeprecated = isDeprecated;
+
+                if (isDeprecated && !_showDeprecated)
+                    p.Value.Remove(op.Key);
+
+                op.Value.Tags.Remove(op.Value.Tags.SingleOrDefault(t => t.StartsWith("|")));
             }
         }
 
         var schemas = ctx.Document.Components.Schemas;
-        const string stringSegmentKey = "MicrosoftExtensionsPrimitivesStringSegment";
 
         foreach (var s in schemas)
         {
@@ -84,8 +88,8 @@ sealed class DocumentProcessor : IDocumentProcessor
                 headerRemoved = true;
             }
 
-            if (headerRemoved && schemas.ContainsKey(stringSegmentKey))
-                schemas.Remove(stringSegmentKey);
+            if (headerRemoved && schemas.ContainsKey(StringSegmentKey))
+                schemas.Remove(StringSegmentKey);
         }
     }
 }

@@ -550,6 +550,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                        "Only JSON requests (with an \"application/json\" content-type header) can be deserialized to a DTO type without " +
                        $"a constructor! Offending type: [{_tRequest.FullName}]");
 
+        // if (ctor is null)
+        //     return Expression.Lambda<Func<TRequest>>(Expression.New(_tRequest)).Compile();
+
         var args = ctor.GetParameters();
         var argExpressions = new List<Expression>(args.Length);
 

@@ -4,10 +4,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+#if NET8_0_OR_GREATER
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.Net.Http.Headers;
+#endif
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;

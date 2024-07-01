@@ -1,10 +1,11 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using Bogus;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
@@ -103,6 +104,17 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
         => Task.CompletedTask;
 
     /// <summary>
+    /// override this method if you'd like to provide any configuration for the generic app host of the underlying <see cref="WebApplicationFactory{TEntryPoint}" />
+    /// />
+    /// </summary>
+    protected virtual IHost ConfigureAppHost(IHostBuilder a) 
+    {
+        var host = a.Build();
+        host.Start();
+        return host;
+    }
+
+    /// <summary>
     /// override this method if you'd like to provide any configuration for the web host of the underlying <see cref="WebApplicationFactory{TEntryPoint}" />
     /// />
     /// </summary>
@@ -162,7 +174,7 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
         {
             await PreSetupAsync();
 
-            return new WebApplicationFactory<TProgram>().WithWebHostBuilder(
+            return new WafWrapper(ConfigureAppHost).WithWebHostBuilder(
                 b =>
                 {
                     b.UseEnvironment("Testing");
@@ -187,6 +199,11 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
 
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         Client?.Dispose();
+    }
+
+    private class WafWrapper(Func<IHostBuilder, IHost> configureAppHost) : WebApplicationFactory<TProgram>
+    {
+        protected override IHost CreateHost(IHostBuilder builder) => configureAppHost(builder);
     }
 }
 

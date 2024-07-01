@@ -1,4 +1,5 @@
-﻿using Messaging;
+using Messaging;
+using Microsoft.Extensions.Hosting;
 using TestCases.CommandBusTest;
 using Web;
 using Web.Services;
@@ -25,5 +26,19 @@ public class FixtureB(IMessageSink s) : AppFixture<Web.Program>(s)
     {
         s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
         s.AddSingleton(new FixtureId(_id));
+    }
+}
+
+public class FixtureWithConfigureAppHost(IMessageSink s) : AppFixture<Web.Program>(s)
+{
+    internal static readonly string _id = Guid.NewGuid().ToString("N");
+    internal IHost _host = null!;
+
+    protected override IHost ConfigureAppHost(IHostBuilder a)
+    {
+        a.ConfigureServices(services => { services.AddSingleton(new FixtureId(_id)); });
+        _host = a.Build();
+        _host.Start();
+        return _host;
     }
 }

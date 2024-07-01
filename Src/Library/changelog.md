@@ -127,6 +127,12 @@ Path segment matching has been changed to include the parenthesis as well in ord
 
 </details>
 
+<details><summary>Default values for Enum properties not displayed in Swagger UI</summary>
+
+Enum property default values were not being displayed in Swagger UI due to incorrectly generated Swagger Spec due to a bug in NSwag. A workaround has been implemented to generate the correct spec.
+
+</details>
+
 <details><summary>Incorrect property name detection for STJ deserialization exceptions</summary>
 
 When deserializing Enum arrays from query parameters, if one of the values is invalid, the following error response was generated with an incorrect property name:

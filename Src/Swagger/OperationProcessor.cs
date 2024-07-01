@@ -648,12 +648,16 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                          !hasDefaultValFromCtorArg ??
                          !(isNullable ?? true);
 
-        //fix https://github.com/FastEndpoints/FastEndpoints/issues/699
+        //fix enums not rendering as dropdowns in swagger ui due to nswag bug
         if (isNullable is true && Nullable.GetUnderlyingType(propType)?.IsEnum is true && prm.Schema.OneOf.Count == 1)
         {
-            var s = prm.Schema.OneOf.Single();
+            prm.Schema.AllOf.Add(prm.Schema.OneOf.Single());
             prm.Schema.OneOf.Clear();
-            prm.Schema = s;
+        }
+        else if (propType.IsEnum && prm.Schema.Reference?.IsEnumeration is true)
+        {
+            prm.Schema.AllOf.Add(new() { Reference = prm.Schema.ActualSchema });
+            prm.Schema.Reference = null;
         }
 
         prm.Schema.IsNullableRaw = prm.IsRequired ? null : isNullable;

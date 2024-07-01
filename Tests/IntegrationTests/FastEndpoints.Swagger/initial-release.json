@@ -3539,7 +3539,11 @@
             "in": "query",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SystemDayOfWeek"
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/SystemDayOfWeek"
+                }
+              ]
             }
           },
           {

@@ -31,14 +31,15 @@ public class FixtureB(IMessageSink s) : AppFixture<Web.Program>(s)
 
 public class FixtureWithConfigureAppHost(IMessageSink s) : AppFixture<Web.Program>(s)
 {
-    internal static readonly string _id = Guid.NewGuid().ToString("N");
-    internal IHost _host = null!;
+    internal static readonly string Id = Guid.NewGuid().ToString("N");
+    internal IHost Host = null!;
 
     protected override IHost ConfigureAppHost(IHostBuilder a)
     {
-        a.ConfigureServices(services => { services.AddSingleton(new FixtureId(_id)); });
-        _host = a.Build();
-        _host.Start();
-        return _host;
+        a.ConfigureServices(services => { services.AddSingleton(new FixtureId(Id)); });
+        Host = a.Build();
+        Host.Start();
+
+        return Host;
     }
 }

@@ -105,12 +105,12 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
 
     /// <summary>
     /// override this method if you'd like to provide any configuration for the generic app host of the underlying <see cref="WebApplicationFactory{TEntryPoint}" />
-    /// />
     /// </summary>
-    protected virtual IHost ConfigureAppHost(IHostBuilder a) 
+    protected virtual IHost ConfigureAppHost(IHostBuilder a)
     {
         var host = a.Build();
         host.Start();
+
         return host;
     }
 
@@ -201,9 +201,10 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
         Client?.Dispose();
     }
 
-    private class WafWrapper(Func<IHostBuilder, IHost> configureAppHost) : WebApplicationFactory<TProgram>
+    class WafWrapper(Func<IHostBuilder, IHost> configureAppHost) : WebApplicationFactory<TProgram>
     {
-        protected override IHost CreateHost(IHostBuilder builder) => configureAppHost(builder);
+        protected override IHost CreateHost(IHostBuilder builder)
+            => configureAppHost(builder);
     }
 }
 

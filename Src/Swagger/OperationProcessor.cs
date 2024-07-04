@@ -662,6 +662,14 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
         prm.Schema.IsNullableRaw = prm.IsRequired ? null : isNullable;
 
+        if (Kind == OpenApiParameterKind.Body &&
+            prm.Schema.OneOf.SingleOrDefault()?.Reference?.IsObject is true &&
+            prm.Schema.OneOf.Single().Reference?.Discriminator is null)
+        {
+            prm.Schema = prm.Schema.OneOf.Single();
+            prm.Schema.OneOf.Clear();
+        }
+
         if (ctx.OpCtx.IsSwagger2())
             prm.Default = Prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
         else

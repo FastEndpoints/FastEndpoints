@@ -2109,11 +2109,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
-                  }
-                ]
+                "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
               },
               "example": {
                 "Id": 0,

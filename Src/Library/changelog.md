@@ -10,6 +10,22 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Support for cancellation of queued jobs</summary>
+
+Queuing a command as a job now returns a **Tracking Id** with which you can request cancellation of a queued job from anywhere/anytime like so:
+
+```csharp
+var trackingId = await new LongRunningCommand().QueueJobAsync();
+
+await JobTracker<LongRunningCommand>.CancelJobAsync(trackingId);
+```
+
+Use either use the **JobTracker&lt;TCommand&gt;** generic class or inject a **IJobTracker&lt;TCommand&gt;** instance from the DI Container to access the **CancelJobAsync()** method.
+
+**NOTE:** This feature warrants a minor breaking change. See how to upgrade below.
+
+</details>
+
 <details><summary>Check if app is being run in Swagger Json export mode and/or Api Client Generation mode</summary>
 
 You can now use the following new extension methods for conditionally configuring your middleware pipeline depending on the mode the app is running in:
@@ -172,3 +188,13 @@ There was an oversight in adding default response metadata to endpoints that wer
 </details>
 
 ## Minor Breaking Changes ⚠️
+
+<details><summary>Job storage record &amp; storage provider update</summary>
+
+In order to support the new job cancellation feature, the following steps must be taken for a smooth migration experience:
+
+1. Purge all existing queued jobs from storage or allow them to complete before deploying new version.
+2. Add a `Guid` property called `TrackingID` to the [job storage record entity](https://github.com/FastEndpoints/Job-Queue-Demo/blob/main/src/Storage/JobRecord.cs#L8) and run a migration if using EF Core.
+3. Implement `CancelJobAsync()` method on the [job storage provider](https://github.com/FastEndpoints/Job-Queue-Demo/blob/main/src/Storage/JobProvider.cs#L23-L28)
+
+</details>

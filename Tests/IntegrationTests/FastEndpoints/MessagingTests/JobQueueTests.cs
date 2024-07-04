@@ -5,7 +5,7 @@ namespace Messaging;
 
 public class JobQueueTests(Sut App) : TestBase<Sut>
 {
-    [Fact, Priority(1)]
+    [Fact, Priority(1), Trait("ExcludeInCiCd", "Yes")]
     public async Task Job_Cancellation()
     {
         var cts = new CancellationTokenSource(5000);

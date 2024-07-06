@@ -14,6 +14,8 @@ namespace FastEndpoints.ClientGen.Kiota;
 
 public static class Extensions
 {
+    const string TempFolder = "KiotaClientGen";
+
     /// <summary>
     /// registers an endpoint that provides a download of the api client zip file for a given client generation configuration.
     /// </summary>
@@ -30,7 +32,7 @@ public static class Extensions
             route,
             async (IHost app, HttpContext httpCtx, CancellationToken ct) =>
             {
-                var c = new ClientGenConfig { OutputPath = Path.Combine(Path.GetTempPath(), "KiotaClientGen") };
+                var c = new ClientGenConfig { OutputPath = Path.Combine(Path.GetTempPath(), TempFolder) };
                 config(c);
                 c.CreateZipArchive = true;
 
@@ -200,9 +202,17 @@ public static class Extensions
         var logger = app.Services.GetRequiredService<ILogger<ClientGenerator>>();
         logger.LogInformation("Starting [{lang}] Api Client generation for [{doc}]", c.Language.ToString(), c.SwaggerDocumentName);
 
-        c.OpenAPIFilePath = await ExportSwaggerJson(app, c.SwaggerDocumentName, c.OutputPath, null, ct);
-        var log = LoggerFactory.Create(_ => { }).CreateLogger<KiotaBuilder>();
-        await new KiotaBuilder(log, c, new()).GenerateClientAsync(ct);
+        var swaggerJsonPath = c.CleanOutput
+                                  ? Path.Combine(Path.GetTempPath(), TempFolder)
+                                  : c.OutputPath;
+
+        c.OpenAPIFilePath = await ExportSwaggerJson(app, c.SwaggerDocumentName, swaggerJsonPath, null, ct);
+
+        await new KiotaBuilder(
+                logger: LoggerFactory.Create(_ => { }).CreateLogger<KiotaBuilder>(),
+                config: c,
+                client: new())
+            .GenerateClientAsync(ct);
 
         logger.LogInformation("Api Client generation successful!");
 

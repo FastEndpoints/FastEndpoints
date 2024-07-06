@@ -648,6 +648,12 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                          !hasDefaultValFromCtorArg ??
                          !(isNullable ?? true);
 
+        if (ctx.OpCtx.IsSwagger2() && prm.Schema is null)
+        {
+            prm.Schema = JsonSchema.FromType(propType);
+            prm.Schema.Title = null;
+        }
+
         //fix enums not rendering as dropdowns in swagger ui due to nswag bug
         if (isNullable is true && Nullable.GetUnderlyingType(propType)?.IsEnum is true && prm.Schema.OneOf.Count == 1)
         {

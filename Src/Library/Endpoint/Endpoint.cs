@@ -284,11 +284,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// </summary>
     /// <typeparam name="TService">the type of the token service</typeparam>
     /// <param name="userId">the id of the user for which the tokens will be generated for</param>
-    /// <param name="userPrivileges">the user priviledges to be embeded in the jwt such as roles/claims/permissions</param>
-    protected Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges)
+    /// <param name="userPrivileges">the user privileges to be embedded in the jwt such as roles/claims/permissions</param>
+    protected Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges, TRequest? request = default)
         where TService : IRefreshTokenService<TResponse>
         => ((IRefreshTokenService<TResponse>)
-               Cfg.ServiceResolver.CreateInstance(typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges, null);
+               Cfg.ServiceResolver.CreateInstance(typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges, false, request);
 
     /// <summary>
     /// retrieve the common processor state for this endpoint.

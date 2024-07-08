@@ -10,6 +10,12 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Ability to override JWT Token creation options per request for Refresh Tokens</summary>
+
+todo: write docs + description here
+
+</details>
+
 ## Improvements 🚀
 
 ## Fixes 🪲

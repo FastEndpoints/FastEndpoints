@@ -1,5 +1,7 @@
 ﻿// ReSharper disable MemberCanBeProtected.Global
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace FastEndpoints.Security;
 
 /// <summary>
@@ -36,7 +38,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     {
         await RefreshRequestValidationAsync(req);
         ThrowIfAnyErrors();
-        var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(req.UserId, null, req);
+        var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(req.UserId, null, true, req);
         await SendAsync(res, 200, ct);
     }
 
@@ -49,6 +51,16 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         _opts = new();
         options(_opts);
     }
+
+    /// <summary>
+    /// a hook for modifying jwt creation options per request. this method is called right before the actual jwt token is created allowing you to override token creation
+    /// parameters per request if needed.
+    /// </summary>
+    /// <param name="isRefreshRequest">will be <c>true</c> if this is a refresh token request. will be false for initial token creation</param>
+    /// <param name="jwtOptions">jwt token creation options which you can modify per request</param>
+    /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    public virtual void OnTokenCreation(bool isRefreshRequest, JwtCreationOptions jwtOptions, TRequest? request) { }
 
     /// <summary>
     /// this method will be called whenever a new access/refresh token pair is being generated.
@@ -81,15 +93,16 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="userId">the id of the user to create the token for</param>
     /// <param name="privileges">the user privileges to be embedded in the jwt such as roles/claims/permissions</param>
     /// <param name="map">a func that maps properties from <typeparamref name="TResponse" /> to <typeparamref name="T" /></param>
-    public async Task<T> CreateCustomToken<T>(string userId, Action<UserPrivileges> privileges, Func<TResponse, T> map)
+    /// <param name="isRenewal">specify if this is an initial login request or a renewal/refresh request</param>
+    public async Task<T> CreateCustomToken<T>(string userId, Action<UserPrivileges> privileges, Func<TResponse, T> map, bool isRenewal = false)
     {
-        var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(userId, privileges, null);
+        var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(userId, privileges, isRenewal, null);
 
         return map(res);
     }
 
     [HideFromDocs]
-    async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPrivileges>? privileges, object? request)
+    async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPrivileges>? privileges, bool isRenewal, object? request)
     {
         if (_opts?.TokenSigningKey is null)
             throw new ArgumentNullException($"{nameof(_opts.TokenSigningKey)} must be specified for [{Definition.EndpointType.FullName}]");
@@ -98,7 +111,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
 
         privileges?.Invoke(privs);
 
-        if (request is not null) //only true on renewal
+        if (isRenewal && request is not null)
             await SetRenewalPrivilegesAsync((TRequest)request, privs);
 
         var time = Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
@@ -121,6 +134,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
                     o.Issuer = _opts.Issuer;
                     o.Audience = _opts.Audience;
                     o.CompressionAlgorithm = _opts.TokenCompressionAlgorithm;
+                    OnTokenCreation(isRenewal, o, request as TRequest);
                 }),
             AccessExpiry = accessExpiry,
             RefreshToken = Guid.NewGuid().ToString("N"),

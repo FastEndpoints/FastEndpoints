@@ -60,7 +60,16 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="jwtOptions">jwt token creation options which you can modify per request</param>
     /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    public virtual void OnTokenCreation(bool isRefreshRequest, JwtCreationOptions jwtOptions, TRequest? request) { }
+    public virtual void OnBeforeTokenCreation(bool isRefreshRequest, JwtCreationOptions jwtOptions, TRequest? request) { }
+
+    /// <summary>
+    /// a hook for modifying the created token response.
+    /// </summary>
+    /// <param name="isRefreshRequest">will be <c>true</c> if this is a refresh token request. will be false for initial token creation</param>
+    /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
+    /// <param name="response">the token response dto that is created</param>
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
+    public virtual void OnAfterTokenCreation(bool isRefreshRequest, TRequest? request, TResponse response) { }
 
     /// <summary>
     /// this method will be called whenever a new access/refresh token pair is being generated.
@@ -79,7 +88,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     public abstract Task RefreshRequestValidationAsync(TRequest req);
 
     /// <summary>
-    /// specify the user privileges to be embeded in the jwt when a refresh request is received and validation has passed.
+    /// specify the user privileges to be embedded in the jwt when a refresh request is received and validation has passed.
     /// this only applies to renewal/refresh requests received to the refresh endpoint and not the initial jwt creation.
     /// </summary>
     /// <param name="request">the request dto received from the client</param>
@@ -117,7 +126,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         var time = Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
         var accessExpiry = time.GetUtcNow().Add(_opts.AccessTokenValidity).UtcDateTime;
         var refreshExpiry = time.GetUtcNow().Add(_opts.RefreshTokenValidity).UtcDateTime;
-        var token = new TResponse
+        var tokenResponse = new TResponse
         {
             UserId = userId,
             AccessToken = JwtBearer.CreateToken(
@@ -134,15 +143,17 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
                     o.Issuer = _opts.Issuer;
                     o.Audience = _opts.Audience;
                     o.CompressionAlgorithm = _opts.TokenCompressionAlgorithm;
-                    OnTokenCreation(isRenewal, o, request as TRequest);
+                    OnBeforeTokenCreation(isRenewal, o, request as TRequest);
                 }),
             AccessExpiry = accessExpiry,
             RefreshToken = Guid.NewGuid().ToString("N"),
             RefreshExpiry = refreshExpiry
         };
 
-        await PersistTokenAsync(token);
+        OnAfterTokenCreation(isRenewal, request as TRequest, tokenResponse);
 
-        return token;
+        await PersistTokenAsync(tokenResponse);
+
+        return tokenResponse;
     }
 }

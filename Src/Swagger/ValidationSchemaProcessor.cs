@@ -20,45 +20,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.ObjectModel;
 using FastEndpoints.Swagger.ValidationProcessor;
 using FastEndpoints.Swagger.ValidationProcessor.Extensions;
 using FluentValidation;
 using FluentValidation.Internal;
 using FluentValidation.Validators;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using NJsonSchema;
 using NJsonSchema.Generation;
-using System.Collections.ObjectModel;
 
 namespace FastEndpoints.Swagger;
 
 sealed class ValidationSchemaProcessor : ISchemaProcessor
 {
+    readonly IServiceResolver _serviceResolver;
+    readonly ILogger<ValidationSchemaProcessor> _logger;
     static Type[]? _validatorTypes;
     readonly FluentValidationRule[] _rules;
     readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
-    readonly ILogger<ValidationSchemaProcessor>? _logger;
 
-    public ValidationSchemaProcessor()
+    public ValidationSchemaProcessor(IServiceResolver serviceResolver, ILogger<ValidationSchemaProcessor> logger)
     {
-        if (Conf.ServiceResolver is null)
-        {
-            throw new InvalidOperationException(
-                $"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
-        }
-
-        _logger = Conf.ServiceResolver.Resolve<ILogger<ValidationSchemaProcessor>>();
+        _serviceResolver = serviceResolver;
+        _logger = logger;
         _rules = CreateDefaultRules();
-
-        _validatorTypes ??= Conf.ServiceResolver.Resolve<EndpointData>().Found
-                                .Where(e => e.ValidatorType != null)
-                                .Select(e => e.ValidatorType!)
-                                .Distinct()
-                                .ToArray();
+        _validatorTypes ??= _serviceResolver.Resolve<EndpointData>().Found
+                                            .Where(e => e.ValidatorType != null)
+                                            .Select(e => e.ValidatorType!)
+                                            .Distinct()
+                                            .ToArray();
 
         if (_validatorTypes?.Length is null or 0)
-            _logger?.LogInformation("No validators found in the system!");
+            _logger.LogInformation("No validators found in the system!");
     }
 
     public void Process(SchemaProcessorContext context)
@@ -67,14 +61,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             return;
 
         var tRequest = context.ContextualType;
-
-        using var scope = Conf.ServiceResolver.CreateScope();
-
-        if (scope is null)
-        {
-            throw new InvalidOperationException(
-                $"Please call app.{nameof(MainExtensions.UseFastEndpoints)}() before calling app.{nameof(NSwagApplicationBuilderExtensions.UseOpenApi)}()");
-        }
+        using var scope = _serviceResolver.CreateScope();
 
         foreach (var tValidator in _validatorTypes)
         {
@@ -82,7 +69,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             {
                 if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
-                    var validator = Conf.ServiceResolver.CreateInstance(tValidator, scope.ServiceProvider);
+                    var validator = _serviceResolver.CreateInstance(tValidator, scope.ServiceProvider);
 
                     if (validator is null)
                         throw new InvalidOperationException("Unable to instantiate validator!");
@@ -239,9 +226,9 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
     }
 
     static FluentValidationRule[] CreateDefaultRules()
-        => new[]
-        {
-            new FluentValidationRule("Required")
+        =>
+        [
+            new("Required")
             {
                 Matches = propertyValidator => propertyValidator is INotNullValidator or INotEmptyValidator,
                 Apply = context =>
@@ -251,7 +238,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                                 schema.RequiredProperties.Add(context.PropertyKey);
                         }
             },
-            new FluentValidationRule("NotNull")
+            new("NotNull")
             {
                 Matches = propertyValidator => propertyValidator is INotNullValidator,
                 Apply = context =>
@@ -276,7 +263,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             }
                         }
             },
-            new FluentValidationRule("NotEmpty")
+            new("NotEmpty")
             {
                 Matches = propertyValidator => propertyValidator is INotEmptyValidator,
                 Apply = context =>
@@ -302,7 +289,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             properties[context.PropertyKey].MinLength = 1;
                         }
             },
-            new FluentValidationRule("Length")
+            new("Length")
             {
                 Matches = propertyValidator => propertyValidator is ILengthValidator,
                 Apply = context =>
@@ -318,7 +305,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                                 properties[context.PropertyKey].MinLength = lengthValidator.Min;
                         }
             },
-            new FluentValidationRule("Pattern")
+            new("Pattern")
             {
                 Matches = propertyValidator => propertyValidator is IRegularExpressionValidator,
                 Apply = context =>
@@ -329,7 +316,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             properties[context.PropertyKey].Pattern = regularExpressionValidator.Expression;
                         }
             },
-            new FluentValidationRule("Comparison")
+            new("Comparison")
             {
                 Matches = propertyValidator => propertyValidator is IComparisonValidator,
                 Apply = context =>
@@ -360,7 +347,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             }
                         }
             },
-            new FluentValidationRule("Between")
+            new("Between")
             {
                 Matches = propertyValidator => propertyValidator is IBetweenValidator,
                 Apply = context =>
@@ -387,7 +374,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             }
                         }
             },
-            new FluentValidationRule("AspNetCoreCompatibleEmail")
+            new("AspNetCoreCompatibleEmail")
             {
                 Matches = propertyValidator => propertyValidator.GetType().IsSubClassOfGeneric(typeof(AspNetCoreCompatibleEmailValidator<>)),
                 Apply = context =>
@@ -398,5 +385,5 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             properties[context.PropertyKey].Pattern = "^[^@]+@[^@]+$"; // [^@] All chars except @
                         }
             }
-        };
+        ];
 }

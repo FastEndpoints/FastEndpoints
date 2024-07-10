@@ -18,6 +18,12 @@ todo: write docs + description here
 
 ## Improvements 🚀
 
+<details><summary>Get rid of Swagger middleware ordering requirements</summary>
+
+Swagger middleware ordering is no longer important. You can now place the `.SwaggerDocument()` and `.UseSwaggerGen()` calls wherever you prefer.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Swagger generator issue with [FromBody] properties</summary>

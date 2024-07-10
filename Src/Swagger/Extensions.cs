@@ -1,20 +1,20 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Reflection;
+using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Namotion.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NJsonSchema.Generation;
+using NJsonSchema.NewtonsoftJson.Generation;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors.Contexts;
 using NSwag.Generation.Processors.Security;
-using System.Reflection;
-using System.Text.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NJsonSchema.NewtonsoftJson.Generation;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace FastEndpoints.Swagger;
@@ -52,10 +52,11 @@ public static class Extensions
                     SchemaType = SchemaType.OpenApi3
                 };
 
-                EnableFastEndpoints(genSettings, doc);
+                EnableFastEndpoints(genSettings, doc, services);
 
                 if (doc.EndpointFilter is not null)
                     genSettings.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
+
                 if (doc.ExcludeNonFastEndpoints)
                     genSettings.OperationProcessors.Insert(0, new FastEndpointsFilter());
 
@@ -77,9 +78,12 @@ public static class Extensions
                             }
                         };
                 }
+
                 if (doc.EnableJWTBearerAuth)
                     genSettings.EnableJWTBearerAuth();
+
                 doc.DocumentSettings?.Invoke(genSettings);
+
                 if (doc.RemoveEmptyRequestSchema || doc.FlattenSchema)
                     genSettings.SchemaSettings.FlattenInheritanceHierarchy = true;
             });
@@ -107,11 +111,12 @@ public static class Extensions
     /// enable support for FastEndpoints in swagger
     /// </summary>
     /// <param name="documentOptions">the document options</param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, Action<DocumentOptions> documentOptions)
+    /// <param name="services">the service collection</param>
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, Action<DocumentOptions> documentOptions, IServiceCollection services)
     {
         var doc = new DocumentOptions();
         documentOptions(doc);
-        EnableFastEndpoints(settings, doc);
+        EnableFastEndpoints(settings, doc, services);
     }
 
     /// <summary>
@@ -295,11 +300,15 @@ public static class Extensions
     internal static bool IsSwagger2(this OperationProcessorContext ctx)
         => ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2;
 
-    static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
+    static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts, IServiceCollection services)
     {
+        var validationProcessor = (ValidationSchemaProcessor)services.BuildServiceProvider()
+                                                                     .GetRequiredService<IServiceResolver>()
+                                                                     .CreateSingleton(typeof(ValidationSchemaProcessor));
+
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaSettings.SchemaNameGenerator = new SchemaNameGenerator(opts.ShortSchemaNames);
-        settings.SchemaSettings.SchemaProcessors.Add(new ValidationSchemaProcessor());
+        settings.SchemaSettings.SchemaProcessors.Add(validationProcessor);
         settings.OperationProcessors.Add(new OperationProcessor(opts));
         settings.DocumentProcessors.Add(new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion, opts.ShowDeprecatedOps));
     }

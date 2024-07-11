@@ -60,7 +60,8 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="jwtOptions">jwt token creation options which you can modify per request</param>
     /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    public virtual void OnBeforeTokenCreation(bool isRefreshRequest, JwtCreationOptions jwtOptions, TRequest? request) { }
+    public virtual Task OnBeforeTokenCreationAsync(bool isRefreshRequest, JwtCreationOptions jwtOptions, TRequest? request)
+        => Task.CompletedTask;
 
     /// <summary>
     /// a hook for modifying the created token response.
@@ -69,7 +70,8 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
     /// <param name="response">the token response dto that is created</param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
-    public virtual void OnAfterTokenCreation(bool isRefreshRequest, TRequest? request, TResponse response) { }
+    public virtual Task OnAfterTokenCreationAsync(bool isRefreshRequest, TRequest? request, TResponse response)
+        => Task.CompletedTask;
 
     /// <summary>
     /// this method will be called whenever a new access/refresh token pair is being generated.
@@ -126,31 +128,33 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         var time = Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
         var accessExpiry = time.GetUtcNow().Add(_opts.AccessTokenValidity).UtcDateTime;
         var refreshExpiry = time.GetUtcNow().Add(_opts.RefreshTokenValidity).UtcDateTime;
+        var jOpts = new JwtCreationOptions
+        {
+            SigningKey = _opts.TokenSigningKey,
+            SigningStyle = _opts.TokenSigningStyle,
+            SigningAlgorithm = _opts.TokenSigningAlgorithm,
+            KeyIsPemEncoded = _opts.SigningKeyIsPemEncoded,
+            ExpireAt = accessExpiry,
+            Issuer = _opts.Issuer,
+            Audience = _opts.Audience,
+            CompressionAlgorithm = _opts.TokenCompressionAlgorithm
+        };
+        jOpts.User.Permissions.AddRange(privs.Permissions);
+        jOpts.User.Roles.AddRange(privs.Roles);
+        jOpts.User.Claims.AddRange(privs.Claims);
+
+        await OnBeforeTokenCreationAsync(isRenewal, jOpts, request as TRequest);
+
         var tokenResponse = new TResponse
         {
             UserId = userId,
-            AccessToken = JwtBearer.CreateToken(
-                o =>
-                {
-                    o.SigningKey = _opts.TokenSigningKey;
-                    o.SigningStyle = _opts.TokenSigningStyle;
-                    o.SigningAlgorithm = _opts.TokenSigningAlgorithm;
-                    o.KeyIsPemEncoded = _opts.SigningKeyIsPemEncoded;
-                    o.ExpireAt = accessExpiry;
-                    o.User.Permissions.AddRange(privs.Permissions);
-                    o.User.Roles.AddRange(privs.Roles);
-                    o.User.Claims.AddRange(privs.Claims);
-                    o.Issuer = _opts.Issuer;
-                    o.Audience = _opts.Audience;
-                    o.CompressionAlgorithm = _opts.TokenCompressionAlgorithm;
-                    OnBeforeTokenCreation(isRenewal, o, request as TRequest);
-                }),
+            AccessToken = JwtBearer.CreateToken(jOpts),
             AccessExpiry = accessExpiry,
             RefreshToken = Guid.NewGuid().ToString("N"),
             RefreshExpiry = refreshExpiry
         };
 
-        OnAfterTokenCreation(isRenewal, request as TRequest, tokenResponse);
+        await OnAfterTokenCreationAsync(isRenewal, request as TRequest, tokenResponse);
 
         await PersistTokenAsync(tokenResponse);
 

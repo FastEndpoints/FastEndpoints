@@ -4,7 +4,6 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 #if NET8_0_OR_GREATER
 using Microsoft.IdentityModel.JsonWebTokens;
-
 #else
 using System.IdentityModel.Tokens.Jwt;
 #endif
@@ -22,11 +21,14 @@ public static class JwtBearer
     /// <param name="options">action to configure jwt creation options.</param>
     /// <exception cref="InvalidOperationException">thrown if a token signing key is not supplied.</exception>
     public static string CreateToken(Action<JwtCreationOptions> options)
+        => CreateToken(null, options);
+
+    internal static string CreateToken(JwtCreationOptions? options = null, Action<JwtCreationOptions>? optsAction = null)
     {
         //TODO: remove all other overloads in favor of this at v6.0
 
-        var opts = new JwtCreationOptions();
-        options(opts);
+        var opts = options ?? new JwtCreationOptions();
+        optsAction?.Invoke(opts);
 
         if (string.IsNullOrEmpty(opts.SigningKey))
             throw new InvalidOperationException($"'{nameof(JwtCreationOptions.SigningKey)}' is required!");

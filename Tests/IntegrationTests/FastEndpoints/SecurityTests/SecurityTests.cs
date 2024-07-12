@@ -107,6 +107,16 @@ public class SecurityTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task Jwt_Revocation()
+    {
+        var client = App.CreateClient(c => c.DefaultRequestHeaders.Authorization = new("Bearer", "revoked token"));
+        var (rsp, _) = await client.GETAsync<Customers.List.Recent.Endpoint, Customers.List.Recent.Response>();
+        rsp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        var res = await rsp.Content.ReadAsStringAsync();
+        res.Should().Be("Bearer token has been revoked!");
+    }
+
+    [Fact]
     public async Task IAuthorization_Injection_Pass()
     {
         var (rsp, res) = await App.AdminClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();

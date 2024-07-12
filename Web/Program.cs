@@ -112,6 +112,7 @@ app.UseRequestLocalization(
    .UseResponseCaching()
    .UseRouting() //if using, this call must go before auth/cors/fastendpoints middleware
    .UseCors(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
+   .UseJwtRevocation<JwtBlacklistChecker>()
    .UseAuthentication()
    .UseAuthorization()
    .UseAntiforgeryFE()

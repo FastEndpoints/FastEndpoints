@@ -10,9 +10,35 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Jwt token revocation middleware</summary>
+
+Jwt token revocation can be easily implemented with the newly provided abstract class like so:
+
+```csharp
+public class JwtBlacklistChecker(RequestDelegate next) : JwtRevocationMiddleware(next)
+{
+    protected override Task<bool> JwtTokenIsValidAsync(string jwtToken, CancellationToken ct)
+    { 
+        //return true if the supplied token is still valid
+    }
+}
+```
+
+Simply register it before any auth related middleware like so:
+
+```csharp
+app.UseJwtRevocation<JwtBlacklistChecker>()
+   .UseAuthentication()
+   .UseAuthorization()
+```
+
+</details>
+
 <details><summary>Ability to override JWT Token creation options per request for Refresh Tokens</summary>
 
 todo: write docs + description here
+
+ref: https://discord.com/channels/933662816458645504/1258013749948977273/1260889170876956682
 
 </details>
 

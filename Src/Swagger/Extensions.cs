@@ -112,7 +112,9 @@ public static class Extensions
     /// </summary>
     /// <param name="documentOptions">the document options</param>
     /// <param name="serviceProvider">the service provider</param>
-    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings, Action<DocumentOptions> documentOptions, IServiceProvider serviceProvider)
+    public static void EnableFastEndpoints(this AspNetCoreOpenApiDocumentGeneratorSettings settings,
+                                           Action<DocumentOptions> documentOptions,
+                                           IServiceProvider serviceProvider)
     {
         var doc = new DocumentOptions();
         documentOptions(doc);
@@ -303,8 +305,8 @@ public static class Extensions
     static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts, IServiceProvider serviceProvider)
     {
         var validationProcessor = (ValidationSchemaProcessor)serviceProvider
-                                                                     .GetRequiredService<IServiceResolver>()
-                                                                     .CreateSingleton(typeof(ValidationSchemaProcessor));
+                                                             .GetRequiredService<IServiceResolver>()
+                                                             .CreateSingleton(typeof(ValidationSchemaProcessor));
 
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaSettings.SchemaNameGenerator = new SchemaNameGenerator(opts.ShortSchemaNames);

@@ -58,6 +58,18 @@ The referenced schema was generated as a `OneOf` instead of a direct `$ref` when
 
 </details>
 
+<details><summary>Swagger route parameter detection issue</summary>
+
+The Nswag operation processor did not correctly recognize route parameters in the following form:
+
+```csharp
+api/a:{id1}:{id2}
+```
+
+Which has now been corrected thanks to PR #735
+
+</details>
+
 <details><summary>Kiota client generation issue with 'clean output' setting</summary>
 
 If the setting for cleaning the output folder was enabled, Kiota client generation was throwing an error that it can't find the input swagger json file, because Kiota deletes everything in the output folder when that setting is enabled. From now on, if the setting is enabled, the swagger json file will be created in the system temp folder instead of the output folder.

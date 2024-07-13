@@ -398,6 +398,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
+
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {

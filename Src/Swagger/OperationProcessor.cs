@@ -398,6 +398,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
+
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {
@@ -706,6 +707,9 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
         readonly Dictionary<string, Type> _paramMap;
 
+        //search min 1 `:` character between any `{` and `}` characters
+        const string ParamMapPattern = @"\{[^{}]*:[^{}]*\}";
+
         public ParamCreationContext(OperationProcessorContext opCtx,
                                     DocumentOptions docOpts,
                                     JsonSerializer serializer,
@@ -718,8 +722,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             Descriptions = descriptions;
             _paramMap = new(
                 operationPath.Split('/')
-                             .Where(s => s.Contains('{') && s.Contains(':') && s.Contains('}')) //include: api/{id:int:min(5)}:deactivate
-                             .Where(s => s.IndexOf(':') < s.IndexOf('}'))                       //exclude: api/{id}:deactivate
+                             .Where(s => Regex.IsMatch(s, ParamMapPattern)) //include: api/{id:int:min(5)}:deactivate
                              .Select(
                                  s =>
                                  {

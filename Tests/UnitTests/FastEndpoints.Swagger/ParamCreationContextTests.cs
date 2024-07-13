@@ -1,7 +1,6 @@
 // ReSharper disable ArrangeAttributes
 
 using FastEndpoints.Swagger;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace ParamCreationContext;
@@ -34,7 +33,7 @@ public class ParamCreationContextTests
     [Fact]
     public void ShouldBuildParamMapCorrectly_WhenNoTypeSpecified()
     {
-        var operationPath = $"/route/{{{ParamName}}}/";
+        const string operationPath = $"/route/{{{ParamName}}}/";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
@@ -43,7 +42,7 @@ public class ParamCreationContextTests
     [Fact]
     public void ShouldBuildParamMapCorrectly_WhenUnknownTypeIsSpecified()
     {
-        var operationPath = $"/route/{{{ParamName}:unknownType}}/";
+        const string operationPath = $"/route/{{{ParamName}:unknownType}}/";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
@@ -94,7 +93,7 @@ public class ParamCreationContextTests
     [Fact]
     public void ShouldBuildParamMapCorrectly_WhenTypeNotSpecified_AndGoogleRestApiGuidelineRouteStyle()
     {
-        var operationPath = $"/route/{{{ParamName}}}:deactivate";
+        const string operationPath = $"/route/{{{ParamName}}}:deactivate";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
@@ -103,9 +102,19 @@ public class ParamCreationContextTests
     [Fact]
     public void ShouldBuildParamMapCorrectly_WhenTypeSpecified_AndHasMultipleConstraints_AndGoogleRestApiGuidelineRouteStyle()
     {
-        var operationPath = $"/route/{{{ParamName}:min(5):max(10)}}:deactivate";
+        const string operationPath = $"/route/{{{ParamName}:min(5):max(10)}}:deactivate";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
         sut.TypeForRouteParam(ParamName).Should().Be(typeof(long));
+    }
+
+    [Fact]
+    public async Task Multi_Semi_Colon_Route_Segments()
+    {
+        const string operationPath = $"api/a:{{{ParamName}}}:{{id2}}/{{{OtherParam}:long}}/";
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+
+        sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
+        sut.TypeForRouteParam(OtherParam).Should().Be(typeof(long));
     }
 }

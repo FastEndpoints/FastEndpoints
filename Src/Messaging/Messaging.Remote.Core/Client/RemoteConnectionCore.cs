@@ -3,6 +3,7 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using Grpc.Net.Client.Web;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
@@ -14,6 +15,9 @@ public class RemoteConnectionCore
     //key: tCommand or tEventHandler
     //val: remote server that hosts command handlers/event buses
     internal static ConcurrentDictionary<Type, RemoteConnectionCore> RemoteMap { get; } = new(); //concurrent is needed due to parallel integration tests
+
+    internal static Type StorageRecordType { private get; set; } = typeof(InMemoryEventStorageRecord);
+    internal static Type StorageProviderType { private get; set; } = typeof(InMemoryEventSubscriberStorage);
 
     //key: tCommand
     //val: command executor
@@ -138,4 +142,30 @@ public class RemoteConnectionCore
         => !ExecutorMap.TryGetValue(tCommand, out var executor)
                ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
                : ((IClientStreamCommandExecutor<T, TResult>)executor).ExecuteClientStream(cmd, opts);
+
+    /// <summary>
+    /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent" />) on the remote host.
+    /// the received events will be handled by the specified handler (<typeparamref name="TEventHandler" />) on this machine.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
+    /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
+    /// <param name="callOptions">the call options</param>
+    public void Subscribe<TEvent, TEventHandler>(CallOptions callOptions = default) where TEvent : class, IEvent where TEventHandler : IEventHandler<TEvent>
+    {
+        var tEventHandler = typeof(TEventHandler);
+        RemoteMap[tEventHandler] = this;
+        Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
+
+        var tHandler = ServiceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
+
+        var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(
+            typeof(TEvent),
+            tHandler,
+            StorageRecordType,
+            StorageProviderType);
+
+        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(ServiceProvider, tEventSubscriber, Channel);
+        ExecutorMap[tEventHandler] = eventSubscriber;
+        ((IEventSubscriber)eventSubscriber).Start(callOptions);
+    }
 }

@@ -2,6 +2,9 @@
 
 namespace FastEndpoints;
 
+/// <summary>
+/// subscriber exception receiver extensions
+/// </summary>
 public static class SubscriberExceptionReceiverExtensions
 {
     /// <summary>
@@ -11,6 +14,7 @@ public static class SubscriberExceptionReceiverExtensions
     public static IServiceCollection AddSubscriberExceptionReceiver<TReceiver>(this IServiceCollection services) where TReceiver : SubscriberExceptionReceiver
     {
         services.AddSingleton<SubscriberExceptionReceiver, TReceiver>();
+
         return services;
     }
 }

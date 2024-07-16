@@ -1,4 +1,5 @@
 using FastEndpoints.Messaging.Remote;
+using FastEndpoints.Messaging.Remote.Core;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
     : BaseCommandExecutor<string, TEvent>, ICommandExecutor, IEventSubscriber
     where TEvent : class, IEvent
     where TEventHandler : class, IEventHandler<TEvent>
-    where TStorageRecord : IEventStorageRecord, new()
+    where TStorageRecord : class, IEventStorageRecord, new()
     where TStorageProvider : IEventSubscriberStorageProvider<TStorageRecord>
 {
     static TStorageProvider? _storage;

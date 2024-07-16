@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <NoWarn>CS1591</NoWarn>
         <TargetFrameworks>netstandard2.1;</TargetFrameworks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Core componets of the FastEndpoints remote messaging library</Description>

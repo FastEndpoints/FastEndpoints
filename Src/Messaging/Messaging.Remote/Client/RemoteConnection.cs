@@ -9,9 +9,6 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class RemoteConnection : RemoteConnectionCore
 {
-    internal static Type StorageRecordType { private get; set; } = typeof(InMemoryEventStorageRecord);
-    internal static Type StorageProviderType { private get; set; } = typeof(InMemoryEventSubscriberStorage);
-
     internal RemoteConnection(string address, IServiceProvider serviceProvider) : base(address, serviceProvider)
     {
         var httpMsgHnd = serviceProvider.GetService<HttpMessageHandler>();
@@ -28,32 +25,6 @@ public sealed class RemoteConnection : RemoteConnectionCore
                 EnableMultipleHttp2Connections = true
             };
         }
-    }
-
-    /// <summary>
-    /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent" />) on the remote host.
-    /// the received events will be handled by the specified handler (<typeparamref name="TEventHandler" />) on this machine.
-    /// </summary>
-    /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
-    /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
-    /// <param name="callOptions">the call options</param>
-    public void Subscribe<TEvent, TEventHandler>(CallOptions callOptions = default) where TEvent : class, IEvent where TEventHandler : IEventHandler<TEvent>
-    {
-        var tEventHandler = typeof(TEventHandler);
-        RemoteMap[tEventHandler] = this;
-        Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-
-        var tHandler = ServiceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
-
-        var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(
-            typeof(TEvent),
-            tHandler,
-            StorageRecordType,
-            StorageProviderType);
-
-        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(ServiceProvider, tEventSubscriber, Channel);
-        ExecutorMap[tEventHandler] = eventSubscriber;
-        ((IEventSubscriber)eventSubscriber).Start(callOptions);
     }
 
     /// <summary>

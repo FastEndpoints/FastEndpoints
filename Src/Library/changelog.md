@@ -42,6 +42,12 @@ ref: https://discord.com/channels/933662816458645504/1258013749948977273/1260889
 
 </details>
 
+<details><summary>Ability to subscribe to gRPC Events from Blazor Wasm projects</summary>
+
+Until now, only gRPC Command initiations were possible from within Blazor Wasm projects. Support has been added to the `FastEndpoints.Messaging.Remote.Core` project which is capable of running in the browser to be able to act as a subscriber for Event broadcasts from a gRPC server. [See here](https://github.com/FastEndpoints/Blazor-Wasm-Remote-Messaging-Demo) for a sample project showcasing both.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Get rid of Swagger middleware ordering requirements</summary>

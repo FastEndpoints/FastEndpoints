@@ -40,8 +40,8 @@ public static class RemoteConnectionExtensions
         where TStorageRecord : IEventStorageRecord, new()
         where TStorageProvider : class, IEventSubscriberStorageProvider<TStorageRecord>
     {
-        RemoteConnection.StorageProviderType = typeof(TStorageProvider);
-        RemoteConnection.StorageRecordType = typeof(TStorageRecord);
+        RemoteConnectionCore.StorageProviderType = typeof(TStorageProvider);
+        RemoteConnectionCore.StorageRecordType = typeof(TStorageRecord);
         services.AddSingleton<TStorageProvider>();
     }
 

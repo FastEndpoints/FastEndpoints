@@ -18,7 +18,7 @@ sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<In
 
         q.Enqueue(e);
 
-        return ValueTask.CompletedTask;
+        return default;
     }
 
     public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(PendingRecordSearchParams<InMemoryEventStorageRecord> p)
@@ -30,10 +30,10 @@ sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<In
         {
             var res = new[] { e };
 
-            return ValueTask.FromResult(res.AsEnumerable());
+            return new(res.AsEnumerable());
         }
 
-        return ValueTask.FromResult(Array.Empty<InMemoryEventStorageRecord>().AsEnumerable());
+        return new(Array.Empty<InMemoryEventStorageRecord>().AsEnumerable());
     }
 
     public ValueTask MarkEventAsCompleteAsync(InMemoryEventStorageRecord e, CancellationToken ct)

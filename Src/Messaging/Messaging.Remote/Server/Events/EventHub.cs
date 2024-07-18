@@ -1,3 +1,5 @@
+// ReSharper disable MethodSupportsCancellation
+
 using FastEndpoints.Messaging.Remote;
 using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
@@ -6,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using FastEndpoints.Messaging.Remote.Core;
+using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
@@ -47,6 +50,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     readonly bool _isInMemoryProvider;
     readonly EventHubExceptionReceiver? _errors;
     readonly ILogger _logger;
+    readonly CancellationToken _appCancellation;
 
     public EventHub(IServiceProvider svcProvider)
     {
@@ -58,11 +62,12 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         EventHubStorage<TStorageRecord, TStorageProvider>.IsInMemProvider = _isInMemoryProvider;
         _errors = svcProvider.GetService<EventHubExceptionReceiver>();
         _logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
+        _appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
 
         var t = _storage.RestoreSubscriberIDsForEventTypeAsync(
             new()
             {
-                CancellationToken = CancellationToken.None,
+                CancellationToken = _appCancellation,
                 EventType = _tEvent.FullName!,
                 Match = e => e.EventType == _tEvent.FullName! && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn,
                 Projection = e => e.SubscriberID
@@ -119,8 +124,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         subscriber.IsConnected = true;
         var retrievalErrorCount = 0;
         var updateErrorCount = 0;
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
 
-        while (!ctx.CancellationToken.IsCancellationRequested)
+        while (!cts.Token.IsCancellationRequested)
         {
             IEnumerable<TStorageRecord> records;
 
@@ -129,7 +135,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 records = await _storage!.GetNextBatchAsync(
                               new()
                               {
-                                  CancellationToken = ctx.CancellationToken,
+                                  CancellationToken = cts.Token,
                                   Limit = 25,
                                   SubscriberID = subscriberID,
                                   Match = e => e.SubscriberID == subscriberID && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn
@@ -139,7 +145,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             catch (Exception ex)
             {
                 retrievalErrorCount++;
-                _errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, ctx.CancellationToken);
+                _errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, cts.Token);
                 _logger.StorageGetNextBatchError(subscriberID, _tEvent.FullName!, ex.Message);
                 await Task.Delay(5000);
 
@@ -152,7 +158,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 {
                     try
                     {
-                        await stream.WriteAsync(record.GetEvent<TEvent>(), ctx.CancellationToken);
+                        await stream.WriteAsync(record.GetEvent<TEvent>(), cts.Token);
                     }
                     catch
                     {
@@ -160,7 +166,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                         {
                             try
                             {
-                                await _storage.StoreEventAsync(record, ctx.CancellationToken);
+                                await _storage.StoreEventAsync(record, cts.Token);
                             }
                             catch
                             {
@@ -175,12 +181,12 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                         return; //stream is most likely broken/cancelled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
 
-                    while (!_isInMemoryProvider && !ctx.CancellationToken.IsCancellationRequested)
+                    while (!_isInMemoryProvider && !cts.Token.IsCancellationRequested)
                     {
                         try
                         {
                             record.IsComplete = true;
-                            await _storage.MarkEventAsCompleteAsync(record, ctx.CancellationToken);
+                            await _storage.MarkEventAsCompleteAsync(record, cts.Token);
                             updateErrorCount = 0;
 
                             break;
@@ -188,7 +194,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                         catch (Exception ex)
                         {
                             updateErrorCount++;
-                            _errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount, ex, ctx.CancellationToken);
+                            _errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount, ex, cts.Token);
                             _logger.StorageMarkAsCompleteError(subscriberID, _tEvent.FullName!, ex.Message);
                             await Task.Delay(5000);
                         }
@@ -198,7 +204,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             else
             {
                 //wait until either the semaphore is released or a minute has elapsed
-                await Task.WhenAny(subscriber.Sem.WaitAsync(ctx.CancellationToken), Task.Delay(60000));
+                await Task.WhenAny(subscriber.Sem.WaitAsync(cts.Token), Task.Delay(60000));
             }
         }
 
@@ -210,28 +216,26 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     IEnumerable<string> GetReceiveCandidates()
     {
-        if (_isRoundRobinMode)
+        if (!_isRoundRobinMode)
+            return _subscribers.Keys;
+
+        var connectedSubIds = _subscribers
+                              .Where(kv => kv.Value.IsConnected)
+                              .Select(kv => kv.Key)
+                              .ToArray(); //take a snapshot of currently connected subscriber ids
+
+        if (connectedSubIds.Length <= 1)
+            return connectedSubIds;
+
+        IEnumerable<string> qualified;
+
+        lock (_lock)
         {
-            var connectedSubIds = _subscribers
-                                  .Where(kv => kv.Value.IsConnected)
-                                  .Select(kv => kv.Key)
-                                  .ToArray(); //take a snapshot of currently connected subscriber ids
-
-            if (connectedSubIds.Length <= 1)
-                return connectedSubIds;
-
-            IEnumerable<string> qualified;
-
-            lock (_lock)
-            {
-                qualified = connectedSubIds.SkipWhile(s => s == _lastReceivedBy).Take(1);
-                _lastReceivedBy = qualified.Single();
-            }
-
-            return qualified;
+            qualified = connectedSubIds.SkipWhile(s => s == _lastReceivedBy).Take(1);
+            _lastReceivedBy = qualified.Single();
         }
 
-        return _subscribers.Keys;
+        return qualified;
     }
 
     protected override async Task BroadcastEvent(IEvent evnt, CancellationToken ct)
@@ -308,12 +312,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     class Subscriber
     {
-        public SemaphoreSlim Sem { get; } //semaphorslim for waiting on record availability
+        public SemaphoreSlim Sem { get; } = new(0); //semaphorslim for waiting on record availability
         public bool IsConnected { get; set; }
-
-        public Subscriber()
-        {
-            Sem = new(0);
-        }
     }
 }

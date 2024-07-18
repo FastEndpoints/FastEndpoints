@@ -82,4 +82,10 @@ If the setting for cleaning the output folder was enabled, Kiota client generati
 
 </details>
 
+<details><summary>Graceful shutdown issue of gRPC streaming</summary>
+
+Server & Client Streaming was not listening for application shutdown which made app shutdown to wait until the streaming was finished. It has been fixed to be able to gracefully terminate the streams if the application is shutting down.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

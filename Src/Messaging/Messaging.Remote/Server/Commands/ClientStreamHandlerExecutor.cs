@@ -1,5 +1,7 @@
 ﻿using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
@@ -21,8 +23,11 @@ sealed class ClientStreamHandlerExecutor<TCommand, THandler, TResult>
                                                          IAsyncStreamReader<TCommand> requestStream,
                                                          ServerCallContext ctx)
     {
-        var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
+        var svcProvider = ctx.GetHttpContext().RequestServices;
+        var appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, appCancellation);
+        var handler = (THandler)HandlerFactory(svcProvider, null);
 
-        return handler.ExecuteAsync(requestStream.ReadAllAsync(ctx.CancellationToken), ctx.CancellationToken);
+        return handler.ExecuteAsync(requestStream.ReadAllAsync(cts.Token), cts.Token);
     }
 }

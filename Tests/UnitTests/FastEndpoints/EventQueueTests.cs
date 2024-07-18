@@ -1,7 +1,9 @@
 ﻿using FakeItEasy;
 using FastEndpoints;
 using Grpc.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -78,9 +80,7 @@ public class EventQueueTests
             };
 
             if (i < InMemoryEventQueue.MaxLimit)
-            {
                 await sut.StoreEventAsync(r, default);
-            }
             else
             {
                 var func = async () => await sut.StoreEventAsync(r, default);
@@ -95,6 +95,7 @@ public class EventQueueTests
         var services = new ServiceCollection();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
         var provider = services.BuildServiceProvider();
         var hub = new EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
         EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
@@ -111,9 +112,7 @@ public class EventQueueTests
         await EventHubBase.AddToSubscriberQueues(e1, default);
 
         while (writer.Responses.Count < 1)
-        {
             await Task.Delay(100);
-        }
 
         writer.Responses[0].EventID.Should().Be(123);
     }
@@ -124,6 +123,7 @@ public class EventQueueTests
         var services = new ServiceCollection();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
         var provider = services.BuildServiceProvider();
         var hub = new EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
         EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventBroker;
@@ -139,9 +139,7 @@ public class EventQueueTests
         _ = hub.OnEventReceived(hub, e1, ctx);
 
         while (writer.Responses.Count < 1)
-        {
             await Task.Delay(100);
-        }
 
         writer.Responses[0].EventID.Should().Be(321);
     }
@@ -154,9 +152,12 @@ public class EventQueueTests
     class TestServerStreamWriter<T> : IServerStreamWriter<T>
     {
         public WriteOptions? WriteOptions { get; set; }
-        public List<T> Responses { get; } = new List<T>();
+        public List<T> Responses { get; } = new();
 
         public async Task WriteAsync(T message)
             => Responses.Add(message);
+
+        public Task WriteAsync(T message, CancellationToken ct)
+            => WriteAsync(message);
     }
 }

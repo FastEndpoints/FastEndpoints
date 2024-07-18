@@ -2,6 +2,7 @@
 using FastEndpoints;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -15,6 +16,7 @@ public class RoundRobinEventQueueTests
         var services = new ServiceCollection();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
         var provider = services.BuildServiceProvider();
         EventHub<RRTestEventMulti, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin | HubMode.EventBroker;
         var hub = new EventHub<RRTestEventMulti, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
@@ -38,9 +40,7 @@ public class RoundRobinEventQueueTests
         await EventHubBase.AddToSubscriberQueues(e3, default);
 
         while (writerA.Responses.Count + writerB.Responses.Count < 3)
-        {
             await Task.Delay(100);
-        }
 
         if (writerA.Responses.Count == 2)
         {
@@ -59,9 +59,7 @@ public class RoundRobinEventQueueTests
             writerB.Responses[1].EventID.Should().Be(333);
         }
         else
-        {
-            throw new Exception();
-        }
+            throw new();
     }
 
     [Fact]
@@ -70,6 +68,7 @@ public class RoundRobinEventQueueTests
         var services = new ServiceCollection();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
         var provider = services.BuildServiceProvider();
         EventHub<RRTestEventOneConnected, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin;
         var hub = new EventHub<RRTestEventOneConnected, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
@@ -95,9 +94,7 @@ public class RoundRobinEventQueueTests
         await EventHubBase.AddToSubscriberQueues(e2, default);
 
         while (writerA.Responses.Count + writerB.Responses.Count < 2)
-        {
             await Task.Delay(100);
-        }
 
         if (writerA.Responses.Count == 2)
         {
@@ -112,9 +109,7 @@ public class RoundRobinEventQueueTests
             writerA.Responses.Count.Should().Be(0);
         }
         else
-        {
-            throw new Exception();
-        }
+            throw new();
     }
 
     [Fact]
@@ -123,6 +118,7 @@ public class RoundRobinEventQueueTests
         var services = new ServiceCollection();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
         var provider = services.BuildServiceProvider();
         EventHub<RRTestEventOnlyOne, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin;
         var hub = new EventHub<RRTestEventOnlyOne, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
@@ -144,9 +140,7 @@ public class RoundRobinEventQueueTests
         await EventHubBase.AddToSubscriberQueues(e3, default);
 
         while (writer.Responses.Count < 1)
-        {
             await Task.Delay(100);
-        }
 
         writer.Responses.Count.Should().Be(3);
         writer.Responses[0].EventID.Should().Be(111);
@@ -172,9 +166,12 @@ public class RoundRobinEventQueueTests
     class TestServerStreamWriter<T> : IServerStreamWriter<T>
     {
         public WriteOptions? WriteOptions { get; set; }
-        public List<T> Responses { get; } = new List<T>();
+        public List<T> Responses { get; } = new();
 
         public async Task WriteAsync(T message)
             => Responses.Add(message);
+
+        public Task WriteAsync(T message, CancellationToken ct)
+            => WriteAsync(message);
     }
 }

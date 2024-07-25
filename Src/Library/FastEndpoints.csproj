@@ -28,9 +28,9 @@
         <None Include="changelog.md" Pack="false" Visible="false"/>
     </ItemGroup>
 
-    <!--    <ItemGroup>-->
-    <!--        <ProjectReference Include="..\Generator\FastEndpoints.Generator.csproj" Pack="false" ReferenceOutputAssembly="false" OutputItemType="Content" CopyToOutputDirectory="PreserveNewest"/>-->
-    <!--        <None Include="$(OutputPath)\net7.0\$(AssemblyName).Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>-->
-    <!--    </ItemGroup>-->
+    <!-- <ItemGroup> -->
+    <!--     <ProjectReference Include="..\Generator\FastEndpoints.Generator.csproj" Pack="false" ReferenceOutputAssembly="false" OutputItemType="Content" CopyToOutputDirectory="PreserveNewest"/> -->
+    <!--     <None Include="$(OutputPath)\net7.0\$(AssemblyName).Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/> -->
+    <!-- </ItemGroup> -->
 
 </Project>

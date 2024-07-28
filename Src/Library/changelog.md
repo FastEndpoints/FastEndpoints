@@ -36,9 +36,7 @@ app.UseJwtRevocation<JwtBlacklistChecker>()
 
 <details><summary>Ability to override JWT Token creation options per request for Refresh Tokens</summary>
 
-todo: write docs + description here
-
-ref: https://discord.com/channels/933662816458645504/1258013749948977273/1260889170876956682
+A couple of new [optional hooks](https://github.com/FastEndpoints/FastEndpoints/blob/5afe7db3628e08fc4515af17701410b4a35f182b/Src/Security/RefreshTokens/RefreshTokenService.cs#L55-L91) have been added that can be tapped in to if you'd like to modify Jwt token creation parameters per request, and also modify the token response per request before it's sent to the client. Per request token creation parameter modification may be useful when allowing the client to decide the validity of tokens.
 
 </details>
 

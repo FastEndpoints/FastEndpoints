@@ -12,8 +12,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.Net.Client" Version="2.64.0"/>
-        <PackageReference Include="Grpc.Net.Client.Web" Version="2.64.0"/>
+        <PackageReference Include="Grpc.Net.Client" Version="2.65.0"/>
+        <PackageReference Include="Grpc.Net.Client.Web" Version="2.65.0"/>
         <PackageReference Include="MessagePack" Version="2.5.171"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>

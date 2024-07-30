@@ -16,16 +16,14 @@ sealed class EndpointFilter : IOperationProcessor
     public bool Process(OperationProcessorContext ctx)
     {
         var def = ((AspNetCoreOperationProcessorContext)ctx)
-            .ApiDescription
-            .ActionDescriptor
-            .EndpointMetadata
-            .OfType<EndpointDefinition>()
-            .SingleOrDefault();
+                  .ApiDescription
+                  .ActionDescriptor
+                  .EndpointMetadata
+                  .OfType<EndpointDefinition>()
+                  .SingleOrDefault();
 
         if (def is null)
-        {
             return true; //this is not a fast endpoint
-        }
 
         return _filter(def);
     }

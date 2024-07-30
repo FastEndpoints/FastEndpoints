@@ -104,4 +104,19 @@ public class DocumentOptions
     /// identifying/matching schema properties. default is 'true'.
     /// </summary>
     public bool UsePropertyNamingPolicy { get; set; } = true;
+
+    /// <summary>
+    /// by setting this to <c>true</c>, you can have base class types as request/response dtos and get swagger to generate possible derived types within a `oneOf` field.
+    /// for this to take effect, you must correctly annotate the base type as follows:
+    /// <code>
+    /// [JsonPolymorphic(TypeDiscriminatorPropertyName = "_t")]
+    /// [JsonDerivedType(typeof(Apple), "a")]
+    /// [JsonDerivedType(typeof(Orange), "o")]
+    /// public class FruitBase
+    /// {
+    ///     ...
+    /// }
+    /// </code>
+    /// </summary>
+    public bool UseOneOfForPolymorphism { get; set; }
 }

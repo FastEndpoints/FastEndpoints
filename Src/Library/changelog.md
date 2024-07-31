@@ -54,6 +54,38 @@ Swagger middleware ordering is no longer important. You can now place the `.Swag
 
 </details>
 
+<details><summary>Swagger OneOf support for polymorphic request/response DTOs</summary>
+
+Correctly annotated polymorphic base types can now be used as request/response DTOs. The possible list of derived types will be shown in Swagger UI under a `OneOf` field. To enable, decorate the base type with the correct set of attributes like so:
+
+```csharp
+public class Apple : Fruit
+{
+    public string Foo { get; set; }
+}
+
+public class Orange : Fruit
+{
+    public string Bar { get; set; }
+}
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "_t")]
+[JsonDerivedType(typeof(Apple), "a")]
+[JsonDerivedType(typeof(Orange), "o")]
+public class Fruit
+{
+    public string Baz { get; set; }
+}
+```
+
+And set the following setting to `true` when defining the Swagger document:
+
+```csharp
+builder.Services.SwaggerDocument(c => c.UseOneOfForPolymorphism = true)
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Swagger generator issue with [FromBody] properties</summary>
@@ -86,4 +118,4 @@ Server & Client Streaming was not listening for application shutdown which made 
 
 </details>
 
-## Minor Breaking Changes ⚠️
+[//]: # (## Minor Breaking Changes ⚠️)

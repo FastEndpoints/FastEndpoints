@@ -22,6 +22,12 @@ public sealed class SerializerOptions
     public string SerializerErrorsField { internal get; set; } = "SerializerErrors";
 
     /// <summary>
+    /// the charset used for responses. this will be appended to the content-type header when the <see cref="ResponseSerializer" /> func is used.
+    /// defaults to <c>utf-8</c>. set to <c>null</c> to disable appending a charset.
+    /// </summary>
+    public string? CharacterEncoding { internal get; set; } = "utf-8";
+
+    /// <summary>
     /// a function for deserializing the incoming http request body. this function will be executed for each request received if it has a json request body.
     /// the input parameters of the func are as follows:
     /// <para><see cref="HttpRequest" /> : the incoming request</para>
@@ -31,10 +37,10 @@ public sealed class SerializerOptions
     /// </summary>
     public Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> RequestDeserializer { internal get; set; }
         = (req, tReqDto, jCtx, cancellation)
-            => req.ReadFromJsonAsync(
-                type: tReqDto,
-                options: jCtx?.Options ?? SerOpts.Options,
-                cancellationToken: cancellation);
+              => req.ReadFromJsonAsync(
+                  type: tReqDto,
+                  options: jCtx?.Options ?? SerOpts.Options,
+                  cancellationToken: cancellation);
 
     /// <summary>
     /// a function for writing serialized response dtos to the response body.
@@ -57,12 +63,12 @@ public sealed class SerializerOptions
     /// </summary>
     public Func<HttpResponse, object?, string, JsonSerializerContext?, CancellationToken, Task> ResponseSerializer { internal get; set; }
         = (rsp, dto, contentType, jCtx, cancellation)
-            => dto is null
-                   ? Task.CompletedTask
-                   : rsp.WriteAsJsonAsync(
-                       value: dto,
-                       type: dto.GetType(),
-                       options: jCtx?.Options ?? SerOpts.Options,
-                       contentType: contentType,
-                       cancellationToken: cancellation);
+              => dto is null
+                     ? Task.CompletedTask
+                     : rsp.WriteAsJsonAsync(
+                         value: dto,
+                         type: dto.GetType(),
+                         options: jCtx?.Options ?? SerOpts.Options,
+                         contentType: SerOpts.CharacterEncoding is null ? contentType : $"{contentType}; charset={SerOpts.CharacterEncoding}",
+                         cancellationToken: cancellation);
 }

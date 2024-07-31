@@ -103,7 +103,7 @@ public class EndpointSummary
     /// <summary>
     /// add a response description to the swagger document
     /// <para>
-    /// NOTE: if you use the this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it
+    /// NOTE: if you use this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it
     /// applies to your endpoint.
     /// </para>
     /// </summary>

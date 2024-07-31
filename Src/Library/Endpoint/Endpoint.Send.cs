@@ -126,7 +126,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     protected Task SendStringAsync(string content,
                                    int statusCode = 200,
-                                   string contentType = "text/plain",
+                                   string contentType = "text/plain; charset=utf-8",
                                    CancellationToken cancellation = default)
         => HttpContext.Response.SendStringAsync(content, statusCode, contentType, cancellation);
 

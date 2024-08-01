@@ -4,19 +4,22 @@ using Xunit.Sdk;
 
 namespace FastEndpoints.Testing;
 
-class TestAssemblyRunner(ITestAssembly testAssembly,
-                         IEnumerable<IXunitTestCase> testCases,
-                         IMessageSink diagnosticMessageSink,
-                         IMessageSink executionMessageSink,
-                         ITestFrameworkExecutionOptions executionOptions)
+sealed class TestAssemblyRunner(ITestAssembly testAssembly,
+                                IEnumerable<IXunitTestCase> testCases,
+                                IMessageSink diagnosticMessageSink,
+                                IMessageSink executionMessageSink,
+                                ITestFrameworkExecutionOptions executionOptions)
     : XunitTestAssemblyRunner(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
 {
+    static readonly TestCaseOrderer _testCaseOrderer = new();
+    static readonly TestCollectionOrderer _testCollectionOrderer = new();
     readonly Dictionary<Type, object> _assemblyFixtureMappings = new();
 
     protected override async Task AfterTestAssemblyStartingAsync()
     {
         // Let everything initialize
         await base.AfterTestAssemblyStartingAsync();
+        TestCollectionOrderer = _testCollectionOrderer;
 
         // Go find all the AssemblyFixtureAttributes adorned on the test assembly
         await Aggregator.RunAsync(
@@ -72,11 +75,36 @@ class TestAssemblyRunner(ITestAssembly testAssembly,
         => await new TestCollectionRunner(
                    _assemblyFixtureMappings,
                    testCollection,
-                   testCases,
+                   OrderTestsInCollection(testCases),
                    DiagnosticMessageSink,
                    messageBus,
-                   TestCaseOrderer,
+                   _testCaseOrderer,
                    new(Aggregator),
                    cancellationTokenSource)
                .RunAsync();
+
+    static IEnumerable<IXunitTestCase> OrderTestsInCollection(IEnumerable<IXunitTestCase> tests)
+    {
+        var orderedTests = new List<(int priority, IXunitTestCase testCase)>();
+        var unorderedTests = new List<IXunitTestCase>();
+
+        foreach (var t in tests)
+        {
+            var priority = t.TestMethod.TestClass.Class
+                            .GetCustomAttributes(typeof(PriorityAttribute))?
+                            .SingleOrDefault()?
+                            .GetNamedArgument<int>(nameof(PriorityAttribute.Priority));
+
+            if (priority is not null)
+                orderedTests.Add((priority.Value, t));
+            else
+                unorderedTests.Add(t);
+        }
+
+        foreach (var t in orderedTests.OrderBy(t => t.priority))
+            yield return t.testCase;
+
+        foreach (var t in unorderedTests)
+            yield return t;
+    }
 }

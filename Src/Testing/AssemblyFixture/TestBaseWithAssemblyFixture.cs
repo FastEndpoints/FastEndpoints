@@ -9,7 +9,6 @@ namespace FastEndpoints.Testing;
 /// <typeparam name="TAppFixture">
 /// the type of the assembly level app fixture.
 /// </typeparam>
-[TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
 public abstract class TestBaseWithAssemblyFixture<TAppFixture> : IAsyncLifetime, IFaker, IAssemblyFixture<TAppFixture> where TAppFixture : BaseFixture
 {
     static readonly Faker _faker = new();

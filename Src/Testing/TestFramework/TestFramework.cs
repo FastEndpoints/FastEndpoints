@@ -4,7 +4,7 @@ using Xunit.Sdk;
 
 namespace FastEndpoints.Testing;
 
-public class TestFramework(IMessageSink messageSink) : XunitTestFramework(messageSink)
+sealed class TestFramework(IMessageSink messageSink) : XunitTestFramework(messageSink)
 {
     internal const string AssemblyName = "FastEndpoints.Testing";
     internal const string TypeName = $"{AssemblyName}.{nameof(TestFramework)}";

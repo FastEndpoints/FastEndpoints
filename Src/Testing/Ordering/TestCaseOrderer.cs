@@ -3,10 +3,10 @@ using Xunit.Sdk;
 
 namespace FastEndpoints.Testing;
 
-class PriorityOrderer : ITestCaseOrderer
+sealed class TestCaseOrderer : ITestCaseOrderer
 {
     internal const string Assembly = "FastEndpoints.Testing";
-    internal const string Name = $"{Assembly}.{nameof(PriorityOrderer)}";
+    internal const string Name = $"{Assembly}.{nameof(TestCaseOrderer)}";
 
     public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> tests) where TTestCase : ITestCase
     {

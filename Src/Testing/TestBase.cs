@@ -8,7 +8,7 @@ namespace FastEndpoints.Testing;
 /// abstract class for implementing a test-class, which is a collection of integration tests that may be related to each other.
 /// test methods can be run in a given order by decorating the methods with <see cref="PriorityAttribute" />
 /// </summary>
-[TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
+[TestCaseOrderer(TestCaseOrderer.Name, TestCaseOrderer.Assembly)]
 public abstract class TestBase : IAsyncLifetime, IFaker
 {
     static readonly Faker _faker = new();

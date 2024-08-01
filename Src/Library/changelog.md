@@ -10,6 +10,12 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Multi-level test-collection ordering</summary>
+
+Tests can now be ordered by prioritizing test-collections, test-classes in those collections as well as tests within the classes for fully controlling the order of test execution when test-collections are involved. [See here](https://fast-endpoints.com/docs/integration-unit-testing#ordering-tests-in-collections) for a usage example.
+
+</details>
+
 <details><summary>Customize character encoding of JSON responses</summary>
 
 A new config setting has been added to be able to customize the charset of JSON responses. `utf-8` is used by default. can be set to `null` for disabling the automatic appending of the charset to the `Content-Type` header of responses.

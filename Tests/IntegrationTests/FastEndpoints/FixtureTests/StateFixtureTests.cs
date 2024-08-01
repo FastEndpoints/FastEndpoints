@@ -1,6 +1,4 @@
-﻿using Xunit.Priority;
-
-namespace FixtureTests;
+﻿namespace FixtureTests;
 
 public sealed class MyStateFixture : StateFixture
 {

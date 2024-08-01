@@ -6,8 +6,8 @@ namespace FastEndpoints.Testing;
 
 public class TestFramework(IMessageSink messageSink) : XunitTestFramework(messageSink)
 {
-    public const string TypeName = $"FastEndpoints.Testing.{nameof(TestFramework)}";
-    public const string AssemblyName = "FastEndpoints.Testing";
+    internal const string AssemblyName = "FastEndpoints.Testing";
+    internal const string TypeName = $"{AssemblyName}.{nameof(TestFramework)}";
 
     protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName)
         => new TestFrameworkExecutor(assemblyName, SourceInformationProvider, DiagnosticMessageSink);

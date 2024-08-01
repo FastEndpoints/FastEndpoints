@@ -22,6 +22,12 @@ app.UseFastEndpoints(c => c.Serializer.CharacterEncoding = "utf-8")
 
 ## Improvements 🚀
 
+<details><summary>Remove dependency on 'Xunit.Priority' package</summary>
+
+The 'Xunit.Priority' package is no longer necessary as we've implemented our own test-case-orderer. If you've been using test ordering with the `[Priority(n)]` attribute, all you need to do is get rid of any `using` statements that refer to `XUnit.Priority`.
+
+</details>
+
 ## Fixes 🪲
 
 ## Minor Breaking Changes ⚠️

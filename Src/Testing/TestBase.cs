@@ -1,7 +1,6 @@
 ﻿using Bogus;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Priority;
 
 namespace FastEndpoints.Testing;
 

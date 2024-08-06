@@ -36,4 +36,10 @@ The 'Xunit.Priority' package is no longer necessary as we've implemented our own
 
 ## Fixes 🪲
 
+<details><summary>Issue with FluentValidation+Swagger integration</summary>
+
+When a child validator has no parameterless constructor, the FV+Swagger integration was not able to construct an instance of the child validator causing it to be ignored when generating the Swagger spec. Child validators will now be instantiated via FE's service resolver in the validation schema processor to mitigate this issue.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

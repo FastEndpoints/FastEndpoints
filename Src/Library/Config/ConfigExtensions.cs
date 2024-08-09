@@ -24,5 +24,22 @@ static class ConfigExtensions
                 }
             });
     }
+
+    internal static void EnableJsonIgnoreAttributesOnRequiredProps(this JsonSerializerOptions opts)
+    {
+        opts.TypeInfoResolver = opts.TypeInfoResolver?.WithAddedModifier(
+            ti =>
+            {
+                if (ti.Kind != JsonTypeInfoKind.Object)
+                    return;
+
+                for (var i = 0; i < ti.Properties.Count; i++)
+                {
+                    var pi = ti.Properties[i];
+                    if (pi.AttributeProvider?.GetCustomAttributes(Types.JsonIgnoreAttribute, true).Length != 0)
+                        pi.IsRequired = false;
+                }
+            });
+    }
 #endif
 }

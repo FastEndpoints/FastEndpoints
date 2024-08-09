@@ -67,11 +67,16 @@ public static class MainExtensions
         Cfg.SerOpts.Options = jsonOpts is not null
                                   ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
                                   : Cfg.SerOpts.Options;
+        configAction?.Invoke(app.ServiceProvider.GetRequiredService<Cfg>());
+
     #if NET8_0_OR_GREATER
         Cfg.SerOpts.Options.IgnoreToHeaderAttributes();
         Cfg.BndOpts.AddTypedHeaderValueParsers(Cfg.SerOpts.Options);
+
+        //https://github.com/FastEndpoints/FastEndpoints/issues/669
+        if (Cfg.SerOpts.EnableJsonIgnoreAttributeOnRequiredProperties)
+            Cfg.SerOpts.Options.EnableJsonIgnoreAttributesOnRequiredProps();
     #endif
-        configAction?.Invoke(app.ServiceProvider.GetRequiredService<Cfg>());
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
         var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();
@@ -102,7 +107,6 @@ public static class MainExtensions
 
             AddSecurityPolicy(authOptions, def);
 
-            var authorizeAttributes = BuildAuthorizeAttributes(def);
             var routeNum = 0;
 
             foreach (var route in def.Routes)
@@ -116,7 +120,7 @@ public static class MainExtensions
                 {
                     var hb = app.MapMethods(
                         finalRoute,
-                        new[] { verb },
+                        [verb],
                         (HttpContext ctx, [FromServices] IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
 
                     hb.WithName(
@@ -135,7 +139,7 @@ public static class MainExtensions
                     if (def.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
-                        hb.RequireAuthorization(authorizeAttributes);
+                        hb.RequireAuthorization(BuildAuthorizeAttributes(def));
 
                     if (def.ResponseCacheSettings is not null)
                         hb.WithMetadata(def.ResponseCacheSettings);

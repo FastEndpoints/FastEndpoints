@@ -26,6 +26,28 @@ app.UseFastEndpoints(c => c.Serializer.CharacterEncoding = "utf-8")
 
 </details>
 
+<details><summary>Setting for allowing [JsonIgnore] attribute on 'required' DTO properties</summary>
+
+STJ typically [does not allow](https://github.com/dotnet/runtime/issues/82879) `required` properties to be annotated with `[JsonIgnore]` attribute. The following doesn't work out of the box:
+
+```csharp
+public class MyRequest
+{
+    [JsonIgnore]
+    public required string Id { get; init; }
+}
+```
+
+The following setting is now enabled by default allowing you to annotate `required` properties with `[JsonIgnore]`:
+
+```csharp
+app.UseFastEndpoints(c => c.Serializer.EnableJsonIgnoreAttributeOnRequiredProperties = true)
+```
+
+It's necessary to decorate `required` properties with `[JsonIgnore]` in situations where the same property is bound from multiple sources.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Remove dependency on 'Xunit.Priority' package</summary>

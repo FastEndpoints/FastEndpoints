@@ -259,8 +259,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     }
 
     /// <summary>
-    /// gets a stream of nullable FileMultipartSections from the incoming multipart/form-data without buffering the whole file to memory/disk
-    /// as done with IFormFile
+    /// gets a stream of nullable <see cref="FileMultipartSection" />s from the incoming multipart/form-data without buffering data to memory/disk
+    /// as done with <see cref="IFormFile" />s.
     /// </summary>
     /// <param name="cancellation">optional cancellation token</param>
     protected async IAsyncEnumerable<FileMultipartSection?> FormFileSectionsAsync([EnumeratorCancellation] CancellationToken cancellation = default)
@@ -271,6 +271,25 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         {
             if (section.GetContentDispositionHeader()?.IsFileDisposition() is true)
                 yield return section.AsFileSection();
+        }
+    }
+
+    /// <summary>
+    /// gets a stream of <see cref="FastEndpoints.MultipartSection" />s from the incoming multipart/form-data without buffering to memory/disk.
+    /// </summary>
+    /// <param name="cancellation">optional cancellation token</param>
+    protected async IAsyncEnumerable<MultipartSection> FormMultipartSectionsAsync([EnumeratorCancellation] CancellationToken cancellation = default)
+    {
+        var reader = new MultipartReader(HttpContext.Request.GetMultipartBoundary(), HttpContext.Request.Body);
+
+        while (await reader.ReadNextSectionAsync(cancellation) is { } section)
+        {
+            var dispositionHdr = section.GetContentDispositionHeader();
+
+            if (dispositionHdr?.IsFileDisposition() is true)
+                yield return new(null, section.AsFileSection());
+            if (dispositionHdr?.IsFormDisposition() is true)
+                yield return new(section.AsFormDataSection(), null);
         }
     }
 

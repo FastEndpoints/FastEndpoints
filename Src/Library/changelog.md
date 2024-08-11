@@ -48,6 +48,29 @@ It's necessary to decorate `required` properties with `[JsonIgnore]` in situatio
 
 </details>
 
+<details><summary>Read form-field values together with form-file sections</summary>
+
+A new method has been added to conveniently read regular form-field values when they come in with multi-part form data requests while [buffering is turned off](https://fast-endpoints.com/docs/file-handling#handling-large-file-uploads).
+
+```csharp
+await foreach (var sec in FormMultipartSectionsAsync(ct))
+{
+    //reading the value of a form field
+    if (sec.IsFormSection && sec.FormSection.Name == "formFieldName")
+    {
+        var formFieldValue = await sec.FormSection.GetValueAsync(ct);
+    }
+
+    //obtaining the stream of a file
+    if (sec.IsFileSection && sec.FileSection.Name == "fileFieldName")
+    {
+        var fileStream = sec.FileSection.FileStream;
+    }
+}
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Remove dependency on 'Xunit.Priority' package</summary>

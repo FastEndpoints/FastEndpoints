@@ -56,6 +56,12 @@ static class RequestHandler
         ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures;
         ctx.Items[CtxKey.ToHeaderProps] = epDef.ToHeaderProps;
 
+        // ReSharper disable SuspiciousTypeConversion.Global
+        if (epDef.Disposable)
+            ctx.Response.RegisterForDispose((IDisposable)epInstance);
+        if (epDef.DisposableAsync)
+            ctx.Response.RegisterForDisposeAsync((IAsyncDisposable)epInstance); // ReSharper restore SuspiciousTypeConversion.Global
+
         ResponseCacheExecutor.Execute(ctx, epDef.ResponseCacheSettings);
 
         return epInstance.ExecAsync(ctx.RequestAborted);

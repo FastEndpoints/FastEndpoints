@@ -71,6 +71,12 @@ await foreach (var sec in FormMultipartSectionsAsync(ct))
 
 </details>
 
+<details><summary>'IDisposable' & 'IAsyncDisposable' support for endpoint classes</summary>
+
+You can now implement either 'IDisposable' or 'IAsyncDisposable' interfaces on your Endpoint classes and the correct dispose method will be called once the endpoint completes sending the response.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Remove dependency on 'Xunit.Priority' package</summary>

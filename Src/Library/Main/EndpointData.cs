@@ -70,14 +70,13 @@ sealed class EndpointData
                                       !t.IsDefined(Types.DontRegisterAttribute) &&
                                       t is { IsAbstract: false, IsInterface: false, IsGenericType: false } &&
                                       t.GetInterfaces().Intersect(
-                                          new[]
-                                          {
-                                              Types.IEndpoint,
-                                              Types.IEventHandler,
-                                              Types.ICommandHandler,
-                                              Types.ISummary,
-                                              options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                                          }).Any() &&
+                                      [
+                                          Types.IEndpoint,
+                                          Types.IEventHandler,
+                                          Types.ICommandHandler,
+                                          Types.ISummary,
+                                          options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                                      ]).Any() &&
                                       (options.Filter is null || options.Filter(t)));
         }
 

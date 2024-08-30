@@ -207,6 +207,17 @@ public static class Extensions
     public static object? GetExampleFromMetaData(this IProducesResponseTypeMetadata metadata)
         => (metadata as ProducesResponseTypeMetadata)?.Example;
 
+    /// <summary>
+    /// when path based auto-tagging is enabled, you can use this method to specify an override tag name if necessary.
+    /// </summary>
+    /// <param name="tag">the tag name to use instead of the auto tag</param>
+    public static IEndpointConventionBuilder AutoTagOverride(this IEndpointConventionBuilder b, string tag)
+    {
+        b.WithMetadata(new AutoTagOverride(tag));
+
+        return b;
+    }
+
     internal static string Remove(this string value, string removeString)
     {
         var index = value.IndexOf(removeString, StringComparison.Ordinal);

@@ -70,9 +70,19 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         //set operation tag
         if (docOpts.AutoTagPathSegmentIndex > 0 && !epDef.DontAutoTagEndpoints)
         {
-            var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
-            if (segments.Length >= docOpts.AutoTagPathSegmentIndex)
-                op.Tags.Add(TagName(segments[docOpts.AutoTagPathSegmentIndex - 1], docOpts.TagCase, docOpts.TagStripSymbols));
+            var overrideVal = metaData.OfType<AutoTagOverride>().SingleOrDefault()?.TagName;
+            string? tag = null;
+
+            if (overrideVal is not null)
+                tag = TagName(overrideVal, docOpts.TagCase, docOpts.TagStripSymbols);
+            else
+            {
+                var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
+                if (segments.Length >= docOpts.AutoTagPathSegmentIndex)
+                    tag = TagName(segments[docOpts.AutoTagPathSegmentIndex - 1], docOpts.TagCase, docOpts.TagStripSymbols);
+            }
+            if (tag is not null)
+                op.Tags.Add(tag);
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
@@ -398,7 +408,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
-
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {

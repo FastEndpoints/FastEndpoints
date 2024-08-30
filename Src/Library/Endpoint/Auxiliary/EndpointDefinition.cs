@@ -60,8 +60,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal bool AcceptsAnyContentType;
     internal bool AcceptsMetaDataPresent;
     internal List<object>? AttribsToForward;
-    internal bool Disposable = endpointType.IsAssignableTo(typeof(IDisposable));
-    internal bool DisposableAsync = endpointType.IsAssignableTo(typeof(IAsyncDisposable));
+    internal readonly bool Disposable = endpointType.IsAssignableTo(typeof(IDisposable));
+    internal readonly bool DisposableAsync = endpointType.IsAssignableTo(typeof(IAsyncDisposable));
     internal bool ExecuteAsyncImplemented;
     bool? _execReturnsIResults;
     internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);

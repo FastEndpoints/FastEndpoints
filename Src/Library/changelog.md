@@ -77,6 +77,16 @@ You can now implement either 'IDisposable' or 'IAsyncDisposable' interfaces on y
 
 </details>
 
+<details><summary>Ability to override Swagger Auto-Tagging per endpoint</summary>
+
+Previously you could only choose a single strategy for tagging/grouping endpoints with Swagger. You could either use the path segment based auto-tagging or you could turn it off and manually tag each endpoint by yourself. Now you can have auto-tagging enabled and override the auto-tag value per endpoint when necessary like so:
+
+```csharp
+Description(x => x.AutoTagOverride("Overridden Tag Name"))
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Remove dependency on 'Xunit.Priority' package</summary>

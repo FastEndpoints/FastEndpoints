@@ -18,7 +18,7 @@ Tests can now be ordered by prioritizing test-collections, test-classes in those
 
 <details><summary>Customize character encoding of JSON responses</summary>
 
-A new config setting has been added to be able to customize the charset of JSON responses. `utf-8` is used by default. can be set to `null` for disabling the automatic appending of the charset to the `Content-Type` header of responses.
+A new config setting has been added for customizing the charset of JSON responses. `utf-8` is used by default. can be set to `null` for disabling the automatic appending of the charset to the `Content-Type` header of responses.
 
 ```csharp
 app.UseFastEndpoints(c => c.Serializer.CharacterEncoding = "utf-8")
@@ -79,7 +79,7 @@ You can now implement either 'IDisposable' or 'IAsyncDisposable' interfaces on y
 
 <details><summary>Ability to override Swagger Auto-Tagging per endpoint</summary>
 
-Previously you could only choose a single strategy for tagging/grouping endpoints with Swagger. You could either use the path segment based auto-tagging or you could turn it off and manually tag each endpoint by yourself. Now you can have auto-tagging enabled and override the auto-tag value per endpoint when necessary like so:
+Previously you could only choose a single strategy for tagging/grouping endpoints with Swagger. You could either use the path segment based auto-tagging or you could turn it off and manually tag each endpoint yourself. Now you can have auto-tagging enabled and override the auto-tag value per endpoint when necessary like so:
 
 ```csharp
 Description(x => x.AutoTagOverride("Overridden Tag Name"))
@@ -103,4 +103,4 @@ When a child validator has no parameterless constructor, the FV+Swagger integrat
 
 </details>
 
-## Minor Breaking Changes ⚠️
+[//]: # (## Minor Breaking Changes ⚠️)

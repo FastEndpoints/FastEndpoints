@@ -22,10 +22,24 @@ public interface IJobStorageRecord
     /// 1. add a [NotMapped] attribute to this property.
     /// 2. add a new property, either a <c>string</c> or <c>byte[]</c>
     /// 3. implement both GetCommand() and SetCommand() methods to serialize/deserialize the command object back and forth and store it in the newly added property.
+    /// 4. (optional)implement both GetCommand<>() and SetCommand<>() methods to serialize/deserialize the command object with return value back and forth and store it in the newly added property.
     /// </code>
     /// you may use any serializer you please. recommendation is to use MessagePack.
     /// </summary>
     object Command { get; set; }
+
+    /// <summary>
+    /// the actual result object that will be embedded in the storage record.
+    /// if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
+    /// <code>
+    /// 1. add a [NotMapped] attribute to this property.
+    /// 2. add a new property, either a <c>string</c> or <c>byte[]</c>
+    /// 3. implement both GetResult() and SetResult() methods to serialize/deserialize the result object back and forth and store it in the newly added property.
+    /// 4. point 4. from <see cref="Command"/>
+    /// </code>
+    /// you may use any serializer you please. recommendation is to use MessagePack.
+    /// </summary>
+    object? Result { get; set; }
 
     /// <summary>
     /// the job will not be executed before this date/time. by default, it will automatically be set to the time of creation allowing jobs to be executed as soon as they're
@@ -50,8 +64,32 @@ public interface IJobStorageRecord
         => (TCommand)Command;
 
     /// <summary>
+    /// implement this function to customize command with return value deserialization.
+    /// </summary>
+    TCommand GetCommand<TCommand, TResult>() where TCommand : ICommand<TResult>
+        => (TCommand)Command;
+
+    /// <summary>
+    /// implement this function to customize result deserialization.
+    /// </summary>
+    TResult? GetResult<TCommand, TResult>() where TCommand : ICommand<TResult>
+        => (TResult?)Result;
+
+    /// <summary>
     /// implement this method to customize command serialization.
     /// </summary>
     void SetCommand<TCommand>(TCommand command) where TCommand : ICommand
         => Command = command;
+
+    /// <summary>
+    /// implement this method to customize command with return value serialization.
+    /// </summary>
+    void SetCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>
+        => Command = command;
+
+    /// <summary>
+    /// implement this method to customize result serialization.
+    /// </summary>
+    void SetResult<TCommand, TResult>(TResult result) where TCommand : ICommand<TResult>
+        => Result = result;
 }

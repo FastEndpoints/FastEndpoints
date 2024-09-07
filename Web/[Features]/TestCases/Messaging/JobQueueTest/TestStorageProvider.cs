@@ -6,6 +6,7 @@ public class Job : IJobStorageRecord
     public string QueueID { get; set; }
     public Guid TrackingID { get; set; }
     public object Command { get; set; }
+    public object? Result { get; set; }
     public DateTime ExecuteAfter { get; set; }
     public DateTime ExpireOn { get; set; }
     public bool IsComplete { get; set; }
@@ -51,6 +52,9 @@ public class JobStorage : IJobStorageProvider<Job>
 
         return Task.CompletedTask;
     }
+
+    public Task<Job?> GetJob(JobSearchParams<Job> parameters)
+        => Task.FromResult(Jobs.SingleOrDefault(parameters.Match.Compile()));
 
     public Task OnHandlerExecutionFailureAsync(Job r, Exception exception, CancellationToken ct)
         => Task.CompletedTask;

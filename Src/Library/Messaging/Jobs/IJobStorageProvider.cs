@@ -36,6 +36,12 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     Task CancelJobAsync(Guid trackingId, CancellationToken ct);
 
     /// <summary>
+    /// fetch the job storage record with the supplied search parameters.
+    /// </summary>
+    /// <param name="parameters">use these supplied search parameters to find the job record from your database</param>
+    Task<TStorageRecord?> GetJob(JobSearchParams<TStorageRecord> parameters);
+
+    /// <summary>
     /// this will only be triggered when a command handler (<see cref="ICommandHandler{TCommand}" />) associated with a command
     /// throws an exception. If you've set an execution time limit for the command, the thrown exception would be of type
     /// <see cref="OperationCanceledException" />.

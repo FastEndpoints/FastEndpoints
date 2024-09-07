@@ -31,6 +31,7 @@ static class Types
     internal static readonly Type HideFromDocsAttribute = typeof(HideFromDocsAttribute);
     internal static readonly Type Http = typeof(Http);
     internal static readonly Type ICommand = typeof(ICommand);
+    internal static readonly Type ICommandOf1 = typeof(ICommand<>);
     internal static readonly Type ICommandHandler = typeof(ICommandHandler);
     internal static readonly Type ICommandHandlerOf1 = typeof(ICommandHandler<>);
     internal static readonly Type ICommandHandlerOf2 = typeof(ICommandHandler<,>);
@@ -51,6 +52,7 @@ static class Types
     internal static readonly Type IValidator = typeof(IValidator);
     internal static readonly Type JsonIgnoreAttribute = typeof(JsonIgnoreAttribute);
     internal static readonly Type JobQueueOf3 = typeof(JobQueue<,,>);
+    internal static readonly Type JobQueueOf4 = typeof(JobQueue<,,,>);
     internal static readonly Type NotImplementedAttribute = typeof(NotImplementedAttribute);
     internal static readonly Type Null = typeof(Null);
     internal static readonly Type Object = typeof(object);

@@ -43,6 +43,10 @@ public class JobQueueOptions
     {
         _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
     }
+    public void LimitsFor<TCommand, TResult>(int maxConcurrency, TimeSpan timeLimit) where TCommand : ICommand<TResult>
+    {
+        _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
+    }
 
     internal void SetLimits(Type tCommand, JobQueueBase jobQueue)
     {

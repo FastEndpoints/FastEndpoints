@@ -36,6 +36,8 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     Task CancelJobAsync(Guid trackingId, CancellationToken ct);
 
     /// <summary>
+    /// (OPTIONAL) If u want to use Queue for ICommand&lt;&gt; (with a result)
+    /// otherwise can throw NotImplementedException();
     /// fetch the job storage record with the supplied search parameters.
     /// </summary>
     /// <param name="parameters">use these supplied search parameters to find the job record from your database</param>

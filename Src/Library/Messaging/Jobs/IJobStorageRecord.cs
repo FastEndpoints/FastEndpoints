@@ -22,13 +22,14 @@ public interface IJobStorageRecord
     /// 1. add a [NotMapped] attribute to this property.
     /// 2. add a new property, either a <c>string</c> or <c>byte[]</c>
     /// 3. implement both GetCommand() and SetCommand() methods to serialize/deserialize the command object back and forth and store it in the newly added property.
-    /// 4. (optional)implement both GetCommand<>() and SetCommand<>() methods to serialize/deserialize the command object with return value back and forth and store it in the newly added property.
+    /// 4. (optional)implement both GetCommand&lt;&gt;() and SetCommand&lt;&gt;() methods to serialize/deserialize the command object with return value back and forth and store it in the newly added property.
     /// </code>
     /// you may use any serializer you please. recommendation is to use MessagePack.
     /// </summary>
     object Command { get; set; }
 
     /// <summary>
+    /// (OPTIONAL) If u want to use Queue for ICommand&lt;&gt; (with a result)
     /// the actual result object that will be embedded in the storage record.
     /// if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
     /// <code>
@@ -48,7 +49,7 @@ public interface IJobStorageRecord
     DateTime ExecuteAfter { get; set; }
 
     /// <summary>
-    /// the expiration date/time of job. if the job remains in an incomplete state past this time, the record is considered stale, and will be marked for removal from storage.
+    /// the expiration date/time of the job. if the job remains in an incomplete state past this time, the record is considered stale, and will be marked for removal from storage.
     /// </summary>
     DateTime ExpireOn { get; set; }
 
@@ -64,12 +65,14 @@ public interface IJobStorageRecord
         => (TCommand)Command;
 
     /// <summary>
+    /// (OPTIONAL) If u want to use Queue for ICommand&lt;&gt; (with a result)
     /// implement this function to customize command with return value deserialization.
     /// </summary>
     TCommand GetCommand<TCommand, TResult>() where TCommand : ICommand<TResult>
         => (TCommand)Command;
 
     /// <summary>
+    /// (OPTIONAL) If u want to use Queue for ICommand&lt;&gt; (with a result)
     /// implement this function to customize result deserialization.
     /// </summary>
     TResult? GetResult<TCommand, TResult>() where TCommand : ICommand<TResult>
@@ -82,12 +85,14 @@ public interface IJobStorageRecord
         => Command = command;
 
     /// <summary>
+    /// (OPTIONAL) If u want to use Queue for ICommand&lt;&gt; (with a result)
     /// implement this method to customize command with return value serialization.
     /// </summary>
     void SetCommand<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>
         => Command = command;
 
     /// <summary>
+    /// (OPTIONAL) If u want to use Queue for ICommand&lt;&gt; (with a result)
     /// implement this method to customize result serialization.
     /// </summary>
     void SetResult<TCommand, TResult>(TResult result) where TCommand : ICommand<TResult>

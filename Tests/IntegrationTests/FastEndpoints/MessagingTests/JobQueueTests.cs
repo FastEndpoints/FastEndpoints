@@ -24,10 +24,10 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         while (!cts.IsCancellationRequested && !jobs.TrueForAll(j => j.Counter > 0))
             await Task.Delay(100, cts.Token);
 
-        var jt = App.Services.GetRequiredService<IJobTracker<JobCancelTestCommand>>();
+        var jobTracker = App.Services.GetRequiredService<IJobTracker<JobCancelTestCommand>>();
 
         foreach (var j in jobs)
-            _ = jt.CancelJobAsync(j.TrackingId, cts.Token);
+            _ = jobTracker.CancelJobAsync(j.TrackingId, cts.Token);
 
         while (!cts.IsCancellationRequested && !jobs.TrueForAll(j => j.IsCancelled))
             await Task.Delay(100, cts.Token);
@@ -48,7 +48,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
                 Id = i,
                 ShouldThrow = i == 0
             };
-            await cmd.QueueJobAsync(executeAfter: i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow);
+            await cmd.QueueJobAsync(executeAfter: i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow, ct: cts.Token);
         }
 
         while (!cts.IsCancellationRequested && JobTestCommand.CompletedIDs.Count < 9)
@@ -58,5 +58,31 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         var expected = new[] { 0, 2, 3, 4, 5, 6, 7, 8, 9 };
         JobTestCommand.CompletedIDs.Except(expected).Any().Should().BeFalse();
         JobStorage.Jobs.Clear();
+    }
+
+    [Fact, Priority(3)]
+    public async Task Job_With_Result_Execution()
+    {
+        var cts = new CancellationTokenSource(5000);
+        var guid = Guid.NewGuid();
+        var job = new JobWithResultTestCommand { Id = guid };
+        var trackingId = await job.QueueJobAsync(ct: cts.Token);
+        var jobTracker = App.Services.GetRequiredService<IJobTracker<JobWithResultTestCommand>>();
+
+        while (!cts.IsCancellationRequested)
+        {
+            var result = await jobTracker.GetJobResultAsync<Guid>(trackingId, cts.Token);
+
+            if (result == default)
+            {
+                await Task.Delay(100, cts.Token);
+
+                continue;
+            }
+
+            result.Should().Be(guid);
+
+            break;
+        }
     }
 }

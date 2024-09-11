@@ -1,6 +1,6 @@
 ﻿namespace TestCases.JobQueueTest;
 
-public class Job : IJobStorageRecord
+public class Job : IJobStorageRecord, IJobResultStorage
 {
     public Guid ID { get; set; } = Guid.NewGuid();
     public string QueueID { get; set; }
@@ -9,12 +9,12 @@ public class Job : IJobStorageRecord
     public DateTime ExecuteAfter { get; set; }
     public DateTime ExpireOn { get; set; }
     public bool IsComplete { get; set; }
+    public object? Result { get; set; }
 }
 
-public class JobStorage : IJobStorageProvider<Job>
+public class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
 {
     public static readonly List<Job> Jobs = [];
-
     static readonly object _lock = new();
 
     public Task StoreJobAsync(Job r, CancellationToken ct)
@@ -30,8 +30,7 @@ public class JobStorage : IJobStorageProvider<Job>
         var match = p.Match.Compile();
 
         return Task.FromResult(
-            Jobs
-                .Where(match)
+            Jobs.Where(match)
                 .OrderBy(r => r.ID)
                 .Take(p.Limit));
     }
@@ -57,4 +56,20 @@ public class JobStorage : IJobStorageProvider<Job>
 
     public Task PurgeStaleJobsAsync(StaleJobSearchParams<Job> parameters)
         => Task.CompletedTask;
+
+    public Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct)
+    {
+        var j = Jobs.Single(j => j.TrackingID == trackingId);
+        ((IJobResultStorage)j).SetResult(result);
+
+        return Task.CompletedTask;
+    }
+
+    public Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct)
+    {
+        var j = Jobs.Single(j => j.TrackingID == trackingId);
+        var res = ((IJobResultStorage)j).GetResult<TResult>();
+
+        return Task.FromResult(res);
+    }
 }

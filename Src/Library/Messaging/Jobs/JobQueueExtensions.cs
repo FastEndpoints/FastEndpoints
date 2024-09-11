@@ -22,9 +22,14 @@ public static class JobQueueExtensions
     {
         _tStorageProvider = typeof(TStorageProvider);
         _tStorageRecord = typeof(TStorageRecord);
+
+        if (_tStorageProvider.IsAssignableTo(Types.IJobResultProvider) &&
+            !_tStorageRecord.IsAssignableTo(Types.IJobResultStorage))
+            throw new InvalidOperationException($"Job storage record: [{typeof(TStorageRecord).FullName}] must implement [{nameof(IJobResultProvider)}]!");
+
         svc.AddSingleton<TStorageProvider>();
         svc.AddSingleton(typeof(IJobTracker<>), typeof(JobTracker<>));
-        svc.AddSingleton(typeof(JobQueue<,,>));
+        svc.AddSingleton(typeof(JobQueue<,,,>));
 
         return svc;
     }
@@ -44,16 +49,22 @@ public static class JobQueueExtensions
         var opts = new JobQueueOptions();
         options?.Invoke(opts);
 
-        foreach (var tCommand in registry.Keys.Where(t => t.IsAssignableTo(Types.ICommand)))
+        foreach (var tCommand in registry.Keys.Where(t => t.IsAssignableTo(Types.ICommandBase)))
         {
             if (tCommand.IsGenericType)
-                continue; //todo: no generic command support for jobs yet. figure out how to add it.
+                continue; //NOTE: no generic command support for jobs.
 
-            var tHandler = app.ApplicationServices.GetService(Types.ICommandHandlerOf1.MakeGenericType(tCommand))?.GetType();
+            var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)!.GetGenericArguments()[0];
+
+            var tHandler = app.ApplicationServices.GetService(
+                tResult == Types.VoidResult
+                    ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
+                    : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tResult))?.GetType();
+
             if (tHandler is not null)
                 registry[tCommand].HandlerType = tHandler;
 
-            var tJobQ = Types.JobQueueOf3.MakeGenericType(tCommand, _tStorageRecord, _tStorageProvider);
+            var tJobQ = Types.JobQueueOf4.MakeGenericType(tCommand, tResult, _tStorageRecord, _tStorageProvider);
             var jobQ = app.ApplicationServices.GetRequiredService(tJobQ);
             opts.SetLimits(tCommand, (JobQueueBase)jobQ);
         }
@@ -69,6 +80,6 @@ public static class JobQueueExtensions
     /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
     /// <param name="ct">cancellation token</param>
     /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
-    public static Task<Guid> QueueJobAsync(this ICommand cmd, DateTime? executeAfter = null, DateTime? expireOn = null, CancellationToken ct = default)
+    public static Task<Guid> QueueJobAsync(this ICommandBase cmd, DateTime? executeAfter = null, DateTime? expireOn = null, CancellationToken ct = default)
         => JobQueueBase.AddToQueueAsync(cmd, executeAfter, expireOn, ct);
 }

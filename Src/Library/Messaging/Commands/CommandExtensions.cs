@@ -24,7 +24,7 @@ public static class CommandExtensions
 
         registry.TryGetValue(tCommand, out var def);
 
-        InitGenericHandler<Null>(ref def, tCommand, registry);
+        InitGenericHandler<VoidResult>(ref def, tCommand, registry);
 
         if (def is null)
             throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
@@ -137,7 +137,7 @@ public static class CommandExtensions
 
         var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments()[0]);
         var tRes = typeof(TResult);
-        var tTargetIfc = tRes == Types.Null
+        var tTargetIfc = tRes == Types.VoidResult
                              ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
                              : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tRes);
 

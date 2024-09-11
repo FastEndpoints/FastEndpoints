@@ -63,3 +63,26 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     /// <param name="parameters">use these supplied search parameters to find stale job records from your database</param>
     Task PurgeStaleJobsAsync(StaleJobSearchParams<TStorageRecord> parameters);
 }
+
+/// <summary>
+/// addon interface to enable a job storage provider (<see cref="IJobStorageProvider{TStorageRecord}" />) to support commands that return results.
+/// </summary>
+public interface IJobResultProvider
+{
+    /// <summary>
+    /// lookup the job storage record by the supplied tracking id and update it's <see cref="IJobResultStorage.Result" /> property and persist to the database.
+    /// </summary>
+    /// <param name="trackingId">the <see cref="IJobStorageRecord.TrackingID" /> of the job to be looked up</param>
+    /// <param name="result">the job result to be stored</param>
+    /// <param name="ct">cancellation token</param>
+    /// <typeparam name="TResult">the type of the result object</typeparam>
+    Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct);
+
+    /// <summary>
+    /// lookup the job storage record by the supplied tracking id and return its <see cref="IJobResultStorage.Result" /> value.
+    /// </summary>
+    /// <param name="trackingId">the <see cref="IJobStorageRecord.TrackingID" /> of the job to be looked up</param>
+    /// <param name="ct">cancellation token</param>
+    /// <typeparam name="TResult">the type of the result object</typeparam>
+    Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct);
+}

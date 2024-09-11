@@ -30,7 +30,7 @@ static class Types
     internal static readonly Type FromHeaderAttribute = typeof(FromHeaderAttribute);
     internal static readonly Type HideFromDocsAttribute = typeof(HideFromDocsAttribute);
     internal static readonly Type Http = typeof(Http);
-    internal static readonly Type ICommand = typeof(ICommand);
+    internal static readonly Type ICommandBase = typeof(ICommandBase);
     internal static readonly Type ICommandHandler = typeof(ICommandHandler);
     internal static readonly Type ICommandHandlerOf1 = typeof(ICommandHandler<>);
     internal static readonly Type ICommandHandlerOf2 = typeof(ICommandHandler<,>);
@@ -44,15 +44,16 @@ static class Types
     internal static readonly Type IEventHandlerOf1 = typeof(IEventHandler<>);
     internal static readonly Type IFormFile = typeof(IFormFile);
     internal static readonly Type IHasMapper = typeof(IHasMapper);
+    internal static readonly Type IJobResultStorage = typeof(IJobResultStorage);
+    internal static readonly Type IJobResultProvider = typeof(IJobResultProvider);
     internal static readonly Type IMapper = typeof(IMapper);
     internal static readonly Type IPlainTextRequest = typeof(IPlainTextRequest);
     internal static readonly Type IResult = typeof(IResult);
     internal static readonly Type ISummary = typeof(ISummary);
     internal static readonly Type IValidator = typeof(IValidator);
     internal static readonly Type JsonIgnoreAttribute = typeof(JsonIgnoreAttribute);
-    internal static readonly Type JobQueueOf3 = typeof(JobQueue<,,>);
+    internal static readonly Type JobQueueOf4 = typeof(JobQueue<,,,>);
     internal static readonly Type NotImplementedAttribute = typeof(NotImplementedAttribute);
-    internal static readonly Type Null = typeof(Null);
     internal static readonly Type Object = typeof(object);
     internal static readonly Type ParseResult = typeof(ParseResult);
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);
@@ -61,8 +62,7 @@ static class Types
     internal static readonly Type SummaryOf1 = typeof(Summary<>);
     internal static readonly Type SummaryOf2 = typeof(Summary<,>);
     internal static readonly Type ToHeaderAttribute = typeof(ToHeaderAttribute);
-    internal static readonly Type Uri = typeof(Uri);
     internal static readonly Type ValidatorOf1 = typeof(AbstractValidator<>);
+    internal static readonly Type VoidResult = typeof(VoidResult);
+    internal static readonly Type Uri = typeof(Uri);
 }
-
-readonly struct Null { };

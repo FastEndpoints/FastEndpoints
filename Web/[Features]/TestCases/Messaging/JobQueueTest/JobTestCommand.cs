@@ -2,7 +2,7 @@
 
 public class JobTestCommand : ICommand
 {
-    public static List<int> CompletedIDs = new();
+    public static readonly List<int> CompletedIDs = [];
 
     public int Id { get; set; }
 

@@ -17,7 +17,7 @@ public interface IJobTracker<TCommand> where TCommand : ICommandBase
     /// this method will throw any exceptions that the job storage provider may throw in case of transient errors. you can safely retry calling this
     /// method repeatedly with the same tracking id.
     /// </exception>
-    public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+    public Task CancelJobAsync(Guid trackingId, CancellationToken ct = default)
         => JobQueueBase.CancelJobAsync<TCommand>(trackingId, ct);
 
     /// <summary>
@@ -27,7 +27,7 @@ public interface IJobTracker<TCommand> where TCommand : ICommandBase
     /// <param name="trackingId">the job tracking id</param>
     /// <param name="ct">cancellation token</param>
     /// <typeparam name="TResult">the type of the expected result</typeparam>
-    public Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct)
+    public Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct = default)
         => JobQueueBase.GetJobResultAsync<TCommand, TResult>(trackingId, ct);
 }
 
@@ -58,6 +58,6 @@ public class JobTracker<TCommand> : IJobTracker<TCommand> where TCommand : IComm
     /// <param name="trackingId">the job tracking id</param>
     /// <param name="ct">cancellation token</param>
     /// <typeparam name="TResult">the type of the expected result</typeparam>
-    public static Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct)
+    public static Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct = default)
         => JobQueueBase.GetJobResultAsync<TCommand, TResult>(trackingId, ct);
 }

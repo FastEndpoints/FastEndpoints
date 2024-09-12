@@ -1,5 +1,7 @@
 ﻿namespace FastEndpoints;
 
+#pragma warning disable CS8618
+
 class JobStorage<TStorageRecord, TStorageProvider>
     where TStorageRecord : IJobStorageRecord, new()
     where TStorageProvider : IJobStorageProvider<TStorageRecord>

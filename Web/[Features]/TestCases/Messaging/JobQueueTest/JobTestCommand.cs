@@ -1,6 +1,6 @@
 ﻿namespace TestCases.JobQueueTest;
 
-public class JobTestCommand : ICommand
+public struct JobTestCommand : ICommand
 {
     public static readonly List<int> CompletedIDs = [];
 
@@ -10,7 +10,7 @@ public class JobTestCommand : ICommand
     public int ThrowCount { get; set; }
 }
 
-public class JobTestCommandHandler : ICommandHandler<JobTestCommand>
+public struct JobTestCommandHandler : ICommandHandler<JobTestCommand>
 {
     public Task ExecuteAsync(JobTestCommand cmd, CancellationToken ct)
     {

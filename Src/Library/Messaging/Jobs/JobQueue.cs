@@ -62,13 +62,14 @@ abstract class JobQueueBase
     }
 }
 
-[SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods"), SuppressMessage("ReSharper", "MethodSupportsCancellation")]
-
-// created by DI as singleton
+// instantiated by DI as singleton
+[SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods"),
+ SuppressMessage("ReSharper", "MethodSupportsCancellation"),
+ SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]
 sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : JobQueueBase
-    where TCommand : ICommandBase
-    where TStorageRecord : IJobStorageRecord, new()
-    where TStorageProvider : IJobStorageProvider<TStorageRecord>
+    where TCommand : class, ICommandBase
+    where TStorageRecord : class, IJobStorageRecord, new()
+    where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
 {
     static readonly Type _tCommand = typeof(TCommand);
     static readonly string _tCommandName = _tCommand.FullName!;

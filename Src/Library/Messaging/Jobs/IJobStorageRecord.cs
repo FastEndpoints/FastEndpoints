@@ -46,13 +46,13 @@ public interface IJobStorageRecord
     /// <summary>
     /// implement this function to customize command deserialization.
     /// </summary>
-    TCommand GetCommand<TCommand>() where TCommand : ICommandBase
+    TCommand GetCommand<TCommand>() where TCommand : class, ICommandBase
         => (TCommand)Command;
 
     /// <summary>
     /// implement this method to customize command serialization.
     /// </summary>
-    void SetCommand<TCommand>(TCommand command) where TCommand : ICommandBase
+    void SetCommand<TCommand>(TCommand command) where TCommand : class, ICommandBase
         => Command = command;
 }
 

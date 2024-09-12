@@ -17,7 +17,7 @@ public static class JobQueueExtensions
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
     /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
     public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc)
-        where TStorageRecord : IJobStorageRecord, new()
+        where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
     {
         _tStorageProvider = typeof(TStorageProvider);

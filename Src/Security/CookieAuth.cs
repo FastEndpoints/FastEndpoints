@@ -18,9 +18,9 @@ public static class CookieAuth
     /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configure or method is used outside the scope of an http request</exception>
     public static Task SignInAsync(Action<UserPrivileges> privileges, Action<AuthenticationProperties>? properties = null)
     {
-        var svc = Conf.ServiceResolver.TryResolve<IAuthenticationService>() ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
+        var svc = Cfg.ServiceResolver.TryResolve<IAuthenticationService>() ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
 
-        var ctx = Conf.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext ??
+        var ctx = Cfg.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext ??
                   throw new InvalidOperationException("This operation is only valid during an http request!");
 
         var privs = new UserPrivileges();
@@ -32,15 +32,15 @@ public static class CookieAuth
             claimList.AddRange(privs.Claims);
 
         if (privs.Permissions.Count > 0)
-            claimList.AddRange(privs.Permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
+            claimList.AddRange(privs.Permissions.Select(p => new Claim(Cfg.SecOpts.PermissionsClaimType, p)));
 
         if (privs.Roles.Count > 0)
-            claimList.AddRange(privs.Roles.Select(r => new Claim(Conf.SecOpts.RoleClaimType, r)));
+            claimList.AddRange(privs.Roles.Select(r => new Claim(Cfg.SecOpts.RoleClaimType, r)));
 
         var props = new AuthenticationProperties
         {
             IsPersistent = true,
-            IssuedUtc = (Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
+            IssuedUtc = (Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
         };
 
         properties?.Invoke(props);
@@ -48,7 +48,7 @@ public static class CookieAuth
         return svc.SignInAsync(
             context: ctx,
             scheme: CookieAuthenticationDefaults.AuthenticationScheme,
-            principal: new(new ClaimsIdentity(claimList, CookieAuthenticationDefaults.AuthenticationScheme, null, Conf.SecOpts.RoleClaimType)),
+            principal: new(new ClaimsIdentity(claimList, CookieAuthenticationDefaults.AuthenticationScheme, null, Cfg.SecOpts.RoleClaimType)),
             properties: props);
     }
 
@@ -59,15 +59,15 @@ public static class CookieAuth
     /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configured or method is used outside the scope of a http request</exception>
     public static Task SignOutAsync(Action<AuthenticationProperties>? properties = null)
     {
-        var svc = Conf.ServiceResolver.TryResolve<IAuthenticationService>() ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
+        var svc = Cfg.ServiceResolver.TryResolve<IAuthenticationService>() ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
 
-        var ctx = Conf.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext ??
+        var ctx = Cfg.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext ??
                   throw new InvalidOperationException("This operation is only valid during an http request!");
 
         var props = new AuthenticationProperties
         {
             IsPersistent = true,
-            IssuedUtc = (Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
+            IssuedUtc = (Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
         };
 
         properties?.Invoke(props);

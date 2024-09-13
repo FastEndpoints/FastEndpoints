@@ -1,1 +1,1 @@
-﻿global using Conf = FastEndpoints.Config;
+﻿global using Cfg = FastEndpoints.Config;

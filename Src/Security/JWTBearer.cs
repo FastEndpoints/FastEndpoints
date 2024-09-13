@@ -42,16 +42,16 @@ public static class JwtBearer
             claimList.AddRange(opts.User.Claims);
 
         if (opts.User.Permissions.Count > 0)
-            claimList.AddRange(opts.User.Permissions.Select(p => new Claim(Conf.SecOpts.PermissionsClaimType, p)));
+            claimList.AddRange(opts.User.Permissions.Select(p => new Claim(Cfg.SecOpts.PermissionsClaimType, p)));
 
         if (opts.User.Roles.Count > 0)
-            claimList.AddRange(opts.User.Roles.Select(r => new Claim(Conf.SecOpts.RoleClaimType, r)));
+            claimList.AddRange(opts.User.Roles.Select(r => new Claim(Cfg.SecOpts.RoleClaimType, r)));
 
         var descriptor = new SecurityTokenDescriptor
         {
             Issuer = opts.Issuer,
             Audience = opts.Audience,
-            IssuedAt = (Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime,
+            IssuedAt = (Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime,
             Subject = new(claimList),
             Expires = opts.ExpireAt,
             SigningCredentials = GetSigningCredentials(opts)

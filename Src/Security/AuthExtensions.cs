@@ -70,8 +70,8 @@ public static class AuthExtensions
                         o.TokenValidationParameters.ValidateIssuer = false;
 
                         //set sensible defaults (based on configuration) for the claim mapping so tokens created with JWTBearer.CreateToken() will not be modified
-                        o.TokenValidationParameters.NameClaimType = Conf.SecOpts.NameClaimType;
-                        o.TokenValidationParameters.RoleClaimType = Conf.SecOpts.RoleClaimType;
+                        o.TokenValidationParameters.NameClaimType = Cfg.SecOpts.NameClaimType;
+                        o.TokenValidationParameters.RoleClaimType = Cfg.SecOpts.RoleClaimType;
                         o.MapInboundClaims = false;
 
                         bearerOptions?.Invoke(o);
@@ -183,7 +183,7 @@ public static class AuthExtensions
     /// </summary>
     /// <param name="permissionCode">the permission code to check for</param>
     public static bool HasPermission(this ClaimsPrincipal principal, string permissionCode)
-        => principal.FindAll(Conf.SecOpts.PermissionsClaimType).Select(c => c.Value).Contains(permissionCode);
+        => principal.FindAll(Cfg.SecOpts.PermissionsClaimType).Select(c => c.Value).Contains(permissionCode);
 
     /// <summary>
     /// determines if the current user principal has the given claim type

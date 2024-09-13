@@ -89,7 +89,7 @@ public class DocumentOptions
     public TagCase TagCase { get; set; } = TagCase.TitleCase;
 
     /// <summary>
-    /// specify whether to strip non alpha-numeric characters from tags.
+    /// specify whether to strip non-alphanumeric characters from tags.
     /// </summary>
     public bool TagStripSymbols { get; set; } = false;
 

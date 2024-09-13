@@ -143,7 +143,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         if (isRenewal && request is not null)
             await SetRenewalPrivilegesAsync((TRequest)request, privs);
 
-        var time = Conf.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
+        var time = Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
         var accessExpiry = time.GetUtcNow().Add(_opts.AccessTokenValidity).UtcDateTime;
         var refreshExpiry = time.GetUtcNow().Add(_opts.RefreshTokenValidity).UtcDateTime;
         var jOpts = new JwtCreationOptions

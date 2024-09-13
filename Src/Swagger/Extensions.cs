@@ -41,7 +41,7 @@ public static class Extensions
         services.AddOpenApiDocument(
             (genSettings, serviceProvider) =>
             {
-                var stjOpts = new JsonSerializerOptions(Conf.SerOpts.Options);
+                var stjOpts = new JsonSerializerOptions(Cfg.SerOpts.Options);
                 SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
                 doc.SerializerSettings?.Invoke(stjOpts);
                 var newtonsoftOpts = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);

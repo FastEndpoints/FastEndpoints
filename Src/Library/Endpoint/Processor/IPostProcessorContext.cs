@@ -12,9 +12,9 @@ namespace FastEndpoints;
 public interface IPostProcessorContext
 {
     /// <summary>
-    /// gets the request object.
+    /// gets the request object, which may be null if request binding has failed.
     /// </summary>
-    object Request { get; }
+    object? Request { get; }
 
     /// <summary>
     /// gets the response object, which may be null if the response is not available.
@@ -64,11 +64,11 @@ public interface IPostProcessorContext
 public interface IPostProcessorContext<out TRequest, out TResponse> : IPostProcessorContext
 {
     /// <summary>
-    /// gets the request object of the generic type <typeparamref name="TRequest" />.
+    /// gets the request object of the generic type <typeparamref name="TRequest" />,
+    /// which may be null if request binding has failed.
     /// this hides the non-generic version from <see cref="IPostProcessorContext" />.
     /// </summary>
-    [NotNull]
-    new TRequest Request { get; }
+    new TRequest? Request { get; }
 
     /// <summary>
     /// gets the response object of the generic type <typeparamref name="TResponse" />,
@@ -80,7 +80,7 @@ public interface IPostProcessorContext<out TRequest, out TResponse> : IPostProce
     /// <summary>
     /// explicit implementation to return the request object from the non-generic context.
     /// </summary>
-    object IPostProcessorContext.Request => Request;
+    object? IPostProcessorContext.Request => Request;
 
     /// <summary>
     /// explicit implementation to return the response object from the non-generic context.

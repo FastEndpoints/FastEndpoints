@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
@@ -10,9 +9,9 @@ namespace FastEndpoints;
 public interface IPreProcessorContext
 {
     /// <summary>
-    /// gets the request object.
+    /// gets the request object. may be null if request binding has failed.
     /// </summary>
-    object Request { get; }
+    object? Request { get; }
 
     /// <summary>
     /// gets the <see cref="HttpContext" /> associated with the current request.
@@ -38,13 +37,13 @@ public interface IPreProcessorContext<out TRequest> : IPreProcessorContext
 {
     /// <summary>
     /// gets the request object of the generic type <typeparamref name="TRequest" />.
+    /// may be null if request binding has failed.
     /// This hides the non-generic version from <see cref="IPreProcessorContext" />.
     /// </summary>
-    [NotNull]
-    new TRequest Request { get; }
+    new TRequest? Request { get; }
 
     /// <summary>
     /// explicit implementation to return the request object from the non-generic context.
     /// </summary>
-    object IPreProcessorContext.Request => Request;
+    object? IPreProcessorContext.Request => Request;
 }

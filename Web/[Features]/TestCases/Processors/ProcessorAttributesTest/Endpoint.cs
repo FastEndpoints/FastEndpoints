@@ -6,7 +6,7 @@ sealed class PreProc1 : IPreProcessor<Request>
 {
     public Task PreProcessAsync(IPreProcessorContext<Request> ctx, CancellationToken c)
     {
-        ctx.Request.Values.Add("one");
+        ctx.Request?.Values.Add("one");
 
         return Task.CompletedTask;
     }
@@ -16,7 +16,7 @@ sealed class PreProc2 : IPreProcessor<Request>
 {
     public Task PreProcessAsync(IPreProcessorContext<Request> ctx, CancellationToken c)
     {
-        ctx.Request.Values.Add("two");
+        ctx.Request?.Values.Add("two");
 
         return Task.CompletedTask;
     }
@@ -28,7 +28,7 @@ sealed class PostProc1 : IPostProcessor<Request, List<string>>
     {
         ctx.MarkExceptionAsHandled();
 
-        ctx.Request.Values.Add("three");
+        ctx.Request?.Values.Add("three");
 
         return Task.CompletedTask;
     }
@@ -40,9 +40,9 @@ sealed class PostProc2 : IPostProcessor<Request, List<string>>
     {
         ctx.MarkExceptionAsHandled();
 
-        ctx.Request.Values.Add("four");
+        ctx.Request?.Values.Add("four");
 
-        await ctx.HttpContext.Response.SendAsync(ctx.Request.Values);
+        await ctx.HttpContext.Response.SendAsync(ctx.Request!.Values);
     }
 }
 

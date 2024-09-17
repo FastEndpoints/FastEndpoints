@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.ExceptionServices;
+﻿using System.Runtime.ExceptionServices;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
@@ -16,9 +15,9 @@ public sealed class PostProcessorContext<TRequest, TResponse> : IPostProcessorCo
 {
     /// <summary>
     /// gets the request associated with the post-processing context.
+    /// may be null if request binding has failed.
     /// </summary>
-    [NotNull]
-    public TRequest Request { get; init; }
+    public TRequest? Request { get; init; }
 
     /// <summary>
     /// gets the response associated with the post-processing context.
@@ -42,7 +41,7 @@ public sealed class PostProcessorContext<TRequest, TResponse> : IPostProcessorCo
     /// </summary>
     public ExceptionDispatchInfo? ExceptionDispatchInfo { get; init; }
 
-    internal PostProcessorContext(TRequest request,
+    internal PostProcessorContext(TRequest? request,
                                   TResponse? response,
                                   HttpContext httpContext,
                                   ExceptionDispatchInfo? exceptionDispatchInfo,

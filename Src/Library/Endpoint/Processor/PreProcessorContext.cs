@@ -14,9 +14,9 @@ public sealed class PreProcessorContext<TRequest> : IPreProcessorContext<TReques
 {
     /// <summary>
     /// gets the request associated with the pre-processing context.
+    /// may be null if model binding has failed.
     /// </summary>
-    [NotNull]
-    public TRequest Request { get; init; }
+    public TRequest? Request { get; init; }
 
     /// <summary>
     /// gets the <see cref="HttpContext" /> associated with the current request.
@@ -28,7 +28,7 @@ public sealed class PreProcessorContext<TRequest> : IPreProcessorContext<TReques
     /// </summary>
     public List<ValidationFailure> ValidationFailures { get; init; }
 
-    internal PreProcessorContext(TRequest request, HttpContext httpContext, List<ValidationFailure> validationFailures)
+    internal PreProcessorContext(TRequest? request, HttpContext httpContext, List<ValidationFailure> validationFailures)
     {
         Request = request;
         HttpContext = httpContext;

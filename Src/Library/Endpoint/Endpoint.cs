@@ -119,7 +119,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         }
         finally
         {
-            await RunPostProcessors(Definition.PostProcessorList, req, _response!, HttpContext, edi, ValidationFailures, ct);
+            await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, edi, ValidationFailures, ct);
 
             HttpContext.Items["FastEndpointsResponse"] = _response; //for use by idempotency libraries
 

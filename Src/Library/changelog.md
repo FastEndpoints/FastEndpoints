@@ -18,6 +18,12 @@ todo: update docs + describe here
 
 ## Improvements 🚀
 
+<details><summary>Make Pre/Post Processor Context's 'Request' property nullable</summary>
+
+Since there are certain edge cases where the `Request` property can be `null` such as when STJ receives invalid JSON input from the client and fails to successfully deserialize the content. Even in those cases, pre/post processors would be executed where the pre/post processor context's `Request` property would be null. This change would allow the compiler to remind you to check for null if the `Request` property is accessed from pre/post processors.
+
+</details>
+
 ## Fixes 🪲
 
 ## Minor Breaking Changes ⚠️

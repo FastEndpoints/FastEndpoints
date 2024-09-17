@@ -26,4 +26,10 @@ Since there are certain edge cases where the `Request` property can be `null` su
 
 ## Fixes 🪲
 
+<details><summary>Nullable 'IFormFile' handling issue with 'HttpClient' extensions</summary>
+
+The `HttpClient` extensions for integration testing was not correctly handling nullable `IFormFile` properties in request DTOs when automatically converting them to form fields, which has now been remedied.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

@@ -595,6 +595,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
         {
             await using var stream1 = File.OpenRead("test.png");
             await using var stream2 = File.OpenRead("test.png");
+            await using var stream3 = File.OpenRead("test.png");
 
             var req = new Uploads.Image.SaveTyped.Request
             {
@@ -604,6 +605,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
                     ContentType = "image/png"
                 },
                 File2 = new FormFile(stream2, 0, stream2.Length, "File2", "test.png"),
+                File3 = new FormFile(stream3, 0, stream2.Length, "File3", "test.png"),
                 Width = 500,
                 Height = 500
             };

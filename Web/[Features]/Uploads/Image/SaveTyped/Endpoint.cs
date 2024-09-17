@@ -18,7 +18,7 @@ public class Endpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request r, CancellationToken ct)
     {
-        if (r.File1.Length > 0 && r.File2.Length > 0)
+        if (r.File1.Length > 0 && r.File2.Length > 0 && r.File3?.Length > 0)
         {
             await SendStreamAsync(r.File1.OpenReadStream(), "test.png", r.File1.Length, "image/png", cancellation: ct);
 

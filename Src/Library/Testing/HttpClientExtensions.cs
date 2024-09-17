@@ -383,7 +383,7 @@ public static class HttpClientExtensions
             if (p is { CanWrite: false, CanRead: false })
                 continue;
 
-            if (p.PropertyType == Types.IFormFile)
+            if (p.PropertyType.GetUnderlyingType() == Types.IFormFile)
                 AddFileToForm((IFormFile)p.GetValue(req)!, p);
 
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))

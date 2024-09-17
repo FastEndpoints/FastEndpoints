@@ -10,6 +10,7 @@ public class Request
 
     public IFormFile File1 { get; set; }
     public IFormFile File2 { get; set; }
+    public IFormFile? File3 { get; set; }
 
     public IEnumerable<IFormFile> Cars { get; set; }
     public IFormFileCollection Jets { get; set; }

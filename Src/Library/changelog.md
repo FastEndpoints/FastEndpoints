@@ -16,6 +16,18 @@ todo: update docs + describe here
 
 </details>
 
+<details><summary>Transform FluentValidation error property names with 'JsonPropertyNamingPolicy'</summary>
+
+A new configuration setting has been introduced so that deeply nested request DTO property names can be transformed to the correct case using the `JsonPropertyNamingPolicy` of the application.
+
+```csharp
+app.UseFastEndpoints(c => c.Validation.UsePropertyNamingPolicy = true)
+```
+
+The setting is turned on by default and can be turned off by setting the above boolean to `false`.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Make Pre/Post Processor Context's 'Request' property nullable</summary>

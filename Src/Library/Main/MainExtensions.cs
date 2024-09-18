@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -68,6 +69,15 @@ public static class MainExtensions
                                   ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
                                   : Cfg.SerOpts.Options;
         configAction?.Invoke(app.ServiceProvider.GetRequiredService<Cfg>());
+
+        if (Cfg.ValOpts.UsePropertyNamingPolicy && Cfg.SerOpts.Options.PropertyNamingPolicy is not null)
+        {
+            ValidatorOptions.Global.PropertyNameResolver
+                = (_, memberInfo, _)
+                      => memberInfo is not null
+                             ? Cfg.SerOpts.Options.PropertyNamingPolicy.ConvertName(memberInfo.Name)
+                             : null;
+        }
 
     #if NET8_0_OR_GREATER
         Cfg.SerOpts.Options.IgnoreToHeaderAttributes();

@@ -44,4 +44,10 @@ The `HttpClient` extensions for integration testing was not correctly handling n
 
 </details>
 
+<details><summary>Swagger processor issue with virtual path routes</summary>
+
+The swagger processor was not correctly handling routes if it starts with a `~/` (virtual path that refers to the root directory of the web application), which has now been fixed.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

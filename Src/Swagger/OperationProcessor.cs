@@ -52,7 +52,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             return true; //this is not a fastendpoint
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
-        var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!)}"; //fix missing path parameters
+        var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!.TrimStart('~'))}"; //fix missing path parameters
         var apiVer = epDef.Version.Current;
         var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{apiVer}";
         var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");

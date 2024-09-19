@@ -466,6 +466,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
             {
                 op.Parameters.Remove(body);
+                ctx.Document.Components.Schemas.Remove(body.Name);
                 op.Parameters.Add(CreateParam(paramCtx, OpenApiParameterKind.Body, fromBodyProp, fromBodyProp.Name, true));
             }
         }

@@ -50,4 +50,10 @@ The swagger processor was not correctly handling routes if it starts with a `~/`
 
 </details>
 
+<details><summary>Remove unreferenced schema from generated swagger document</summary>
+
+When a request DTO has a property that's annotated with a `[FromBody]` attribute, the parent schema was left in the swagger document components section as an unreferenced schema. These orphaned schema will no longer be present in the generated swagger spec.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

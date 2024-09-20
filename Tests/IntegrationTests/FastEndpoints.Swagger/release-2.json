@@ -2327,11 +2327,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
-              },
-              "example": {
-                "Id": 0,
-                "Name": "Name",
-                "Price": 200.1
               }
             }
           },

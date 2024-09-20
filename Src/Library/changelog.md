@@ -56,4 +56,10 @@ When a request DTO has a property that's annotated with a `[FromBody]` attribute
 
 </details>
 
+<details><summary>Swagger request example issue with properties annotated with [FromBody]</summary>
+
+Xml docs based example values were not correctly picked up for properties annotated with a `[FromBody]` attribute, which resulted in a default sample request example being set in Swagger UI.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

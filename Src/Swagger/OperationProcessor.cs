@@ -467,7 +467,10 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             {
                 op.Parameters.Remove(body);
                 ctx.Document.Components.Schemas.Remove(body.Name);
-                op.Parameters.Add(CreateParam(paramCtx, OpenApiParameterKind.Body, fromBodyProp, fromBodyProp.Name, true));
+                var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, fromBodyProp, fromBodyProp.Name, true);
+                bodyParam.Example =
+                    null; //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from prm.ActualSchema.ToSampleJson()
+                op.Parameters.Add(bodyParam);
             }
         }
 

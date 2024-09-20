@@ -14,8 +14,8 @@ jobs:
       - name: Setup .Net SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.x
-          #dotnet-quality: 'preview'
+          dotnet-version: 9.x
+          dotnet-quality: 'preview'
 
       - name: Modify xUnit Runner Config
         run: |

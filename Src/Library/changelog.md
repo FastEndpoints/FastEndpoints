@@ -36,6 +36,12 @@ Since there are certain edge cases where the `Request` property can be `null` su
 
 </details>
 
+<details><summary>Preliminary support for .NET 9.0</summary>
+
+Almost everything works with .NET 9 except for source generation. Full .NET 9 support will be available at the first FE release after .NET 9 final comes out.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Nullable 'IFormFile' handling issue with 'HttpClient' extensions</summary>

@@ -13,8 +13,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj"/>
 
-        <PackageReference Include="Grpc.Net.Client" Version="2.65.0"/>
-        <PackageReference Include="Grpc.AspNetCore.Server" Version="2.65.0"/>
+        <PackageReference Include="Grpc.Net.Client" Version="2.66.0" />
+        <PackageReference Include="Grpc.AspNetCore.Server" Version="2.66.0" />
 
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>

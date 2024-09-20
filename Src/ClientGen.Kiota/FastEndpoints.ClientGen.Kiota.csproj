@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>API Client Generator for FastEndpoints using Kiota.</Description>
         <PackageIcon>icon.png</PackageIcon>
@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="NSwag.Generation.AspNetCore" Version="14.1.0"/>
-        <PackageReference Include="Microsoft.OpenApi.Kiota.Builder" Version="1.17.0" />
+        <PackageReference Include="Microsoft.OpenApi.Kiota.Builder" Version="1.18.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     </ItemGroup>
 

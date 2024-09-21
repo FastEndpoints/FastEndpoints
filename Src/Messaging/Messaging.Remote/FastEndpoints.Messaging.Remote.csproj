@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
-        <PackageReference Include="Backport.System.Threading.Lock" Version="2.0.2" />
+        <PackageReference Include="Backport.System.Threading.Lock" Version="2.0.3" />
     </ItemGroup>
 
     <ItemGroup>

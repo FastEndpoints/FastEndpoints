@@ -14,11 +14,11 @@ variables:
 
 steps:
   - task: UseDotNet@2
-    displayName: "Use .Net Core SDK 8.x"
+    displayName: "Use .Net Core SDK 9.x"
     inputs:
       packageType: "sdk"
-      version: "8.x"
-      includePreviewVersions: false
+      version: "9.x"
+      includePreviewVersions: true
 
   - task: Bash@3
     displayName: "Update xUnit Runner Config"

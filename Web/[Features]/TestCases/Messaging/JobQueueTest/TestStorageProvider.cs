@@ -1,4 +1,4 @@
-﻿namespace TestCases.JobQueueTest;
+namespace TestCases.JobQueueTest;
 
 public class Job : IJobStorageRecord, IJobResultStorage
 {
@@ -15,7 +15,14 @@ public class Job : IJobStorageRecord, IJobResultStorage
 public class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
 {
     public static readonly List<Job> Jobs = [];
-    static readonly object _lock = new();
+
+    static readonly
+    #if NET9_0_OR_GREATER
+        Lock
+    #else
+        object
+    #endif
+        _lock = new();
 
     public Task StoreJobAsync(Job r, CancellationToken ct)
     {

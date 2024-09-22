@@ -1,4 +1,4 @@
-﻿using Microsoft.Net.Http.Headers;
+using Microsoft.Net.Http.Headers;
 
 #if NET7_0_OR_GREATER
 namespace FastEndpoints;
@@ -70,7 +70,14 @@ public sealed class IdempotencyOptions
     /// </summary>
     public Type? SwaggerHeaderType { get; set; }
 
-    readonly object _lock = new();
+    readonly
+    #if NET9_0_OR_GREATER
+        Lock
+    #else
+        object
+    #endif
+        _lock = new();
+
     bool? _isMultipartFormRequest;
 
     internal bool? IsMultipartFormRequest

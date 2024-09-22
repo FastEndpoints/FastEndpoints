@@ -13,15 +13,11 @@
     <ItemGroup>
         <ProjectReference Include="..\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj"/>
 
-        <PackageReference Include="Grpc.Net.Client" Version="2.66.0" />
-        <PackageReference Include="Grpc.AspNetCore.Server" Version="2.66.0" />
+        <PackageReference Include="Grpc.Net.Client" Version="2.66.0"/>
+        <PackageReference Include="Grpc.AspNetCore.Server" Version="2.66.0"/>
 
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    </ItemGroup>
-
-    <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
-        <PackageReference Include="Backport.System.Threading.Lock" Version="2.0.3" />
     </ItemGroup>
 
     <ItemGroup>

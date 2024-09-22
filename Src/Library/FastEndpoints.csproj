@@ -18,12 +18,8 @@
         <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
         <ProjectReference Include="..\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
 
-        <PackageReference Include="FluentValidation" Version="11.10.0" />
+        <PackageReference Include="FluentValidation" Version="11.10.0"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    </ItemGroup>
-
-    <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
-        <PackageReference Include="Backport.System.Threading.Lock" Version="2.0.3" />
     </ItemGroup>
 
     <ItemGroup>

@@ -21,6 +21,10 @@ sealed class VoidHandlerExecutor<TCommand, THandler>
         var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
         await handler.ExecuteAsync(cmd, ctx.CancellationToken);
 
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (handler is IHasServerCallContext scc)
+            scc.ServerCallContext = ctx;
+
         return EmptyObject.Instance;
     }
 }

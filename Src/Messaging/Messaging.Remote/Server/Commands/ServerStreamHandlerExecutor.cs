@@ -29,6 +29,10 @@ sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
         var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, appCancellation);
         var handler = (THandler)HandlerFactory(svcProvider, null);
 
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (handler is IHasServerCallContext scc)
+            scc.ServerCallContext = ctx;
+
         await foreach (var item in handler.ExecuteAsync(cmd, cts.Token))
         {
             try

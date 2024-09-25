@@ -28,6 +28,10 @@ sealed class ClientStreamHandlerExecutor<TCommand, THandler, TResult>
         var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, appCancellation);
         var handler = (THandler)HandlerFactory(svcProvider, null);
 
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (handler is IHasServerCallContext scc)
+            scc.ServerCallContext = ctx;
+
         return handler.ExecuteAsync(requestStream.ReadAllAsync(cts.Token), cts.Token);
     }
 }

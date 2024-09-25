@@ -21,6 +21,10 @@ sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>
     {
         var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
 
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (handler is IHasServerCallContext scc)
+            scc.ServerCallContext = ctx;
+
         return handler.ExecuteAsync(cmd, ctx.CancellationToken);
     }
 }

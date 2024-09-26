@@ -23,12 +23,10 @@ SOFTWARE. */
 #nullable disable
 
 using System.Runtime.CompilerServices;
-using System.Diagnostics;
-
-// ReSharper disable UnusedType.Global
 
 #pragma warning disable 1591
 
+// ReSharper disable UnusedType.Global
 // ReSharper disable UnusedMember.Global
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -43,14 +41,14 @@ namespace JetBrains.Annotations;
 /// <summary>
 /// Indicates that the marked parameter, field, or property is a route template.
 /// </summary>
-[AttributeUsage(AttributeTargets.Parameter), Conditional("JETBRAINS_ANNOTATIONS")]
+[AttributeUsage(AttributeTargets.Parameter)]
 sealed class RouteTemplateAttribute : Attribute;
 
 /// <summary>
 /// Indicates that the marked symbol is used implicitly (e.g. via reflection, in external library), so this symbol will be ignored by usage-checking inspections. You can use
 /// <see cref="ImplicitUseKindFlags" /> and <see cref="ImplicitUseTargetFlags" /> to configure how this attribute is applied.
 /// </summary>
-[AttributeUsage(AttributeTargets.All), Conditional("JETBRAINS_ANNOTATIONS")]
+[AttributeUsage(AttributeTargets.All)]
 sealed class UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags) : Attribute
 {
     public ImplicitUseKindFlags UseKindFlags { get; } = useKindFlags;

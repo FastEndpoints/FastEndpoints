@@ -28,6 +28,16 @@ The setting is turned on by default and can be turned off by setting the above b
 
 </details>
 
+<details><summary>Skip anti-forgery checks for certain requests</summary>
+
+The anti-forgery middleware will now accept a filter/predicate which can be used to skip processing certain requests if a given condition is matched. If the function returns true for a certain request, that request will be skipped by the anti-forgery middleware.
+
+```csharp
+.UseAntiforgeryFE(httpCtx => !httpCtx.Request.Headers.Origin.IsNullOrEmpty())
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Make Pre/Post Processor Context's 'Request' property nullable</summary>

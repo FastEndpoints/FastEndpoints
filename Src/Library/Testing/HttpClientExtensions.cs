@@ -384,7 +384,7 @@ public static class HttpClientExtensions
                 continue;
 
             if (p.PropertyType.GetUnderlyingType() == Types.IFormFile)
-                AddFileToForm((IFormFile)p.GetValue(req)!, p);
+                AddFileToForm((IFormFile)p.GetValue(req), p);
 
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {
@@ -404,8 +404,9 @@ public static class HttpClientExtensions
                    ? throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!")
                    : form;
 
-        void AddFileToForm(IFormFile file, MemberInfo prop)
+        void AddFileToForm(IFormFile? file, MemberInfo prop)
         {
+            if (file is null) return;
             var content = new StreamContent(file.OpenReadStream());
 
             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract

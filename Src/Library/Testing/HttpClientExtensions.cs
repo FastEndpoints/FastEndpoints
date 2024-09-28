@@ -384,7 +384,7 @@ public static class HttpClientExtensions
                 continue;
 
             if (p.PropertyType.GetUnderlyingType() == Types.IFormFile)
-                AddFileToForm((IFormFile)p.GetValue(req), p);
+                AddFileToForm(p.GetValue(req) as IFormFile, p);
 
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {
@@ -406,7 +406,9 @@ public static class HttpClientExtensions
 
         void AddFileToForm(IFormFile? file, MemberInfo prop)
         {
-            if (file is null) return;
+            if (file is null)
+                return;
+
             var content = new StreamContent(file.OpenReadStream());
 
             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract

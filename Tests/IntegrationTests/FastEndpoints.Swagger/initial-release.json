@@ -6276,6 +6276,11 @@
             "format": "binary",
             "nullable": true
           },
+          "File4": {
+            "type": "string",
+            "format": "binary",
+            "nullable": true
+          },
           "Cars": {
             "type": "array",
             "items": {

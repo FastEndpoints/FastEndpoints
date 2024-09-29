@@ -12,7 +12,17 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 <details><summary>Job Queuing support for Commands that return a result</summary>
 
-todo: update docs + describe here
+Command that return a results `ICommand<TResult>` can now be queued up as jobs. The result of a job can be retrieved via the **JobTracker** using its **Tracking Id**.
+
+```csharp
+// queue the command as a job and retrieve the tracking id 
+var trackingId = new MyCommand { ... }.QueueJobAsync();
+
+// retrieve the result of the command using the tracking id
+var result = await JobTracker<MyCommand>.GetJobResultAsync<MyResult>(trackingId);
+```
+
+[Click here](https://fast-endpoints.com/docs/job-queues#jobs-with-results) to read the documentation for this feature.
 
 </details>
 
@@ -42,7 +52,7 @@ The anti-forgery middleware will now accept a filter/predicate which can be used
 
 <details><summary>Make Pre/Post Processor Context's 'Request' property nullable</summary>
 
-Since there are certain edge cases where the `Request` property can be `null` such as when STJ receives invalid JSON input from the client and fails to successfully deserialize the content. Even in those cases, pre/post processors would be executed where the pre/post processor context's `Request` property would be null. This change would allow the compiler to remind you to check for null if the `Request` property is accessed from pre/post processors.
+Since there are certain edge cases where the `Request` property can be `null` such as when STJ receives invalid JSON input from the client and fails to successfully deserialize the content, the pre/post processors would be executed (even in those cases) where the pre/post processor context's `Request` property would be null. This change would allow the compiler to remind you to check for null if the `Request` property is accessed from pre/post processors.
 
 </details>
 
@@ -56,13 +66,13 @@ Almost everything works with .NET 9 except for source generation. Full .NET 9 su
 
 <details><summary>Nullable 'IFormFile' handling issue with 'HttpClient' extensions</summary>
 
-The `HttpClient` extensions for integration testing was not correctly handling nullable `IFormFile` properties in request DTOs when automatically converting them to form fields, which has now been remedied.
+The `HttpClient` extensions for integration testing was not correctly handling nullable `IFormFile` properties in request DTOs when automatically converting them to form fields.
 
 </details>
 
 <details><summary>Swagger processor issue with virtual path routes</summary>
 
-The swagger processor was not correctly handling routes if it starts with a `~/` (virtual path that refers to the root directory of the web application), which has now been fixed.
+The swagger processor was not correctly handling routes if it starts with a `~/` (virtual path that refers to the root directory of the web application).
 
 </details>
 
@@ -78,4 +88,4 @@ Xml docs based example values were not correctly picked up for properties annota
 
 </details>
 
-## Minor Breaking Changes ⚠️
+[//]: # (## Minor Breaking Changes ⚠️)

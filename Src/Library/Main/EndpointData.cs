@@ -24,8 +24,8 @@ sealed class EndpointData
         if (options.DisableAutoDiscovery && options.Assemblies?.Any() is false)
             throw new InvalidOperationException("If 'DisableAutoDiscovery' is true, a collection of `Assemblies` must be provided!");
 
-        IEnumerable<string> exclusions = new[]
-        {
+        IEnumerable<string> exclusions =
+        [
             "Microsoft",
             "System",
             "FastEndpoints",
@@ -45,7 +45,7 @@ sealed class EndpointData
             "PresentationFramework",
             "PresentationCore",
             "WindowsBase"
-        };
+        ];
 
         var discoveredTypes = options.SourceGeneratorDiscoveredTypes.AsEnumerable();
 
@@ -206,18 +206,22 @@ sealed class EndpointData
                 {
                     case true when hasHttpAttrib:
                         throw new InvalidOperationException(
-                            $"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. Only one of those strategies should be used!");
+                            $"The endpoint [{x.tEndpoint.FullName}] has both Configure() method and attribute decorations on the class level. " +
+                            $"Only one of those strategies should be used!");
                     case false when !hasHttpAttrib:
                         throw new InvalidOperationException(
-                            $"The endpoint [{x.tEndpoint.FullName}] should either override the Configure() method or decorate the class with a [Http*(...)] attribute!");
+                            $"The endpoint [{x.tEndpoint.FullName}] should either override the Configure() method or decorate the class with a " +
+                            $"[Http*(...)] attribute!");
                 }
 
                 switch (implementsHandleAsync)
                 {
                     case false when !implementsExecuteAsync:
-                        throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
+                        throw new InvalidOperationException(
+                            $"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
                     case true when implementsExecuteAsync:
-                        throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
+                        throw new InvalidOperationException(
+                            $"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
                 }
 
                 if (valDict.TryGetValue(def.ReqDtoType, out var val))

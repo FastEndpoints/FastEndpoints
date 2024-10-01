@@ -52,7 +52,10 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             return true; //this is not a fastendpoint
 
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
-        var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!.TrimStart('~'))}"; //fix missing path parameters
+
+        //fix missing path parameters
+        var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!.TrimStart('~'))}";
+
         var apiVer = epDef.Version.Current;
         var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{apiVer}";
         var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");
@@ -237,7 +240,8 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         if (GlobalConfig.IsUsingAspVersioning)
         {
             //because asp-versioning adds the version route segment as a path parameter
-            foreach (var prm in apiDescription.ParameterDescriptions.ToArray().Where(p => p.Source != Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body))
+            foreach (var prm in apiDescription.ParameterDescriptions.ToArray()
+                                              .Where(p => p.Source != Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body))
                 apiDescription.ParameterDescriptions.Remove(prm);
         }
 
@@ -322,8 +326,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                         if (!string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
                                             return false;
 
-                                        //need to match complete segments including parenthesis: https://github.com/FastEndpoints/FastEndpoints/issues/709
-                                        ctx.OperationDescription.Path = opPath = opPath.Replace($"{{{m.Value}}}", $"{{{m.Value.ApplyPropNamingPolicy(docOpts)}}}");
+                                        //need to match complete segments including parenthesis:
+                                        //https://github.com/FastEndpoints/FastEndpoints/issues/709
+                                        ctx.OperationDescription.Path = opPath = opPath.Replace(
+                                                                            $"{{{m.Value}}}",
+                                                                            $"{{{m.Value.ApplyPropNamingPolicy(docOpts)}}}");
 
                                         RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
 
@@ -338,7 +345,12 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         if (reqDtoType is not null)
         {
             var qParams = reqDtoProps?
-                          .Where(p => ShouldAddQueryParam(p, reqParams, isGetRequest && !docOpts.EnableGetRequestsWithBody, docOpts)) //user wants body in GET requests
+                          .Where(
+                              p => ShouldAddQueryParam(
+                                  p,
+                                  reqParams,
+                                  isGetRequest && !docOpts.EnableGetRequestsWithBody,
+                                  docOpts)) //user wants body in GET requests
                           .Select(
                               p =>
                               {
@@ -468,8 +480,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                 op.Parameters.Remove(body);
                 ctx.Document.Components.Schemas.Remove(body.Name);
                 var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, fromBodyProp, fromBodyProp.Name, true);
-                bodyParam.Example =
-                    null; //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from prm.ActualSchema.ToSampleJson()
+
+                //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from
+                //prm.ActualSchema.ToSampleJson()
+                bodyParam.Example = null;
+
                 op.Parameters.Add(bodyParam);
             }
         }
@@ -538,9 +553,9 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         return true;
     }
 
-    static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGetRequest, DocumentOptions doctops)
+    static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGetRequest, DocumentOptions docOpts)
     {
-        var paramName = prop.Name.ApplyPropNamingPolicy(doctops);
+        var paramName = prop.Name.ApplyPropNamingPolicy(docOpts);
 
         foreach (var attribute in prop.GetCustomAttributes())
         {
@@ -595,8 +610,10 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                 return;
 
             schema.Properties.Remove(key);
-            schema.RequiredProperties
-                  .Remove(key); //because validation schema processor may have added this prop/key, which should be removed when the prop is being removed from the schema
+
+            //because validation schema processor may have added this prop/key, which should be removed when the prop is being removed from the schema
+            schema.RequiredProperties.Remove(key);
+
             foreach (var s in schema.AllOf.Union(schema.AllInheritedSchemas))
                 Remove(s, key);
         }
@@ -627,7 +644,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             => stripSymbols ? Regex.Replace(val, "[^a-zA-Z0-9]", "") : val;
     }
 
-    static OpenApiParameter CreateParam(ParamCreationContext ctx, OpenApiParameterKind Kind, PropertyInfo? Prop = null, string? ParamName = null, bool? IsRequired = null)
+    static OpenApiParameter CreateParam(ParamCreationContext ctx,
+                                        OpenApiParameterKind Kind,
+                                        PropertyInfo? Prop = null,
+                                        string? ParamName = null,
+                                        bool? IsRequired = null)
     {
         ParamName = ParamName?.ApplyPropNamingPolicy(ctx.DocOpts) ??
                     Prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value

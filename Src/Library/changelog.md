@@ -10,6 +10,29 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Fluent endpoint base class picker</summary>
+
+A fluent endpoint base class picker similar to `Ardalis.ApiEndpoints` has been added, with which you can pick and choose the DTO and Mapper types you'd like to use in a fluent manner.
+
+```csharp
+sealed class MyEndpoint : Ep.Req<MyRequest>.Res<MyResponse>.Map<MyMapper>
+{
+    ...
+}
+
+sealed class MyEndpoint : Ep.Req<MyRequest>.NoRes.Map<MyMapper>
+{
+    ...
+}
+
+sealed class MyEndpoint : Ep.NoReq.Res<MyResponse>
+{
+    ...
+}
+```
+
+</details>
+
 <details><summary>Job Queuing support for Commands that return a result</summary>
 
 Command that return a results `ICommand<TResult>` can now be queued up as jobs. The result of a job can be retrieved via the **JobTracker** using its **Tracking Id**.

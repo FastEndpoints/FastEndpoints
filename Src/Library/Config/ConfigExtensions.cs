@@ -19,7 +19,7 @@ static class ConfigExtensions
                 for (var i = 0; i < ti.Properties.Count; i++)
                 {
                     var pi = ti.Properties[i];
-                    if (pi.AttributeProvider?.GetCustomAttributes(Types.ToHeaderAttribute, true).Length != 0)
+                    if (pi.AttributeProvider?.IsDefined(Types.ToHeaderAttribute, true) is true)
                         pi.ShouldSerialize = (_, _) => false;
                 }
             });
@@ -36,7 +36,7 @@ static class ConfigExtensions
                 for (var i = 0; i < ti.Properties.Count; i++)
                 {
                     var pi = ti.Properties[i];
-                    if (pi.AttributeProvider?.GetCustomAttributes(Types.JsonIgnoreAttribute, true).Length != 0)
+                    if (pi.AttributeProvider?.IsDefined(Types.JsonIgnoreAttribute, true) is true)
                         pi.IsRequired = false;
                 }
             });

@@ -26,15 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="[Features]\TestCases\Endpoints\"/>
-        <Folder Include="[Features]\TestCases\Misc\"/>
-        <Folder Include="[Features]\TestCases\Processors\"/>
-        <Folder Include="[Features]\TestCases\Messaging\"/>
-        <Folder Include="[Features]\TestCases\Security\"/>
-        <Folder Include="[Features]\TestCases\Validation\"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <None Remove="Web.csproj.DotSettings"/>
     </ItemGroup>
 </Project>

@@ -89,7 +89,10 @@ static class BinderExtensions
 
             if (tryParseMethod is null)
             {
-                tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.String, typeof(IFormatProvider), tProp.MakeByRefType()]);
+                tryParseMethod = tProp.GetMethod(
+                    "TryParse",
+                    BindingFlags.Public | BindingFlags.Static,
+                    [Types.String, typeof(IFormatProvider), tProp.MakeByRefType()]);
                 isIParseable = tryParseMethod is not null;
             }
 
@@ -242,7 +245,7 @@ static class BinderExtensions
                 {
                     var pi = ti.Properties[i];
 
-                    if (pi.AttributeProvider?.GetCustomAttributes(Types.FromHeaderAttribute, true).Length != 0 && pi.PropertyType.Name.EndsWith("HeaderValue"))
+                    if (pi.AttributeProvider?.IsDefined(Types.FromHeaderAttribute, true) is true && pi.PropertyType.Name.EndsWith("HeaderValue"))
                         ti.Properties.Remove(pi);
                 }
             });

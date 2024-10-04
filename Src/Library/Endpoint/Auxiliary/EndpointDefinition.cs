@@ -581,15 +581,18 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                    .Properties.Where(p => p.AttributeProvider?.IsDefined(Types.ToHeaderAttribute, true) is true)
                    .Select(CreateProps)
                    .ToArray() ??
-                   Array.Empty<ToHeaderProp>();
+                   [];
 
             ToHeaderProp CreateProps(JsonPropertyInfo p)
                 => new(
-                    headerName: p.AttributeProvider?.GetCustomAttributes(Types.ToHeaderAttribute, true).Cast<ToHeaderAttribute>().FirstOrDefault()?.HeaderName ?? p.Name,
+                    headerName: p.AttributeProvider?.GetCustomAttributes(Types.ToHeaderAttribute, true)
+                                 .Cast<ToHeaderAttribute>()
+                                 .FirstOrDefault()?.HeaderName ??
+                                p.Name,
                     getter: p.Get);
         }
     #else
-        return Array.Empty<ToHeaderProp>();
+        return [];
     #endif
     }
 }

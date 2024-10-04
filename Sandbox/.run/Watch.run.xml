@@ -1,0 +1,16 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Watch" type="RunDotNetWatch" factoryName="RunDotNetWatch" focusToolWindowBeforeRun="true">
+    <option name="exePath" value="$PROJECT_DIR$/Source/bin/Debug/net8.0/Sandbox.exe" />
+    <option name="programParameters" value="" />
+    <option name="projectFilePath" value="$PROJECT_DIR$/Source/Sandbox.csproj" />
+    <option name="projectTfm" value="net8.0" />
+    <option name="restartOnRudeEditEditor" value="true" />
+    <option name="suppressBrowserLaunch" value="true" />
+    <option name="suppressBrowserRefresh" value="true" />
+    <option name="suppressHotReload" value="true" />
+    <option name="verbosity" value="QUIET" />
+    <option name="watchParameters" value="" />
+    <option name="workingDirectory" value="$PROJECT_DIR$/Source" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -4,9 +4,9 @@
       "commandName": "DebugRoslynComponent",
       "targetProject": "..\\..\\Web\\Web.csproj"
     },
-    "GeneratorPlayground": {
+    "GeneratorSandbox": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\..\\Playground\\Source\\Playground.Api.csproj"
+      "targetProject": "..\\..\\Sandbox\\Source\\Playground.Api.csproj"
     }
   }
 }

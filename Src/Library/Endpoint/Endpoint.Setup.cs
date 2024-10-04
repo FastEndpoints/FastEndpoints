@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
@@ -8,9 +8,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 #if NET7_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Reflection;
 using Microsoft.AspNetCore.Http.Metadata;
-#endif
 
 namespace FastEndpoints;
 
@@ -475,7 +476,11 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
-    protected void Routes([RouteTemplate] params string[] patterns)
+    protected void Routes(
+#if NET7_0_OR_GREATER
+        [StringSyntax("Route")]
+#endif
+    [RouteTemplate] params string[] patterns)
         => Definition.Routes = patterns;
 
     /// <summary>
@@ -587,9 +592,9 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
                 if (Definition.ExecuteAsyncReturnsIResult)
                 {
-                #if NET7_0_OR_GREATER
+#if NET7_0_OR_GREATER
                     b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
-                #endif
+#endif
                 }
                 else
                 {

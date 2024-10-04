@@ -1,4 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+#if NET7_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using JetBrains.Annotations;
@@ -210,7 +213,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <param name="paramName">route parameter name</param>
     /// <param name="isRequired">set to false for disabling the automatic validation error</param>
     /// <returns>the value if retrieval is successful or null if <paramref name="isRequired" /> is set to false</returns>
-    protected T? Route<T>(string paramName, bool isRequired = true)
+    protected T? Route<T>(
+#if NET7_0_OR_GREATER    
+        [StringSyntax("Route")]
+#endif
+    string paramName, bool isRequired = true)
     {
         if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
         {

@@ -1,4 +1,7 @@
-﻿namespace FastEndpoints;
+#if NET7_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
+namespace FastEndpoints;
 
 /// <summary>
 /// use this attribute to specify a GET route for an endpoint
@@ -10,5 +13,9 @@ public sealed class HttpGetAttribute : HttpAttribute
     /// use this attribute to specify a GET route for an endpoint
     /// </summary>
     /// <param name="routes">the routes for the endpoint</param>
-    public HttpGetAttribute(params string[] routes) : base(Http.GET, routes) { }
+    public HttpGetAttribute(
+#if NET7_0_OR_GREATER
+        [StringSyntax("Route")]
+# endif
+        params string[] routes) : base(Http.GET, routes) { }
 }

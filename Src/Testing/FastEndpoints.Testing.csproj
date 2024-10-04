@@ -1,29 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <IsTestProject>false</IsTestProject>
-        <NoWarn>CS1591</NoWarn>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Description>Integration/End-To-End testing helper library for FastEndpoints</Description>
-        <PackageIcon>icon.png</PackageIcon>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Condition="'$(TargetFramework)' == 'net6.0'" Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.33"/>
-        <PackageReference Condition="'$(TargetFramework)' == 'net7.0'" Include="Microsoft.AspNetCore.Mvc.Testing" Version="7.0.20"/>
-        <PackageReference Condition="'$(TargetFramework)' == 'net8.0'" Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8"/>
-        <PackageReference Condition="'$(TargetFramework)' == 'net9.0'" Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0-rc.1.24452.1"/>
-
-        <PackageReference Include="Bogus" Version="35.6.1" />
-        <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.4.0"/>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
-    </ItemGroup>
-
+    
+  <PropertyGroup>
+    <IsTestProject>false</IsTestProject>
+    <NoWarn>CS1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Description>Integration/End-To-End testing helper library for FastEndpoints</Description>
+    <PackageIcon>icon.png</PackageIcon>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
+      
+    <PackageReference Include="Bogus"/>
+    <PackageReference Include="MartinCostello.Logging.XUnit"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+  </ItemGroup>
+    
+  <ItemGroup>
+    <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+  </ItemGroup>
+    
 </Project>

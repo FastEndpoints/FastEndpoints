@@ -1,27 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    
-  <PropertyGroup>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
-    
-  <ItemGroup>
-    <PackageReference Include="FluentAssertions"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-    <PackageReference Include="xunit"/>
-    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
-    <PackageReference Include="FakeItEasy"/>
-    <PackageReference Include="FakeItEasy.Analyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj"/>
-    <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
-    <ProjectReference Include="..\..\..\Web\Web.csproj"/>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
-    <Content Include="test.png" CopyToOutputDirectory="Always"/>
-  </ItemGroup>
-    
+
+    <PropertyGroup>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+        <PackageReference Include="FakeItEasy"/>
+        <PackageReference Include="FakeItEasy.Analyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
+        <ProjectReference Include="..\..\..\Web\Web.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
+        <Content Include="test.png" CopyToOutputDirectory="Always"/>
+    </ItemGroup>
+
 </Project>

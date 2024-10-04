@@ -1,21 +1,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    
-  <PropertyGroup>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
-    
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-    <PackageReference Include="RichardSzalay.MockHttp"/>
-    <PackageReference Include="xunit"/>
-    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
-    <PackageReference Include="FakeItEasy"/>
-    <PackageReference Include="FakeItEasy.Analyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
-    <PackageReference Include="FluentAssertions.Web"/>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Web\Web.csproj"/>
-  </ItemGroup>
-    
+
+    <PropertyGroup>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="RichardSzalay.MockHttp"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+        <PackageReference Include="FakeItEasy"/>
+        <PackageReference Include="FakeItEasy.Analyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+        <PackageReference Include="FluentAssertions.Web"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Web\Web.csproj"/>
+    </ItemGroup>
+
 </Project>

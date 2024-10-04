@@ -1,28 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    
-  <PropertyGroup>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
-    
-  <ItemGroup>
-    <!--<PackageReference Include="Verify.Xunit" Version="22.5.0"/>-->
-    <PackageReference Include="FluentAssertions.Json"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-    <PackageReference Include="xunit"/>
-    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
-    <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
-    <ProjectReference Include="..\..\..\Web\Web.csproj"/>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <Content Include="initial-release.json" CopyToOutputDirectory="Always"/>
-    <Content Include="release-1.json" CopyToOutputDirectory="Always"/>
-    <Content Include="release-2.json" CopyToOutputDirectory="Always"/>
-    <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
-  </ItemGroup>
-    
+
+    <PropertyGroup>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!--<PackageReference Include="Verify.Xunit" Version="22.5.0"/>-->
+        <PackageReference Include="FluentAssertions.Json"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
+        <ProjectReference Include="..\..\..\Web\Web.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="initial-release.json" CopyToOutputDirectory="Always"/>
+        <Content Include="release-1.json" CopyToOutputDirectory="Always"/>
+        <Content Include="release-2.json" CopyToOutputDirectory="Always"/>
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
+    </ItemGroup>
+
 </Project>

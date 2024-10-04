@@ -1,30 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    
-  <PropertyGroup>
-    <NoWarn>CS1591</NoWarn>
-    <TargetFrameworks>netstandard2.1;</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Description>Core componets of the FastEndpoints remote messaging library</Description>
-    <PackageIcon>icon.png</PackageIcon>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-    
-  <ItemGroup>
-    <PackageReference Include="Grpc.Net.Client"/>
-    <PackageReference Include="Grpc.Net.Client.Web"/>
-    <PackageReference Include="MessagePack"/>
-    <PackageReference Include="Microsoft.Extensions.Hosting"/>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <None Include="..\..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
-  </ItemGroup>
-    
+
+    <PropertyGroup>
+        <NoWarn>CS1591</NoWarn>
+        <TargetFrameworks>netstandard2.1;</TargetFrameworks>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Description>Core componets of the FastEndpoints remote messaging library</Description>
+        <PackageIcon>icon.png</PackageIcon>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Grpc.Net.Client"/>
+        <PackageReference Include="Grpc.Net.Client.Web"/>
+        <PackageReference Include="MessagePack"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
+    </ItemGroup>
+
 </Project>

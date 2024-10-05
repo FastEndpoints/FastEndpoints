@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Json;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -216,6 +217,18 @@ public static class Extensions
         b.WithMetadata(new AutoTagOverride(tag));
 
         return b;
+    }
+
+    /// <summary>
+    /// disable swagger+fluentvalidation integration for a property rule
+    /// </summary>
+    /// <param name="applyConditionTo"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="TProperty"></typeparam>
+    public static IRuleBuilderOptions<T, TProperty> SwaggerIgnore<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule,
+                                                                                ApplyConditionTo applyConditionTo = ApplyConditionTo.AllValidators)
+    {
+        return rule.When(_ => true, applyConditionTo);
     }
 
     internal static string Remove(this string value, string removeString)

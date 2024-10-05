@@ -35,13 +35,13 @@ static class ValidationExtensions
     /// <summary>
     /// Is supported swagger numeric type.
     /// </summary>
-    public static bool IsNumeric(this object value)
+    internal static bool IsNumeric(this object value)
         => value is int or long or float or double or decimal;
 
     /// <summary>
     /// Returns not null enumeration.
     /// </summary>
-    public static IEnumerable<TValue> NotNull<TValue>(this IEnumerable<TValue>? collection)
+    internal static IEnumerable<TValue> NotNull<TValue>(this IEnumerable<TValue>? collection)
         => collection ?? Array.Empty<TValue>();
 
     /// <summary>
@@ -49,7 +49,7 @@ static class ValidationExtensions
     /// Keys are the property names of the rules, converted to the schema casing by using the selected JsonNamingPolicy
     /// </summary>
     /// <param name="validator"></param>
-    public static ReadOnlyDictionary<string, List<IValidationRule>> GetDictionaryOfRules(this IValidator validator)
+    internal static ReadOnlyDictionary<string, List<IValidationRule>> GetDictionaryOfRules(this IValidator validator)
     {
         // Dictionary that will hold the rules with a key of the property name with casing that matches the selected JsonNamingPolicy
         var rulesDict = new Dictionary<string, List<IValidationRule>>();
@@ -77,7 +77,7 @@ static class ValidationExtensions
     /// <remarks>The property name can have points as it defines the object composition hierarchy</remarks>
     /// <param name="propertyName"></param>
     /// <param name="namingPolicy"></param>
-    public static string ConvertToSchemaCasing(this string propertyName, JsonNamingPolicy? namingPolicy)
+    internal static string ConvertToSchemaCasing(this string propertyName, JsonNamingPolicy? namingPolicy)
     {
         if (namingPolicy is null)
             return propertyName;
@@ -89,10 +89,6 @@ static class ValidationExtensions
         return string.Join(".", segments);
     }
 
-    /// <summary>
-    /// Returns all IValidationRules that are PropertyRule.
-    /// If rule is CollectionPropertyRule then isCollectionRule set to true.
-    /// </summary>
     internal static IEnumerable<ValidationRuleContext> GetPropertyRules(this IEnumerable<IValidationRule> validationRules)
     {
         foreach (var validationRule in validationRules)
@@ -106,9 +102,6 @@ static class ValidationExtensions
         }
     }
 
-    /// <summary>
-    /// Returns a <see cref="bool" /> indicating if the <paramref name="propertyRule" /> is conditional.
-    /// </summary>
     internal static bool HasNoCondition(this IValidationRule propertyRule)
         => propertyRule is { HasCondition: false, HasAsyncCondition: false };
 

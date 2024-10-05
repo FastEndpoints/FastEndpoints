@@ -10,6 +10,24 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Ability to disable FluentValidation+Swagger integration per rule</summary>
+
+The built-in FV+Swagger integration can be disabled per property rule with the newly added `.SwaggerIgnore()` extension method as shown below.
+
+```csharp
+sealed class MyValidator : Validator<MyRequest>
+{
+    public MyValidator()
+    {
+        RuleFor(x => x.Id)
+            .NotEmpty()
+            .SwaggerIgnore();
+    }
+}
+```
+
+</details>
+
 ## Improvements 🚀
 
 ## Fixes 🪲

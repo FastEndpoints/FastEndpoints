@@ -30,6 +30,16 @@ sealed class MyValidator : Validator<MyRequest>
 
 ## Improvements 🚀
 
+<details><summary>Route template syntax highlighting for VS and Rider</summary>
+
+Route template items such as the following will now be correctly syntax highlighted in Rider and Visual Studio:
+
+```csharp
+Get("api/invoice/{id}/print")
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Global 'TypeInfoResolver' not working</summary>

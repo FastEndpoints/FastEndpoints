@@ -1,6 +1,8 @@
+using JetBrains.Annotations;
 #if NET7_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 #endif
+
 namespace FastEndpoints;
 
 /// <summary>
@@ -14,8 +16,8 @@ public sealed class HttpPatchAttribute : HttpAttribute
     /// </summary>
     /// <param name="routes">the routes for the endpoint</param>
     public HttpPatchAttribute(
-#if NET7_0_OR_GREATER
+    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-#endif
-        params string[] routes) : base(Http.PATCH, routes) { }
+    #endif
+        [RouteTemplate] params string[] routes) : base(Http.PATCH, routes) { }
 }

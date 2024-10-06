@@ -1,7 +1,4 @@
 ﻿using JetBrains.Annotations;
-#if NET7_0_OR_GREATER
-using System.Diagnostics.CodeAnalysis;
-#endif
 
 namespace FastEndpoints;
 
@@ -15,9 +12,5 @@ public sealed class HttpGetAttribute : HttpAttribute
     /// use this attribute to specify a GET route for an endpoint
     /// </summary>
     /// <param name="routes">the routes for the endpoint</param>
-    public HttpGetAttribute(
-    #if NET7_0_OR_GREATER
-        [StringSyntax("Route")]
-    #endif
-        [RouteTemplate] params string[] routes) : base(Http.GET, routes) { }
+    public HttpGetAttribute([RouteTemplate] params string[] routes) : base(Http.GET, routes) { }
 }

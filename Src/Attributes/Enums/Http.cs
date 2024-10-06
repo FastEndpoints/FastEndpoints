@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿// ReSharper disable InconsistentNaming
+
+namespace FastEndpoints;
 
 /// <summary>
 /// enum for specifying a http verb

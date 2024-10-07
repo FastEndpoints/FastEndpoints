@@ -45,7 +45,7 @@
         /// <param name="httpContext">the http context of the current request</param>
         /// <param name="validationFailures">the validation failure collection of the endpoint</param>
         /// <param name="jsonSerializerContext">json serializer context of the endpoint if applicable</param>
-        /// <param name="dontAutoBindForms">whether or not to enable auto binding of form data</param>
+        /// <param name="dontAutoBindForms">whether to enable auto binding of form data</param>
         public BinderContext(HttpContext httpContext,
                              List<ValidationFailure> validationFailures,
                              JsonSerializerContext? jsonSerializerContext,

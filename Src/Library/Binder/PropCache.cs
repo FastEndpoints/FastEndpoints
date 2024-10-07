@@ -1,5 +1,7 @@
 ﻿namespace FastEndpoints;
 
+#pragma warning disable CS8618
+
 class PropCache
 {
     public Type PropType { get; init; }
@@ -15,6 +17,6 @@ sealed class SecondaryPropCacheEntry : PrimaryPropCacheEntry
 {
     public string Identifier { get; init; }
     public bool ForbidIfMissing { get; init; }
-    public string? PropName { get; set; }
-    public bool IsCollection { get; set; }
+    public string? PropName { get; init; }
+    public bool IsCollection { get; init; }
 }

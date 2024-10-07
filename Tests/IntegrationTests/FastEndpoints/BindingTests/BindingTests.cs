@@ -671,6 +671,40 @@ public class BindingTests(Sut App) : TestBase<Sut>
         res.JetNames.Should().Equal("jet1.png", "jet2.png");
     }
 
+    //[Fact]
+    public async Task ComplexFormDataBinding()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/test");
+        var content = new MultipartFormDataContent();
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoverImage", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "SourceFiles", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "SourceFiles", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.ProfileImage", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.DocumentFiles", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.DocumentFiles", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.MainAddress.MainImage", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.MainAddress.AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.MainAddress.AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[0].MainImage", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[0].AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[0].AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[1].MainImage", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[1].AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[1].AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].ProfileImage", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].DocumentFiles", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].DocumentFiles", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].MainAddress.MainImage", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].MainAddress.AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].MainAddress.AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].MainImage", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages", "test.png");
+        request.Content = content;
+        var response = await App.GuestClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+    }
+
     [Fact]
     public async Task PlainTextBodyModelBinding()
     {

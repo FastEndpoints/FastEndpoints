@@ -2102,6 +2102,40 @@
         }
       }
     },
+    "/api/test-cases/form-binding-complex-dtos": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesFormBindingComplexDtosEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/form-file-collection-binding": {
       "post": {
         "tags": [
@@ -5242,6 +5276,84 @@
         "type": "object",
         "description": "a response dto that doesn't have any properties",
         "additionalProperties": false
+      },
+      "TestCasesFormBindingComplexDtosRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Book": {
+            "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosBook"
+          }
+        }
+      },
+      "TestCasesFormBindingComplexDtosBook": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Title": {
+            "type": "string"
+          },
+          "CoverImage": {
+            "type": "string",
+            "format": "binary"
+          },
+          "SourceFiles": {
+            "type": "array",
+            "items": {}
+          },
+          "MainAuthor": {
+            "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAuthor"
+          },
+          "CoAuthors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAuthor"
+            }
+          }
+        }
+      },
+      "TestCasesFormBindingComplexDtosAuthor": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "ProfileImage": {
+            "type": "string",
+            "format": "binary"
+          },
+          "DocumentFiles": {
+            "type": "array",
+            "items": {}
+          },
+          "MainAddress": {
+            "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAddress"
+          },
+          "OtherAddresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAddress"
+            }
+          }
+        }
+      },
+      "TestCasesFormBindingComplexDtosAddress": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Street": {
+            "type": "string"
+          },
+          "MainImage": {
+            "type": "string",
+            "format": "binary"
+          },
+          "AlternativeImages": {
+            "type": "array",
+            "items": {}
+          }
+        }
       },
       "TestCasesFormFileBindingTestResponse": {
         "type": "object",

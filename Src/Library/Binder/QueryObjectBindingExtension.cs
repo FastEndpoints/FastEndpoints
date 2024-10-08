@@ -31,62 +31,62 @@ static class QueryObjectBindingExtension
 
                     return tElement == Types.Byte
                                ? (queryString, parent, route, propName, swaggerStyle) =>
-                               {
-                                   route = route != null
-                                               ? swaggerStyle
-                                                     ? $"{route}[{propName}]"
-                                                     : $"{route}.{propName}"
-                                               : propName;
+                                 {
+                                     route = route != null
+                                                 ? swaggerStyle
+                                                       ? $"{route}[{propName}]"
+                                                       : $"{route}.{propName}"
+                                                 : propName;
 
-                                   if (queryString.TryGetValue(route!, out var values))
-                                       parent[propName!] = values[0];
-                               }
+                                     if (queryString.TryGetValue(route!, out var values))
+                                         parent[propName!] = values[0];
+                                 }
                                : (queryString, parent, route, propName, swaggerStyle) =>
-                               {
-                                   var array = new JsonArray();
-                                   propName ??= Constants.QueryJsonNodeName;
-                                   parent[propName] = array;
-                                   route = route != null
-                                               ? swaggerStyle
-                                                     ? $"{route}[{propName}]"
-                                                     : $"{route}.{propName}"
-                                               : propName;
-                                   tProp.QueryArraySetter()(queryString, array, route, swaggerStyle);
-                               };
+                                 {
+                                     var array = new JsonArray();
+                                     propName ??= Constants.QueryJsonNodeName;
+                                     parent[propName] = array;
+                                     route = route != null
+                                                 ? swaggerStyle
+                                                       ? $"{route}[{propName}]"
+                                                       : $"{route}.{propName}"
+                                                 : propName;
+                                     tProp.QueryArraySetter()(queryString, array, route, swaggerStyle);
+                                 };
                 }
 
                 if (tProp.AllProperties().Length > 0)
                 {
                     return (queryString, parent, route, propName, swaggerStyle) =>
-                    {
-                        var obj = new JsonObject();
-                        var usePropName = propName != null;
-                        parent[usePropName ? propName! : Constants.QueryJsonNodeName] = obj;
-                        route = usePropName
-                                    ? route != null
-                                          ? swaggerStyle
-                                                ? $"{route}[{propName}]"
-                                                : $"{route}.{propName}"
-                                          : propName
-                                    : null;
+                           {
+                               var obj = new JsonObject();
+                               var usePropName = propName != null;
+                               parent[usePropName ? propName! : Constants.QueryJsonNodeName] = obj;
+                               route = usePropName
+                                           ? route != null
+                                                 ? swaggerStyle
+                                                       ? $"{route}[{propName}]"
+                                                       : $"{route}.{propName}"
+                                                 : propName
+                                           : null;
 
-                        var props = tProp.AllProperties();
-                        for (var i = 0; i < props.Length; i++)
-                            props[i].PropertyType.QueryObjectSetter()(queryString, obj, route, props[i].Name, swaggerStyle);
-                    };
+                               var props = tProp.AllProperties();
+                               for (var i = 0; i < props.Length; i++)
+                                   props[i].PropertyType.QueryObjectSetter()(queryString, obj, route, props[i].Name, swaggerStyle);
+                           };
                 }
             }
 
             return (queryString, parent, route, propName, swaggerStyle) =>
-            {
-                route = route != null
-                            ? swaggerStyle
-                                  ? $"{route}[{propName}]"
-                                  : $"{route}.{propName}"
-                            : propName;
-                if (queryString.TryGetValue(route!, out var values))
-                    parent[propName!] = JsonValue.Create(tProp.ValueParser()(values[0]).Value);
-            };
+                   {
+                       route = route != null
+                                   ? swaggerStyle
+                                         ? $"{route}[{propName}]"
+                                         : $"{route}.{propName}"
+                                   : propName;
+                       if (queryString.TryGetValue(route!, out var values))
+                           parent[propName!] = JsonValue.Create(tProp.CachedValueParser()(values[0]).Value);
+                   };
         }
     }
 
@@ -113,75 +113,75 @@ static class QueryObjectBindingExtension
 
                     return tElement == Types.Byte
                                ? (queryString, parent, route, _) =>
-                               {
-                                   if (queryString.TryGetValue(route, out var values))
-                                   {
-                                       foreach (var value in values)
-                                           parent.Add(value);
-                                   }
-                               }
+                                 {
+                                     if (queryString.TryGetValue(route, out var values))
+                                     {
+                                         foreach (var value in values)
+                                             parent.Add(value);
+                                     }
+                                 }
                                : tProp.QueryArraySetter() is null
                                    ? null
                                    : (queryString, parent, route, swaggerStyle) =>
-                                   {
-                                       if (swaggerStyle)
-                                           return;
+                                     {
+                                         if (swaggerStyle)
+                                             return;
 
-                                       var i = 0;
-                                       var newRoute = $"{route}[0]";
+                                         var i = 0;
+                                         var newRoute = $"{route}[0]";
 
-                                       while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
-                                       {
-                                           var array = new JsonArray();
-                                           parent.Add(array);
-                                           tProp.QueryArraySetter()(queryString, array, newRoute, swaggerStyle);
-                                           i++;
-                                           newRoute = $"{route}[" + i + "]";
-                                       }
-                                   };
+                                         while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
+                                         {
+                                             var array = new JsonArray();
+                                             parent.Add(array);
+                                             tProp.QueryArraySetter()(queryString, array, newRoute, swaggerStyle);
+                                             i++;
+                                             newRoute = $"{route}[" + i + "]";
+                                         }
+                                     };
                 }
 
                 if (tProp.AllProperties().Length > 0)
                 {
                     return (queryString, parent, route, swaggerStyle) =>
-                    {
-                        if (swaggerStyle)
-                            return;
+                           {
+                               if (swaggerStyle)
+                                   return;
 
-                        var i = 0;
-                        var newRoute = $"{route}[0]";
+                               var i = 0;
+                               var newRoute = $"{route}[0]";
 
-                        while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            var obj = new JsonObject();
-                            parent.Add(obj);
-                            foreach (var p in tProp.AllProperties())
-                                p.PropertyType.QueryObjectSetter()(queryString, obj, newRoute, p.Name, swaggerStyle);
-                            i++;
-                            newRoute = string.Concat(route, "[", i, "]");
-                        }
-                    };
+                               while (queryString.Any(x => x.Key.StartsWith(newRoute, StringComparison.OrdinalIgnoreCase)))
+                               {
+                                   var obj = new JsonObject();
+                                   parent.Add(obj);
+                                   foreach (var p in tProp.AllProperties())
+                                       p.PropertyType.QueryObjectSetter()(queryString, obj, newRoute, p.Name, swaggerStyle);
+                                   i++;
+                                   newRoute = string.Concat(route, "[", i, "]");
+                               }
+                           };
                 }
             }
 
             return (queryString, parent, route, swaggerStyle) =>
-            {
-                var parser = tProp.ValueParser();
+                   {
+                       var parser = tProp.CachedValueParser();
 
-                if (swaggerStyle)
-                {
-                    if (queryString.TryGetValue(route, out var values))
-                    {
-                        foreach (var value in values)
-                            parent.Add(JsonValue.Create(parser(value).Value));
-                    }
+                       if (swaggerStyle)
+                       {
+                           if (queryString.TryGetValue(route, out var values))
+                           {
+                               foreach (var value in values)
+                                   parent.Add(JsonValue.Create(parser(value).Value));
+                           }
 
-                    return;
-                }
+                           return;
+                       }
 
-                for (var i = 0; queryString.TryGetValue($"{route}[" + i + "]", out var svalues); i++)
-                    parent.Add(JsonValue.Create(parser(svalues[0]).Value));
-            };
+                       for (var i = 0; queryString.TryGetValue($"{route}[" + i + "]", out var svalues); i++)
+                           parent.Add(JsonValue.Create(parser(svalues[0]).Value));
+                   };
         }
     }
 }

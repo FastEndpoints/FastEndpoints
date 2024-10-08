@@ -21,6 +21,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static readonly Type _tRequest = typeof(TRequest);
     static readonly bool _isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(_tRequest);
     static readonly bool _skipModelBinding = _tRequest == Types.EmptyRequest && !_isPlainTextRequest;
+    static PropCache? _fromFormProp;
     static PropCache? _fromBodyProp;
     static PropCache? _fromQueryParamsProp;
     static readonly Dictionary<string, PrimaryPropCacheEntry> _primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
@@ -78,6 +79,14 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             {
                 switch (attribs[i])
                 {
+                    case FromFormAttribute:
+                        if (_fromFormProp is not null)
+                            throw new InvalidOperationException($"Only one [FromForm] attribute is allowed on [{_tRequest.FullName}].");
+
+                        addPrimary = SetFromFormPropCache(propInfo, compiledSetter);
+
+                        break;
+
                     case FromBodyAttribute:
                         if (_fromBodyProp is not null)
                             throw new InvalidOperationException($"Only one [FromBody] attribute is allowed on [{_tRequest.FullName}].");
@@ -234,12 +243,12 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             return;
 
         if (BndOpts.FormExceptionTransformer is null)
-            BindFormFields();
+            Execute();
         else
         {
             try
             {
-                BindFormFields();
+                Execute();
             }
             catch (Exception e)
             {
@@ -247,53 +256,65 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
                 if (e is BadHttpRequestException { StatusCode: 413 }) //only short-circuit if it's a 413 payload size exceeded
                     throw new ValidationFailureException(failures, "Form binding failed!");
-
-                return;
             }
         }
 
-        Dictionary<string, FormFileCollection>? formFileCollections =
-            _formFileCollectionProps.Count > 0
-                ? new()
-                : null;
-
-        for (var y = 0; y < httpRequest.Form.Files.Count; y++)
+        void Execute()
         {
-            var formFile = httpRequest.Form.Files[y];
-            var fieldName = formFile.BareFieldName();
-
-            if (formFileCollections is not null && _formFileCollectionProps.ContainsKey(fieldName))
+            if (_fromFormProp is null)
             {
-                if (formFileCollections.TryGetValue(fieldName, out var fileCollection))
-                    fileCollection.Add(formFile);
-                else
-                    formFileCollections[fieldName] = [formFile];
-
-                continue;
+                BindFormFields();
+                BindFiles();
             }
-
-            if (!_primaryProps.TryGetValue(formFile.Name, out var prop))
-                continue;
-
-            if (prop.PropType == Types.IFormFile)
-                prop.PropSetter(req, formFile);
             else
-                failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
-        }
-
-        if (formFileCollections is not null)
-        {
-            foreach (var (key, value) in formFileCollections)
-            {
-                if (_formFileCollectionProps.TryGetValue(key, out var prop))
-                    prop.PropSetter(req, value);
-            }
+                ComplexFormBinder.Bind(_fromFormProp, req, httpRequest.Form);
         }
 
         void BindFormFields()
         {
             foreach (var kvp in httpRequest.Form)
                 Bind(req, kvp, failures);
+        }
+
+        void BindFiles()
+        {
+            Dictionary<string, FormFileCollection>? formFileCollections =
+                _formFileCollectionProps.Count > 0
+                    ? new()
+                    : null;
+
+            for (var y = 0; y < httpRequest.Form.Files.Count; y++)
+            {
+                var formFile = httpRequest.Form.Files[y];
+                var fieldName = formFile.BareFieldName();
+
+                if (formFileCollections is not null && _formFileCollectionProps.ContainsKey(fieldName))
+                {
+                    if (formFileCollections.TryGetValue(fieldName, out var fileCollection))
+                        fileCollection.Add(formFile);
+                    else
+                        formFileCollections[fieldName] = [formFile];
+
+                    continue;
+                }
+
+                if (!_primaryProps.TryGetValue(formFile.Name, out var prop))
+                    continue;
+
+                if (prop.PropType == Types.IFormFile)
+                    prop.PropSetter(req, formFile);
+                else
+                    failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
+            }
+
+            if (formFileCollections is not null)
+            {
+                foreach (var (key, value) in formFileCollections)
+                {
+                    if (_formFileCollectionProps.TryGetValue(key, out var prop))
+                        prop.PropSetter(req, value);
+                }
+            }
         }
     }
 
@@ -458,7 +479,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
                 IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
-                ValueParser = propInfo.PropertyType.ValueParser(),
+                ValueParser = propInfo.PropertyType.CachedValueParser(),
                 PropSetter = compiledSetter
             });
 
@@ -473,7 +494,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 Identifier = att.HeaderName ?? propInfo.Name,
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
-                ValueParser = propInfo.PropertyType.ValueParser(),
+                ValueParser = propInfo.PropertyType.CachedValueParser(),
                 PropSetter = compiledSetter
             });
 
@@ -489,7 +510,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
                 PropName = propInfo.Name,
-                ValueParser = propInfo.PropertyType.ValueParser(),
+                ValueParser = propInfo.PropertyType.CachedValueParser(),
                 PropSetter = compiledSetter
             });
 
@@ -503,7 +524,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             new()
             {
                 PropType = propInfo.PropertyType,
-                ValueParser = propInfo.PropertyType.ValueParser(),
+                ValueParser = propInfo.PropertyType.CachedValueParser(),
                 PropSetter = compiledSetter
             });
     }
@@ -517,6 +538,17 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 PropType = propInfo.PropertyType,
                 PropSetter = compiledSetter
             });
+    }
+
+    static bool SetFromFormPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    {
+        _fromFormProp = new()
+        {
+            PropType = propInfo.PropertyType,
+            PropSetter = compiledSetter
+        };
+
+        return false;
     }
 
     static bool SetFromBodyPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)

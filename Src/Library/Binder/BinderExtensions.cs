@@ -59,7 +59,7 @@ static class BinderExtensions
     static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
-    internal static Func<object?, ParseResult> ValueParser(this Type type)
+    internal static Func<object?, ParseResult> CachedValueParser(this Type type)
     {
         //we're only ever compiling a value parser for a given type once.
         //if a parser is requested for a type a second time, it will be returned from the dictionary instead of paying the compiling cost again.
@@ -134,7 +134,7 @@ static class BinderExtensions
                     : Expression.Call(tryParseMethod, toStringConversion, resultVar);
 
             var block = Expression.Block(
-                new[] { resultVar, isSuccessVar },
+                [resultVar, isSuccessVar],
                 Expression.Assign(isSuccessVar, tryParseCall),
                 Expression.New(_parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 

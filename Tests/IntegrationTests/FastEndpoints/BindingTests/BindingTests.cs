@@ -56,7 +56,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                           Long = 1,
                                           String = "nothing",
                                           Custom = new() { Value = 11111 },
-                                          CustomList = new() { 0 }
+                                          CustomList = [0]
                                       });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -143,11 +143,10 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              Endpoint,
                              List<TestCases.JsonArrayBindingToListOfModels.Request>,
                              List<TestCases.JsonArrayBindingToListOfModels.Response>>(
-                             new()
-                             {
-                                 new() { Name = "test1" },
-                                 new() { Name = "test2" }
-                             });
+                         [
+                             new() { Name = "test1" },
+                             new() { Name = "test2" }
+                         ]);
 
         rsp.StatusCode.Should().Be(HttpStatusCode.OK);
         res.Count.Should().Be(2);
@@ -267,12 +266,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
                     Age = -22,
                     Name = "child name",
                     Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
-                    Strings = new()
-                    {
-                        "string1", "string2", "", "strangeString"
-                    }
+                    Strings = ["string1", "string2", "", "strangeString"]
                 },
-                Numbers = new() { 0, 1, -222, 1000, 22 }
+                Numbers = [0, 1, -222, 1000, 22]
             });
     }
 
@@ -315,14 +311,11 @@ public class BindingTests(Sut App) : TestBase<Sut>
                         Age = -22,
                         Name = "child name",
                         Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
-                        Strings = new()
-                        {
-                            "string1", "string2", "", "strangeString"
-                        },
-                        FavoriteDays = new() { DayOfWeek.Monday, DayOfWeek.Saturday },
+                        Strings = ["string1", "string2", "", "strangeString"],
+                        FavoriteDays = [DayOfWeek.Monday, DayOfWeek.Saturday],
                         IsHidden = true
                     },
-                    Numbers = new() { 0, 1, -222, 1000, 22 }
+                    Numbers = [0, 1, -222, 1000, 22]
                 }
             });
     }
@@ -374,8 +367,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
             {
                 Person = new()
                 {
-                    ArraysOfObjects = new()
-                    {
+                    ArraysOfObjects =
+                    [
                         new ObjectInArray[]
                         {
                             new()
@@ -403,11 +396,11 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                 Enum = DayOfWeek.Wednesday
                             }
                         }
-                    },
+                    ],
                     Child = new()
                     {
-                        Objects = new()
-                        {
+                        Objects =
+                        [
                             new()
                             {
                                 String = "test",
@@ -423,10 +416,10 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                 String = "test2",
                                 Enum = DayOfWeek.Wednesday
                             }
-                        }
+                        ]
                     },
-                    Objects = new()
-                    {
+                    Objects =
+                    [
                         new()
                         {
                             String = "test",
@@ -442,7 +435,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
                             String = "test2",
                             Enum = DayOfWeek.Wednesday
                         }
-                    }
+                    ]
                 }
             });
     }
@@ -497,12 +490,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
                     Age = -22,
                     Name = "child name",
                     Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
-                    Strings = new()
-                    {
-                        "string1", "string2", "", "strangeString"
-                    }
+                    Strings = ["string1", "string2", "", "strangeString"]
                 },
-                Numbers = new() { 0, 1, -222, 1000, 22 }
+                Numbers = [0, 1, -222, 1000, 22]
             });
     }
 
@@ -545,14 +535,11 @@ public class BindingTests(Sut App) : TestBase<Sut>
                         Age = -22,
                         Name = "child name",
                         Id = Guid.Parse("8bedccb3-ff93-47a2-9fc4-b558cae41a06"),
-                        Strings = new()
-                        {
-                            "string1", "string2", "", "strangeString"
-                        },
-                        FavoriteDays = new() { DayOfWeek.Monday, DayOfWeek.Saturday },
+                        Strings = ["string1", "string2", "", "strangeString"],
+                        FavoriteDays = [DayOfWeek.Monday, DayOfWeek.Saturday],
                         IsHidden = true
                     },
-                    Numbers = new() { 0, 1, -222, 1000, 22 }
+                    Numbers = [0, 1, -222, 1000, 22]
                 }
             });
     }
@@ -717,12 +704,48 @@ public class BindingTests(Sut App) : TestBase<Sut>
         x.Should().NotBeNull();
 
         x!.Title.Should().Be("book title");
-        x.CoverImage.FileName.Should().Be("test.png");
+        x.CoverImage.Name.Should().Be("CoverImage");
         x.SourceFiles.Count.Should().Be(2);
-        x.SourceFiles[0].FileName.Should().Be("test.png");
-        x.SourceFiles[1].FileName.Should().Be("test.png");
+        x.SourceFiles[0].Name.Should().Be("SourceFiles");
+        x.SourceFiles[1].Name.Should().Be("SourceFiles");
         x.MainAuthor.Should().NotBeNull();
         x.MainAuthor.Name.Should().Be("main author name");
+        x.MainAuthor.ProfileImage.Name.Should().Be("MainAuthor.ProfileImage");
+        x.MainAuthor.DocumentFiles.Count.Should().Be(2);
+        x.MainAuthor.DocumentFiles[0].Name.Should().Be("MainAuthor.DocumentFiles");
+        x.MainAuthor.DocumentFiles[1].Name.Should().Be("MainAuthor.DocumentFiles");
+        x.MainAuthor.MainAddress.Should().NotBeNull();
+        x.MainAuthor.MainAddress.Street.Should().Be("main author address street");
+        x.MainAuthor.MainAddress.MainImage.Name.Should().Be("MainAuthor.MainAddress.MainImage");
+        x.MainAuthor.MainAddress.AlternativeImages.Count.Should().Be(2);
+        x.MainAuthor.MainAddress.AlternativeImages[0].Name.Should().Be("MainAuthor.MainAddress.AlternativeImages");
+        x.MainAuthor.MainAddress.AlternativeImages[1].Name.Should().Be("MainAuthor.MainAddress.AlternativeImages");
+        x.MainAuthor.OtherAddresses.Count.Should().Be(2);
+        x.MainAuthor.OtherAddresses[0].MainImage.Name.Should().Be("MainAuthor.OtherAddresses[0].MainImage");
+        x.MainAuthor.OtherAddresses[0].AlternativeImages.Count.Should().Be(2);
+        x.MainAuthor.OtherAddresses[0].AlternativeImages[0].Name.Should().Be("MainAuthor.OtherAddresses[0].AlternativeImages");
+        x.MainAuthor.OtherAddresses[0].AlternativeImages[1].Name.Should().Be("MainAuthor.OtherAddresses[0].AlternativeImages");
+        x.MainAuthor.OtherAddresses[1].MainImage.Name.Should().Be("MainAuthor.OtherAddresses[1].MainImage");
+        x.MainAuthor.OtherAddresses[1].AlternativeImages.Count.Should().Be(2);
+        x.MainAuthor.OtherAddresses[1].AlternativeImages[0].Name.Should().Be("MainAuthor.OtherAddresses[1].AlternativeImages");
+        x.MainAuthor.OtherAddresses[1].AlternativeImages[1].Name.Should().Be("MainAuthor.OtherAddresses[1].AlternativeImages");
+        x.CoAuthors.Count.Should().Be(1);
+        x.CoAuthors[0].Name.Should().Be("co author 0 name");
+        x.CoAuthors[0].ProfileImage.Name.Should().Be("CoAuthors[0].ProfileImage");
+        x.CoAuthors[0].DocumentFiles.Count.Should().Be(2);
+        x.CoAuthors[0].DocumentFiles[0].Name.Should().Be("CoAuthors[0].DocumentFiles");
+        x.CoAuthors[0].DocumentFiles[1].Name.Should().Be("CoAuthors[0].DocumentFiles");
+        x.CoAuthors[0].MainAddress.Street.Should().Be("co author 0 address street");
+        x.CoAuthors[0].MainAddress.MainImage.Name.Should().Be("CoAuthors[0].MainAddress.MainImage");
+        x.CoAuthors[0].MainAddress.AlternativeImages.Count.Should().Be(2);
+        x.CoAuthors[0].MainAddress.AlternativeImages[0].Name.Should().Be("CoAuthors[0].MainAddress.AlternativeImages");
+        x.CoAuthors[0].MainAddress.AlternativeImages[1].Name.Should().Be("CoAuthors[0].MainAddress.AlternativeImages");
+        x.CoAuthors[0].OtherAddresses.Count.Should().Be(1);
+        x.CoAuthors[0].OtherAddresses[0].Street.Should().Be("co author 0 other address 0 street");
+        x.CoAuthors[0].OtherAddresses[0].MainImage.Name.Should().Be("CoAuthors[0].OtherAddresses[0].MainImage");
+        x.CoAuthors[0].OtherAddresses[0].AlternativeImages.Count.Should().Be(2);
+        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[0].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages");
+        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[1].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages");
     }
 
     [Fact]

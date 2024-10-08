@@ -10,6 +10,12 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 
 ## New 🎉
 
+<details><summary>Multipart Form Data binding support for deeply nested complex DTOs</summary>
+
+todo: write docs + write description here
+
+</details>
+
 <details><summary>Ability to disable FluentValidation+Swagger integration per rule</summary>
 
 The built-in FV+Swagger integration can be disabled per property rule with the newly added `.SwaggerIgnore()` extension method as shown below.

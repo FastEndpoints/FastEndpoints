@@ -27,5 +27,19 @@ sealed class Address
 
 sealed class Endpoint : Endpoint<Book>
 {
+    internal static Book? Result { get; private set; }
 
+    public override void Configure()
+    {
+        Post("test-cases/form-binding-complex-dtos");
+        AllowAnonymous();
+        AllowFileUploads();
+    }
+
+    public override Task HandleAsync(Book r, CancellationToken ct)
+    {
+        Result = r;
+
+        return Task.CompletedTask;
+    }
 }

@@ -671,38 +671,58 @@ public class BindingTests(Sut App) : TestBase<Sut>
         res.JetNames.Should().Equal("jet1.png", "jet2.png");
     }
 
-    //[Fact]
+    [Fact]
     public async Task ComplexFormDataBinding()
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/test");
+        var request = new HttpRequestMessage(HttpMethod.Post, "api/test-cases/form-binding-complex-dtos");
         var content = new MultipartFormDataContent();
+
+        content.Add(new StringContent("book title"), "Title");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoverImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "SourceFiles", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "SourceFiles", "test.png");
+        content.Add(new StringContent("main author name"), "MainAuthor.Name");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.ProfileImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.DocumentFiles", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.DocumentFiles", "test.png");
+        content.Add(new StringContent("main author address street"), "MainAuthor.MainAddress.Street");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.MainAddress.MainImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.MainAddress.AlternativeImages", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.MainAddress.AlternativeImages", "test.png");
+        content.Add(new StringContent("main author other address 0 street"), "MainAuthor.OtherAddresses[0].Street");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[0].MainImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[0].AlternativeImages", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[0].AlternativeImages", "test.png");
+        content.Add(new StringContent("main author other address 1 street"), "MainAuthor.OtherAddresses[1].Street");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[1].MainImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[1].AlternativeImages", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.OtherAddresses[1].AlternativeImages", "test.png");
+        content.Add(new StringContent("co author 0 name"), "CoAuthors[0].Name");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].ProfileImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].DocumentFiles", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].DocumentFiles", "test.png");
+        content.Add(new StringContent("co author 0 address street"), "CoAuthors[0].MainAddress.Street");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].MainAddress.MainImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].MainAddress.AlternativeImages", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].MainAddress.AlternativeImages", "test.png");
+        content.Add(new StringContent("co author 0 other address 0 street"), "CoAuthors[0].OtherAddresses[0].Street");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].MainImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages", "test.png");
         request.Content = content;
         var response = await App.GuestClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
+
+        var x = TestCases.FormBindingComplexDtos.Endpoint.Result;
+        x.Should().NotBeNull();
+
+        x!.Title.Should().Be("book title");
+        x.CoverImage.FileName.Should().Be("test.png");
+        x.SourceFiles.Count.Should().Be(2);
+        x.SourceFiles[0].FileName.Should().Be("test.png");
+        x.SourceFiles[1].FileName.Should().Be("test.png");
+        x.MainAuthor.Should().NotBeNull();
+        x.MainAuthor.Name.Should().Be("main author name");
     }
 
     [Fact]

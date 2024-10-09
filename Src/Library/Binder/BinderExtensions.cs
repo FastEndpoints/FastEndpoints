@@ -92,7 +92,7 @@ static class BinderExtensions
                 tryParseMethod = tProp.GetMethod(
                     "TryParse",
                     BindingFlags.Public | BindingFlags.Static,
-                    [Types.String, typeof(IFormatProvider), tProp.MakeByRefType()]);
+                    [Types.String, Types.IFormatProvider, tProp.MakeByRefType()]);
                 isIParseable = tryParseMethod is not null;
             }
 

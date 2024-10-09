@@ -46,6 +46,16 @@ Get("api/invoice/{id}/print")
 
 </details>
 
+<details><summary>Allow route param values with curly braces</summary>
+
+The default request binder did not bind incoming route parameter values with curly braces such as:
+
+```http
+http://localhost:5000/invoice/{123-456}
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Global 'TypeInfoResolver' not working</summary>

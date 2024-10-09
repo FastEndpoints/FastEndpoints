@@ -27,7 +27,7 @@ public interface IEndpoint
     EndpointDefinition Definition { get; } //also for extensibility
 
     //key: the type of the endpoint
-    private static ConcurrentDictionary<Type, string> TestUrlCache { get; } = new();
+    static ConcurrentDictionary<Type, string> TestUrlCache { get; } = new();
 
     internal static void SetTestUrl(Type endpointType, string url)
         => TestUrlCache[endpointType] = url;

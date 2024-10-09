@@ -324,11 +324,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             return;
 
         foreach (var kvp in routeValues)
-        {
-            var val = kvp.Value?.ToString();
-            if (val?.StartsWith('{') is false)
-                Bind(req, new(kvp.Key, val), failures);
-        }
+            Bind(req, new(kvp.Key, kvp.Value?.ToString()), failures);
     }
 
     static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
@@ -467,7 +463,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
 
         static bool IsNullablePropAndInputIsEmptyString(KeyValuePair<string, StringValues> kvp, PrimaryPropCacheEntry prop)
-            => kvp.Value[0]?.Length == 0 && Nullable.GetUnderlyingType(prop.PropType) != null;
+            => kvp.Value[0]?.Length == 0 && Nullable.GetUnderlyingType(prop.PropType) is not null;
     }
 
     static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)

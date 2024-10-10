@@ -32,24 +32,24 @@ static class BinderExtensions
                          !p.IsDefined(Types.JsonIgnoreAttribute));
     }
 
-    internal static Func<object, object> GetterForProp(this Type source, string propertyName)
-    {
-        //(object parent, object returnVal) => ((object)((TParent)parent).property);
+    // internal static Func<object, object> GetterForProp(this Type source, string propertyName)
+    // {
+    //     //(object parent, object returnVal) => ((object)((TParent)parent).property);
+    //
+    //     var parent = Expression.Parameter(Types.Object);
+    //     var property = Expression.Property(Expression.Convert(parent, source), propertyName);
+    //     var convertProp = Expression.Convert(property, Types.Object);
+    //
+    //     return Expression.Lambda<Func<object, object>>(convertProp, parent).Compile();
+    // }
 
-        var parent = Expression.Parameter(Types.Object);
-        var property = Expression.Property(Expression.Convert(parent, source), propertyName);
-        var convertProp = Expression.Convert(property, Types.Object);
-
-        return Expression.Lambda<Func<object, object>>(convertProp, parent).Compile();
-    }
-
-    internal static Action<object, object?> SetterForProp(this Type source, string propertyName)
+    internal static Action<object, object?> SetterForProp(this Type tParent, string propertyName)
     {
         //(object parent, object value) => ((TParent)parent).property = (TProp)value;
 
         var parent = Expression.Parameter(Types.Object);
         var value = Expression.Parameter(Types.Object);
-        var property = Expression.Property(Expression.Convert(parent, source), propertyName);
+        var property = Expression.Property(Expression.Convert(parent, tParent), propertyName);
         var body = Expression.Assign(property, Expression.Convert(value, property.Type));
 
         return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();

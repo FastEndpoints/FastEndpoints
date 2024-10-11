@@ -5,8 +5,10 @@
     <ItemGroup>
         <PackageVersion Include="Asp.Versioning.Http" Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Version="7.1.0"/>
         <PackageVersion Include="Asp.Versioning.Http" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0'" Version="8.1.0"/>
+
         <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Version="7.1.0"/>
         <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0'" Version="8.1.0"/>
+
         <PackageVersion Include="BenchmarkDotNet" Version="0.14.0"/>
         <PackageVersion Include="Bogus" Version="35.6.1"/>
         <PackageVersion Include="FakeItEasy" Version="8.3.0"/>
@@ -20,18 +22,22 @@
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.66.0"/>
         <PackageVersion Include="MartinCostello.Logging.XUnit" Version="0.4.0"/>
         <PackageVersion Include="MessagePack" Version="2.5.172"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.33"/>
+
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.35"/>
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.0.20"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.8"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0-rc.1.24452.1"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.33"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.10"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0-rc.2.24474.3"/>
+
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.35"/>
         <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.0.20"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.8"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0-rc.1.24452.1"/>
-        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.33"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.10"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0-rc.2.24474.3"/>
+
+        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.35"/>
         <PackageVersion Include="Microsoft.AspNetCore.TestHost" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.0.20"/>
-        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.8"/>
-        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0-rc.1.24452.1"/>
+        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.10"/>
+        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0-rc.2.24474.3"/>
+
         <PackageVersion Include="Microsoft.Bcl.TimeProvider" Version="8.0.1"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>

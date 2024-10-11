@@ -15,13 +15,13 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
     const string DontRegisterAttribute = "DontRegisterAttribute";
 
     static readonly string[] _whiteList =
-    {
+    [
         "FastEndpoints.IEndpoint",
         "FastEndpoints.IEventHandler",
         "FastEndpoints.ICommandHandler",
         "FastEndpoints.ISummary",
         "FluentValidation.IValidator"
-    };
+    ];
 
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {

@@ -19,7 +19,9 @@ public class AccessControlGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext ctx)
     {
         var assemblyName = ctx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
-        ctx.RegisterSourceOutput(assemblyName, static (spc, assembly) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assembly), Encoding.UTF8)));
+        ctx.RegisterSourceOutput(
+            assemblyName,
+            static (spc, assembly) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assembly), Encoding.UTF8)));
 
         var matches = ctx.SyntaxProvider
                          .CreateSyntaxProvider(Qualify, Transform)
@@ -31,7 +33,10 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
-            => node is InvocationExpressionSyntax { ArgumentList.Arguments.Count: not 0, Expression: IdentifierNameSyntax { Identifier.ValueText: "AccessControl" } };
+            => node is InvocationExpressionSyntax
+            {
+                ArgumentList.Arguments.Count: not 0, Expression: IdentifierNameSyntax { Identifier.ValueText: "AccessControl" }
+            };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
@@ -323,7 +328,8 @@ public class AccessControlGenerator : IIncrementalGenerator
                         .OfType<LiteralExpressionSyntax>()
                         .Select(l => l.Token.ValueText.Sanitize());
 
-            var desc = m.Invocation.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia)).ToString();
+            var desc = m.Invocation.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                        .ToString();
 
             Name = args.First();
             Code = GetAclHash(Name);

@@ -58,11 +58,11 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
               """);
 
-        foreach (var reg in regs.OrderBy(r => r!.LifeTime).ThenBy(r => r!.ServiceType))
+        foreach (var reg in regs.OrderBy(r => r.LifeTime).ThenBy(r => r.ServiceType))
         {
             b.w(
                 $"""
-                         sc.Add{reg!.LifeTime}<{reg.ServiceType}, {reg.ImplType}>();
+                         sc.Add{reg.LifeTime}<{reg.ServiceType}, {reg.ImplType}>();
 
                  """);
         }

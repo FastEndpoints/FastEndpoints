@@ -9,6 +9,7 @@
     <option name="suppressBrowserRefresh" value="true" />
     <option name="suppressHotReload" value="true" />
     <option name="verbosity" value="QUIET" />
+    <option name="watchParameters" value="" />
     <option name="workingDirectory" value="$PROJECT_DIR$/Web" />
     <method v="2" />
   </configuration>

@@ -6,7 +6,7 @@
     },
     "GeneratorSandbox": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\Sandbox\\Source\\Playground.Api.csproj"
+      "targetProject": "..\\..\\Sandbox\\Source\\Sandbox.csproj"
     }
   }
 }

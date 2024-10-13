@@ -64,4 +64,10 @@ As reported by #783, there was an oversight in the way the built-in modifiers we
 
 </details>
 
+<details><summary>Incorrect property name resolution of fluent validators with deeply nested DTOs</summary>
+
+When json property naming policy is applied to fluentvalidation property chains, it was not correctly resolving the property chains for deeply nested request DTO properties.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

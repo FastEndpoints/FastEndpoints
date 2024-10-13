@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
 using FluentValidation;
+using FluentValidation.Internal;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -72,11 +73,19 @@ public static class MainExtensions
 
         if (Cfg.ValOpts.UsePropertyNamingPolicy && Cfg.SerOpts.Options.PropertyNamingPolicy is not null)
         {
-            ValidatorOptions.Global.PropertyNameResolver
-                = (_, memberInfo, _)
-                      => memberInfo is not null
-                             ? Cfg.SerOpts.Options.PropertyNamingPolicy.ConvertName(memberInfo.Name)
-                             : null;
+            ValidatorOptions.Global.PropertyNameResolver =
+                (_, memberInfo, expression) =>
+                {
+                    if (memberInfo is null)
+                        return null;
+
+                    if (expression is null)
+                        return Cfg.SerOpts.Options.PropertyNamingPolicy.ConvertName(memberInfo.Name);
+
+                    var chain = PropertyChain.FromExpression(expression);
+
+                    return Cfg.SerOpts.Options.PropertyNamingPolicy.ConvertName(chain.Count > 0 ? chain.ToString() : memberInfo.Name);
+                };
         }
 
     #if NET8_0_OR_GREATER

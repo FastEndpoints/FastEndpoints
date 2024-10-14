@@ -24,13 +24,11 @@ public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
 public sealed class ProblemDetails : IResult
 #endif
 {
-#pragma warning disable CA1822
     [DefaultValue("https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1")]
-    public string Type => Cfg.ErrOpts.ProblemDetailsConf.TypeValue;
+    public string Type => Cfg.ErrOpts.ProblemDetailsConf.TypeTransformer(this);
 
     [DefaultValue("One or more validation errors occurred.")]
     public string Title => Cfg.ErrOpts.ProblemDetailsConf.TitleTransformer(this);
-#pragma warning restore CA1822
 
     [DefaultValue(400)]
     public int Status { get; set; }

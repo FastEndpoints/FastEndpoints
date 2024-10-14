@@ -34,6 +34,33 @@ sealed class MyValidator : Validator<MyRequest>
 
 </details>
 
+<details><summary>Automatic transformation of 'ProblemDetails.Title' & 'ProblemDetails.Type' values according to 'StatusCode'</summary>
+
+The `ProblemDetails` Title and Type values will now be automatically determined/transformed according to the `Status` code of the instance. The default behavior can be changed by setting your own `TypeTransformer` and `TitleTransformer` functions like so:
+
+```csharp
+app.UseFastEndpoints(
+       cfg => cfg.Errors.UseProblemDetails(
+           pCfg =>
+           {
+               pCfg.TypeTransformer
+                   = pd =>
+                     {
+                         switch (pd.Status)
+                         {
+                             case 404:
+                                 return "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.4";
+                             case 429:
+                                 return "https://www.rfc-editor.org/rfc/rfc6585#section-4";
+                             default:
+                                 return "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
+                         }
+                     };
+           }))
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Route template syntax highlighting for VS and Rider</summary>

@@ -41,7 +41,7 @@ public sealed class ErrorOptions
     /// a function for transforming validation errors to an error response dto.
     /// set it to any func that returns an object that can be serialized to json.
     /// this function will be run everytime an error response needs to be sent to the client.
-    /// the arguments for the func will be a list of validation failures, the http context and an http status code.
+    /// the arguments for the func will be a list of validation failures, the http context and a http status code.
     /// <para>
     /// HINT: if changing the default, make sure to also set <see cref="ProducesMetadataType" /> to the correct type of the error response dto.
     /// </para>
@@ -68,7 +68,7 @@ public sealed class ErrorOptions
     public sealed class ProblemDetailsConfig
     {
         /// <summary>
-        /// the built-in function for transforming validation errors to a RFC7807 compatible problem details error response dto.
+        /// sets a function used for transforming validation errors to a RFC7807 compatible problem details error response dto.
         /// </summary>
         public Func<List<ValidationFailure>, HttpContext, int, object> ResponseBuilder { internal get; set; }
             = (failures, ctx, statusCode)
@@ -80,14 +80,19 @@ public sealed class ErrorOptions
         public string TypeValue { internal get; set; } = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
 
         /// <summary>
+        /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Type" /> value.
+        /// </summary>
+        public Func<ProblemDetails, string> TypeTransformer { internal get; set; } = TransformType;
+
+        /// <summary>
         /// globally sets the value of <see cref="ProblemDetails.Title" />.
         /// </summary>
-        public string TitleValue { internal get; set; } = "One or more validation errors occurred.";
+        public string TitleValue { internal get; set; } = "One or more errors occurred.";
 
         /// <summary>
         /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Title" /> value.
         /// </summary>
-        public Func<ProblemDetails, string> TitleTransformer { internal get; set; } = _ => Cfg.ErrOpts.ProblemDetailsConf.TitleValue;
+        public Func<ProblemDetails, string> TitleTransformer { internal get; set; } = TransformTitle;
 
         /// <summary>
         /// controls whether duplicate errors with the same name should be allowed for <see cref="ProblemDetails.Errors" />.
@@ -103,5 +108,48 @@ public sealed class ErrorOptions
         /// if set to true, the <see cref="FluentValidation.Severity" /> value of the failure will be serialized to the response.
         /// </summary>
         public bool IndicateErrorSeverity { get; set; } = false;
+
+        static string TransformTitle(ProblemDetails p)
+            => _codeMap.TryGetValue(p.Status, out var entry)
+                   ? entry.Title
+                   : Cfg.ErrOpts.ProblemDetailsConf.TitleValue;
+
+        static string TransformType(ProblemDetails p)
+            => _codeMap.TryGetValue(p.Status, out var entry)
+                   ? entry.Url
+                   : Cfg.ErrOpts.ProblemDetailsConf.TypeValue;
+
+        static readonly Dictionary<int, (string Title, string Url)> _codeMap = new()
+        {
+            { 400, ("Bad Request", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1") },
+            { 401, ("Unauthorized", "https://www.rfc-editor.org/rfc/rfc7235#section-3.1") },
+            { 402, ("Payment Required", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.2") },
+            { 403, ("Forbidden", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.3") },
+            { 404, ("Not Found", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.4") },
+            { 405, ("Method Not Allowed", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.5") },
+            { 406, ("Not Acceptable", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.6") },
+            { 407, ("Proxy Authentication Required", "https://www.rfc-editor.org/rfc/rfc7235#section-3.2") },
+            { 408, ("Request Timeout", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.7") },
+            { 409, ("Conflict", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.8") },
+            { 410, ("Gone", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.9") },
+            { 411, ("Length Required", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.10") },
+            { 412, ("Precondition Failed", "https://www.rfc-editor.org/rfc/rfc7232#section-4.2") },
+            { 413, ("Payload Too Large", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.11") },
+            { 414, ("URI Too Long", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.12") },
+            { 415, ("Unsupported Media Type", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.13") },
+            { 416, ("Range Not Satisfiable", "https://www.rfc-editor.org/rfc/rfc7233#section-4.4") },
+            { 417, ("Expectation Failed", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.14") },
+            { 418, ("I'm a Teapot", "https://datatracker.ietf.org/doc/html/rfc2324#section-2.3.2") },
+            { 421, ("Misdirected Request", "https://www.rfc-editor.org/rfc/rfc7540#section-9.1.2") },
+            { 422, ("Unprocessable Entity", "https://www.rfc-editor.org/rfc/rfc4918#section-11.2") },
+            { 423, ("Locked", "https://www.rfc-editor.org/rfc/rfc4918#section-11.3") },
+            { 424, ("Failed Dependency", "https://www.rfc-editor.org/rfc/rfc4918#section-11.4") },
+            { 425, ("Too Early", "https://www.rfc-editor.org/rfc/rfc8470#section-5.2") },
+            { 426, ("Upgrade Required", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.15") },
+            { 428, ("Precondition Required", "https://www.rfc-editor.org/rfc/rfc6585#section-3") },
+            { 429, ("Too Many Requests", "https://www.rfc-editor.org/rfc/rfc6585#section-4") },
+            { 431, ("Request Header Fields Too Large", "https://www.rfc-editor.org/rfc/rfc6585#section-5") },
+            { 451, ("Unavailable For Legal Reasons", "https://www.rfc-editor.org/rfc/rfc7725#section-3") }
+        };
     }
 }

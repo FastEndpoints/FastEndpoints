@@ -36,7 +36,7 @@ sealed class MyValidator : Validator<MyRequest>
 
 <details><summary>Automatic transformation of 'ProblemDetails.Title' & 'ProblemDetails.Type' values according to 'StatusCode'</summary>
 
-The `ProblemDetails` Title and Type values will now be automatically determined/transformed according to the `Status` code of the instance. The default behavior can be changed by setting your own `TypeTransformer` and `TitleTransformer` functions like so:
+The `ProblemDetails` Title and Type values will now be automatically determined/transformed according to the `Status` code of the instance. The [default behavior](https://github.com/FastEndpoints/FastEndpoints/blob/0ff9555cd6a99ca19bcfe4ad7c458d5e2d2e04ff/Src/Library/Config/ErrorOptions.cs#L112-L120) can be changed by setting your own `TypeTransformer` and `TitleTransformer` functions like so:
 
 ```csharp
 app.UseFastEndpoints(

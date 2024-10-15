@@ -152,6 +152,60 @@ public static class Extensions
         s.OperationsSorter = "alpha";
         s.CustomInlineStyles =
             ".servers-title,.servers{display:none} .swagger-ui .info{margin:10px 0} .swagger-ui .scheme-container{margin:10px 0;padding:10px 0} .swagger-ui .info .title{font-size:25px} .swagger-ui textarea{min-height:150px}";
+        s.CustomHeadContent = """
+                              <script>
+                              const SearchPlugin = (system) => ({
+                                fn: {
+                                  opsFilter: (taggedOps, phrase) => {
+                                    const words = phrase.toLowerCase().split(/\s+/);
+                                    const allOps = JSON.parse(JSON.stringify(taggedOps));
+                                    for (const tagObj in allOps) {
+                                      let ops = allOps[tagObj].operations;
+                                      ops = ops.filter(op => {
+                                        const toLowerSafe = (value) => (value ? value.toLowerCase() : '');
+                                        const searchProps = [
+                                          toLowerSafe(op.path),
+                                          toLowerSafe(op.operation.summary),
+                                          toLowerSafe(op.operation.description),
+                                          toLowerSafe(JSON.stringify(op.operation.parameters)),
+                                          toLowerSafe(JSON.stringify(op.operation.responses)),
+                                          toLowerSafe(JSON.stringify(op.operation.requestBody))
+                                        ];
+                                        return words.every(word => searchProps.some(prop => prop.includes(word)));
+                                      });
+                                      if (ops.length) {
+                                        allOps[tagObj].operations = ops;
+                                      } else {
+                                        delete allOps[tagObj];
+                                      }
+                                    }
+                                    return system.Im.fromJS(allOps);
+                                  }
+                                }
+                              });
+
+                              const initPlugin = () => {
+                                const ui = window.ui || window.swaggerUi;
+                                if (ui && ui.getSystem) {
+                                  ui.getSystem().fn.opsFilter = SearchPlugin(ui.getSystem()).fn.opsFilter;
+                                  const searchBox = document.querySelector('.filter-container input');
+                                  if (searchBox) {
+                                    searchBox.placeholder = "Search...";
+                                    searchBox.addEventListener('input', (event) => {
+                                      const phrase = event.target.value;
+                                      const system = ui.getSystem();
+                                      const taggedOps = system.getState().toJS().taggedOps;
+                                      const filteredOps = system.fn.opsFilter(taggedOps, phrase);
+                                      system.getState().update('taggedOps', () => filteredOps);
+                                    });
+                                  }
+                                } else {
+                                  setTimeout(initPlugin, 250);
+                                }
+                              };
+                              document.addEventListener('DOMContentLoaded', initPlugin);
+                              </script>
+                              """;
         settings?.Invoke(s);
     }
 

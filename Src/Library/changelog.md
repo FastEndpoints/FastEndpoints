@@ -61,6 +61,19 @@ app.UseFastEndpoints(
 
 </details>
 
+<details><summary>Enhance Swagger UI search bar behavior</summary>
+
+The Swagger UI search bar is only capable of searching/filtering operations by tag values. The search bar has been enhanced via a custom injected JS plugin to be able to search the following sources:
+
+- Operation paths
+- Summary text
+- Description text
+- Operation parameters
+- Request schema
+- Response schema
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Route template syntax highlighting for VS and Rider</summary>

@@ -96,6 +96,20 @@ http://localhost:5000/invoice/{123-456}
 
 </details>
 
+<details><summary>Better handling of JsonIgnore attribute condition</summary>
+
+The `[JsonIgnore]` attribute on request/response DTO properties will now be taken into consideration only if it's declared in either the following two ways:
+
+```csharp
+[JsonIgnore] //without specifying a condition (defaults to JsonIgnoreCondition.Always)
+
+[JsonIgnore(Condition = JsonIgnoreCondition.Always)]
+```
+
+This change only applies to Swagger generation and Non-STJ model binding behavior.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Global 'TypeInfoResolver' not working</summary>

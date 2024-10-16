@@ -16,6 +16,7 @@ using NSwag;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
+using JsonIgnoreAttribute = System.Text.Json.Serialization.JsonIgnoreAttribute;
 
 namespace FastEndpoints.Swagger;
 
@@ -300,10 +301,10 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         if (reqDtoProps != null)
         {
             foreach (var p in reqDtoProps.Where(
-                                             p => p.IsDefined(Types.JsonIgnoreAttribute) ||
+                                             p => p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition == JsonIgnoreCondition.Always ||
                                                   p.IsDefined(Types.HideFromDocsAttribute) ||
                                                   p.GetSetMethod()?.IsPublic is not true)
-                                         .ToArray()) //prop has no public setter or has ignore/hide attribute
+                                         .ToArray())
             {
                 RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
                 reqDtoProps.Remove(p);
@@ -420,6 +421,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
+
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {

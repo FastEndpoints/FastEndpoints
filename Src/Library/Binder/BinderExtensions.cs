@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 #if NET8_0_OR_GREATER
@@ -29,7 +30,7 @@ static class BinderExtensions
                 .Where(
                     p => p.GetSetMethod()?.IsPublic is true &&
                          p.GetGetMethod()?.IsPublic is true &&
-                         !p.IsDefined(Types.JsonIgnoreAttribute));
+                         p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always);
     }
 
     // internal static Func<object, object> GetterForProp(this Type source, string propertyName)

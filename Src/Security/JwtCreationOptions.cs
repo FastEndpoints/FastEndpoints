@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using System.Security.Cryptography;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FastEndpoints.Security;
 
@@ -32,6 +33,12 @@ public sealed class JwtCreationOptions
     /// specifies whether the key is pem encoded.
     /// </summary>
     public bool KeyIsPemEncoded { get; set; }
+
+    /// <summary>
+    /// if specified, this function will be used to generate a <c>kid</c> for asymmetric key generation.
+    /// the <c>string</c> value returned from this function will be set on the <see cref="RsaSecurityKey" />.<see cref="RsaSecurityKey.KeyId" /> property.
+    /// </summary>
+    public Func<RSA, string>? AsymmetricKidGenerator { get; set; }
 
     /// <summary>
     /// specify the privileges of the user

@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 #if NET8_0_OR_GREATER
 using Microsoft.IdentityModel.JsonWebTokens;
+
 #else
 using System.IdentityModel.Tokens.Jwt;
 #endif
@@ -34,7 +35,10 @@ public static class JwtBearer
             throw new InvalidOperationException($"'{nameof(JwtCreationOptions.SigningKey)}' is required!");
 
         if (opts.SigningStyle is TokenSigningStyle.Asymmetric && opts.SigningAlgorithm is SecurityAlgorithms.HmacSha256Signature)
-            throw new InvalidOperationException($"Please set an appropriate '{nameof(JwtCreationOptions.SigningAlgorithm)}' when creating Asymmetric JWTs!");
+        {
+            throw new InvalidOperationException(
+                $"Please set an appropriate '{nameof(JwtCreationOptions.SigningAlgorithm)}' when creating Asymmetric JWTs!");
+        }
 
         var claimList = new List<Claim>();
 
@@ -69,19 +73,21 @@ public static class JwtBearer
 
         static SigningCredentials GetSigningCredentials(JwtCreationOptions opts)
         {
-            // ReSharper disable once InvertIf
-            if (opts.SigningStyle == TokenSigningStyle.Asymmetric)
-            {
-                var rsa = RSA.Create(); // don't dispose this
-                if (opts.KeyIsPemEncoded)
-                    rsa.ImportFromPem(opts.SigningKey);
-                else
-                    rsa.ImportRSAPrivateKey(Convert.FromBase64String(opts.SigningKey), out _);
+            if (opts.SigningStyle == TokenSigningStyle.Symmetric)
+                return new(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.SigningKey)), opts.SigningAlgorithm);
 
-                return new(new RsaSecurityKey(rsa), opts.SigningAlgorithm);
-            }
+            var rsa = RSA.Create(); // don't dispose this
+            if (opts.KeyIsPemEncoded)
+                rsa.ImportFromPem(opts.SigningKey);
+            else
+                rsa.ImportRSAPrivateKey(Convert.FromBase64String(opts.SigningKey), out _);
 
-            return new(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(opts.SigningKey)), opts.SigningAlgorithm);
+            return new(
+                new RsaSecurityKey(rsa)
+                {
+                    KeyId = opts.AsymmetricKidGenerator?.Invoke(rsa)
+                },
+                opts.SigningAlgorithm);
         }
     }
 }

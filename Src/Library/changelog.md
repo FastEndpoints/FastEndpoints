@@ -124,4 +124,10 @@ When json property naming policy is applied to fluentvalidation property chains,
 
 </details>
 
+<details><summary>'[FromBody]' attribute overriding media-type in Swagger</summary>
+
+The usage of `[FromBody]` attribute was incorrectly overriding the user specified media-type value to `application/json`. Info: #800
+
+</details>
+
 ## Minor Breaking Changes ⚠️

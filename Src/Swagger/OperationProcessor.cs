@@ -477,17 +477,22 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
         if (fromBodyProp is not null)
         {
-            foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
+            var body = op.Parameters.FirstOrDefault(x => x.Kind == OpenApiParameterKind.Body);
+
+            if (body is not null && op.RequestBody is not null)
             {
-                op.Parameters.Remove(body);
-                ctx.Document.Components.Schemas.Remove(body.Name);
                 var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, fromBodyProp, fromBodyProp.Name, true);
 
                 //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from
                 //prm.ActualSchema.ToSampleJson()
                 bodyParam.Example = null;
 
-                op.Parameters.Add(bodyParam);
+                op.RequestBody.Content.FirstOrDefault().Value.Schema = bodyParam.Schema;
+                op.RequestBody.IsRequired = bodyParam.IsRequired;
+                op.RequestBody.Description = bodyParam.Description;
+                op.RequestBody.Name = bodyParam.Name;
+                op.RequestBody.Position = null;
+                ctx.Document.Components.Schemas.Remove(body.Name);
             }
         }
 

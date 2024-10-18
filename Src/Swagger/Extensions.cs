@@ -217,6 +217,12 @@ public static class Extensions
         => s.AdditionalSettings.Remove("tryItOutEnabled");
 
     /// <summary>
+    /// displays the swagger operation id in the swagger ui
+    /// </summary>
+    public static void ShowOperationIDs(this SwaggerUiSettings s)
+        => s.AdditionalSettings["displayOperationId"] = true;
+
+    /// <summary>
     /// add swagger auth for this open api document
     /// </summary>
     /// <param name="schemeName">the authentication scheme</param>

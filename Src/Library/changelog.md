@@ -74,6 +74,16 @@ The Swagger UI search bar is only capable of searching/filtering operations by t
 
 </details>
 
+<details><summary>Extension method to display Swagger operation IDs in Swagger UI</summary>
+
+Calling the following extension method will cause the operation ids to show up in the swagger ui.
+
+```csharp
+app.UseSwaggerGen(uiConfig: u => u.ShowOperationIDs());
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Route template syntax highlighting for VS and Rider</summary>

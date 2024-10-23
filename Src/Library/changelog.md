@@ -1,8 +1,8 @@
 ---
 
-## ✨ Looking For Sponsors ✨
+## ❇️ Help Keep FastEndpoints Free & Open-Source ❇️
 
-FastEndpoints needs sponsorship to [sustain the project](https://github.com/FastEndpoints/FastEndpoints/issues/449). Please help out if you can.
+Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H96Va36xbvo), please consider [becoming a sponsor](https://opencollective.com/fast-endpoints) and help us beat the odds to keep the project alive and free for everyone.
 
 ---
 
@@ -13,6 +13,17 @@ FastEndpoints needs sponsorship to [sustain the project](https://github.com/Fast
 <details><summary>Multipart Form Data binding support for deeply nested complex DTOs</summary>
 
 todo: write docs + write description here
+
+</details>
+
+<details><summary>Source generator for avoiding reflection cost</summary>
+
+todo: write docs + write description here
+
+### Limitations of generator
+
+- Records not supported
+- Init only properties not supported
 
 </details>
 

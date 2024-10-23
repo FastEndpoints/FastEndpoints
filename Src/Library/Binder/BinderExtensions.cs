@@ -115,6 +115,8 @@ static class BinderExtensions
         }
     }
 
+    //TODO: add support for value parsers to the reflection source generator
+
     internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = [];
     static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;

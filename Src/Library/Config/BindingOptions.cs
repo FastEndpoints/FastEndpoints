@@ -12,6 +12,20 @@ namespace FastEndpoints;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public sealed class BindingOptions
 {
+#pragma warning disable CS0649
+
+    //need backing field due to extension methods can't get the same dictionary with the `this` keyword
+    readonly Dictionary<Type, (Dictionary<PropertyInfo, Action<object, object?>>, Func<object>)> _map = [];
+
+    // ReSharper disable once ConvertToAutoProperty
+    /// <summary>
+    /// the central cache of source generated request dto related reflection data.
+    /// populating this cache will eliminate expression compilations during runtime as well as usage of reflection based property setters, etc.
+    /// see the source generator documentation on how to populate this cache.
+    /// </summary>
+    public Dictionary<Type, (Dictionary<PropertyInfo, Action<object, object?>>, Func<object>)> SourceGeneratedReflection => _map;
+#pragma warning restore CS0649
+
     /// <summary>
     /// a function used to construct the failure message when a supplied value cannot be successfully bound to a dto property during model binding.
     /// <para>
@@ -50,15 +64,19 @@ public sealed class BindingOptions
           };
 
     /// <summary>
-    /// this http status code will be used for all automatically sent <see cref="JsonException" /> responses  which are built using the <see cref="JsonExceptionTransformer" />
+    /// this http status code will be used for all automatically sent <see cref="JsonException" /> responses  which are built using the
+    /// <see cref="JsonExceptionTransformer" />
     /// func. defaults to 400.
     /// </summary>
     public int JsonExceptionStatusCode { internal get; set; } = 400;
 
     /// <summary>
-    /// if this function is specified, any internal exceptions that are thrown by asp.net when accessing multipart form data will be caught and transformed to validation
-    /// failures using this function. by default those exceptions are not caught and thrown out to the middleware pipeline. setting this func might come in handy if
-    /// you need 413 responses (that arise from incoming request body size exceeding kestrel's <c>MaxRequestBodySize</c>) automatically transformed to 400 problem details
+    /// if this function is specified, any internal exceptions that are thrown by asp.net when accessing multipart form data will be caught and transformed to
+    /// validation
+    /// failures using this function. by default those exceptions are not caught and thrown out to the middleware pipeline. setting this func might come in handy
+    /// if
+    /// you need 413 responses (that arise from incoming request body size exceeding kestrel's <c>MaxRequestBodySize</c>) automatically transformed to 400 problem
+    /// details
     /// responses.
     /// </summary>
     public Func<Exception, ValidationFailure>? FormExceptionTransformer { internal get; set; }

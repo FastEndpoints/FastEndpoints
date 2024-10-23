@@ -36,3 +36,8 @@ public interface IEndpoint
     public static string TestURLFor<TEndpoint>()
         => TestUrlCache[typeof(TEndpoint)];
 }
+
+/// <summary>
+/// marker interface for endpoint base classes without a request dto
+/// </summary>
+public interface INoRequest;

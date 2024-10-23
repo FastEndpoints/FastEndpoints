@@ -389,7 +389,7 @@
     /// use this base class for defining endpoints that doesn't need a request dto. usually used for routes that doesn't have any parameters.
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
-    public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object?>
+    public abstract class EndpointWithoutRequest : Endpoint<EmptyRequest, object?>, INoRequest
     {
         /// <summary>
         /// the handler method for the endpoint. this method is called for each request received.
@@ -427,7 +427,7 @@
     /// </summary>
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
-    public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse>
+    public abstract class EndpointWithoutRequest<TResponse> : Endpoint<EmptyRequest, TResponse>, INoRequest
     {
         /// <summary>
         /// the handler method for the endpoint. this method is called for each request received.

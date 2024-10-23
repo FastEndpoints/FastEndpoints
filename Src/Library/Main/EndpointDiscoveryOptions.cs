@@ -29,11 +29,11 @@ public sealed class EndpointDiscoveryOptions
     public Func<Assembly, bool>? AssemblyFilter { internal get; set; }
 
     /// <summary>
-    /// when using the FastEndpoints.Generator package, do .AddRange(<c>&lt;AssemblyName&gt;.DiscoveredTypes.All</c>) on this property.
+    /// when using the FastEndpoints.Generator package, do .AddRange(<c>&lt;AssemblyName&gt;.DiscoveredTypes.All</c>) on this property,
+    /// per referenced assembly if your solution has multiple projects, or simply assign to this property if there's only one project/assembly.
     /// doing so will use the types discovered during source generation instead of reflection based type discovery.
-    /// call .AddRange() multiple times to register types from multiple referenced assemblies/projects.
     /// </summary>
-    public List<Type> SourceGeneratorDiscoveredTypes { get; } = new();
+    public List<Type> SourceGeneratorDiscoveredTypes { get; set; } = [];
 
     /// <summary>
     /// by default only validators inheriting <see cref="Validator{TRequest}" /> are auto registered.

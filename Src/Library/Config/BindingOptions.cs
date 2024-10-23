@@ -12,19 +12,19 @@ namespace FastEndpoints;
 [SuppressMessage("Performance", "CA1822:Mark members as static")]
 public sealed class BindingOptions
 {
-#pragma warning disable CS0649
-
-    //need backing field due to extension methods can't get the same dictionary with the `this` keyword
-    readonly Dictionary<Type, (Dictionary<PropertyInfo, Action<object, object?>>, Func<object>)> _map = [];
-
-    // ReSharper disable once ConvertToAutoProperty
     /// <summary>
-    /// the central cache of source generated request dto related reflection data.
-    /// populating this cache will eliminate expression compilations during runtime as well as usage of reflection based property setters, etc.
-    /// see the source generator documentation on how to populate this cache.
+    /// the central cache of request dto related reflection data.
+    /// populating this cache with source generated data will eliminate expression compilations during runtime as well as usage of
+    /// reflection based property setters, etc. see the source generator documentation on how to populate this cache with generated data.
     /// </summary>
-    public Dictionary<Type, (Dictionary<PropertyInfo, Action<object, object?>>, Func<object>)> SourceGeneratedReflection => _map;
-#pragma warning restore CS0649
+    public Dictionary<
+        Type,                         //key: type of the request dto
+        (                             //val: tuple of...
+        Dictionary<                   //     item1: props dictionary
+            PropertyInfo,             //            key: type/info of property
+            Action<object, object?>>, //            val: prop setter action (dto instance, prop value to set)
+        Func<object>                  //     item2: dto instance factory
+        )> ReflectionCache { get; set; } = [];
 
     /// <summary>
     /// a function used to construct the failure message when a supplied value cannot be successfully bound to a dto property during model binding.

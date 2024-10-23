@@ -52,7 +52,7 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
 
     sealed class Request
     {
-        public IFormFile File { get; init; } = default!;
+        public IFormFile File { get; set; } = default!;
     }
 
     sealed class Endpoint : Endpoint<Request, string>

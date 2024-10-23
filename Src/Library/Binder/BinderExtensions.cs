@@ -11,7 +11,6 @@ using Microsoft.Extensions.Primitives;
 using System.Text.Json.Serialization.Metadata;
 using Microsoft.Net.Http.Headers;
 #endif
-using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
@@ -24,13 +23,24 @@ static class BinderExtensions
         return indexOfOpeningBracket != -1 ? file.Name[..indexOfOpeningBracket] : file.Name;
     }
 
-    internal static IEnumerable<PropertyInfo> BindableProps(this Type t)
+    static readonly ConcurrentDictionary<Type, ICollection<PropertyInfo>> _bindablePropertyCache = [];
+
+    internal static ICollection<PropertyInfo> CachedBindableProps(this Type type)
     {
-        return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                .Where(
-                    p => p.GetSetMethod()?.IsPublic is true &&
-                         p.GetGetMethod()?.IsPublic is true &&
-                         p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always);
+        return _bindablePropertyCache.GetOrAdd(type, GetProperties);
+
+        static ICollection<PropertyInfo> GetProperties(Type t)
+        {
+            if (Cfg.BndOpts.ReflectionCache.Count > 0 && Cfg.BndOpts.ReflectionCache.TryGetValue(t, out var x))
+                return x.Item1.Keys;
+
+            return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                    .Where(
+                        p => p.GetSetMethod()?.IsPublic is true &&
+                             p.GetGetMethod()?.IsPublic is true &&
+                             p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always)
+                    .ToArray();
+        }
     }
 
     // internal static Func<object, object> GetterForProp(this Type source, string propertyName)
@@ -44,19 +54,68 @@ static class BinderExtensions
     //     return Expression.Lambda<Func<object, object>>(convertProp, parent).Compile();
     // }
 
-    internal static Action<object, object?> SetterForProp(this Type tParent, string propertyName)
+    static readonly ConcurrentDictionary<Type, ConcurrentDictionary<PropertyInfo, Action<object, object?>>> _propSetterCache = [];
+
+    internal static Action<object, object?> CachedSetterForProp(this Type tParent, PropertyInfo prop)
     {
-        //(object parent, object value) => ((TParent)parent).property = (TProp)value;
+        if (!Types.IEndpoint.IsAssignableFrom(tParent) && //skip generated cache for endpoint classes
+            Cfg.BndOpts.ReflectionCache.Count > 0 &&
+            Cfg.BndOpts.ReflectionCache.TryGetValue(tParent, out var x) &&
+            x.Item1.TryGetValue(prop, out var setter))
+            return setter;
 
-        var parent = Expression.Parameter(Types.Object);
-        var value = Expression.Parameter(Types.Object);
-        var property = Expression.Property(Expression.Convert(parent, tParent), propertyName);
-        var body = Expression.Assign(property, Expression.Convert(value, property.Type));
+        var props = _propSetterCache.GetOrAdd(tParent, new ConcurrentDictionary<PropertyInfo, Action<object, object?>>());
 
-        return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();
+        return props.GetOrAdd(prop, CompileSetter(tParent, prop));
+
+        static Action<object, object?> CompileSetter(Type tParent, PropertyInfo p)
+        {
+            //(object parent, object value) => ((TParent)parent).property = (TProp)value;
+            var parent = Expression.Parameter(Types.Object);
+            var value = Expression.Parameter(Types.Object);
+            var property = Expression.Property(Expression.Convert(parent, tParent), p.Name);
+            var body = Expression.Assign(property, Expression.Convert(value, property.Type));
+
+            return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();
+        }
     }
 
-    internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = new();
+    static readonly ConcurrentDictionary<Type, Func<object>> _objectFactoryCache = [];
+
+    internal static Func<object> CachedObjectFactory(this Type type)
+    {
+        return _objectFactoryCache.GetOrAdd(type, GetObjectFactory);
+
+        static Func<object> GetObjectFactory(Type type)
+        {
+            if (type == Types.EmptyRequest)
+                return () => new EmptyRequest();
+
+            if (Cfg.BndOpts.ReflectionCache.Count > 0 && Cfg.BndOpts.ReflectionCache.TryGetValue(type, out var x))
+                return x.Item2;
+
+            var ctor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                           .MinBy(c => c.GetParameters().Length) ??
+                       throw new NotSupportedException($"Unable to instantiate type without a constructor! Offender: [{type.FullName}]");
+
+            var args = ctor.GetParameters();
+            var argExpressions = new List<Expression>(args.Length);
+
+            for (var i = 0; i < args.Length; i++)
+            {
+                argExpressions.Add(
+                    args[i].HasDefaultValue
+                        ? Expression.Constant(args[i].DefaultValue, args[i].ParameterType)
+                        : Expression.Default(args[i].ParameterType));
+            }
+
+            var ctorExpression = Expression.New(ctor, argExpressions);
+
+            return Expression.Lambda<Func<object>>(ctorExpression).Compile();
+        }
+    }
+
+    internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = [];
     static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
@@ -66,9 +125,9 @@ static class BinderExtensions
         //if a parser is requested for a type a second time, it will be returned from the dictionary instead of paying the compiling cost again.
         //the parser we return from here is then cached in RequestBinder PropCache entries avoiding the need to do repeated dictionary lookups here.
         //it is also possible that the user has already registered a parser func for a given type via config at startup.
-        return ParserFuncCache.GetOrAdd(type, GetCompiledValueParser);
+        return ParserFuncCache.GetOrAdd(type, GetValueParser);
 
-        static Func<object?, ParseResult> GetCompiledValueParser(Type tProp)
+        static Func<object?, ParseResult> GetValueParser(Type tProp)
         {
             tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
 
@@ -139,15 +198,13 @@ static class BinderExtensions
                 Expression.Assign(isSuccessVar, tryParseCall),
                 Expression.New(_parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 
-            return Expression
-                   .Lambda<Func<object?, ParseResult>>(block, inputParameter)
-                   .Compile();
+            return Expression.Lambda<Func<object?, ParseResult>>(block, inputParameter).Compile();
 
             static object? DeserializeJsonObjectString(object? input, Type tProp)
                 => input is not StringValues { Count: 1 } vals
                        ? null
                        : vals[0]!.StartsWith('{') && vals[0]!.EndsWith('}') // check if it's a json object
-                           ? JsonSerializer.Deserialize(vals[0]!, tProp, SerOpts.Options)
+                           ? JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options)
                            : null;
 
             static object? DeserializeByteArray(object? input)
@@ -168,7 +225,7 @@ static class BinderExtensions
                     // - ["one","two","three"] (as StringValues[0])
                     // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
 
-                    return JsonSerializer.Deserialize(vals[0]!, tProp, SerOpts.Options);
+                    return JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options);
                 }
 
                 // querystring: ?ids=one&ids=two
@@ -213,7 +270,7 @@ static class BinderExtensions
                 }
                 sb.Append(']');
 
-                return JsonSerializer.Deserialize(sb.ToString(), tProp, SerOpts.Options);
+                return JsonSerializer.Deserialize(sb.ToString(), tProp, Cfg.SerOpts.Options);
             }
         }
     }

@@ -550,7 +550,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     }
 
     string GetFromBodyPropName()
-        => $"{ReqDtoType.BindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
+        => $"{ReqDtoType.CachedBindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
 
     ServiceBoundEpProp[] GetServiceBoundEpProps()
         => EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
@@ -560,8 +560,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                        .Select(
                            p => new ServiceBoundEpProp
                            {
-                               PropName = p.Name,
-                               PropType = p.PropertyType,
+                               PropertyInfo = p,
                                ServiceKey = p.GetCustomAttribute<KeyedServiceAttribute>()?.Key
                            })
                        .ToArray();
@@ -614,10 +613,11 @@ public sealed class EpVersion
 
 sealed class ServiceBoundEpProp
 {
-    public string PropName { get; init; } = null!;
+    //public string PropName { get; init; } = null!;
+    //public Type PropType { get; init; } = null!;
+    public PropertyInfo PropertyInfo { get; set; }
     public string? ServiceKey { get; init; }
     public Action<object, object>? PropSetter { get; set; }
-    public Type PropType { get; init; } = null!;
 }
 
 sealed class ToHeaderProp(string headerName, Func<object, object?>? getter)

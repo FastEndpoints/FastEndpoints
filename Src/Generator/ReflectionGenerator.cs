@@ -81,16 +81,23 @@ public class ReflectionGenerator : IIncrementalGenerator
 
               namespace {{_assemblyName}}
               {
-                  public static class SourceGeneratedReflectionExtensions
+                  /// <summary>
+                  /// source generated reflection data for request dtos located in the [{{_assemblyName}}] assembly.
+                  /// </summary>
+                  public static class GeneratedReflection
                   {
-                      static Dictionary<
+                      /// <summary>
+                      /// assign this property to <c>.Binding.ReflectionCache</c> if this is the only assembly in the project,
+                      /// or call <c>.Binding.ReflectionCache.AddFrom*()</c> multiple times if there's more than one assembly.
+                      /// </summary>
+                      public static Dictionary<
                           Type,                         //key: type of the request dto
                           (                             //val: tuple of...
                           Dictionary<                   //     item1: props dictionary
                               PropertyInfo,             //            key: type/info of property
                               Action<object, object?>>, //            val: prop setter action (dto instance, prop value to set)
                           Func<object>                  //     item2: dto instance factory
-                          )> _map { get; } = new()
+                          )> Cache { get; } = new()
                       {
               """);
 
@@ -148,10 +155,11 @@ public class ReflectionGenerator : IIncrementalGenerator
               
                       /// <summary>
                       /// register source generated reflection data from [{{assemblyName}}] with the central cache.
+                      /// only use this method if you need to bring in data from multiple assemblies.
                       /// </summary>
                       public static void AddFrom{{assemblyName}}(this Dictionary<Type, (Dictionary<PropertyInfo, Action<object, object?>>, Func<object>)> cache)
                       {
-                          foreach (var kvp in _map)
+                          foreach (var kvp in Cache)
                               cache.TryAdd(kvp.Key, kvp.Value);
                       }
                   }

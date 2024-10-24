@@ -1,8 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using FluentValidation.Results;
-using Microsoft.Extensions.Primitives;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
+using FluentValidation.Results;
+using Microsoft.Extensions.Primitives;
 
 namespace FastEndpoints;
 
@@ -17,14 +18,7 @@ public sealed class BindingOptions
     /// populating this cache with source generated data will eliminate expression compilations during runtime as well as usage of
     /// reflection based property setters, etc. see the source generator documentation on how to populate this cache with generated data.
     /// </summary>
-    public Dictionary<
-        Type,                         //key: type of the request dto
-        (                             //val: tuple of...
-        Dictionary<                   //     item1: props dictionary
-            PropertyInfo,             //            key: type/info of property
-            Action<object, object?>>, //            val: prop setter action (dto instance, prop value to set)
-        Func<object>                  //     item2: dto instance factory
-        )> ReflectionCache { get; set; } = [];
+    public ReflectionCache ReflectionCache { get; } = new();
 
     /// <summary>
     /// a function used to construct the failure message when a supplied value cannot be successfully bound to a dto property during model binding.
@@ -110,7 +104,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor&lt;Guid&gt;(MyParsers.GuidParser);
     /// });
-    ///
+    /// 
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)
@@ -142,7 +136,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor(typeof(Guid), MyParsers.GuidParser);
     /// });
-    ///
+    /// 
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)

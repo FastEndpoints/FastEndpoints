@@ -73,32 +73,27 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     static string RenderClass(IEnumerable<DtoInfo?> dtos)
     {
+        var sanitizedAssemblyName = _assemblyName?.Sanitize(string.Empty) ?? "Assembly";
+
         b.Clear().w(
             $$"""
               #nullable enable
 
-              using System.Reflection;
+              using FastEndpoints;
 
-              namespace {{_assemblyName}}
+              namespace {{_assemblyName}};
+
+              /// <summary>
+              /// source generated reflection data for request dtos located in the [{{_assemblyName}}] assembly.
+              /// </summary>
+              public static class GeneratedReflection
               {
                   /// <summary>
-                  /// source generated reflection data for request dtos located in the [{{_assemblyName}}] assembly.
+                  /// register source generated reflection data from [{{sanitizedAssemblyName}}] with the central cache.
                   /// </summary>
-                  public static class GeneratedReflection
+                  public static ReflectionCache AddFrom{{sanitizedAssemblyName}}(this ReflectionCache cache)
                   {
-                      /// <summary>
-                      /// assign this property to <c>.Binding.ReflectionCache</c> if this is the only assembly in the project,
-                      /// or call <c>.Binding.ReflectionCache.AddFrom*()</c> multiple times if there's more than one assembly.
-                      /// </summary>
-                      public static Dictionary<
-                          Type,                         //key: type of the request dto
-                          (                             //val: tuple of...
-                          Dictionary<                   //     item1: props dictionary
-                              PropertyInfo,             //            key: type/info of property
-                              Action<object, object?>>, //            val: prop setter action (dto instance, prop value to set)
-                          Func<object>                  //     item2: dto instance factory
-                          )> Cache { get; } = new()
-                      {
+
               """);
 
         foreach (var dto in dtos.Distinct(DtoTypeNameComparer.Instance))
@@ -108,63 +103,45 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             b.w(
                 $$"""
-                  
+                          cache.TryAdd(
+                              typeof({{dto.Value.TypeName}}),
+                              new()
                               {
-                                  typeof({{dto.Value.TypeName}}),
-                                  (
-                                      new()
-                                      {
+                                  ObjectFactory = () => new {{dto.Value.TypeName}}({{BuildCtorArgs(dto.Value.CtorArgumentCount)}}),
+                                  Properties = new(
+                                  [
                   """);
 
             foreach (var prop in dto.Value.Properties!)
             {
                 b.w(
-                    $$"""
-                      
-                                              {
-                                                  typeof({{dto.Value.TypeName}}).GetProperty("{{prop.PropName}}")!,
-
-                      """);
+                    $"""
+                     
+                                          new(typeof({dto.Value.TypeName}).GetProperty("{prop.PropName}")!,
+                     """);
                 b.w(
                     prop.IsInitOnly
-                        ? $"                            (_, _) => throw new NotSupportedException(\"Init properties are not supported with reflection source generation! Offender: [{dto.Value.TypeName}.{prop.PropName}]\")"
-                        : $"                            (dto, val) => (({dto.Value.TypeName})dto).{prop.PropName} = ({prop.PropertyType})val!");
-                b.w(
-                    """
-                    
-                                            },
-                    """);
+                        ? " new()"
+                        : $" new() {{ Setter = (dto, val) => (({dto.Value.TypeName})dto).{prop.PropName} = ({prop.PropertyType})val! }}");
+                b.w("),");
             }
 
             b.w(
-                $$"""
-                  
-                                      },
-                                      () => new {{dto.Value.TypeName}}({{BuildCtorArgs(dto.Value.CtorArgumentCount)}})
-                                  )
-                              },
-                  """);
+                """
+                
+                                ])
+                            });
+
+                """);
         }
 
-        var assemblyName = _assemblyName?.Sanitize(string.Empty) ?? "Assembly";
-
         b.w(
-            $$"""
-              
-                      };
-              
-                      /// <summary>
-                      /// register source generated reflection data from [{{assemblyName}}] with the central cache.
-                      /// only use this method if you need to bring in data from multiple assemblies.
-                      /// </summary>
-                      public static void AddFrom{{assemblyName}}(this Dictionary<Type, (Dictionary<PropertyInfo, Action<object, object?>>, Func<object>)> cache)
-                      {
-                          foreach (var kvp in Cache)
-                              cache.TryAdd(kvp.Key, kvp.Value);
-                      }
-                  }
-              }
-              """);
+            """ 
+                           
+                    return cache;
+                }
+            }
+            """);
 
         return b.ToString();
 

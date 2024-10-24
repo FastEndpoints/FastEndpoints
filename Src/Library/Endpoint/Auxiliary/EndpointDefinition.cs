@@ -550,13 +550,11 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     }
 
     string GetFromBodyPropName()
-        => $"{ReqDtoType.CachedBindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
+        => $"{ReqDtoType.BindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
 
     ServiceBoundEpProp[] GetServiceBoundEpProps()
-        => EndpointType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                       .Where(
-                           p => p is { CanRead: true, CanWrite: true } &&
-                                !p.IsDefined(Types.DontInjectAttribute))
+        => EndpointType.BindableProps()
+                       .Where(p => !p.IsDefined(Types.DontInjectAttribute))
                        .Select(
                            p => new ServiceBoundEpProp
                            {

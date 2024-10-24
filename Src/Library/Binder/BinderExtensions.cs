@@ -23,80 +23,50 @@ static class BinderExtensions
         return indexOfOpeningBracket != -1 ? file.Name[..indexOfOpeningBracket] : file.Name;
     }
 
-    static readonly ConcurrentDictionary<Type, ICollection<PropertyInfo>> _bindablePropertyCache = [];
-
-    internal static ICollection<PropertyInfo> CachedBindableProps(this Type type)
+    internal static ICollection<PropertyInfo> BindableProps(this Type type)
     {
-        return _bindablePropertyCache.GetOrAdd(type, GetProperties);
+        var c = Cfg.BndOpts.ReflectionCache.GetOrAdd(type, CreateClassDef);
+        c.Properties ??= new(GetProperties(type, c));
 
-        static ICollection<PropertyInfo> GetProperties(Type t)
+        return c.Properties.Keys;
+
+        static ClassDefinition CreateClassDef(Type t)
         {
-            if (Cfg.BndOpts.ReflectionCache.Count > 0 && Cfg.BndOpts.ReflectionCache.TryGetValue(t, out var x))
-                return x.Item1.Keys;
+            var c = new ClassDefinition();
+            c.Properties = new(GetProperties(t, c));
 
+            return c;
+        }
+
+        static IEnumerable<KeyValuePair<PropertyInfo, PropertyDefinition>> GetProperties(Type t, ClassDefinition c)
+        {
             return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                     .Where(
                         p => p.GetSetMethod()?.IsPublic is true &&
                              p.GetGetMethod()?.IsPublic is true &&
                              p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always)
-                    .ToArray();
+                    .Select(p => new KeyValuePair<PropertyInfo, PropertyDefinition>(p, new()));
         }
     }
 
-    // internal static Func<object, object> GetterForProp(this Type source, string propertyName)
-    // {
-    //     //(object parent, object returnVal) => ((object)((TParent)parent).property);
-    //
-    //     var parent = Expression.Parameter(Types.Object);
-    //     var property = Expression.Property(Expression.Convert(parent, source), propertyName);
-    //     var convertProp = Expression.Convert(property, Types.Object);
-    //
-    //     return Expression.Lambda<Func<object, object>>(convertProp, parent).Compile();
-    // }
+    static readonly Func<object> _emptyRequestInitializer = () => new EmptyRequest();
 
-    static readonly ConcurrentDictionary<Type, ConcurrentDictionary<PropertyInfo, Action<object, object?>>> _propSetterCache = [];
-
-    internal static Action<object, object?> CachedSetterForProp(this Type tParent, PropertyInfo prop)
+    internal static Func<object> ObjectFactory(this Type type)
     {
-        if (!Types.IEndpoint.IsAssignableFrom(tParent) && //skip generated cache for endpoint classes
-            Cfg.BndOpts.ReflectionCache.Count > 0 &&
-            Cfg.BndOpts.ReflectionCache.TryGetValue(tParent, out var x) &&
-            x.Item1.TryGetValue(prop, out var setter))
-            return setter;
+        if (type == Types.EmptyRequest)
+            return _emptyRequestInitializer;
 
-        var props = _propSetterCache.GetOrAdd(tParent, new ConcurrentDictionary<PropertyInfo, Action<object, object?>>());
+        return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, CreateClassDef).ObjectFactory
+                   ??= CompileFactory(type);
 
-        return props.GetOrAdd(prop, CompileSetter(tParent, prop));
+        static ClassDefinition CreateClassDef(Type t)
+            => new() { ObjectFactory = CompileFactory(t) };
 
-        static Action<object, object?> CompileSetter(Type tParent, PropertyInfo p)
+        static Func<object> CompileFactory(Type t)
         {
-            //(object parent, object value) => ((TParent)parent).property = (TProp)value;
-            var parent = Expression.Parameter(Types.Object);
-            var value = Expression.Parameter(Types.Object);
-            var property = Expression.Property(Expression.Convert(parent, tParent), p.Name);
-            var body = Expression.Assign(property, Expression.Convert(value, property.Type));
-
-            return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();
-        }
-    }
-
-    static readonly ConcurrentDictionary<Type, Func<object>> _objectFactoryCache = [];
-
-    internal static Func<object> CachedObjectFactory(this Type type)
-    {
-        return _objectFactoryCache.GetOrAdd(type, GetObjectFactory);
-
-        static Func<object> GetObjectFactory(Type type)
-        {
-            if (type == Types.EmptyRequest)
-                return () => new EmptyRequest();
-
-            if (Cfg.BndOpts.ReflectionCache.Count > 0 && Cfg.BndOpts.ReflectionCache.TryGetValue(type, out var x))
-                return x.Item2;
-
-            var ctor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                           .MinBy(c => c.GetParameters().Length) ??
-                       throw new NotSupportedException($"Unable to instantiate type without a constructor! Offender: [{type.FullName}]");
+            var ctor = t.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                        .MinBy(c => c.GetParameters().Length) ??
+                       throw new NotSupportedException($"Unable to instantiate type without a constructor! Offender: [{t.FullName}]");
 
             var args = ctor.GetParameters();
             var argExpressions = new List<Expression>(args.Length);
@@ -108,10 +78,36 @@ static class BinderExtensions
                         ? Expression.Constant(args[i].DefaultValue, args[i].ParameterType)
                         : Expression.Default(args[i].ParameterType));
             }
-
             var ctorExpression = Expression.New(ctor, argExpressions);
 
             return Expression.Lambda<Func<object>>(ctorExpression).Compile();
+        }
+    }
+
+    internal static Action<object, object?> SetterForProp(this Type tOwner, PropertyInfo prop)
+    {
+        if (!Cfg.BndOpts.ReflectionCache.TryGetValue(tOwner, out var c))
+            throw new InvalidOperationException($"Reflection data not found for: [{tOwner.FullName}]");
+
+        if (c.Properties is null)
+            throw new InvalidOperationException($"Reflection data not found for properties of: [{tOwner.FullName}]");
+
+        // ReSharper disable once HeapView.CanAvoidClosure
+        return c.Properties.GetOrAdd(prop, p => CreatePropertyDef(p, tOwner)).Setter
+                   ??= CompileSetter(tOwner, prop);
+
+        static PropertyDefinition CreatePropertyDef(PropertyInfo p, Type tParent)
+            => new() { Setter = CompileSetter(tParent, p) };
+
+        static Action<object, object?> CompileSetter(Type tParent, PropertyInfo p)
+        {
+            //(object parent, object value) => ((TParent)parent).property = (TProp)value;
+            var parent = Expression.Parameter(Types.Object);
+            var value = Expression.Parameter(Types.Object);
+            var property = Expression.Property(Expression.Convert(parent, tParent), p.Name);
+            var body = Expression.Assign(property, Expression.Convert(value, property.Type));
+
+            return Expression.Lambda<Action<object, object?>>(body, parent, value).Compile();
         }
     }
 

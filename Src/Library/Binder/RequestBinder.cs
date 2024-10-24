@@ -17,7 +17,7 @@ namespace FastEndpoints;
 public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest : notnull
 {
     static readonly Type _tRequest = typeof(TRequest);
-    static readonly Func<object> _dtoInitializer = _tRequest.CachedObjectFactory();
+    static readonly Func<object> _dtoInitializer = _tRequest.ObjectFactory();
     static readonly bool _isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(_tRequest);
     static readonly bool _skipModelBinding = _tRequest == Types.EmptyRequest && !_isPlainTextRequest;
     static PropCache? _fromFormProp;
@@ -40,7 +40,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (_tRequest.GetInterfaces().Contains(Types.IEnumerable))
             return;
 
-        var dtoProps = _tRequest.CachedBindableProps();
+        var dtoProps = _tRequest.BindableProps();
 
         if (dtoProps.Count == 0 && !Cfg.EpOpts.AllowEmptyRequestDtos)
         {
@@ -68,7 +68,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             string? fieldName = null;
             var addPrimary = true;
-            var propSetter = _tRequest.CachedSetterForProp(prop);
+            var propSetter = _tRequest.SetterForProp(prop);
             var attribs = Attribute.GetCustomAttributes(prop, true);
 
             for (var i = 0; i < attribs.Length; i++)

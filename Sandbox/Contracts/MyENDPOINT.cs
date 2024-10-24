@@ -2,16 +2,21 @@
 
 namespace Contracts;
 
-public sealed class MyEndpoint : EndpointWithoutRequest
+sealed class ExtraRequest
+{
+    public int Age { get; set; }
+}
+
+sealed class MyEndpoint : Endpoint<ExtraRequest>
 {
     public override void Configure()
     {
-        Get("MYMYMYM");
+        Get("extra/{age}");
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(CancellationToken c)
+    public override async Task HandleAsync(ExtraRequest req, CancellationToken ct)
     {
-        await SendAsync("ok");
+        await SendAsync(req);
     }
 }

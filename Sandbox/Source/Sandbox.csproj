@@ -26,6 +26,7 @@
         <ProjectReference Include="..\..\Src\Security\FastEndpoints.Security.csproj"/>
         <ProjectReference Include="..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
         <ProjectReference Include="..\..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <!-- <ProjectReference Include="..\Contracts\Contracts.csproj"/> -->
     </ItemGroup>
 
     <ItemGroup>

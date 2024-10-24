@@ -10,20 +10,20 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-<details><summary>Multipart Form Data binding support for deeply nested complex DTOs</summary>
-
-todo: write docs + write description here
-
-</details>
-
 <details><summary>Source generator for avoiding reflection cost</summary>
 
 todo: write docs + write description here
 
-### Limitations of generator
+#### Automatic fallback for:
 
-- Records not supported
-- Init only properties not supported
+- Records classes
+- Init only properties
+
+</details>
+
+<details><summary>Multipart Form Data binding support for deeply nested complex DTOs</summary>
+
+todo: write docs + write description here
 
 </details>
 

@@ -23,7 +23,7 @@ public sealed class EndpointFactory : IEndpointFactory
         for (var i = 0; i < definition.ServiceBoundEpProps.Length; i++)
         {
             var p = definition.ServiceBoundEpProps[i];
-            p.PropSetter ??= definition.EndpointType.CachedSetterForProp(p.PropertyInfo);
+            p.PropSetter ??= definition.EndpointType.SetterForProp(p.PropertyInfo);
             p.PropSetter(epInstance, ResolveService(ctx, p));
         }
 

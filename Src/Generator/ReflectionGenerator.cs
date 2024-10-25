@@ -28,7 +28,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         var syntaxProvider = ctx.SyntaxProvider
                                 .CreateSyntaxProvider(Qualify, Transform)
                                 .Where(static t => t is not null)
-                                .WithComparer(FullDtoComparer.Instance)
+                                .WithComparer(FullTypeComparer.Instance)
                                 .Collect();
 
         ctx.RegisterSourceOutput(syntaxProvider, Generate!);
@@ -38,7 +38,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             => node is ClassDeclarationSyntax { TypeParameterList: null };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static DtoInfo? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        static TypeInfo? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
             _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
@@ -49,29 +49,19 @@ public class ReflectionGenerator : IIncrementalGenerator
                        ? null
                        : type.AllInterfaces.Any(i => i.ToDisplayString() == IEndpoint) && //must be an endpoint
                          !type.AllInterfaces.Any(i => i.ToDisplayString() == INoRequest)  //must have a request dto
-                           ? GetDtoInfo(type)
+                           ? new TypeInfo(type, true)
                            : null;
-
-            static DtoInfo? GetDtoInfo(ITypeSymbol tEndpoint)
-            {
-                var dto = new DtoInfo(tEndpoint);
-
-                if (dto is { IsEnumerable: false, Properties.Count: > 0 })
-                    return dto;
-
-                return null;
-            }
         }
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    static void Generate(SourceProductionContext spc, ImmutableArray<DtoInfo?> dtoInfos)
+    static void Generate(SourceProductionContext spc, ImmutableArray<TypeInfo?> _)
     {
-        var fileContent = RenderClass(dtoInfos);
+        var fileContent = RenderClass();
         spc.AddSource("ReflectionData.g.cs", SourceText.From(fileContent, Encoding.UTF8));
     }
 
-    static string RenderClass(IEnumerable<DtoInfo?> dtos)
+    static string RenderClass()
     {
         var sanitizedAssemblyName = _assemblyName?.Sanitize(string.Empty) ?? "Assembly";
 
@@ -96,33 +86,30 @@ public class ReflectionGenerator : IIncrementalGenerator
 
               """);
 
-        foreach (var dto in dtos.Distinct(DtoTypeNameComparer.Instance))
+        foreach (var tInfo in TypeInfo.AllTypes)
         {
-            if (dto is null)
-                continue;
-
             b.w(
                 $$"""
                           cache.TryAdd(
-                              typeof({{dto.Value.TypeName}}),
+                              typeof({{tInfo!.Value.UnderlyingTypeName}}),
                               new()
                               {
-                                  ObjectFactory = () => new {{dto.Value.TypeName}}({{BuildCtorArgs(dto.Value.CtorArgumentCount)}}),
+                                  ObjectFactory = () => new {{tInfo.Value.UnderlyingTypeName}}({{BuildCtorArgs(tInfo.Value.CtorArgumentCount)}}),
                                   Properties = new(
                                   [
                   """);
 
-            foreach (var prop in dto.Value.Properties!)
+            foreach (var prop in tInfo.Value.Properties!)
             {
                 b.w(
                     $"""
                      
-                                          new(typeof({dto.Value.TypeName}).GetProperty("{prop.PropName}")!,
+                                          new(typeof({tInfo.Value.UnderlyingTypeName}).GetProperty("{prop.PropName}")!,
                      """);
                 b.w(
                     prop.IsInitOnly
                         ? " new()"
-                        : $" new() {{ Setter = (dto, val) => (({dto.Value.TypeName})dto).{prop.PropName} = ({prop.PropertyType})val! }}");
+                        : $" new() {{ Setter = (dto, val) => (({tInfo.Value.UnderlyingTypeName})dto).{prop.PropName} = ({prop.PropertyType})val! }}");
                 b.w("),");
             }
 
@@ -143,6 +130,8 @@ public class ReflectionGenerator : IIncrementalGenerator
             }
             """);
 
+        TypeInfo.AllTypes.Clear();
+
         return b.ToString();
 
         static string BuildCtorArgs(int argCount)
@@ -151,43 +140,53 @@ public class ReflectionGenerator : IIncrementalGenerator
                    : string.Join(", ", Enumerable.Repeat("default!", argCount));
     }
 
-    readonly struct DtoInfo
+    readonly struct TypeInfo
     {
+        internal static HashSet<TypeInfo?> AllTypes { get; } = new(TypeNameComparer.Instance);
+
         public int HashCode { get; }
         public string TypeName { get; }
-        public List<Prop>? Properties { get; }
+        public string UnderlyingTypeName { get; }
+        public List<Prop> Properties { get; } = [];
         public int CtorArgumentCount { get; }
         public bool IsEnumerable { get; }
 
-        public DtoInfo(ITypeSymbol tEndpoint)
+        public TypeInfo(ITypeSymbol symbol, bool isEndpoint)
         {
-            ITypeSymbol? tRequest = null;
-            var tBase = tEndpoint.BaseType;
+            ITypeSymbol? type = null;
 
-            while (tRequest is null)
+            if (isEndpoint) //descend in to base types and find the request dto type
             {
-                if (tBase?.TypeArguments.Length == 0)
+                var tBase = symbol.BaseType;
+
+                while (type is null)
                 {
-                    tBase = tBase.BaseType;
+                    if (tBase?.TypeArguments.Length == 0)
+                    {
+                        tBase = tBase.BaseType;
 
-                    continue;
+                        continue;
+                    }
+                    type = tBase!.TypeArguments[0];
                 }
-                tRequest = tBase!.TypeArguments[0];
             }
+            else
+                type = symbol;
 
-            TypeName = tRequest.ToDisplayString();
+            TypeName = type.ToDisplayString(); //must be set before checking AllTypes below
+            UnderlyingTypeName = type.ToDisplayString(NullableFlowState.None);
 
-            if (tRequest.DeclaringSyntaxReferences.Length > 0)
-                HashCode = tRequest.DeclaringSyntaxReferences[0].Span.Length;
+            if (AllTypes.Contains(this)) //need to have TypeName set before this
+                return;
 
-            if (tRequest.AllInterfaces.Any(i => i.ToDisplayString() == IEnumerable))
+            if (type.AllInterfaces.Any(i => i.ToDisplayString() == IEnumerable))
             {
                 IsEnumerable = true;
 
                 return;
             }
 
-            var currentSymbol = tRequest;
+            var currentSymbol = type;
 
             while (currentSymbol is not null)
             {
@@ -212,13 +211,24 @@ public class ReflectionGenerator : IIncrementalGenerator
                             if (HasUnconditionalJsonIgnoreAttribute(prop)) //[JsonIgnore] or [JsonIgnore(Condition=Always)]
                                 break;
 
-                            (Properties ??= []).Add(new(prop));
+                            Properties.Add(new(prop));
 
                             break;
                     }
                 }
                 currentSymbol = currentSymbol.BaseType;
             }
+
+            if (Properties.Count == 0)
+                return;
+
+            if (type.DeclaringSyntaxReferences.Length > 0)
+                HashCode = type.DeclaringSyntaxReferences[0].Span.Length;
+
+            AllTypes.Add(this);
+
+            foreach (var p in Properties)
+                _ = new TypeInfo(p.Symbol, false);
         }
 
         static bool HasUnconditionalJsonIgnoreAttribute(IPropertySymbol propertySymbol)
@@ -247,19 +257,20 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         internal readonly struct Prop(IPropertySymbol prop)
         {
+            public ITypeSymbol Symbol { get; } = prop.Type;
             public string PropName { get; } = prop.Name;
             public string PropertyType { get; } = prop.Type.ToDisplayString();
             public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
         }
     }
 
-    class DtoTypeNameComparer : IEqualityComparer<DtoInfo?>
+    class TypeNameComparer : IEqualityComparer<TypeInfo?>
     {
-        internal static DtoTypeNameComparer Instance { get; } = new();
+        internal static TypeNameComparer Instance { get; } = new();
 
-        DtoTypeNameComparer() { }
+        TypeNameComparer() { }
 
-        public bool Equals(DtoInfo? x, DtoInfo? y)
+        public bool Equals(TypeInfo? x, TypeInfo? y)
         {
             if (x is null || y is null)
                 return false;
@@ -267,19 +278,19 @@ public class ReflectionGenerator : IIncrementalGenerator
             return x.Value.TypeName.Equals(y.Value.TypeName);
         }
 
-        public int GetHashCode(DtoInfo? obj)
+        public int GetHashCode(TypeInfo? obj)
             => obj is null
                    ? 0
                    : obj.Value.TypeName.GetHashCode();
     }
 
-    class FullDtoComparer : IEqualityComparer<DtoInfo?>
+    class FullTypeComparer : IEqualityComparer<TypeInfo?>
     {
-        internal static FullDtoComparer Instance { get; } = new();
+        internal static FullTypeComparer Instance { get; } = new();
 
-        FullDtoComparer() { }
+        FullTypeComparer() { }
 
-        public bool Equals(DtoInfo? x, DtoInfo? y)
+        public bool Equals(TypeInfo? x, TypeInfo? y)
         {
             if (x is null || y is null)
                 return false;
@@ -287,7 +298,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             return x.Value.HashCode.Equals(y.Value.HashCode);
         }
 
-        public int GetHashCode(DtoInfo? obj)
+        public int GetHashCode(TypeInfo? obj)
             => obj is null
                    ? 0
                    : obj.Value.HashCode;

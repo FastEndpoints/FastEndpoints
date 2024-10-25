@@ -5,6 +5,7 @@ namespace Contracts;
 sealed class ExtraRequest
 {
     public int Age { get; set; }
+    public string Name { get; set; }
 }
 
 sealed class MyEndpoint : Endpoint<ExtraRequest>

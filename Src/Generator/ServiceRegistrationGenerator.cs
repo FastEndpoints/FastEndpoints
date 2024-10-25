@@ -20,15 +20,17 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         var provider = ctx.SyntaxProvider
                           .CreateSyntaxProvider(Qualify, Transform)
                           .Where(static m => m.IsInvalid is false)
-                          .WithComparer(new Comparer())
+                          .WithComparer(MatchComparer.Instance)
                           .Collect();
 
         ctx.RegisterSourceOutput(provider, Generate);
 
+        //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is ClassDeclarationSyntax { TypeParameterList: null } cds &&
                cds.AttributeLists.Any(al => al.Attributes.Any(a => a.Name is GenericNameSyntax { Identifier.ValueText: AttribShortName }));
 
+        //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
@@ -38,6 +40,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         }
     }
 
+    //only executed if the equality comparer says the data is not what has been cached by roslyn
     static void Generate(SourceProductionContext ctx, ImmutableArray<Match> matches)
     {
         if (matches.Length == 0)
@@ -84,8 +87,12 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         public bool IsInvalid => Symbol?.IsAbstract is null or true;
     }
 
-    class Comparer : IEqualityComparer<Match>
+    class MatchComparer : IEqualityComparer<Match>
     {
+        internal static MatchComparer Instance { get; } = new();
+
+        MatchComparer() { }
+
         public bool Equals(Match x, Match y)
             => x.Symbol!.ToDisplayString().Equals(y.Symbol!.ToDisplayString()) &&
                x.ClassDec.AttributeLists.ToString().Equals(y.ClassDec.AttributeLists.ToString());

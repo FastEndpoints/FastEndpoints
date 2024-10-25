@@ -32,9 +32,11 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
         ctx.RegisterSourceOutput(syntaxProvider, Generate!);
 
+        //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is ClassDeclarationSyntax { TypeParameterList: null };
 
+        //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
@@ -51,6 +53,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         }
     }
 
+    //only executed if the equality comparer says the data is not what has been cached by roslyn
     static void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
     {
         if (typeNames.Length == 0)

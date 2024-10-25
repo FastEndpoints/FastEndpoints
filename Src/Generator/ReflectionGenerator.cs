@@ -149,7 +149,6 @@ public class ReflectionGenerator : IIncrementalGenerator
         public string UnderlyingTypeName { get; }
         public List<Prop> Properties { get; } = [];
         public int CtorArgumentCount { get; }
-        public bool IsEnumerable { get; }
 
         public TypeInfo(ITypeSymbol symbol, bool isEndpoint)
         {
@@ -181,7 +180,15 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             if (type.AllInterfaces.Any(i => i.ToDisplayString() == IEnumerable))
             {
-                IsEnumerable = true;
+                var tElement = type switch
+                {
+                    IArrayTypeSymbol arrayType => arrayType.ElementType,
+                    INamedTypeSymbol namedType => namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : null,
+                    _ => null
+                };
+
+                if (tElement is not null)
+                    _ = new TypeInfo(tElement, false);
 
                 return;
             }

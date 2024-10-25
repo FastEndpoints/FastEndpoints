@@ -16,8 +16,8 @@ todo: write docs + write description here
 
 #### Automatic fallback for:
 
-- Records classes
-- Init only properties
+- All properties of Records
+- Init only properties of any class
 
 </details>
 

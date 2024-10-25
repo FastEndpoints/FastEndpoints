@@ -56,7 +56,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             {
                 var dto = new DtoInfo(tEndpoint);
 
-                if (dto is { IsEnumerable: false, IsRecord : false, Properties.Count: > 0 })
+                if (dto is { IsEnumerable: false, Properties.Count: > 0 })
                     return dto;
 
                 return null;
@@ -158,7 +158,6 @@ public class ReflectionGenerator : IIncrementalGenerator
         public List<Prop>? Properties { get; }
         public int CtorArgumentCount { get; }
         public bool IsEnumerable { get; }
-        public bool IsRecord { get; }
 
         public DtoInfo(ITypeSymbol tEndpoint)
         {
@@ -180,13 +179,6 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             if (tRequest.DeclaringSyntaxReferences.Length > 0)
                 HashCode = tRequest.DeclaringSyntaxReferences[0].Span.Length;
-
-            if (tRequest.IsRecord)
-            {
-                IsRecord = true;
-
-                return;
-            }
 
             if (tRequest.AllInterfaces.Any(i => i.ToDisplayString() == IEnumerable))
             {

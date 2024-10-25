@@ -123,7 +123,7 @@ app.UseRequestLocalization(
            c.Validation.EnableDataAnnotationsSupport = true;
            c.Serializer.Options.PropertyNamingPolicy = null;
 
-           //c.Binding.ReflectionCache.AddFromWeb();
+           c.Binding.ReflectionCache.AddFromWeb();
            c.Binding.ValueParserFor<Guid>(x => new(Guid.TryParse(x?.ToString(), out var res), res));
 
            c.Endpoints.RoutePrefix = "api";

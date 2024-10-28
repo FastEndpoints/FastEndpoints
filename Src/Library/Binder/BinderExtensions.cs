@@ -44,7 +44,8 @@ static class BinderExtensions
                     .Where(
                         p => p.GetSetMethod()?.IsPublic is true &&
                              p.GetGetMethod()?.IsPublic is true &&
-                             p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always)
+                             p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
+                             !p.IsDefined(Types.DontInjectAttribute))
                     .Select(p => new KeyValuePair<PropertyInfo, PropertyDefinition>(p, new()));
         }
     }

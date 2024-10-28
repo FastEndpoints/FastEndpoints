@@ -17,6 +17,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     const string INoRequest = "FastEndpoints.INoRequest";
     const string IEnumerable = "System.Collections.IEnumerable";
     const string DontRegisterAttribute = "DontRegisterAttribute";
+    const string DontInjectAttribute = "DontInjectAttribute";
     const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
     const string ConditionArgument = "Condition";
 
@@ -95,10 +96,23 @@ public class ReflectionGenerator : IIncrementalGenerator
                               typeof({{tInfo!.Value.UnderlyingTypeName}}),
                               new()
                               {
-                                  ObjectFactory = () => new {{tInfo.Value.UnderlyingTypeName}}({{BuildCtorArgs(tInfo.Value.CtorArgumentCount)}}){{BuildInitializerArgs(tInfo.Value.RequiredProps)}},
-                                  Properties = new(
-                                  [
                   """);
+
+            if (!tInfo.Value.SkipObjectFactory)
+            {
+                b.w(
+                    $"""
+                     
+                                     ObjectFactory = () => new {tInfo.Value.UnderlyingTypeName}({BuildCtorArgs(tInfo.Value.CtorArgumentCount)}){BuildInitializerArgs(tInfo.Value.RequiredProps)},
+                     """);
+            }
+
+            b.w(
+                """
+                
+                                Properties = new(
+                                [
+                """);
 
             foreach (var prop in tInfo.Value.Properties!)
             {
@@ -124,8 +138,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         }
 
         b.w(
-            """ 
-                           
+            """
                     return cache;
                 }
             }
@@ -166,10 +179,11 @@ public class ReflectionGenerator : IIncrementalGenerator
         public string TypeName { get; }
         public string UnderlyingTypeName { get; }
         public List<Prop> Properties { get; } = [];
+        public bool SkipObjectFactory { get; }
         public int CtorArgumentCount { get; }
         public IEnumerable<string> RequiredProps => Properties.Where(p => p.IsRequired).Select(p => p.PropName);
 
-        public TypeInfo(ITypeSymbol symbol, bool isEndpoint)
+        public TypeInfo(ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
         {
             ITypeSymbol? type = null;
 
@@ -234,7 +248,8 @@ public class ReflectionGenerator : IIncrementalGenerator
                             GetMethod.DeclaredAccessibility : Accessibility.Public,
                             SetMethod.DeclaredAccessibility: Accessibility.Public
                         } prop:
-                            if (HasUnconditionalJsonIgnoreAttribute(prop)) //[JsonIgnore] or [JsonIgnore(Condition=Always)]
+                            if (HasDontInjectAttribute(prop) ||            //ignore props with [DontInject] or
+                                HasUnconditionalJsonIgnoreAttribute(prop)) //[JsonIgnore] or [JsonIgnore(Condition=Always)]
                                 break;
 
                             Properties.Add(new(prop));
@@ -251,15 +266,27 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (type.DeclaringSyntaxReferences.Length > 0)
                 HashCode = type.DeclaringSyntaxReferences[0].Span.Length;
 
+            if (isEndpoint is false && noRecursion) //treating an endpoint as a regular class to generate its props for property injection support
+                SkipObjectFactory = true;
+
             AllTypes.Add(this);
 
-            foreach (var p in Properties)
-                _ = new TypeInfo(p.Symbol, false);
+            if (!noRecursion)
+            {
+                foreach (var p in Properties)
+                    _ = new TypeInfo(p.Symbol, false);
+            }
+
+            if (isEndpoint) //create entry for endpoint class props as well to support property injection
+                _ = new TypeInfo(symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
         }
 
-        static bool HasUnconditionalJsonIgnoreAttribute(IPropertySymbol propertySymbol)
+        static bool HasDontInjectAttribute(IPropertySymbol prop)
+            => prop.GetAttributes().Any(a => a.AttributeClass!.Name == DontInjectAttribute);
+
+        static bool HasUnconditionalJsonIgnoreAttribute(IPropertySymbol prop)
         {
-            foreach (var attribute in propertySymbol.GetAttributes())
+            foreach (var attribute in prop.GetAttributes())
             {
                 if (attribute.AttributeClass?.ToDisplayString() != JsonIgnoreAttribute)
                     continue;

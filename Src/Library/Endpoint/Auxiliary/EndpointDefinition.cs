@@ -554,7 +554,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
     ServiceBoundEpProp[] GetServiceBoundEpProps()
         => EndpointType.BindableProps()
-                       .Where(p => !p.IsDefined(Types.DontInjectAttribute))
                        .Select(
                            p => new ServiceBoundEpProp
                            {

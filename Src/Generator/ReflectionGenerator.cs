@@ -202,7 +202,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 var tElement = type switch
                 {
                     IArrayTypeSymbol arrayType => arrayType.ElementType,
-                    INamedTypeSymbol namedType => namedType.TypeArguments.Length > 0 ? namedType.TypeArguments[0] : null,
+                    INamedTypeSymbol { TypeArguments.Length: > 0 } namedType => namedType.TypeArguments[0],
                     _ => null
                 };
 

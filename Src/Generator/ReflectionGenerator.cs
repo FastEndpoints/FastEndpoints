@@ -12,6 +12,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     // ReSharper disable InconsistentNaming
 
     static readonly StringBuilder b = new();
+    static readonly StringBuilder _initArgsBuilder = new();
     const string IEndpoint = "FastEndpoints.IEndpoint";
     const string INoRequest = "FastEndpoints.INoRequest";
     const string IEnumerable = "System.Collections.IEnumerable";
@@ -94,7 +95,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                               typeof({{tInfo!.Value.UnderlyingTypeName}}),
                               new()
                               {
-                                  ObjectFactory = () => new {{tInfo.Value.UnderlyingTypeName}}({{BuildCtorArgs(tInfo.Value.CtorArgumentCount)}}),
+                                  ObjectFactory = () => new {{tInfo.Value.UnderlyingTypeName}}({{BuildCtorArgs(tInfo.Value.CtorArgumentCount)}}){{BuildInitializerArgs(tInfo.Value.RequiredProps)}},
                                   Properties = new(
                                   [
                   """);
@@ -138,6 +139,23 @@ public class ReflectionGenerator : IIncrementalGenerator
             => argCount == 0
                    ? string.Empty
                    : string.Join(", ", Enumerable.Repeat("default!", argCount));
+
+        static string BuildInitializerArgs(IEnumerable<string> props)
+        {
+            if (!props.Any())
+                return string.Empty;
+
+            _initArgsBuilder.Clear();
+            _initArgsBuilder.w(" { ");
+
+            foreach (var p in props)
+                _initArgsBuilder.w(p).w(" = default!, ");
+
+            _initArgsBuilder.Remove(_initArgsBuilder.Length - 2, 2);
+            _initArgsBuilder.w(" }");
+
+            return _initArgsBuilder.ToString();
+        }
     }
 
     readonly struct TypeInfo
@@ -149,6 +167,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         public string UnderlyingTypeName { get; }
         public List<Prop> Properties { get; } = [];
         public int CtorArgumentCount { get; }
+        public IEnumerable<string> RequiredProps => Properties.Where(p => p.IsRequired).Select(p => p.PropName);
 
         public TypeInfo(ITypeSymbol symbol, bool isEndpoint)
         {
@@ -268,6 +287,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             public string PropName { get; } = prop.Name;
             public string PropertyType { get; } = prop.Type.ToDisplayString();
             public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
+            public bool IsRequired { get; } = prop.IsRequired;
         }
     }
 

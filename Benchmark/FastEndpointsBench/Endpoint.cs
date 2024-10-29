@@ -33,32 +33,26 @@ public class Response
 
 public class Endpoint : Endpoint<Request>
 {
-    public ILogger<Endpoint>? MyProperty { get; set; }
-
-    //public Endpoint(ILogger<Endpoint> logger)
-    //{
-
-    //}
-
     public override void Configure()
     {
-        Verbs(Http.POST);
-        Routes("/benchmark/ok/{id}");
+        Post("/benchmark/ok/{id}");
         AllowAnonymous();
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)
     {
-        //Logger.LogInformation("request received!");
+        if (Env.IsDevelopment())
+            Logger.LogInformation("request received!");
 
         //validator is automatically being run by FastEndpoints
 
-        return SendAsync(new Response()
-        {
-            Id = req.Id,
-            Name = req.FirstName + " " + req.LastName,
-            Age = req.Age,
-            PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
-        });
+        return SendAsync(
+            new Response
+            {
+                Id = req.Id,
+                Name = req.FirstName + " " + req.LastName,
+                Age = req.Age,
+                PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
+            });
     }
 }

@@ -5,32 +5,36 @@ using MinimalApi;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Services
-    .AddAuthorization()
-    .AddSingleton<IValidator<Request>, Validator>();
+       .AddAuthorization()
+       .AddSingleton<IValidator<Request>, Validator>();
 
 var app = builder.Build();
 app.UseAuthorization();
 
-app.MapPost("/benchmark/ok/{id}", async (
-    [FromRoute] int id,
-    [FromBody] Request req,
-    [FromServices] ILogger<Program> logger,
-    [FromServices] IValidator<Request> validator) =>
-    {
-        // logger.LogInformation("request received!");
+app.MapPost(
+       "/benchmark/ok/{id}",
+       async ([FromRoute] int id,
+              [FromBody] Request req,
+              [FromServices] ILogger<Program> logger,
+              [FromServices] IWebHostEnvironment env,
+              [FromServices] IValidator<Request> validator) =>
+       {
+           if (env.IsDevelopment())
+               logger.LogInformation("request received!");
 
-        await validator.ValidateAsync(req);
+           await validator.ValidateAsync(req);
 
-        return Results.Ok(new Response()
-        {
-            Id = id,
-            Name = req.FirstName + " " + req.LastName,
-            Age = req.Age,
-            PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
-        });
-    })
-    .RequireAuthorization()
-    .AllowAnonymous();
+           return Results.Ok(
+               new Response
+               {
+                   Id = id,
+                   Name = req.FirstName + " " + req.LastName,
+                   Age = req.Age,
+                   PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
+               });
+       })
+   .RequireAuthorization()
+   .AllowAnonymous();
 
 app.Run();
 

@@ -1,6 +1,7 @@
-﻿#pragma warning disable CA1822
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using Microsoft.AspNetCore.Mvc.Testing;
+
+#pragma warning disable CA1822
 
 namespace Runner;
 
@@ -12,23 +13,19 @@ public class CommandHandlerBenchmarks
 
     [Benchmark(Baseline = true)]
     public Task NoCommandHandler()
-    {
-        return NoCommandHandlerClient.SendAsync(
-            new HttpRequestMessage()
+        => NoCommandHandlerClient.SendAsync(
+            new()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{NoCommandHandlerClient.BaseAddress}command-handler-1"),
+                RequestUri = new($"{NoCommandHandlerClient.BaseAddress}command-handler-1")
             });
-    }
 
     [Benchmark]
     public Task WithCommandHandler()
-    {
-        return WithCommandHandlerClient.SendAsync(
-            new HttpRequestMessage()
+        => WithCommandHandlerClient.SendAsync(
+            new()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{WithCommandHandlerClient.BaseAddress}command-handler-2"),
+                RequestUri = new($"{WithCommandHandlerClient.BaseAddress}command-handler-2")
             });
-    }
 }

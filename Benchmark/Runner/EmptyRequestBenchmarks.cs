@@ -1,6 +1,7 @@
-﻿#pragma warning disable CA1822
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using Microsoft.AspNetCore.Mvc.Testing;
+
+#pragma warning disable CA1822
 
 namespace Runner;
 
@@ -12,23 +13,19 @@ public class EmptyRequestBenchmarks
 
     [Benchmark(Baseline = true)]
     public Task EmptyRequest()
-    {
-        return EmptyClient.SendAsync(
-            new HttpRequestMessage()
+        => EmptyClient.SendAsync(
+            new()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{EmptyClient.BaseAddress}empty-request"),
+                RequestUri = new($"{EmptyClient.BaseAddress}empty-request")
             });
-    }
 
     [Benchmark]
     public Task ObjectRequest()
-    {
-        return ObjectClient.SendAsync(
-            new HttpRequestMessage()
+        => ObjectClient.SendAsync(
+            new()
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{ObjectClient.BaseAddress}object-request"),
+                RequestUri = new($"{ObjectClient.BaseAddress}object-request")
             });
-    }
 }

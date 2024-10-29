@@ -12,6 +12,7 @@ public class QueryRequest
     public IEnumerable<string>? PhoneNumbers { get; set; }
     public NestedQueryObject? NestedQueryObject { get; set; }
 }
+
 public class NestedQueryObject
 {
     public int Id { get; set; }
@@ -40,21 +41,18 @@ public class QueryResponse
     public NestedQueryObject? NestedQueryObject { get; set; }
 }
 
-[Authorize]
-[ApiController]
+[Authorize, ApiController]
 public class QueryBindingController : ControllerBase
 {
-    [AllowAnonymous]
-    [HttpGet("/benchmark/query-binding")]
+    [AllowAnonymous, HttpGet("/benchmark/query-binding")]
     public IActionResult Index([FromQuery] QueryRequest req)
-    {
-        return Ok(new QueryResponse()
-        {
-            Id = req.Id,
-            Name = req.FirstName + " " + req.LastName,
-            Age = req.Age,
-            PhoneNumber = req.PhoneNumbers?.FirstOrDefault(),
-            NestedQueryObject = req.NestedQueryObject
-        });
-    }
+        => Ok(
+            new QueryResponse
+            {
+                Id = req.Id,
+                Name = req.FirstName + " " + req.LastName,
+                Age = req.Age,
+                PhoneNumber = req.PhoneNumbers?.FirstOrDefault(),
+                NestedQueryObject = req.NestedQueryObject
+            });
 }

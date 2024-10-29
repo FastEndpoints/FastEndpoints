@@ -7,7 +7,7 @@ builder.Services.AddFastEndpoints();
 builder.Services.AddScoped<ScopedValidator>();
 
 var app = builder.Build();
-app.UseFastEndpoints();
+app.UseFastEndpoints(c => c.Binding.ReflectionCache.AddFromFEBench());
 app.Run();
 
 namespace FEBench

@@ -32,28 +32,28 @@ public class Response
     public string? PhoneNumber { get; set; }
 }
 
-[Authorize]
-[ApiController]
+[Authorize, ApiController]
 public class Controller : ControllerBase
 {
-    [AllowAnonymous]
-    [HttpPost("/benchmark/ok/{id}")]
-    public async Task<IActionResult> Index(
-        [FromRoute] int id,
-        [FromBody] Request req,
-        [FromServices] ILogger<Controller> logger,
-        [FromServices] IValidator<Request> validator)
+    [AllowAnonymous, HttpPost("/benchmark/ok/{id}")]
+    public async Task<IActionResult> Index([FromRoute] int id,
+                                           [FromBody] Request req,
+                                           [FromServices] ILogger<Controller> logger,
+                                           [FromServices] IWebHostEnvironment env,
+                                           [FromServices] IValidator<Request> validator)
     {
-        //logger.LogInformation("request received!");
+        if (env.IsDevelopment())
+            logger.LogInformation("request received!");
 
         await validator.ValidateAsync(req);
 
-        return Ok(new Response()
-        {
-            Id = id,
-            Name = req.FirstName + " " + req.LastName,
-            Age = req.Age,
-            PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
-        });
+        return Ok(
+            new Response
+            {
+                Id = id,
+                Name = req.FirstName + " " + req.LastName,
+                Age = req.Age,
+                PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
+            });
     }
 }
